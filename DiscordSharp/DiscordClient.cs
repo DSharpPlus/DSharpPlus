@@ -66,6 +66,9 @@ namespace DiscordSharp
     }
 
     public delegate void DiscordMessageReceived(object sender, DiscordMessageEventArgs e);
+    public delegate void DiscordConnect(object sender, DiscordConnectEventArgs e);
+    public delegate void DiscordSocketOpened(object sender, DiscordSocketOpenedEventArgs e);
+    public delegate void DiscordSocketClosed(object sender, DiscordSocketClosedEventArgs e);
 
     public class DiscordClient
     {
@@ -83,7 +86,9 @@ namespace DiscordSharp
         private string Cookie { get; set; }
         
         public event DiscordMessageReceived MessageReceived;
-
+        public event DiscordConnect Connected;
+        public event DiscordSocketOpened SocketOpened;
+        public event DiscordSocketClosed SocketClosed;
 
         public DiscordClient()
         {
@@ -114,6 +119,17 @@ namespace DiscordSharp
             {
                 if (c.id == id)
                     return c;
+            }
+            return null;
+        }
+
+        public DiscordServer ServerFromChannelID(string id)
+        {
+            foreach(DiscordServer c in Channels)
+            {
+                foreach (DiscordSubChannel s in c.channels)
+                    if (s.id == id)
+                        return c;
             }
             return null;
         }
@@ -184,8 +200,6 @@ namespace DiscordSharp
 
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
-                //sw.Write(initMessage);
-                //sw.Flush();
                 sw.Write(JsonConvert.SerializeObject(GenerateMessage(message)));
                 sw.Flush();
                 sw.Close();
@@ -196,7 +210,6 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
-                    //Console.WriteLine(result);
                 }
             }
             catch (WebException e)
@@ -247,31 +260,22 @@ namespace DiscordSharp
                             this.username = message["d"]["user"]["username"].ToString();
                             this.id = message["d"]["user"]["id"].ToString();
                             GetChannelsList(message);
-                            Console.WriteLine("Welcome, " + username);
+                            if (Connected != null)
+                                Connected(this, new DiscordConnectEventArgs { username = this.username, id = this.id }); //Since I already know someone will ask for it.
                             break;
                         case ("MESSAGE_CREATE"):
-                            JObject serverInfo = ServerInfo(message["d"]["channel_id"].ToString());
-
                             DiscordMessageEventArgs temp = new DiscordMessageEventArgs();
                             temp.username = message["d"]["author"]["username"].ToString();
                             temp.message = message["d"]["content"].ToString();
                             temp.ChannelID = message["d"]["channel_id"].ToString();
                             temp.ChannelName = SubFromID(message["d"]["channel_id"].ToString()).name;
-                            temp.ServerID = ServerInfo(message["d"]["channel_id"].ToString())["id"].ToString();
-                            temp.ServerName = ServerInfo(message["d"]["channel_id"].ToString())["name"].ToString();
+                            
+                            temp.ServerID = ServerFromChannelID(temp.ChannelID).id;
+                            temp.ServerName = ServerFromChannelID(temp.ChannelID).name;
                             if (MessageReceived != null)
                                 MessageReceived(this, temp);
-                            //Console.WriteLine("[- Message from {0} on #{2} in {3}: {1}", 
-                            //    message["d"]["author"]["username"].ToString(), 
-                            //    message["d"]["content"].ToString(), 
-                            //    SubFromID(message["d"]["channel_id"].ToString()).name, 
-                            //    serverInfo["name"].ToString());
                             break;
                     }
-
-                    //Console.WriteLine(message["t"].ToString());
-                    //Console.WriteLine(e.Data.ToString());
-                    
                 };
                 ws.OnOpen += (sender, e) => 
                 {
@@ -280,17 +284,21 @@ namespace DiscordSharp
                     initObj.d.token = this.token;
                     string json = initObj.AsJson();
                     ws.Send(json);
+                    if (SocketOpened != null)
+                        SocketOpened(this, null);
                 };
                 ws.OnClose += (sender, e) =>
                 {
-                    Console.WriteLine("closed, rip. will be missed: {0}", e.Reason);
+                    DiscordSocketClosedEventArgs scev = new DiscordSocketClosedEventArgs();
+                    scev.Code = e.Code;
+                    scev.Reason = e.Reason;
+                    scev.WasClean = e.WasClean;
+                    if (SocketClosed != null)
+                        SocketClosed(this, scev);
                 };
                 ws.Connect();
                 while (ws.IsAlive) ;
         }
-
-        //Headers to set
-        //"cookie" = "session=" + cookie
 
         private JObject ServerInfo(string channelOrServerId)
         {
@@ -316,21 +324,6 @@ namespace DiscordSharp
                 Console.WriteLine("!!!" + result);
                 return null;
             }
-            /*
-            //"https://discordapp.com/api/guilds/" + channelOrServerId
-            using (WebClient wc = new WebClient())
-            {
-                try
-                {
-                    JObject serverInfo = JObject.Parse(wc.DownloadString("http://discordapp.com/api/guilds/" + channelOrServerId));
-                    return serverInfo;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("!!! " + ex.Message);
-                }
-            }*/
-            //return null;
         }
 
         private void KeepAlive()
@@ -378,7 +371,6 @@ namespace DiscordSharp
                     {
                         this.token = dlr.token;
                         string sessionKeyHeader = httpResponse.Headers["set-cookie"].ToString();
-                        //httpResponse.Headers["set-cookie"] = token;
 
                         string[] split = sessionKeyHeader.Split(new char[] { '=', ';' }, 3);
                         sessionKey = split[1];

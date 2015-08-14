@@ -51,9 +51,12 @@
   <ItemGroup>
     <Compile Include="DiscordClient.cs" />
     <Compile Include="DiscordChannel.cs" />
+    <Compile Include="DiscordConnectEventArgs.cs" />
     <Compile Include="DiscordLoginInformation.cs" />
     <Compile Include="DiscordMember.cs" />
     <Compile Include="DiscordMessage.cs" />
+    <Compile Include="DiscordSocketClosedEventArgs.cs" />
+    <Compile Include="DiscordSocketOpenedEventArgs.cs" />
     <Compile Include="Events\DiscordMessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
