@@ -483,6 +483,19 @@ namespace DiscordSharp
             t.Start();
         }
 
+        //Thread ConnectReadMessagesThread;
+        public void Dispose()
+        {
+            ws.Close();
+            ws = null;
+            ServersList = null;
+            PrivateChannels = null;
+            this.id = null;
+            this.token = null;
+            this.sessionKey = null;
+            this.username = null;
+            this.LoginInformation = null;
+        }
 
         public string SendLoginRequest()
         {
@@ -513,6 +526,9 @@ namespace DiscordSharp
 
                         string[] split = sessionKeyHeader.Split(new char[] { '=', ';' }, 3);
                         sessionKey = split[1];
+                        //ConnectReadMessagesThread = new Thread(ConnectAndReadMessages);
+                        //ConnectReadMessagesThread.Priority = ThreadPriority.Lowest;
+                        //ConnectReadMessagesThread.Start();
                         return "Logged in! Token: " + token;
                     }
                     else

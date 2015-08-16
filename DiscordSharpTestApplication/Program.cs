@@ -63,6 +63,10 @@ namespace DiscordSharpTestApplication
                     Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.user.username, e.Channel.name, fromServer.name, e.message);
                     if (e.message.StartsWith("?status"))
                         client.SendMessageToChannel("I work ;)", e.Channel);
+                    else if(e.message.StartsWith("?notify"))
+                    {
+                        string[] split = e.message.Split(new char[] { ' ' }, 2);
+                    }
                     else if (e.message.StartsWith("?whereami"))
                     {
                         DiscordServer server = client.ServerFromID(client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null).id);
@@ -125,8 +129,6 @@ namespace DiscordSharpTestApplication
                     Console.WriteLine("Connected! User: " + e.username);
                 };
                 client.SendLoginRequest();
-                Thread tt = new Thread(client.ConnectAndReadMessages);
-                tt.Start();
             }
             catch (Exception ex)
             {

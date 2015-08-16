@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharp", "DiscordShar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharpTestApplication", "DiscordSharpTestApplication\DiscordSharpTestApplication.csproj", "{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordGUI", "DiscordGUI\DiscordGUI.csproj", "{B4946B97-7039-48AB-B9EF-2C68420B6316}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4946B97-7039-48AB-B9EF-2C68420B6316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4946B97-7039-48AB-B9EF-2C68420B6316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4946B97-7039-48AB-B9EF-2C68420B6316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4946B97-7039-48AB-B9EF-2C68420B6316}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
