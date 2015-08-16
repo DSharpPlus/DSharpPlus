@@ -65,10 +65,18 @@ namespace DiscordSharp
         }
     }
 
+    public enum DiscordMessageType
+    {
+        PRIVATE, CHANNEL
+    }
+
     public delegate void DiscordMessageReceived(object sender, DiscordMessageEventArgs e);
     public delegate void DiscordConnect(object sender, DiscordConnectEventArgs e);
     public delegate void DiscordSocketOpened(object sender, DiscordSocketOpenedEventArgs e);
     public delegate void DiscordSocketClosed(object sender, DiscordSocketClosedEventArgs e);
+    public delegate void DiscordChannelCreate(object sender, DiscordChannelCreateEventArgs e);
+    public delegate void DiscordPrivateChannelCreate(object sender, DiscordPrivateChannelEventArgs e);
+    public delegate void DiscordPrivateMessageReceived(object sender, DiscordPrivateMessageEventArgs e);
 
     public class DiscordClient
     {
@@ -89,7 +97,10 @@ namespace DiscordSharp
         public event DiscordConnect Connected;
         public event DiscordSocketOpened SocketOpened;
         public event DiscordSocketClosed SocketClosed;
-
+        public event DiscordChannelCreate ChannelCreated;
+        public event DiscordPrivateChannelCreate PrivateChannelCreated;
+        public event DiscordPrivateMessageReceived PrivateMessageReceived;
+        
         public DiscordClient()
         {
             if (LoginInformation == null)
@@ -98,13 +109,13 @@ namespace DiscordSharp
 
         WebSocket ws;
 
-        private List<DiscordServer> Channels { get; set; }
+        private List<DiscordServer> ServersList { get; set; }
 
-        public DiscordSubChannel SubFromID(string id)
+        public DiscordChannel SubFromID(string id)
         {
-            foreach(DiscordServer c in Channels)
+            foreach(DiscordServer c in ServersList)
             {
-                foreach(DiscordSubChannel sc in c.channels)
+                foreach(DiscordChannel sc in c.channels)
                 {
                     if (sc.id == id)
                         return sc;
@@ -115,7 +126,7 @@ namespace DiscordSharp
 
         public DiscordServer ServerFromID(string id)
         {
-            foreach(DiscordServer c in Channels)
+            foreach(DiscordServer c in ServersList)
             {
                 if (c.id == id)
                     return c;
@@ -125,9 +136,9 @@ namespace DiscordSharp
 
         public DiscordServer ServerFromChannelID(string id)
         {
-            foreach(DiscordServer c in Channels)
+            foreach(DiscordServer c in ServersList)
             {
-                foreach (DiscordSubChannel s in c.channels)
+                foreach (DiscordChannel s in c.channels)
                     if (s.id == id)
                         return c;
             }
@@ -136,7 +147,7 @@ namespace DiscordSharp
 
         public DiscordServer ServerFromName(string name)
         {
-            foreach(DiscordServer c in Channels)
+            foreach(DiscordServer c in ServersList)
             {
                 if (c.name == name)
                     return c;
@@ -144,31 +155,34 @@ namespace DiscordSharp
             return null;
         }
 
-        public DiscordSubChannel ChannelFromName(DiscordServer server, string name)
+        public DiscordChannel ChannelFromName(DiscordServer server, string name)
         {
-            foreach (DiscordServer s in Channels)
+            foreach (DiscordServer s in ServersList)
                 if (s == server)
-                    foreach (DiscordSubChannel c in s.channels)
+                    foreach (DiscordChannel c in s.channels)
                         if (c.name == name)
                             return c;
 
             return null;
         }
 
+        //eh
+        public List<DiscordServer> GetServersList() { return this.ServersList; }
+
         private void GetChannelsList(JObject m)
         {
-            if (Channels == null)
-                Channels = new List<DiscordServer>();
+            if (ServersList == null)
+                ServersList = new List<DiscordServer>();
             foreach(var j in m["d"]["guilds"])
             {
                 DiscordServer temp = new DiscordServer();
                 temp.id = j["id"].ToString();
                 temp.name = j["name"].ToString();
                 temp.owner_id = j["owner_id"].ToString();
-                List<DiscordSubChannel> tempSubs = new List<DiscordSubChannel>();
+                List<DiscordChannel> tempSubs = new List<DiscordChannel>();
                 foreach(var u in j["channels"])
                 {
-                    DiscordSubChannel tempSub = new DiscordSubChannel();
+                    DiscordChannel tempSub = new DiscordChannel();
                     tempSub.id = u["id"].ToString();
                     tempSub.name = u["name"].ToString();
                     tempSub.type = u["type"].ToString();
@@ -182,18 +196,21 @@ namespace DiscordSharp
                     member.user.username = mm["user"]["username"].ToString();
                     temp.members.Add(member);
                 }
-                Channels.Add(temp);
+                ServersList.Add(temp);
             }
             
         }
 
-        public void SendMessageToChannel(string message, string channel, string server)
+        /// <summary>
+        /// Sends a message to a channel, what else did you expect?
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="channel"></param>
+        public void SendMessageToChannel(string message, DiscordChannel channel)
         {
-            DiscordServer serverID = ServerFromName(server);
-            DiscordSubChannel channelID = ChannelFromName(serverID, channel);
-            string initMessage = "{\"recipient_id\":" + channelID.id + "}";
-
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + channelID.id + "/messages");
+            //DiscordServer serverID = ServerFromName(server);
+           //string initMessage = "{\"recipient_id\":" + channelID.id + "}";
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + channel.id + "/messages");
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
@@ -233,7 +250,7 @@ namespace DiscordSharp
                 {
                     if (message[i + 1] == '@') break;
                     var username = message.Substring(i + 1, message.IndexOf(' ', i) > -1 ? message.IndexOf(' ', i) : message.Length);
-                    foreach(var servers in Channels)
+                    foreach(var servers in ServersList)
                     {
                         foreach(var user in servers.members)
                         {
@@ -247,6 +264,8 @@ namespace DiscordSharp
             dm.mentions = foundIDS.ToArray();
             return dm;
         }
+
+        private List<DiscordPrivateChannel> PrivateChannels = new List<DiscordPrivateChannel>();
 
         public void ConnectAndReadMessages()
         {
@@ -264,16 +283,70 @@ namespace DiscordSharp
                                 Connected(this, new DiscordConnectEventArgs { username = this.username, id = this.id }); //Since I already know someone will ask for it.
                             break;
                         case ("MESSAGE_CREATE"):
-                            DiscordMessageEventArgs temp = new DiscordMessageEventArgs();
-                            temp.username = message["d"]["author"]["username"].ToString();
-                            temp.message = message["d"]["content"].ToString();
-                            temp.ChannelID = message["d"]["channel_id"].ToString();
-                            temp.ChannelName = SubFromID(message["d"]["channel_id"].ToString()).name;
-                            
-                            temp.ServerID = ServerFromChannelID(temp.ChannelID).id;
-                            temp.ServerName = ServerFromChannelID(temp.ChannelID).name;
-                            if (MessageReceived != null)
-                                MessageReceived(this, temp);
+                            try
+                            {
+                                string tempChannelID = message["d"]["channel_id"].ToString();
+
+                                var foundServerChannel = ServersList.Find(x => x.channels.Find(y => y.id == tempChannelID) != null);
+                                if(foundServerChannel == null)
+                                {
+                                    var foundPM = PrivateChannels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                                    DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
+                                    dpmea.Channel = foundPM;
+                                    dpmea.message = message["d"]["content"].ToString();
+                                    dpmea.username = message["author"]["username"].ToString();
+
+                                    if(PrivateMessageReceived != null)
+                                        PrivateMessageReceived(this, dpmea);
+                                }
+                                else
+                                {
+                                    DiscordMessageEventArgs dmea = new DiscordMessageEventArgs();
+                                    dmea.Channel = foundServerChannel.channels.Find(y=>y.id == tempChannelID);
+                                    dmea.message = message["d"]["content"].ToString();
+                                    dmea.username = message["d"]["author"]["username"].ToString();
+                                    if (MessageReceived != null)
+                                        MessageReceived(this, dmea);
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+                                Console.WriteLine("!!! {0}", ex.Message);
+                                Console.Beep(100, 1000);
+                            }
+                            break;
+                        case ("CHANNEL_CREATE"):
+                            if(message["d"]["is_private"].ToString().ToLower() == "false")
+                            {
+                                var foundServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+                                if(foundServer != null)
+                                {
+                                    DiscordChannel tempChannel = new DiscordChannel();
+                                    tempChannel.name = message["d"]["name"].ToString();
+                                    tempChannel.type = message["d"]["type"].ToString();
+                                    tempChannel.id = message["d"]["id"].ToString();
+                                    foundServer.channels.Add(tempChannel);
+                                    DiscordChannelCreateEventArgs fae = new DiscordChannelCreateEventArgs();
+                                    fae.ChannelCreated = tempChannel;
+                                    fae.ChannelType = DiscordChannelCreateType.CHANNEL;
+                                    if (ChannelCreated != null)
+                                        ChannelCreated(this, fae);
+                                }
+                            }
+                            else
+                            {
+                                DiscordPrivateChannel tempPrivate = new DiscordPrivateChannel();
+                                tempPrivate.id = message["d"]["id"].ToString();
+                                DiscordRecipient tempRec = new DiscordRecipient();
+                                tempRec.id = message["d"]["recipient"]["id"].ToString();
+                                tempRec.username = message["d"]["recipient"]["username"].ToString();
+                                tempPrivate.recipient = tempRec;
+                                PrivateChannels.Add(tempPrivate);
+                                DiscordPrivateChannelEventArgs fak = new DiscordPrivateChannelEventArgs { ChannelType = DiscordChannelCreateType.PRIVATE, ChannelCreated = tempPrivate};
+                                if (PrivateChannelCreated != null)
+                                    PrivateChannelCreated(this, fak);
+                            }
+                            //Console.WriteLine(message.ToString());
                             break;
                     }
                 };

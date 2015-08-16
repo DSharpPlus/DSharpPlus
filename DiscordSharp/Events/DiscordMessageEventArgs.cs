@@ -10,14 +10,14 @@ namespace DiscordSharp.Events
     {
         public string username { get; internal set; }
         public string message { get; internal set; }
-        public string ChannelID { get; internal set; }
-        public string ServerID { get; internal set; }
-        public string ChannelName { get; internal set; }
-        public string ServerName { get; internal set; }
+        //public string ChannelID { get; internal set; }
+        //public string ServerID { get; internal set; }
+        //public string ChannelName { get; internal set; }
+        //public string ServerName { get; internal set; }
+        public DiscordChannel Channel { get; internal set; }
+        public DiscordMessageType MessageType { get; internal set; }
 
         public DiscordMessageEventArgs()
-        {
-
-        }
+        {}
     }
 }
