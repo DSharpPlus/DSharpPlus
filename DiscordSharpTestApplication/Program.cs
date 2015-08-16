@@ -38,8 +38,7 @@ namespace DiscordSharpTestApplication
             client.LoginInformation.password[0] = pass;
 
             Console.WriteLine("Attempting login..");
-            try
-            {
+            
                 Thread input = new Thread(InputThread);
                 input.Start();
 
@@ -69,7 +68,7 @@ namespace DiscordSharpTestApplication
                     }
                     else if (e.message.StartsWith("?whereami"))
                     {
-                        DiscordServer server = client.ServerFromID(client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null).id);
+                        DiscordServer server = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
                         string owner = "";
                         foreach (var member in server.members)
                             if (member.user.id == server.owner_id)
@@ -79,6 +78,9 @@ namespace DiscordSharpTestApplication
                     }
                     else if (e.message.StartsWith("?lastfm"))
                     {
+#if __MONOCS__
+                        client.SendMessageToChannel("Sorry, not on Mono :(", e.Channel);
+#else
                         string[] split = e.message.Split(new char[] { ' ' }, 2);
                         if (split.Length > 1)
                         {
@@ -98,6 +100,7 @@ namespace DiscordSharpTestApplication
                         }
                         else
                             client.SendMessageToChannel("Who??", e.Channel);
+#endif
                     }
                     else if (e.message.StartsWith("?whois"))
                     {
@@ -128,11 +131,10 @@ namespace DiscordSharpTestApplication
                 {
                     Console.WriteLine("Connected! User: " + e.username);
                 };
-                client.SendLoginRequest();
-            }
-            catch (Exception ex)
+            if (client.SendLoginRequest() != null)
             {
-                Console.WriteLine(ex.Message);
+                Thread t = new Thread(client.ConnectAndReadMessages);
+                t.Start();
             }
         }
     }

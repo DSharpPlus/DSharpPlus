@@ -12,8 +12,5 @@ namespace DiscordSharp.Events
         public DiscordMember author { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
         public DiscordMessageType MessageType { get; internal set; }
-
-        public DiscordMessageEventArgs()
-        {}
     }
 }

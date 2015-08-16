@@ -92,7 +92,12 @@ namespace DiscordSharp
         public string token { get; set; }
         public string sessionKey { get; set; }
         private string Cookie { get; set; }
-        
+
+        WebSocket ws;
+        private List<DiscordServer> ServersList { get; set; }
+        public List<DiscordServer> GetServersList() { return this.ServersList; }
+        private List<DiscordPrivateChannel> PrivateChannels = new List<DiscordPrivateChannel>();
+
         public event DiscordMessageReceived MessageReceived;
         public event DiscordConnect Connected;
         public event DiscordSocketOpened SocketOpened;
@@ -106,69 +111,8 @@ namespace DiscordSharp
             if (LoginInformation == null)
                 LoginInformation = new DiscordLoginInformation();
         }
-
-        WebSocket ws;
-
-        private List<DiscordServer> ServersList { get; set; }
-
-        public DiscordChannel SubFromID(string id)
-        {
-            foreach(DiscordServer c in ServersList)
-            {
-                foreach(DiscordChannel sc in c.channels)
-                {
-                    if (sc.id == id)
-                        return sc;
-                }
-            }
-            return null;
-        }
-
-        public DiscordServer ServerFromID(string id)
-        {
-            foreach(DiscordServer c in ServersList)
-            {
-                if (c.id == id)
-                    return c;
-            }
-            return null;
-        }
-
-        public DiscordServer ServerFromChannelID(string id)
-        {
-            foreach(DiscordServer c in ServersList)
-            {
-                foreach (DiscordChannel s in c.channels)
-                    if (s.id == id)
-                        return c;
-            }
-            return null;
-        }
-
-        public DiscordServer ServerFromName(string name)
-        {
-            foreach(DiscordServer c in ServersList)
-            {
-                if (c.name == name)
-                    return c;
-            }
-            return null;
-        }
-
-        public DiscordChannel ChannelFromName(DiscordServer server, string name)
-        {
-            foreach (DiscordServer s in ServersList)
-                if (s == server)
-                    foreach (DiscordChannel c in s.channels)
-                        if (c.name == name)
-                            return c;
-
-            return null;
-        }
-
+        
         //eh
-        public List<DiscordServer> GetServersList() { return this.ServersList; }
-
         private void GetChannelsList(JObject m)
         {
             if (ServersList == null)
@@ -326,7 +270,15 @@ namespace DiscordSharp
             return dm;
         }
 
-        private List<DiscordPrivateChannel> PrivateChannels = new List<DiscordPrivateChannel>();
+        
+
+        public bool WebsocketAlive
+        {
+            get
+            {
+                return (ws != null) ? ws.IsAlive : false;
+            }
+        }
 
         public void ConnectAndReadMessages()
         {
@@ -436,7 +388,6 @@ namespace DiscordSharp
                         SocketClosed(this, scev);
                 };
                 ws.Connect();
-                while (ws.IsAlive) ;
         }
 
         private JObject ServerInfo(string channelOrServerId)
@@ -497,6 +448,10 @@ namespace DiscordSharp
             this.LoginInformation = null;
         }
 
+        /// <summary>
+        /// Sends a login request.
+        /// </summary>
+        /// <returns>The token if login was succesful, or null if not</returns>
         public string SendLoginRequest()
         {
             if (LoginInformation == null || LoginInformation.email == null || LoginInformation.email[0].Trim() == "" || LoginInformation.password == null || LoginInformation.password[0].Trim() == "")
@@ -505,6 +460,7 @@ namespace DiscordSharp
             var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/auth/login");
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
+            httpWebRequest.Timeout = 30000;
 
             using (var sw = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
@@ -522,34 +478,33 @@ namespace DiscordSharp
                     if (dlr.token != null || dlr.token.Trim() != "")
                     {
                         this.token = dlr.token;
-                        string sessionKeyHeader = httpResponse.Headers["set-cookie"].ToString();
-
-                        string[] split = sessionKeyHeader.Split(new char[] { '=', ';' }, 3);
-                        sessionKey = split[1];
-                        //ConnectReadMessagesThread = new Thread(ConnectAndReadMessages);
-                        //ConnectReadMessagesThread.Priority = ThreadPriority.Lowest;
-                        //ConnectReadMessagesThread.Start();
-                        return "Logged in! Token: " + token;
+                        try
+                        {
+                            string sessionKeyHeader = httpResponse.Headers["set-cookie"].ToString();
+                            string[] split = sessionKeyHeader.Split(new char[] { '=', ';' }, 3);
+                            sessionKey = split[1];
+                        }
+                        catch
+                        {/*no session key fo u!*/}
+                        return token;
                     }
                     else
-                        return "No";
+                        return null;
                 }
             }
             catch(WebException e)
             {
                 using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
                 {
-
                     string result = s.ReadToEnd();
                     DiscordLoginResult jresult = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
                     if (jresult.password != null)
-                        return jresult.password[0];
+                        throw new DiscordLoginException(jresult.password[0]);
                     if (jresult.email != null)
-                        return jresult.email[0];
+                        throw new DiscordLoginException(jresult.email[0]);
                 }
-                
             }
-            return "?";
+            return null;
         }
     }
 }
