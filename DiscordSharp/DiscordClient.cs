@@ -239,6 +239,67 @@ namespace DiscordSharp
             }
         }
 
+        //Special thanks to the node-discord developer, izy521, for helping me out with this :D
+        public void SendMessageToUser(string message, DiscordMember member)
+        {
+            string initMessage = "{\"recipient_id\":" + member.user.id + "}";
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/" + id + "/channels");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "POST";
+
+            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            {
+                sw.Write(initMessage);
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = JObject.Parse(sr.ReadToEnd());
+                    SendActualMessage(result["id"].ToString(), message);
+                }
+            }
+            catch
+            {
+                //shouldn't even have to worry about this..
+            }
+        }
+
+        private void SendActualMessage(string id, string message)
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + id + "/messages");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "POST";
+
+            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            {
+                sw.Write(JsonConvert.SerializeObject(GenerateMessage(message)));
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = sr.ReadToEnd();
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    string result = s.ReadToEnd();
+                    Console.WriteLine("!!! " + result);
+                }
+            }
+        }
+
         private DiscordMessage GenerateMessage(string message)
         {
             DiscordMessage dm = new DiscordMessage();
@@ -294,7 +355,10 @@ namespace DiscordSharp
                                     DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
                                     dpmea.Channel = foundPM;
                                     dpmea.message = message["d"]["content"].ToString();
-                                    dpmea.username = message["author"]["username"].ToString();
+                                    DiscordMember tempMember = new DiscordMember();
+                                    tempMember.user.username = message["d"]["author"]["username"].ToString();
+                                    tempMember.user.id = message["d"]["author"]["id"].ToString();
+                                    dpmea.author = tempMember;
 
                                     if(PrivateMessageReceived != null)
                                         PrivateMessageReceived(this, dpmea);
@@ -304,7 +368,9 @@ namespace DiscordSharp
                                     DiscordMessageEventArgs dmea = new DiscordMessageEventArgs();
                                     dmea.Channel = foundServerChannel.channels.Find(y=>y.id == tempChannelID);
                                     dmea.message = message["d"]["content"].ToString();
-                                    dmea.username = message["d"]["author"]["username"].ToString();
+                                    DiscordMember tempMember = new DiscordMember();
+                                    tempMember = foundServerChannel.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString());
+                                    dmea.author = tempMember;
                                     if (MessageReceived != null)
                                         MessageReceived(this, dmea);
                                 }

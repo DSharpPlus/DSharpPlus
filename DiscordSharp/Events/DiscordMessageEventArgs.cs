@@ -8,12 +8,8 @@ namespace DiscordSharp.Events
 {
     public class DiscordMessageEventArgs
     {
-        public string username { get; internal set; }
         public string message { get; internal set; }
-        //public string ChannelID { get; internal set; }
-        //public string ServerID { get; internal set; }
-        //public string ChannelName { get; internal set; }
-        //public string ServerName { get; internal set; }
+        public DiscordMember author { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
         public DiscordMessageType MessageType { get; internal set; }
 
