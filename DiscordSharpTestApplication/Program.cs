@@ -131,6 +131,10 @@ namespace DiscordSharpTestApplication
                 {
                     Console.WriteLine("Connected! User: " + e.username);
                 };
+            client.SocketClosed += (sender, e) =>
+            {
+                Console.WriteLine("Closed ({0}): {1}", e.Code, e.Reason);
+            };
             if (client.SendLoginRequest() != null)
             {
                 Thread t = new Thread(client.ConnectAndReadMessages);

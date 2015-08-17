@@ -49,6 +49,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiscordKeepAliveSentEventArgs.cs" />
     <Compile Include="DiscordLoginException.cs" />
     <Compile Include="Events\DiscordChannelCreateEventArgs.cs" />
     <Compile Include="DiscordClient.cs" />

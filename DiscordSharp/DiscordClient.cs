@@ -77,6 +77,7 @@ namespace DiscordSharp
     public delegate void DiscordChannelCreate(object sender, DiscordChannelCreateEventArgs e);
     public delegate void DiscordPrivateChannelCreate(object sender, DiscordPrivateChannelEventArgs e);
     public delegate void DiscordPrivateMessageReceived(object sender, DiscordPrivateMessageEventArgs e);
+    public delegate void DiscordKeepAliveSent(object sender, DiscordKeepAliveSentEventArgs e);
 
     public class DiscordClient
     {
@@ -105,6 +106,7 @@ namespace DiscordSharp
         public event DiscordChannelCreate ChannelCreated;
         public event DiscordPrivateChannelCreate PrivateChannelCreated;
         public event DiscordPrivateMessageReceived PrivateMessageReceived;
+        public event DiscordKeepAliveSent KeepAliveSent;
         
         public DiscordClient()
         {
@@ -282,6 +284,7 @@ namespace DiscordSharp
 
         public void ConnectAndReadMessages()
         {
+
             ws = new WebSocket("wss://discordapp.com/hub");
                 ws.OnMessage += (sender, e) =>
                 {
@@ -291,6 +294,7 @@ namespace DiscordSharp
                         case ("READY"):
                             this.username = message["d"]["user"]["username"].ToString();
                             this.id = message["d"]["user"]["id"].ToString();
+                            HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
                             GetChannelsList(message);
                             if (Connected != null)
                                 Connected(this, new DiscordConnectEventArgs { username = this.username, id = this.id }); //Since I already know someone will ask for it.
@@ -364,7 +368,6 @@ namespace DiscordSharp
                                 if (PrivateChannelCreated != null)
                                     PrivateChannelCreated(this, fak);
                             }
-                            //Console.WriteLine(message.ToString());
                             break;
                     }
                 };
@@ -377,6 +380,8 @@ namespace DiscordSharp
                     ws.Send(json);
                     if (SocketOpened != null)
                         SocketOpened(this, null);
+                    Thread keepAlivetimer = new Thread(KeepAlive);
+                    keepAlivetimer.Start();
                 };
                 ws.OnClose += (sender, e) =>
                 {
@@ -416,22 +421,28 @@ namespace DiscordSharp
             }
         }
 
+        private int HeartbeatInterval = 41250;
+
+        private static DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         private void KeepAlive()
         {
-            string keepAliveJson = "{\"op\":1, \"d\":\"" + DateTime.Now.ToString() + "\"}";
-            System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
-            t.Interval = 40000;
-            t.Tick += (sender, e) =>
+            string keepAliveJson = "{\"op\":1, \"d\":" + DateTime.Now.Millisecond + "}";
+            System.Timers.Timer timer = new System.Timers.Timer();
+            timer.Elapsed += (sender, e) =>
             {
                 if (ws != null)
                     if (ws.IsAlive)
                     {
-                        keepAliveJson = "{\"op\":1, \"d\":\"" + DateTime.Now.ToString() + "\"}";
+                        int unixTime = (int)(DateTime.UtcNow - epoch).TotalMilliseconds;
+                        keepAliveJson = "{\"op\":1, \"d\":\"" + unixTime + "\"}";
                         ws.Send(keepAliveJson);
-                        Console.WriteLine("sent keep alive");
+                        if (KeepAliveSent != null)
+                            KeepAliveSent(this, new DiscordKeepAliveSentEventArgs { SentAt = DateTime.Now, JsonSent = keepAliveJson } );
                     }
             };
-            t.Start();
+            timer.Interval = HeartbeatInterval;
+            timer.Enabled = true;
         }
 
         //Thread ConnectReadMessagesThread;
