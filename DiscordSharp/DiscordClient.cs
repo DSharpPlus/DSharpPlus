@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using DiscordSharp.Events;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace DiscordSharp
 {
@@ -49,7 +50,7 @@ namespace DiscordSharp
         {
             get
             {
-                return "Luigibot";
+                return "DiscordSharp Bot";
             }
         }
         public string referrer { get; set; }
@@ -58,7 +59,6 @@ namespace DiscordSharp
         public DiscordProperties()
         {
             os = "Linux";
-            
         }
         public string AsJson()
         {
@@ -80,6 +80,7 @@ namespace DiscordSharp
     public delegate void DiscordPrivateMessageReceived(object sender, DiscordPrivateMessageEventArgs e);
     public delegate void DiscordKeepAliveSent(object sender, DiscordKeepAliveSentEventArgs e);
     public delegate void DiscordMention(object sender, DiscordMessageEventArgs e);
+    public delegate void DiscordTypingStart(object sendr, DiscordTypingStartEventArgs e);
 
     public class DiscordClient
     {
@@ -110,9 +111,17 @@ namespace DiscordSharp
         public event DiscordPrivateMessageReceived PrivateMessageReceived;
         public event DiscordKeepAliveSent KeepAliveSent;
         public event DiscordMention MentionReceived;
+        public event DiscordTypingStart UserTypingStart;
         
         public DiscordClient()
         {
+#if DEBUG
+            ni = new NotifyIcon();
+            ni.Icon = Properties.Resources.ico;
+            ni.Text = "DiscordSharp Debug";
+            ni.BalloonTipTitle = "DiscordSharp Debug";
+            ni.Visible = true;
+#endif
             if (LoginInformation == null)
                 LoginInformation = new DiscordLoginInformation();
         }
@@ -257,6 +266,8 @@ namespace DiscordSharp
             List<KeyValuePair<string, string>> toReplace = new List<KeyValuePair<string, string>>();
             foreach (Match m in r.Matches(message))
             {
+                if (message[m.Index - 1] == '<')
+                    continue;
                 DiscordMember user = ServersList.Find(x => x.members.Find(y => y.user.username == m.Value.Trim('@')) != null).members.Find(y=>y.user.username == m.Value.Trim('@'));
                 foundIDS.Add(user.user.id);
                 toReplace.Add(new KeyValuePair<string, string>(m.Value, user.user.id));
@@ -270,9 +281,7 @@ namespace DiscordSharp
             dm.mentions = foundIDS.ToArray();
             return dm;
         }
-
         
-
         public bool WebsocketAlive
         {
             get
@@ -297,6 +306,19 @@ namespace DiscordSharp
                             GetChannelsList(message);
                             if (Connected != null)
                                 Connected(this, new DiscordConnectEventArgs { username = this.username, id = this.id }); //Since I already know someone will ask for it.
+                            break;
+                        case ("MESSAGE_UPDATE"):
+
+                            break;
+                        case ("TYPING_START"):
+                            DiscordServer server = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
+                            if (server != null)
+                            {
+                                DiscordChannel channel = server.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                                DiscordMember user = server.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+                                if (UserTypingStart != null)
+                                    UserTypingStart(this, new DiscordTypingStartEventArgs { user = user, channel = channel, timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
+                            }
                             break;
                         case ("MESSAGE_CREATE"):
                             try
@@ -375,6 +397,13 @@ namespace DiscordSharp
                                     PrivateChannelCreated(this, fak);
                             }
                             break;
+#if DEBUG
+                            default:
+                            ni.BalloonTipText = "Check console! New message type!";
+                            ni.ShowBalloonTip(10 * 1000);
+                            Console.WriteLine(message);
+                            break;
+#endif
                     }
                 };
                 ws.OnOpen += (sender, e) => 
@@ -400,6 +429,10 @@ namespace DiscordSharp
                 };
                 ws.Connect();
         }
+
+#if DEBUG
+        NotifyIcon ni;
+#endif
 
         private JObject ServerInfo(string channelOrServerId)
         {

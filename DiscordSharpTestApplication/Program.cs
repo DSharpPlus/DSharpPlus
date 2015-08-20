@@ -33,15 +33,21 @@ namespace DiscordSharpTestApplication
             string email = Console.ReadLine();
             client.LoginInformation.email[0] = email;
 
-            Console.Write("\nNow, your password (visible): ");
+            Console.Write("Now, your password (visible): ");
             string pass = Console.ReadLine();
             client.LoginInformation.password[0] = pass;
 
             Console.WriteLine("Attempting login..");
             
                 Thread input = new Thread(InputThread);
-                input.Start();
+            input.Priority = ThreadPriority.Lowest;
+            input.Start();
 
+            client.UserTypingStart += (sender, e) =>
+            {
+                if (e.user.user.username == "Axiom")
+                    client.SendMessageToChannel("Shut the fuck up, <@" + e.user.user.id + ">", e.channel);
+            };
                 client.ChannelCreated += (sender, e) =>
                 {
                     var parentServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.ChannelCreated.id) != null);
@@ -161,6 +167,7 @@ namespace DiscordSharpTestApplication
             if (client.SendLoginRequest() != null)
             {
                 Thread t = new Thread(client.ConnectAndReadMessages);
+                t.Priority = ThreadPriority.Lowest;
                 t.Start();
             }
         }
