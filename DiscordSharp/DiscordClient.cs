@@ -252,31 +252,22 @@ namespace DiscordSharp
         private DiscordMessage GenerateMessage(string message)
         {
             DiscordMessage dm = new DiscordMessage();
-
-            if(message.Contains("@"))
+            List<string> foundIDS = new List<string>();
+            Regex r = new Regex("\\@\\w+");
+            List<KeyValuePair<string, string>> toReplace = new List<KeyValuePair<string, string>>();
+            foreach (Match m in r.Matches(message))
             {
-                var username = message.Substring(message.IndexOf('@'), message.IndexOf(' '));
+                DiscordMember user = ServersList.Find(x => x.members.Find(y => y.user.username == m.Value.Trim('@')) != null).members.Find(y=>y.user.username == m.Value.Trim('@'));
+                foundIDS.Add(user.user.id);
+                toReplace.Add(new KeyValuePair<string, string>(m.Value, user.user.id));
+            }
+            foreach(var k in toReplace)
+            {
+                message = message.Replace(k.Key, "<@" + k.Value + ">");
             }
 
-            /*List<string> foundIDS = new List<string>();
-            for(var i = 0; i < message.Length; i++)
-            {
-                if(message[i] == '@')
-                {
-                    if (message[i + 1] == '@') break;
-                    var username = message.Substring(i + 1, message.IndexOf(' ', i) > -1 ? message.IndexOf(' ', i) : message.Length);
-                    foreach(var servers in ServersList)
-                    {
-                        foreach(var user in servers.members)
-                        {
-                            if (username == user.user.username)
-                                foundIDS.Add(user.user.id);
-                        }
-                    }
-                }
-            }*/
             dm.content = message;
-            //dm.mentions = foundIDS.ToArray();
+            dm.mentions = foundIDS.ToArray();
             return dm;
         }
 

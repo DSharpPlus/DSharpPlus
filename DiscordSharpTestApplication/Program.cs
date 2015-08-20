@@ -58,7 +58,7 @@ namespace DiscordSharpTestApplication
                 };
             client.MentionReceived += (sender, e) => 
             {
-                client.SendMessageToChannel("Heya, <@" + e.author.user.id + ">!", e.Channel);
+                client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
             };
                 client.MessageReceived += (sender, e) =>
                 {
@@ -79,6 +79,25 @@ namespace DiscordSharpTestApplication
                                 owner = member.user.username;
                         string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by {4}.", e.Channel.name, e.Channel.id, server.name, server.id, owner);
                         client.SendMessageToChannel(whereami, e.Channel);
+                    }
+                    else if(e.message.StartsWith("?everyone"))
+                    {
+                        DiscordServer server = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
+                        string[] split = e.message.Split(new char[] { ' ' }, 2);
+                        if (split.Length > 1)
+                        {
+                            string message = "";
+                            foreach (var user in server.members)
+                            {
+                                if (user.user.id == client.id)
+                                    continue;
+                                if (user.user.username == "Blank")
+                                    continue;
+                                message += "@" + user.user.username + " ";
+                            }
+                            message += ": " + split[1];
+                            client.SendMessageToChannel(message, e.Channel);
+                        }
                     }
                     else if (e.message.StartsWith("?lastfm"))
                     {
