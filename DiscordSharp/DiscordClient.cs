@@ -81,6 +81,7 @@ namespace DiscordSharp
     public delegate void DiscordKeepAliveSent(object sender, DiscordKeepAliveSentEventArgs e);
     public delegate void DiscordMention(object sender, DiscordMessageEventArgs e);
     public delegate void DiscordTypingStart(object sendr, DiscordTypingStartEventArgs e);
+    public delegate void DiscordMessageUpdate(object sender, DiscordMessageEventArgs e);
 
     public class DiscordClient
     {
@@ -112,6 +113,7 @@ namespace DiscordSharp
         public event DiscordKeepAliveSent KeepAliveSent;
         public event DiscordMention MentionReceived;
         public event DiscordTypingStart UserTypingStart;
+        public event DiscordMessageUpdate MessageEdited;
         
         public DiscordClient()
         {
@@ -308,7 +310,17 @@ namespace DiscordSharp
                                 Connected(this, new DiscordConnectEventArgs { username = this.username, id = this.id }); //Since I already know someone will ask for it.
                             break;
                         case ("MESSAGE_UPDATE"):
-
+                            DiscordServer pserver = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
+                            DiscordChannel pchannel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                            if(pchannel != null)
+                            {
+                                if (MessageEdited != null)
+                                    MessageEdited(this, new DiscordMessageEventArgs {
+                                        author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
+                                        Channel = pchannel,
+                                        message = message["d"]["content"].ToString(), MessageType = DiscordMessageType.CHANNEL
+                                    });
+                            }
                             break;
                         case ("TYPING_START"):
                             DiscordServer server = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);

@@ -45,20 +45,23 @@ namespace DiscordSharpTestApplication
 
             client.UserTypingStart += (sender, e) =>
             {
-                if (e.user.user.username == "Axiom")
-                    client.SendMessageToChannel("Shut the fuck up, <@" + e.user.user.id + ">", e.channel);
             };
-                client.ChannelCreated += (sender, e) =>
-                {
-                    var parentServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.ChannelCreated.id) != null);
-                    if (parentServer != null)
-                        Console.WriteLine("Channel {0} created in {1}!", e.ChannelCreated.name, parentServer.name);
-                };
-                client.PrivateChannelCreated += (sender, e) =>
+            client.MessageEdited += (sender, e) =>
+            {
+                if (e.author.user.username == "Axiom")
+                    client.SendMessageToChannel("What the fuck, <@" + e.author.user.id + "> you can't event type your message right.", e.Channel);
+            };
+            client.ChannelCreated += (sender, e) =>
+            {
+                var parentServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.ChannelCreated.id) != null);
+                if (parentServer != null)
+                    Console.WriteLine("Channel {0} created in {1}!", e.ChannelCreated.name, parentServer.name);
+            };
+            client.PrivateChannelCreated += (sender, e) =>
                 {
                     Console.WriteLine("Private channel started with {0}", e.ChannelCreated.recipient.username);
                 };
-                client.PrivateMessageReceived += (sender, e) =>
+            client.PrivateMessageReceived += (sender, e) =>
                 {
                     client.SendMessageToUser("Pong!", e.author);
                 };
@@ -66,7 +69,7 @@ namespace DiscordSharpTestApplication
             {
                 client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
             };
-                client.MessageReceived += (sender, e) =>
+            client.MessageReceived += (sender, e) =>
                 {
                     DiscordServer fromServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
                     Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.user.username, e.Channel.name, fromServer.name, e.message);

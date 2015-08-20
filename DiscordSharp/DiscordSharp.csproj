@@ -48,7 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DiscordTypingStartEventArgs.cs" />
+    <Compile Include="Events\DiscordTypingStartEventArgs.cs" />
     <Compile Include="Events\DiscordMentionEventArgs.cs" />
     <Compile Include="Events\DiscordKeepAliveSentEventArgs.cs" />
     <Compile Include="DiscordLoginException.cs" />
