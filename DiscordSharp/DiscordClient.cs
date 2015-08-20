@@ -8,6 +8,7 @@ using System.Threading;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using DiscordSharp.Events;
+using System.Text.RegularExpressions;
 
 namespace DiscordSharp
 {
@@ -78,6 +79,7 @@ namespace DiscordSharp
     public delegate void DiscordPrivateChannelCreate(object sender, DiscordPrivateChannelEventArgs e);
     public delegate void DiscordPrivateMessageReceived(object sender, DiscordPrivateMessageEventArgs e);
     public delegate void DiscordKeepAliveSent(object sender, DiscordKeepAliveSentEventArgs e);
+    public delegate void DiscordMention(object sender, DiscordMessageEventArgs e);
 
     public class DiscordClient
     {
@@ -107,6 +109,7 @@ namespace DiscordSharp
         public event DiscordPrivateChannelCreate PrivateChannelCreated;
         public event DiscordPrivateMessageReceived PrivateMessageReceived;
         public event DiscordKeepAliveSent KeepAliveSent;
+        public event DiscordMention MentionReceived;
         
         public DiscordClient()
         {
@@ -250,7 +253,12 @@ namespace DiscordSharp
         {
             DiscordMessage dm = new DiscordMessage();
 
-            List<string> foundIDS = new List<string>();
+            if(message.Contains("@"))
+            {
+                var username = message.Substring(message.IndexOf('@'), message.IndexOf(' '));
+            }
+
+            /*List<string> foundIDS = new List<string>();
             for(var i = 0; i < message.Length; i++)
             {
                 if(message[i] == '@')
@@ -266,9 +274,9 @@ namespace DiscordSharp
                         }
                     }
                 }
-            }
+            }*/
             dm.content = message;
-            dm.mentions = foundIDS.ToArray();
+            //dm.mentions = foundIDS.ToArray();
             return dm;
         }
 
@@ -324,9 +332,16 @@ namespace DiscordSharp
                                     DiscordMessageEventArgs dmea = new DiscordMessageEventArgs();
                                     dmea.Channel = foundServerChannel.channels.Find(y=>y.id == tempChannelID);
                                     dmea.message = message["d"]["content"].ToString();
+
                                     DiscordMember tempMember = new DiscordMember();
                                     tempMember = foundServerChannel.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString());
                                     dmea.author = tempMember;
+
+                                    Regex r = new Regex("\\d+");
+                                    foreach(Match mm in r.Matches(dmea.message))
+                                        if (mm.Value == id) 
+                                            if (MentionReceived != null)
+                                                MentionReceived(this, dmea);
                                     if (MessageReceived != null)
                                         MessageReceived(this, dmea);
                                 }
@@ -422,9 +437,7 @@ namespace DiscordSharp
         }
 
         private int HeartbeatInterval = 41250;
-
         private static DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
         private void KeepAlive()
         {
             string keepAliveJson = "{\"op\":1, \"d\":" + DateTime.Now.Millisecond + "}";

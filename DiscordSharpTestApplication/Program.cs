@@ -20,7 +20,7 @@ namespace DiscordSharpTestApplication
             bool accept = true;
             while (accept)
             {
-                string input = Console.ReadLine();
+                //string input = Console.ReadLine();
                 //client.SendMessageToChannel(input, "testing", "Discord API");
             }
         }
@@ -56,6 +56,10 @@ namespace DiscordSharpTestApplication
                 {
                     client.SendMessageToUser("Pong!", e.author);
                 };
+            client.MentionReceived += (sender, e) => 
+            {
+                client.SendMessageToChannel("Heya, <@" + e.author.user.id + ">!", e.Channel);
+            };
                 client.MessageReceived += (sender, e) =>
                 {
                     DiscordServer fromServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
