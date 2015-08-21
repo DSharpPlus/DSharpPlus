@@ -25,3 +25,20 @@ This will get you logged in, and print out a login notification to the console w
 #Notes
 * This is in such beta it's not even funny.
 * All of the internal classes are meant to model Discord's internal Json. This is why DiscordMember has a subset, user with the actual information.
+
+#Cousins
+We're all one big happy related family. 
+
+Discord.Net, another great C# library - https://github.com/RogueException/Discord.Net
+
+Discord4J, a Java library - https://github.com/racist/Discord4J
+
+node-discord, a Node.js library which I referenced a lot - https://github.com/izy521/node-discord
+
+discord.js, an alternate Node.js library - https://github.com/discord-js/discord.js
+
+DiscordPHP, a PHP library - https://github.com/teamreflex/DiscordPHP
+
+discordrb, a Ruby library - https://github.com/meew0/discordrb
+
+pydiscord, a Python library - https://github.com/Rapptz/pydiscord
