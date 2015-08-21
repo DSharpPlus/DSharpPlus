@@ -82,6 +82,7 @@ namespace DiscordSharp
     public delegate void DiscordMention(object sender, DiscordMessageEventArgs e);
     public delegate void DiscordTypingStart(object sendr, DiscordTypingStartEventArgs e);
     public delegate void DiscordMessageUpdate(object sender, DiscordMessageEventArgs e);
+    public delegate void DiscordPresenceUpdate(object sender, DiscordPresenceUpdateEventArgs e);
 
     public class DiscordClient
     {
@@ -114,6 +115,7 @@ namespace DiscordSharp
         public event DiscordMention MentionReceived;
         public event DiscordTypingStart UserTypingStart;
         public event DiscordMessageUpdate MessageEdited;
+        public event DiscordPresenceUpdate PresenceUpdated;
         
         public DiscordClient()
         {
@@ -308,6 +310,19 @@ namespace DiscordSharp
                             GetChannelsList(message);
                             if (Connected != null)
                                 Connected(this, new DiscordConnectEventArgs { username = this.username, id = this.id }); //Since I already know someone will ask for it.
+                            break;
+                        case ("PRESENCE_UPDATE"):
+                            DiscordPresenceUpdateEventArgs dpuea = new DiscordPresenceUpdateEventArgs();
+                            var user = ServersList.Find(x=>x.members.Find(y=>y.user.id == message["d"]["id"].ToString()) != null).members.Find(x=>x.user.id == message["d"]["id"].ToString());
+                            dpuea.game_id = message["d"]["game_id"].ToString() == null ? "null" : message["d"]["game_id"].ToString();
+                            if (message["d"]["status"].ToString() == "online")
+                                dpuea.status = DiscordUserStatus.ONLINE;
+                            else if (message["d"]["status"].ToString() == "idle")
+                                dpuea.status = DiscordUserStatus.IDLE;
+                            else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
+                                dpuea.status = DiscordUserStatus.OFFLINE;
+                            if (PresenceUpdated != null)
+                                PresenceUpdated(this, dpuea);
                             break;
                         case ("MESSAGE_UPDATE"):
                             DiscordServer pserver = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
