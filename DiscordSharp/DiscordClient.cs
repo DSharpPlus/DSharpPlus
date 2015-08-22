@@ -81,8 +81,9 @@ namespace DiscordSharp
     public delegate void DiscordKeepAliveSent(object sender, DiscordKeepAliveSentEventArgs e);
     public delegate void DiscordMention(object sender, DiscordMessageEventArgs e);
     public delegate void DiscordTypingStart(object sendr, DiscordTypingStartEventArgs e);
-    public delegate void DiscordMessageUpdate(object sender, DiscordMessageEventArgs e);
+    public delegate void DiscordMessageUpdate(object sender, DiscordMessageEditedEventArgs e);
     public delegate void DiscordPresenceUpdate(object sender, DiscordPresenceUpdateEventArgs e);
+    public delegate void DiscordURLUpdate(object sender, DiscordURLUpdateEventArgs e);
 
     public class DiscordClient
     {
@@ -116,6 +117,7 @@ namespace DiscordSharp
         public event DiscordTypingStart UserTypingStart;
         public event DiscordMessageUpdate MessageEdited;
         public event DiscordPresenceUpdate PresenceUpdated;
+        public event DiscordURLUpdate URLMessageAutoUpdate;
         
         public DiscordClient()
         {
@@ -294,6 +296,8 @@ namespace DiscordSharp
             }
         }
 
+        private List<KeyValuePair<string, JObject>> MessageLog = new List<KeyValuePair<string, JObject>>();
+
         public void ConnectAndReadMessages()
         {
 
@@ -329,12 +333,46 @@ namespace DiscordSharp
                             DiscordChannel pchannel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
                             if(pchannel != null)
                             {
-                                if (MessageEdited != null)
-                                    MessageEdited(this, new DiscordMessageEventArgs {
-                                        author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
-                                        Channel = pchannel,
-                                        message = message["d"]["content"].ToString(), MessageType = DiscordMessageType.CHANNEL
-                                    });
+                                if (message["d"]["author"] != null)
+                                {
+                                    if (MessageEdited != null)
+                                        MessageEdited(this, new DiscordMessageEditedEventArgs
+                                        {
+                                            author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
+                                            Channel = pchannel,
+                                            message = message["d"]["content"].ToString(),
+                                            MessageType = DiscordMessageType.CHANNEL,
+                                            MessageEdited = new DiscordMessage
+                                            {
+                                                author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
+                                                content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value["d"]["content"].ToString(),
+                                            }
+                                        });
+                                    var toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
+                                    var jsonToEdit = toRemove.Value;
+                                    jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
+                                }
+                                else //I know they say assume makes an ass out of you and me...but we're assuming it's Discord's weird auto edit of a just URL message
+                                {
+                                    if(URLMessageAutoUpdate != null)
+                                    {
+                                        DiscordURLUpdateEventArgs asdf = new DiscordURLUpdateEventArgs(); //I'm running out of clever names and should probably split these off into different internal voids soon...
+                                        asdf.id = message["d"]["id"].ToString();
+                                        asdf.channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                                        foreach (var embed in message["d"]["embeds"])
+                                        {
+                                            DiscordEmbeds temp = new DiscordEmbeds();
+                                            temp.url = embed["url"].ToString();
+                                            temp.description = embed["description"].ToString();
+                                            temp.provider_name = embed["provider"]["name"].ToString();
+                                            temp.provider_url = embed["provider"]["url"].ToString();
+                                            temp.title = embed["title"].ToString();
+                                            temp.type = embed["type"].ToString();
+                                            asdf.embeds.Add(temp);
+                                        }
+                                        URLMessageAutoUpdate(this, asdf);
+                                    }
+                                }
                             }
                             break;
                         case ("TYPING_START"):
@@ -342,9 +380,9 @@ namespace DiscordSharp
                             if (server != null)
                             {
                                 DiscordChannel channel = server.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
-                                DiscordMember user = server.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+                                DiscordMember uuser = server.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
                                 if (UserTypingStart != null)
-                                    UserTypingStart(this, new DiscordTypingStartEventArgs { user = user, channel = channel, timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
+                                    UserTypingStart(this, new DiscordTypingStartEventArgs { user = uuser, channel = channel, timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
                             }
                             break;
                         case ("MESSAGE_CREATE"):
@@ -384,6 +422,9 @@ namespace DiscordSharp
                                                 MentionReceived(this, dmea);
                                     if (MessageReceived != null)
                                         MessageReceived(this, dmea);
+
+                                    KeyValuePair<string, JObject> toAdd = new KeyValuePair<string, JObject>(message["d"]["id"].ToString(), message);
+                                    MessageLog.Add(toAdd);
                                 }
                             }
                             catch(Exception ex)

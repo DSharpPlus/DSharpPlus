@@ -43,13 +43,22 @@ namespace DiscordSharpTestApplication
             input.Priority = ThreadPriority.Lowest;
             input.Start();
 
+            client.URLMessageAutoUpdate += (sender, e) => 
+            {
+                string message = "*URL(s) Submitted:*\n";
+                for (int i = 0; i < e.embeds.Count; i++)
+                    message += string.Format("{0}: Title: {1}, URL: {2}, Type: {3}, Description: {4}, Provider URL: {5}, Provider Name: {6}\n",
+                        i, e.embeds[i].title, e.embeds[i].url, e.embeds[i].type, e.embeds[i].description, e.embeds[i].provider_url, e.embeds[i].provider_name);
+                client.SendMessageToChannel(message, e.channel);
+            };
+
             client.UserTypingStart += (sender, e) =>
             {
             };
             client.MessageEdited += (sender, e) =>
             {
                 if (e.author.user.username == "Axiom")
-                    client.SendMessageToChannel("What the fuck, <@" + e.author.user.id + "> you can't event type your message right.", e.Channel);
+                    client.SendMessageToChannel("What the fuck, <@" + e.author.user.id + "> you can't event type your message right. (\"" + e.MessageEdited.content + "\")", e.Channel);
             };
             client.ChannelCreated += (sender, e) =>
             {
@@ -67,7 +76,8 @@ namespace DiscordSharpTestApplication
                 };
             client.MentionReceived += (sender, e) => 
             {
-                client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
+                if(e.author.user.id != client.id)
+                    client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
             };
             client.MessageReceived += (sender, e) =>
                 {

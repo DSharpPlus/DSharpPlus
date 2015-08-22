@@ -14,5 +14,6 @@ namespace DiscordSharp
         public string content { get; set; }
         public string[] mentions { get; set; }
         public string recipient_id { get; set; }
+        public DiscordMember author { get; internal set; }
     }
 }
