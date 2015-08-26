@@ -93,8 +93,6 @@ namespace DiscordSharp
         }
         public string[] Internals { get; set; }
         public string[] DirectMessages { get; set; }
-        public string id { get; internal set; }
-        public string username { get; internal set; }
         public DiscordLoginInformation LoginInformation { get; set; }
         public string token { get; set; }
         public string sessionKey { get; set; }
@@ -118,6 +116,8 @@ namespace DiscordSharp
         public event DiscordMessageUpdate MessageEdited;
         public event DiscordPresenceUpdate PresenceUpdated;
         public event DiscordURLUpdate URLMessageAutoUpdate;
+
+        public DiscordMember Me { get; internal set; }
         
         public DiscordClient()
         {
@@ -207,7 +207,7 @@ namespace DiscordSharp
         public void SendMessageToUser(string message, DiscordMember member)
         {
             string initMessage = "{\"recipient_id\":" + member.user.id + "}";
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/" + id + "/channels");
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/" + Me.user.id + "/channels");
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
@@ -300,7 +300,6 @@ namespace DiscordSharp
 
         public void ConnectAndReadMessages()
         {
-
             ws = new WebSocket("wss://discordapp.com/hub");
                 ws.OnMessage += (sender, e) =>
                 {
@@ -308,12 +307,12 @@ namespace DiscordSharp
                     switch(message["t"].ToString())
                     {
                         case ("READY"):
-                            this.username = message["d"]["user"]["username"].ToString();
-                            this.id = message["d"]["user"]["id"].ToString();
+                            Me = new DiscordMember { user = new DiscordUser { username = message["d"]["user"]["username"].ToString(),
+                                id = message["d"]["user"]["id"].ToString(), verified = message["d"]["user"]["verified"].ToObject<bool>(), avatar = message["d"]["user"]["avatar"].ToString(), discriminator = message["d"]["user"]["discriminator"].ToString()} };
                             HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
                             GetChannelsList(message);
                             if (Connected != null)
-                                Connected(this, new DiscordConnectEventArgs { username = this.username, id = this.id }); //Since I already know someone will ask for it.
+                                Connected(this, new DiscordConnectEventArgs { user = Me }); //Since I already know someone will ask for it.
                             break;
                         case ("PRESENCE_UPDATE"):
                             DiscordPresenceUpdateEventArgs dpuea = new DiscordPresenceUpdateEventArgs();
@@ -417,7 +416,7 @@ namespace DiscordSharp
 
                                     Regex r = new Regex("\\d+");
                                     foreach(Match mm in r.Matches(dmea.message))
-                                        if (mm.Value == id) 
+                                        if (mm.Value == Me.user.id) 
                                             if (MentionReceived != null)
                                                 MentionReceived(this, dmea);
                                     if (MessageReceived != null)
@@ -557,11 +556,66 @@ namespace DiscordSharp
             ws = null;
             ServersList = null;
             PrivateChannels = null;
-            this.id = null;
+            Me = null;
             this.token = null;
             this.sessionKey = null;
-            this.username = null;
             this.LoginInformation = null;
+        }
+
+        public async Task<string> SendLoginRequestAsync()
+        {
+            if (LoginInformation == null || LoginInformation.email == null || LoginInformation.email[0].Trim() == "" || LoginInformation.password == null || LoginInformation.password[0].Trim() == "")
+                throw new ArgumentNullException("You didn't supply login information!");
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/auth/login");
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "POST";
+            httpWebRequest.Timeout = 20000;
+
+            using (var sw = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                await sw.WriteAsync(LoginInformation.AsJson());
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponseT = await httpWebRequest.GetResponseAsync();
+                var httpResponse = (HttpWebResponse)httpResponseT;
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = await sr.ReadToEndAsync();
+                    DiscordLoginResult dlr = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
+                    if (dlr.token != null || dlr.token.Trim() != "")
+                    {
+                        this.token = dlr.token;
+                        try
+                        {
+                            string sessionKeyHeader = httpResponse.Headers["set-cookie"].ToString();
+                            string[] split = sessionKeyHeader.Split(new char[] { '=', ';' }, 3);
+                            sessionKey = split[1];
+                        }
+                        catch
+                        {/*no session key fo u!*/}
+                        return token;
+                    }
+                    else
+                        return null;
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    string result = await s.ReadToEndAsync();
+                    DiscordLoginResult jresult = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
+                    if (jresult.password != null)
+                        throw new DiscordLoginException(jresult.password[0]);
+                    if (jresult.email != null)
+                        throw new DiscordLoginException(jresult.email[0]);
+                }
+            }
+
+            return "";
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace DiscordGUI
                 Program.MainDiscordClient.PrivateMessageReceived += MainDiscordClient_PrivateMessageReceived;
                 Program.MainDiscordClient.Connected += (senderr, ee) =>
                 {
-                    MessageBox.Show("Welcome, " + ee.username);
+                    MessageBox.Show("Welcome, " + ee.user.user.username);
                 };
                 Thread t = new Thread(Program.MainDiscordClient.ConnectAndReadMessages);
                 t.Start();

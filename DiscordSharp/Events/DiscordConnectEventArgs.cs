@@ -2,7 +2,6 @@
 {
     public class DiscordConnectEventArgs
     {
-        public string username { get; set; }
-        public string id { get; set; }
+        public DiscordMember user { get; internal set; }
     }
 }
