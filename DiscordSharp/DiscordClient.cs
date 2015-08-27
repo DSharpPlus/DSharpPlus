@@ -97,10 +97,10 @@ namespace DiscordSharp
         public string token { get; set; }
         public string sessionKey { get; set; }
         private string Cookie { get; set; }
-
-        WebSocket ws;
+        private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
-        public List<DiscordServer> GetServersList() { return this.ServersList; }
+        private List<KeyValuePair<string, JObject>> MessageLog = new List<KeyValuePair<string, JObject>>();
+        
         private List<DiscordPrivateChannel> PrivateChannels = new List<DiscordPrivateChannel>();
 
         public event DiscordMessageReceived MessageReceived;
@@ -131,7 +131,9 @@ namespace DiscordSharp
             if (LoginInformation == null)
                 LoginInformation = new DiscordLoginInformation();
         }
-        
+
+        public List<DiscordServer> GetServersList() { return this.ServersList; }
+
         //eh
         private void GetChannelsList(JObject m)
         {
@@ -296,8 +298,156 @@ namespace DiscordSharp
             }
         }
 
-        private List<KeyValuePair<string, JObject>> MessageLog = new List<KeyValuePair<string, JObject>>();
+        #region Message Received Crap..
 
+        private void PresenceUpdateEvents(JObject message)
+        {
+            DiscordPresenceUpdateEventArgs dpuea = new DiscordPresenceUpdateEventArgs();
+            var user = ServersList.Find(x => x.members.Find(y => y.user.id == message["d"]["id"].ToString()) != null).members.Find(x => x.user.id == message["d"]["id"].ToString());
+            dpuea.game_id = message["d"]["game_id"].ToString() == null ? "null" : message["d"]["game_id"].ToString();
+            if (message["d"]["status"].ToString() == "online")
+                dpuea.status = DiscordUserStatus.ONLINE;
+            else if (message["d"]["status"].ToString() == "idle")
+                dpuea.status = DiscordUserStatus.IDLE;
+            else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
+                dpuea.status = DiscordUserStatus.OFFLINE;
+            if (PresenceUpdated != null)
+                PresenceUpdated(this, dpuea);
+        }
+
+        private void MessageUpdateEvents(JObject message)
+        {
+            DiscordServer pserver = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
+            DiscordChannel pchannel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+            if (pchannel != null)
+            {
+                if (message["d"]["author"] != null)
+                {
+                    if (MessageEdited != null)
+                        MessageEdited(this, new DiscordMessageEditedEventArgs
+                        {
+                            author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
+                            Channel = pchannel,
+                            message = message["d"]["content"].ToString(),
+                            MessageType = DiscordMessageType.CHANNEL,
+                            MessageEdited = new DiscordMessage
+                            {
+                                author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
+                                content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value["d"]["content"].ToString(),
+                            }
+                        });
+                    var toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
+                    var jsonToEdit = toRemove.Value;
+                    jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
+                }
+                else //I know they say assume makes an ass out of you and me...but we're assuming it's Discord's weird auto edit of a just URL message
+                {
+                    if (URLMessageAutoUpdate != null)
+                    {
+                        DiscordURLUpdateEventArgs asdf = new DiscordURLUpdateEventArgs(); //I'm running out of clever names and should probably split these off into different internal voids soon...
+                        asdf.id = message["d"]["id"].ToString();
+                        asdf.channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                        foreach (var embed in message["d"]["embeds"])
+                        {
+                            DiscordEmbeds temp = new DiscordEmbeds();
+                            temp.url = embed["url"].ToString();
+                            temp.description = embed["description"].ToString();
+                            temp.provider_name = embed["provider"]["name"].ToString();
+                            temp.provider_url = embed["provider"]["url"].ToString();
+                            temp.title = embed["title"].ToString();
+                            temp.type = embed["type"].ToString();
+                            asdf.embeds.Add(temp);
+                        }
+                        URLMessageAutoUpdate(this, asdf);
+                    }
+                }
+            }
+        }
+
+        private void MessageCreateEvents(JObject message)
+        {
+            try
+            {
+                string tempChannelID = message["d"]["channel_id"].ToString();
+
+                var foundServerChannel = ServersList.Find(x => x.channels.Find(y => y.id == tempChannelID) != null);
+                if (foundServerChannel == null)
+                {
+                    var foundPM = PrivateChannels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                    DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
+                    dpmea.Channel = foundPM;
+                    dpmea.message = message["d"]["content"].ToString();
+                    DiscordMember tempMember = new DiscordMember();
+                    tempMember.user.username = message["d"]["author"]["username"].ToString();
+                    tempMember.user.id = message["d"]["author"]["id"].ToString();
+                    dpmea.author = tempMember;
+
+                    if (PrivateMessageReceived != null)
+                        PrivateMessageReceived(this, dpmea);
+                }
+                else
+                {
+                    DiscordMessageEventArgs dmea = new DiscordMessageEventArgs();
+                    dmea.Channel = foundServerChannel.channels.Find(y => y.id == tempChannelID);
+                    dmea.message = message["d"]["content"].ToString();
+
+                    DiscordMember tempMember = new DiscordMember();
+                    tempMember = foundServerChannel.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString());
+                    dmea.author = tempMember;
+
+                    Regex r = new Regex("\\d+");
+                    foreach (Match mm in r.Matches(dmea.message))
+                        if (mm.Value == Me.user.id)
+                            if (MentionReceived != null)
+                                MentionReceived(this, dmea);
+                    if (MessageReceived != null)
+                        MessageReceived(this, dmea);
+
+                    KeyValuePair<string, JObject> toAdd = new KeyValuePair<string, JObject>(message["d"]["id"].ToString(), message);
+                    MessageLog.Add(toAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("!!! {0}", ex.Message);
+                Console.Beep(100, 1000);
+            }
+        }
+
+        private void ChannelCreateEvents (JObject message)
+        {
+            if (message["d"]["is_private"].ToString().ToLower() == "false")
+            {
+                var foundServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+                if (foundServer != null)
+                {
+                    DiscordChannel tempChannel = new DiscordChannel();
+                    tempChannel.name = message["d"]["name"].ToString();
+                    tempChannel.type = message["d"]["type"].ToString();
+                    tempChannel.id = message["d"]["id"].ToString();
+                    foundServer.channels.Add(tempChannel);
+                    DiscordChannelCreateEventArgs fae = new DiscordChannelCreateEventArgs();
+                    fae.ChannelCreated = tempChannel;
+                    fae.ChannelType = DiscordChannelCreateType.CHANNEL;
+                    if (ChannelCreated != null)
+                        ChannelCreated(this, fae);
+                }
+            }
+            else
+            {
+                DiscordPrivateChannel tempPrivate = new DiscordPrivateChannel();
+                tempPrivate.id = message["d"]["id"].ToString();
+                DiscordRecipient tempRec = new DiscordRecipient();
+                tempRec.id = message["d"]["recipient"]["id"].ToString();
+                tempRec.username = message["d"]["recipient"]["username"].ToString();
+                tempPrivate.recipient = tempRec;
+                PrivateChannels.Add(tempPrivate);
+                DiscordPrivateChannelEventArgs fak = new DiscordPrivateChannelEventArgs { ChannelType = DiscordChannelCreateType.PRIVATE, ChannelCreated = tempPrivate };
+                if (PrivateChannelCreated != null)
+                    PrivateChannelCreated(this, fak);
+            }
+        }
+        #endregion
         public void ConnectAndReadMessages()
         {
             ws = new WebSocket("wss://discordapp.com/hub");
@@ -307,6 +457,8 @@ namespace DiscordSharp
                     switch(message["t"].ToString())
                     {
                         case ("READY"):
+                            using (var sw = new StreamWriter("READY"))
+                                sw.Write(message);
                             Me = new DiscordMember { user = new DiscordUser { username = message["d"]["user"]["username"].ToString(),
                                 id = message["d"]["user"]["id"].ToString(), verified = message["d"]["user"]["verified"].ToObject<bool>(), avatar = message["d"]["user"]["avatar"].ToString(), discriminator = message["d"]["user"]["discriminator"].ToString()} };
                             HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
@@ -315,64 +467,10 @@ namespace DiscordSharp
                                 Connected(this, new DiscordConnectEventArgs { user = Me }); //Since I already know someone will ask for it.
                             break;
                         case ("PRESENCE_UPDATE"):
-                            DiscordPresenceUpdateEventArgs dpuea = new DiscordPresenceUpdateEventArgs();
-                            var user = ServersList.Find(x=>x.members.Find(y=>y.user.id == message["d"]["id"].ToString()) != null).members.Find(x=>x.user.id == message["d"]["id"].ToString());
-                            dpuea.game_id = message["d"]["game_id"].ToString() == null ? "null" : message["d"]["game_id"].ToString();
-                            if (message["d"]["status"].ToString() == "online")
-                                dpuea.status = DiscordUserStatus.ONLINE;
-                            else if (message["d"]["status"].ToString() == "idle")
-                                dpuea.status = DiscordUserStatus.IDLE;
-                            else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
-                                dpuea.status = DiscordUserStatus.OFFLINE;
-                            if (PresenceUpdated != null)
-                                PresenceUpdated(this, dpuea);
+                            PresenceUpdateEvents(message);
                             break;
                         case ("MESSAGE_UPDATE"):
-                            DiscordServer pserver = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
-                            DiscordChannel pchannel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
-                            if(pchannel != null)
-                            {
-                                if (message["d"]["author"] != null)
-                                {
-                                    if (MessageEdited != null)
-                                        MessageEdited(this, new DiscordMessageEditedEventArgs
-                                        {
-                                            author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
-                                            Channel = pchannel,
-                                            message = message["d"]["content"].ToString(),
-                                            MessageType = DiscordMessageType.CHANNEL,
-                                            MessageEdited = new DiscordMessage
-                                            {
-                                                author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
-                                                content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value["d"]["content"].ToString(),
-                                            }
-                                        });
-                                    var toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
-                                    var jsonToEdit = toRemove.Value;
-                                    jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
-                                }
-                                else //I know they say assume makes an ass out of you and me...but we're assuming it's Discord's weird auto edit of a just URL message
-                                {
-                                    if(URLMessageAutoUpdate != null)
-                                    {
-                                        DiscordURLUpdateEventArgs asdf = new DiscordURLUpdateEventArgs(); //I'm running out of clever names and should probably split these off into different internal voids soon...
-                                        asdf.id = message["d"]["id"].ToString();
-                                        asdf.channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
-                                        foreach (var embed in message["d"]["embeds"])
-                                        {
-                                            DiscordEmbeds temp = new DiscordEmbeds();
-                                            temp.url = embed["url"].ToString();
-                                            temp.description = embed["description"].ToString();
-                                            temp.provider_name = embed["provider"]["name"].ToString();
-                                            temp.provider_url = embed["provider"]["url"].ToString();
-                                            temp.title = embed["title"].ToString();
-                                            temp.type = embed["type"].ToString();
-                                            asdf.embeds.Add(temp);
-                                        }
-                                        URLMessageAutoUpdate(this, asdf);
-                                    }
-                                }
-                            }
+                            MessageUpdateEvents(message);
                             break;
                         case ("TYPING_START"):
                             DiscordServer server = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
@@ -385,84 +483,10 @@ namespace DiscordSharp
                             }
                             break;
                         case ("MESSAGE_CREATE"):
-                            try
-                            {
-                                string tempChannelID = message["d"]["channel_id"].ToString();
-
-                                var foundServerChannel = ServersList.Find(x => x.channels.Find(y => y.id == tempChannelID) != null);
-                                if(foundServerChannel == null)
-                                {
-                                    var foundPM = PrivateChannels.Find(x => x.id == message["d"]["channel_id"].ToString());
-                                    DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
-                                    dpmea.Channel = foundPM;
-                                    dpmea.message = message["d"]["content"].ToString();
-                                    DiscordMember tempMember = new DiscordMember();
-                                    tempMember.user.username = message["d"]["author"]["username"].ToString();
-                                    tempMember.user.id = message["d"]["author"]["id"].ToString();
-                                    dpmea.author = tempMember;
-
-                                    if(PrivateMessageReceived != null)
-                                        PrivateMessageReceived(this, dpmea);
-                                }
-                                else
-                                {
-                                    DiscordMessageEventArgs dmea = new DiscordMessageEventArgs();
-                                    dmea.Channel = foundServerChannel.channels.Find(y=>y.id == tempChannelID);
-                                    dmea.message = message["d"]["content"].ToString();
-
-                                    DiscordMember tempMember = new DiscordMember();
-                                    tempMember = foundServerChannel.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString());
-                                    dmea.author = tempMember;
-
-                                    Regex r = new Regex("\\d+");
-                                    foreach(Match mm in r.Matches(dmea.message))
-                                        if (mm.Value == Me.user.id) 
-                                            if (MentionReceived != null)
-                                                MentionReceived(this, dmea);
-                                    if (MessageReceived != null)
-                                        MessageReceived(this, dmea);
-
-                                    KeyValuePair<string, JObject> toAdd = new KeyValuePair<string, JObject>(message["d"]["id"].ToString(), message);
-                                    MessageLog.Add(toAdd);
-                                }
-                            }
-                            catch(Exception ex)
-                            {
-                                Console.WriteLine("!!! {0}", ex.Message);
-                                Console.Beep(100, 1000);
-                            }
+                            MessageCreateEvents(message);
                             break;
                         case ("CHANNEL_CREATE"):
-                            if(message["d"]["is_private"].ToString().ToLower() == "false")
-                            {
-                                var foundServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-                                if(foundServer != null)
-                                {
-                                    DiscordChannel tempChannel = new DiscordChannel();
-                                    tempChannel.name = message["d"]["name"].ToString();
-                                    tempChannel.type = message["d"]["type"].ToString();
-                                    tempChannel.id = message["d"]["id"].ToString();
-                                    foundServer.channels.Add(tempChannel);
-                                    DiscordChannelCreateEventArgs fae = new DiscordChannelCreateEventArgs();
-                                    fae.ChannelCreated = tempChannel;
-                                    fae.ChannelType = DiscordChannelCreateType.CHANNEL;
-                                    if (ChannelCreated != null)
-                                        ChannelCreated(this, fae);
-                                }
-                            }
-                            else
-                            {
-                                DiscordPrivateChannel tempPrivate = new DiscordPrivateChannel();
-                                tempPrivate.id = message["d"]["id"].ToString();
-                                DiscordRecipient tempRec = new DiscordRecipient();
-                                tempRec.id = message["d"]["recipient"]["id"].ToString();
-                                tempRec.username = message["d"]["recipient"]["username"].ToString();
-                                tempPrivate.recipient = tempRec;
-                                PrivateChannels.Add(tempPrivate);
-                                DiscordPrivateChannelEventArgs fak = new DiscordPrivateChannelEventArgs { ChannelType = DiscordChannelCreateType.PRIVATE, ChannelCreated = tempPrivate};
-                                if (PrivateChannelCreated != null)
-                                    PrivateChannelCreated(this, fak);
-                            }
+                            ChannelCreateEvents(message);
                             break;
 #if DEBUG
                             default:
