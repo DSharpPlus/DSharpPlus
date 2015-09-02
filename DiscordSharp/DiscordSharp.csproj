@@ -48,6 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\DiscordVoiceStateUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordURLUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordPresenceUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordTypingStartEventArgs.cs" />

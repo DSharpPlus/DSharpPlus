@@ -27,9 +27,9 @@ namespace DiscordSharpTestApplication
             client.LoginInformation.password[0] = pass;
 
             Console.WriteLine("Attempting login..");
-            client.MessageReceived += (sender, e) =>
+            client.VoiceStateUpdate += (sender, e) =>
             {
-                Console.WriteLine(e.message);
+                Console.WriteLine("***Voice State Update*** User: " + e.user.user.username);
             };
             client.URLMessageAutoUpdate += (sender, e) =>
             {

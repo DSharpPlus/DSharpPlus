@@ -84,6 +84,7 @@ namespace DiscordSharp
     public delegate void DiscordMessageUpdate(object sender, DiscordMessageEditedEventArgs e);
     public delegate void DiscordPresenceUpdate(object sender, DiscordPresenceUpdateEventArgs e);
     public delegate void DiscordURLUpdate(object sender, DiscordURLUpdateEventArgs e);
+    public delegate void DiscordVoiceStateUpdate(object sender, DiscordVoiceStateUpdateEventArgs e);
 
     public class DiscordClient
     {
@@ -116,6 +117,7 @@ namespace DiscordSharp
         public event DiscordMessageUpdate MessageEdited;
         public event DiscordPresenceUpdate PresenceUpdated;
         public event DiscordURLUpdate URLMessageAutoUpdate;
+        public event DiscordVoiceStateUpdate VoiceStateUpdate;
 
         public DiscordMember Me { get; internal set; }
         
@@ -488,6 +490,9 @@ namespace DiscordSharp
                         case ("CHANNEL_CREATE"):
                             ChannelCreateEvents(message);
                             break;
+                        case ("VOICE_STATE_UPDATE"):
+                            VoiceStateUpdateEvents(message);
+                            break;
 #if DEBUG
                             default:
                             ni.BalloonTipText = "Check console! New message type!";
@@ -524,7 +529,20 @@ namespace DiscordSharp
 #if DEBUG
         NotifyIcon ni;
 #endif
-
+        private void VoiceStateUpdateEvents(JObject message)
+        {
+            DiscordVoiceStateUpdateEventArgs e = new DiscordVoiceStateUpdateEventArgs();
+            e.user = ServersList.Find(x => x.members.Find(y => y.user.id == message["d"]["user_id"].ToString()) != null).members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+            e.guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            e.channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+            e.self_deaf = message["d"]["self_deaf"].ToObject<bool>();
+            e.deaf = message["d"]["deaf"].ToObject<bool>();
+            e.self_mute = message["d"]["self_mute"].ToObject<bool>();
+            e.mute = message["d"]["mute"].ToObject<bool>();
+            e.suppress = message["d"]["suppress"].ToObject<bool>();
+            if (VoiceStateUpdate != null)
+                VoiceStateUpdate(this, e);
+        }
         private JObject ServerInfo(string channelOrServerId)
         {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/guilds/" + channelOrServerId);
