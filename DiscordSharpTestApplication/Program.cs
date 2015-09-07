@@ -119,7 +119,7 @@ namespace DiscordSharpTestApplication
                             try
                             {
                                 
-                                var recentScrobbles = lllfclient.User.GetRecentScrobbles("mrmiketheripper", null, 1, 1);
+                                var recentScrobbles = lllfclient.User.GetRecentScrobbles(split[1], null, 1, 1);
                                 LastTrack lastTrack = recentScrobbles.Result.Content[0];
                                 client.SendMessageToChannel(string.Format("*{0}* last listened to _{1}_ by _{2}_", split[1], lastTrack.Name, lastTrack.ArtistName), e.Channel);
                             }
