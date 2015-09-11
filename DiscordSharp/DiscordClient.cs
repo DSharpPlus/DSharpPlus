@@ -70,6 +70,7 @@ namespace DiscordSharp
     {
         PRIVATE, CHANNEL
     }
+    
 
     public delegate void DiscordMessageReceived(object sender, DiscordMessageEventArgs e);
     public delegate void DiscordConnect(object sender, DiscordConnectEventArgs e);
@@ -315,6 +316,64 @@ namespace DiscordSharp
                 dpuea.status = DiscordUserStatus.OFFLINE;
             if (PresenceUpdated != null)
                 PresenceUpdated(this, dpuea);
+        }
+
+        /// <summary>
+        /// Deletes a message with a specified ID.
+        /// </summary>
+        /// <param name="id"></param>
+        public void DeleteMessage(string id)
+        {
+
+        }
+
+        /// <summary>
+        /// Deletes all messages made by the bot since running.
+        /// </summary>
+        /// <returns>A count of messages deleted.</returns>
+        public int DeleteAllMessages()
+        {
+            int count = 0;
+            foreach (var message in this.MessageLog)
+            {
+                if (message.Value["d"]["author"]["id"].ToString() == Me.user.id)
+                {
+                    SendDeleteRequest(message.Value);
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        private void SendDeleteRequest(JObject message)
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + message["d"]["channel_id"].ToString() + "/messages/" + message["d"]["id"].ToString());
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "DELETE";
+
+            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            {
+                //sw.Write("DELETE");
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = sr.ReadToEnd();
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    string result = s.ReadToEnd();
+                    Console.WriteLine("!!! " + result);
+                }
+            }
         }
 
         private void MessageUpdateEvents(JObject message)

@@ -146,6 +146,11 @@ namespace DiscordSharpTestApplication
                         client.SendMessageToChannel(string.Format("<@{0}>: {1}, {2}", foundMember.user.id, foundMember.user.id, foundMember.user.username), e.Channel);
                     }
                 }
+                else if(e.message.StartsWith("?prune test"))
+                {
+                    int messagesDeleted = client.DeleteAllMessages();
+                    client.SendMessageToChannel(messagesDeleted + " messages deleted across all channels.", e.Channel);
+                }
                 else if (e.message.StartsWith("?quoththeraven"))
                     client.SendMessageToChannel("nevermore", e.Channel);
                 else if (e.message.StartsWith("?quote"))
