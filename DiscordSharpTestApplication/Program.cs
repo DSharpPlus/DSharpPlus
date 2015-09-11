@@ -156,10 +156,35 @@ namespace DiscordSharpTestApplication
                         client.SendMessageToChannel(string.Format("<@{0}>: {1}, {2}", foundMember.user.id, foundMember.user.id, foundMember.user.username), e.Channel);
                     }
                 }
-                else if(e.message.content.StartsWith("?prune test"))
+                else if(e.message.content.StartsWith("?prune"))
                 {
-                    int messagesDeleted = client.DeleteAllMessages();
-                    client.SendMessageToChannel(messagesDeleted + " messages deleted across all channels.", e.Channel);
+                    string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                    if(split.Length > 0)
+                    {
+                        if(split[1].Trim() == "all")
+                        {
+                            int messagesDeleted = client.DeleteAllMessages();
+                            client.SendMessageToChannel(messagesDeleted + " messages deleted across all channels.", e.Channel);
+                        }
+                        else if(split[1].Trim() == "here")
+                        {
+                            int messagesDeleted = client.DeleteAllMessagesInChannel(e.Channel);
+                            client.SendMessageToChannel(messagesDeleted + " messages deleted in channel '" + e.Channel.name + "'.", e.Channel);
+                        }
+                        else
+                        {
+                            DiscordChannel channelToPrune = client.GetChannelByName(split[1].Trim());
+                            if(channelToPrune != null)
+                            {
+                                int messagesDeleted = client.DeleteAllMessagesInChannel(channelToPrune);
+                                client.SendMessageToChannel(messagesDeleted + " messages deleted in channel '" + channelToPrune.name + "'.", e.Channel);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        client.SendMessageToChannel("Prune what?", e.Channel);
+                    }
                 }
                 else if (e.message.content.StartsWith("?quoththeraven"))
                     client.SendMessageToChannel("nevermore", e.Channel);

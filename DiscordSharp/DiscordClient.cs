@@ -349,6 +349,36 @@ namespace DiscordSharp
             return count;
         }
 
+        public int DeleteAllMessagesInChannel(DiscordChannel channel)
+        {
+            int count = 0;
+
+            foreach(var message in this.MessageLog)
+            {
+                if (message.Value.channel == channel)
+                    if (message.Value.author.user.id == Me.user.id)
+                    {
+                        SendDeleteRequest(message.Value);
+                        count++;
+                    }
+            }
+
+            return count;
+        }
+
+        public DiscordChannel GetChannelByName(string channelName)
+        {
+            try
+            {
+                return ServersList.Find(x => x.channels.Find(y => y.name.ToLower() == channelName.ToLower()) != null).channels.Find(x => x.name.ToLower() == channelName.ToLower());
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
         private void SendDeleteRequest(DiscordMessage message)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + message.channel.id + "/messages/" + message.id);

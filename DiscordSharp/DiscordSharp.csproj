@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events\DiscordLeftVoiceChannelEventArgs.cs" />
+    <Compile Include="Events\DiscordMessageDeletedEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceStateUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordURLUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordPresenceUpdateEventArgs.cs" />
