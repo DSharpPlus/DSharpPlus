@@ -1,4 +1,6 @@
-﻿namespace DiscordSharp
+﻿using Newtonsoft.Json.Linq;
+
+namespace DiscordSharp
 {
     public class DiscordVoiceStateUpdateEventArgs
     {
@@ -11,5 +13,7 @@
         public bool deaf { get; internal set; }
         public string token {get; internal set;}
         public DiscordChannel channel{get; internal set;}
+
+        public JObject RawJson { get; internal set; }
     }
 }

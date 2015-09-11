@@ -48,6 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\DiscordLeftVoiceChannelEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceStateUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordURLUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordPresenceUpdateEventArgs.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Events\DiscordSocketClosedEventArgs.cs" />
     <Compile Include="Events\DiscordSocketOpenedEventArgs.cs" />
     <Compile Include="Events\DiscordMessageEventArgs.cs" />
+    <Compile Include="Events\UnknownMessageEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -3,6 +3,7 @@ using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Objects;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -27,6 +28,15 @@ namespace DiscordSharpTestApplication
             client.LoginInformation.password[0] = pass;
 
             Console.WriteLine("Attempting login..");
+
+            client.UnknownMessageTypeReceived += (sender, e) =>
+            {
+                using (var sw = new StreamWriter(e.RawJson["t"].ToString() + ".txt"))
+                {
+                    sw.WriteLine(e.RawJson);
+                }
+                client.SendMessageToUser("Heya, a new message type, '" + e.RawJson["t"].ToString() + "', has popped up!", client.GetServersList().Find(x=>x.members.Find(y=>y.user.username == "Axiom") != null).members.Find(x=>x.user.username == "Axiom"));
+            };
             client.VoiceStateUpdate += (sender, e) =>
             {
                 Console.WriteLine("***Voice State Update*** User: " + e.user.user.username);
@@ -70,14 +80,14 @@ namespace DiscordSharpTestApplication
             client.MessageReceived += (sender, e) =>
             {
                 DiscordServer fromServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
-                Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.user.username, e.Channel.name, fromServer.name, e.message);
-                if (e.message.StartsWith("?status"))
+                Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.user.username, e.Channel.name, fromServer.name, e.message.content);
+                if (e.message.content.StartsWith("?status"))
                     client.SendMessageToChannel("I work ;)", e.Channel);
-                else if (e.message.StartsWith("?notify"))
+                else if (e.message.content.StartsWith("?notify"))
                 {
-                    string[] split = e.message.Split(new char[] { ' ' }, 2);
+                    string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                 }
-                else if (e.message.StartsWith("?whereami"))
+                else if (e.message.content.StartsWith("?whereami"))
                 {
                     DiscordServer server = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
                     string owner = "";
@@ -87,10 +97,10 @@ namespace DiscordSharpTestApplication
                     string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by {4}.", e.Channel.name, e.Channel.id, server.name, server.id, owner);
                     client.SendMessageToChannel(whereami, e.Channel);
                 }
-                else if (e.message.StartsWith("?everyone"))
+                else if (e.message.content.StartsWith("?everyone"))
                 {
                     DiscordServer server = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
-                    string[] split = e.message.Split(new char[] { ' ' }, 2);
+                    string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                     if (split.Length > 1)
                     {
                         string message = "";
@@ -106,12 +116,12 @@ namespace DiscordSharpTestApplication
                         client.SendMessageToChannel(message, e.Channel);
                     }
                 }
-                else if (e.message.StartsWith("?lastfm"))
+                else if (e.message.content.StartsWith("?lastfm"))
                 {
 #if __MONOCS__
                         client.SendMessageToChannel("Sorry, not on Mono :(", e.Channel);
 #else
-                    string[] split = e.message.Split(new char[] { ' ' }, 2);
+                    string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                     if (split.Length > 1)
                     {
                         using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
@@ -133,11 +143,11 @@ namespace DiscordSharpTestApplication
                         client.SendMessageToChannel("Who??", e.Channel);
 #endif
                 }
-                else if (e.message.StartsWith("?whois"))
+                else if (e.message.content.StartsWith("?whois"))
                 {
                     //?whois <@01393408>
                     Regex r = new Regex("\\d+");
-                    Match m = r.Match(e.message);
+                    Match m = r.Match(e.message.content);
                     Console.WriteLine("WHOIS INVOKED ON: " + m.Value);
                     var foundServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
                     if (foundServer != null)
@@ -146,16 +156,16 @@ namespace DiscordSharpTestApplication
                         client.SendMessageToChannel(string.Format("<@{0}>: {1}, {2}", foundMember.user.id, foundMember.user.id, foundMember.user.username), e.Channel);
                     }
                 }
-                else if(e.message.StartsWith("?prune test"))
+                else if(e.message.content.StartsWith("?prune test"))
                 {
                     int messagesDeleted = client.DeleteAllMessages();
                     client.SendMessageToChannel(messagesDeleted + " messages deleted across all channels.", e.Channel);
                 }
-                else if (e.message.StartsWith("?quoththeraven"))
+                else if (e.message.content.StartsWith("?quoththeraven"))
                     client.SendMessageToChannel("nevermore", e.Channel);
-                else if (e.message.StartsWith("?quote"))
+                else if (e.message.content.StartsWith("?quote"))
                     client.SendMessageToChannel("Luigibot does what Reta don't.", e.Channel);
-                else if (e.message.StartsWith("?selfdestruct"))
+                else if (e.message.content.StartsWith("?selfdestruct"))
                 {
                     if (e.author.user.username == "Axiom")
                         client.SendMessageToChannel("restaroni in pepparoni", e.Channel);

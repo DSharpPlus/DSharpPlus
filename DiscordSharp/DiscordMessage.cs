@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,8 +13,12 @@ namespace DiscordSharp
     public class DiscordMessage
     {
         public string content { get; set; }
+        public string id { get; internal set; }
         public string[] mentions { get; set; }
         public string recipient_id { get; set; }
         public DiscordMember author { get; internal set; }
+        public DiscordChannel channel { get; internal set; }
+
+        public JObject RawJson { get; internal set; }
     }
 }
