@@ -88,6 +88,7 @@ namespace DiscordSharp
     public delegate void DiscordVoiceStateUpdate(object sender, DiscordVoiceStateUpdateEventArgs e);
     public delegate void DiscordLeftVoiceChannel(object sender, DiscordLeftVoiceChannelEventArgs e);
     public delegate void UnknownMessage(object sender, UnknownMessageEventArgs e);
+    public delegate void DiscordMessageDeleted(object sender, DiscordMessageDeletedEventArgs e);
 
     public class DiscordClient
     {
@@ -123,6 +124,7 @@ namespace DiscordSharp
         public event DiscordURLUpdate URLMessageAutoUpdate;
         public event DiscordVoiceStateUpdate VoiceStateUpdate;
         public event UnknownMessage UnknownMessageTypeReceived;
+        public event DiscordMessageDeleted MessageDeleted;
 
         public DiscordMember Me { get; internal set; }
         
@@ -564,6 +566,9 @@ namespace DiscordSharp
                         case ("VOICE_STATE_UPDATE"):
                             VoiceStateUpdateEvents(message);
                             break;
+                        case ("MESSAGE_DELETE"):
+                            MessageDeletedEvents(message);
+                            break;
                         default:
                             if (UnknownMessageTypeReceived != null)
                                 UnknownMessageTypeReceived(this, new UnknownMessageEventArgs { RawJson = message });
@@ -594,7 +599,15 @@ namespace DiscordSharp
                 ws.Connect();
         }
 
-        
+        private void MessageDeletedEvents(JObject message)
+        {
+            DiscordMessageDeletedEventArgs e = new DiscordMessageDeletedEventArgs();
+            e.DeletedMessage = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value;
+            e.Channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+
+            if (MessageDeleted != null)
+                MessageDeleted(this, e);
+        }
 
         private void VoiceStateUpdateEvents(JObject message)
         {
