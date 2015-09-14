@@ -136,6 +136,8 @@ namespace DiscordSharp
 
         public List<DiscordServer> GetServersList() { return this.ServersList; }
 
+        public List<KeyValuePair<string, DiscordMessage>> GetMessageLog => MessageLog;
+
         //eh
         private void GetChannelsList(JObject m)
         {
