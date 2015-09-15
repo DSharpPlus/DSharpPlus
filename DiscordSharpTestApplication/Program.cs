@@ -3,8 +3,10 @@ using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Objects;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -15,6 +17,7 @@ namespace DiscordSharpTestApplication
     class Program
     {
         static DiscordClient client = new DiscordClient();
+
         public static void Main(string[] args)
         {
             Console.WriteLine("DiscordSharp Tester");
@@ -41,15 +44,6 @@ namespace DiscordSharpTestApplication
             {
                 Console.WriteLine("***Voice State Update*** User: " + e.user.user.username);
             };
-            client.URLMessageAutoUpdate += (sender, e) =>
-            {
-                string message = "*URL(s) Submitted:*\n";
-                for (int i = 0; i < e.embeds.Count; i++)
-                    message += string.Format("{0}: Title: {1}, URL: {2}, Type: {3}, Description: {4}, Provider URL: {5}, Provider Name: {6}\n",
-                        i, e.embeds[i].title, e.embeds[i].url, e.embeds[i].type, e.embeds[i].description, e.embeds[i].provider_url, e.embeds[i].provider_name);
-                client.SendMessageToChannel(message, e.channel);
-            };
-
             client.UserTypingStart += (sender, e) =>
             {
             };
@@ -142,6 +136,38 @@ namespace DiscordSharpTestApplication
                     else
                         client.SendMessageToChannel("Who??", e.Channel);
 #endif
+                }
+                else if(e.message.content.StartsWith("?rename"))
+                {
+                    string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                    if(split.Length > 0)
+                    {
+                        client.ChangeBotUsername(split[1]);
+                    }
+                }
+                else if(e.message.content.StartsWith("?changepic"))
+                {
+                    string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                    if(split.Length > 0)
+                    {
+                        Regex linkParser = new Regex(@"\b(?:https?://|www\.)\S+\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                        string rawString = $"{split[1]}";
+                        if (linkParser.Matches(rawString).Count > 0)
+                        {
+                            string url = linkParser.Matches(rawString)[0].ToString();
+                            using (WebClient wc = new WebClient())
+                            {
+                                byte[] data = wc.DownloadData(url);
+                                using (MemoryStream mem = new MemoryStream(data))
+                                {
+                                    using (var image = System.Drawing.Image.FromStream(mem))
+                                    {
+                                        client.ChangeBotPicture(new Bitmap(image));
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 else if (e.message.content.StartsWith("?whois"))
                 {

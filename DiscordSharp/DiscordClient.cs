@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using DiscordSharp.Events;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace DiscordSharp
 {
@@ -89,6 +90,9 @@ namespace DiscordSharp
     public delegate void DiscordLeftVoiceChannel(object sender, DiscordLeftVoiceChannelEventArgs e);
     public delegate void UnknownMessage(object sender, UnknownMessageEventArgs e);
     public delegate void DiscordMessageDeleted(object sender, DiscordMessageDeletedEventArgs e);
+    public delegate void DiscordUserUpdate(object sender, DiscordUserUpdateEventArgs e);
+    public delegate void DiscordGuildMemberAdded(object sender, DiscordGuildMemberAddEventArgs e);
+    public delegate void DiscordGuildMemberRemoved(object sender, DiscordGuildMemberRemovedEventArgs e);
 
     public class DiscordClient
     {
@@ -125,6 +129,9 @@ namespace DiscordSharp
         public event DiscordVoiceStateUpdate VoiceStateUpdate;
         public event UnknownMessage UnknownMessageTypeReceived;
         public event DiscordMessageDeleted MessageDeleted;
+        public event DiscordUserUpdate UserUpdate;
+        public event DiscordGuildMemberAdded UserAddedToServer;
+        public event DiscordGuildMemberRemoved UserRemovedFromServer;
 
         public DiscordMember Me { get; internal set; }
         
@@ -164,6 +171,8 @@ namespace DiscordSharp
                     DiscordMember member = new DiscordMember();
                     member.user.id = mm["user"]["id"].ToString();
                     member.user.username = mm["user"]["username"].ToString();
+                    member.user.avatar = mm["user"]["avatar"].ToString();
+                    member.user.discriminator = mm["user"]["discriminator"].ToString();
                     temp.members.Add(member);
                 }
                 ServersList.Add(temp);
@@ -206,6 +215,96 @@ namespace DiscordSharp
                     string result = s.ReadToEnd();
                     Console.WriteLine("!!! " + result);   
                 }
+            }
+        }
+
+        public static byte[] ImageToByte2(Image img)
+        {
+            byte[] byteArray = new byte[0];
+            using (MemoryStream stream = new MemoryStream())
+            {
+                img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                stream.Close();
+
+                byteArray = stream.ToArray();
+            }
+            return byteArray;
+        }
+
+        public void ChangeBotPicture(Bitmap image)
+        {
+            string base64 = Convert.ToBase64String(ImageToByte2(image));
+            string type = "image/png;base64";
+            string req = $"data:{type},/9j/{base64}";
+            string usernameRequestJson = JsonConvert.SerializeObject(new
+            {
+                avatar = req,
+                email = LoginInformation.email[0].ToString(),
+                password = LoginInformation.password[0].ToString(),
+            });
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "PATCH";
+            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            {
+                sw.Write(usernameRequestJson.ToString());
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = JObject.Parse(sr.ReadLine());
+                    Console.WriteLine(result.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public void ChangeBotUsername(string newUsername)
+        {
+            string usernameRequestJson = JsonConvert.SerializeObject(new
+            {
+                email = LoginInformation.email[0].ToString(),
+                password = LoginInformation.password[0].ToString(),
+                username = newUsername,
+                avatar = Me.user.avatar
+            });
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "PATCH";
+            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            {
+                sw.Write(usernameRequestJson.ToString());
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = JObject.Parse(sr.ReadLine());
+                    foreach(var server in ServersList)
+                    {
+                        foreach(var member in server.members)
+                        {
+                            if (member.user.id == Me.user.id)
+                                member.user.username = newUsername;
+                        }
+                    }
+                    Me.user.username = newUsername;
+                }
+            }
+            catch(Exception ex)
+            {
             }
         }
 
@@ -449,8 +548,12 @@ namespace DiscordSharp
                             DiscordEmbeds temp = new DiscordEmbeds();
                             temp.url = embed["url"].ToString();
                             temp.description = embed["description"].ToString();
-                            temp.provider_name = embed["provider"]["name"].ToString();
-                            temp.provider_url = embed["provider"]["url"].ToString();
+                            try
+                            {
+                                temp.provider_name = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString();
+                                temp.provider_url = embed["provider"]["url"].ToString();
+                            }
+                            catch { }//noprovider
                             temp.title = embed["title"].ToString();
                             temp.type = embed["type"].ToString();
                             asdf.embeds.Add(temp);
@@ -566,8 +669,18 @@ namespace DiscordSharp
                         case ("READY"):
                             using (var sw = new StreamWriter("READY"))
                                 sw.Write(message);
-                            Me = new DiscordMember { user = new DiscordUser { username = message["d"]["user"]["username"].ToString(),
-                                id = message["d"]["user"]["id"].ToString(), verified = message["d"]["user"]["verified"].ToObject<bool>(), avatar = message["d"]["user"]["avatar"].ToString(), discriminator = message["d"]["user"]["discriminator"].ToString()} };
+                            Me = new DiscordMember
+                            {
+                                user = new DiscordUser
+                                {
+                                    username = message["d"]["user"]["username"].ToString(),
+                                    id = message["d"]["user"]["id"].ToString(),
+                                    verified = message["d"]["user"]["verified"].ToObject<bool>(),
+                                    avatar = message["d"]["user"]["avatar"].ToString(),
+                                    discriminator = message["d"]["user"]["discriminator"].ToString(),
+                                    email = message["d"]["user"]["email"].ToString()
+                                }
+                            };
                             HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
                             GetChannelsList(message);
                             if (Connected != null)
@@ -601,6 +714,9 @@ namespace DiscordSharp
                         case ("MESSAGE_DELETE"):
                             MessageDeletedEvents(message);
                             break;
+                        case ("USER_UPDATE"):
+                            UserUpdateEvents(message);
+                            break;
                         default:
                             if (UnknownMessageTypeReceived != null)
                                 UnknownMessageTypeReceived(this, new UnknownMessageEventArgs { RawJson = message });
@@ -629,6 +745,103 @@ namespace DiscordSharp
                         SocketClosed(this, scev);
                 };
                 ws.Connect();
+        }
+
+        private void GuildMemberAddEvents(JObject message)
+        {
+            DiscordGuildMemberAddEventArgs e = new DiscordGuildMemberAddEventArgs();
+            DiscordMember newMember = new DiscordMember
+            {
+                user = new DiscordUser
+                {
+                    username = message["d"]["user"]["username"].ToString(),
+                    id = message["d"]["user"]["id"].ToString(),
+                    discriminator = message["d"]["user"]["discriminator"].ToString(),
+                    avatar = message["d"]["user"]["avatar"].ToString(),
+                }
+            };
+            e.AddedMember = newMember;
+            e.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            e.roles = message["d"]["roles"].ToObject<string[]>();
+            e.JoinedAt = DateTime.Parse(message["d"]["joined_at"].ToString());
+
+            ServersList.Find(x => x == e.Guild).members.Add(newMember);
+            if (UserAddedToServer != null)
+                UserAddedToServer(this, e);
+        }
+        private void GuildMemberRemoveEvents(JObject message)
+        {
+            DiscordGuildMemberRemovedEventArgs e = new DiscordGuildMemberRemovedEventArgs();
+            DiscordMember removed = new DiscordMember();
+
+            List<DiscordMember> membersToRemove = new List<DiscordMember>();
+            foreach(var server in ServersList)
+            {
+                if (server.id != message["d"]["guild_id"].ToString())
+                    continue;
+                for(int i = 0; i < server.members.Count; i++)
+                {
+                    if(server.members[i].user.id == message["d"]["user"]["id"].ToString())
+                    {
+                        removed = server.members[i];
+                        membersToRemove.Add(removed);
+                    }
+                }
+            }
+            
+            foreach(var member in membersToRemove)
+            {
+                foreach (var server in ServersList)
+                {
+                    try
+                    {
+                        server.members.Remove(member);
+                    }
+                    catch { } //oh, you mean useless?
+                }
+            }
+            e.MemberRemoved = removed;
+            e.Server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+
+            if (UserRemovedFromServer != null)
+                UserRemovedFromServer(this, e);
+        }
+
+        private void UserUpdateEvents(JObject message)
+        {
+            DiscordUserUpdateEventArgs e = new DiscordUserUpdateEventArgs();
+            DiscordMember newMember = new DiscordMember
+            {
+                user = new DiscordUser
+                {
+                    username = message["d"]["username"].ToString(),
+                    id = message["d"]["id"].ToString(),
+                    verified = message["d"]["verified"].ToObject<bool>(),
+                    email = message["d"]["email"].ToString(),
+                    avatar = message["d"]["avatar"].ToString(),
+                    discriminator = message["d"]["discriminator"].ToString()
+                }
+            };
+
+            DiscordMember oldMember = new DiscordMember();
+            //Update members
+            foreach(var server in ServersList)
+            {
+                for(int i = 0; i < server.members.Count; i++)
+                {
+                    if(server.members[i].user.id == newMember.user.id)
+                    {
+                        server.members[i] = newMember;
+                        
+                        oldMember = server.members[i];
+                        
+                    }
+                }
+            }
+            e.NewMember = newMember;
+            e.OriginalMember = oldMember;
+            if (UserUpdate != null)
+                UserUpdate(this, e);
         }
 
         private void MessageDeletedEvents(JObject message)
