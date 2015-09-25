@@ -241,6 +241,7 @@ namespace DiscordSharpTestApplication
             {
                 Console.WriteLine("Logged in..async!");
                 client.ConnectAndReadMessages();
+                
             }
         }
     }

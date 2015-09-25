@@ -104,13 +104,13 @@ namespace DiscordSharp
         private string Cookie { get; set; }
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
+        private string CurrentGatewayURL { get; set; }
 
         /// <summary>
         /// A log of messages kept in a KeyValuePair.
         /// The key is the id of the message, and the value is a DiscordMessage object. If you need raw json, this is contained inside of the DiscordMessage object now.
         /// </summary>
         private List<KeyValuePair<string, DiscordMessage>> MessageLog = new List<KeyValuePair<string, DiscordMessage>>();
-        
         private List<DiscordPrivateChannel> PrivateChannels = new List<DiscordPrivateChannel>();
 
         public event DiscordMessageReceived MessageReceived;
@@ -658,9 +658,39 @@ namespace DiscordSharp
             }
         }
         #endregion
+        private String GetGatewayUrl()
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/gateway");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "GET";
+
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    JObject result = JObject.Parse(sr.ReadToEnd());
+                    return result["url"].ToString();
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    string result = s.ReadToEnd();
+                    Console.WriteLine("!!! " + result);
+                    return null;
+                }
+            }
+        }
+
         public void ConnectAndReadMessages()
         {
-            ws = new WebSocket("wss://discordapp.com/hub");
+            CurrentGatewayURL = GetGatewayUrl();
+            ws = new WebSocket(CurrentGatewayURL);
+            ws.EnableRedirection = true;
+            ws.Log.File = "websocketlog.txt";
                 ws.OnMessage += (sender, e) =>
                 {
                     var message = JObject.Parse(e.Data);
@@ -743,6 +773,7 @@ namespace DiscordSharp
                     scev.WasClean = e.WasClean;
                     if (SocketClosed != null)
                         SocketClosed(this, scev);
+
                 };
                 ws.Connect();
         }
