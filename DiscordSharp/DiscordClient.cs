@@ -232,16 +232,18 @@ namespace DiscordSharp
             return byteArray;
         }
 
+        //tysm voltana <3
         public void ChangeBotPicture(Bitmap image)
         {
             string base64 = Convert.ToBase64String(ImageToByte2(image));
             string type = "image/jpeg;base64";
-            string req = $"data:{type},/9j/{base64}";
+            string req = $"data:{type},{base64}";
             string usernameRequestJson = JsonConvert.SerializeObject(new
             {
                 avatar = req,
                 email = ClientPrivateInformation.email,
                 password = ClientPrivateInformation.password,
+                username = ClientPrivateInformation.username
             });
             var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
             httpRequest.Headers["authorization"] = token;
