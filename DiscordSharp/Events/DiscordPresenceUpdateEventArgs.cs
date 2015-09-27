@@ -8,7 +8,7 @@ namespace DiscordSharp
     {
         public DiscordMember user { get; internal set; }
         public DiscordUserStatus status { get; internal set; }
-        public string game_id { get; internal set; }
+        public int? game_id { get; internal set; }
 
         public JObject RawJson { get; internal set; }
     }

@@ -21,14 +21,14 @@ namespace DiscordSharpTestApplication
         public static void Main(string[] args)
         {
             Console.WriteLine("DiscordSharp Tester");
-            client.LoginInformation = new DiscordLoginInformation();
+            client.ClientPrivateInformation = new DiscordUserInformation();
             Console.Write("Please enter your email: ");
             string email = Console.ReadLine();
-            client.LoginInformation.email[0] = email;
+            client.ClientPrivateInformation.email = email;
 
             Console.Write("Now, your password (visible): ");
             string pass = Console.ReadLine();
-            client.LoginInformation.password[0] = pass;
+            client.ClientPrivateInformation.password = pass;
 
             Console.WriteLine("Attempting login..");
 
@@ -157,7 +157,10 @@ namespace DiscordSharpTestApplication
                     string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                     if(split.Length > 0)
                     {
-                        client.ChangeBotUsername(split[1]);
+                        //client.ChangeBotUsername(split[1]);
+                        DiscordUserInformation newUserInfo = client.ClientPrivateInformation;
+                        newUserInfo.username = split[1].ToString();
+                        client.ChangeBotInformation(newUserInfo);
                     }
                 }
                 else if(e.message.content.StartsWith("?changepic"))

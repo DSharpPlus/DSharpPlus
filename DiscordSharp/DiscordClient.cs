@@ -98,9 +98,10 @@ namespace DiscordSharp
     {
         public string[] Internals { get; set; }
         public string[] DirectMessages { get; set; }
-        public DiscordLoginInformation LoginInformation { get; set; }
+        //public DiscordLoginInformation LoginInformation { get; set; }
         public string token { get; set; }
         public string sessionKey { get; set; }
+        public DiscordUserInformation ClientPrivateInformation { get; set; }
         private string Cookie { get; set; }
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
@@ -137,8 +138,8 @@ namespace DiscordSharp
         
         public DiscordClient()
         {
-            if (LoginInformation == null)
-                LoginInformation = new DiscordLoginInformation();
+            if (ClientPrivateInformation == null)
+                ClientPrivateInformation = new DiscordUserInformation();
         }
 
         public List<DiscordServer> GetServersList() { return this.ServersList; }
@@ -234,13 +235,13 @@ namespace DiscordSharp
         public void ChangeBotPicture(Bitmap image)
         {
             string base64 = Convert.ToBase64String(ImageToByte2(image));
-            string type = "image/png;base64";
+            string type = "image/jpeg;base64";
             string req = $"data:{type},/9j/{base64}";
             string usernameRequestJson = JsonConvert.SerializeObject(new
             {
                 avatar = req,
-                email = LoginInformation.email[0].ToString(),
-                password = LoginInformation.password[0].ToString(),
+                email = ClientPrivateInformation.email,
+                password = ClientPrivateInformation.password,
             });
             var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
             httpRequest.Headers["authorization"] = token;
@@ -267,15 +268,58 @@ namespace DiscordSharp
             }
         }
 
-        public void ChangeBotUsername(string newUsername)
+        public void ChangeBotInformation(DiscordUserInformation info)
         {
             string usernameRequestJson = JsonConvert.SerializeObject(new
             {
-                email = LoginInformation.email[0].ToString(),
-                password = LoginInformation.password[0].ToString(),
+                email = info.email,
+                password = info.password,
+                username = info.username,
+                avatar = info.avatar
+            });
+
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "PATCH";
+            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            {
+                sw.Write(usernameRequestJson.ToString());
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = JObject.Parse(sr.ReadLine());
+                    foreach (var server in ServersList)
+                    {
+                        foreach (var member in server.members)
+                        {
+                            if (member.user.id == Me.user.id)
+                                member.user.username = info.username;
+                        }
+                    }
+                    Me.user.username = info.username;
+                    Me.user.email = info.email;
+                    Me.user.avatar = info.avatar;
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        private void ChangeBotUsername(string newUsername)
+        {
+            string usernameRequestJson = JsonConvert.SerializeObject(new
+            {
+                email = ClientPrivateInformation.email,
+                password = ClientPrivateInformation.password,
                 username = newUsername,
                 avatar = Me.user.avatar,
-                game_id = "110"
             });
             var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
             httpRequest.Headers["authorization"] = token;
@@ -447,7 +491,7 @@ namespace DiscordSharp
             if (pserver != null)
             {
                 var user = pserver.members.Find(x => x.user.id == message["d"]["id"].ToString());
-                dpuea.game_id = message["d"]["game_id"].ToString() == null ? "null" : message["d"]["game_id"].ToString();
+                dpuea.game_id = message["d"]["game_id"].ToObject<int?>();
                 if (message["d"]["status"].ToString() == "online")
                     dpuea.status = DiscordUserStatus.ONLINE;
                 else if (message["d"]["status"].ToString() == "idle")
@@ -748,6 +792,8 @@ namespace DiscordSharp
                                     email = message["d"]["user"]["email"].ToString()
                                 }
                             };
+                            ClientPrivateInformation.avatar = Me.user.avatar;
+                            ClientPrivateInformation.username = Me.user.username;
                             HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
                             GetChannelsList(message);
                             if (Connected != null)
@@ -1002,12 +1048,12 @@ namespace DiscordSharp
             Me = null;
             this.token = null;
             this.sessionKey = null;
-            this.LoginInformation = null;
+            this.ClientPrivateInformation = null;
         }
 
         public async Task<string> SendLoginRequestAsync()
         {
-            if (LoginInformation == null || LoginInformation.email == null || LoginInformation.email[0].Trim() == "" || LoginInformation.password == null || LoginInformation.password[0].Trim() == "")
+            if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
                 throw new ArgumentNullException("You didn't supply login information!");
             var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/auth/login");
             httpWebRequest.ContentType = "application/json";
@@ -1016,7 +1062,12 @@ namespace DiscordSharp
 
             using (var sw = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                await sw.WriteAsync(LoginInformation.AsJson());
+                string msg = JsonConvert.SerializeObject(new
+                {
+                    email = ClientPrivateInformation.email,
+                    password = ClientPrivateInformation.password
+                });
+                await sw.WriteAsync(msg);
                 sw.Flush();
                 sw.Close();
             }
@@ -1067,7 +1118,7 @@ namespace DiscordSharp
         /// <returns>The token if login was succesful, or null if not</returns>
         public string SendLoginRequest()
         {
-            if (LoginInformation == null || LoginInformation.email == null || LoginInformation.email[0].Trim() == "" || LoginInformation.password == null || LoginInformation.password[0].Trim() == "")
+            if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
                 throw new ArgumentNullException("You didn't supply login information!");
 
             var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/auth/login");
@@ -1077,7 +1128,12 @@ namespace DiscordSharp
 
             using (var sw = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                sw.Write(LoginInformation.AsJson());
+                string msg = JsonConvert.SerializeObject(new
+                {
+                    email = ClientPrivateInformation.email,
+                    password = ClientPrivateInformation.password
+                });
+                sw.Write(msg);
                 sw.Flush();
                 sw.Close();
             }
