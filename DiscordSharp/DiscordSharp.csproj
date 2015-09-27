@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events\DiscordGuildCreateEventArgs.cs" />
+    <Compile Include="Events\DiscordGuildDeleteEventArgs.cs" />
     <Compile Include="Events\DiscordGuildMemberAddEventArgs.cs" />
     <Compile Include="Events\DiscordGuildMemberRemoved.cs" />
     <Compile Include="Events\DiscordLeftVoiceChannelEventArgs.cs" />

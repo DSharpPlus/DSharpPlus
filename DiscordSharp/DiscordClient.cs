@@ -95,6 +95,7 @@ namespace DiscordSharp
     public delegate void DiscordGuildMemberRemoved(object sender, DiscordGuildMemberRemovedEventArgs e);
     public delegate void DiscordGuildCreate(object sender, DiscordGuildCreateEventArgs e);
     public delegate void DiscordGuildDelete(object sender, DiscordGuildDeleteEventArgs e);
+    public delegate void DiscordChannelUpdate(object sender, DiscordChannelUpdateEventArgs e);
 
     public class DiscordClient
     {
@@ -139,6 +140,7 @@ namespace DiscordSharp
         public event DiscordGuildMemberRemoved UserRemovedFromServer;
         public event DiscordGuildCreate GuildCreated;
         public event DiscordGuildDelete GuildDeleted;
+        public event DiscordChannelUpdate ChannelUpdated;
         #endregion
         
         public DiscordClient()
@@ -932,6 +934,9 @@ namespace DiscordSharp
                         case ("USER_UPDATE"):
                             UserUpdateEvents(message);
                             break;
+                        case ("CHANNEL_UPDATE"):
+                            ChannelUpdateEvents(message);
+                            break;
                         default:
                             if (UnknownMessageTypeReceived != null)
                                 UnknownMessageTypeReceived(this, new UnknownMessageEventArgs { RawJson = message });
@@ -961,6 +966,25 @@ namespace DiscordSharp
 
                 };
                 ws.Connect();
+        }
+
+        private void ChannelUpdateEvents(JObject message)
+        {
+            DiscordChannelUpdateEventArgs e = new DiscordChannelUpdateEventArgs();
+            e.RawJson = message;
+            DiscordChannel oldChannel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["id"].ToString()) != null).channels.Find(x=>x.id == message["d"]["id"].ToString());
+            e.OldChannel = oldChannel;
+            DiscordChannel newChannel = oldChannel;
+            newChannel.name = message["d"]["name"].ToString();
+            newChannel.topic = message["d"]["topic"].ToString();
+            newChannel.is_private = message["d"]["is_private"].ToObject<bool>();
+            e.NewChannel = newChannel;
+
+            ServersList.Find(x => x.channels.Find(y => y.id == newChannel.id) != null).channels.Remove(oldChannel);
+            ServersList.Find(x => x.channels.Find(y => y.id == newChannel.id) != null).channels.Add(newChannel);
+
+            if (ChannelUpdated != null)
+                ChannelUpdated(this, e);
         }
 
         private void GuildDeleteEvents(JObject message)
