@@ -274,7 +274,8 @@ namespace DiscordSharp
                 email = LoginInformation.email[0].ToString(),
                 password = LoginInformation.password[0].ToString(),
                 username = newUsername,
-                avatar = Me.user.avatar
+                avatar = Me.user.avatar,
+                game_id = "110"
             });
             var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
             httpRequest.Headers["authorization"] = token;
@@ -402,6 +403,42 @@ namespace DiscordSharp
         }
 
         #region Message Received Crap..
+
+        /// <summary>
+        /// Set gameId to null if you want to remove the current game.
+        /// </summary>
+        /// <param name="gameId">The game's ID. These values can be found at http://hastebin.com/azijiyaboc.json/ </param>
+        public void UpdateCurrentGame(int? gameId)
+        {
+            string msg;
+            if (gameId != null)
+            {
+                msg = JsonConvert.SerializeObject(
+                    new
+                    {
+                        op = 3,
+                        d = new
+                        {
+                            idle_since = (object)null,
+                            game_id = gameId
+                        }
+                    });
+            }
+            else
+            {
+                msg = JsonConvert.SerializeObject(
+                    new
+                    {
+                        op = 3,
+                        d = new
+                        {
+                            idle_since = (object)null,
+                            game_id = (object)null
+                        }
+                    });
+            }
+            ws.Send(msg.ToString());
+        }
 
         private void PresenceUpdateEvents(JObject message)
         {

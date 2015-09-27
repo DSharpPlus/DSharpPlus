@@ -32,6 +32,13 @@ namespace DiscordSharpTestApplication
 
             Console.WriteLine("Attempting login..");
 
+            client.PresenceUpdated += (sender, e) =>
+            {
+                Console.WriteLine(e.RawJson);
+                if(e.game_id != null)
+                    Console.WriteLine("In game: " + e.game_id);
+            };
+
             client.UnknownMessageTypeReceived += (sender, e) =>
             {
                 using (var sw = new StreamWriter(e.RawJson["t"].ToString() + ".txt"))
@@ -90,6 +97,14 @@ namespace DiscordSharpTestApplication
                             owner = member.user.username;
                     string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by {4}.", e.Channel.name, e.Channel.id, server.name, server.id, owner);
                     client.SendMessageToChannel(whereami, e.Channel);
+                }
+                else if(e.message.content.StartsWith("?test_game"))
+                {
+                    string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                    if(split.Length > 0)
+                    {
+                        client.UpdateCurrentGame(int.Parse(split[1]));
+                    }
                 }
                 else if (e.message.content.StartsWith("?everyone"))
                 {
@@ -241,7 +256,7 @@ namespace DiscordSharpTestApplication
             {
                 Console.WriteLine("Logged in..async!");
                 client.ConnectAndReadMessages();
-                
+                client.UpdateCurrentGame(256);
             }
         }
     }
