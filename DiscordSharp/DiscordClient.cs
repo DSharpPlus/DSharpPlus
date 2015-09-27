@@ -696,6 +696,9 @@ namespace DiscordSharp
             {
                 if (message["d"]["author"] != null)
                 {
+                    KeyValuePair<string, DiscordMessage> toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
+                    var jsonToEdit = toRemove.Value.RawJson;
+                    jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
                     if (MessageEdited != null)
                         MessageEdited(this, new DiscordMessageEditedEventArgs
                         {
@@ -709,9 +712,12 @@ namespace DiscordSharp
                                 content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value.content,
                             }
                         });
-                    var toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
-                    var jsonToEdit = toRemove.Value.RawJson;
-                    jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
+                    int indexOfMessageToChange = MessageLog.IndexOf(toRemove);
+                    MessageLog.Remove(toRemove);
+                    DiscordMessage newMessage = toRemove.Value;
+                    newMessage.content = jsonToEdit["d"]["content"].ToString();
+                    MessageLog.Insert(indexOfMessageToChange, new KeyValuePair<string, DiscordMessage>(jsonToEdit["d"]["id"].ToString(), newMessage));
+
                 }
                 else //I know they say assume makes an ass out of you and me...but we're assuming it's Discord's weird auto edit of a just URL message
                 {
