@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp.Events
 {
-    public class DiscordGuildMemberRemovedEventArgs
+    public class DiscordGuildCreateEventArgs
     {
-        public DiscordMember MemberRemoved { get; internal set; }
-        public DiscordServer Server { get; internal set; }
+        public DiscordServer server { get; internal set; }
         public JObject RawJson { get; internal set; }
     }
 }

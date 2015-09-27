@@ -32,13 +32,6 @@ namespace DiscordSharpTestApplication
 
             Console.WriteLine("Attempting login..");
 
-            client.PresenceUpdated += (sender, e) =>
-            {
-                Console.WriteLine(e.RawJson);
-                if(e.game_id != null)
-                    Console.WriteLine("In game: " + e.game_id);
-            };
-
             client.UnknownMessageTypeReceived += (sender, e) =>
             {
                 using (var sw = new StreamWriter(e.RawJson["t"].ToString() + ".txt"))
@@ -51,8 +44,9 @@ namespace DiscordSharpTestApplication
             {
                 Console.WriteLine("***Voice State Update*** User: " + e.user.user.username);
             };
-            client.UserTypingStart += (sender, e) =>
+            client.GuildCreated += (sender, e) =>
             {
+                Console.WriteLine("Server Created: " + e.server.name);
             };
             client.MessageEdited += (sender, e) =>
             {
@@ -95,7 +89,7 @@ namespace DiscordSharpTestApplication
                     foreach (var member in server.members)
                         if (member.user.id == server.owner_id)
                             owner = member.user.username;
-                    string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by {4}.", e.Channel.name, e.Channel.id, server.name, server.id, owner);
+                    string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by {4}. The channel's topic is: {5}", e.Channel.name, e.Channel.id, server.name, server.id, owner, e.Channel.topic);
                     client.SendMessageToChannel(whereami, e.Channel);
                 }
                 else if(e.message.content.StartsWith("?test_game"))
@@ -104,6 +98,25 @@ namespace DiscordSharpTestApplication
                     if(split.Length > 0)
                     {
                         client.UpdateCurrentGame(int.Parse(split[1]));
+                    }
+                }
+                else if(e.message.content.StartsWith("?gtfo"))
+                {
+                    string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                    if(split.Length > 1)
+                    {
+                        DiscordServer curServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == split[1]) != null);
+                        if (curServer != null)
+                        {
+                            client.SendMessageToChannel("Leaving server " + curServer.name, e.Channel);
+                            client.LeaveServer(curServer.id);
+                        }
+                    }
+                    else
+                    {
+                        DiscordServer curServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
+                        client.SendMessageToChannel("Bye!", e.Channel);
+                        client.LeaveServer(curServer.id);
                     }
                 }
                 else if (e.message.content.StartsWith("?everyone"))
@@ -208,12 +221,14 @@ namespace DiscordSharpTestApplication
                         if(split[1].Trim() == "all")
                         {
                             int messagesDeleted = client.DeleteAllMessages();
-                            client.SendMessageToChannel(messagesDeleted + " messages deleted across all channels.", e.Channel);
+                            if(split.Length > 1 && split[2] != "nonotice")
+                                client.SendMessageToChannel(messagesDeleted + " messages deleted across all channels.", e.Channel);
                         }
                         else if(split[1].Trim() == "here")
                         {
                             int messagesDeleted = client.DeleteAllMessagesInChannel(e.Channel);
-                            client.SendMessageToChannel(messagesDeleted + " messages deleted in channel '" + e.Channel.name + "'.", e.Channel);
+                            if (split.Length > 1 && split[2] != "nonotice")
+                                client.SendMessageToChannel(messagesDeleted + " messages deleted in channel '" + e.Channel.name + "'.", e.Channel);
                         }
                         else
                         {
@@ -221,7 +236,8 @@ namespace DiscordSharpTestApplication
                             if(channelToPrune != null)
                             {
                                 int messagesDeleted = client.DeleteAllMessagesInChannel(channelToPrune);
-                                client.SendMessageToChannel(messagesDeleted + " messages deleted in channel '" + channelToPrune.name + "'.", e.Channel);
+                                if (split.Length > 1 && split[2] != "nonotice")
+                                    client.SendMessageToChannel(messagesDeleted + " messages deleted in channel '" + channelToPrune.name + "'.", e.Channel);
                             }
                         }
                     }
@@ -239,6 +255,28 @@ namespace DiscordSharpTestApplication
                     if (e.author.user.username == "Axiom")
                         client.SendMessageToChannel("restaroni in pepparoni", e.Channel);
                     Environment.Exit(0);
+                }
+                else if(e.message.content.StartsWith("?changetopic"))
+                {
+                    if(e.author.user.username == "Axiom")
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if (split.Length > 0)
+                            client.ChangeChannelTopic(split[1], e.Channel);
+                    }
+                }
+                else if(e.message.content.StartsWith("?join"))
+                {
+                    if(e.author.user.username == "Axiom")
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 0)
+                        {
+                            string substring = split[1].Substring(split[1].LastIndexOf('/') + 1);
+                            //client.SendMessageToChannel(substring, e.Channel);
+                            client.AcceptInvite(substring);
+                        }
+                    }
                 }
             };
             client.Connected += (sender, e) =>
