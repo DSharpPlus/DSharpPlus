@@ -293,7 +293,7 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = JObject.Parse(sr.ReadLine());
-                    Console.WriteLine(result.ToString());
+                    //Console.WriteLine(result.ToString());
                 }
             }
             catch (Exception ex)
@@ -328,7 +328,7 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = JObject.Parse(sr.ReadLine());
-                    Console.WriteLine(result);
+                    //Console.WriteLine(result);
 
                     ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null).channels.Find(x => x.id == channel.id).topic = Channeltopic;
                 }
@@ -986,8 +986,13 @@ namespace DiscordSharp
             newChannel.is_private = message["d"]["is_private"].ToObject<bool>();
             e.NewChannel = newChannel;
 
-            ServersList.Find(x => x.channels.Find(y => y.id == newChannel.id) != null).channels.Remove(oldChannel);
-            ServersList.Find(x => x.channels.Find(y => y.id == newChannel.id) != null).channels.Add(newChannel);
+            DiscordServer serverToRemoveFrom = ServersList.Find(x => x.channels.Find(y => y.id == newChannel.id) != null);
+            int indexOfServer = ServersList.IndexOf(serverToRemoveFrom);
+            serverToRemoveFrom.channels.Remove(oldChannel);
+            serverToRemoveFrom.channels.Add(newChannel);
+
+            ServersList.RemoveAt(indexOfServer);
+            ServersList.Insert(indexOfServer, serverToRemoveFrom);
 
             if (ChannelUpdated != null)
                 ChannelUpdated(this, e);
