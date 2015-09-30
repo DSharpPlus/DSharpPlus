@@ -8,8 +8,8 @@ Discord is what I like to call, an *event based* client. In other words, you get
 ```
 using(var client = new DiscordClient())
 {
-  client.LoginInformation.email[0] = "email"; //this is because Discord accepts a string array for some reason...
-  client.LoginInformation.password[0] = "pass";
+  client.ClientPrivateInformation.email = "email";
+  client.ClientPrivateInformation.password = "pass";
   
   client.Connected += (sender, e) =>
   {
@@ -33,7 +33,7 @@ Discord.Net, another great C# library - https://github.com/RogueException/Discor
 
 Discord4J, a Java library - https://github.com/racist/Discord4J
 
-node-discord, a Node.js library which I referenced a lot - https://github.com/izy521/node-discord
+discord.io, a Node.js library which I referenced a lot - https://github.com/izy521/discord.io
 
 discord.js, an alternate Node.js library - https://github.com/discord-js/discord.js
 
@@ -41,4 +41,4 @@ DiscordPHP, a PHP library - https://github.com/teamreflex/DiscordPHP
 
 discordrb, a Ruby library - https://github.com/meew0/discordrb
 
-pydiscord, a Python library - https://github.com/Rapptz/pydiscord
+discord.py, a Python library - https://github.com/Rapptz/discord.py
