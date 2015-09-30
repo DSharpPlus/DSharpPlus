@@ -8,8 +8,8 @@ Discord is what I like to call, an *event based* client. In other words, you get
 ```
 using(var client = new DiscordClient())
 {
-  client.LoginInformation.email[0] = "email"; //this is because Discord accepts a string array for some reason...
-  client.LoginInformation.password[0] = "pass";
+  client.ClientPrivateInformation.email = "email";
+  client.ClientPrivateInformation.password = "pass";
   
   client.Connected += (sender, e) =>
   {
