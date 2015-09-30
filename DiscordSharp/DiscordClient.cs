@@ -96,6 +96,7 @@ namespace DiscordSharp
     public delegate void DiscordGuildCreate(object sender, DiscordGuildCreateEventArgs e);
     public delegate void DiscordGuildDelete(object sender, DiscordGuildDeleteEventArgs e);
     public delegate void DiscordChannelUpdate(object sender, DiscordChannelUpdateEventArgs e);
+    public delegate void DiscordDebugMessages(object sender, DiscordDebugMessagesEventArgs e);
 
     public class DiscordClient
     {
@@ -141,6 +142,7 @@ namespace DiscordSharp
         public event DiscordGuildCreate GuildCreated;
         public event DiscordGuildDelete GuildDeleted;
         public event DiscordChannelUpdate ChannelUpdated;
+        public event DiscordDebugMessages DebugMessageReceived;
         #endregion
         
         public DiscordClient()
@@ -298,7 +300,8 @@ namespace DiscordSharp
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                if (DebugMessageReceived != null)
+                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
             }
         }
 
@@ -328,13 +331,13 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = JObject.Parse(sr.ReadLine());
-                    //Console.WriteLine(result);
-
                     ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null).channels.Find(x => x.id == channel.id).topic = Channeltopic;
                 }
             }
             catch (Exception ex)
             {
+                if (DebugMessageReceived != null)
+                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
             }
         }
 
@@ -379,6 +382,8 @@ namespace DiscordSharp
             }
             catch (Exception ex)
             {
+                if (DebugMessageReceived != null)
+                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
             }
         }
 
@@ -420,6 +425,8 @@ namespace DiscordSharp
             }
             catch(Exception ex)
             {
+                if (DebugMessageReceived != null)
+                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
             }
         }
 
@@ -447,9 +454,10 @@ namespace DiscordSharp
                     SendActualMessage(result["id"].ToString(), message);
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                //shouldn't even have to worry about this..
+                if (DebugMessageReceived != null)
+                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
             }
         }
 

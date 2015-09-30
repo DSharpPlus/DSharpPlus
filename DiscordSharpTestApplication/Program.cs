@@ -32,6 +32,10 @@ namespace DiscordSharpTestApplication
 
             Console.WriteLine("Attempting login..");
 
+            client.DebugMessageReceived += (sender, e) =>
+            {
+                client.SendMessageToUser("[DEBUG MESSAGE]: " + e.message, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
+            };
             client.UnknownMessageTypeReceived += (sender, e) =>
             {
                 using (var sw = new StreamWriter(e.RawJson["t"].ToString() + ".txt"))
