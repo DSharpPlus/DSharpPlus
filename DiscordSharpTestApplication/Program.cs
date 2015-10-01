@@ -17,6 +17,7 @@ namespace DiscordSharpTestApplication
     class Program
     {
         static DiscordClient client = new DiscordClient();
+        static WaitHandle waitHandle = new AutoResetEvent(false);
 
         public static void Main(string[] args)
         {
@@ -291,8 +292,25 @@ namespace DiscordSharpTestApplication
             {
                 Console.WriteLine("Closed ({0}): {1}", e.Code, e.Reason);
             };
-            ConnectStuff();
-            while (true) ;
+            //ConnectStuff();
+            //while (true) ;
+            if (client.SendLoginRequest() != null)
+            {
+                Console.WriteLine("Logged in..async!");
+                
+                ThreadPool.QueueUserWorkItem(new WaitCallback(Wait), waitHandle);
+                WaitHandle.WaitAll(new WaitHandle[] { waitHandle });
+            }
+            System.Windows.Forms.Application.Run();
+            client.Dispose();
+        }
+
+        private static void Wait(Object state)
+        {
+            AutoResetEvent ar = (AutoResetEvent)state;
+            client.ConnectAndReadMessages();
+            client.UpdateCurrentGame(256);
+            ar.Set();
         }
 
         private static async void ConnectStuff()
