@@ -343,13 +343,29 @@ namespace DiscordSharp
 
         public void ChangeBotInformation(DiscordUserInformation info)
         {
-            string usernameRequestJson = JsonConvert.SerializeObject(new
+            string usernameRequestJson;
+            if (info.password != ClientPrivateInformation.password)
             {
-                email = info.email,
-                password = info.password,
-                username = info.username,
-                avatar = info.avatar
-            });
+                usernameRequestJson = JsonConvert.SerializeObject(new
+                {
+                    email = info.email,
+                    new_password = info.password,
+                    password = ClientPrivateInformation.password,
+                    username = info.username,
+                    avatar = info.avatar
+                });
+                ClientPrivateInformation.password = info.password;
+            }
+            else
+            {
+                usernameRequestJson = JsonConvert.SerializeObject(new
+                {
+                    email = info.email,
+                    password = info.password,
+                    username = info.username,
+                    avatar = info.avatar
+                });
+            }
 
             var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
             httpRequest.Headers["authorization"] = token;

@@ -14,5 +14,16 @@ namespace DiscordSharp
         public string avatar { get; set; }
         public DiscordUserInformation()
         {}
+
+        public DiscordUserInformation Copy()
+        {
+            return new DiscordUserInformation
+            {
+                email = this.email,
+                password = this.password,
+                username = this.username,
+                avatar = this.avatar
+            };
+        }
     }
 }
