@@ -105,7 +105,7 @@ namespace DiscordSharp
         //public DiscordLoginInformation LoginInformation { get; set; }
         public string token { get; set; }
         public string sessionKey { get; set; }
-        private string CurrentGatewayURL { get; set; }
+        public string CurrentGatewayURL { get; set; }
         private string Cookie { get; set; }
         public DiscordUserInformation ClientPrivateInformation { get; set; }
         public DiscordMember Me { get; internal set; }
@@ -1254,14 +1254,56 @@ namespace DiscordSharp
         //Thread ConnectReadMessagesThread;
         public void Dispose()
         {
-            ws.Close();
-            ws = null;
-            ServersList = null;
-            PrivateChannels = null;
-            Me = null;
-            this.token = null;
-            this.sessionKey = null;
-            this.ClientPrivateInformation = null;
+            try
+            {
+                ws.Close();
+                ws = null;
+                ServersList = null;
+                PrivateChannels = null;
+                Me = null;
+                this.token = null;
+                this.sessionKey = null;
+                this.ClientPrivateInformation = null;
+            }
+            catch { /*already been disposed elsewhere */ }
+        }
+
+        public void Logout()
+        {
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/auth/logout");
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "POST";
+
+            using (var sw = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                string msg = JsonConvert.SerializeObject(new
+                {
+                    token = this.token
+                });
+                sw.Write(msg);
+                sw.Flush();
+                sw.Close();
+            }
+
+            try
+            {
+                var httpResponseT = httpWebRequest.GetResponse();
+                var httpResponse = (HttpWebResponse)httpResponseT;
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = sr.ReadToEnd();
+                    Console.WriteLine(result);
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    string result = s.ReadToEnd();
+                    Console.WriteLine("Result from exception: " + e.Message);
+                }
+            }
+            Dispose();
         }
 
         public async Task<string> SendLoginRequestAsync()

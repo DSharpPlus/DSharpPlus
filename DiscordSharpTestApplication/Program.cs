@@ -298,10 +298,11 @@ namespace DiscordSharpTestApplication
                 //while (true) ;
                 if (client.SendLoginRequest() != null)
                 {
-                    Console.WriteLine("Logged in..async!");
+                    Console.WriteLine("Logged in!");
 
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(Wait), waitHandle);
-                    WaitHandle.WaitAll(new WaitHandle[] { waitHandle });
+                    client.ConnectAndReadMessages();
+                    Console.WriteLine($"Connected to {client.CurrentGatewayURL}");
+                    client.UpdateCurrentGame(256);
                 }
             });
             worker.Start();
@@ -320,6 +321,8 @@ namespace DiscordSharpTestApplication
             hit!
             */
             client.Dispose();
+
+            Console.ReadLine();
         }
 
         private static void InputCheck()
@@ -339,15 +342,11 @@ namespace DiscordSharpTestApplication
 
                     Console.WriteLine("Password changed!");
                 }
+                else if(input.Contains("?logout"))
+                {
+                    client.Logout();
+                }
             } while (!String.IsNullOrWhiteSpace(input));
-        }
-
-        private static void Wait(Object state)
-        {
-            AutoResetEvent ar = (AutoResetEvent)state;
-            client.ConnectAndReadMessages();
-            client.UpdateCurrentGame(256);
-            ar.Set();
         }
 
         private static async void ConnectStuff()
