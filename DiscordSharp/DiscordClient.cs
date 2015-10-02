@@ -927,6 +927,9 @@ namespace DiscordSharp
                         case ("GUILD_MEMBER_REMOVE"):
                             GuildMemberRemoveEvents(message);
                             break;
+                        case ("GUILD_MEMBER_ADD"):
+                            GuildMemberAddEvents(message);
+                            break;
                         case ("GUILD_DELETE"):
                             GuildDeleteEvents(message);
                             break;
@@ -1085,7 +1088,6 @@ namespace DiscordSharp
             e.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             e.roles = message["d"]["roles"].ToObject<string[]>();
             e.JoinedAt = DateTime.Parse(message["d"]["joined_at"].ToString());
-           
 
             ServersList.Find(x => x == e.Guild).members.Add(newMember);
             if (UserAddedToServer != null)
