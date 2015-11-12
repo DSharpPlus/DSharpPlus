@@ -23,13 +23,25 @@ namespace DiscordSharpTestApplication
         {
             Console.WriteLine("DiscordSharp Tester");
             client.ClientPrivateInformation = new DiscordUserInformation();
-            Console.Write("Please enter your email: ");
-            string email = Console.ReadLine();
-            client.ClientPrivateInformation.email = email;
 
-            Console.Write("Now, your password (visible): ");
-            string pass = Console.ReadLine();
-            client.ClientPrivateInformation.password = pass;
+            if (File.Exists("credentials.txt"))
+            {
+                using (StreamReader sr = new StreamReader("credentials.txt"))
+                {
+                    client.ClientPrivateInformation.email = sr.ReadLine();
+                    client.ClientPrivateInformation.password = sr.ReadLine();
+                }
+            }
+            else
+            {
+                Console.Write("Please enter your email: ");
+                string email = Console.ReadLine();
+                client.ClientPrivateInformation.email = email;
+
+                Console.Write("Now, your password (visible): ");
+                string pass = Console.ReadLine();
+                client.ClientPrivateInformation.password = pass;
+            }
 
             Console.WriteLine("Attempting login..");
 

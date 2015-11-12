@@ -472,8 +472,8 @@ namespace DiscordSharp
             }
             catch(Exception ex)
             {
-                if (DebugMessageReceived != null)
-                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
+                //if (DebugMessageReceived != null)
+                //    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
             }
         }
 
