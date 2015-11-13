@@ -516,7 +516,7 @@ namespace DiscordSharp
             List<KeyValuePair<string, string>> toReplace = new List<KeyValuePair<string, string>>();
             foreach (Match m in r.Matches(message))
             {
-                if (message[m.Index - 1] == '<')
+                if (m.Index > 0 && message[m.Index - 1] == '<')
                     continue;
                 DiscordMember user = ServersList.Find(x => x.members.Find(y => y.user.username == m.Value.Trim('@')) != null).members.Find(y=>y.user.username == m.Value.Trim('@'));
                 foundIDS.Add(user.user.id);
