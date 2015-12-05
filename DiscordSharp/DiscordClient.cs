@@ -100,9 +100,6 @@ namespace DiscordSharp
 
     public class DiscordClient
     {
-        //public string[] Internals { get; set; }
-        //public string[] DirectMessages { get; set; }
-        //public DiscordLoginInformation LoginInformation { get; set; }
         public string token { get; set; }
         public string sessionKey { get; set; }
         public string CurrentGatewayURL { get; set; }
@@ -111,6 +108,8 @@ namespace DiscordSharp
         public DiscordMember Me { get; internal set; }
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
+        private int? CurrentGameID = null;
+        private int? IdleSinceUnixTime = null;
 
         /// <summary>
         /// A log of messages kept in a KeyValuePair.
@@ -557,10 +556,11 @@ namespace DiscordSharp
                         op = 3,
                         d = new
                         {
-                            idle_since = (object)null,
+                            idle_since = IdleSinceUnixTime == null ? (object)null : IdleSinceUnixTime,
                             game_id = gameId
                         }
                     });
+                CurrentGameID = gameId;
             }
             else
             {
@@ -570,12 +570,28 @@ namespace DiscordSharp
                         op = 3,
                         d = new
                         {
-                            idle_since = (object)null,
+                            idle_since = IdleSinceUnixTime == null ? (object)null : IdleSinceUnixTime,
                             game_id = (object)null
                         }
                     });
             }
             ws.Send(msg.ToString());
+        }
+
+        public void UpdateBotStatus(bool idle)
+        {
+            string msg;
+            msg = JsonConvert.SerializeObject(
+                new
+                {
+                    op = 3,
+                    d = new
+                    {
+                        idle_since = idle ? (int)(DateTime.UtcNow - epoch).TotalMilliseconds : (object)null,
+                        game_id = CurrentGameID
+                    }
+                });
+            ws.Send(msg.ToString()); //let's try it!
         }
 
         private void PresenceUpdateEvents(JObject message)
@@ -669,6 +685,52 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    string result = s.ReadToEnd();
+                    Console.WriteLine("!!! " + result);
+                }
+            }
+        }
+
+        public DiscordMessage GetLastMessageSent()
+        {
+            for(int i = MessageLog.Count - 1; i > -1; i--)
+            {
+                if (MessageLog[i].Value.author.user.id == Me.user.id)
+                    return MessageLog[i].Value;
+            }
+            return null;
+        }
+
+        public void EditMessage()
+        {
+
+        }
+
+        public void SimulateTyping(string ChannelID)
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create($"https://discordapp.com/api/channels/{ChannelID}/typing");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "POST";
+
+            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            {
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = sr.ReadToEnd();
+                    Console.WriteLine(result);
                 }
             }
             catch (WebException e)

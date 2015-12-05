@@ -97,6 +97,10 @@ namespace DiscordSharpTestApplication
                     Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.user.username, e.Channel.name, fromServer.name, e.message.content);
                     if (e.message.content.StartsWith("?status"))
                         client.SendMessageToChannel("I work ;)", e.Channel);
+                    else if(e.message.content.StartsWith("?typemonkey"))
+                    {
+                        client.SimulateTyping(e.Channel.id);
+                    }
                     else if (e.message.content.StartsWith("?notify"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
@@ -301,6 +305,12 @@ namespace DiscordSharpTestApplication
                 client.Connected += (sender, e) =>
                 {
                     Console.WriteLine("Connected! User: " + e.user.user.username);
+                    using (var sw = new StreamWriter("credentials.txt"))
+                    {
+                        sw.WriteLine(client.ClientPrivateInformation.email);
+                        sw.WriteLine(client.ClientPrivateInformation.password);
+                        sw.Flush();
+                    }
                 };
                 client.SocketClosed += (sender, e) =>
                 {
@@ -314,7 +324,7 @@ namespace DiscordSharpTestApplication
 
                     client.ConnectAndReadMessages();
                     Console.WriteLine($"Connected to {client.CurrentGatewayURL}");
-                    client.UpdateCurrentGame(256);
+                    client.UpdateCurrentGame(9);
                 }
             });
             worker.Start();
@@ -357,8 +367,33 @@ namespace DiscordSharpTestApplication
                 else if(input.Contains("?logout"))
                 {
                     client.Logout();
+                    break;
                 }
-            } while (!String.IsNullOrWhiteSpace(input));
+                else if(input.Contains("?idle"))
+                {
+                    client.UpdateBotStatus(true);
+                }
+                else if(input.Contains("?online"))
+                {
+                    client.UpdateBotStatus(false);
+                }
+                else if(input.Contains("?game"))
+                {
+                    string[] split = input.Split(new char[] { ' ' }, 2);
+                    try
+                    {
+                        client.UpdateCurrentGame(int.Parse(split[1].Trim()));
+                    }
+                    catch(Exception ex)
+                    { Console.WriteLine($"Error changing game: {ex.Message}"); }
+                }
+                else if(input.Contains("?lastmsgid"))
+                {
+                    DiscordMessage msg = client.GetLastMessageSent();
+                    Console.WriteLine("--Last Message Sent--");
+                    Console.WriteLine($"  ID: {msg.id}\n  Channel: {msg.channel.name}\n  Content: {msg.content}");
+                }
+            } while (!string.IsNullOrWhiteSpace(input));
         }
 
         private static async void ConnectStuff()
