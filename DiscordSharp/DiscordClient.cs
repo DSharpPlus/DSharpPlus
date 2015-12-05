@@ -706,15 +706,51 @@ namespace DiscordSharp
             }
             return null;
         }
-
-        public void EditMessage()
+        public DiscordMessage GetLastMessageSent(DiscordChannel inChannel)
         {
-
+            for (int i = MessageLog.Count - 1; i > -1; i--)
+            {
+                if (MessageLog[i].Value.author.user.id == Me.user.id)
+                    if(MessageLog[i].Value.channel.id == inChannel.id)
+                        return MessageLog[i].Value;
+            }
+            return null;
         }
 
-        public void SimulateTyping(string ChannelID)
+        public void EditMessage(string MessageID, string replacementMessage, DiscordChannel channel)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create($"https://discordapp.com/api/channels/{ChannelID}/typing");
+            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + channel.id + "/messages/" + MessageID);
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "PATCH";
+
+            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            {
+                sw.Write(JsonConvert.SerializeObject(GenerateMessage(replacementMessage)));
+                sw.Flush();
+                sw.Close();
+            }
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = sr.ReadToEnd();
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    string result = s.ReadToEnd();
+                    Console.WriteLine("!!! " + result);
+                }
+            }
+        }
+
+        public void SimulateTyping(DiscordChannel channel)
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create($"https://discordapp.com/api/channels/{channel.id}/typing");
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";

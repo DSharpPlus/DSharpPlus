@@ -99,7 +99,19 @@ namespace DiscordSharpTestApplication
                         client.SendMessageToChannel("I work ;)", e.Channel);
                     else if(e.message.content.StartsWith("?typemonkey"))
                     {
-                        client.SimulateTyping(e.Channel.id);
+                        client.SimulateTyping(e.Channel);
+                    }
+                    else if(e.message.content.StartsWith("?editlast"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            DiscordMessage toEdit = client.GetLastMessageSent(e.Channel);
+                            if(toEdit != null)
+                            {
+                                client.EditMessage(toEdit.id, split[1], e.Channel);
+                            }
+                        }
                     }
                     else if (e.message.content.StartsWith("?notify"))
                     {
