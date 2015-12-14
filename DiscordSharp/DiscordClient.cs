@@ -340,8 +340,20 @@ namespace DiscordSharp
                         List<DiscordMessage> messageList = new List<DiscordMessage>();
                         foreach (var item in result.Children())
                         {
-                            DiscordMessage m = new DiscordMessage { id = item["d"]["id"].ToString() };
+                            Console.WriteLine(item["d"]["author"].ToString());
+                            DiscordMember a = GetMemberFromChannel(channel, int.Parse(item["d"]["author"]["id"].ToString()));
+                            messageList.Add(new DiscordMessage
+                            {
+                                id = item["d"]["id"].ToString(),
+                                channel = channel,
+                                author = GetMemberFromChannel(channel, item["d"]["author"]["id"].ToObject<int>()),
+                                content = item["d"]["content"].ToString(),
+                                mentions = item["d"]["mentions"].ToObject<string[]>(),
+                                RawJson = item.ToObject<JObject>(),
+                                timestamp = DateTime.Parse(item["d"]["timestamp"].ToString())
+                            });
                         }
+                        return messageList;
                     }
                 }
             }
@@ -712,6 +724,18 @@ namespace DiscordSharp
 
             return count;
         }
+        
+        public DiscordMember GetMemberFromChannel(DiscordChannel channel, string username, bool caseSensitive)
+        {
+            DiscordServer parentServer = ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null);
+            return parentServer.members.Find(y => caseSensitive ? y.user.username == username : y.user.username.ToLower() == username.ToLower());
+        }
+
+        public DiscordMember GetMemberFromChannel(DiscordChannel channel, int id)
+        {
+            DiscordServer parentServer = ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null);
+            return parentServer.members.Find(y => y.user.id == id.ToString());
+        }
 
         public DiscordChannel GetChannelByName(string channelName)
         {
@@ -965,6 +989,7 @@ namespace DiscordSharp
                     m.content = dmea.message_text;
                     m.id = message["d"]["id"].ToString();
                     m.RawJson = message;
+                    m.timestamp = DateTime.Now;
                     dmea.message = m;
 
                     Regex r = new Regex("\\d+");

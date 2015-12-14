@@ -202,7 +202,10 @@ namespace DiscordSharpTestApplication
                     }
                     else if(e.message.content.StartsWith("?gethistory"))
                     {
-                        client.GetMessageHistory(e.Channel, 4, null, null);
+                        foreach(var msg in client.GetMessageHistory(e.Channel, 4, null, null))
+                        {
+                            Console.WriteLine($"History test: {msg.content} @ {msg.timestamp.ToString()}");
+                        }
                     }
                     else if (e.message.content.StartsWith("?rename"))
                     {

@@ -18,6 +18,7 @@ namespace DiscordSharp
         public string recipient_id { get; set; }
         public DiscordMember author { get; internal set; }
         public DiscordChannel channel { get; internal set; }
+        public DateTime timestamp { get; internal set; }
 
         public JObject RawJson { get; internal set; }
     }
