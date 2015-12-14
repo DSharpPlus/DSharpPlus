@@ -110,6 +110,7 @@ namespace DiscordSharp
         private List<DiscordServer> ServersList { get; set; }
         private int? CurrentGameID = null;
         private int? IdleSinceUnixTime = null;
+        static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, 0.4.1.8)";
 
         /// <summary>
         /// A log of messages kept in a KeyValuePair.
@@ -197,6 +198,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "DELETE";
+            httpRequest.UserAgent += $" {UserAgentString}";
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
@@ -282,6 +284,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PATCH";
+            httpRequest.UserAgent += $" {UserAgentString}";
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
                 sw.Write(usernameRequestJson.ToString());
@@ -317,6 +320,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PATCH";
+            httpRequest.UserAgent += $" {UserAgentString}";
 
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
@@ -370,6 +374,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PATCH";
+            httpRequest.UserAgent += $" {UserAgentString}";
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
                 sw.Write(usernameRequestJson.ToString());
@@ -415,6 +420,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PATCH";
+            httpRequest.UserAgent += $" {UserAgentString}";
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
                 sw.Write(usernameRequestJson.ToString());
@@ -453,6 +459,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
+            httpRequest.UserAgent += $" {UserAgentString}";
 
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
@@ -482,6 +489,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
+            httpRequest.UserAgent += $" {UserAgentString}";
 
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
@@ -678,6 +686,7 @@ namespace DiscordSharp
             var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/invite/" + inviteID);
             httpRequest.Headers["authorization"] = token;
             httpRequest.Method = "POST";
+            httpRequest.UserAgent += $" {UserAgentString}";
 
             try
             {
@@ -723,6 +732,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PATCH";
+            httpRequest.UserAgent += $" {UserAgentString}";
 
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
@@ -754,6 +764,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
+            httpRequest.UserAgent += $" {UserAgentString}";
 
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
@@ -785,6 +796,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "DELETE";
+            httpRequest.UserAgent += $" {UserAgentString}";
 
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
@@ -969,6 +981,7 @@ namespace DiscordSharp
             httpRequest.Headers["authorization"] = token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "GET";
+            httpRequest.UserAgent += $" {UserAgentString}";
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
