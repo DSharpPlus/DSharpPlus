@@ -307,6 +307,51 @@ namespace DiscordSharp
             }
         }
 
+        /// <summary>
+        /// Returns a List of DiscordMessages. 
+        /// </summary>
+        /// <param name="channel">The channel to return them from.</param>
+        /// <param name="count">How many to return</param>
+        /// <param name="idBefore">Messages before this message ID.</param>
+        /// <param name="idAfter">Messages after this message ID.</param>
+        /// <returns></returns>
+        public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, int? idBefore, int ?idAfter)
+        {
+            string request = "https://discordapp.com/api/channels/" + channel.id + $"/messages?&limit={count}";
+            if (idBefore != null)
+                request += $"&before={idBefore}";
+            if (idAfter != null)
+                request += $"&after={idAfter}";
+            var httpRequest = 
+                (HttpWebRequest)WebRequest.Create(request);
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "GET";
+            httpRequest.UserAgent += $" {UserAgentString}";
+
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = JArray.Parse(sr.ReadLine());
+                    if(result != null)
+                    {
+                        List<DiscordMessage> messageList = new List<DiscordMessage>();
+                        foreach (var item in result.Children())
+                        {
+                            DiscordMessage m = new DiscordMessage { id = item["d"]["id"].ToString() };
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message);
+            }
+            return null;
+        }
+
         public void ChangeChannelTopic(string Channeltopic, DiscordChannel channel)
         {
             string topicChangeJson = JsonConvert.SerializeObject(
