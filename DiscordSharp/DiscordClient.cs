@@ -338,19 +338,19 @@ namespace DiscordSharp
                     if(result != null)
                     {
                         List<DiscordMessage> messageList = new List<DiscordMessage>();
+                        /// NOTE
+                        /// For some reason, the d object is excluded from this.
                         foreach (var item in result.Children())
                         {
-                            Console.WriteLine(item["d"]["author"].ToString());
-                            DiscordMember a = GetMemberFromChannel(channel, int.Parse(item["d"]["author"]["id"].ToString()));
                             messageList.Add(new DiscordMessage
                             {
-                                id = item["d"]["id"].ToString(),
+                                id = item["id"].ToString(),
                                 channel = channel,
-                                author = GetMemberFromChannel(channel, item["d"]["author"]["id"].ToObject<int>()),
-                                content = item["d"]["content"].ToString(),
-                                mentions = item["d"]["mentions"].ToObject<string[]>(),
+                                author = GetMemberFromChannel(channel, item["author"]["id"].ToObject<long>()),
+                                content = item["content"].ToString(),
+                                mentions = item["mentions"].ToObject<string[]>(),
                                 RawJson = item.ToObject<JObject>(),
-                                timestamp = DateTime.Parse(item["d"]["timestamp"].ToString())
+                                timestamp = DateTime.Parse(item["timestamp"].ToString())
                             });
                         }
                         return messageList;
@@ -731,7 +731,7 @@ namespace DiscordSharp
             return parentServer.members.Find(y => caseSensitive ? y.user.username == username : y.user.username.ToLower() == username.ToLower());
         }
 
-        public DiscordMember GetMemberFromChannel(DiscordChannel channel, int id)
+        public DiscordMember GetMemberFromChannel(DiscordChannel channel, long id)
         {
             DiscordServer parentServer = ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null);
             return parentServer.members.Find(y => y.user.id == id.ToString());

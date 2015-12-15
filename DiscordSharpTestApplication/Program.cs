@@ -200,13 +200,6 @@ namespace DiscordSharpTestApplication
                             client.SendMessageToChannel("Who??", e.Channel);
 #endif
                     }
-                    else if(e.message.content.StartsWith("?gethistory"))
-                    {
-                        foreach(var msg in client.GetMessageHistory(e.Channel, 4, null, null))
-                        {
-                            Console.WriteLine($"History test: {msg.content} @ {msg.timestamp.ToString()}");
-                        }
-                    }
                     else if (e.message.content.StartsWith("?rename"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
