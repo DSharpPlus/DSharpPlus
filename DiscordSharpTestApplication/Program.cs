@@ -291,6 +291,24 @@ namespace DiscordSharpTestApplication
                             client.SendMessageToChannel("restaroni in pepparoni", e.Channel);
                         Environment.Exit(0);
                     }
+                    else if(e.message.content.StartsWith("?createchannel"))
+                    {
+                        if(e.author.user.username == "Axiom")
+                        {
+                            string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                            if(split.Length > 0)
+                            {
+                                client.CreateChannel(client.GetServerChannelIsIn(e.Channel), split[1], false);
+                            }
+                        }
+                    }
+                    else if(e.message.content.StartsWith("?deletechannel"))
+                    {
+                        if(e.author.user.username == "Axiom")
+                        {
+                            client.DeleteChannel(e.Channel);
+                        }
+                    }
                     else if (e.message.content.StartsWith("?changetopic"))
                     {
                         if (e.author.user.username == "Axiom")

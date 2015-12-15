@@ -97,6 +97,7 @@ namespace DiscordSharp
     public delegate void DiscordGuildDelete(object sender, DiscordGuildDeleteEventArgs e);
     public delegate void DiscordChannelUpdate(object sender, DiscordChannelUpdateEventArgs e);
     public delegate void DiscordDebugMessages(object sender, DiscordDebugMessagesEventArgs e);
+    public delegate void DiscordChannelDeleted(object sender, DiscordChannelDeleteEventArgs e);
 
     public class DiscordClient
     {
@@ -143,6 +144,7 @@ namespace DiscordSharp
         public event DiscordGuildDelete GuildDeleted;
         public event DiscordChannelUpdate ChannelUpdated;
         public event DiscordDebugMessages DebugMessageReceived;
+        public event DiscordChannelDeleted ChannelDeleted;
         #endregion
         
         public DiscordClient()
@@ -749,6 +751,10 @@ namespace DiscordSharp
             }
         }
 
+        public DiscordChannel GetChannelByID(long id)
+        {
+            return ServersList.Find(x => x.channels.Find(y => y.id == id.ToString()) != null).channels.Find(z => z.id == id.ToString());
+        }
 
         public void AcceptInvite(string inviteID)
         {
@@ -900,6 +906,8 @@ namespace DiscordSharp
                 if (message["d"]["author"] != null)
                 {
                     KeyValuePair<string, DiscordMessage> toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
+                    if (toRemove.Value == null)
+                        return; //No message exists
                     var jsonToEdit = toRemove.Value.RawJson;
                     jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
                     if (MessageEdited != null)
@@ -1072,6 +1080,63 @@ namespace DiscordSharp
             }
         }
 
+        public DiscordServer GetServerChannelIsIn(DiscordChannel channel)
+        {
+            return ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null);
+        }
+
+        public void DeleteChannel(DiscordChannel channel)
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create($"https://discordapp.com/api/channels/{channel.id}");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "DELETE";
+            httpRequest.UserAgent += $" {UserAgentString}";
+
+            //try
+            //{
+            //    var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+            //    using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+            //    {
+            //        Console.WriteLine(sr.ReadLine());
+            //    }
+            //}
+            //catch(Exception ex)
+            //{
+            //    Console.WriteLine("!!! " + ex.Message);
+            //}
+        }
+
+        public void CreateChannel(DiscordServer server, string ChannelName, bool voice)
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create($"https://discordapp.com/api/guilds/" + server.id + "/channels");
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "POST";
+            httpRequest.UserAgent += $" {UserAgentString}";
+
+            var reqJson = JsonConvert.SerializeObject(new { name = ChannelName, type = voice ? "voice" : "text"});
+            try
+            {
+                using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+                {
+                    sw.Write(reqJson.ToString());
+                    sw.Flush();
+                    sw.Close();
+                }
+
+                //var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                //using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                //{
+                //    Console.WriteLine(sr.ReadLine());
+                //}
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("!!! " + ex.Message);
+            }
+        }
+
         public void ConnectAndReadMessages()
         {
             CurrentGatewayURL = GetGatewayUrl();
@@ -1151,6 +1216,9 @@ namespace DiscordSharp
                         case ("CHANNEL_UPDATE"):
                             ChannelUpdateEvents(message);
                             break;
+                        case ("CHANNEL_DELETE"):
+                            ChannelDeleteEvents(message);
+                            break;
                         default:
                             if (UnknownMessageTypeReceived != null)
                                 UnknownMessageTypeReceived(this, new UnknownMessageEventArgs { RawJson = message });
@@ -1180,6 +1248,18 @@ namespace DiscordSharp
 
                 };
                 ws.Connect();
+        }
+
+        private void ChannelDeleteEvents(JObject message)
+        {
+            DiscordChannelDeleteEventArgs e = new DiscordChannelDeleteEventArgs { ChannelDeleted = GetChannelByID(message["d"]["id"].ToObject<long>()) };
+
+            DiscordServer server;
+            server = ServersList.Find(x => x.channels.Find(y => y.id == e.ChannelDeleted.id) != null);
+            server.channels.Remove(server.channels.Find(x => x.id == e.ChannelDeleted.id));
+
+            if (ChannelDeleted != null)
+                ChannelDeleted(this, e);
         }
 
         private void ChannelUpdateEvents(JObject message)
