@@ -111,7 +111,7 @@ namespace DiscordSharp
         private List<DiscordServer> ServersList { get; set; }
         private int? CurrentGameID = null;
         private int? IdleSinceUnixTime = null;
-        static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, 0.4.1.8)";
+        static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
 
         /// <summary>
         /// A log of messages kept in a KeyValuePair.
