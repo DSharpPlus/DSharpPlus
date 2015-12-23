@@ -1,6 +1,11 @@
 # DiscordSharp
 A C# API for Discord.
 
+#From Nuget
+
+DiscordSharp is now available on NuGet! It is marked as pre-release package at the moment. At your package manager console, type
+`Install-Package DiscordSharp -Pre` and it will install the additional dependencies (Newtonsoft.Json & websocket-sharp)
+
 #how do use
 
 Discord is what I like to call, an *event based* client. In other words, you get your instance of your client and hook up to its various events: either by lambda or by delegating to external voids. A simple example is as follows..
