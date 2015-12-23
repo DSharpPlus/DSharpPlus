@@ -1005,11 +1005,12 @@ namespace DiscordSharp
                         if (mm.Value == Me.user.id)
                             if (MentionReceived != null)
                                 MentionReceived(this, dmea);
-                    if (MessageReceived != null)
-                        MessageReceived(this, dmea);
-                    
+
                     KeyValuePair<string, DiscordMessage> toAdd = new KeyValuePair<string, DiscordMessage>(message["d"]["id"].ToString(), m);
                     MessageLog.Add(toAdd);
+
+                    if (MessageReceived != null)
+                        MessageReceived(this, dmea);
                 }
             }
             catch (Exception ex)

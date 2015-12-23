@@ -94,6 +94,13 @@ namespace DiscordSharpTestApplication
                 client.MessageReceived += (sender, e) =>
                 {
                     DiscordServer fromServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
+
+                    if(fromServer.name == "Dong Nugget")
+                    {
+
+                        client.DeleteMessage(e.message.id);
+                    }
+
                     Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.user.username, e.Channel.name, fromServer.name, e.message.content);
                     if (e.message.content.StartsWith("?status"))
                         client.SendMessageToChannel("I work ;)", e.Channel);
