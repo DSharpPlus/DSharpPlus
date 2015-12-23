@@ -1,24 +1,27 @@
 # DiscordSharp
 A C# API for Discord.
 
+#From Nuget
+
+DiscordSharp is now available on NuGet! It is marked as pre-release package at the moment. At your package manager console, type
+`Install-Package DiscordSharp -Pre` and it will install the additional dependencies (Newtonsoft.Json & websocket-sharp)
+
 #how do use
 
 Discord is what I like to call, an *event based* client. In other words, you get your instance of your client and hook up to its various events: either by lambda or by delegating to external voids. A simple example is as follows..
 
 ```
-using(var client = new DiscordClient())
+DiscordClient client = new DiscordClient();
+client.ClientPrivateInformation.email = "email";
+client.ClientPrivateInformation.password = "pass";
+
+client.Connected += (sender, e) =>
 {
-  client.ClientPrivateInformation.email = "email";
-  client.ClientPrivateInformation.password = "pass";
-  
-  client.Connected += (sender, e) =>
-  {
-    Console.WriteLine("Connected! User: " + e.username);
-  };
-  client.SendLoginRequest();
-  Thread t = new Thread(client.ConnectAndReadMessages);
-  t.Start();
-}
+  Console.WriteLine($"Connected! User: {e.user.user.username}");
+};
+client.SendLoginRequest();
+Thread t = new Thread(client.ConnectAndReadMessages);
+t.Start();
 ```
 This will get you logged in, and print out a login notification to the console with the username you've logged in as.
 
