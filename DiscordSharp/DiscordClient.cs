@@ -594,7 +594,8 @@ namespace DiscordSharp
             }
 
             dm.content = message;
-            dm.mentions = foundIDS.ToArray();
+            //dm.mentions = foundIDS.ToArray();
+            //dm.mentions = new string[] { "" };
             return dm;
         }
         
