@@ -196,27 +196,8 @@ namespace DiscordSharp
 
         public void LeaveServer(string ServerID)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/guilds/" + ServerID);
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "DELETE";
-            httpRequest.UserAgent += $" {UserAgentString}";
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                }
-            }
-            catch (WebException e)
-            {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("!!! " + result);
-                }
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"{ServerID}";
+            WebWrapper.Delete(url, token);
         }
         /// <summary>
         /// Sends a message to a channel, what else did you expect?
@@ -225,35 +206,8 @@ namespace DiscordSharp
         /// <param name="channel"></param>
         public void SendMessageToChannel(string message, DiscordChannel channel)
         {
-            //DiscordServer serverID = ServerFromName(server);
-           //string initMessage = "{\"recipient_id\":" + channelID.id + "}";
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + channel.id + "/messages");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "POST";
-
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
-            {
-                sw.Write(JsonConvert.SerializeObject(GenerateMessage(message)));
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                }
-            }
-            catch (WebException e)
-            {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("!!! " + result);   
-                }
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
+            WebWrapper.Post(url, token, JsonConvert.SerializeObject(GenerateMessage(message)));
         }
 
         public static byte[] ImageToByte2(Image img)
@@ -282,31 +236,8 @@ namespace DiscordSharp
                 password = ClientPrivateInformation.password,
                 username = ClientPrivateInformation.username
             });
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "PATCH";
-            httpRequest.UserAgent += $" {UserAgentString}";
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
-            {
-                sw.Write(usernameRequestJson.ToString());
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = JObject.Parse(sr.ReadLine());
-                    //Console.WriteLine(result.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                if (DebugMessageReceived != null)
-                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
+            WebWrapper.Patch(url, token, usernameRequestJson);
         }
 
         /// <summary>
@@ -324,45 +255,29 @@ namespace DiscordSharp
                 request += $"&before={idBefore}";
             if (idAfter != null)
                 request += $"&after={idAfter}";
-            var httpRequest = 
-                (HttpWebRequest)WebRequest.Create(request);
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "GET";
-            httpRequest.UserAgent += $" {UserAgentString}";
 
-            try
+            var result = JArray.Parse(WebWrapper.Get(request, token));
+            if(result != null)
             {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                List<DiscordMessage> messageList = new List<DiscordMessage>();
+                /// NOTE
+                /// For some reason, the d object is excluded from this.
+                foreach (var item in result.Children())
                 {
-                    var result = JArray.Parse(sr.ReadLine());
-                    if(result != null)
+                    messageList.Add(new DiscordMessage
                     {
-                        List<DiscordMessage> messageList = new List<DiscordMessage>();
-                        /// NOTE
-                        /// For some reason, the d object is excluded from this.
-                        foreach (var item in result.Children())
-                        {
-                            messageList.Add(new DiscordMessage
-                            {
-                                id = item["id"].ToString(),
-                                channel = channel,
-                                author = GetMemberFromChannel(channel, item["author"]["id"].ToObject<long>()),
-                                content = item["content"].ToString(),
-                                mentions = item["mentions"].ToObject<string[]>(),
-                                RawJson = item.ToObject<JObject>(),
-                                timestamp = DateTime.Parse(item["timestamp"].ToString())
-                            });
-                        }
-                        return messageList;
-                    }
+                        id = item["id"].ToString(),
+                        channel = channel,
+                        author = GetMemberFromChannel(channel, item["author"]["id"].ToObject<long>()),
+                        content = item["content"].ToString(),
+                        mentions = item["mentions"].ToObject<string[]>(),
+                        RawJson = item.ToObject<JObject>(),
+                        timestamp = DateTime.Parse(item["timestamp"].ToString())
+                    });
                 }
+                return messageList;
             }
-            catch(Exception ex)
-            {
-                Console.WriteLine("ERROR: " + ex.Message);
-            }
+
             return null;
         }
 
@@ -374,33 +289,9 @@ namespace DiscordSharp
                     name = channel.name,
                     topic = Channeltopic
                 });
-
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + channel.id);
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "PATCH";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
-            {
-                sw.Write(topicChangeJson.ToString());
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = JObject.Parse(sr.ReadLine());
-                    ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null).channels.Find(x => x.id == channel.id).topic = Channeltopic;
-                }
-            }
-            catch (Exception ex)
-            {
-                if (DebugMessageReceived != null)
-                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}";
+            var result = JObject.Parse(WebWrapper.Patch(url, token, topicChangeJson));
+            ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null).channels.Find(x => x.id == channel.id).topic = Channeltopic;
         }
 
         public void ChangeBotInformation(DiscordUserInformation info)
@@ -429,45 +320,24 @@ namespace DiscordSharp
                 });
             }
 
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "PATCH";
-            httpRequest.UserAgent += $" {UserAgentString}";
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
+            var result = JObject.Parse(WebWrapper.Patch(url, token, usernameRequestJson));
+            foreach (var server in ServersList)
             {
-                sw.Write(usernameRequestJson.ToString());
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                foreach (var member in server.members)
                 {
-                    var result = JObject.Parse(sr.ReadLine());
-                    foreach (var server in ServersList)
-                    {
-                        foreach (var member in server.members)
-                        {
-                            if (member.user.id == Me.user.id)
-                                member.user.username = info.username;
-                        }
-                    }
-                    Me.user.username = info.username;
-                    Me.user.email = info.email;
-                    Me.user.avatar = info.avatar;
+                    if (member.user.id == Me.user.id)
+                        member.user.username = info.username;
                 }
             }
-            catch (Exception ex)
-            {
-                if (DebugMessageReceived != null)
-                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
-            }
+            Me.user.username = info.username;
+            Me.user.email = info.email;
+            Me.user.avatar = info.avatar;
         }
 
         private void ChangeBotUsername(string newUsername)
         {
+            string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
             string usernameRequestJson = JsonConvert.SerializeObject(new
             {
                 email = ClientPrivateInformation.email,
@@ -475,103 +345,38 @@ namespace DiscordSharp
                 username = newUsername,
                 avatar = Me.user.avatar,
             });
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/@me");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "PATCH";
-            httpRequest.UserAgent += $" {UserAgentString}";
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            var result = JObject.Parse(WebWrapper.Patch(url, token, usernameRequestJson));
+            if(result != null)
             {
-                sw.Write(usernameRequestJson.ToString());
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                foreach (var server in ServersList)
                 {
-                    var result = JObject.Parse(sr.ReadLine());
-                    foreach(var server in ServersList)
+                    foreach (var member in server.members)
                     {
-                        foreach(var member in server.members)
-                        {
-                            if (member.user.id == Me.user.id)
-                                member.user.username = newUsername;
-                        }
+                        if (member.user.id == Me.user.id)
+                            member.user.username = newUsername;
                     }
-                    Me.user.username = newUsername;
                 }
-            }
-            catch(Exception ex)
-            {
-                if (DebugMessageReceived != null)
-                    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
+                Me.user.username = newUsername;
             }
         }
 
         //Special thanks to the node-discord developer, izy521, for helping me out with this :D
         public void SendMessageToUser(string message, DiscordMember member)
         {
+            string url = Endpoints.BaseAPI + Endpoints.Users + $"/{Me.user.id}" + Endpoints.Channels;
             string initMessage = "{\"recipient_id\":" + member.user.id + "}";
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/users/" + Me.user.id + "/channels");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "POST";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            var result = JObject.Parse(WebWrapper.Post(url, token, initMessage));
+            if(result != null)
             {
-                sw.Write(initMessage);
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = JObject.Parse(sr.ReadToEnd());
-                    SendActualMessage(result["id"].ToString(), message);
-                }
-            }
-            catch(Exception ex)
-            {
-                //if (DebugMessageReceived != null)
-                //    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = ex.Message });
+                SendActualMessage(result["id"].ToString(), message);
             }
         }
 
         private void SendActualMessage(string id, string message)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + id + "/messages");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "POST";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
-            {
-                sw.Write(JsonConvert.SerializeObject(GenerateMessage(message)));
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                }
-            }
-            catch (WebException e)
-            {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("!!! " + result);
-                }
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Channels + id + Endpoints.Messages;
+            DiscordMessage toSend = GenerateMessage(message);
+            WebWrapper.Post(url, token, JsonConvert.SerializeObject(toSend).ToString());
         }
 
         private DiscordMessage GenerateMessage(string message)
@@ -1062,29 +867,8 @@ namespace DiscordSharp
         #endregion
         private String GetGatewayUrl()
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/gateway");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "GET";
-            httpRequest.UserAgent += $" {UserAgentString}";
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    JObject result = JObject.Parse(sr.ReadToEnd());
-                    return result["url"].ToString();
-                }
-            }
-            catch (WebException e)
-            {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("!!! " + result);
-                    return null;
-                }
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Gateway;
+            return JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
         }
 
         public DiscordServer GetServerChannelIsIn(DiscordChannel channel)
@@ -1094,54 +878,15 @@ namespace DiscordSharp
 
         public void DeleteChannel(DiscordChannel channel)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create($"https://discordapp.com/api/channels/{channel.id}");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "DELETE";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
-            //try
-            //{
-            //    var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-            //    using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-            //    {
-            //        Console.WriteLine(sr.ReadLine());
-            //    }
-            //}
-            //catch(Exception ex)
-            //{
-            //    Console.WriteLine("!!! " + ex.Message);
-            //}
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}";
+            WebWrapper.Delete(url, token);
         }
 
         public void CreateChannel(DiscordServer server, string ChannelName, bool voice)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create($"https://discordapp.com/api/guilds/" + server.id + "/channels");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "POST";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
-            var reqJson = JsonConvert.SerializeObject(new { name = ChannelName, type = voice ? "voice" : "text"});
-            try
-            {
-                using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
-                {
-                    sw.Write(reqJson.ToString());
-                    sw.Flush();
-                    sw.Close();
-                }
-
-                //var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                //using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                //{
-                //    Console.WriteLine(sr.ReadLine());
-                //}
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine("!!! " + ex.Message);
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{server.id}" + Endpoints.Channels;
+            var reqJson = JsonConvert.SerializeObject(new { name = ChannelName, type = voice ? "voice" : "text" });
+            WebWrapper.Post(url, token, reqJson);
         }
 
         public void ConnectAndReadMessages()
@@ -1475,28 +1220,8 @@ namespace DiscordSharp
         }
         private JObject ServerInfo(string channelOrServerId)
         {
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/guilds/" + channelOrServerId);
-            httpWebRequest.Headers["authorization"] = token;
-            httpWebRequest.Method = "GET";
-
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                    return JObject.Parse(result);
-                }
-            }
-            catch(WebException e)
-            {
-                var result = "";
-                using (var sr = new StreamReader(e.Response.GetResponseStream()))
-                    result = sr.ReadToEnd();
-
-                Console.WriteLine("!!!" + result);
-                return null;
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{channelOrServerId}";
+            return JObject.Parse(WebWrapper.Get(url, token));
         }
 
         private int HeartbeatInterval = 41250;
@@ -1540,42 +1265,13 @@ namespace DiscordSharp
 
         public void Logout()
         {
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/auth/logout");
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = "POST";
-
-            using (var sw = new StreamWriter(httpWebRequest.GetRequestStream()))
-            {
-                string msg = JsonConvert.SerializeObject(new
-                {
-                    token = this.token
-                });
-                sw.Write(msg);
-                sw.Flush();
-                sw.Close();
-            }
-
-            try
-            {
-                var httpResponseT = httpWebRequest.GetResponse();
-                var httpResponse = (HttpWebResponse)httpResponseT;
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                    Console.WriteLine(result);
-                }
-            }
-            catch (WebException e)
-            {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("Result from exception: " + e.Message);
-                }
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Auth + "/logout";
+            string msg = JsonConvert.SerializeObject(new { token = this.token });
+            WebWrapper.Post(url, msg);
             Dispose();
         }
 
+        [Obsolete]
         public async Task<string> SendLoginRequestAsync()
         {
             if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
@@ -1645,60 +1341,15 @@ namespace DiscordSharp
         {
             if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
                 throw new ArgumentNullException("You didn't supply login information!");
-
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/auth/login");
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = "POST";
-            httpWebRequest.Timeout = 30000;
-
-            using (var sw = new StreamWriter(httpWebRequest.GetRequestStream()))
+            string url = Endpoints.BaseAPI + Endpoints.Auth + Endpoints.Login;
+            string msg = JsonConvert.SerializeObject(new
             {
-                string msg = JsonConvert.SerializeObject(new
-                {
-                    email = ClientPrivateInformation.email,
-                    password = ClientPrivateInformation.password
-                });
-                sw.Write(msg);
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                    DiscordLoginResult dlr = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
-                    if (dlr.token != null || dlr.token.Trim() != "")
-                    {
-                        this.token = dlr.token;
-                        try
-                        {
-                            string sessionKeyHeader = httpResponse.Headers["set-cookie"].ToString();
-                            string[] split = sessionKeyHeader.Split(new char[] { '=', ';' }, 3);
-                            sessionKey = split[1];
-                        }
-                        catch
-                        {/*no session key fo u!*/}
-                        return token;
-                    }
-                    else
-                        return null;
-                }
-            }
-            catch(WebException e)
-            {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    DiscordLoginResult jresult = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
-                    if (jresult.password != null)
-                        throw new DiscordLoginException(jresult.password[0]);
-                    if (jresult.email != null)
-                        throw new DiscordLoginException(jresult.email[0]);
-                }
-            }
-            return null;
+                email = ClientPrivateInformation.email,
+                password = ClientPrivateInformation.password
+            });
+            var result = JObject.Parse(WebWrapper.Post(url, msg));
+            token = result["token"].ToString();
+            return token;
         }
     }
 }

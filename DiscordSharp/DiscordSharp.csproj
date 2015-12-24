@@ -48,6 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Endpoints.cs" />
     <Compile Include="Events\DiscordChannelDeleteEventArgs.cs" />
     <Compile Include="Events\DiscordDebugMessagesEventArgs.cs" />
     <Compile Include="Events\DiscordChannelUpdateEventArgs.cs" />
@@ -85,6 +86,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="WebWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
