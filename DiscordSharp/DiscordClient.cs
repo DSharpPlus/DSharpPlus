@@ -109,7 +109,7 @@ namespace DiscordSharp
         public DiscordMember Me { get; internal set; }
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
-        private int? CurrentGameID = null;
+        private string CurrentGameName = "";
         private int? IdleSinceUnixTime = null;
         static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
 
@@ -611,11 +611,11 @@ namespace DiscordSharp
         /// <summary>
         /// Set gameId to null if you want to remove the current game.
         /// </summary>
-        /// <param name="gameId">The game's ID. These values can be found at http://hastebin.com/azijiyaboc.json/ </param>
-        public void UpdateCurrentGame(int? gameId)
+        /// <param name="gameName">The game's name. Old gameid lookup can be seen at: http://hastebin.com/azijiyaboc.json/ </param>
+        public void UpdateCurrentGame(string gameName)
         {
             string msg;
-            if (gameId != null)
+            if (gameName.ToLower().Trim() != "")
             {
                 msg = JsonConvert.SerializeObject(
                     new
@@ -624,10 +624,10 @@ namespace DiscordSharp
                         d = new
                         {
                             idle_since = IdleSinceUnixTime == null ? (object)null : IdleSinceUnixTime,
-                            game_id = gameId
+                            game = new { name = gameName }
                         }
                     });
-                CurrentGameID = gameId;
+                CurrentGameName = gameName;
             }
             else
             {
@@ -638,7 +638,7 @@ namespace DiscordSharp
                         d = new
                         {
                             idle_since = IdleSinceUnixTime == null ? (object)null : IdleSinceUnixTime,
-                            game_id = (object)null
+                            game = (object)null
                         }
                     });
             }
@@ -655,7 +655,7 @@ namespace DiscordSharp
                     d = new
                     {
                         idle_since = idle ? (int)(DateTime.UtcNow - epoch).TotalMilliseconds : (object)null,
-                        game_id = CurrentGameID
+                        game = CurrentGameName.ToLower().Trim() == "" ? (object)null : new { name = CurrentGameName }
                     }
                 });
             ws.Send(msg.ToString()); //let's try it!
@@ -669,7 +669,12 @@ namespace DiscordSharp
             if (pserver != null)
             {
                 var user = pserver.members.Find(x => x.user.id == message["d"]["id"].ToString());
-                dpuea.game_id = message["d"]["game_id"].ToObject<int?>();
+
+                if (message["d"]["game"].ToString() != "")
+                    dpuea.game = message["d"]["game"]["name"].ToString();
+                else
+                    dpuea.game = "";
+
                 if (message["d"]["status"].ToString() == "online")
                     dpuea.status = DiscordUserStatus.ONLINE;
                 else if (message["d"]["status"].ToString() == "idle")

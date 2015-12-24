@@ -133,7 +133,7 @@ namespace DiscordSharpTestApplication
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                         if (split.Length > 0)
                         {
-                            client.UpdateCurrentGame(int.Parse(split[1]));
+                            client.UpdateCurrentGame(split[1]);
                         }
                     }
                     else if (e.message.content.StartsWith("?gtfo"))
@@ -355,7 +355,7 @@ namespace DiscordSharpTestApplication
 
                     client.ConnectAndReadMessages();
                     Console.WriteLine($"Connected to {client.CurrentGatewayURL}");
-                    client.UpdateCurrentGame(9);
+                    client.UpdateCurrentGame("development testing");
                 }
             });
             worker.Start();
@@ -411,12 +411,19 @@ namespace DiscordSharpTestApplication
                 else if(input.Contains("?game"))
                 {
                     string[] split = input.Split(new char[] { ' ' }, 2);
-                    try
+                    if (split.Length > 1)
                     {
-                        client.UpdateCurrentGame(int.Parse(split[1].Trim()));
+                        try
+                        {
+                            client.UpdateCurrentGame(split[1]);
+                        }
+                        catch (Exception ex)
+                        { Console.WriteLine($"Error changing game: {ex.Message}"); }
                     }
-                    catch(Exception ex)
-                    { Console.WriteLine($"Error changing game: {ex.Message}"); }
+                    else
+                    {
+                        client.UpdateCurrentGame("");
+                    }
                 }
                 else if(input.Contains("?lastmsgid"))
                 {
@@ -433,7 +440,7 @@ namespace DiscordSharpTestApplication
             {
                 Console.WriteLine("Logged in..async!");
                 client.ConnectAndReadMessages();
-                client.UpdateCurrentGame(256);
+                client.UpdateCurrentGame("");
             }
         }
     }
