@@ -19,5 +19,6 @@ namespace DiscordSharp
         public static string Messages = "/messages";
         public static string Users = "/users";
         public static string Guilds = "/guilds";
+        public static string Invites = "/invites";
     }
 }

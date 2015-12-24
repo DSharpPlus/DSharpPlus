@@ -882,12 +882,80 @@ namespace DiscordSharp
             WebWrapper.Delete(url, token);
         }
 
-        public void CreateChannel(DiscordServer server, string ChannelName, bool voice)
+        public DiscordChannel CreateChannel(DiscordServer server, string ChannelName, bool voice)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{server.id}" + Endpoints.Channels;
             var reqJson = JsonConvert.SerializeObject(new { name = ChannelName, type = voice ? "voice" : "text" });
-            WebWrapper.Post(url, token, reqJson);
+            var result = JObject.Parse(WebWrapper.Post(url, token, reqJson));
+            if(result != null)
+            {
+                DiscordChannel dc = new DiscordChannel { name = result["name"].ToString(), id = result["id"].ToString(), type = result["type"].ToString(), is_private = result["is_private"].ToObject<bool>(), topic = result["topic"].ToString() };
+                server.channels.Add(dc);
+                return dc;
+            }
+            return null;
         }
+        
+        public DiscordServer CreateGuild(string GuildName)
+        {
+            string createGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds;
+            string req = JsonConvert.SerializeObject(new { name = GuildName });
+
+            var response = JObject.Parse(WebWrapper.Post(createGuildUrl, token, req));
+            if(response != null)
+            {
+                DiscordServer server = new DiscordServer();
+                server.id = response["id"].ToString();
+                server.name = response["name"].ToString();
+                server.owner_id = response["owner_id"].ToString();
+
+                string channelGuildUrl = createGuildUrl + $"/{server.id}" + Endpoints.Channels;
+                var channelRespone = JArray.Parse(WebWrapper.Get(channelGuildUrl, token));
+                foreach (var item in channelRespone.Children())
+                {
+                    server.channels.Add(new DiscordChannel { name = item["name"].ToString(), id = item["id"].ToString(), topic = item["topic"].ToString(), is_private = item["is_private"].ToObject<bool>(), type = item["type"].ToString() });
+                }
+
+                server.members.Add(Me);
+
+                ServersList.Add(server);
+                return server;
+            }
+            return null;
+        }
+
+        public void EditGuildName(DiscordServer guild, string NewGuildName)
+        {
+            string editGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}";
+            var newNameJson = JsonConvert.SerializeObject(new { name = NewGuildName });
+            WebWrapper.Patch(editGuildUrl, token, newNameJson);
+        }
+
+
+
+        /// <summary>
+        /// Creates and invite to the given channel.
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns>The invite's code.</returns>
+        public string CreateInvite(DiscordChannel channel)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Invites;
+            var resopnse = JObject.Parse(WebWrapper.Post(url, token, "{\"validate\":\"\"}"));
+            if (resopnse != null)
+            {
+                return resopnse["code"].ToString();
+            }
+            return null;
+        }
+
+        public void DeleteInvite(string id)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Invites + $"/{id}";
+            WebWrapper.Delete(url, token);
+        }
+
+        public string MakeInviteURLFromCode(string code) => "https://discord.gg/" + code;
 
         public void ConnectAndReadMessages()
         {

@@ -114,6 +114,18 @@ namespace DiscordSharpTestApplication
                             }
                         }
                     }
+                    else if(e.message.content.StartsWith("?newguild"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            DiscordServer created = client.CreateGuild(split[1]);
+                            DiscordChannel channel = created.channels.Find(x => x.type == "text");
+                            client.ChangeChannelTopic("Created with DiscordSharp test bot", channel);
+
+                            client.SendMessageToChannel($"Join: {client.MakeInviteURLFromCode(client.CreateInvite(channel))}", e.Channel);
+                        }
+                    }
                     else if (e.message.content.StartsWith("?notify"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
