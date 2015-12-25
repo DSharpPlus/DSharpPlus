@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace DiscordSharpTestApplication
 {
@@ -19,6 +20,7 @@ namespace DiscordSharpTestApplication
         static DiscordClient client = new DiscordClient();
         static WaitHandle waitHandle = new AutoResetEvent(false);
 
+        [STAThread]
         public static void Main(string[] args)
         {
             Console.WriteLine("DiscordSharp Tester");
@@ -406,6 +408,16 @@ namespace DiscordSharpTestApplication
                     client.ChangeBotInformation(i);
 
                     Console.WriteLine("Password changed!");
+                }
+                else if(input.Contains("?uploadtest"))
+                {
+                    OpenFileDialog ofd = new OpenFileDialog();
+                    ofd.Title = "Select file to attach";
+                    if(ofd.ShowDialog() == DialogResult.OK)
+                    {
+                        DiscordChannel c = client.GetServersList().Find(x => x.name == "Dong Nugget").channels[0];
+                        client.AttachFile(c, "Test", ofd.FileName);
+                    }
                 }
                 else if(input.Contains("?logout"))
                 {

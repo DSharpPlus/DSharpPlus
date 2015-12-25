@@ -14,7 +14,11 @@ namespace DiscordSharp
     {
         public string content { get; set; }
         public string id { get; internal set; }
-        public string[] mentions { get; set; }
+
+        [Obsolete] //Obsolete, mention array is no longer the proper way to do this.
+        public string[] mentions { get; internal set; }
+
+        public string[] attachments { get; internal set; }
         public string recipient_id { get; set; }
         public DiscordMember author { get; internal set; }
         public DiscordChannel channel { get; internal set; }

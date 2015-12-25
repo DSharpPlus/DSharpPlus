@@ -132,6 +132,56 @@ namespace DiscordSharp
             return "";
         }
 
+        public static string PostWithAttachment(string url, string message, string fileToAttach)
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create(url);
+            httpRequest.ContentType = "multipart/form-data";
+            httpRequest.Method = "POST";
+            httpRequest.UserAgent += $" {UserAgentString}";
+
+            using (Stream s = httpRequest.GetRequestStream())
+            {
+                byte[] f = new byte[4096];
+                var ss = File.Open(fileToAttach, FileMode.Open);
+                f = new byte[ss.Length];
+
+                ss.Write(f, 0, (int)ss.Length);
+                s.Write(f, 0, f.Length);
+                //s.Write(Encoding.ASCII.GetBytes(message), f.Length + 1, message.Length);
+                s.Flush();
+                s.Write(Encoding.ASCII.GetBytes(message), 0, message.Length * 8);
+                s.Flush();
+                s.Close();
+            }
+            ////}
+            //using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            //{
+            //    sw.Write(message);
+            //    sw.Flush();
+            //    sw.Close();
+            //}
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = sr.ReadToEnd();
+                    Console.WriteLine("Result: " + result);
+                    if (result != "")
+                        return result;
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    var result = s.ReadToEnd();
+                    return result;
+                }
+            }
+            return "";
+        }
+
         /// <summary>
         /// Sends a POST HTTP request to the specified URL, using the specified token, sending the specified message.
         /// </summary>

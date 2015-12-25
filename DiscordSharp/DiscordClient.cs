@@ -210,6 +210,27 @@ namespace DiscordSharp
             WebWrapper.Post(url, token, JsonConvert.SerializeObject(GenerateMessage(message)));
         }
 
+        public void AttachFile(DiscordChannel channel, string message, string pathToFile)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
+
+            WebWrapper.PostWithAttachment(url, message, pathToFile);
+            //using (WebClient wc = new WebClient())
+            //{
+            //    try
+            //    {
+            //        wc.UploadFile(url, pathToFile);
+                    
+            //    }
+            //    catch(Exception ex)
+            //    {
+            //        Console.WriteLine(ex.Message);
+            //    }
+            //}
+            //WebWrapper.Post(url, token, JsonConvert.SerializeObject(GenerateMessage(message)));
+        }
+
+
         public static byte[] ImageToByte2(Image img)
         {
             byte[] byteArray = new byte[0];
@@ -476,7 +497,8 @@ namespace DiscordSharp
             {
                 var user = pserver.members.Find(x => x.user.id == message["d"]["id"].ToString());
 
-                if (message["d"]["game"].ToString() != "")
+                string game = message["d"]["game"].ToString();
+                if (game.Length > 1)
                     dpuea.game = message["d"]["game"]["name"].ToString();
                 else
                     dpuea.game = "";
@@ -1314,6 +1336,7 @@ namespace DiscordSharp
             timer.Enabled = true;
         }
 
+        
         //Thread ConnectReadMessagesThread;
         public void Dispose()
         {
