@@ -285,6 +285,40 @@ namespace DiscordSharpTestApplication
                             }
                         }
                     }
+                    else if (e.message.content.StartsWith("?changeguildpic"))
+                    {
+                        DiscordServer current = e.Channel.parent;
+                        DiscordMember me = current.members.Find(x => x.user.id == client.Me.user.id);
+                        foreach(var role in me.roles)
+                        {
+                            if(role.permissions.HasPermission(DiscordSpecialPermissions.ManageServer))
+                            {
+                                string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                                if (split.Length > 0)
+                                {
+                                    Regex linkParser = new Regex(@"\b(?:https?://|www\.)\S+\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                                    string rawString = $"{split[1]}";
+                                    if (linkParser.Matches(rawString).Count > 0)
+                                    {
+                                        string url = linkParser.Matches(rawString)[0].ToString();
+                                        using (WebClient wc = new WebClient())
+                                        {
+                                            byte[] data = wc.DownloadData(url);
+                                            using (MemoryStream mem = new MemoryStream(data))
+                                            {
+                                                using (var image = System.Drawing.Image.FromStream(mem))
+                                                {
+                                                    client.ChangeGuildIcon(new Bitmap(image), current);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                return;
+                            }
+                        }
+                        client.SendMessageToChannel("Unable to change pic: No permission.", e.Channel);
+                    }
                     else if (e.message.content.StartsWith("?whois"))
                     {
                         //?whois <@01393408>

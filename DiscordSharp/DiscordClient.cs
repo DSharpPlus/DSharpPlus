@@ -305,6 +305,18 @@ namespace DiscordSharp
             WebWrapper.Patch(url, token, usernameRequestJson);
         }
 
+        public void ChangeGuildIcon(Bitmap image, DiscordServer guild)
+        {
+            Bitmap resized = new Bitmap((Image)image, 200, 200);
+
+            string base64 = Convert.ToBase64String(ImageToByte2(resized));
+            string type = "image/jpeg;base64";
+            string req = $"data:{type},{base64}";
+            string guildjson = JsonConvert.SerializeObject(new { icon = req, name = guild.name});
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + "/" + guild.id;
+            var result = JObject.Parse(WebWrapper.Patch(url, token, guildjson));
+        }
+
         /// <summary>
         /// Returns a List of DiscordMessages. 
         /// </summary>
