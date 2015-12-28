@@ -1166,7 +1166,74 @@ namespace DiscordSharp
                 id = message["d"]["name"].ToString(),
                 owner_id = message["d"]["name"].ToString()
             };
+            newServer.roles = new List<DiscordRole>();
+            foreach(var roll in message["d"]["roles"])
+            {
+                DiscordRole t = new DiscordRole
+                {
+                    color = ColorTranslator.FromHtml("#" + roll["color"].ToObject<int>().ToString("x")),
+                    name = roll["name"].ToString(),
+                    permissions = new DiscordPermission(roll["permissions"].ToObject<uint>()),
+                    position = roll["position"].ToObject<int>(),
+                    managed = roll["managed"].ToObject<bool>(),
+                    id = roll["id"].ToString(),
+                    hoist = roll["hoist"].ToObject<bool>()
+                };
+                newServer.roles.Add(t);
+            }
 
+            newServer.channels = new List<DiscordChannel>();
+            foreach (var u in message["channels"])
+            {
+                DiscordChannel tempSub = new DiscordChannel();
+                tempSub.id = u["id"].ToString();
+                tempSub.name = u["name"].ToString();
+                tempSub.type = u["type"].ToString();
+                tempSub.topic = u["topic"].ToString();
+                tempSub.parent = newServer;
+                List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
+                foreach (var o in u["permission_overwrites"])
+                {
+                    DiscordPermissionOverride dpo = new DiscordPermissionOverride(o["allow"].ToObject<uint>(), o["deny"].ToObject<uint>());
+                    dpo.type = o["type"].ToObject<DiscordPermissionOverride.OverrideType>();
+                    dpo.id = o["id"].ToString();
+
+                    permissionoverrides.Add(dpo);
+                }
+                tempSub.PermissionOverrides = permissionoverrides;
+
+                newServer.channels.Add(tempSub);
+            }
+            foreach (var mm in message["members"])
+            {
+                DiscordMember member = new DiscordMember();
+                member.user.id = mm["user"]["id"].ToString();
+                member.user.username = mm["user"]["username"].ToString();
+                member.user.avatar = mm["user"]["avatar"].ToString();
+                member.user.discriminator = mm["user"]["discriminator"].ToString();
+                member.roles = new List<DiscordRole>();
+                JArray rawRoles = JArray.Parse(mm["roles"].ToString());
+                if (rawRoles.Count > 0)
+                {
+                    foreach (var role in rawRoles.Children())
+                    {
+                        member.roles.Add(newServer.roles.Find(x => x.id == role.Value<string>()));
+                    }
+                }
+                else
+                {
+                    member.roles.Add(newServer.roles.Find(x => x.name == "@everyone"));
+                }
+                member.parent = newServer;
+
+                newServer.members.Add(member);
+            }
+
+            ServersList.Remove(oldServer);
+            ServersList.Add(newServer);
+            DiscordServerUpdateEventArgs dsuea = new DiscordServerUpdateEventArgs { NewServer = newServer, OldServer = oldServer };
+            if (GuildUpdated != null)
+                GuildUpdated(this, dsuea);
         }
 
         private void ChannelDeleteEvents(JObject message)
