@@ -20,5 +20,8 @@ namespace DiscordSharp
     {
         public DiscordUser user { get; set; }
         public DiscordMember() { user = new DiscordUser(); }
+        public List<DiscordRole> roles { get; set; }
+
+        public DiscordServer parent { get; internal set; }
     }
 }

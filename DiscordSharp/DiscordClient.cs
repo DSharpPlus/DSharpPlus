@@ -169,6 +169,23 @@ namespace DiscordSharp
                 temp.name = j["name"].ToString();
                 temp.owner_id = j["owner_id"].ToString();
                 List<DiscordChannel> tempSubs = new List<DiscordChannel>();
+
+                List<DiscordRole> tempRoles = new List<DiscordRole>();
+                foreach(var u in j["roles"])
+                {
+                    DiscordRole t = new DiscordRole
+                    {
+                        color = ColorTranslator.FromHtml("#" + u["color"].ToObject<int>().ToString("x")),
+                        name = u["name"].ToString(),
+                        permissions = new DiscordPermission(u["permissions"].ToObject<uint>()),
+                        position = u["position"].ToObject<int>(),
+                        managed = u["managed"].ToObject<bool>(),
+                        id = u["id"].ToString(),
+                        hoist = u["hoist"].ToObject<bool>()
+                    };
+                    tempRoles.Add(t);
+                }
+                temp.roles = tempRoles;
                 foreach(var u in j["channels"])
                 {
                     DiscordChannel tempSub = new DiscordChannel();
@@ -176,6 +193,7 @@ namespace DiscordSharp
                     tempSub.name = u["name"].ToString();
                     tempSub.type = u["type"].ToString();
                     tempSub.topic = u["topic"].ToString();
+                    tempSub.parent = temp;
                     tempSubs.Add(tempSub);
                 }
                 temp.channels = tempSubs;
@@ -186,6 +204,21 @@ namespace DiscordSharp
                     member.user.username = mm["user"]["username"].ToString();
                     member.user.avatar = mm["user"]["avatar"].ToString();
                     member.user.discriminator = mm["user"]["discriminator"].ToString();
+                    member.roles = new List<DiscordRole>();
+                    JArray rawRoles = JArray.Parse(mm["roles"].ToString());
+                    if(rawRoles.Count > 0)
+                    {
+                        foreach(var role in rawRoles.Children())
+                        {
+                            member.roles.Add(temp.roles.Find(x => x.id == role.Value<string>()));
+                        }
+                    }
+                    else
+                    {
+                        member.roles.Add(temp.roles.Find(x => x.name == "@everyone"));
+                    }
+                    member.parent = temp;
+
                     temp.members.Add(member);
                 }
                 ServersList.Add(temp);
@@ -313,6 +346,11 @@ namespace DiscordSharp
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}";
             var result = JObject.Parse(WebWrapper.Patch(url, token, topicChangeJson));
             ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null).channels.Find(x => x.id == channel.id).topic = Channeltopic;
+        }
+
+        public List<DiscordRole> GetRoles(DiscordServer server)
+        {
+            return null;
         }
 
         public void ChangeBotInformation(DiscordUserInformation info)
@@ -849,7 +887,6 @@ namespace DiscordSharp
             catch (Exception ex)
             {
                 Console.WriteLine("!!! {0}", ex.Message);
-                Console.Beep(100, 1000);
             }
         }
 

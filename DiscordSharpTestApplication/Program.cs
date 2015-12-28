@@ -142,6 +142,41 @@ namespace DiscordSharpTestApplication
                         string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by @{4}. The channel's topic is: {5}", e.Channel.name, e.Channel.id, server.name, server.id, owner, e.Channel.topic);
                         client.SendMessageToChannel(whereami, e.Channel);
                     }
+                    else if(e.message.content.StartsWith("?getroles"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        //?getroles <@10394803598>
+                        if(split.Length > 1)
+                        {
+                            Regex r = new Regex(@"(?<=<)([^>]+)(?=>)");
+                            string userToGetRoles = r.Match(split[1]).Value;
+                            userToGetRoles = userToGetRoles.Trim('@'); //lol
+                            DiscordMember foundMember = e.Channel.parent.members.Find(x => x.user.id == userToGetRoles);
+                            if(foundMember != null)
+                            {
+                                string whatToSend = "Found roles for user **" + foundMember.user.username + "**:\n```";
+                                for(int i = 0; i < foundMember.roles.Count; i++)
+                                {
+                                    if (i > 0)
+                                        whatToSend += "\n";
+                                    whatToSend += $"* {foundMember.roles[i].name}: id={foundMember.roles[i].id} color={foundMember.roles[i].color} permissions={foundMember.roles[i].permissions.GetRawPermissions()}";
+
+                                    string tempPermissions = "";
+                                    foreach(var permissions in foundMember.roles[i].permissions.GetAllPermissions())
+                                    {
+                                        tempPermissions += " " + permissions.ToString();
+                                    }
+                                    whatToSend += "\n\n  Friendly Permissions: " + tempPermissions;
+                                }
+                                whatToSend += "\n```";
+                                client.SendMessageToChannel(whatToSend, e.Channel);
+                            }
+                            else
+                            {
+                                client.SendMessageToChannel("User with id `" + userToGetRoles + "` not found.", e.Channel);
+                            }
+                        }
+                    }
                     else if (e.message.content.StartsWith("?test_game"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);

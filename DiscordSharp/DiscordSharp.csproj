@@ -48,6 +48,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiscordPermission.cs" />
+    <Compile Include="DiscordRole.cs" />
     <Compile Include="Endpoints.cs" />
     <Compile Include="Events\DiscordChannelDeleteEventArgs.cs" />
     <Compile Include="Events\DiscordDebugMessagesEventArgs.cs" />
