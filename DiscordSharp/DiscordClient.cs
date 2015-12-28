@@ -98,6 +98,7 @@ namespace DiscordSharp
     public delegate void DiscordChannelUpdate(object sender, DiscordChannelUpdateEventArgs e);
     public delegate void DiscordDebugMessages(object sender, DiscordDebugMessagesEventArgs e);
     public delegate void DiscordChannelDeleted(object sender, DiscordChannelDeleteEventArgs e);
+    public delegate void DiscordServerUpdate(object sender, DiscordServerUpdateEventArgs e);
 
     public class DiscordClient
     {
@@ -145,6 +146,7 @@ namespace DiscordSharp
         public event DiscordChannelUpdate ChannelUpdated;
         public event DiscordDebugMessages DebugMessageReceived;
         public event DiscordChannelDeleted ChannelDeleted;
+        public event DiscordServerUpdate GuildUpdated;
         #endregion
         
         public DiscordClient()
@@ -1084,6 +1086,9 @@ namespace DiscordSharp
                         case ("GUILD_CREATE"):
                             GuildCreateEvents(message);
                             break;
+                        case ("GUILD_UPDATE"):
+                            GuildUpdateEvents(message);
+                            break;
                         case ("PRESENCE_UPDATE"):
                             PresenceUpdateEvents(message);
                             break;
@@ -1152,6 +1157,18 @@ namespace DiscordSharp
                 ws.Connect();
         }
 
+        private void GuildUpdateEvents(JObject message)
+        {
+            DiscordServer oldServer = ServersList.Find(x => x.id == message["d"]["id"].ToString());
+            DiscordServer newServer = new DiscordServer
+            {
+                name = message["d"]["name"].ToString(),
+                id = message["d"]["name"].ToString(),
+                owner_id = message["d"]["name"].ToString()
+            };
+
+        }
+
         private void ChannelDeleteEvents(JObject message)
         {
             DiscordChannelDeleteEventArgs e = new DiscordChannelDeleteEventArgs { ChannelDeleted = GetChannelByID(message["d"]["id"].ToObject<long>()) };
@@ -1174,9 +1191,22 @@ namespace DiscordSharp
             newChannel.name = message["d"]["name"].ToString();
             newChannel.topic = message["d"]["topic"].ToString();
             newChannel.is_private = message["d"]["is_private"].ToObject<bool>();
+
+            List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
+            foreach (var o in message["permission_overwrites"])
+            {
+                DiscordPermissionOverride dpo = new DiscordPermissionOverride(o["allow"].ToObject<uint>(), o["deny"].ToObject<uint>());
+                dpo.type = o["type"].ToObject<DiscordPermissionOverride.OverrideType>();
+                dpo.id = o["id"].ToString();
+
+                permissionoverrides.Add(dpo);
+            }
+            newChannel.PermissionOverrides = permissionoverrides;
+
             e.NewChannel = newChannel;
 
             DiscordServer serverToRemoveFrom = ServersList.Find(x => x.channels.Find(y => y.id == newChannel.id) != null);
+            newChannel.parent = serverToRemoveFrom;
             int indexOfServer = ServersList.IndexOf(serverToRemoveFrom);
             serverToRemoveFrom.channels.Remove(oldChannel);
             serverToRemoveFrom.channels.Add(newChannel);
@@ -1311,22 +1341,35 @@ namespace DiscordSharp
                     discriminator = message["d"]["discriminator"].ToString()
                 }
             };
-
             DiscordMember oldMember = new DiscordMember();
             //Update members
-            foreach(var server in ServersList)
+            foreach (var server in ServersList)
             {
-                for(int i = 0; i < server.members.Count; i++)
+                for (int i = 0; i < server.members.Count; i++)
                 {
-                    if(server.members[i].user.id == newMember.user.id)
+                    if (server.members[i].user.id == newMember.user.id)
                     {
                         server.members[i] = newMember;
-                        
                         oldMember = server.members[i];
-                        
                     }
                 }
             }
+
+            newMember.parent = oldMember.parent;
+            JArray rawRoles = JArray.Parse(message["roles"].ToString());
+            if (rawRoles.Count > 0)
+            {
+                foreach (var role in rawRoles.Children())
+                {
+                    newMember.roles.Add(newMember.parent.roles.Find(x => x.id == role.Value<string>()));
+                }
+            }
+            else
+            {
+                newMember.roles.Add(newMember.parent.roles.Find(x => x.name == "@everyone"));
+            }
+
+            
             e.NewMember = newMember;
             e.OriginalMember = oldMember;
             if (UserUpdate != null)
