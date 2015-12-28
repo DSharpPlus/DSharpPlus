@@ -1600,16 +1600,32 @@ namespace DiscordSharp
         /// <returns>The token if login was succesful, or null if not</returns>
         public string SendLoginRequest()
         {
-            if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
-                throw new ArgumentNullException("You didn't supply login information!");
-            string url = Endpoints.BaseAPI + Endpoints.Auth + Endpoints.Login;
-            string msg = JsonConvert.SerializeObject(new
+            if (File.Exists("token_cache"))
             {
-                email = ClientPrivateInformation.email,
-                password = ClientPrivateInformation.password
-            });
-            var result = JObject.Parse(WebWrapper.Post(url, msg));
-            token = result["token"].ToString();
+                using (var sr = new StreamReader("token_cache"))
+                {
+                    token = sr.ReadLine();
+                }
+            }
+            else
+            {
+                if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
+                    throw new ArgumentNullException("You didn't supply login information!");
+                string url = Endpoints.BaseAPI + Endpoints.Auth + Endpoints.Login;
+                string msg = JsonConvert.SerializeObject(new
+                {
+                    email = ClientPrivateInformation.email,
+                    password = ClientPrivateInformation.password
+                });
+                var result = JObject.Parse(WebWrapper.Post(url, msg));
+                token = result["token"].ToString();
+
+                using (var sw = new StreamWriter("token_cache"))
+                {
+                    sw.WriteLine(token);
+                }
+            }
+
             return token;
         }
     }
