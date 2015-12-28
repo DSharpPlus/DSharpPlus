@@ -13,6 +13,7 @@ namespace DiscordSharp
         public string id { get; set; }
         public string topic { get; set; }
         public bool is_private { get; set; } = false;
+        public List<DiscordPermissionOverride> PermissionOverrides { get; set; }
 
         public DiscordServer parent { get; internal set; }
     }

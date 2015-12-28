@@ -341,6 +341,34 @@ namespace DiscordSharpTestApplication
                             client.SendMessageToChannel("restaroni in pepparoni", e.Channel);
                         Environment.Exit(0);
                     }
+                    else if (e.message.content.Contains("?checkchannelperm"))
+                    {
+                        DiscordChannel channel = e.Channel;
+                        string toSend = $"Channel Permission Overrides for #{channel.name}\n\n```";
+                        foreach(var over in channel.PermissionOverrides)
+                        {
+                            toSend += $"* Type: {over.type}\n";
+                            if (over.type == DiscordPermissionOverride.OverrideType.member)
+                                toSend += $"  Member: {over.id} ({channel.parent.members.Find(x => x.user.id == over.id).user.username})\n";
+                            else
+                                toSend += $"  Role: {over.id} ({channel.parent.roles.Find(x => x.id == over.id).name})\n";
+                            toSend += $" Allowed: {over.GetAllowedRawPermissions()}\n";
+                            toSend += $" Friendly:";
+                            foreach(var allowed in over.GetAllAllowedPermissions())
+                            {
+                                toSend += " " + allowed.ToString();
+                            }
+                            toSend += $"\n Denied: {over.GetDeniedRawPermissions()}\n";
+                            toSend += $" Friendly:";
+                            foreach(var denied in over.GetAllDeniedPermissions())
+                            {
+                                toSend += " " + denied.ToString();
+                            }
+                            toSend += "\n\n";
+                        }
+                        toSend += "```";
+                        client.SendMessageToChannel(toSend, channel);
+                    }
                     else if(e.message.content.StartsWith("?createchannel"))
                     {
                         if(e.author.user.username == "Axiom")

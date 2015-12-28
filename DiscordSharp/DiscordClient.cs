@@ -194,6 +194,17 @@ namespace DiscordSharp
                     tempSub.type = u["type"].ToString();
                     tempSub.topic = u["topic"].ToString();
                     tempSub.parent = temp;
+                    List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
+                    foreach(var o in u["permission_overwrites"])
+                    {
+                        DiscordPermissionOverride dpo = new DiscordPermissionOverride(o["allow"].ToObject<uint>(), o["deny"].ToObject<uint>());
+                        dpo.type = o["type"].ToObject<DiscordPermissionOverride.OverrideType>();
+                        dpo.id = o["id"].ToString();
+
+                        permissionoverrides.Add(dpo);
+                    }
+                    tempSub.PermissionOverrides = permissionoverrides;
+
                     tempSubs.Add(tempSub);
                 }
                 temp.channels = tempSubs;

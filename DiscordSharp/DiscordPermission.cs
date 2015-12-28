@@ -15,9 +15,9 @@ namespace DiscordSharp
         KickMembers = 1,
         BanMembers = 2,
         ManageRoles = 3,
-        ManagePermissions = 3,
+        //ManagePermissions = 3,
         ManageChannels = 4,
-        ManageChannel = 4,
+        //ManageChannel = 4,
         ManageServer = 5,
         //Chat
         ReadMessages = 10,
