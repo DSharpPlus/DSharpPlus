@@ -61,6 +61,7 @@
     <Compile Include="Events\DiscordGuildMemberRemoved.cs" />
     <Compile Include="Events\DiscordLeftVoiceChannelEventArgs.cs" />
     <Compile Include="Events\DiscordMessageDeletedEventArgs.cs" />
+    <Compile Include="Events\DiscordServerUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordUserUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceStateUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordURLUpdateEventArgs.cs" />
