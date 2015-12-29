@@ -200,8 +200,12 @@ namespace DiscordSharp
                     foreach(var o in u["permission_overwrites"])
                     {
                         DiscordPermissionOverride dpo = new DiscordPermissionOverride(o["allow"].ToObject<uint>(), o["deny"].ToObject<uint>());
-                        dpo.type = o["type"].ToObject<DiscordPermissionOverride.OverrideType>();
                         dpo.id = o["id"].ToString();
+
+                        if (o["type"].ToString() == "member")
+                            dpo.type = DiscordPermissionOverride.OverrideType.member;
+                        else
+                            dpo.type = DiscordPermissionOverride.OverrideType.role;
 
                         permissionoverrides.Add(dpo);
                     }
