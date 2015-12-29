@@ -1429,19 +1429,22 @@ namespace DiscordSharp
             }
 
             newMember.parent = oldMember.parent;
-            JArray rawRoles = JArray.Parse(message["roles"].ToString());
-            if (rawRoles.Count > 0)
+
+            if (!message["roles"].IsNullOrEmpty())
             {
-                foreach (var role in rawRoles.Children())
+                JArray rawRoles = JArray.Parse(message["roles"].ToString());
+                if (rawRoles.Count > 0)
                 {
-                    newMember.roles.Add(newMember.parent.roles.Find(x => x.id == role.Value<string>()));
+                    foreach (var role in rawRoles.Children())
+                    {
+                        newMember.roles.Add(newMember.parent.roles.Find(x => x.id == role.Value<string>()));
+                    }
+                }
+                else
+                {
+                    newMember.roles.Add(newMember.parent.roles.Find(x => x.name == "@everyone"));
                 }
             }
-            else
-            {
-                newMember.roles.Add(newMember.parent.roles.Find(x => x.name == "@everyone"));
-            }
-
             
             e.NewMember = newMember;
             e.OriginalMember = oldMember;
