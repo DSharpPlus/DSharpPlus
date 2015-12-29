@@ -1262,7 +1262,7 @@ namespace DiscordSharp
             newChannel.is_private = message["d"]["is_private"].ToObject<bool>();
 
             List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
-            foreach (var o in message["permission_overwrites"])
+            foreach (var o in message["d"]["permission_overwrites"])
             {
                 DiscordPermissionOverride dpo = new DiscordPermissionOverride(o["allow"].ToObject<uint>(), o["deny"].ToObject<uint>());
                 dpo.type = o["type"].ToObject<DiscordPermissionOverride.OverrideType>();
