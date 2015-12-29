@@ -23,7 +23,7 @@ namespace DiscordSharpTestApplication
         [STAThread]
         public static void Main(string[] args)
         {
-            Console.WriteLine("DiscordSharp Tester");
+            Console.WriteLine("\t\tDiscordSharp Tester");
             client.ClientPrivateInformation = new DiscordUserInformation();
 
             if (File.Exists("credentials.txt"))
@@ -90,8 +90,10 @@ namespace DiscordSharpTestApplication
                 };
                 client.MentionReceived += (sender, e) =>
                 {
-                    if (e.author.user.id != client.Me.user.id)
-                        client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
+                    //if (e.author.user.id != client.Me.user.id)
+                    //    client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
+                    string whatToSend = $"I received a mention from @{e.author.user.username} in #{e.Channel.name} in {e.Channel.parent.name}. It said: \n```\n{e.message.content}\n```";
+                    client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
                 };
                 client.MessageReceived += (sender, e) =>
                 {
@@ -443,6 +445,10 @@ namespace DiscordSharpTestApplication
                             }
                         }
                     }
+                    else if(e.message.content.StartsWith("?playing"))
+                    {
+                        client.SendMessageToChannel($"@Axiom is Now playing: *{client.GetCurrentGame}*", e.Channel);
+                    }
                 };
                 client.Connected += (sender, e) =>
                 {
@@ -452,6 +458,22 @@ namespace DiscordSharpTestApplication
                         sw.WriteLine(client.ClientPrivateInformation.email);
                         sw.WriteLine(client.ClientPrivateInformation.password);
                         sw.Flush();
+                    }
+                    using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
+                    {
+                        try
+                        {
+
+                            var recentScrobbles = lllfclient.User.GetRecentScrobbles("mrmiketheripper", null, 1, 1);
+                            LastTrack lastTrack = recentScrobbles.Result.Content[0];
+                            string newGame = $"{lastTrack.Name} by {lastTrack.ArtistName}";
+                            client.UpdateCurrentGame(newGame);
+                        }
+                        catch (Exception ex)
+                        {
+                            string whatToSend = $"Couldn't get Last.fm recent scrobbles for you! Exception:\n```{ex.Message}\n{ex.StackTrace}\n```\n";
+                            client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
+                        }
                     }
                 };
                 client.SocketClosed += (sender, e) =>
@@ -470,6 +492,28 @@ namespace DiscordSharpTestApplication
                 }
             });
             worker.Start();
+
+            System.Timers.Timer lastfmUpdateTimer = new System.Timers.Timer(25 * 1000); //check last.fm every 25 seconds
+            lastfmUpdateTimer.Elapsed += (sender, e) =>
+            {
+                using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
+                {
+                    try
+                    {
+
+                        var recentScrobbles = lllfclient.User.GetRecentScrobbles("mrmiketheripper", null, 1, 1);
+                        LastTrack lastTrack = recentScrobbles.Result.Content[0];
+                        string newGame = $"{lastTrack.Name} by {lastTrack.ArtistName}";
+                        client.UpdateCurrentGame(newGame);   
+                    }
+                    catch(Exception ex)
+                    {
+                        string whatToSend = $"Couldn't get Last.fm recent scrobbles for you! Exception:\n```{ex.Message}\n{ex.StackTrace}\n```\n";
+                        client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
+                    }
+                }
+            };
+            lastfmUpdateTimer.Start();
 
             InputCheck();
             //System.Windows.Forms.Application.Run();

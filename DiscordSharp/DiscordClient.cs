@@ -487,6 +487,8 @@ namespace DiscordSharp
             //dm.mentions = new string[] { "" };
             return dm;
         }
+
+        public string GetCurrentGame { get { return CurrentGameName; } }
         
         public bool WebsocketAlive
         {
