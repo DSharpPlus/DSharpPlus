@@ -1534,7 +1534,6 @@ namespace DiscordSharp
             Dispose();
         }
 
-        [Obsolete]
         public async Task<string> SendLoginRequestAsync()
         {
             if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
