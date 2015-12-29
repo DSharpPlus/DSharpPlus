@@ -563,10 +563,10 @@ namespace DiscordSharp
                 var user = pserver.members.Find(x => x.user.id == message["d"]["id"].ToString());
 
                 string game = message["d"]["game"].ToString();
-                if (game.Length > 1)
-                    dpuea.game = message["d"]["game"]["name"].ToString();
-                else
+                if (message["d"]["game"].IsNullOrEmpty())
                     dpuea.game = "";
+                else
+                    dpuea.game = message["d"]["game"]["name"].ToString();
 
                 if (message["d"]["status"].ToString() == "online")
                     dpuea.status = DiscordUserStatus.ONLINE;
