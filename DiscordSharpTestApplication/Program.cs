@@ -71,8 +71,8 @@ namespace DiscordSharpTestApplication
                 };
                 client.MessageEdited += (sender, e) =>
                 {
-                    if (e.author.user.username == "Axiom")
-                        client.SendMessageToChannel("What the fuck, <@" + e.author.user.id + "> you can't event type your message right. (\"" + e.MessageEdited.content + "\")", e.Channel);
+                    //if (e.author.user.username == "Axiom")
+                    //    client.SendMessageToChannel("What the fuck, <@" + e.author.user.id + "> you can't event type your message right. (\"" + e.MessageEdited.content + "\")", e.Channel);
                 };
                 client.ChannelCreated += (sender, e) =>
                 {
@@ -237,7 +237,6 @@ namespace DiscordSharpTestApplication
                             {
                                 try
                                 {
-
                                     var recentScrobbles = lllfclient.User.GetRecentScrobbles(split[1], null, 1, 1);
                                     LastTrack lastTrack = recentScrobbles.Result.Content[0];
                                     client.SendMessageToChannel(string.Format("*{0}* last listened to _{1}_ by _{2}_", split[1], lastTrack.Name, lastTrack.ArtistName), e.Channel);
@@ -467,7 +466,8 @@ namespace DiscordSharpTestApplication
                             var recentScrobbles = lllfclient.User.GetRecentScrobbles("mrmiketheripper", null, 1, 1);
                             LastTrack lastTrack = recentScrobbles.Result.Content[0];
                             string newGame = $"{lastTrack.Name} by {lastTrack.ArtistName}";
-                            client.UpdateCurrentGame(newGame);
+                            if(newGame != client.GetCurrentGame)
+                                client.UpdateCurrentGame(newGame);
                         }
                         catch (Exception ex)
                         {
