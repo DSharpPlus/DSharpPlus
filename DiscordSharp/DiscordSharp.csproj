@@ -48,6 +48,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Color.cs" />
+    <Compile Include="Events\DiscordGuildRoleUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordGuildRoleDeleteEventArgs.cs" />
     <Compile Include="DiscordPermission.cs" />
     <Compile Include="DiscordPermissionOverride.cs" />
     <Compile Include="DiscordRole.cs" />

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using DiscordSharp.Events;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using System.Drawing;
 
 namespace DiscordSharp
@@ -99,6 +98,8 @@ namespace DiscordSharp
     public delegate void DiscordDebugMessages(object sender, DiscordDebugMessagesEventArgs e);
     public delegate void DiscordChannelDeleted(object sender, DiscordChannelDeleteEventArgs e);
     public delegate void DiscordServerUpdate(object sender, DiscordServerUpdateEventArgs e);
+    public delegate void DiscordGuildRoleDelete(object sender, DiscordGuildRoleDeleteEventArgs e);
+    public delegate void DiscordGuildRoleUpdate(object sender, DiscordGuildRoleUpdateEventArgs e);
 
     public class DiscordClient
     {
@@ -147,6 +148,8 @@ namespace DiscordSharp
         public event DiscordDebugMessages DebugMessageReceived;
         public event DiscordChannelDeleted ChannelDeleted;
         public event DiscordServerUpdate GuildUpdated;
+        public event DiscordGuildRoleDelete RoleDeleted;
+        public event DiscordGuildRoleUpdate RoleUpdated;
         #endregion
         
         public DiscordClient()
@@ -177,7 +180,7 @@ namespace DiscordSharp
                 {
                     DiscordRole t = new DiscordRole
                     {
-                        color = ColorTranslator.FromHtml("#" + u["color"].ToObject<int>().ToString("x")),
+                        color = new DiscordSharp.Color(u["color"].ToObject<int>().ToString("x")),
                         name = u["name"].ToString(),
                         permissions = new DiscordPermission(u["permissions"].ToObject<uint>()),
                         position = u["position"].ToObject<int>(),
@@ -1095,6 +1098,12 @@ namespace DiscordSharp
                         case ("GUILD_UPDATE"):
                             GuildUpdateEvents(message);
                             break;
+                        case ("GUILD_ROLE_DELETE"):
+                            GuildRoleDeleteEvents(message);
+                            break;
+                        case ("GUILD_ROLE_UPDATE"):
+                            GuildRoleUpdateEvents(message);
+                            break;
                         case ("PRESENCE_UPDATE"):
                             PresenceUpdateEvents(message);
                             break;
@@ -1163,6 +1172,103 @@ namespace DiscordSharp
                 ws.Connect();
         }
 
+        private void GuildRoleUpdateEvents(JObject message)
+        {
+            DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            DiscordRole roleUpdated = new DiscordRole
+            {
+                name = message["d"]["role"]["name"].ToString(),
+                position = message["d"]["role"]["position"].ToObject<int>(),
+                permissions = new DiscordPermission(message["d"]["role"]["permissions"].ToObject<uint>()),
+                managed = message["d"]["role"]["managed"].ToObject<bool>(),
+                hoist = message["d"]["role"]["hoist"].ToObject<bool>(),
+                color = new Color(message["d"]["role"]["color"].ToObject<int>().ToString("x")),
+                id = message["d"]["role"]["id"].ToString(),
+            };
+
+            ServersList.Find(x => x.id == inServer.id).roles.Remove(ServersList.Find(x => x.id == inServer.id).roles.Find(y => y.id == roleUpdated.id));
+            ServersList.Find(x => x.id == inServer.id).roles.Add(roleUpdated);
+
+            if (RoleUpdated != null)
+                RoleUpdated(this, new DiscordGuildRoleUpdateEventArgs { RawJson = message, RoleUpdated = roleUpdated, InServer = inServer });
+        }
+
+        private void GuildRoleDeleteEvents(JObject message)
+        {
+            DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            DiscordRole deletedRole = inServer.roles.Find(x => x.id == message["d"]["role_id"].ToString());
+
+            ServersList.Find(x => x.id == inServer.id).roles.Remove(ServersList.Find(x => x.id == inServer.id).roles.Find(y => y.id == deletedRole.id));
+
+            if (RoleDeleted != null)
+                RoleDeleted(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });
+        }
+
+        public DiscordRole CreateRole(DiscordServer guild)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Roles;
+            var result = JObject.Parse(WebWrapper.Post(url, token, ""));
+
+            if (result != null)
+            {
+                DiscordRole d = new DiscordRole
+                {
+                    color = new Color(result["color"].ToObject<int>().ToString("x")),
+                    hoist = result["hoist"].ToObject<bool>(),
+                    id = result["id"].ToString(),
+                    managed = result["managed"].ToObject<bool>(),
+                    name = result["name"].ToString(),
+                    permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
+                    position = result["position"].ToObject<int>()
+                };
+
+                ServersList.Find(x => x.id == guild.id).roles.Add(d);
+                return d;
+            }
+            return null;
+        }
+
+        public DiscordRole EditRole(DiscordServer guild, DiscordRole newRole)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Roles + $"/{newRole.id}";
+            string request = JsonConvert.SerializeObject(
+                new
+                {
+                    color = decimal.Parse(newRole.color.ToDecimal().ToString()),
+                    hoist = newRole.hoist,
+                    name = newRole.name,
+                    permissions = newRole.permissions.GetRawPermissions()
+                }
+            );
+
+            var result = JObject.Parse(WebWrapper.Patch(url, token, request));
+            if(result != null)
+            {
+                DiscordRole d = new DiscordRole
+                {
+                    color = new Color(result["color"].ToObject<int>().ToString("x")),
+                    hoist = result["hoist"].ToObject<bool>(),
+                    id = result["id"].ToString(),
+                    managed = result["managed"].ToObject<bool>(),
+                    name = result["name"].ToString(),
+                    permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
+                    position = result["position"].ToObject<int>()
+                };
+
+                ServersList.Find(x => x.id == guild.id).roles.Remove(d);
+                ServersList.Find(x => x.id == guild.id).roles.Add(d);
+                return d;
+            }
+
+            return null;
+        }
+
+        public void DeleteRole(DiscordServer guild, DiscordRole role)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Roles + $"/{role.id}";
+            WebWrapper.Delete(url, token);
+        }
+
         private void GuildUpdateEvents(JObject message)
         {
             DiscordServer oldServer = ServersList.Find(x => x.id == message["d"]["id"].ToString());
@@ -1177,7 +1283,7 @@ namespace DiscordSharp
             {
                 DiscordRole t = new DiscordRole
                 {
-                    color = ColorTranslator.FromHtml("#" + roll["color"].ToObject<int>().ToString("x")),
+                    color = new DiscordSharp.Color(roll["color"].ToObject<int>().ToString("x")),
                     name = roll["name"].ToString(),
                     permissions = new DiscordPermission(roll["permissions"].ToObject<uint>()),
                     position = roll["position"].ToObject<int>(),
