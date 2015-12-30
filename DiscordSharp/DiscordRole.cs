@@ -9,7 +9,7 @@ namespace DiscordSharp
 {
     public class DiscordRole
     {
-        public Color color { get; set; }
+        public DiscordSharp.Color color { get; set; }
         //public Color ccolor { get; set; }
         public bool hoist { get; set; }
         public string name { get; set; }
@@ -17,5 +17,19 @@ namespace DiscordSharp
         public bool managed { get; set; }
         public int position { get; set; }
         public string id { get; set; }
+
+        public DiscordRole Copy()
+        {
+            return new DiscordRole
+            {
+                color = this.color,
+                hoist = this.hoist,
+                name = this.name,
+                permissions = this.permissions,
+                managed = this.managed,
+                position = this.position,
+                id = this.id
+            };
+        }
     }
 }
