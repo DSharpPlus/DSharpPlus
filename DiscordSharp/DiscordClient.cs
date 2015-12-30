@@ -100,6 +100,7 @@ namespace DiscordSharp
     public delegate void DiscordServerUpdate(object sender, DiscordServerUpdateEventArgs e);
     public delegate void DiscordGuildRoleDelete(object sender, DiscordGuildRoleDeleteEventArgs e);
     public delegate void DiscordGuildRoleUpdate(object sender, DiscordGuildRoleUpdateEventArgs e);
+    public delegate void DiscordGuildMemberUpdate(object sender, DiscordGuildMemberUpdateEventArgs e);
 
     public class DiscordClient
     {
@@ -150,6 +151,7 @@ namespace DiscordSharp
         public event DiscordServerUpdate GuildUpdated;
         public event DiscordGuildRoleDelete RoleDeleted;
         public event DiscordGuildRoleUpdate RoleUpdated;
+        public event DiscordGuildMemberUpdate GuildMemberUpdated;
         #endregion
         
         public DiscordClient()
@@ -1024,7 +1026,20 @@ namespace DiscordSharp
             WebWrapper.Patch(editGuildUrl, token, newNameJson);
         }
 
-
+        public void AssignRoleToMember(DiscordServer guild, DiscordRole role, DiscordMember member)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.user.id}";
+            string message = JsonConvert.SerializeObject(new { roles = new string[] { role.id } });
+            Console.WriteLine(WebWrapper.Patch(url, token, message));
+        }
+        public void AssignRoleToMember(DiscordServer guild, List<DiscordRole> roles, DiscordMember member)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.user.id}";
+            List<string> rolesAsIds = new List<string>();
+            roles.ForEach(x => rolesAsIds.Add(x.id));
+            string message = JsonConvert.SerializeObject(new { roles = rolesAsIds.ToArray() });
+            Console.WriteLine(WebWrapper.Patch(url, token, message));
+        }
 
         /// <summary>
         /// Creates and invite to the given channel.
@@ -1094,6 +1109,9 @@ namespace DiscordSharp
                             break;
                         case ("GUILD_CREATE"):
                             GuildCreateEvents(message);
+                            break;
+                        case ("GUILD_MEMBER_UPDATE"):
+                            GuildMemberUpdateEvents(message);
                             break;
                         case ("GUILD_UPDATE"):
                             GuildUpdateEvents(message);
@@ -1170,6 +1188,35 @@ namespace DiscordSharp
 
                 };
                 ws.Connect();
+        }
+
+        private void GuildMemberUpdateEvents(JObject message)
+        {
+            DiscordServer server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            DiscordMember memberUpdated = new DiscordMember
+            {
+                user = new DiscordUser
+                {
+                    username = message["d"]["user"]["username"].ToString(),
+                    id = message["d"]["user"]["id"].ToString(),
+                    avatar = message["d"]["user"]["avatar"].ToString(),
+                    discriminator = message["d"]["user"]["discriminator"].ToString(),
+                    verified = server.members.Find(x=>x.user.id == message["d"]["user"]["id"].ToString()).user.verified
+                },
+                parent = server
+            };
+            memberUpdated.roles = new List<DiscordRole>();
+
+            foreach(var roles in message["d"]["roles"])
+            {
+                memberUpdated.roles.Add(server.roles.Find(x => x.id == roles.ToString()));    
+            }
+            //need to ask voltana if this is actually necessary or i can use the reference i got to server above
+            ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Remove(ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Find(x => x.user.id == message["d"]["user"]["id"].ToString()));
+            ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Add(memberUpdated);
+
+            if (GuildMemberUpdated != null)
+                GuildMemberUpdated(this, new DiscordGuildMemberUpdateEventArgs { MemberUpdate = memberUpdated, RawJson = message, ServerUpdated = server });            
         }
 
         private void GuildRoleUpdateEvents(JObject message)

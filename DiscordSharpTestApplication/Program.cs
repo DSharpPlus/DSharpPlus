@@ -278,6 +278,38 @@ namespace DiscordSharpTestApplication
                             client.SendMessageToChannel("Who??", e.Channel);
 #endif
                     }
+                    else if(e.message.content.StartsWith("?assignrole"))
+                    {
+                        DiscordServer server = e.Channel.parent;
+                        DiscordMember me = server.members.Find(x => x.user.id == client.Me.user.id);
+
+                        bool hasPermission = false;
+                        me.roles.ForEach(r => 
+                        {
+                            if (r.permissions.HasPermission(DiscordSpecialPermissions.ManageRoles))
+                                hasPermission = true;
+                        });
+                        if(hasPermission)
+                        {
+                            string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                            if (split.Length > 0)
+                            {
+                                DiscordRole toAssign = server.roles.Find(x => x.name.ToLower().Trim() == split[1].ToLower().Trim());
+                                if(toAssign != null)
+                                {
+                                    client.AssignRoleToMember(server, toAssign, server.members.Find(x => x.user.username == "Axiom"));
+                                }
+                                else
+                                {
+                                    client.SendMessageToChannel($"Role '{split[1]}' not found!", e.Channel);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            client.SendMessageToChannel("Cannot assign role: no permission.", e.Channel);
+                        }
+                    }
                     else if (e.message.content.StartsWith("?rename"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);

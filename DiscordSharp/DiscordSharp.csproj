@@ -35,7 +35,7 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)' != 'Unix'">
-	<CscToolPath>$(MSBuildProgramFiles32)\MSBuild\14.0\Bin</CscToolPath>
+    <CscToolPath>$(MSBuildProgramFiles32)\MSBuild\14.0\Bin</CscToolPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color.cs" />
+    <Compile Include="Events\DiscordGuildMemberUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordGuildRoleUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordGuildRoleDeleteEventArgs.cs" />
     <Compile Include="DiscordPermission.cs" />
