@@ -268,21 +268,11 @@ namespace DiscordSharp
         public void AttachFile(DiscordChannel channel, string message, string pathToFile)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
+            //WebWrapper.PostWithAttachment(url, message, pathToFile);
+            var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, pathToFile, "file", "image/jpeg", null));
 
-            WebWrapper.PostWithAttachment(url, message, pathToFile);
-            //using (WebClient wc = new WebClient())
-            //{
-            //    try
-            //    {
-            //        wc.UploadFile(url, pathToFile);
-                    
-            //    }
-            //    catch(Exception ex)
-            //    {
-            //        Console.WriteLine(ex.Message);
-            //    }
-            //}
-            //WebWrapper.Post(url, token, JsonConvert.SerializeObject(GenerateMessage(message)));
+            uploadResult["content"] = message;
+            WebWrapper.Post(url, token, uploadResult.ToString());
         }
 
 

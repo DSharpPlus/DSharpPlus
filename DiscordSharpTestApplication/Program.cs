@@ -615,7 +615,7 @@ namespace DiscordSharpTestApplication
                     ofd.Title = "Select file to attach";
                     if(ofd.ShowDialog() == DialogResult.OK)
                     {
-                        DiscordChannel c = client.GetServersList().Find(x => x.name == "Dong Nugget").channels[0];
+                        DiscordChannel c = client.GetServersList().Find(x => x.name.Contains("Discord API")).channels.Find(x=>x.name.Contains("dotnet_discord-net"));
                         client.AttachFile(c, "Test", ofd.FileName);
                     }
                 }
