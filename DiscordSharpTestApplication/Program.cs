@@ -97,7 +97,8 @@ namespace DiscordSharpTestApplication
                     //if (e.author.user.id != client.Me.user.id)
                     //    client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
                     string whatToSend = $"I received a mention from @{e.author.user.username} in #{e.Channel.name} in {e.Channel.parent.name}. It said: \n```\n{e.message.content}\n```";
-                    client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
+                    DiscordMember owner = client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom");
+                    client.SendMessageToUser(whatToSend, owner);
                 };
                 client.MessageReceived += (sender, e) =>
                 {
@@ -229,8 +230,11 @@ namespace DiscordSharpTestApplication
                         else
                         {
                             DiscordServer curServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
-                            client.SendMessageToChannel("Bye!", e.Channel);
-                            client.LeaveServer(curServer.id);
+                            if(curServer != null)
+                            {
+                                //client.SendMessageToChannel("Bye!", e.Channel);
+                                client.LeaveServer(e.Channel.parent.id);
+                            }
                         }
                     }
                     else if (e.message.content.StartsWith("?everyone"))

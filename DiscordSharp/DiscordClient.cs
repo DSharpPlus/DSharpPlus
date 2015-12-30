@@ -251,7 +251,7 @@ namespace DiscordSharp
 
         public void LeaveServer(string ServerID)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"{ServerID}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ServerID}";
             WebWrapper.Delete(url, token);
         }
         /// <summary>
@@ -271,8 +271,9 @@ namespace DiscordSharp
             //WebWrapper.PostWithAttachment(url, message, pathToFile);
             var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, pathToFile, "file", "image/jpeg", null));
 
-            uploadResult["content"] = message;
-            WebWrapper.Post(url, token, uploadResult.ToString());
+            //uploadResult["content"] = message;
+            //WebWrapper.Post(url, token, uploadResult.ToString());
+            EditMessage(uploadResult["id"].ToString(), message, channel);
         }
 
 
@@ -1454,7 +1455,22 @@ namespace DiscordSharp
             server.owner_id = message["d"]["owner_id"].ToString();
             server.members = new List<DiscordMember>();
             server.channels = new List<DiscordChannel>();
-            foreach(var chn in message["d"]["channels"])
+            server.roles = new List<DiscordRole>();
+            foreach (var roll in message["d"]["roles"])
+            {
+                DiscordRole t = new DiscordRole
+                {
+                    color = new DiscordSharp.Color(roll["color"].ToObject<int>().ToString("x")),
+                    name = roll["name"].ToString(),
+                    permissions = new DiscordPermission(roll["permissions"].ToObject<uint>()),
+                    position = roll["position"].ToObject<int>(),
+                    managed = roll["managed"].ToObject<bool>(),
+                    id = roll["id"].ToString(),
+                    hoist = roll["hoist"].ToObject<bool>()
+                };
+                server.roles.Add(t);
+            }
+            foreach (var chn in message["d"]["channels"])
             {
                 DiscordChannel tempChannel = new DiscordChannel();
                 tempChannel.id = chn["id"].ToString();
@@ -1462,6 +1478,21 @@ namespace DiscordSharp
                 tempChannel.topic = chn["topic"].ToString();
                 tempChannel.name = chn["name"].ToString();
                 tempChannel.is_private = false;
+                tempChannel.PermissionOverrides = new List<DiscordPermissionOverride>();
+                foreach (var o in chn["permission_overwrites"])
+                {
+                    if (tempChannel.type == "voice")
+                        continue;
+                    DiscordPermissionOverride dpo = new DiscordPermissionOverride(o["allow"].ToObject<uint>(), o["deny"].ToObject<uint>());
+                    dpo.id = o["id"].ToString();
+
+                    if (o["type"].ToString() == "member")
+                        dpo.type = DiscordPermissionOverride.OverrideType.member;
+                    else
+                        dpo.type = DiscordPermissionOverride.OverrideType.role;
+
+                    tempChannel.PermissionOverrides.Add(dpo);
+                }
                 server.channels.Add(tempChannel);
             }
             foreach(var mbr in message["d"]["members"])
@@ -1471,8 +1502,16 @@ namespace DiscordSharp
                 member.user.username = mbr["user"]["username"].ToString();
                 member.user.id = mbr["user"]["id"].ToString();
                 member.user.discriminator = mbr["user"]["discriminator"].ToString();
+                member.roles = new List<DiscordRole>();
+                foreach(var rollid in mbr["roles"])
+                {
+                    member.roles.Add(server.roles.Find(x => x.id == rollid.ToString()));
+                }
+                if (member.roles.Count == 0)
+                    member.roles.Add(server.roles.Find(x => x.name == "@everyone"));
                 server.members.Add(member);
             }
+            
             ServersList.Add(server);
             e.server = server;
             if (GuildCreated != null)
