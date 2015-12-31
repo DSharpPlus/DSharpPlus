@@ -160,9 +160,9 @@ namespace DiscordSharp
                 ClientPrivateInformation = new DiscordUserInformation();
         }
 
-        public List<DiscordServer> GetServersList => ServersList;
-        public List<KeyValuePair<string, DiscordMessage>> GetMessageLog => MessageLog;
-        public List<DiscordPrivateChannel> GetPrivateChannels => PrivateChannels;
+        public List<DiscordServer> GetServersList() => ServersList;
+        public List<KeyValuePair<string, DiscordMessage>> GetMessageLog() => MessageLog;
+        public List<DiscordPrivateChannel> GetPrivateChannels() => PrivateChannels;
 
         //eh
         private void GetChannelsList(JObject m)
