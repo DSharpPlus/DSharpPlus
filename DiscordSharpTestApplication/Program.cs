@@ -94,6 +94,7 @@ namespace DiscordSharpTestApplication
                 };
                 client.MentionReceived += (sender, e) =>
                 {
+                    client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
                     //if (e.author.user.id != client.Me.user.id)
                     //    client.SendMessageToChannel("Heya, @" + e.author.user.username, e.Channel);
                     string whatToSend = $"I received a mention from @{e.author.user.username} in #{e.Channel.name} in {e.Channel.parent.name}. It said: \n```\n{e.message.content}\n```";

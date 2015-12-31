@@ -467,7 +467,7 @@ namespace DiscordSharp
         {
             DiscordMessage dm = new DiscordMessage();
             List<string> foundIDS = new List<string>();
-            Regex r = new Regex("\\@\\w+");
+            Regex r = new Regex("\\@\\w+\\s\\w+");
             List<KeyValuePair<string, string>> toReplace = new List<KeyValuePair<string, string>>();
             foreach (Match m in r.Matches(message))
             {
@@ -1667,9 +1667,11 @@ namespace DiscordSharp
             e.user = ServersList.Find(x => x.members.Find(y => y.user.id == message["d"]["user_id"].ToString()) != null).members.Find(x => x.user.id == message["d"]["user_id"].ToString());
             e.guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             e.channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
-            e.self_deaf = message["d"]["self_deaf"].ToObject<bool>();
+            if(!message["d"]["self_deaf"].IsNullOrEmpty())
+                e.self_deaf = message["d"]["self_deaf"].ToObject<bool>();
             e.deaf = message["d"]["deaf"].ToObject<bool>();
-            e.self_mute = message["d"]["self_mute"].ToObject<bool>();
+            if(!message["d"]["self_mute"].IsNullOrEmpty())
+                e.self_mute = message["d"]["self_mute"].ToObject<bool>();
             e.mute = message["d"]["mute"].ToObject<bool>();
             e.suppress = message["d"]["suppress"].ToObject<bool>();
             e.RawJson = message;
