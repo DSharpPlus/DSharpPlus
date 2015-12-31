@@ -458,28 +458,31 @@ namespace DiscordSharp
 
         private void SendActualMessage(string id, string message)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + id + Endpoints.Messages;
-            DiscordMessage toSend = GenerateMessage(message);
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages;
+            DiscordMessage toSend = GenerateMessage(message, false);
             WebWrapper.Post(url, token, JsonConvert.SerializeObject(toSend).ToString());
         }
 
-        private DiscordMessage GenerateMessage(string message)
+        private DiscordMessage GenerateMessage(string message, bool parse = true)
         {
             DiscordMessage dm = new DiscordMessage();
-            List<string> foundIDS = new List<string>();
-            Regex r = new Regex("\\@\\w+\\s\\w+");
-            List<KeyValuePair<string, string>> toReplace = new List<KeyValuePair<string, string>>();
-            foreach (Match m in r.Matches(message))
+            if (parse)
             {
-                if (m.Index > 0 && message[m.Index - 1] == '<')
-                    continue;
-                DiscordMember user = ServersList.Find(x => x.members.Find(y => y.user.username == m.Value.Trim('@')) != null).members.Find(y=>y.user.username == m.Value.Trim('@'));
-                foundIDS.Add(user.user.id);
-                toReplace.Add(new KeyValuePair<string, string>(m.Value, user.user.id));
-            }
-            foreach(var k in toReplace)
-            {
-                message = message.Replace(k.Key, "<@" + k.Value + ">");
+                List<string> foundIDS = new List<string>();
+                Regex r = new Regex("\\@\\w+\\s\\w+");
+                List<KeyValuePair<string, string>> toReplace = new List<KeyValuePair<string, string>>();
+                foreach (Match m in r.Matches(message))
+                {
+                    if (m.Index > 0 && message[m.Index - 1] == '<')
+                        continue;
+                    DiscordMember user = ServersList.Find(x => x.members.Find(y => y.user.username == m.Value.Trim('@')) != null).members.Find(y => y.user.username == m.Value.Trim('@'));
+                    foundIDS.Add(user.user.id);
+                    toReplace.Add(new KeyValuePair<string, string>(m.Value, user.user.id));
+                }
+                foreach (var k in toReplace)
+                {
+                    message = message.Replace(k.Key, "<@" + k.Value + ">");
+                }
             }
 
             dm.content = message;
@@ -865,18 +868,26 @@ namespace DiscordSharp
                 var foundServerChannel = ServersList.Find(x => x.channels.Find(y => y.id == tempChannelID) != null);
                 if (foundServerChannel == null)
                 {
-                    var foundPM = PrivateChannels.Find(x => x.id == message["d"]["channel_id"].ToString());
-                    DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
-                    dpmea.Channel = foundPM;
-                    dpmea.message = message["d"]["content"].ToString();
-                    DiscordMember tempMember = new DiscordMember();
-                    tempMember.user.username = message["d"]["author"]["username"].ToString();
-                    tempMember.user.id = message["d"]["author"]["id"].ToString();
-                    dpmea.author = tempMember;
+                    if (message["d"]["author"]["id"].ToString() != Me.user.id)
+                    {
+                        var foundPM = PrivateChannels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                        DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
+                        dpmea.Channel = foundPM;
+                        dpmea.message = message["d"]["content"].ToString();
+                        DiscordMember tempMember = new DiscordMember();
+                        tempMember.user.username = message["d"]["author"]["username"].ToString();
+                        tempMember.user.id = message["d"]["author"]["id"].ToString();
+                        dpmea.author = tempMember;
 
 
-                    if (PrivateMessageReceived != null)
-                        PrivateMessageReceived(this, dpmea);
+                        if (PrivateMessageReceived != null)
+                            PrivateMessageReceived(this, dpmea);
+                    }
+                    else
+                    {
+                        //if (DebugMessageReceived != null)
+                        //    DebugMessageReceived(this, new DiscordDebugMessagesEventArgs { message = "Ignoring MESSAGE_CREATE for private channel for message sent from this client." });
+                    }
                 }
                 else
                 {
