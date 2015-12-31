@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <LangVersion>6</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Platform)' != 'Unix'">
+  <PropertyGroup Condition="'$(OS)' != 'Unix'">
     <CscToolPath>$(MSBuildProgramFiles32)\MSBuild\14.0\Bin</CscToolPath>
   </PropertyGroup>
   <ItemGroup>
