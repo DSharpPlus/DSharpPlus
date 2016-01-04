@@ -507,7 +507,8 @@ namespace DiscordSharpTestApplication
                     }
                     else if(e.message.content.StartsWith("?playing"))
                     {
-                        client.SendMessageToChannel($"@Axiom is Now playing: *{client.GetCurrentGame}*", e.Channel);
+                        DiscordMember member = e.Channel.parent.members.Find(x => x.user.username == "Axiom");
+                        client.SendMessageToChannel($"<@{member.user.id}> is Now playing: *{client.GetCurrentGame}*", e.Channel);
                     }
                 };
                 client.Connected += (sender, e) =>

@@ -262,7 +262,7 @@ namespace DiscordSharp
         public void SendMessageToChannel(string message, DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
-            WebWrapper.Post(url, token, JsonConvert.SerializeObject(GenerateMessage(message)));
+            WebWrapper.Post(url, token, JsonConvert.SerializeObject(GenerateMessage(message, false)));
         }
 
         public void AttachFile(DiscordChannel channel, string message, string pathToFile)
