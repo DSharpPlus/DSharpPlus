@@ -20,7 +20,7 @@ client.Connected += (sender, e) =>
   Console.WriteLine($"Connected! User: {e.user.user.username}");
 };
 client.SendLoginRequest();
-Thread t = new Thread(client.ConnectAndReadMessages);
+Thread t = new Thread(client.Connect);
 t.Start();
 ```
 This will get you logged in, and print out a login notification to the console with the username you've logged in as.
@@ -34,14 +34,30 @@ We're all one big happy related family.
 
 Discord.Net, another great C# library - https://github.com/RogueException/Discord.Net
 
-Discord4J, a Java library - https://github.com/racist/Discord4J
+Discord4J, a Java library - https://github.com/austinv11/Discord4J
+
+JDiscord, another Java library - https://github.com/NotGGhost/jDiscord
+
+JDA, anotha one - https://github.com/DV8FromTheWorld/JDA
+
+Javacord, anotha one - https://github.com/BtoBastian/Javacord
 
 discord.io, a Node.js library which I referenced a lot - https://github.com/izy521/discord.io
 
 discord.js, an alternate Node.js library - https://github.com/discord-js/discord.js
 
+discordie, another Node.js library - https://github.com/qeled/discordie
+
 DiscordPHP, a PHP library - https://github.com/teamreflex/DiscordPHP
+
+discord-hypertext, the alternate php library https://github.com/Cleanse/discord-php
 
 discordrb, a Ruby library - https://github.com/meew0/discordrb
 
 discord.py, a Python library - https://github.com/Rapptz/discord.py
+
+discord-akka, a Scala library - https://github.com/eaceaser/discord-akka
+
+go-discord, a Go library (Google Go) - https://github.com/gdraynz/go-discord
+
+discordgo, alternate Google Go library - https://github.com/bwmarrin/discordgo
