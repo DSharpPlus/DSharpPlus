@@ -256,7 +256,7 @@ namespace DiscordSharpTestApplication
                     }
                     else if (e.message.content.StartsWith("?lastfm"))
                     {
-#if __MonoCS__
+#if __MONOCS__
                         client.SendMessageToChannel("Sorry, not on Mono :(", e.Channel);
 #else
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
@@ -520,27 +520,23 @@ namespace DiscordSharpTestApplication
                         sw.WriteLine(client.ClientPrivateInformation.password);
                         sw.Flush();
                     }
-					#if __MonoCS__
-						client.UpdateCurrentGame("Running on Mono, now playing not supported currently.");
-					#else
-					using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
-					{
-						try
-						{
+                    using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
+                    {
+                        try
+                        {
 
-							var recentScrobbles = lllfclient.User.GetRecentScrobbles("mrmiketheripper", null, 1, 1);
-							LastTrack lastTrack = recentScrobbles.Result.Content[0];
-							string newGame = $"{lastTrack.Name} by {lastTrack.ArtistName}";
-							if(newGame != client.GetCurrentGame)
-							client.UpdateCurrentGame(newGame);
-						}
-						catch (Exception ex)
-						{
-							string whatToSend = $"Couldn't get Last.fm recent scrobbles for you! Exception:\n```{ex.Message}\n{ex.StackTrace}\n```\n";
-							client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
-						}
-					}
-					#endif
+                            var recentScrobbles = lllfclient.User.GetRecentScrobbles("mrmiketheripper", null, 1, 1);
+                            LastTrack lastTrack = recentScrobbles.Result.Content[0];
+                            string newGame = $"{lastTrack.Name} by {lastTrack.ArtistName}";
+                            if(newGame != client.GetCurrentGame)
+                                client.UpdateCurrentGame(newGame);
+                        }
+                        catch (Exception ex)
+                        {
+                            string whatToSend = $"Couldn't get Last.fm recent scrobbles for you! Exception:\n```{ex.Message}\n{ex.StackTrace}\n```\n";
+                            client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
+                        }
+                    }
                 };
                 client.SocketClosed += (sender, e) =>
                 {
@@ -562,8 +558,6 @@ namespace DiscordSharpTestApplication
             System.Timers.Timer lastfmUpdateTimer = new System.Timers.Timer(25 * 1000); //check last.fm every 25 seconds
             lastfmUpdateTimer.Elapsed += (sender, e) =>
             {
-				#if __MonoCS__
-				#else
                 using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
                 {
                     try
@@ -580,7 +574,6 @@ namespace DiscordSharpTestApplication
                         client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
                     }
                 }
-				#endif
             };
             lastfmUpdateTimer.Start();
 
