@@ -518,9 +518,14 @@ namespace DiscordSharpTestApplication
                                 client.SimulateTyping(e.Channel);
                                 var recentScrobbles = lllfclient.User.GetRecentScrobbles("mrmiketheripper", null, 1, 1);
                                 LastTrack lastTrack = recentScrobbles.Result.Content[0];
-                                var localTime = lastTrack.TimePlayed.Value.DateTime.ToLocalTime();
-                                if (DateTime.Now.Subtract(localTime) > (lastTrack.Duration == null ? new TimeSpan(0, 10, 0) : lastTrack.Duration))
-                                    e.Channel.SendMessage($"<@{member.user.id}> last played: **{lastTrack.Name}** by *{lastTrack.ArtistName}*. It was scrobbled at: {localTime} EST (-5).");
+                                if (lastTrack.TimePlayed != null) //means the track is still playing
+                                {
+                                    var localTime = lastTrack.TimePlayed.Value.DateTime.ToLocalTime();
+                                    if (DateTime.Now.Subtract(localTime) > (lastTrack.Duration == null ? new TimeSpan(0, 10, 0) : lastTrack.Duration))
+                                        e.Channel.SendMessage($"<@{member.user.id}> last played: **{lastTrack.Name}** by *{lastTrack.ArtistName}*. It was scrobbled at: {localTime} EST (-5).");
+                                    else
+                                        e.Channel.SendMessage($"<@{member.user.id}> is now playing: **{lastTrack.Name}** by *{lastTrack.ArtistName}*.");
+                                }
                                 else
                                     e.Channel.SendMessage($"<@{member.user.id}> is now playing: **{lastTrack.Name}** by *{lastTrack.ArtistName}*.");
 
@@ -600,9 +605,22 @@ namespace DiscordSharpTestApplication
                     {
                         var recentScrobbles = lllfclient.User.GetRecentScrobbles("mrmiketheripper", null, 1, 1);
                         LastTrack lastTrack = recentScrobbles.Result.Content[0];
-                        string newGame = $"{lastTrack.Name} by {lastTrack.ArtistName}";
-                        if(newGame != client.GetCurrentGame)
-                            client.UpdateCurrentGame(newGame);   
+                        if (lastTrack.TimePlayed != null)
+                        {
+                            var localTime = lastTrack.TimePlayed.Value.DateTime.ToLocalTime();
+                            if (DateTime.Now.Subtract(localTime) > new TimeSpan(0, 15, 0))
+                            {
+                                if (client.GetCurrentGame != "")
+                                    client.UpdateCurrentGame("");
+                            }
+                        }
+                        else
+                        {
+                            string newGame = $"{lastTrack.Name} by {lastTrack.ArtistName}";
+                            if (newGame != client.GetCurrentGame)
+                                client.UpdateCurrentGame(newGame);
+                        }
+                        
                     }
                     catch(Exception ex)
                     {
