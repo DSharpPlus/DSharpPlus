@@ -276,7 +276,8 @@ namespace DiscordSharp
 
             //uploadResult["content"] = message;
             //WebWrapper.Post(url, token, uploadResult.ToString());
-            EditMessage(uploadResult["id"].ToString(), message, channel);
+            if(!string.IsNullOrWhiteSpace(message))
+                EditMessage(uploadResult["id"].ToString(), message, channel);
         }
 
         //tysm voltana <3

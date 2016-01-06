@@ -137,7 +137,12 @@ namespace DiscordSharp
             wresp = wr.GetResponse();
             Stream stream2 = wresp.GetResponseStream();
             StreamReader reader2 = new StreamReader(stream2);
-            return reader2.ReadToEnd();
+            string returnVal = reader2.ReadToEnd();
+
+            reader2.Close();
+            stream2.Close();
+            fileStream.Close();
+            return returnVal;
         }
 
         /// <summary>
