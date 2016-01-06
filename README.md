@@ -1,4 +1,4 @@
-# DiscordSharp
+# DiscordSharp [![Build Status](https://travis-ci.org/Luigifan/DiscordSharp.svg?branch=master)](https://travis-ci.org/Luigifan/DiscordSharp)
 A C# API for Discord.
 
 #From Nuget
