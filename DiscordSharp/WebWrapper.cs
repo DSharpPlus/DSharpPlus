@@ -127,14 +127,6 @@ namespace DiscordSharp
             rs.Write(headerbytes, 0, headerbytes.Length);
 
             FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read);
-            //byte[] buffer = new byte[4096];
-            //int bytesRead = 0;
-            //while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
-            //{
-            //    rs.Write(buffer, 0, bytesRead);
-            //}
-            //fileStream.Close();
-
             fileStream.CopyTo(rs);
 
             byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
@@ -142,29 +134,10 @@ namespace DiscordSharp
             rs.Close();
 
             WebResponse wresp = null;
-            try
-            {
-                wresp = wr.GetResponse();
-                Stream stream2 = wresp.GetResponseStream();
-                StreamReader reader2 = new StreamReader(stream2);
-                //Console.WriteLine(string.Format("File uploaded, server response is: {0}", reader2.ReadToEnd()));
-                return reader2.ReadToEnd();
-            }
-            catch (Exception ex)
-            {
-                //Console.WriteLine("Error uploading file", ex);
-                return null;
-                if (wresp != null)
-                {
-                    wresp.Close();
-                    wresp = null;
-                }
-            }
-            finally
-            {
-                wr = null;
-            }
-            return null;
+            wresp = wr.GetResponse();
+            Stream stream2 = wresp.GetResponseStream();
+            StreamReader reader2 = new StreamReader(stream2);
+            return reader2.ReadToEnd();
         }
 
         /// <summary>

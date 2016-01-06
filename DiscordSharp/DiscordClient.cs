@@ -104,9 +104,12 @@ namespace DiscordSharp
 
     public class DiscordClient
     {
-        public string token { get; set; }
+        public static string token { get; internal set; }
+
+        [Obsolete]
         public string sessionKey { get; set; }
-        public string CurrentGatewayURL { get; set; }
+        public string CurrentGatewayURL { get; internal set; }
+        [Obsolete]
         private string Cookie { get; set; }
         public DiscordUserInformation ClientPrivateInformation { get; set; }
         public DiscordMember Me { get; internal set; }
@@ -262,7 +265,7 @@ namespace DiscordSharp
         public void SendMessageToChannel(string message, DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
-            WebWrapper.Post(url, token, JsonConvert.SerializeObject(GenerateMessage(message, false)));
+            WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message)));
         }
 
         public void AttachFile(DiscordChannel channel, string message, string pathToFile)
@@ -276,24 +279,10 @@ namespace DiscordSharp
             EditMessage(uploadResult["id"].ToString(), message, channel);
         }
 
-
-        public static byte[] ImageToByte2(Image img)
-        {
-            byte[] byteArray = new byte[0];
-            using (MemoryStream stream = new MemoryStream())
-            {
-                img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                stream.Close();
-
-                byteArray = stream.ToArray();
-            }
-            return byteArray;
-        }
-
         //tysm voltana <3
         public void ChangeBotPicture(Bitmap image)
         {
-            string base64 = Convert.ToBase64String(ImageToByte2(image));
+            string base64 = Convert.ToBase64String(Utils.ImageToByteArray(image));
             string type = "image/jpeg;base64";
             string req = $"data:{type},{base64}";
             string usernameRequestJson = JsonConvert.SerializeObject(new
@@ -311,7 +300,7 @@ namespace DiscordSharp
         {
             Bitmap resized = new Bitmap((Image)image, 200, 200);
 
-            string base64 = Convert.ToBase64String(ImageToByte2(resized));
+            string base64 = Convert.ToBase64String(Utils.ImageToByteArray(resized));
             string type = "image/jpeg;base64";
             string req = $"data:{type},{base64}";
             string guildjson = JsonConvert.SerializeObject(new { icon = req, name = guild.name});
@@ -349,7 +338,6 @@ namespace DiscordSharp
                         channel = channel,
                         author = GetMemberFromChannel(channel, item["author"]["id"].ToObject<long>()),
                         content = item["content"].ToString(),
-                        mentions = item["mentions"].ToObject<string[]>(),
                         RawJson = item.ToObject<JObject>(),
                         timestamp = DateTime.Parse(item["timestamp"].ToString())
                     });
@@ -459,47 +447,13 @@ namespace DiscordSharp
         private void SendActualMessage(string id, string message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages;
-            DiscordMessage toSend = GenerateMessage(message, false);
+            DiscordMessage toSend = Utils.GenerateMessage(message);
             WebWrapper.Post(url, token, JsonConvert.SerializeObject(toSend).ToString());
         }
 
-        private DiscordMessage GenerateMessage(string message, bool parse = true)
-        {
-            DiscordMessage dm = new DiscordMessage();
-            if (parse)
-            {
-                List<string> foundIDS = new List<string>();
-                Regex r = new Regex("\\@\\w+\\s\\w+");
-                List<KeyValuePair<string, string>> toReplace = new List<KeyValuePair<string, string>>();
-                foreach (Match m in r.Matches(message))
-                {
-                    if (m.Index > 0 && message[m.Index - 1] == '<')
-                        continue;
-                    DiscordMember user = ServersList.Find(x => x.members.Find(y => y.user.username == m.Value.Trim('@')) != null).members.Find(y => y.user.username == m.Value.Trim('@'));
-                    foundIDS.Add(user.user.id);
-                    toReplace.Add(new KeyValuePair<string, string>(m.Value, user.user.id));
-                }
-                foreach (var k in toReplace)
-                {
-                    message = message.Replace(k.Key, "<@" + k.Value + ">");
-                }
-            }
+        public string GetCurrentGame => CurrentGameName;
 
-            dm.content = message;
-            //dm.mentions = foundIDS.ToArray();
-            //dm.mentions = new string[] { "" };
-            return dm;
-        }
-
-        public string GetCurrentGame { get { return CurrentGameName; } }
-        
-        public bool WebsocketAlive
-        {
-            get
-            {
-                return (ws != null) ? ws.IsAlive : false;
-            }
-        }
+        public bool WebsocketAlive => (ws != null) ? ws.IsAlive : false;
 
         #region Message Received Crap..
 
@@ -712,7 +666,7 @@ namespace DiscordSharp
 
             using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
             {
-                sw.Write(JsonConvert.SerializeObject(GenerateMessage(replacementMessage)));
+                sw.Write(JsonConvert.SerializeObject(Utils.GenerateMessage(replacementMessage)));
                 sw.Flush();
                 sw.Close();
             }
@@ -962,7 +916,7 @@ namespace DiscordSharp
             }
         }
         #endregion
-        private String GetGatewayUrl()
+        private string GetGatewayUrl()
         {
             string url = Endpoints.BaseAPI + Endpoints.Gateway;
             return JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
@@ -1067,7 +1021,14 @@ namespace DiscordSharp
 
         public string MakeInviteURLFromCode(string code) => "https://discord.gg/" + code;
 
-        public void ConnectAndReadMessages()
+        /// <summary>
+        /// This method temporarily points to the .Connect(); method.
+        /// Eventually, this will be removed entirely. Switch while you can!
+        /// </summary>
+        [Obsolete]
+        public void ConnectAndReadMessages() => Connect();
+
+        public void Connect()
         {
             CurrentGatewayURL = GetGatewayUrl();
             ws = new WebSocket(CurrentGatewayURL);
@@ -1171,7 +1132,7 @@ namespace DiscordSharp
                 {
                     DiscordInitObj initObj = new DiscordInitObj();
                     initObj.op = 2;
-                    initObj.d.token = this.token;
+                    initObj.d.token = token;
                     string json = initObj.AsJson();
                     ws.Send(json);
                     if (SocketOpened != null)
@@ -1728,8 +1689,7 @@ namespace DiscordSharp
                 ServersList = null;
                 PrivateChannels = null;
                 Me = null;
-                this.token = null;
-                this.sessionKey = null;
+                token = null;
                 this.ClientPrivateInformation = null;
             }
             catch { /*already been disposed elsewhere */ }
@@ -1738,7 +1698,7 @@ namespace DiscordSharp
         public void Logout()
         {
             string url = Endpoints.BaseAPI + Endpoints.Auth + "/logout";
-            string msg = JsonConvert.SerializeObject(new { token = this.token });
+            string msg = JsonConvert.SerializeObject(new { token = token });
             WebWrapper.Post(url, msg);
             Dispose();
         }
@@ -1773,12 +1733,11 @@ namespace DiscordSharp
                     DiscordLoginResult dlr = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
                     if (dlr.token != null || dlr.token.Trim() != "")
                     {
-                        this.token = dlr.token;
+                        token = dlr.token;
                         try
                         {
                             string sessionKeyHeader = httpResponse.Headers["set-cookie"].ToString();
                             string[] split = sessionKeyHeader.Split(new char[] { '=', ';' }, 3);
-                            sessionKey = split[1];
                         }
                         catch
                         {/*no session key fo u!*/}

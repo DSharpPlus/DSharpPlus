@@ -548,7 +548,7 @@ namespace DiscordSharpTestApplication
                 {
                     Console.WriteLine("Logged in!");
 
-                    client.ConnectAndReadMessages();
+                    client.Connect();
                     Console.WriteLine($"Connected to {client.CurrentGatewayURL}");
                     client.UpdateCurrentGame("development testing");
                 }
@@ -666,7 +666,7 @@ namespace DiscordSharpTestApplication
             if(await client.SendLoginRequestAsync() != null)
             {
                 Console.WriteLine("Logged in..async!");
-                client.ConnectAndReadMessages();
+                client.Connect();
                 client.UpdateCurrentGame("");
             }
         }

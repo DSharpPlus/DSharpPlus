@@ -103,6 +103,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utils.cs" />
     <Compile Include="WebWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
