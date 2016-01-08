@@ -20,6 +20,31 @@ namespace DiscordSharpTestApplication
         static DiscordClient client = new DiscordClient();
         static WaitHandle waitHandle = new AutoResetEvent(false);
 
+        static void WriteDebug(LogMessage m, string prefix)
+        {
+            switch(m.Level)
+            {
+                case MessageLevel.Debug:
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    break;
+                case MessageLevel.Error:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                case MessageLevel.Critical:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = ConsoleColor.Red;
+                    break;
+                case MessageLevel.Warning:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+            }
+            Console.Write($"[{prefix}: {m.TimeStamp.Date} {m.TimeStamp.Hour}:{m.TimeStamp.Minute}]: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(m.Message + "\n");
+
+            Console.BackgroundColor = ConsoleColor.Black;
+        }
+
         [STAThread]
         public static void Main(string[] args)
         {
@@ -49,9 +74,9 @@ namespace DiscordSharpTestApplication
 
             var worker = new Thread(() =>
             {
-                client.DebugMessageReceived += (sender, e) =>
+                client.VoiceClientDebugMessageReceived += (sender, e) =>
                 {
-                    client.SendMessageToUser("[DEBUG MESSAGE]: " + e.message, client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom"));
+                    WriteDebug(e.message, "Voice Debug");   
                 };
                 client.RoleDeleted += (sender, e) =>
                 {

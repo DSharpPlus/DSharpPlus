@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using WebSocketSharp;
 
@@ -33,34 +34,36 @@ namespace DiscordSharp
 
         private UdpClient _udp = new UdpClient();
         private VoiceConnectionParameters Params { get; set; }
+        private Task keepAliveTask;
+        private CancellationToken cancelToken;
+        private Logger VoiceDebugLogger = new Logger();
+
+        public event EventHandler<LoggerMessageReceivedArgs> DebugMessageReceived;
 
         public bool Connected { get; internal set; }
 
         public async Task Initiate()
         {
+            VoiceDebugLogger.LogMessageReceived += (sender, e) =>
+            {
+                if (DebugMessageReceived != null)
+                    DebugMessageReceived(this, e);
+            };
+
             VoiceWebSocket = new WebSocket("wss://" + VoiceEndpoint.Replace(":80", ""));
             VoiceWebSocket.OnClose += (sender, e) =>
             {
                 if (e.WasClean)
                     return; //for now, till events are hooked up
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("VoiceWebSocket Closed: ");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write($"(Code: {e.Code}) {e.Reason}\n");
+                VoiceDebugLogger.Log($"VoiceWebSocket Closed: (Code: {e.Code}) {e.Reason}", MessageLevel.Critical);
             };
             VoiceWebSocket.OnError += (sender, e) =>
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("VoiceWebSocket Error: ");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write(e.Message + "\n");
+                VoiceDebugLogger.Log($"VoiceWebSocket Error: {e.Message}", MessageLevel.Error);
             };
             VoiceWebSocket.OnMessage += async (sender, e) =>
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("[Voice Debug]: ");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"({System.Text.Encoding.Default.GetString(e.RawData)})");
+                VoiceDebugLogger.Log(e.Data);
 
                 JObject message = JObject.Parse(e.Data);
                 if(message["op"].Value<int>() == 2)
@@ -81,12 +84,25 @@ namespace DiscordSharp
                 else if(message["op"].Value<int>() == 4)
                 {
                     Connected = true;
-                    Console.WriteLine("--Voice connected!");
+                    string speakingJson = JsonConvert.SerializeObject(new { op = 5, d = new { speaking = true, delay = 0 } });
+                    await Task.Run(()=>VoiceWebSocket.SendAsync(speakingJson, (__) => { })).ConfigureAwait(false);
+
+                    cancelToken = new CancellationToken();
+                    keepAliveTask = Task.Factory.StartNew(() => 
+                    {
+                        while(true)
+                        {
+                            cancelToken.ThrowIfCancellationRequested();
+                            SendKeepAlive();
+                            Thread.Sleep(Params.heartbeat_interval);
+                        }
+                    }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Current);
                 }
                 
             };
             VoiceWebSocket.OnOpen += (sender, e) =>
             {
+                VoiceDebugLogger.Log("VoiceWebSocket opened, sending initial json.");
                 string initMsg = JsonConvert.SerializeObject(new
                 {
                     op = 0,
@@ -104,10 +120,11 @@ namespace DiscordSharp
             VoiceWebSocket.Connect();
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
-            VoiceWebSocket.Close();
+            await Task.Run(()=>VoiceWebSocket.CloseAsync(CloseStatusCode.Normal));
             _udp.Close();
+            VoiceDebugLogger.Dispose();
         }
 
         private async Task InitialConnection()
@@ -117,6 +134,8 @@ namespace DiscordSharp
                 _udp = new UdpClient(Params.port);
                 _udp.Connect(VoiceEndpoint.Replace(":80", ""), Params.port);
 
+                VoiceDebugLogger.Log($"Initialized UDP Client at {VoiceEndpoint}");
+
                 int ssrcAsInt = int.Parse(Params.ssrc);
                 byte[] packet = new byte[70];
                 packet[0] = (byte)((ssrcAsInt >> 24) & 0xFF);
@@ -125,10 +144,12 @@ namespace DiscordSharp
                 packet[3] = (byte)((ssrcAsInt >> 0) & 0xFF);
 
                 await _udp.SendAsync(packet, 70).ConfigureAwait(false);
-                UdpReceiveResult resultingMessage = await _udp.ReceiveAsync().ConfigureAwait(false);
-                foreach (byte b in resultingMessage.Buffer)
-                    Console.Write($"{b} ");
 
+                VoiceDebugLogger.Log("Sent ssrc packet.");
+
+                UdpReceiveResult resultingMessage = await _udp.ReceiveAsync().ConfigureAwait(false);
+
+                VoiceDebugLogger.Log("Received IP packet, reading..");
                 await SendOurIP(GetIPAndPortFromPacket(resultingMessage.Buffer)).ConfigureAwait(false);
 
                 _udp.Close();
@@ -158,8 +179,24 @@ namespace DiscordSharp
                     }
                 }
             });
+            VoiceDebugLogger.Log("Sending our IP over WebSocket...");
             await Task.Run(()=>
                 VoiceWebSocket.SendAsync(msg, (__) => { })).ConfigureAwait(false);
+        }
+
+        private static DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private async Task SendKeepAlive()
+        {
+            if(VoiceWebSocket != null)
+            {
+                if(VoiceWebSocket.IsAlive)
+                {
+                    int unixTime = (int)(DateTime.UtcNow - epoch).TotalMilliseconds;
+                    string keepAliveJson = JsonConvert.SerializeObject(new { op = 3, d = unixTime });
+                    await Task.Run(()=>VoiceWebSocket.SendAsync(keepAliveJson, (__) => { }));
+                    VoiceDebugLogger.Log("Sent voice keepalive.");
+                }
+            }
         }
 
         private DiscordIpPort GetIPAndPortFromPacket(byte[] packet)
@@ -190,6 +227,7 @@ namespace DiscordSharp
             returnVal.Address = IPAddress.Parse(System.Text.Encoding.ASCII.GetString(ipArray));
             returnVal.port = port;
 
+            VoiceDebugLogger.Log($"Our IP is {returnVal.Address} and we're using port {returnVal.port}.");
             return returnVal;
         }
 

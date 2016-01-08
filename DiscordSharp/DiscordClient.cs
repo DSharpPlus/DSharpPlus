@@ -95,7 +95,7 @@ namespace DiscordSharp
     public delegate void DiscordGuildCreate(object sender, DiscordGuildCreateEventArgs e);
     public delegate void DiscordGuildDelete(object sender, DiscordGuildDeleteEventArgs e);
     public delegate void DiscordChannelUpdate(object sender, DiscordChannelUpdateEventArgs e);
-    public delegate void DiscordDebugMessages(object sender, DiscordDebugMessagesEventArgs e);
+    public delegate void DiscordDebugMessages(object sender, LoggerMessageReceivedArgs e);
     public delegate void DiscordChannelDeleted(object sender, DiscordChannelDeleteEventArgs e);
     public delegate void DiscordServerUpdate(object sender, DiscordServerUpdateEventArgs e);
     public delegate void DiscordGuildRoleDelete(object sender, DiscordGuildRoleDeleteEventArgs e);
@@ -119,6 +119,7 @@ namespace DiscordSharp
         private int? IdleSinceUnixTime = null;
         static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
         private DiscordVoiceClient VoiceClient = new DiscordVoiceClient();
+        private Logger DebugLogger = new Logger();
 
         /// <summary>
         /// A log of messages kept in a KeyValuePair.
@@ -150,7 +151,8 @@ namespace DiscordSharp
         public event DiscordGuildCreate GuildCreated;
         public event DiscordGuildDelete GuildDeleted;
         public event DiscordChannelUpdate ChannelUpdated;
-        public event DiscordDebugMessages DebugMessageReceived;
+        public event DiscordDebugMessages TextClientDebugMessageReceived;
+        public event DiscordDebugMessages VoiceClientDebugMessageReceived;
         public event DiscordChannelDeleted ChannelDeleted;
         public event DiscordServerUpdate GuildUpdated;
         public event DiscordGuildRoleDelete RoleDeleted;
@@ -162,6 +164,14 @@ namespace DiscordSharp
         {
             if (ClientPrivateInformation == null)
                 ClientPrivateInformation = new DiscordUserInformation();
+
+            DebugLogger.LogMessageReceived += (sender, e) =>
+            {
+                if (e.message.Level == MessageLevel.Error)
+                    DisconnectFromVoice();
+                if (TextClientDebugMessageReceived != null)
+                    TextClientDebugMessageReceived(this, e);
+            };
         }
 
         public List<DiscordServer> GetServersList() => ServersList;
@@ -1166,13 +1176,25 @@ namespace DiscordSharp
             VoiceClient.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             VoiceClient.Me = Me;
 
+            VoiceClient.DebugMessageReceived += (sender, e) =>
+            {
+                if (VoiceClientDebugMessageReceived != null)
+                    VoiceClientDebugMessageReceived(this, e);
+            };
+
             await VoiceClient.Initiate().ConfigureAwait(false);
         }
 
-        public void ConnectToVoiceChannel(DiscordChannel channel, bool clientMuted = false, bool clientDeaf = false)
+        public async void ConnectToVoiceChannel(DiscordChannel channel, bool clientMuted = false, bool clientDeaf = false)
         {
             if (channel.type != "voice")
                 throw new InvalidOperationException($"Channel '{channel.name}' is not a voice channel!");
+
+            if (ConnectedToVoice())
+                await Task.Run(()=>DisconnectFromVoice());
+
+            if (VoiceClient == null)
+                VoiceClient = new DiscordVoiceClient();
 
             string joinVoicePayload = JsonConvert.SerializeObject(new
             {
@@ -1189,7 +1211,7 @@ namespace DiscordSharp
             ws.Send(joinVoicePayload);
         }
 
-        public void DisconnectFromVoice()
+        public async void DisconnectFromVoice()
         {
             string msg = JsonConvert.SerializeObject(new
             {
@@ -1204,6 +1226,9 @@ namespace DiscordSharp
             });
 
             ws.Send(msg);
+
+            await Task.Run(()=>VoiceClient.Dispose());
+            VoiceClient = null;
         }
 
         private void GuildMemberUpdateEvents(JObject message)
