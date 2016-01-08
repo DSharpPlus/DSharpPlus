@@ -1191,7 +1191,7 @@ namespace DiscordSharp
                 throw new InvalidOperationException($"Channel '{channel.name}' is not a voice channel!");
 
             if (ConnectedToVoice())
-                await Task.Run(()=>DisconnectFromVoice());
+                await Task.Run(()=>DisconnectFromVoice()).ConfigureAwait(false);
 
             if (VoiceClient == null)
                 VoiceClient = new DiscordVoiceClient();
@@ -1227,7 +1227,7 @@ namespace DiscordSharp
 
             ws.Send(msg);
 
-            await Task.Run(()=>VoiceClient.Dispose());
+            await Task.Run(() => VoiceClient.Dispose()).ConfigureAwait(false) ;
             VoiceClient = null;
         }
 
