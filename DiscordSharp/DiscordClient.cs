@@ -1166,8 +1166,7 @@ namespace DiscordSharp
             VoiceClient.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             VoiceClient.Me = Me;
 
-            await VoiceClient.Initiate();
-
+            await VoiceClient.Initiate().ConfigureAwait(false);
         }
 
         public void ConnectToVoiceChannel(DiscordChannel channel, bool clientMuted = false, bool clientDeaf = false)
@@ -1784,17 +1783,17 @@ namespace DiscordSharp
                     email = ClientPrivateInformation.email,
                     password = ClientPrivateInformation.password
                 });
-                await sw.WriteAsync(msg);
+                await sw.WriteAsync(msg).ConfigureAwait(false);
                 sw.Flush();
                 sw.Close();
             }
             try
             {
-                var httpResponseT = await httpWebRequest.GetResponseAsync();
+                var httpResponseT = await httpWebRequest.GetResponseAsync().ConfigureAwait(false);
                 var httpResponse = (HttpWebResponse)httpResponseT;
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
-                    var result = await sr.ReadToEndAsync();
+                    var result = await sr.ReadToEndAsync().ConfigureAwait(false);
                     DiscordLoginResult dlr = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
                     if (dlr.token != null || dlr.token.Trim() != "")
                     {
@@ -1816,7 +1815,7 @@ namespace DiscordSharp
             {
                 using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
                 {
-                    string result = await s.ReadToEndAsync();
+                    string result = await s.ReadToEndAsync().ConfigureAwait(false);
                     DiscordLoginResult jresult = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
                     if (jresult.password != null)
                         throw new DiscordLoginException(jresult.password[0]);

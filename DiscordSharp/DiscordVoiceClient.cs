@@ -41,6 +41,8 @@ namespace DiscordSharp
             VoiceWebSocket = new WebSocket("wss://" + VoiceEndpoint.Replace(":80", ""));
             VoiceWebSocket.OnClose += (sender, e) =>
             {
+                if (e.WasClean)
+                    return; //for now, till events are hooked up
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("VoiceWebSocket Closed: ");
                 Console.ForegroundColor = ConsoleColor.White;
@@ -74,7 +76,7 @@ namespace DiscordSharp
                     }
                     Params.modes = dynModes.ToArray();
                     Params.heartbeat_interval = message["d"]["heartbeat_interval"].Value<int>();
-                    await InitialConnection();
+                    await InitialConnection().ConfigureAwait(false);
                 }
                 else if(message["op"].Value<int>() == 4)
                 {
@@ -123,11 +125,11 @@ namespace DiscordSharp
                 packet[3] = (byte)((ssrcAsInt >> 0) & 0xFF);
 
                 await _udp.SendAsync(packet, 70).ConfigureAwait(false);
-                UdpReceiveResult resultingMessage = await _udp.ReceiveAsync();
+                UdpReceiveResult resultingMessage = await _udp.ReceiveAsync().ConfigureAwait(false);
                 foreach (byte b in resultingMessage.Buffer)
                     Console.Write($"{b} ");
 
-                await SendOurIP(GetIPAndPortFromPacket(resultingMessage.Buffer));
+                await SendOurIP(GetIPAndPortFromPacket(resultingMessage.Buffer)).ConfigureAwait(false);
 
                 _udp.Close();
             }
@@ -157,7 +159,7 @@ namespace DiscordSharp
                 }
             });
             await Task.Run(()=>
-                VoiceWebSocket.SendAsync(msg, (__) => { }));
+                VoiceWebSocket.SendAsync(msg, (__) => { })).ConfigureAwait(false);
         }
 
         private DiscordIpPort GetIPAndPortFromPacket(byte[] packet)
