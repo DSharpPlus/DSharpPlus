@@ -167,6 +167,7 @@ namespace DiscordSharp
         public List<DiscordServer> GetServersList() => ServersList;
         public List<KeyValuePair<string, DiscordMessage>> GetMessageLog() => MessageLog;
         public List<DiscordPrivateChannel> GetPrivateChannels() => PrivateChannels;
+        public bool ConnectedToVoice() => VoiceClient != null ? VoiceClient.Connected : false;
 
         //eh
         private void GetChannelsList(JObject m)
@@ -1158,17 +1159,18 @@ namespace DiscordSharp
                 ws.Connect();
         }
 
-        private void VoiceServerUpdateEvents(JObject message)
+        private async void VoiceServerUpdateEvents(JObject message)
         {
             VoiceClient.VoiceEndpoint = message["d"]["endpoint"].ToString();
             VoiceClient.Token = message["d"]["token"].ToString();
             VoiceClient.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             VoiceClient.Me = Me;
 
-            VoiceClient.Initiate();
+            await VoiceClient.Initiate();
+
         }
 
-        public void ConnectToVoiceChannel(DiscordChannel channel)
+        public void ConnectToVoiceChannel(DiscordChannel channel, bool clientMuted = false, bool clientDeaf = false)
         {
             if (channel.type != "voice")
                 throw new InvalidOperationException($"Channel '{channel.name}' is not a voice channel!");
@@ -1180,12 +1182,29 @@ namespace DiscordSharp
                 {
                     guild_id = channel.parent.id,
                     channel_id = channel.id,
-                    self_mute = true,
-                    self_deaf = true
+                    self_mute = clientMuted,
+                    self_deaf = clientDeaf
                 }
             });
 
             ws.Send(joinVoicePayload);
+        }
+
+        public void DisconnectFromVoice()
+        {
+            string msg = JsonConvert.SerializeObject(new
+            {
+                op = 4,
+                d = new
+                {
+                    guild_id = (string)null,
+                    channel_id = (string)null,
+                    self_mute = true,
+                    self_deaf = false
+                }
+            });
+
+            ws.Send(msg);
         }
 
         private void GuildMemberUpdateEvents(JObject message)

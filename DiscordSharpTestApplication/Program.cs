@@ -127,6 +127,8 @@ namespace DiscordSharpTestApplication
                 }
                 else if(e.message.content.StartsWith("?testjoinvoice"))
                     {
+                        if (e.author.user.username != "Axiom")
+                            return;
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                         if(split.Length > 1)
                         {
@@ -134,6 +136,10 @@ namespace DiscordSharpTestApplication
                             if (voiceToJoin != null)
                                 client.ConnectToVoiceChannel(voiceToJoin);
                         }
+                    }
+                else if(e.message.content.StartsWith("?disconnect"))
+                    {
+                        client.DisconnectFromVoice();
                     }
                 else if (e.message.content.StartsWith("?newguild"))
                 {

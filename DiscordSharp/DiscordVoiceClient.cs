@@ -34,6 +34,8 @@ namespace DiscordSharp
         private UdpClient _udp = new UdpClient();
         private VoiceConnectionParameters Params { get; set; }
 
+        public bool Connected { get; internal set; }
+
         public async Task Initiate()
         {
             VoiceWebSocket = new WebSocket("wss://" + VoiceEndpoint.Replace(":80", ""));
@@ -74,6 +76,11 @@ namespace DiscordSharp
                     Params.heartbeat_interval = message["d"]["heartbeat_interval"].Value<int>();
                     await InitialConnection();
                 }
+                else if(message["op"].Value<int>() == 4)
+                {
+                    Connected = true;
+                    Console.WriteLine("--Voice connected!");
+                }
                 
             };
             VoiceWebSocket.OnOpen += (sender, e) =>
@@ -95,6 +102,12 @@ namespace DiscordSharp
             VoiceWebSocket.Connect();
         }
 
+        public void Dispose()
+        {
+            VoiceWebSocket.Close();
+            _udp.Close();
+        }
+
         private async Task InitialConnection()
         {
             try
@@ -114,7 +127,9 @@ namespace DiscordSharp
                 foreach (byte b in resultingMessage.Buffer)
                     Console.Write($"{b} ");
 
-                GetIPAndPortFromPacket(resultingMessage.Buffer);
+                await SendOurIP(GetIPAndPortFromPacket(resultingMessage.Buffer));
+
+                _udp.Close();
             }
             catch(Exception ex)
             {
@@ -125,11 +140,31 @@ namespace DiscordSharp
             }
         }
 
+        private async Task SendOurIP(DiscordIpPort ipPortStruct)
+        {
+            string msg = JsonConvert.SerializeObject(new
+            {
+                op = 1,
+                d = new
+                {
+                    protocol = "udp",
+                    data = new
+                    {
+                        address = ipPortStruct.Address.ToString(),
+                        port = ipPortStruct.port,
+                        mode = "plain"
+                    }
+                }
+            });
+            await Task.Run(()=>
+                VoiceWebSocket.SendAsync(msg, (__) => { }));
+        }
+
         private DiscordIpPort GetIPAndPortFromPacket(byte[] packet)
         {
             DiscordIpPort returnVal = new DiscordIpPort();
             //quoth thy danny
-                //the ip is ascii starting at the 4th byte and ending at the first null
+                //#the ip is ascii starting at the 4th byte and ending at the first null
             int startingIPIndex = 4;
             int endingIPIndex = 4;
             for(int i = startingIPIndex; i < packet.Length; i++)
@@ -145,16 +180,13 @@ namespace DiscordSharp
             {
                 ipArray[i] = packet[i + startingIPIndex];
             }
-
-            Console.WriteLine("-----Read IP: " + System.Text.Encoding.ASCII.GetString(ipArray));
-
-            //returnVal.Address = new IPAddress(ipArray);
-
             //quoth thy wise danny part two:
             //# the port is a little endian unsigned short in the last two bytes
             //# yes, this is different endianness from everything else
-            short port = BitConverter.ToInt16(packet, packet.Length - 2);
-            Console.WriteLine("port: " + port);
+            int port = packet[packet.Length - 2] | packet[packet.Length - 1] << 8;
+
+            returnVal.Address = IPAddress.Parse(System.Text.Encoding.ASCII.GetString(ipArray));
+            returnVal.port = port;
 
             return returnVal;
         }
