@@ -125,6 +125,16 @@ namespace DiscordSharpTestApplication
                         }
                     }
                 }
+                else if(e.message.content.StartsWith("?testjoinvoice"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            DiscordChannel voiceToJoin = e.Channel.parent.channels.Find(x => x.name.ToLower() == split[1].ToLower() && x.type == "voice");
+                            if (voiceToJoin != null)
+                                client.ConnectToVoiceChannel(voiceToJoin);
+                        }
+                    }
                 else if (e.message.content.StartsWith("?newguild"))
                 {
                     string[] split = e.message.content.Split(new char[] { ' ' }, 2);

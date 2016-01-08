@@ -118,6 +118,7 @@ namespace DiscordSharp
         private string CurrentGameName = "";
         private int? IdleSinceUnixTime = null;
         static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
+        private DiscordVoiceClient VoiceClient = new DiscordVoiceClient();
 
         /// <summary>
         /// A log of messages kept in a KeyValuePair.
@@ -1111,6 +1112,9 @@ namespace DiscordSharp
                         case ("VOICE_STATE_UPDATE"):
                             VoiceStateUpdateEvents(message);
                             break;
+                        case ("VOICE_SERVER_UPDATE"):
+                            VoiceServerUpdateEvents(message);
+                            break;
                         case ("MESSAGE_DELETE"):
                             MessageDeletedEvents(message);
                             break;
@@ -1152,6 +1156,36 @@ namespace DiscordSharp
 
                 };
                 ws.Connect();
+        }
+
+        private void VoiceServerUpdateEvents(JObject message)
+        {
+            VoiceClient.VoiceEndpoint = message["d"]["endpoint"].ToString();
+            VoiceClient.Token = message["d"]["token"].ToString();
+            VoiceClient.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            VoiceClient.Me = Me;
+
+            VoiceClient.Initiate();
+        }
+
+        public void ConnectToVoiceChannel(DiscordChannel channel)
+        {
+            if (channel.type != "voice")
+                throw new InvalidOperationException($"Channel '{channel.name}' is not a voice channel!");
+
+            string joinVoicePayload = JsonConvert.SerializeObject(new
+            {
+                op = 4,
+                d = new
+                {
+                    guild_id = channel.parent.id,
+                    channel_id = channel.id,
+                    self_mute = true,
+                    self_deaf = true
+                }
+            });
+
+            ws.Send(joinVoicePayload);
         }
 
         private void GuildMemberUpdateEvents(JObject message)
@@ -1648,6 +1682,17 @@ namespace DiscordSharp
             e.mute = message["d"]["mute"].ToObject<bool>();
             e.suppress = message["d"]["suppress"].ToObject<bool>();
             e.RawJson = message;
+
+            if (!message["d"]["session_id"].IsNullOrEmpty())
+            {
+                if(e.user.user.id == Me.user.id)
+                {
+                    Me.user.mute = e.self_mute;
+                    Me.user.deaf = e.self_deaf;
+                }
+                VoiceClient.SessionID = message["d"]["session_id"].ToString();
+            }
+
             if (VoiceStateUpdate != null)
                 VoiceStateUpdate(this, e);
         }

@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color.cs" />
+    <Compile Include="DiscordVoiceClient.cs" />
     <Compile Include="Events\DiscordGuildMemberUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordGuildRoleUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordGuildRoleDeleteEventArgs.cs" />

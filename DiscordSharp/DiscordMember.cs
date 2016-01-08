@@ -14,6 +14,18 @@ namespace DiscordSharp
         public string avatar { get; internal set; }
         public bool verified { get; internal set; }
         public string email { get; internal set; }
+
+        /*
+        Voice only
+        */
+        /// <summary>
+        /// Whether or not the member can speak/mic enabled in the voice channel.
+        /// </summary>
+        public bool mute { get; internal set; } = false;
+        /// <summary>
+        /// Whether or not the member can hear others in the voice channel.
+        /// </summary>
+        public bool deaf { get; internal set; } = false;
     }
 
     public class DiscordMember
