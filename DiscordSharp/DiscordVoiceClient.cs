@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using NAudio.Wave;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace DiscordSharp
         public IPAddress Address;
         public int port;
     }
-    class DiscordVoiceClient
+    public class DiscordVoiceClient
     {
         WebSocket VoiceWebSocket;
         public string SessionID { get; internal set; }
@@ -56,6 +57,7 @@ namespace DiscordSharp
                 if (e.WasClean)
                     return; //for now, till events are hooked up
                 VoiceDebugLogger.Log($"VoiceWebSocket Closed: (Code: {e.Code}) {e.Reason}", MessageLevel.Critical);
+                Dispose();
             };
             VoiceWebSocket.OnError += (sender, e) =>
             {
@@ -92,11 +94,11 @@ namespace DiscordSharp
                     {
                         while(true)
                         {
-                            cancelToken.ThrowIfCancellationRequested();
-                            SendKeepAlive();
                             Thread.Sleep(Params.heartbeat_interval);
+                            cancelToken.ThrowIfCancellationRequested();
+                            SendKeepAlive().ConfigureAwait(false);
                         }
-                    }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+                    }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
                 }
                 
             };
@@ -191,11 +193,83 @@ namespace DiscordSharp
             {
                 if(VoiceWebSocket.IsAlive)
                 {
-                    int unixTime = (int)(DateTime.UtcNow - epoch).TotalMilliseconds;
-                    string keepAliveJson = JsonConvert.SerializeObject(new { op = 3, d = unixTime });
-                    await Task.Run(()=>VoiceWebSocket.SendAsync(keepAliveJson, (__) => { }));
-                    VoiceDebugLogger.Log("Sent voice keepalive.");
+                    //int unixTime = (int)(DateTime.UtcNow - epoch).TotalMilliseconds;
+                    Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                    string keepAliveJson = JsonConvert.SerializeObject(new
+                    {
+                        op = 3,
+                        d = (string)null
+                    });
+                    VoiceDebugLogger.Log("Sending voice keepalive. (" + keepAliveJson + ")");
+                    //await Task.Run(()=>VoiceWebSocket.SendAsync(keepAliveJson, (__) => { }));
+                    VoiceWebSocket.SendAsync(keepAliveJson, (__) => { });
                 }
+            }
+        }
+
+        public async Task<string> EncodeMp3(string pathToMp3)
+        {
+            //WaveOut waveOutDev = new WaveOut();
+            Mp3FileReader m = new Mp3FileReader(pathToMp3);
+            VoiceDebugLogger.Log($"Loading MP3 file {pathToMp3}");
+            var outFormat = new WaveFormat(480000, 16, 2);
+            using (var resampler = new MediaFoundationResampler(m, outFormat))
+            {
+                resampler.ResamplerQuality = 60;
+                await Task.Run(()=>WaveFileWriter.CreateWaveFile("a.wav", m)).ConfigureAwait(false);
+                return "a.wav";
+            }
+        }
+
+        public async Task SendWav(string pathToWav)
+        {
+            using (var reader = new MediaFoundationReader(pathToWav))
+            {
+                byte[] buffer = new byte[reader.Length];
+                await reader.ReadAsync(buffer, 0, buffer.Length);
+                await SendPacket(GeneratePacket(buffer, 0));
+            }
+        }
+
+        private byte[] GeneratePacket(byte[] voicesequence, int sequence)
+        {
+            byte[] returnVal = new byte[voicesequence.Length + 12]; //to accomodate the extra bytes
+            using (MemoryStream ms = new MemoryStream(returnVal))
+            {
+                returnVal[0] = 0x80;
+                returnVal[1] = 0x78;
+                //sequence
+                ms.Write(sequence.ToByteArray<int>(ByteOrder.Little), 2, 2);
+                ms.Write(GetUnixTimestamp().ToByteArray<double>(ByteOrder.Little), 4, 4);
+                ms.Write(int.Parse(Params.ssrc).ToByteArray<int>(ByteOrder.Little), 8, 4);
+
+                ms.Write(voicesequence, 12, voicesequence.Length);
+
+                return ms.ToArray();
+            }
+        }
+
+        private double GetUnixTimestamp()
+        {
+            return (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
+        }
+
+        private async Task BroadcastSpeaking()
+        {
+            string speakingJson = JsonConvert.SerializeObject(new { op = 5, d = new { speaking = true, delay = 0 } });
+            await Task.Run(() => VoiceWebSocket.SendAsync(speakingJson, (__) => { })).ConfigureAwait(false); ;
+        }
+
+        public async Task SendPacket(byte[] packet)
+        {
+            if (Connected)
+            {
+                VoiceDebugLogger.Log($"Sending packet with size {packet.Length} to UDP endpoint..");
+                int res = await _udp.SendAsync(packet, packet.Length);
+                VoiceDebugLogger.Log("Broadcasting speaking");
+                await BroadcastSpeaking();
+                
+                VoiceDebugLogger.Log($"res was {res}");
             }
         }
 

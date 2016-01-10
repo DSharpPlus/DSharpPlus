@@ -1231,6 +1231,14 @@ namespace DiscordSharp
             VoiceClient = null;
         }
 
+        public DiscordVoiceClient GetVoiceClient()
+        {
+            if (ConnectedToVoice() && VoiceClient != null)
+                return VoiceClient;
+
+            return null;
+        }
+
         private void GuildMemberUpdateEvents(JObject message)
         {
             DiscordServer server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());

@@ -697,7 +697,7 @@ namespace DiscordSharpTestApplication
             {
                 input = Console.ReadLine();
 
-                if(input.Contains("?changepass"))
+                if (input.Contains("?changepass"))
                 {
                     Console.Write("Please enter the new password (will be visible): ");
                     string newPass = Console.ReadLine();
@@ -707,30 +707,43 @@ namespace DiscordSharpTestApplication
 
                     Console.WriteLine("Password changed!");
                 }
-                else if(input.Contains("?uploadtest"))
+                else if (input.Contains("?uploadtest"))
                 {
                     OpenFileDialog ofd = new OpenFileDialog();
                     ofd.Title = "Select file to attach";
-                    if(ofd.ShowDialog() == DialogResult.OK)
+                    if (ofd.ShowDialog() == DialogResult.OK)
                     {
-                        DiscordChannel c = client.GetServersList().Find(x => x.name.Contains("Discord API")).channels.Find(x=>x.name.Contains("dotnet_discord-net"));
+                        DiscordChannel c = client.GetServersList().Find(x => x.name.Contains("Discord API")).channels.Find(x => x.name.Contains("dotnet_discord-net"));
                         client.AttachFile(c, "Test", ofd.FileName);
                     }
                 }
-                else if(input.Contains("?logout"))
+                else if (input.Contains("?logout"))
                 {
                     client.Logout();
                     break;
                 }
-                else if(input.Contains("?idle"))
+                else if (input.Contains("?idle"))
                 {
                     client.UpdateBotStatus(true);
                 }
-                else if(input.Contains("?online"))
+                else if (input.Contains("?online"))
                 {
                     client.UpdateBotStatus(false);
                 }
-                else if(input.Contains("?game"))
+                else if (input.Contains("?testvoice"))
+                {
+                    OpenFileDialog ofd = new OpenFileDialog();
+                    ofd.Title = "Select file to attach";
+                    if (ofd.ShowDialog() == DialogResult.OK)
+                    {
+                        DiscordVoiceClient vc = client.GetVoiceClient();
+                        if (vc != null)
+                        {
+                            vc.SendWav(ofd.FileName);
+                        }
+                    }
+                }
+                else if (input.Contains("?game"))
                 {
                     string[] split = input.Split(new char[] { ' ' }, 2);
                     if (split.Length > 1)
@@ -747,7 +760,7 @@ namespace DiscordSharpTestApplication
                         client.UpdateCurrentGame("");
                     }
                 }
-                else if(input.Contains("?lastmsgid"))
+                else if (input.Contains("?lastmsgid"))
                 {
                     DiscordMessage msg = client.GetLastMessageSent();
                     Console.WriteLine("--Last Message Sent--");
