@@ -531,6 +531,7 @@ namespace DiscordSharp
             if (pserver != null)
             {
                 var user = pserver.members.Find(x => x.user.id == message["d"]["id"].ToString());
+                dpuea.user = user;
 
                 string game = message["d"]["game"].ToString();
                 if (message["d"]["game"].IsNullOrEmpty())
