@@ -65,11 +65,14 @@ namespace DiscordSharp
             httpRequest.Method = "POST";
             httpRequest.UserAgent += $" {UserAgentString}";
 
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+            if (!string.IsNullOrEmpty(message))
             {
-                sw.Write(message);
-                sw.Flush();
-                sw.Close();
+                using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
+                {
+                    sw.Write(message);
+                    sw.Flush();
+                    sw.Close();
+                }
             }
             try
             {

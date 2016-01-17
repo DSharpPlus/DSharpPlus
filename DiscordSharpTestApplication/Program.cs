@@ -38,7 +38,7 @@ namespace DiscordSharpTestApplication
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     break;
             }
-            Console.Write($"[{prefix}: {m.TimeStamp.Date} {m.TimeStamp.Hour}:{m.TimeStamp.Minute}]: ");
+            Console.Write($"[{prefix}: {m.TimeStamp}]: ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(m.Message + "\n");
 
@@ -48,7 +48,7 @@ namespace DiscordSharpTestApplication
         [STAThread]
         public static void Main(string[] args)
         {
-            Console.WriteLine("\t\tDiscordSharp Tester");
+            Console.WriteLine("\t\t\tDiscordSharp Tester");
             client.ClientPrivateInformation = new DiscordUserInformation();
 
             if (File.Exists("credentials.txt"))
@@ -74,6 +74,16 @@ namespace DiscordSharpTestApplication
 
             var worker = new Thread(() =>
             {
+                client.TextClientDebugMessageReceived += (sender, e) =>
+                {
+                    if (e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Warning)
+                    {
+                        WriteDebug(e.message, "Text Client");
+                        DiscordMember onwer = client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom");
+                        if (onwer != null)
+                            onwer.user.SendMessage($"**LOGGING**\n```\n[Text Client: {e.message.Level}]: {e.message.Message}\n```");
+                    }
+                };
                 client.VoiceClientDebugMessageReceived += (sender, e) =>
                 {
                     WriteDebug(e.message, "Voice Debug");   
@@ -364,7 +374,7 @@ namespace DiscordSharpTestApplication
                         //client.ChangeBotUsername(split[1]);
                         DiscordUserInformation newUserInfo = client.ClientPrivateInformation;
                         newUserInfo.username = split[1].ToString();
-                        client.ChangeBotInformation(newUserInfo);
+                        client.ChangeClientInformation(newUserInfo);
                     }
                 }
                 else if (e.message.content.StartsWith("?changepic"))
@@ -384,7 +394,7 @@ namespace DiscordSharpTestApplication
                                 {
                                     using (var image = System.Drawing.Image.FromStream(mem))
                                     {
-                                        client.ChangeBotPicture(new Bitmap(image));
+                                        client.ChangeClientAvatar(new Bitmap(image));
                                     }
                                 }
                             }
@@ -685,8 +695,13 @@ namespace DiscordSharpTestApplication
             System.Windows.Forms.Application.Run(); snippet and this will keep the app alive, with no CPU 
             hit!
             */
-            client.Dispose();
 
+            if (client.GetTextClientLogger.LogCount > 0)
+            {
+                client.GetTextClientLogger.Save($"log-{DateTime.Now.Month}-{DateTime.Now.Day}-{DateTime.Now.Year} {DateTime.Now.Hour} {DateTime.Now.Minute}.log");
+                Console.WriteLine("Wrote log.");
+            }
+            client.Dispose();
             Console.ReadLine();
         }
 
@@ -703,7 +718,7 @@ namespace DiscordSharpTestApplication
                     string newPass = Console.ReadLine();
                     DiscordUserInformation i = client.ClientPrivateInformation.Copy();
                     i.password = newPass;
-                    client.ChangeBotInformation(i);
+                    client.ChangeClientInformation(i);
 
                     Console.WriteLine("Password changed!");
                 }

@@ -120,6 +120,14 @@ namespace DiscordSharp
         static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
         private DiscordVoiceClient VoiceClient = new DiscordVoiceClient();
         private Logger DebugLogger = new Logger();
+        public Logger GetTextClientLogger => DebugLogger;
+
+        /// <summary>
+        /// Whether or not to write the latest READY upon receiving it.
+        /// If this is true, the client will write the contents of the READY message to 'READY_LATEST.txt'
+        /// If your client is connected to a lot of servers, this file will be quite large.
+        /// </summary>
+        public bool WriteLatestReady { get; set; } = false;
 
         /// <summary>
         /// A log of messages kept in a KeyValuePair.
@@ -236,7 +244,7 @@ namespace DiscordSharp
                 temp.channels = tempSubs;
                 foreach(var mm in j["members"])
                 {
-                    DiscordMember member = new DiscordMember();
+                    DiscordMember member = new DiscordMember(this);
                     member.user.id = mm["user"]["id"].ToString();
                     member.user.username = mm["user"]["username"].ToString();
                     member.user.avatar = mm["user"]["avatar"].ToString();
@@ -267,7 +275,14 @@ namespace DiscordSharp
         public void LeaveServer(string ServerID)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ServerID}";
-            WebWrapper.Delete(url, token);
+            try
+            {
+                WebWrapper.Delete(url, token);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while leaving server ({ServerID}): {ex.Message}", MessageLevel.Error);
+            }
         }
         /// <summary>
         /// Sends a message to a channel, what else did you expect?
@@ -277,23 +292,35 @@ namespace DiscordSharp
         public void SendMessageToChannel(string message, DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
-            WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message)));
+            try
+            {
+                WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message)));
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while sending message to channel ({channel.name}): {ex.Message}", MessageLevel.Error);
+            }
         }
 
         public void AttachFile(DiscordChannel channel, string message, string pathToFile)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
             //WebWrapper.PostWithAttachment(url, message, pathToFile);
-            var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, pathToFile, "file", "image/jpeg", null));
+            try
+            {
+                var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, pathToFile, "file", "image/jpeg", null));
 
-            //uploadResult["content"] = message;
-            //WebWrapper.Post(url, token, uploadResult.ToString());
-            if(!string.IsNullOrWhiteSpace(message))
-                EditMessage(uploadResult["id"].ToString(), message, channel);
+                if (!string.IsNullOrWhiteSpace(message))
+                    EditMessage(uploadResult["id"].ToString(), message, channel);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while sending file ({pathToFile}) to {channel.name}: {ex.Message}", MessageLevel.Error);
+            }
         }
 
         //tysm voltana <3
-        public void ChangeBotPicture(Bitmap image)
+        public void ChangeClientAvatar(Bitmap image)
         {
             string base64 = Convert.ToBase64String(Utils.ImageToByteArray(image));
             string type = "image/jpeg;base64";
@@ -306,7 +333,14 @@ namespace DiscordSharp
                 username = ClientPrivateInformation.username
             });
             string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
-            WebWrapper.Patch(url, token, usernameRequestJson);
+            try
+            {
+                WebWrapper.Patch(url, token, usernameRequestJson);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while changing client's avatar: {ex.Message}", MessageLevel.Error);
+            }
         }
 
         public void ChangeGuildIcon(Bitmap image, DiscordServer guild)
@@ -318,7 +352,14 @@ namespace DiscordSharp
             string req = $"data:{type},{base64}";
             string guildjson = JsonConvert.SerializeObject(new { icon = req, name = guild.name});
             string url = Endpoints.BaseAPI + Endpoints.Guilds + "/" + guild.id;
-            var result = JObject.Parse(WebWrapper.Patch(url, token, guildjson));
+            try
+            {
+                var result = JObject.Parse(WebWrapper.Patch(url, token, guildjson));
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while changing guild {guild.name}'s icon: {ex.Message}", MessageLevel.Error);
+            }
         }
 
         /// <summary>
@@ -337,7 +378,17 @@ namespace DiscordSharp
             if (idAfter != null)
                 request += $"&after={idAfter}";
 
-            var result = JArray.Parse(WebWrapper.Get(request, token));
+            JArray result = null;
+
+            try
+            {
+                result = JArray.Parse(WebWrapper.Get(request, token));
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while getting message history for channel {channel.name}: {ex.Message}", MessageLevel.Error);
+            }
+
             if(result != null)
             {
                 List<DiscordMessage> messageList = new List<DiscordMessage>();
@@ -370,8 +421,15 @@ namespace DiscordSharp
                     topic = Channeltopic
                 });
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}";
-            var result = JObject.Parse(WebWrapper.Patch(url, token, topicChangeJson));
-            ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null).channels.Find(x => x.id == channel.id).topic = Channeltopic;
+            try
+            {
+                var result = JObject.Parse(WebWrapper.Patch(url, token, topicChangeJson));
+                ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null).channels.Find(x => x.id == channel.id).topic = Channeltopic;
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while changing channel topic for channel {channel.name}: {ex.Message}", MessageLevel.Error);
+            }
         }
 
         public List<DiscordRole> GetRoles(DiscordServer server)
@@ -379,7 +437,7 @@ namespace DiscordSharp
             return null;
         }
 
-        public void ChangeBotInformation(DiscordUserInformation info)
+        public void ChangeClientInformation(DiscordUserInformation info)
         {
             string usernameRequestJson;
             if (info.password != ClientPrivateInformation.password)
@@ -393,6 +451,8 @@ namespace DiscordSharp
                     avatar = info.avatar
                 });
                 ClientPrivateInformation.password = info.password;
+                File.Delete("token_cache");
+                DebugLogger.Log("Deleted token_cache due to change of password.");
             }
             else
             {
@@ -406,21 +466,28 @@ namespace DiscordSharp
             }
 
             string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
-            var result = JObject.Parse(WebWrapper.Patch(url, token, usernameRequestJson));
-            foreach (var server in ServersList)
+            try
             {
-                foreach (var member in server.members)
+                var result = JObject.Parse(WebWrapper.Patch(url, token, usernameRequestJson));
+                foreach (var server in ServersList)
                 {
-                    if (member.user.id == Me.user.id)
-                        member.user.username = info.username;
+                    foreach (var member in server.members)
+                    {
+                        if (member.user.id == Me.user.id)
+                            member.user.username = info.username;
+                    }
                 }
+                Me.user.username = info.username;
+                Me.user.email = info.email;
+                Me.user.avatar = info.avatar;
             }
-            Me.user.username = info.username;
-            Me.user.email = info.email;
-            Me.user.avatar = info.avatar;
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while changing client's information: {ex.Message}", MessageLevel.Error);
+            }
         }
 
-        private void ChangeBotUsername(string newUsername)
+        private void ChangeClientUsername(string newUsername)
         {
             string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
             string usernameRequestJson = JsonConvert.SerializeObject(new
@@ -430,18 +497,25 @@ namespace DiscordSharp
                 username = newUsername,
                 avatar = Me.user.avatar,
             });
-            var result = JObject.Parse(WebWrapper.Patch(url, token, usernameRequestJson));
-            if(result != null)
+            try
             {
-                foreach (var server in ServersList)
+                var result = JObject.Parse(WebWrapper.Patch(url, token, usernameRequestJson));
+                if (result != null)
                 {
-                    foreach (var member in server.members)
+                    foreach (var server in ServersList)
                     {
-                        if (member.user.id == Me.user.id)
-                            member.user.username = newUsername;
+                        foreach (var member in server.members)
+                        {
+                            if (member.user.id == Me.user.id)
+                                member.user.username = newUsername;
+                        }
                     }
+                    Me.user.username = newUsername;
                 }
-                Me.user.username = newUsername;
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while changing client's username: {ex.Message}", MessageLevel.Error);
             }
         }
 
@@ -450,10 +524,18 @@ namespace DiscordSharp
         {
             string url = Endpoints.BaseAPI + Endpoints.Users + $"/{Me.user.id}" + Endpoints.Channels;
             string initMessage = "{\"recipient_id\":" + member.user.id + "}";
-            var result = JObject.Parse(WebWrapper.Post(url, token, initMessage));
-            if(result != null)
+
+            try
             {
-                SendActualMessage(result["id"].ToString(), message);
+                var result = JObject.Parse(WebWrapper.Post(url, token, initMessage));
+                if (result != null)
+                {
+                    SendActualMessage(result["id"].ToString(), message);
+                }
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while sending message to user, step 1: {ex.Message}", MessageLevel.Error);
             }
         }
 
@@ -461,7 +543,15 @@ namespace DiscordSharp
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages;
             DiscordMessage toSend = Utils.GenerateMessage(message);
-            WebWrapper.Post(url, token, JsonConvert.SerializeObject(toSend).ToString());
+
+            try
+            {
+                WebWrapper.Post(url, token, JsonConvert.SerializeObject(toSend).ToString());
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while sending message to user, step 2: {ex.Message}", MessageLevel.Error);
+            }
         }
 
         public string GetCurrentGame => CurrentGameName;
@@ -490,6 +580,7 @@ namespace DiscordSharp
                         }
                     });
                 CurrentGameName = gameName;
+                DebugLogger.Log($"Updating client's current game as '{gameName}'");
             }
             else
             {
@@ -503,6 +594,7 @@ namespace DiscordSharp
                             game = (object)null
                         }
                     });
+                DebugLogger.Log("Setting current game to null.");
             }
             ws.Send(msg.ToString());
         }
@@ -627,26 +719,14 @@ namespace DiscordSharp
 
         public void AcceptInvite(string inviteID)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/invite/" + inviteID);
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.Method = "POST";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
+            string url = Endpoints.BaseAPI + Endpoints.Invite + $"/{inviteID}";
             try
             {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                }
+                WebWrapper.Post(url, token, "");
             }
-            catch (WebException e)
+            catch(Exception ex)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("!!! " + result);
-                }
+                DebugLogger.Log($"Error accepting invite: {ex.Message}", MessageLevel.Error);
             }
         }
 
@@ -672,97 +752,46 @@ namespace DiscordSharp
 
         public void EditMessage(string MessageID, string replacementMessage, DiscordChannel channel)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + channel.id + "/messages/" + MessageID);
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "PATCH";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
-            {
-                sw.Write(JsonConvert.SerializeObject(Utils.GenerateMessage(replacementMessage)));
-                sw.Flush();
-                sw.Close();
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}";
             try
             {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                }
+                WebWrapper.Patch(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(replacementMessage)));
             }
-            catch (WebException e)
+            catch(Exception ex)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("!!! " + result);
-                }
+                DebugLogger.Log("Exception ocurred while editing: " + ex.Message, MessageLevel.Error);
             }
         }
 
+        /// <summary>
+        /// Simulates typing in the specified channel. Automatically times out/stops after either:
+        /// -10 Seconds
+        /// -A message is sent
+        /// </summary>
+        /// <param name="channel"></param>
         public void SimulateTyping(DiscordChannel channel)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create($"https://discordapp.com/api/channels/{channel.id}/typing");
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "POST";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
-            {
-                sw.Flush();
-                sw.Close();
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Typing;
             try
             {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                    Console.WriteLine(result);
-                }
+                WebWrapper.Post(url, token, "");
             }
-            catch (WebException e)
+            catch(Exception ex)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("!!! " + result);
-                }
+                DebugLogger.Log("Exception ocurred while simulating typing: " + ex.Message, MessageLevel.Error);
             }
         }
 
         private void SendDeleteRequest(DiscordMessage message)
         {
-            var httpRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/channels/" + message.channel.id + "/messages/" + message.id);
-            httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentType = "application/json";
-            httpRequest.Method = "DELETE";
-            httpRequest.UserAgent += $" {UserAgentString}";
-
-            using (var sw = new StreamWriter(httpRequest.GetRequestStream()))
-            {
-                //sw.Write("DELETE");
-                sw.Flush();
-                sw.Close();
-            }
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{message.channel.id}" + Endpoints.Messages + $"/{message.id}";
             try
             {
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = sr.ReadToEnd();
-                }
+                WebWrapper.Delete(url, token);
             }
-            catch (WebException e)
+            catch(Exception ex)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    Console.WriteLine("!!! " + result);
-                }
+                DebugLogger.Log($"Exception ocurred while deleting message (ID: {message.id}): " + ex.Message, MessageLevel.Error);
             }
         }
 
@@ -842,7 +871,7 @@ namespace DiscordSharp
                         DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
                         dpmea.Channel = foundPM;
                         dpmea.message = message["d"]["content"].ToString();
-                        DiscordMember tempMember = new DiscordMember();
+                        DiscordMember tempMember = new DiscordMember(this);
                         tempMember.user.username = message["d"]["author"]["username"].ToString();
                         tempMember.user.id = message["d"]["author"]["id"].ToString();
                         dpmea.author = tempMember;
@@ -864,7 +893,7 @@ namespace DiscordSharp
 
                     dmea.message_text = message["d"]["content"].ToString();
 
-                    DiscordMember tempMember = new DiscordMember();
+                    DiscordMember tempMember = new DiscordMember(this);
                     tempMember = foundServerChannel.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString());
                     dmea.author = tempMember;
 
@@ -892,7 +921,7 @@ namespace DiscordSharp
             }
             catch (Exception ex)
             {
-                Console.WriteLine("!!! {0}", ex.Message);
+                DebugLogger.Log("Error ocurred during MessageCreateEvents: " + ex.Message, MessageLevel.Error);
             }
         }
 
@@ -933,7 +962,15 @@ namespace DiscordSharp
         private string GetGatewayUrl()
         {
             string url = Endpoints.BaseAPI + Endpoints.Gateway;
-            return JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
+            try
+            {
+                return JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log("Exception ocurred while retrieving Gateway URL: " + ex.Message, MessageLevel.Error);
+                return null;
+            }
         }
 
         public DiscordServer GetServerChannelIsIn(DiscordChannel channel)
@@ -944,19 +981,33 @@ namespace DiscordSharp
         public void DeleteChannel(DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}";
-            WebWrapper.Delete(url, token);
+            try
+            {
+                WebWrapper.Delete(url, token);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log("Exception ocurred while deleting channel: " + ex.Message, MessageLevel.Error);
+            }
         }
 
         public DiscordChannel CreateChannel(DiscordServer server, string ChannelName, bool voice)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{server.id}" + Endpoints.Channels;
             var reqJson = JsonConvert.SerializeObject(new { name = ChannelName, type = voice ? "voice" : "text" });
-            var result = JObject.Parse(WebWrapper.Post(url, token, reqJson));
-            if(result != null)
+            try
             {
-                DiscordChannel dc = new DiscordChannel { name = result["name"].ToString(), id = result["id"].ToString(), type = result["type"].ToString(), is_private = result["is_private"].ToObject<bool>(), topic = result["topic"].ToString() };
-                server.channels.Add(dc);
-                return dc;
+                var result = JObject.Parse(WebWrapper.Post(url, token, reqJson));
+                if (result != null)
+                {
+                    DiscordChannel dc = new DiscordChannel { name = result["name"].ToString(), id = result["id"].ToString(), type = result["type"].ToString(), is_private = result["is_private"].ToObject<bool>(), topic = result["topic"].ToString() };
+                    server.channels.Add(dc);
+                    return dc;
+                }
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log("Exception ocurred while creating channel: " + ex.Message, MessageLevel.Error);
             }
             return null;
         }
@@ -966,25 +1017,32 @@ namespace DiscordSharp
             string createGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds;
             string req = JsonConvert.SerializeObject(new { name = GuildName });
 
-            var response = JObject.Parse(WebWrapper.Post(createGuildUrl, token, req));
-            if(response != null)
+            try
             {
-                DiscordServer server = new DiscordServer();
-                server.id = response["id"].ToString();
-                server.name = response["name"].ToString();
-                server.owner_id = response["owner_id"].ToString();
-
-                string channelGuildUrl = createGuildUrl + $"/{server.id}" + Endpoints.Channels;
-                var channelRespone = JArray.Parse(WebWrapper.Get(channelGuildUrl, token));
-                foreach (var item in channelRespone.Children())
+                var response = JObject.Parse(WebWrapper.Post(createGuildUrl, token, req));
+                if (response != null)
                 {
-                    server.channels.Add(new DiscordChannel { name = item["name"].ToString(), id = item["id"].ToString(), topic = item["topic"].ToString(), is_private = item["is_private"].ToObject<bool>(), type = item["type"].ToString() });
+                    DiscordServer server = new DiscordServer();
+                    server.id = response["id"].ToString();
+                    server.name = response["name"].ToString();
+                    server.owner_id = response["owner_id"].ToString();
+
+                    string channelGuildUrl = createGuildUrl + $"/{server.id}" + Endpoints.Channels;
+                    var channelRespone = JArray.Parse(WebWrapper.Get(channelGuildUrl, token));
+                    foreach (var item in channelRespone.Children())
+                    {
+                        server.channels.Add(new DiscordChannel { name = item["name"].ToString(), id = item["id"].ToString(), topic = item["topic"].ToString(), is_private = item["is_private"].ToObject<bool>(), type = item["type"].ToString() });
+                    }
+
+                    server.members.Add(Me);
+
+                    ServersList.Add(server);
+                    return server;
                 }
-
-                server.members.Add(Me);
-
-                ServersList.Add(server);
-                return server;
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log("Exception ocurred while creating guild: " + ex.Message, MessageLevel.Error);
             }
             return null;
         }
@@ -993,14 +1051,29 @@ namespace DiscordSharp
         {
             string editGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}";
             var newNameJson = JsonConvert.SerializeObject(new { name = NewGuildName });
-            WebWrapper.Patch(editGuildUrl, token, newNameJson);
+            try
+            {
+                WebWrapper.Patch(editGuildUrl, token, newNameJson);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Exception ocurred while editing guild ({guild.name}) name: " + ex.Message, MessageLevel.Error);
+            }
         }
 
         public void AssignRoleToMember(DiscordServer guild, DiscordRole role, DiscordMember member)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.user.id}";
             string message = JsonConvert.SerializeObject(new { roles = new string[] { role.id } });
-            Console.WriteLine(WebWrapper.Patch(url, token, message));
+            try
+            {
+                Console.WriteLine(WebWrapper.Patch(url, token, message));
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Exception ocurred while assigning role ({role.name}) to member ({member.user.username}): " 
+                    + ex.Message, MessageLevel.Error);
+            }
         }
         public void AssignRoleToMember(DiscordServer guild, List<DiscordRole> roles, DiscordMember member)
         {
@@ -1008,7 +1081,15 @@ namespace DiscordSharp
             List<string> rolesAsIds = new List<string>();
             roles.ForEach(x => rolesAsIds.Add(x.id));
             string message = JsonConvert.SerializeObject(new { roles = rolesAsIds.ToArray() });
-            Console.WriteLine(WebWrapper.Patch(url, token, message));
+            try
+            {
+                WebWrapper.Patch(url, token, message);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Exception ocurred while assigning {roles.Count} role(s) to member ({member.user.username}): "
+                    + ex.Message, MessageLevel.Error);
+            }
         }
 
         /// <summary>
@@ -1019,10 +1100,17 @@ namespace DiscordSharp
         public string CreateInvite(DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Invites;
-            var resopnse = JObject.Parse(WebWrapper.Post(url, token, "{\"validate\":\"\"}"));
-            if (resopnse != null)
+            try
             {
-                return resopnse["code"].ToString();
+                var resopnse = JObject.Parse(WebWrapper.Post(url, token, "{\"validate\":\"\"}"));
+                if (resopnse != null)
+                {
+                    return resopnse["code"].ToString();
+                }
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while creating invite for channel {channel.name}: {ex.Message}", MessageLevel.Error);
             }
             return null;
         }
@@ -1030,7 +1118,14 @@ namespace DiscordSharp
         public void DeleteInvite(string id)
         {
             string url = Endpoints.BaseAPI + Endpoints.Invites + $"/{id}";
-            WebWrapper.Delete(url, token);
+            try
+            {
+                WebWrapper.Delete(url, token);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while deleting invite: {ex.Message}", MessageLevel.Error);
+            }
         }
 
         public string MakeInviteURLFromCode(string code) => "https://discord.gg/" + code;
@@ -1045,6 +1140,7 @@ namespace DiscordSharp
         public void Connect()
         {
             CurrentGatewayURL = GetGatewayUrl();
+            DebugLogger.Log("Gateway retrieved: " + CurrentGatewayURL);
             ws = new WebSocket(CurrentGatewayURL);
             ws.EnableRedirection = true;
             ws.Log.File = "websocketlog.txt";
@@ -1054,11 +1150,12 @@ namespace DiscordSharp
                     switch(message["t"].ToString())
                     {
                         case ("READY"):
-                            using (var sw = new StreamWriter("READY_LATEST.txt"))
-                                sw.Write(message);
-                            Me = new DiscordMember
+                            if(WriteLatestReady)
+                                using (var sw = new StreamWriter("READY_LATEST.txt"))
+                                    sw.Write(message);
+                            Me = new DiscordMember(this)
                             {
-                                user = new DiscordUser
+                                user = new DiscordUser(this)
                                 {
                                     username = message["d"]["user"]["username"].ToString(),
                                     id = message["d"]["user"]["id"].ToString(),
@@ -1168,6 +1265,7 @@ namespace DiscordSharp
 
                 };
                 ws.Connect();
+            DebugLogger.Log("Connecting..");
         }
 
         private async void VoiceServerUpdateEvents(JObject message)
@@ -1243,9 +1341,9 @@ namespace DiscordSharp
         private void GuildMemberUpdateEvents(JObject message)
         {
             DiscordServer server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-            DiscordMember memberUpdated = new DiscordMember
+            DiscordMember memberUpdated = new DiscordMember(this)
             {
-                user = new DiscordUser
+                user = new DiscordUser(this)
                 {
                     username = message["d"]["user"]["username"].ToString(),
                     id = message["d"]["user"]["id"].ToString(),
@@ -1304,23 +1402,31 @@ namespace DiscordSharp
         public DiscordRole CreateRole(DiscordServer guild)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Roles;
-            var result = JObject.Parse(WebWrapper.Post(url, token, ""));
 
-            if (result != null)
+            try
             {
-                DiscordRole d = new DiscordRole
-                {
-                    color = new Color(result["color"].ToObject<int>().ToString("x")),
-                    hoist = result["hoist"].ToObject<bool>(),
-                    id = result["id"].ToString(),
-                    managed = result["managed"].ToObject<bool>(),
-                    name = result["name"].ToString(),
-                    permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
-                    position = result["position"].ToObject<int>()
-                };
+                var result = JObject.Parse(WebWrapper.Post(url, token, ""));
 
-                ServersList.Find(x => x.id == guild.id).roles.Add(d);
-                return d;
+                if (result != null)
+                {
+                    DiscordRole d = new DiscordRole
+                    {
+                        color = new Color(result["color"].ToObject<int>().ToString("x")),
+                        hoist = result["hoist"].ToObject<bool>(),
+                        id = result["id"].ToString(),
+                        managed = result["managed"].ToObject<bool>(),
+                        name = result["name"].ToString(),
+                        permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
+                        position = result["position"].ToObject<int>()
+                    };
+
+                    ServersList.Find(x => x.id == guild.id).roles.Add(d);
+                    return d;
+                }
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while creating role in guild {guild.name}: {ex.Message}", MessageLevel.Error);
             }
             return null;
         }
@@ -1338,23 +1444,30 @@ namespace DiscordSharp
                 }
             );
 
-            var result = JObject.Parse(WebWrapper.Patch(url, token, request));
-            if(result != null)
+            try
             {
-                DiscordRole d = new DiscordRole
+                var result = JObject.Parse(WebWrapper.Patch(url, token, request));
+                if (result != null)
                 {
-                    color = new Color(result["color"].ToObject<int>().ToString("x")),
-                    hoist = result["hoist"].ToObject<bool>(),
-                    id = result["id"].ToString(),
-                    managed = result["managed"].ToObject<bool>(),
-                    name = result["name"].ToString(),
-                    permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
-                    position = result["position"].ToObject<int>()
-                };
+                    DiscordRole d = new DiscordRole
+                    {
+                        color = new Color(result["color"].ToObject<int>().ToString("x")),
+                        hoist = result["hoist"].ToObject<bool>(),
+                        id = result["id"].ToString(),
+                        managed = result["managed"].ToObject<bool>(),
+                        name = result["name"].ToString(),
+                        permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
+                        position = result["position"].ToObject<int>()
+                    };
 
-                ServersList.Find(x => x.id == guild.id).roles.Remove(d);
-                ServersList.Find(x => x.id == guild.id).roles.Add(d);
-                return d;
+                    ServersList.Find(x => x.id == guild.id).roles.Remove(d);
+                    ServersList.Find(x => x.id == guild.id).roles.Add(d);
+                    return d;
+                }
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while editing role ({newRole.name}): {ex.Message}", MessageLevel.Error);
             }
 
             return null;
@@ -1363,7 +1476,14 @@ namespace DiscordSharp
         public void DeleteRole(DiscordServer guild, DiscordRole role)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Roles + $"/{role.id}";
-            WebWrapper.Delete(url, token);
+            try
+            {
+                WebWrapper.Delete(url, token);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while deleting role ({role.name}): {ex.Message}", MessageLevel.Error);
+            }
         }
 
         private void GuildUpdateEvents(JObject message)
@@ -1422,7 +1542,7 @@ namespace DiscordSharp
             {
                 foreach (var mm in message["d"]["members"])
                 {
-                    DiscordMember member = new DiscordMember();
+                    DiscordMember member = new DiscordMember(this);
                     member.user.id = mm["user"]["id"].ToString();
                     member.user.username = mm["user"]["username"].ToString();
                     member.user.avatar = mm["user"]["avatar"].ToString();
@@ -1563,7 +1683,7 @@ namespace DiscordSharp
             }
             foreach(var mbr in message["d"]["members"])
             {
-                DiscordMember member = new DiscordMember();
+                DiscordMember member = new DiscordMember(this);
                 member.user.avatar = mbr["user"]["avatar"].ToString();
                 member.user.username = mbr["user"]["username"].ToString();
                 member.user.id = mbr["user"]["id"].ToString();
@@ -1588,9 +1708,9 @@ namespace DiscordSharp
         {
             DiscordGuildMemberAddEventArgs e = new DiscordGuildMemberAddEventArgs();
             e.RawJson = message;
-            DiscordMember newMember = new DiscordMember
+            DiscordMember newMember = new DiscordMember(this)
             {
-                user = new DiscordUser
+                user = new DiscordUser(this)
                 {
                     username = message["d"]["user"]["username"].ToString(),
                     id = message["d"]["user"]["id"].ToString(),
@@ -1610,7 +1730,7 @@ namespace DiscordSharp
         private void GuildMemberRemoveEvents(JObject message)
         {
             DiscordGuildMemberRemovedEventArgs e = new DiscordGuildMemberRemovedEventArgs();
-            DiscordMember removed = new DiscordMember();
+            DiscordMember removed = new DiscordMember(this);
 
             List<DiscordMember> membersToRemove = new List<DiscordMember>();
             foreach(var server in ServersList)
@@ -1650,9 +1770,9 @@ namespace DiscordSharp
         {
             DiscordUserUpdateEventArgs e = new DiscordUserUpdateEventArgs();
             e.RawJson = message;
-            DiscordMember newMember = new DiscordMember
+            DiscordMember newMember = new DiscordMember(this)
             {
-                user = new DiscordUser
+                user = new DiscordUser(this)
                 {
                     username = message["d"]["username"].ToString(),
                     id = message["d"]["id"].ToString(),
@@ -1662,7 +1782,7 @@ namespace DiscordSharp
                     discriminator = message["d"]["discriminator"].ToString()
                 }
             };
-            DiscordMember oldMember = new DiscordMember();
+            DiscordMember oldMember = new DiscordMember(this);
             //Update members
             foreach (var server in ServersList)
             {
@@ -1717,8 +1837,9 @@ namespace DiscordSharp
             if (f.Value<String>() == null)
             {
                 DiscordLeftVoiceChannelEventArgs le = new DiscordLeftVoiceChannelEventArgs();
-                le.user = ServersList.Find(x => x.members.Find(y => y.user.id == message["d"]["user_id"].ToString()) != null).members.Find(x => x.user.id == message["d"]["user_id"].ToString());
-                le.guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+                DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+                le.user = inServer.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+                le.guild = inServer;
                 le.RawJson = message;
                 return;
             }
@@ -1751,7 +1872,15 @@ namespace DiscordSharp
         private JObject ServerInfo(string channelOrServerId)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{channelOrServerId}";
-            return JObject.Parse(WebWrapper.Get(url, token));
+            try
+            {
+                return JObject.Parse(WebWrapper.Get(url, token));
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log("(Private) Error ocurred while retrieving server info: " + ex.Message, MessageLevel.Error);
+            }
+            return null;
         }
 
         private int HeartbeatInterval = 41250;
@@ -1872,6 +2001,7 @@ namespace DiscordSharp
                 using (var sr = new StreamReader("token_cache"))
                 {
                     token = sr.ReadLine();
+                    DebugLogger.Log("Loading token from cache.");
                 }
             }
             else
@@ -1884,12 +2014,14 @@ namespace DiscordSharp
                     email = ClientPrivateInformation.email,
                     password = ClientPrivateInformation.password
                 });
+                DebugLogger.Log("No token present, sending login request..");
                 var result = JObject.Parse(WebWrapper.Post(url, msg));
                 token = result["token"].ToString();
 
                 using (var sw = new StreamWriter("token_cache"))
                 {
                     sw.WriteLine(token);
+                    DebugLogger.Log("token_cache written!");
                 }
             }
 

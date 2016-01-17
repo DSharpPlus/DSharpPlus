@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DiscordSharp
 {
@@ -15,9 +16,13 @@ namespace DiscordSharp
         public DateTime TimeStamp;
     }
 
-    public enum MessageLevel
+    [Flags]
+    public enum MessageLevel : uint
     {
-        Critical, Debug, Warning, Error
+        Critical = 0x0,
+        Debug = 0x1,
+        Warning = 0x2,
+        Error = 0x3
     }
 
     public delegate void OnLogMessageReceived(object sender, LoggerMessageReceivedArgs e);
@@ -33,6 +38,8 @@ namespace DiscordSharp
             __log = new List<LogMessage>();
         }
 
+        public int LogCount => __log.Count;
+
         void pushLog(LogMessage m)
         {
             __log.Add(m);
@@ -43,6 +50,29 @@ namespace DiscordSharp
         public void Dispose()
         {
             __log = null;
+        }
+
+        public void Save(string file)
+        {
+            using (var sw = new StreamWriter(file))
+            {
+                foreach(var log in __log)
+                {
+                    sw.Write($"[{log.Level.ToString()} @ {log.TimeStamp}]: {log.Message}" + Environment.NewLine);
+                }
+            }
+        }
+
+        public void Save(string file, MessageLevel levels)
+        {
+            using (var sw = new StreamWriter(file))
+            {
+                foreach (var log in __log)
+                {
+                    if(log.Level.HasFlag(levels))
+                        sw.Write($"[{log.Level.ToString()} @ {log.TimeStamp}]: {log.Message}" + Environment.NewLine);
+                }
+            }
         }
 
         /// <summary>
