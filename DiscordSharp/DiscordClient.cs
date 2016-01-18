@@ -122,6 +122,10 @@ namespace DiscordSharp
         private Logger DebugLogger = new Logger();
         public Logger GetTextClientLogger => DebugLogger;
 
+        private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
+        private CancellationToken KeepAliveTaskToken;
+        private Task KeepAliveTask;
+
         /// <summary>
         /// Whether or not to write the latest READY upon receiving it.
         /// If this is true, the client will write the contents of the READY message to 'READY_LATEST.txt'
@@ -1254,8 +1258,17 @@ namespace DiscordSharp
                     ws.Send(json);
                     if (SocketOpened != null)
                         SocketOpened(this, null);
-                    Thread keepAlivetimer = new Thread(KeepAlive);
-                    keepAlivetimer.Start();
+
+                    KeepAliveTaskToken = KeepAliveTaskTokenSource.Token;
+                    KeepAliveTask = new Task(() => 
+                    {
+                        KeepAlive();
+                        Thread.Sleep(HeartbeatInterval);
+                        if (KeepAliveTaskToken.IsCancellationRequested)
+                            KeepAliveTaskToken.ThrowIfCancellationRequested();
+                    });
+                    KeepAliveTask.Start();
+                    DebugLogger.Log("Began keepalive task..");
                 };
                 ws.OnClose += (sender, e) =>
                 {
@@ -1297,6 +1310,7 @@ namespace DiscordSharp
 
             if (VoiceClient == null)
                 VoiceClient = new DiscordVoiceClient();
+            VoiceClient.Disposed += (sender, e) => VoiceClient = null;
 
             string joinVoicePayload = JsonConvert.SerializeObject(new
             {
@@ -1895,21 +1909,15 @@ namespace DiscordSharp
         private void KeepAlive()
         {
             string keepAliveJson = "{\"op\":1, \"d\":" + DateTime.Now.Millisecond + "}";
-            System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Elapsed += (sender, e) =>
-            {
                 if (ws != null)
-                    if (ws.IsAlive)
-                    {
-                        int unixTime = (int)(DateTime.UtcNow - epoch).TotalMilliseconds;
-                        keepAliveJson = "{\"op\":1, \"d\":\"" + unixTime + "\"}";
-                        ws.Send(keepAliveJson);
-                        if (KeepAliveSent != null)
-                            KeepAliveSent(this, new DiscordKeepAliveSentEventArgs { SentAt = DateTime.Now, JsonSent = keepAliveJson } );
-                    }
-            };
-            timer.Interval = HeartbeatInterval;
-            timer.Enabled = true;
+                if (ws.IsAlive)
+                {
+                    int unixTime = (int)(DateTime.UtcNow - epoch).TotalMilliseconds;
+                    keepAliveJson = "{\"op\":1, \"d\":\"" + unixTime + "\"}";
+                    ws.Send(keepAliveJson);
+                    if (KeepAliveSent != null)
+                        KeepAliveSent(this, new DiscordKeepAliveSentEventArgs { SentAt = DateTime.Now, JsonSent = keepAliveJson } );
+                }
         }
 
         
@@ -1918,6 +1926,7 @@ namespace DiscordSharp
         {
             try
             {
+                KeepAliveTaskTokenSource.Cancel();
                 ws.Close();
                 ws = null;
                 ServersList = null;

@@ -643,6 +643,8 @@ namespace DiscordSharpTestApplication
                     client.Connect();
                     Console.WriteLine($"Connected to {client.CurrentGatewayURL}");
                     client.UpdateCurrentGame("development testing");
+
+                    
                 }
             });
             worker.Start();
