@@ -43,6 +43,7 @@ namespace DiscordSharp
 
         public bool Connected { get; internal set; }
 
+#pragma warning disable 1998
         public async Task Initiate()
         {
             VoiceDebugLogger.LogMessageReceived += (sender, e) =>
@@ -304,6 +305,6 @@ namespace DiscordSharp
             VoiceDebugLogger.Log($"Our IP is {returnVal.Address} and we're using port {returnVal.port}.");
             return returnVal;
         }
-
+#pragma warning restore 1998
     }
 }

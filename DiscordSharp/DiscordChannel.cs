@@ -45,12 +45,37 @@ namespace DiscordSharp
 
     public class DiscordServer
     {
-        public string id { get; set; }
-        public string name { get; set; }
-        public string owner_id { get; set; }
-        public List<DiscordChannel> channels { get; set; }
-        public List<DiscordMember> members { get; set; }
-        public List<DiscordRole> roles { get; set; }
+        public string id { get; internal set; }
+        public string name { get; internal set; }
+
+        //private string _ownerid;
+        ///// <summary>
+        ///// Soon to be replaced by owner exclusively.
+        ///// </summary>
+        //[Obsolete]
+        //public string owner_id
+        //{
+        //    get { return owner_id; }
+        //    internal set
+        //    {
+        //        if (members != null && members.Count > 0)
+        //            owner = members.Find(x => x.user.id == value);
+        //        owner_id = value;
+        //    }
+        //}
+
+#pragma warning disable 0612
+        private DiscordMember _owner;
+        public DiscordMember owner { get { return _owner; } internal set
+            {
+                _owner = value;
+            }
+        }
+#pragma warning restore 0612
+
+        public List<DiscordChannel> channels { get; internal set; }
+        public List<DiscordMember> members { get; internal set; }
+        public List<DiscordRole> roles { get; internal set; }
 
         public DiscordServer()
         {

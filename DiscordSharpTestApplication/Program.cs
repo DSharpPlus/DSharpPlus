@@ -197,7 +197,7 @@ namespace DiscordSharpTestApplication
                     DiscordServer server = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
                     string owner = "";
                     foreach (var member in server.members)
-                        if (member.user.id == server.owner_id)
+                        if (member.user.id == server.owner.user.id)
                             owner = member.user.username;
                     string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by @{4}. The channel's topic is: {5}", e.Channel.name, e.Channel.id, server.name, server.id, owner, e.Channel.topic);
                     client.SendMessageToChannel(whereami, e.Channel);

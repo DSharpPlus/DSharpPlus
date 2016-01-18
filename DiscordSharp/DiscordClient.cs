@@ -197,7 +197,7 @@ namespace DiscordSharp
                 DiscordServer temp = new DiscordServer();
                 temp.id = j["id"].ToString();
                 temp.name = j["name"].ToString();
-                temp.owner_id = j["owner_id"].ToString();
+                //temp.owner_id = j["owner_id"].ToString();
                 List<DiscordChannel> tempSubs = new List<DiscordChannel>();
 
                 List<DiscordRole> tempRoles = new List<DiscordRole>();
@@ -266,6 +266,7 @@ namespace DiscordSharp
 
                     temp.members.Add(member);
                 }
+                temp.owner = temp.members.Find(x => x.user.id == j["owner_id"].ToString());
                 ServersList.Add(temp);
             }
             
@@ -1025,7 +1026,6 @@ namespace DiscordSharp
                     DiscordServer server = new DiscordServer();
                     server.id = response["id"].ToString();
                     server.name = response["name"].ToString();
-                    server.owner_id = response["owner_id"].ToString();
 
                     string channelGuildUrl = createGuildUrl + $"/{server.id}" + Endpoints.Channels;
                     var channelRespone = JArray.Parse(WebWrapper.Get(channelGuildUrl, token));
@@ -1035,6 +1035,9 @@ namespace DiscordSharp
                     }
 
                     server.members.Add(Me);
+                    server.owner = server.members.Find(x => x.user.id == response["owner_id"].ToString());
+                    if (server.owner == null)
+                        DebugLogger.Log("Owner is null in CreateGuild!", MessageLevel.Critical);
 
                     ServersList.Add(server);
                     return server;
@@ -1492,8 +1495,7 @@ namespace DiscordSharp
             DiscordServer newServer = new DiscordServer
             {
                 name = message["d"]["name"].ToString(),
-                id = message["d"]["name"].ToString(),
-                owner_id = message["d"]["name"].ToString()
+                id = message["d"]["name"].ToString()
             };
             newServer.roles = new List<DiscordRole>();
             if (!message["d"]["roles"].IsNullOrEmpty())
@@ -1564,6 +1566,11 @@ namespace DiscordSharp
 
                     newServer.members.Add(member);
                 }
+            }
+            if (!message["d"]["owner_id"].IsNullOrEmpty())
+            {
+                newServer.owner = newServer.members.Find(x => x.user.id == message["d"]["owner_id"].ToString());
+                DebugLogger.Log($"Transferred ownership from user '{oldServer.owner.user.username}' to {newServer.owner.user.username}.");
             }
             ServersList.Remove(oldServer);
             ServersList.Add(newServer);
@@ -1638,7 +1645,6 @@ namespace DiscordSharp
             DiscordServer server = new DiscordServer();
             server.id = message["d"]["id"].ToString();
             server.name = message["d"]["name"].ToString();
-            server.owner_id = message["d"]["owner_id"].ToString();
             server.members = new List<DiscordMember>();
             server.channels = new List<DiscordChannel>();
             server.roles = new List<DiscordRole>();
@@ -1697,7 +1703,8 @@ namespace DiscordSharp
                     member.roles.Add(server.roles.Find(x => x.name == "@everyone"));
                 server.members.Add(member);
             }
-            
+            server.owner = server.members.Find(x => x.user.id == message["d"]["owner_id"].ToString());
+
             ServersList.Add(server);
             e.server = server;
             if (GuildCreated != null)
