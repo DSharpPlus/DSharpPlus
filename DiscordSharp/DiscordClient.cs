@@ -1244,6 +1244,8 @@ namespace DiscordSharp
                         case ("CHANNEL_DELETE"):
                             ChannelDeleteEvents(message);
                             break;
+                        case("MESSAGE_ACK"): //ignore this message, it's irrelevant
+                            break;
                         default:
                             if (UnknownMessageTypeReceived != null)
                                 UnknownMessageTypeReceived(this, new UnknownMessageEventArgs { RawJson = message });
