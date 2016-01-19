@@ -31,8 +31,8 @@ namespace DiscordGUI
 
         private void Connect(string username, string password)
         {
-            Program.MainDiscordClient.LoginInformation.email[0] = username;
-            Program.MainDiscordClient.LoginInformation.password[0] = password;
+            Program.MainDiscordClient.ClientPrivateInformation.email = username;
+            Program.MainDiscordClient.ClientPrivateInformation.password = password;
 
             Program.MainDiscordClient.SendLoginRequest();
             
