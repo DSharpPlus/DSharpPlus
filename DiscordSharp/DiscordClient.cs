@@ -118,7 +118,7 @@ namespace DiscordSharp
         private string CurrentGameName = "";
         private int? IdleSinceUnixTime = null;
         static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
-        private DiscordVoiceClient VoiceClient = new DiscordVoiceClient();
+        private DiscordVoiceClient VoiceClient;
         private Logger DebugLogger = new Logger();
         public Logger GetTextClientLogger => DebugLogger;
 
@@ -170,6 +170,7 @@ namespace DiscordSharp
         public event DiscordGuildRoleDelete RoleDeleted;
         public event DiscordGuildRoleUpdate RoleUpdated;
         public event DiscordGuildMemberUpdate GuildMemberUpdated;
+        public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
         #endregion
         
         public DiscordClient()
@@ -1309,8 +1310,13 @@ namespace DiscordSharp
                 await Task.Run(()=>DisconnectFromVoice()).ConfigureAwait(false);
 
             if (VoiceClient == null)
-                VoiceClient = new DiscordVoiceClient();
+                VoiceClient = new DiscordVoiceClient(this);
             VoiceClient.Disposed += (sender, e) => VoiceClient = null;
+            VoiceClient.UserSpeaking += (sender, e) =>
+            {
+                if (UserSpeaking != null)
+                    UserSpeaking(this, e);
+            };
 
             string joinVoicePayload = JsonConvert.SerializeObject(new
             {

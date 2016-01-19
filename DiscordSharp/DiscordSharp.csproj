@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Color.cs" />
     <Compile Include="CustomWebSocket.cs" />
+    <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
     <Compile Include="Voice\DiscordAudioPacket.cs" />
     <Compile Include="Voice\DiscordVoiceClient.cs" />
     <Compile Include="Events\DiscordGuildMemberUpdateEventArgs.cs" />

@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using DiscordSharp.Events;
+using NAudio.Wave;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -39,9 +40,17 @@ namespace DiscordSharp
         private Logger VoiceDebugLogger = new Logger();
 
         public event EventHandler<LoggerMessageReceivedArgs> DebugMessageReceived;
+        public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<EventArgs> Disposed;
 
+        private DiscordClient _parent;
+
         public bool Connected { get; internal set; }
+
+        public DiscordVoiceClient(DiscordClient parent)
+        {
+            _parent = parent;
+        }
 
 #pragma warning disable 1998
         public async Task Initiate()
@@ -70,7 +79,7 @@ namespace DiscordSharp
                 VoiceDebugLogger.Log(e.Data);
 
                 JObject message = JObject.Parse(e.Data);
-                if(message["op"].Value<int>() == 2)
+                if (message["op"].Value<int>() == 2)
                 {
                     Params = new VoiceConnectionParameters();
                     Params.ssrc = message["d"]["ssrc"].Value<int>();
@@ -85,29 +94,30 @@ namespace DiscordSharp
                     Params.heartbeat_interval = message["d"]["heartbeat_interval"].Value<int>();
                     await InitialConnection().ConfigureAwait(false);
                 }
-                else if(message["op"].Value<int>() == 4)
+                else if (message["op"].Value<int>() == 4)
                 {
-                    Connected = true;
                     string speakingJson = JsonConvert.SerializeObject(new { op = 5, d = new { speaking = true, delay = 0 } });
                     VoiceDebugLogger.Log("Sending initial speaking json..(" + speakingJson + ")");
-                    //await Task.Run(()=>VoiceWebSocket.SendAsync(speakingJson, (__) => { })).ConfigureAwait(false);
                     VoiceWebSocket.Send(speakingJson);
-                    
-                    keepAliveTask = new Thread(() => 
+                    Connected = true;
+
+                    keepAliveTask = new Thread(() =>
                     {
-                        while(true)
+                        if (Connected)
                         {
-                            //cancelToken.ThrowIfCancellationRequested();
-                            SendKeepAlive().ConfigureAwait(false);
-                            Thread.Sleep(Params.heartbeat_interval);
+                            while (true)
+                            {
+                                //cancelToken.ThrowIfCancellationRequested();
+                                SendKeepAlive().ConfigureAwait(false);
+                                Thread.Sleep(Params.heartbeat_interval);
+                            }
                         }
                     });
 
-                    udpKeepAliveTask = new Thread(() => 
+                    udpKeepAliveTask = new Thread(() =>
                     {
-                        while(true)
+                        while (true)
                         {
-                            //cancelToken.ThrowIfCancellationRequested();
                             SendUDPKeepAlive().ConfigureAwait(false);
                             Thread.Sleep(5000); //5 seconds
                         }
@@ -117,20 +127,19 @@ namespace DiscordSharp
                     {
                         try
                         {
-                            Console.WriteLine(_udp.Available);
-                                while (_udp.Available > 0)
-                                {
-                                    byte[] packet = new byte[1920];
-                                    VoiceDebugLogger.Log("Received packet!!!!!!");
-                                    UdpReceiveResult d = await _udp.ReceiveAsync();
-                                    packet = d.Buffer;
+                            while (_udp.Available > 0)
+                            {
+                                //byte[] packet = new byte[1920];
+                                VoiceDebugLogger.Log("Received packet!!!!!! Length: " + _udp.Available);
+                                //UdpReceiveResult d = await _udp.ReceiveAsync();
+                                //packet = d.Buffer;
 
-                                    VoiceDebugLogger.Log("sending speaking..");
-                                    DiscordAudioPacket echo = DiscordAudioPacket.EchoPacket(packet, Params.ssrc);
-                                    await _udp.SendAsync(echo.AsRawPacket(), echo.AsRawPacket().Length).ConfigureAwait(false);
-                                }
+                                //VoiceDebugLogger.Log("sending speaking..");
+                                //DiscordAudioPacket echo = DiscordAudioPacket.EchoPacket(packet, Params.ssrc);
+                                //await _udp.SendAsync(echo.AsRawPacket(), echo.AsRawPacket().Length).ConfigureAwait(false);
+                            }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Console.Beep(32767, 1000);
                             Console.WriteLine(ex.Message);
@@ -142,7 +151,18 @@ namespace DiscordSharp
                     //udpKeepAliveTask.Start();
                     udpReceiveTask.Start();
                 }
-                
+                else if (message["op"].Value<int>() == 5)
+                {
+                    if(Connected) //if not connected, don't worry about it
+                    {
+                        DiscordVoiceUserSpeakingEventArgs __args = new DiscordVoiceUserSpeakingEventArgs { Guild = _parent.GetServersList().Find(x=>x.id == this.Guild.id)};
+                        __args.UserSpeaking = __args.Guild.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+                        __args.Speaking = message["d"]["speaking"].Value<bool>();
+
+                        if (UserSpeaking != null)
+                            UserSpeaking(this, __args);
+                    }
+                }
             };
             VoiceWebSocket.OnOpen += (sender, e) =>
             {
@@ -253,7 +273,7 @@ namespace DiscordSharp
                     string keepAliveJson = JsonConvert.SerializeObject(new
                     {
                         op = 3,
-                        d = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds
+                        d = (object)null//(Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds
                     });
                     VoiceDebugLogger.Log("Sending voice keepalive. (" + keepAliveJson + ")");
                     VoiceWebSocket.SendAsync(keepAliveJson, (__) => { });
