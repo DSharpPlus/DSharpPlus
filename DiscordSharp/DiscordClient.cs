@@ -171,6 +171,7 @@ namespace DiscordSharp
         public event DiscordGuildRoleUpdate RoleUpdated;
         public event DiscordGuildMemberUpdate GuildMemberUpdated;
         public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
+        public event EventHandler<DiscordLeftVoiceChannelEventArgs> UserLeftVoiceChannel;
         #endregion
         
         public DiscordClient()
@@ -1870,6 +1871,9 @@ namespace DiscordSharp
                 le.user = inServer.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
                 le.guild = inServer;
                 le.RawJson = message;
+
+                if (UserLeftVoiceChannel != null)
+                    UserLeftVoiceChannel(this, le);
                 return;
             }
             DiscordVoiceStateUpdateEventArgs e = new DiscordVoiceStateUpdateEventArgs();
