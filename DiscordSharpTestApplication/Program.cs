@@ -79,9 +79,13 @@ namespace DiscordSharpTestApplication
                     if (e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Warning)
                     {
                         WriteDebug(e.message, "Text Client");
-                        DiscordMember onwer = client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom");
-                        if (onwer != null)
-                            onwer.user.SendMessage($"**LOGGING**\n```\n[Text Client: {e.message.Level}]: {e.message.Message}\n```");
+                        if (client.GetServersList() != null)
+                        {
+                            DiscordMember onwer = client.GetServersList().Find(x => x.members.Find(y => y.user.username == "Axiom") != null).members.Find(x => x.user.username == "Axiom");
+                            if (onwer != null)
+                                if(!e.message.Message.Contains("Setting current game"))
+                                    onwer.user.SendMessage($"**LOGGING**\n```\n[Text Client: {e.message.Level}]: {e.message.Message}\n```");
+                        }
                     }
                 };
                 client.VoiceClientDebugMessageReceived += (sender, e) =>
@@ -603,6 +607,7 @@ namespace DiscordSharpTestApplication
                         }
                     }
                 };
+                
                 client.Connected += (sender, e) =>
                 {
                     Console.WriteLine("Connected! User: " + e.user.user.username);
@@ -664,7 +669,8 @@ namespace DiscordSharpTestApplication
                             if (DateTime.Now.Subtract(localTime) > new TimeSpan(0, 15, 0))
                             {
                                 if (client.GetCurrentGame != "")
-                                    client.UpdateCurrentGame("");
+                                    if(client.GetCurrentGame == null)
+                                        client.UpdateCurrentGame("");
                             }
                         }
                         else

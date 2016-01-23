@@ -1266,11 +1266,15 @@ namespace DiscordSharp
                     KeepAliveTaskToken = KeepAliveTaskTokenSource.Token;
                     KeepAliveTask = new Task(() => 
                     {
-                        KeepAlive();
-                        Thread.Sleep(HeartbeatInterval);
-                        if (KeepAliveTaskToken.IsCancellationRequested)
-                            KeepAliveTaskToken.ThrowIfCancellationRequested();
-                    });
+                        while (true)
+                        {
+                            DebugLogger.Log("Hello from inside KeepAliveTask! Sending..");
+                            KeepAlive();
+                            Thread.Sleep(HeartbeatInterval);
+                            if (KeepAliveTaskToken.IsCancellationRequested)
+                                KeepAliveTaskToken.ThrowIfCancellationRequested();
+                        }
+                    }, KeepAliveTaskToken, TaskCreationOptions.LongRunning);
                     KeepAliveTask.Start();
                     DebugLogger.Log("Began keepalive task..");
                 };
