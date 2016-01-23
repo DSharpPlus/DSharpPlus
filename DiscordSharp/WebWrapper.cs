@@ -61,6 +61,7 @@ namespace DiscordSharp
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
             httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentLength = message.Length;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
             httpRequest.UserAgent += $" {UserAgentString}";

@@ -729,7 +729,8 @@ namespace DiscordSharp
             string url = Endpoints.BaseAPI + Endpoints.Invite + $"/{inviteID}";
             try
             {
-                WebWrapper.Post(url, token, "");
+                var result = WebWrapper.Post(url, token, "");
+                DebugLogger.Log("Accept invite result: " + result.ToString());
             }
             catch(Exception ex)
             {
