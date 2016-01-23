@@ -19,6 +19,7 @@ namespace DiscordSharpTestApplication
     {
         static DiscordClient client = new DiscordClient();
         static WaitHandle waitHandle = new AutoResetEvent(false);
+        static LastAuth lastfmAuthentication = new LastAuth("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c");
 
         static void WriteDebug(LogMessage m, string prefix)
         {
@@ -320,19 +321,19 @@ namespace DiscordSharpTestApplication
                     string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                     if (split.Length > 1)
                     {
-                        using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
-                        {
-                            try
+                            using (var lllfclient = new LastfmClient(lastfmAuthentication))
                             {
-                                var recentScrobbles = lllfclient.User.GetRecentScrobbles(split[1], null, 1, 1);
-                                LastTrack lastTrack = recentScrobbles.Result.Content[0];
-                                client.SendMessageToChannel(string.Format("*{0}* last listened to _{1}_ by _{2}_", split[1], lastTrack.Name, lastTrack.ArtistName), e.Channel);
+                                try
+                                {
+                                    var recentScrobbles = lllfclient.User.GetRecentScrobbles(split[1], null, 1, 1);
+                                    LastTrack lastTrack = recentScrobbles.Result.Content[0];
+                                    client.SendMessageToChannel(string.Format("*{0}* last listened to _{1}_ by _{2}_", split[1], lastTrack.Name, lastTrack.ArtistName), e.Channel);
+                                }
+                                catch
+                                {
+                                    client.SendMessageToChannel(string.Format("User _*{0}*_ not found!", split[1]), e.Channel);
+                                }
                             }
-                            catch
-                            {
-                                client.SendMessageToChannel(string.Format("User _*{0}*_ not found!", split[1]), e.Channel);
-                            }
-                        }
                     }
                     else
                         client.SendMessageToChannel("Who??", e.Channel);
@@ -566,7 +567,7 @@ namespace DiscordSharpTestApplication
                 else if (e.message.content.StartsWith("?playing"))
                 {
                     DiscordMember member = e.Channel.parent.members.Find(x => x.user.username == "Axiom");
-                    using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
+                    using (var lllfclient = new LastfmClient(lastfmAuthentication))
                     {
                             try
                             {
@@ -617,7 +618,7 @@ namespace DiscordSharpTestApplication
                         sw.WriteLine(client.ClientPrivateInformation.password);
                         sw.Flush();
                     }
-                    using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
+                    using (var lllfclient = new LastfmClient(lastfmAuthentication))
                     {
                         try
                         {
@@ -657,7 +658,7 @@ namespace DiscordSharpTestApplication
             System.Timers.Timer lastfmUpdateTimer = new System.Timers.Timer(25 * 1000); //check last.fm every 25 seconds
             lastfmUpdateTimer.Elapsed += (sender, e) =>
             {
-                using (var lllfclient = new LastfmClient("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c", null, null))
+                using (var lllfclient = new LastfmClient(lastfmAuthentication))
                 {
                     try
                     {
