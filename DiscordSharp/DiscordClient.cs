@@ -296,17 +296,29 @@ namespace DiscordSharp
         /// </summary>
         /// <param name="message"></param>
         /// <param name="channel"></param>
-        public void SendMessageToChannel(string message, DiscordChannel channel)
+        public DiscordMessage SendMessageToChannel(string message, DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
             try
             {
-                WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message)));
+                JObject result = JObject.Parse(WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
+                DiscordMessage m = new DiscordMessage
+                {
+                    id = result["id"].ToString(),
+                    attachments = result["attachments"].ToObject<string[]>(),
+                    author = channel.parent.members.Find(x => x.user.id == result["author"]["id"].ToString()),
+                    channel = channel,
+                    content = result["content"].ToString(),
+                    RawJson = result,
+                    timestamp = result["timestamp"].ToObject<DateTime>()
+                };
+                return m;
             }
             catch(Exception ex)
             {
                 DebugLogger.Log($"Error ocurred while sending message to channel ({channel.name}): {ex.Message}", MessageLevel.Error);
             }
+            return null;
         }
 
         public void AttachFile(DiscordChannel channel, string message, string pathToFile)
@@ -758,17 +770,38 @@ namespace DiscordSharp
             return null;
         }
 
-        public void EditMessage(string MessageID, string replacementMessage, DiscordChannel channel)
+        public DiscordMessage EditMessage(string MessageID, string replacementMessage, DiscordChannel channel)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages + $"/{MessageID}";
             try
             {
-                WebWrapper.Patch(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(replacementMessage)));
+                string replacement = JsonConvert.SerializeObject(
+                    new
+                    {
+                        content = replacementMessage,
+                        mentions = new string[0]
+                    }
+                );
+                JObject result = JObject.Parse(WebWrapper.Patch(url, token, replacement));
+
+                DiscordMessage m = new DiscordMessage
+                {
+                    RawJson = result,
+                    attachments = result["attachments"].ToObject<string[]>(),
+                    author = channel.parent.members.Find(x=>x.user.id == result["author"]["id"].ToString()),
+                    channel = channel,
+                    content = result["content"].ToString(),
+                    id = result["id"].ToString(),
+                    timestamp = result["timestamp"].ToObject<DateTime>()
+                };
+                return m;
             }
             catch(Exception ex)
             {
                 DebugLogger.Log("Exception ocurred while editing: " + ex.Message, MessageLevel.Error);
             }
+
+            return null;
         }
 
         /// <summary>

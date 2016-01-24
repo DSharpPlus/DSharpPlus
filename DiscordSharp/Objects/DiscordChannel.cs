@@ -17,10 +17,22 @@ namespace DiscordSharp
 
         public DiscordServer parent { get; internal set; }
 
-        public void SendMessage(string message)
+        public DiscordMessage SendMessage(string message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages;
-            WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message)));
+            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
+
+            DiscordMessage m = new DiscordMessage
+            {
+                id = result["id"].ToString(),
+                attachments = result["attachments"].ToObject<string[]>(),
+                author = channel.parent.members.Find(x => x.user.id == result["author"]["id"].ToString()),
+                channel = channel,
+                content = result["content"].ToString(),
+                RawJson = result,
+                timestamp = result["timestamp"].ToObject<DateTime>()
+            };
+            return m;
         }
 
         private void DeleteMessage(DiscordMessage message)
