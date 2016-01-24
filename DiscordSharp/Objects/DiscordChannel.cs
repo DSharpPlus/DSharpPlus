@@ -26,8 +26,8 @@ namespace DiscordSharp
             {
                 id = result["id"].ToString(),
                 attachments = result["attachments"].ToObject<string[]>(),
-                author = channel.parent.members.Find(x => x.user.id == result["author"]["id"].ToString()),
-                channel = channel,
+                author = this.parent.members.Find(x => x.user.id == result["author"]["id"].ToString()),
+                channel = this,
                 content = result["content"].ToString(),
                 RawJson = result,
                 timestamp = result["timestamp"].ToObject<DateTime>()
