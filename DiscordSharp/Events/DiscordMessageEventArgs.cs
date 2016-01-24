@@ -25,6 +25,7 @@ namespace DiscordSharp.Events
         public DiscordChannel Channel { get; internal set; }
         public string message { get; internal set; }
         public DiscordMessageType MessageType { get; internal set; }
+        public DateTime EditedTimestamp { get; internal set; }
 
         public DiscordMessageEditedEventArgs(JObject message)
         {

@@ -115,6 +115,7 @@ namespace DiscordSharpTestApplication
                 };
                 client.MessageEdited += (sender, e) =>
                 {
+                    Console.WriteLine(e.message);
                     //if (e.author.user.username == "Axiom")
                     //    client.SendMessageToChannel("What the fuck, <@" + e.author.user.id + "> you can't event type your message right. (\"" + e.MessageEdited.content + "\")", e.Channel);
                 };

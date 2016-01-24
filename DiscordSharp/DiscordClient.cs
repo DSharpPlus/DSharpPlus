@@ -827,7 +827,13 @@ namespace DiscordSharp
                             {
                                 author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
                                 content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value.content,
-                            }
+                                attachments = message["d"]["attachments"].ToObject<string[]>(),
+                                channel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString()),
+                                RawJson = message,
+                                id = message["d"]["id"].ToString(),
+                                timestamp = message["d"]["timestamp"].ToObject<DateTime>(),
+                            },
+                            EditedTimestamp = message["d"]["edited_timestamp"].ToObject<DateTime>()
                         });
                     int indexOfMessageToChange = MessageLog.IndexOf(toRemove);
                     MessageLog.Remove(toRemove);
