@@ -1944,8 +1944,9 @@ namespace DiscordSharp
                 {
                     Me.user.mute = e.self_mute;
                     Me.user.deaf = e.self_deaf;
+                    if(VoiceClient != null)
+                        VoiceClient.SessionID = message["d"]["session_id"].ToString();
                 }
-                VoiceClient.SessionID = message["d"]["session_id"].ToString();
             }
 
             if (VoiceStateUpdate != null)
