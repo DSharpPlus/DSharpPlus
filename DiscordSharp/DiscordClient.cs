@@ -741,7 +741,7 @@ namespace DiscordSharp
             string url = Endpoints.BaseAPI + Endpoints.Invite + $"/{inviteID}";
             try
             {
-                var result = WebWrapper.Post(url, token, "");
+                var result = WebWrapper.Post(url, token, "", true);
                 DebugLogger.Log("Accept invite result: " + result.ToString());
             }
             catch(Exception ex)
@@ -1382,22 +1382,27 @@ namespace DiscordSharp
 
         public async void DisconnectFromVoice()
         {
-            string msg = JsonConvert.SerializeObject(new
+            if (VoiceClient != null)
             {
-                op = 4,
-                d = new
+                string msg = JsonConvert.SerializeObject(new
                 {
-                    guild_id = (string)null,
-                    channel_id = (string)null,
-                    self_mute = true,
-                    self_deaf = false
-                }
-            });
+                    op = 4,
+                    d = new
+                    {
+                        guild_id = (string)null,
+                        channel_id = (string)null,
+                        self_mute = true,
+                        self_deaf = false
+                    }
+                });
 
-            ws.Send(msg);
+                ws.Send(msg);
 
-            await Task.Run(() => VoiceClient.Dispose()).ConfigureAwait(false) ;
-            VoiceClient = null;
+
+
+                await Task.Run(() => VoiceClient.Dispose()).ConfigureAwait(false);
+                VoiceClient = null;
+            }
         }
 
         public DiscordVoiceClient GetVoiceClient()

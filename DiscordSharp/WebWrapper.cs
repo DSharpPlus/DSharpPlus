@@ -57,14 +57,22 @@ namespace DiscordSharp
         /// <param name="token"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static string Post(string url, string token, string message)
+        public static string Post(string url, string token, string message, bool acceptInviteWorkaround = false)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
             httpRequest.Headers["authorization"] = token;
-            httpRequest.ContentLength = message.Length;
+            if(acceptInviteWorkaround)
+                httpRequest.ContentLength = message.Length;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
             httpRequest.UserAgent += $" {UserAgentString}";
+
+            //httpRequest.AllowWriteStreamBuffering = false;
+            //httpRequest.KeepAlive = false;
+            //httpRequest.ProtocolVersion = HttpVersion.Version10;
+
+            //httpRequest.SendChunked = true;
+            //httpRequest.TransferEncoding = "unicode";
 
             if (!string.IsNullOrEmpty(message))
             {
