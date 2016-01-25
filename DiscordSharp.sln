@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharp", "DiscordShar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharpTestApplication", "DiscordSharpTestApplication\DiscordSharpTestApplication.csproj", "{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewEmojiTest", "NewEmojiTest\NewEmojiTest.csproj", "{617220C2-6176-45C1-A452-FFBDB8DC698E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{617220C2-6176-45C1-A452-FFBDB8DC698E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{617220C2-6176-45C1-A452-FFBDB8DC698E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{617220C2-6176-45C1-A452-FFBDB8DC698E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{617220C2-6176-45C1-A452-FFBDB8DC698E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
