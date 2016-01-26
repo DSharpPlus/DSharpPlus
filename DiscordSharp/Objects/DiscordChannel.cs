@@ -42,9 +42,8 @@ namespace DiscordSharp
         }
     }
 
-    public class DiscordPrivateChannel
+    public class DiscordPrivateChannel : DiscordChannel
     {
-        public string id { get; set; }
         public DiscordRecipient recipient { get; set; }
     }
 

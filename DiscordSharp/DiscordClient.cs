@@ -539,7 +539,7 @@ namespace DiscordSharp
         }
 
         //Special thanks to the node-discord developer, izy521, for helping me out with this :D
-        public void SendMessageToUser(string message, DiscordMember member)
+        public DiscordMessage SendMessageToUser(string message, DiscordMember member)
         {
             string url = Endpoints.BaseAPI + Endpoints.Users + $"/{Me.user.id}" + Endpoints.Channels;
             string initMessage = "{\"recipient_id\":" + member.user.id + "}";
@@ -549,28 +549,41 @@ namespace DiscordSharp
                 var result = JObject.Parse(WebWrapper.Post(url, token, initMessage));
                 if (result != null)
                 {
-                    SendActualMessage(result["id"].ToString(), message);
+                    DiscordMember recipient = ServersList.Find(
+                        x => x.members.Find(
+                            y => y.user.id == result["recipient"]["id"].ToString()) != null).members.Find(
+                        x => x.user.id == result["recipient"]["id"].ToString());
+
+                    return SendActualMessage(result["id"].ToString(), message, recipient);
                 }
             }
             catch(Exception ex)
             {
                 DebugLogger.Log($"Error ocurred while sending message to user, step 1: {ex.Message}", MessageLevel.Error);
             }
+
+            return null;
         }
 
-        private void SendActualMessage(string id, string message)
+        private DiscordMessage SendActualMessage(string id, string message, DiscordMember recipient)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages;
             DiscordMessage toSend = Utils.GenerateMessage(message);
 
             try
             {
-                WebWrapper.Post(url, token, JsonConvert.SerializeObject(toSend).ToString());
+                var result = JObject.Parse(WebWrapper.Post(url, token, JsonConvert.SerializeObject(toSend).ToString()));
+                DiscordMessage d = JsonConvert.DeserializeObject<DiscordMessage>(result.ToString());
+                d.Recipient = recipient;
+                d.channel = PrivateChannels.Find(x => x.id == result["channel_id"].ToString());
+                d.author = Me;
+                return d;
             }
             catch(Exception ex)
             {
                 DebugLogger.Log($"Error ocurred while sending message to user, step 2: {ex.Message}", MessageLevel.Error);
             }
+            return null;
         }
 
         public string GetCurrentGame => CurrentGameName;
@@ -670,6 +683,11 @@ namespace DiscordSharp
         {
             var message = MessageLog.Find(x => x.Value.id == id);
             SendDeleteRequest(message.Value);
+        }
+
+        public void DeletePrivateMessage(DiscordMessage message)
+        {
+            SendDeleteRequest(message, true);
         }
 
         /// <summary>
@@ -823,12 +841,16 @@ namespace DiscordSharp
             }
         }
 
-        private void SendDeleteRequest(DiscordMessage message)
+        private void SendDeleteRequest(DiscordMessage message, bool user = false)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{message.channel.id}" + Endpoints.Messages + $"/{message.id}";
+            string url;
+            if(!user)
+                url = Endpoints.BaseAPI + Endpoints.Channels + $"/{message.channel.id}" + Endpoints.Messages + $"/{message.id}";
+            else
+                url = Endpoints.BaseAPI + Endpoints.Users + $"/{message.channel.id}" + Endpoints.Messages + $"/{message.id}";
             try
             {
-                WebWrapper.Delete(url, token);
+                var result = WebWrapper.Delete(url, token);
             }
             catch(Exception ex)
             {

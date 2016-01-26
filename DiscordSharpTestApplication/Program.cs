@@ -454,6 +454,16 @@ namespace DiscordSharpTestApplication
                         client.SendMessageToChannel(string.Format("<@{0}>: {1}, {2}", foundMember.user.id, foundMember.user.id, foundMember.user.username), e.Channel);
                     }
                 }
+                else if(e.message.content.StartsWith("?deletelast"))
+                    {
+                        //client.DeleteMessage(client.GetLastMessageSent(e.Channel).id);
+
+                    }
+                else if(e.message.content.StartsWith("?testdmdelete"))
+                    {
+                        var msg = client.SendMessageToUser("test", client.GetServersList()[0].members.Find(x => x.user.username == "Axiom"));
+                        client.DeletePrivateMessage(msg);
+                    }
                 else if (e.message.content.StartsWith("?prune"))
                 {
                     string[] split = e.message.content.Split(new char[] { ' ' }, 2);
