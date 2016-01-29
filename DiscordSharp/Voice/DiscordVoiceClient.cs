@@ -156,7 +156,7 @@ namespace DiscordSharp
                     if(Connected) //if not connected, don't worry about it
                     {
                         DiscordVoiceUserSpeakingEventArgs __args = new DiscordVoiceUserSpeakingEventArgs { Guild = _parent.GetServersList().Find(x=>x.id == this.Guild.id)};
-                        __args.UserSpeaking = __args.Guild.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+                        __args.UserSpeaking = __args.Guild.members.Find(x => x.ID == message["d"]["user_id"].ToString());
                         __args.Speaking = message["d"]["speaking"].Value<bool>();
 
                         if (UserSpeaking != null)
@@ -172,7 +172,7 @@ namespace DiscordSharp
                     op = 0,
                     d = new
                     {
-                        user_id = Me.user.id,
+                        user_id = Me.ID,
                         server_id = Guild.id,
                         session_id = SessionID,
                         token = Token

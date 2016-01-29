@@ -26,7 +26,7 @@ namespace DiscordSharp
             {
                 id = result["id"].ToString(),
                 attachments = result["attachments"].ToObject<string[]>(),
-                author = this.parent.members.Find(x => x.user.id == result["author"]["id"].ToString()),
+                author = this.parent.members.Find(x => x.ID == result["author"]["id"].ToString()),
                 channel = this,
                 content = result["content"].ToString(),
                 RawJson = result,
@@ -115,13 +115,13 @@ namespace DiscordSharp
 
         public void AssignRoleToMember(DiscordRole role, DiscordMember member)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Members + $"/{member.user.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Members + $"/{member.ID}";
             string message = JsonConvert.SerializeObject(new { roles = new string[] { role.id } });
             Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
         }
         public void AssignRoleToMember(List<DiscordRole> roles, DiscordMember member)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Members + $"/{member.user.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Members + $"/{member.ID}";
             List<string> rolesAsIds = new List<string>();
             roles.ForEach(x => rolesAsIds.Add(x.id));
             string message = JsonConvert.SerializeObject(new { roles = rolesAsIds.ToArray() });

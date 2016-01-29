@@ -24,5 +24,6 @@ namespace DiscordSharp
         public static string Roles = "/roles";
         public static string Members = "/members";
         public static string Typing = "/typing";
+        public static string Avatars = "/avatars";
     }
 }

@@ -250,29 +250,29 @@ namespace DiscordSharp
                 temp.channels = tempSubs;
                 foreach(var mm in j["members"])
                 {
-                    DiscordMember member = new DiscordMember(this);
-                    member.user.id = mm["user"]["id"].ToString();
-                    member.user.username = mm["user"]["username"].ToString();
-                    member.user.avatar = mm["user"]["avatar"].ToString();
-                    member.user.discriminator = mm["user"]["discriminator"].ToString();
-                    member.roles = new List<DiscordRole>();
+                    DiscordMember member = JsonConvert.DeserializeObject<DiscordMember>(mm["user"].ToString());
+                    //member.ID = mm["user"]["id"].ToString();
+                    //member.Username = mm["user"]["username"].ToString();
+                    //member.Avatar = mm["user"]["avatar"].ToString();
+                    //member.Discriminator = mm["user"]["discriminator"].ToString();
+                    member.Roles = new List<DiscordRole>();
                     JArray rawRoles = JArray.Parse(mm["roles"].ToString());
                     if(rawRoles.Count > 0)
                     {
                         foreach(var role in rawRoles.Children())
                         {
-                            member.roles.Add(temp.roles.Find(x => x.id == role.Value<string>()));
+                            member.Roles.Add(temp.roles.Find(x => x.id == role.Value<string>()));
                         }
                     }
                     else
                     {
-                        member.roles.Add(temp.roles.Find(x => x.name == "@everyone"));
+                        member.Roles.Add(temp.roles.Find(x => x.name == "@everyone"));
                     }
-                    member.parent = temp;
+                    member.Parent = temp;
 
                     temp.members.Add(member);
                 }
-                temp.owner = temp.members.Find(x => x.user.id == j["owner_id"].ToString());
+                temp.owner = temp.members.Find(x => x.ID == j["owner_id"].ToString());
                 ServersList.Add(temp);
             }
             
@@ -306,7 +306,7 @@ namespace DiscordSharp
                 {
                     id = result["id"].ToString(),
                     attachments = result["attachments"].ToObject<string[]>(),
-                    author = channel.parent.members.Find(x => x.user.id == result["author"]["id"].ToString()),
+                    author = channel.parent.members.Find(x => x.ID == result["author"]["id"].ToString()),
                     channel = channel,
                     content = result["content"].ToString(),
                     RawJson = result,
@@ -492,13 +492,13 @@ namespace DiscordSharp
                 {
                     foreach (var member in server.members)
                     {
-                        if (member.user.id == Me.user.id)
-                            member.user.username = info.username;
+                        if (member.ID == Me.ID)
+                            member.Username = info.username;
                     }
                 }
-                Me.user.username = info.username;
-                Me.user.email = info.email;
-                Me.user.avatar = info.avatar;
+                Me.Username = info.username;
+                Me.Email = info.email;
+                Me.Avatar = info.avatar;
             }
             catch(Exception ex)
             {
@@ -514,7 +514,7 @@ namespace DiscordSharp
                 email = ClientPrivateInformation.email,
                 password = ClientPrivateInformation.password,
                 username = newUsername,
-                avatar = Me.user.avatar,
+                avatar = Me.Avatar,
             });
             try
             {
@@ -525,11 +525,11 @@ namespace DiscordSharp
                     {
                         foreach (var member in server.members)
                         {
-                            if (member.user.id == Me.user.id)
-                                member.user.username = newUsername;
+                            if (member.ID == Me.ID)
+                                member.Username = newUsername;
                         }
                     }
-                    Me.user.username = newUsername;
+                    Me.Username = newUsername;
                 }
             }
             catch(Exception ex)
@@ -541,8 +541,8 @@ namespace DiscordSharp
         //Special thanks to the node-discord developer, izy521, for helping me out with this :D
         public DiscordMessage SendMessageToUser(string message, DiscordMember member)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Users + $"/{Me.user.id}" + Endpoints.Channels;
-            string initMessage = "{\"recipient_id\":" + member.user.id + "}";
+            string url = Endpoints.BaseAPI + Endpoints.Users + $"/{Me.ID}" + Endpoints.Channels;
+            string initMessage = "{\"recipient_id\":" + member.ID + "}";
 
             try
             {
@@ -551,8 +551,8 @@ namespace DiscordSharp
                 {
                     DiscordMember recipient = ServersList.Find(
                         x => x.members.Find(
-                            y => y.user.id == result["recipient"]["id"].ToString()) != null).members.Find(
-                        x => x.user.id == result["recipient"]["id"].ToString());
+                            y => y.ID == result["recipient"]["id"].ToString()) != null).members.Find(
+                        x => x.ID == result["recipient"]["id"].ToString());
 
                     return SendActualMessage(result["id"].ToString(), message, recipient);
                 }
@@ -651,10 +651,10 @@ namespace DiscordSharp
         {
             DiscordPresenceUpdateEventArgs dpuea = new DiscordPresenceUpdateEventArgs();
             dpuea.RawJson = message;
-            var pserver = ServersList.Find(x => x.members.Find(y => y.user.id == message["d"]["id"].ToString()) != null);
+            var pserver = ServersList.Find(x => x.members.Find(y => y.ID == message["d"]["id"].ToString()) != null);
             if (pserver != null)
             {
-                var user = pserver.members.Find(x => x.user.id == message["d"]["id"].ToString());
+                var user = pserver.members.Find(x => x.ID == message["d"]["id"].ToString());
                 dpuea.user = user;
 
                 string game = message["d"]["game"].ToString();
@@ -699,7 +699,7 @@ namespace DiscordSharp
             int count = 0;
             foreach (var message in this.MessageLog)
             {
-                if (message.Value.author.user.id == Me.user.id)
+                if (message.Value.author.ID == Me.ID)
                 {
                     SendDeleteRequest(message.Value);
                     count++;
@@ -715,7 +715,7 @@ namespace DiscordSharp
             foreach(var message in this.MessageLog)
             {
                 if (message.Value.channel == channel)
-                    if (message.Value.author.user.id == Me.user.id)
+                    if (message.Value.author.ID == Me.ID)
                     {
                         SendDeleteRequest(message.Value);
                         count++;
@@ -728,13 +728,13 @@ namespace DiscordSharp
         public DiscordMember GetMemberFromChannel(DiscordChannel channel, string username, bool caseSensitive)
         {
             DiscordServer parentServer = ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null);
-            return parentServer.members.Find(y => caseSensitive ? y.user.username == username : y.user.username.ToLower() == username.ToLower());
+            return parentServer.members.Find(y => caseSensitive ? y.Username == username : y.Username.ToLower() == username.ToLower());
         }
 
         public DiscordMember GetMemberFromChannel(DiscordChannel channel, long id)
         {
             DiscordServer parentServer = ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null);
-            return parentServer.members.Find(y => y.user.id == id.ToString());
+            return parentServer.members.Find(y => y.ID == id.ToString());
         }
 
         public DiscordChannel GetChannelByName(string channelName)
@@ -772,7 +772,7 @@ namespace DiscordSharp
         {
             for(int i = MessageLog.Count - 1; i > -1; i--)
             {
-                if (MessageLog[i].Value.author.user.id == Me.user.id)
+                if (MessageLog[i].Value.author.ID == Me.ID)
                     return MessageLog[i].Value;
             }
             return null;
@@ -781,7 +781,7 @@ namespace DiscordSharp
         {
             for (int i = MessageLog.Count - 1; i > -1; i--)
             {
-                if (MessageLog[i].Value.author.user.id == Me.user.id)
+                if (MessageLog[i].Value.author.ID == Me.ID)
                     if(MessageLog[i].Value.channel.id == inChannel.id)
                         return MessageLog[i].Value;
             }
@@ -806,7 +806,7 @@ namespace DiscordSharp
                 {
                     RawJson = result,
                     attachments = result["attachments"].ToObject<string[]>(),
-                    author = channel.parent.members.Find(x=>x.user.id == result["author"]["id"].ToString()),
+                    author = channel.parent.members.Find(x=>x.ID == result["author"]["id"].ToString()),
                     channel = channel,
                     content = result["content"].ToString(),
                     id = result["id"].ToString(),
@@ -874,13 +874,13 @@ namespace DiscordSharp
                     if (MessageEdited != null)
                         MessageEdited(this, new DiscordMessageEditedEventArgs
                         {
-                            author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
+                            author = pserver.members.Find(x => x.ID == message["d"]["author"]["id"].ToString()),
                             Channel = pchannel,
                             message = message["d"]["content"].ToString(),
                             MessageType = DiscordMessageType.CHANNEL,
                             MessageEdited = new DiscordMessage
                             {
-                                author = pserver.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString()),
+                                author = pserver.members.Find(x => x.ID == message["d"]["author"]["id"].ToString()),
                                 content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value.content,
                                 attachments = message["d"]["attachments"].ToObject<string[]>(),
                                 channel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString()),
@@ -934,15 +934,15 @@ namespace DiscordSharp
                 var foundServerChannel = ServersList.Find(x => x.channels.Find(y => y.id == tempChannelID) != null);
                 if (foundServerChannel == null)
                 {
-                    if (message["d"]["author"]["id"].ToString() != Me.user.id)
+                    if (message["d"]["author"]["id"].ToString() != Me.ID)
                     {
                         var foundPM = PrivateChannels.Find(x => x.id == message["d"]["channel_id"].ToString());
                         DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
                         dpmea.Channel = foundPM;
                         dpmea.message = message["d"]["content"].ToString();
                         DiscordMember tempMember = new DiscordMember(this);
-                        tempMember.user.username = message["d"]["author"]["username"].ToString();
-                        tempMember.user.id = message["d"]["author"]["id"].ToString();
+                        tempMember.Username = message["d"]["author"]["username"].ToString();
+                        tempMember.ID = message["d"]["author"]["id"].ToString();
                         dpmea.author = tempMember;
 
 
@@ -963,7 +963,7 @@ namespace DiscordSharp
                     dmea.message_text = message["d"]["content"].ToString();
 
                     DiscordMember tempMember = new DiscordMember(this);
-                    tempMember = foundServerChannel.members.Find(x => x.user.id == message["d"]["author"]["id"].ToString());
+                    tempMember = foundServerChannel.members.Find(x => x.ID == message["d"]["author"]["id"].ToString());
                     dmea.author = tempMember;
 
                     DiscordMessage m = new DiscordMessage();
@@ -977,7 +977,7 @@ namespace DiscordSharp
 
                     Regex r = new Regex("\\d+");
                     foreach (Match mm in r.Matches(dmea.message_text))
-                        if (mm.Value == Me.user.id)
+                        if (mm.Value == Me.ID)
                             if (MentionReceived != null)
                                 MentionReceived(this, dmea);
 
@@ -1103,7 +1103,7 @@ namespace DiscordSharp
                     }
 
                     server.members.Add(Me);
-                    server.owner = server.members.Find(x => x.user.id == response["owner_id"].ToString());
+                    server.owner = server.members.Find(x => x.ID == response["owner_id"].ToString());
                     if (server.owner == null)
                         DebugLogger.Log("Owner is null in CreateGuild!", MessageLevel.Critical);
 
@@ -1134,7 +1134,7 @@ namespace DiscordSharp
 
         public void AssignRoleToMember(DiscordServer guild, DiscordRole role, DiscordMember member)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.user.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.ID}";
             string message = JsonConvert.SerializeObject(new { roles = new string[] { role.id } });
             try
             {
@@ -1142,13 +1142,13 @@ namespace DiscordSharp
             }
             catch(Exception ex)
             {
-                DebugLogger.Log($"Exception ocurred while assigning role ({role.name}) to member ({member.user.username}): " 
+                DebugLogger.Log($"Exception ocurred while assigning role ({role.name}) to member ({member.Username}): " 
                     + ex.Message, MessageLevel.Error);
             }
         }
         public void AssignRoleToMember(DiscordServer guild, List<DiscordRole> roles, DiscordMember member)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.user.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.ID}";
             List<string> rolesAsIds = new List<string>();
             roles.ForEach(x => rolesAsIds.Add(x.id));
             string message = JsonConvert.SerializeObject(new { roles = rolesAsIds.ToArray() });
@@ -1158,7 +1158,7 @@ namespace DiscordSharp
             }
             catch(Exception ex)
             {
-                DebugLogger.Log($"Exception ocurred while assigning {roles.Count} role(s) to member ({member.user.username}): "
+                DebugLogger.Log($"Exception ocurred while assigning {roles.Count} role(s) to member ({member.Username}): "
                     + ex.Message, MessageLevel.Error);
             }
         }
@@ -1224,20 +1224,23 @@ namespace DiscordSharp
                             if(WriteLatestReady)
                                 using (var sw = new StreamWriter("READY_LATEST.txt"))
                                     sw.Write(message);
-                            Me = new DiscordMember(this)
-                            {
-                                user = new DiscordUser(this)
-                                {
-                                    username = message["d"]["user"]["username"].ToString(),
-                                    id = message["d"]["user"]["id"].ToString(),
-                                    verified = message["d"]["user"]["verified"].ToObject<bool>(),
-                                    avatar = message["d"]["user"]["avatar"].ToString(),
-                                    discriminator = message["d"]["user"]["discriminator"].ToString(),
-                                    email = message["d"]["user"]["email"].ToString()
-                                }
-                            };
-                            ClientPrivateInformation.avatar = Me.user.avatar;
-                            ClientPrivateInformation.username = Me.user.username;
+                            //Me = new DiscordMember(this)
+                            //{
+                            //    user = new DiscordUser(this)
+                            //    {
+                            //        username = message["d"]["user"]["username"].ToString(),
+                            //        id = message["d"]["user"]["id"].ToString(),
+                            //        verified = message["d"]["user"]["verified"].ToObject<bool>(),
+                            //        avatar = message["d"]["user"]["avatar"].ToString(),
+                            //        discriminator = message["d"]["user"]["discriminator"].ToString(),
+                            //        email = message["d"]["user"]["email"].ToString()
+                            //    }
+                            //};
+                            Me = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+
+
+                            ClientPrivateInformation.avatar = Me.Avatar;
+                            ClientPrivateInformation.username = Me.Username;
                             HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
                             GetChannelsList(message);
                             if (Connected != null)
@@ -1278,7 +1281,7 @@ namespace DiscordSharp
                             if (server != null)
                             {
                                 DiscordChannel channel = server.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
-                                DiscordMember uuser = server.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+                                DiscordMember uuser = server.members.Find(x => x.ID == message["d"]["user_id"].ToString());
                                 if (UserTypingStart != null)
                                     UserTypingStart(this, new DiscordTypingStartEventArgs { user = uuser, channel = channel, timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
                             }
@@ -1438,26 +1441,17 @@ namespace DiscordSharp
         private void GuildMemberUpdateEvents(JObject message)
         {
             DiscordServer server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-            DiscordMember memberUpdated = new DiscordMember(this)
-            {
-                user = new DiscordUser(this)
-                {
-                    username = message["d"]["user"]["username"].ToString(),
-                    id = message["d"]["user"]["id"].ToString(),
-                    avatar = message["d"]["user"]["avatar"].ToString(),
-                    discriminator = message["d"]["user"]["discriminator"].ToString(),
-                    verified = server.members.Find(x=>x.user.id == message["d"]["user"]["id"].ToString()).user.verified
-                },
-                parent = server
-            };
-            memberUpdated.roles = new List<DiscordRole>();
+            
+            DiscordMember memberUpdated = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+            memberUpdated.Verified = server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString()).Verified;
+            memberUpdated.Parent = server;
 
             foreach(var roles in message["d"]["roles"])
             {
-                memberUpdated.roles.Add(server.roles.Find(x => x.id == roles.ToString()));    
+                memberUpdated.Roles.Add(server.roles.Find(x => x.id == roles.ToString()));    
             }
             //need to ask voltana if this is actually necessary or i can use the reference i got to server above
-            ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Remove(ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Find(x => x.user.id == message["d"]["user"]["id"].ToString()));
+            ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Remove(ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Find(x => x.ID == message["d"]["user"]["id"].ToString()));
             ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Add(memberUpdated);
 
             if (GuildMemberUpdated != null)
@@ -1638,33 +1632,30 @@ namespace DiscordSharp
             {
                 foreach (var mm in message["d"]["members"])
                 {
-                    DiscordMember member = new DiscordMember(this);
-                    member.user.id = mm["user"]["id"].ToString();
-                    member.user.username = mm["user"]["username"].ToString();
-                    member.user.avatar = mm["user"]["avatar"].ToString();
-                    member.user.discriminator = mm["user"]["discriminator"].ToString();
-                    member.roles = new List<DiscordRole>();
+                    DiscordMember member = JsonConvert.DeserializeObject<DiscordMember>(mm["user"].ToString());
+                    member.parentclient = this;
+                    member.Parent = newServer;
+
                     JArray rawRoles = JArray.Parse(mm["roles"].ToString());
                     if (rawRoles.Count > 0)
                     {
                         foreach (var role in rawRoles.Children())
                         {
-                            member.roles.Add(newServer.roles.Find(x => x.id == role.Value<string>()));
+                            member.Roles.Add(newServer.roles.Find(x => x.id == role.Value<string>()));
                         }
                     }
                     else
                     {
-                        member.roles.Add(newServer.roles.Find(x => x.name == "@everyone"));
+                        member.Roles.Add(newServer.roles.Find(x => x.name == "@everyone"));
                     }
-                    member.parent = newServer;
 
                     newServer.members.Add(member);
                 }
             }
             if (!message["d"]["owner_id"].IsNullOrEmpty())
             {
-                newServer.owner = newServer.members.Find(x => x.user.id == message["d"]["owner_id"].ToString());
-                DebugLogger.Log($"Transferred ownership from user '{oldServer.owner.user.username}' to {newServer.owner.user.username}.");
+                newServer.owner = newServer.members.Find(x => x.ID == message["d"]["owner_id"].ToString());
+                DebugLogger.Log($"Transferred ownership from user '{oldServer.owner.Username}' to {newServer.owner.Username}.");
             }
             ServersList.Remove(oldServer);
             ServersList.Add(newServer);
@@ -1783,21 +1774,19 @@ namespace DiscordSharp
             }
             foreach(var mbr in message["d"]["members"])
             {
-                DiscordMember member = new DiscordMember(this);
-                member.user.avatar = mbr["user"]["avatar"].ToString();
-                member.user.username = mbr["user"]["username"].ToString();
-                member.user.id = mbr["user"]["id"].ToString();
-                member.user.discriminator = mbr["user"]["discriminator"].ToString();
-                member.roles = new List<DiscordRole>();
+                DiscordMember member = JsonConvert.DeserializeObject<DiscordMember>(mbr["user"].ToString());
+                member.parentclient = this;
+                member.Parent = server;
+                
                 foreach(var rollid in mbr["roles"])
                 {
-                    member.roles.Add(server.roles.Find(x => x.id == rollid.ToString()));
+                    member.Roles.Add(server.roles.Find(x => x.id == rollid.ToString()));
                 }
-                if (member.roles.Count == 0)
-                    member.roles.Add(server.roles.Find(x => x.name == "@everyone"));
+                if (member.Roles.Count == 0)
+                    member.Roles.Add(server.roles.Find(x => x.name == "@everyone"));
                 server.members.Add(member);
             }
-            server.owner = server.members.Find(x => x.user.id == message["d"]["owner_id"].ToString());
+            server.owner = server.members.Find(x => x.ID == message["d"]["owner_id"].ToString());
 
             ServersList.Add(server);
             e.server = server;
@@ -1809,18 +1798,11 @@ namespace DiscordSharp
         {
             DiscordGuildMemberAddEventArgs e = new DiscordGuildMemberAddEventArgs();
             e.RawJson = message;
-            DiscordMember newMember = new DiscordMember(this)
-            {
-                user = new DiscordUser(this)
-                {
-                    username = message["d"]["user"]["username"].ToString(),
-                    id = message["d"]["user"]["id"].ToString(),
-                    discriminator = message["d"]["user"]["discriminator"].ToString(),
-                    avatar = message["d"]["user"]["avatar"].ToString(),
-                }
-            };
+            DiscordMember newMember = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+            newMember.parentclient = this;
             e.AddedMember = newMember;
             e.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            newMember.Parent = e.Guild;
             e.roles = message["d"]["roles"].ToObject<string[]>();
             e.JoinedAt = DateTime.Parse(message["d"]["joined_at"].ToString());
 
@@ -1840,7 +1822,7 @@ namespace DiscordSharp
                     continue;
                 for(int i = 0; i < server.members.Count; i++)
                 {
-                    if(server.members[i].user.id == message["d"]["user"]["id"].ToString())
+                    if(server.members[i].ID == message["d"]["user"]["id"].ToString())
                     {
                         removed = server.members[i];
                         membersToRemove.Add(removed);
@@ -1871,25 +1853,16 @@ namespace DiscordSharp
         {
             DiscordUserUpdateEventArgs e = new DiscordUserUpdateEventArgs();
             e.RawJson = message;
-            DiscordMember newMember = new DiscordMember(this)
-            {
-                user = new DiscordUser(this)
-                {
-                    username = message["d"]["username"].ToString(),
-                    id = message["d"]["id"].ToString(),
-                    verified = message["d"]["verified"].ToObject<bool>(),
-                    email = message["d"]["email"].ToString(),
-                    avatar = message["d"]["avatar"].ToString(),
-                    discriminator = message["d"]["discriminator"].ToString()
-                }
-            };
+            DiscordMember newMember = JsonConvert.DeserializeObject<DiscordMember>(message["d"].ToString());
+            newMember.parentclient = this;
+
             DiscordMember oldMember = new DiscordMember(this);
             //Update members
             foreach (var server in ServersList)
             {
                 for (int i = 0; i < server.members.Count; i++)
                 {
-                    if (server.members[i].user.id == newMember.user.id)
+                    if (server.members[i].ID == newMember.ID)
                     {
                         server.members[i] = newMember;
                         oldMember = server.members[i];
@@ -1897,7 +1870,7 @@ namespace DiscordSharp
                 }
             }
 
-            newMember.parent = oldMember.parent;
+            newMember.Parent = oldMember.Parent;
 
             if (!message["roles"].IsNullOrEmpty())
             {
@@ -1906,12 +1879,12 @@ namespace DiscordSharp
                 {
                     foreach (var role in rawRoles.Children())
                     {
-                        newMember.roles.Add(newMember.parent.roles.Find(x => x.id == role.Value<string>()));
+                        newMember.Roles.Add(newMember.Parent.roles.Find(x => x.id == role.Value<string>()));
                     }
                 }
                 else
                 {
-                    newMember.roles.Add(newMember.parent.roles.Find(x => x.name == "@everyone"));
+                    newMember.Roles.Add(newMember.Parent.roles.Find(x => x.name == "@everyone"));
                 }
             }
             
@@ -1939,7 +1912,7 @@ namespace DiscordSharp
             {
                 DiscordLeftVoiceChannelEventArgs le = new DiscordLeftVoiceChannelEventArgs();
                 DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-                le.user = inServer.members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+                le.user = inServer.members.Find(x => x.ID == message["d"]["user_id"].ToString());
                 le.guild = inServer;
                 le.RawJson = message;
 
@@ -1948,7 +1921,7 @@ namespace DiscordSharp
                 return;
             }
             DiscordVoiceStateUpdateEventArgs e = new DiscordVoiceStateUpdateEventArgs();
-            e.user = ServersList.Find(x => x.members.Find(y => y.user.id == message["d"]["user_id"].ToString()) != null).members.Find(x => x.user.id == message["d"]["user_id"].ToString());
+            e.user = ServersList.Find(x => x.members.Find(y => y.ID == message["d"]["user_id"].ToString()) != null).members.Find(x => x.ID == message["d"]["user_id"].ToString());
             e.guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             e.channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
             if(!message["d"]["self_deaf"].IsNullOrEmpty())
@@ -1962,10 +1935,10 @@ namespace DiscordSharp
 
             if (!message["d"]["session_id"].IsNullOrEmpty())
             {
-                if(e.user.user.id == Me.user.id)
+                if(e.user.ID == Me.ID)
                 {
-                    Me.user.mute = e.self_mute;
-                    Me.user.deaf = e.self_deaf;
+                    Me.Muted = e.self_mute;
+                    Me.Deaf = e.self_deaf;
                     if(VoiceClient != null)
                         VoiceClient.SessionID = message["d"]["session_id"].ToString();
                 }
