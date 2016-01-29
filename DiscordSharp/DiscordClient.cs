@@ -141,6 +141,7 @@ namespace DiscordSharp
         public event EventHandler<DiscordGuildMemberUpdateEventArgs> GuildMemberUpdated;
         public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<DiscordLeftVoiceChannelEventArgs> UserLeftVoiceChannel;
+        public event EventHandler<DiscordGuildBanEventArgs> GuildMemberBanned;
         #endregion
         
         public DiscordClient()
@@ -1221,18 +1222,7 @@ namespace DiscordSharp
                             if(WriteLatestReady)
                                 using (var sw = new StreamWriter("READY_LATEST.txt"))
                                     sw.Write(message);
-                            //Me = new DiscordMember(this)
-                            //{
-                            //    user = new DiscordUser(this)
-                            //    {
-                            //        username = message["d"]["user"]["username"].ToString(),
-                            //        id = message["d"]["user"]["id"].ToString(),
-                            //        verified = message["d"]["user"]["verified"].ToObject<bool>(),
-                            //        avatar = message["d"]["user"]["avatar"].ToString(),
-                            //        discriminator = message["d"]["user"]["discriminator"].ToString(),
-                            //        email = message["d"]["user"]["email"].ToString()
-                            //    }
-                            //};
+
                             Me = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
 
 
@@ -1307,6 +1297,9 @@ namespace DiscordSharp
                         case ("CHANNEL_DELETE"):
                             ChannelDeleteEvents(message);
                             break;
+                        case ("GUILD_BAN_ADD"):
+                            GuildMemberBannedEvents(message);
+                            break;
                         case("MESSAGE_ACK"): //ignore this message, it's irrelevant
                             break;
                         default:
@@ -1354,6 +1347,30 @@ namespace DiscordSharp
             DebugLogger.Log("Connecting..");
         }
 
+        private void GuildMemberBannedEvents(JObject message)
+        {
+            DiscordGuildBanEventArgs e = new DiscordGuildBanEventArgs();
+            e.Server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            if(e.Server != null)
+            {
+                e.MemberBanned = e.Server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString());
+                if(e.MemberBanned != null)
+                {
+                    ServersList.Find(x => x.id == e.Server.id).members.Remove(e.MemberBanned);
+                    if (GuildMemberBanned != null)
+                        GuildMemberBanned(this, e);
+                }
+                else
+                {
+                    DebugLogger.Log("Error in GuildMemberBannedEvents: MemberBanned is null?!", MessageLevel.Error);
+                }
+            }
+            else
+            {
+                DebugLogger.Log("Error in GuildMemberBannedEvents: Server is null?!", MessageLevel.Error);
+            }
+        }
+
         private async void VoiceServerUpdateEvents(JObject message)
         {
             VoiceClient.VoiceEndpoint = message["d"]["endpoint"].ToString();
@@ -1376,16 +1393,19 @@ namespace DiscordSharp
                 throw new InvalidOperationException($"Channel '{channel.name}' is not a voice channel!");
 
             if (ConnectedToVoice())
-                await Task.Run(()=>DisconnectFromVoice()).ConfigureAwait(false);
+                await DisconnectFromVoice().ConfigureAwait(false);
 
             if (VoiceClient == null)
                 VoiceClient = new DiscordVoiceClient(this);
-            VoiceClient.Disposed += (sender, e) => VoiceClient = null;
-            VoiceClient.UserSpeaking += (sender, e) =>
+            VoiceClient.Disposed += async (sender, e) =>
             {
-                if (UserSpeaking != null)
-                    UserSpeaking(this, e);
+                await DisconnectFromVoice().ConfigureAwait(false);
             };
+            //VoiceClient.UserSpeaking += (sender, e) =>
+            //{
+            //    if (UserSpeaking != null)
+            //        UserSpeaking(this, e);
+            //};
 
             string joinVoicePayload = JsonConvert.SerializeObject(new
             {
@@ -1402,28 +1422,33 @@ namespace DiscordSharp
             ws.Send(joinVoicePayload);
         }
 
-        public async void DisconnectFromVoice()
+        public async Task DisconnectFromVoice()
         {
+            string disconnectMessage = JsonConvert.SerializeObject(new
+            {
+                op = 4,
+                d = new
+                {
+                    guild_id = (object)null,
+                    channel_id = (object)null,
+                    self_mute = true,
+                    self_deaf = false
+                }
+            });
             if (VoiceClient != null)
             {
-                string msg = JsonConvert.SerializeObject(new
+                try
                 {
-                    op = 4,
-                    d = new
-                    {
-                        guild_id = (string)null,
-                        channel_id = (string)null,
-                        self_mute = true,
-                        self_deaf = false
-                    }
-                });
+                    await VoiceClient.Dispose();
+                    VoiceClient = null;
+                    
 
-                ws.Send(msg);
-
-
-
-                await Task.Run(() => VoiceClient.Dispose()).ConfigureAwait(false);
-                VoiceClient = null;
+                    ws.Send(disconnectMessage);
+                }
+                catch
+                {
+                    ws.Send(disconnectMessage);
+                }
             }
         }
 

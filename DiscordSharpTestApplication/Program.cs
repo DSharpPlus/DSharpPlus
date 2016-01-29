@@ -773,7 +773,6 @@ namespace DiscordSharpTestApplication
                         DiscordVoiceClient vc = client.GetVoiceClient();
                         if (vc != null)
                         {
-                            vc.SendWav(ofd.FileName);
                         }
                     }
                 }
