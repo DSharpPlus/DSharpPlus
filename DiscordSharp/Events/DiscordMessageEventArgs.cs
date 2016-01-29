@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp.Events
 {
-    public class DiscordMessageEventArgs
+    public class DiscordMessageEventArgs : EventArgs
     {
         public string message_text { get; internal set; }
 
@@ -17,7 +17,7 @@ namespace DiscordSharp.Events
         public DiscordMessageType MessageType { get; internal set; }
     }
 
-    public class DiscordMessageEditedEventArgs
+    public class DiscordMessageEditedEventArgs : EventArgs
     {
         public DiscordMessage MessageEdited { get; internal set; }
 

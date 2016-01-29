@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DiscordSharp
 {
@@ -12,7 +13,7 @@ namespace DiscordSharp
         public string description { get; set; }
     }
 
-    public class DiscordURLUpdateEventArgs
+    public class DiscordURLUpdateEventArgs : EventArgs
     {
         public string id { get; internal set; }
         public string url { get; internal set; }

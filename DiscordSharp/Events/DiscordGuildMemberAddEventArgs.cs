@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp.Events
 {
-    public class DiscordGuildMemberAddEventArgs
+    public class DiscordGuildMemberAddEventArgs : EventArgs
     {
         public DiscordMember AddedMember { get; internal set; }
         public DiscordServer Guild { get; internal set; }

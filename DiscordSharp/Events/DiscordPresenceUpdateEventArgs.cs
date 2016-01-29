@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 
 namespace DiscordSharp
 {
     public enum DiscordUserStatus { ONLINE, IDLE, OFFLINE }
 
-    public class DiscordPresenceUpdateEventArgs
+    public class DiscordPresenceUpdateEventArgs : EventArgs
     {
         public DiscordMember user { get; internal set; }
         public DiscordUserStatus status { get; internal set; }

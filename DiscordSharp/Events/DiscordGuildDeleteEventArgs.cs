@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp.Events
 {
-    public class DiscordGuildDeleteEventArgs
+    public class DiscordGuildDeleteEventArgs : EventArgs
     {
         public DiscordServer server { get; internal set; }
         public JObject RawJson { get; internal set; }

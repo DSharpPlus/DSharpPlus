@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp.Events
 {
-    public class DiscordServerUpdateEventArgs
+    public class DiscordServerUpdateEventArgs : EventArgs
     {
         public DiscordServer NewServer { get; set; }
         public DiscordServer OldServer { get; set; }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp.Events
 {
-    public class DiscordUserUpdateEventArgs
+    public class DiscordUserUpdateEventArgs : EventArgs
     {
         public DiscordMember OriginalMember { get; internal set; }
         public DiscordMember NewMember { get; internal set; }

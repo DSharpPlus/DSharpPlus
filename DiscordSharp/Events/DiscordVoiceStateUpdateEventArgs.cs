@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 
 namespace DiscordSharp
 {
-    public class DiscordVoiceStateUpdateEventArgs
+    public class DiscordVoiceStateUpdateEventArgs : EventArgs
     {
         public DiscordMember user { get; internal set; }
         public DiscordServer guild { get; internal set; }

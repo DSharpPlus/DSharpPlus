@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 
 namespace DiscordSharp
 {
-    public class DiscordMentionEventArgs
+    public class DiscordMentionEventArgs : EventArgs
     {
         public string message { get; internal set; }
         public DiscordMember author { get; internal set; }

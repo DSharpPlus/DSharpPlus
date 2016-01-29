@@ -1,6 +1,8 @@
-﻿namespace DiscordSharp
+﻿using System;
+
+namespace DiscordSharp
 {
-    public class DiscordDebugMessagesEventArgs
+    public class DiscordDebugMessagesEventArgs : EventArgs
     {
         public string message { get; internal set; }
     }

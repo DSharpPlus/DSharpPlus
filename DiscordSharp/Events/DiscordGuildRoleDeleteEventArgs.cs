@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 
 namespace DiscordSharp
 {
-    public class DiscordGuildRoleDeleteEventArgs
+    public class DiscordGuildRoleDeleteEventArgs : EventArgs
     {
         public DiscordRole DeletedRole { get; internal set; }
         public DiscordServer Guild { get; internal set; }

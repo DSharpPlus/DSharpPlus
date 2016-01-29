@@ -58,7 +58,7 @@ namespace DiscordSharp
 
         public DiscordProperties()
         {
-            os = "Linux";
+            os = Environment.OSVersion.ToString();
         }
         public string AsJson()
         {
@@ -70,37 +70,6 @@ namespace DiscordSharp
     {
         PRIVATE, CHANNEL
     }
-    
-
-    public delegate void DiscordMessageReceived(object sender, DiscordMessageEventArgs e);
-    public delegate void DiscordConnect(object sender, DiscordConnectEventArgs e);
-    public delegate void DiscordSocketOpened(object sender, DiscordSocketOpenedEventArgs e);
-    public delegate void DiscordSocketClosed(object sender, DiscordSocketClosedEventArgs e);
-    public delegate void DiscordChannelCreate(object sender, DiscordChannelCreateEventArgs e);
-    public delegate void DiscordPrivateChannelCreate(object sender, DiscordPrivateChannelEventArgs e);
-    public delegate void DiscordPrivateMessageReceived(object sender, DiscordPrivateMessageEventArgs e);
-    public delegate void DiscordKeepAliveSent(object sender, DiscordKeepAliveSentEventArgs e);
-    public delegate void DiscordMention(object sender, DiscordMessageEventArgs e);
-    public delegate void DiscordTypingStart(object sendr, DiscordTypingStartEventArgs e);
-    public delegate void DiscordMessageUpdate(object sender, DiscordMessageEditedEventArgs e);
-    public delegate void DiscordPresenceUpdate(object sender, DiscordPresenceUpdateEventArgs e);
-    public delegate void DiscordURLUpdate(object sender, DiscordURLUpdateEventArgs e);
-    public delegate void DiscordVoiceStateUpdate(object sender, DiscordVoiceStateUpdateEventArgs e);
-    public delegate void DiscordLeftVoiceChannel(object sender, DiscordLeftVoiceChannelEventArgs e);
-    public delegate void UnknownMessage(object sender, UnknownMessageEventArgs e);
-    public delegate void DiscordMessageDeleted(object sender, DiscordMessageDeletedEventArgs e);
-    public delegate void DiscordUserUpdate(object sender, DiscordUserUpdateEventArgs e);
-    public delegate void DiscordGuildMemberAdded(object sender, DiscordGuildMemberAddEventArgs e);
-    public delegate void DiscordGuildMemberRemoved(object sender, DiscordGuildMemberRemovedEventArgs e);
-    public delegate void DiscordGuildCreate(object sender, DiscordGuildCreateEventArgs e);
-    public delegate void DiscordGuildDelete(object sender, DiscordGuildDeleteEventArgs e);
-    public delegate void DiscordChannelUpdate(object sender, DiscordChannelUpdateEventArgs e);
-    public delegate void DiscordDebugMessages(object sender, LoggerMessageReceivedArgs e);
-    public delegate void DiscordChannelDeleted(object sender, DiscordChannelDeleteEventArgs e);
-    public delegate void DiscordServerUpdate(object sender, DiscordServerUpdateEventArgs e);
-    public delegate void DiscordGuildRoleDelete(object sender, DiscordGuildRoleDeleteEventArgs e);
-    public delegate void DiscordGuildRoleUpdate(object sender, DiscordGuildRoleUpdateEventArgs e);
-    public delegate void DiscordGuildMemberUpdate(object sender, DiscordGuildMemberUpdateEventArgs e);
 
     public class DiscordClient
     {
@@ -141,35 +110,35 @@ namespace DiscordSharp
         private List<DiscordPrivateChannel> PrivateChannels = new List<DiscordPrivateChannel>();
 
         #region Event declaration
-        public event DiscordMessageReceived MessageReceived;
-        public event DiscordConnect Connected;
-        public event DiscordSocketOpened SocketOpened;
-        public event DiscordSocketClosed SocketClosed;
-        public event DiscordChannelCreate ChannelCreated;
-        public event DiscordPrivateChannelCreate PrivateChannelCreated;
-        public event DiscordPrivateMessageReceived PrivateMessageReceived;
-        public event DiscordKeepAliveSent KeepAliveSent;
-        public event DiscordMention MentionReceived;
-        public event DiscordTypingStart UserTypingStart;
-        public event DiscordMessageUpdate MessageEdited;
-        public event DiscordPresenceUpdate PresenceUpdated;
-        public event DiscordURLUpdate URLMessageAutoUpdate;
-        public event DiscordVoiceStateUpdate VoiceStateUpdate;
-        public event UnknownMessage UnknownMessageTypeReceived;
-        public event DiscordMessageDeleted MessageDeleted;
-        public event DiscordUserUpdate UserUpdate;
-        public event DiscordGuildMemberAdded UserAddedToServer;
-        public event DiscordGuildMemberRemoved UserRemovedFromServer;
-        public event DiscordGuildCreate GuildCreated;
-        public event DiscordGuildDelete GuildDeleted;
-        public event DiscordChannelUpdate ChannelUpdated;
-        public event DiscordDebugMessages TextClientDebugMessageReceived;
-        public event DiscordDebugMessages VoiceClientDebugMessageReceived;
-        public event DiscordChannelDeleted ChannelDeleted;
-        public event DiscordServerUpdate GuildUpdated;
-        public event DiscordGuildRoleDelete RoleDeleted;
-        public event DiscordGuildRoleUpdate RoleUpdated;
-        public event DiscordGuildMemberUpdate GuildMemberUpdated;
+        public event EventHandler<DiscordMessageEventArgs> MessageReceived;
+        public event EventHandler<DiscordConnectEventArgs> Connected;
+        public event EventHandler<DiscordSocketOpenedEventArgs> SocketOpened;
+        public event EventHandler<DiscordSocketClosedEventArgs> SocketClosed;
+        public event EventHandler<DiscordChannelCreateEventArgs> ChannelCreated;
+        public event EventHandler<DiscordPrivateChannelEventArgs> PrivateChannelCreated;
+        public event EventHandler<DiscordPrivateMessageEventArgs> PrivateMessageReceived;
+        public event EventHandler<DiscordKeepAliveSentEventArgs> KeepAliveSent;
+        public event EventHandler<DiscordMessageEventArgs> MentionReceived;
+        public event EventHandler<DiscordTypingStartEventArgs> UserTypingStart;
+        public event EventHandler<DiscordMessageEditedEventArgs> MessageEdited;
+        public event EventHandler<DiscordPresenceUpdateEventArgs> PresenceUpdated;
+        public event EventHandler<DiscordURLUpdateEventArgs> URLMessageAutoUpdate;
+        public event EventHandler<DiscordVoiceStateUpdateEventArgs> VoiceStateUpdate;
+        public event EventHandler<UnknownMessageEventArgs> UnknownMessageTypeReceived;
+        public event EventHandler<DiscordMessageDeletedEventArgs> MessageDeleted;
+        public event EventHandler<DiscordUserUpdateEventArgs> UserUpdate;
+        public event EventHandler<DiscordGuildMemberAddEventArgs> UserAddedToServer;
+        public event EventHandler<DiscordGuildMemberRemovedEventArgs> UserRemovedFromServer;
+        public event EventHandler<DiscordGuildCreateEventArgs> GuildCreated;
+        public event EventHandler<DiscordGuildDeleteEventArgs> GuildDeleted;
+        public event EventHandler<DiscordChannelUpdateEventArgs> ChannelUpdated;
+        public event EventHandler<LoggerMessageReceivedArgs> TextClientDebugMessageReceived;
+        public event EventHandler<LoggerMessageReceivedArgs> VoiceClientDebugMessageReceived;
+        public event EventHandler<DiscordChannelDeleteEventArgs> ChannelDeleted;
+        public event EventHandler<DiscordServerUpdateEventArgs> GuildUpdated;
+        public event EventHandler<DiscordGuildRoleDeleteEventArgs> RoleDeleted;
+        public event EventHandler<DiscordGuildRoleUpdateEventArgs> RoleUpdated;
+        public event EventHandler<DiscordGuildMemberUpdateEventArgs> GuildMemberUpdated;
         public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<DiscordLeftVoiceChannelEventArgs> UserLeftVoiceChannel;
         #endregion
@@ -419,7 +388,7 @@ namespace DiscordSharp
                     {
                         id = item["id"].ToString(),
                         channel = channel,
-                        author = GetMemberFromChannel(channel, item["author"]["id"].ToObject<long>()),
+                        author = GetMemberFromChannel(channel, item["author"]["id"].ToString()),
                         content = item["content"].ToString(),
                         RawJson = item.ToObject<JObject>(),
                         timestamp = DateTime.Parse(item["timestamp"].ToString())
@@ -727,14 +696,42 @@ namespace DiscordSharp
         
         public DiscordMember GetMemberFromChannel(DiscordChannel channel, string username, bool caseSensitive)
         {
-            DiscordServer parentServer = ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null);
-            return parentServer.members.Find(y => caseSensitive ? y.Username == username : y.Username.ToLower() == username.ToLower());
+            if (string.IsNullOrEmpty(username))
+                throw new ArgumentException("Argument given for username was null/empty.");
+            if(channel != null)
+            {
+                DiscordMember foundMember = channel.parent.members.Find(x => caseSensitive ? x.Username == username : x.Username.ToLower() == username.ToLower());
+                if(foundMember != null)
+                {
+                    return foundMember;
+                }
+                else
+                {
+                    DebugLogger.Log("Error in GetMemberFromChannel: foundMember was null!", MessageLevel.Error);
+                }
+            }
+            else
+            {
+                DebugLogger.Log("Error in GetMemberFromChannel: channel was null!", MessageLevel.Error);
+            }
+            return null;
         }
 
-        public DiscordMember GetMemberFromChannel(DiscordChannel channel, long id)
+        public DiscordMember GetMemberFromChannel(DiscordChannel channel, string id)
         {
-            DiscordServer parentServer = ServersList.Find(x => x.channels.Find(y => y.id == channel.id) != null);
-            return parentServer.members.Find(y => y.ID == id.ToString());
+            if (channel != null)
+            {
+                DiscordMember foundMember = channel.parent.members.Find(x => x.ID == id);
+                if (foundMember != null)
+                    return foundMember;
+                else
+                    DebugLogger.Log("Error in GetMemberFromChannel: foundMember was null!", MessageLevel.Error);
+            }
+            else
+            {
+                DebugLogger.Log("Error in GetMemberFromChannel: channel was null!", MessageLevel.Error);
+            }
+            return null;
         }
 
         public DiscordChannel GetChannelByName(string channelName)

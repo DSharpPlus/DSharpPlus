@@ -1,6 +1,8 @@
-﻿namespace DiscordSharp
+﻿using System;
+
+namespace DiscordSharp
 {
-    public class DiscordPrivateMessageEventArgs
+    public class DiscordPrivateMessageEventArgs : EventArgs
     {
         public DiscordPrivateChannel Channel { get; internal set; }
         public DiscordMember author { get; internal set; }

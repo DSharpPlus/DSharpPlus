@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp.Events
 {
-    public class DiscordChannelUpdateEventArgs
+    public class DiscordChannelUpdateEventArgs : EventArgs
     {
         public JObject RawJson { get; internal set; }
         public DiscordChannel OldChannel { get; internal set; }
