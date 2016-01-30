@@ -9,7 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using WebSocketSharp;
+using WebSocket4Net;
 
 namespace DiscordSharp
 {
@@ -58,7 +58,7 @@ namespace DiscordSharp
             _parent = parentClient;
         }
 
-        public async Task Initiate()
+        public void Initiate()
         {
             VoiceDebugLogger.LogMessageReceived += (sender, e) =>
             {
@@ -68,22 +68,23 @@ namespace DiscordSharp
 
             VoiceWebSocket = new WebSocket(VoiceEndpoint.StartsWith("wss://") ? VoiceEndpoint.Replace(":80", "") :
                 "wss://" + VoiceEndpoint.Replace(":80", ""));
-            VoiceWebSocket.OnClose += VoiceWebSocket_OnClose;
-            VoiceWebSocket.OnError += VoiceWebSocket_OnError;
+            //VoiceWebSocket.Log.File = "VOICESOCKETLOG.txt";
+            VoiceWebSocket.Closed += VoiceWebSocket_OnClose;
+            VoiceWebSocket.Error += VoiceWebSocket_OnError;
 
-            VoiceWebSocket.OnMessage += async (s, e) =>
+            VoiceWebSocket.MessageReceived += async (s, e) =>
             {
                 await VoiceWebSocket_OnMessage(s, e).ConfigureAwait(false);
             };
-            VoiceWebSocket.OnOpen += (sender, e) =>
+            VoiceWebSocket.Opened += (sender, e) =>
             {
                 string initMsg = JsonConvert.SerializeObject(new
                 {
                     op = 0,
                     d = new
                     {
-                        user_id = Me.ID,
                         server_id = Guild.id,
+                        user_id = Me.ID,
                         session_id = SessionID,
                         token = Token
                     }
@@ -94,14 +95,14 @@ namespace DiscordSharp
                 VoiceWebSocket.Send(initMsg);
             };
 
-            VoiceWebSocket.Connect();
+            VoiceWebSocket.Open();
         }
 
-        private async Task VoiceWebSocket_OnMessage(object sender, MessageEventArgs e)
+        private async Task VoiceWebSocket_OnMessage(object sender, MessageReceivedEventArgs e)
         {
-            VoiceDebugLogger.Log(e.Data);
+            VoiceDebugLogger.Log(e.Message);
 
-            JObject message = JObject.Parse(e.Data);
+            JObject message = JObject.Parse(e.Message);
             switch(message["op"].Value<int>())
             {
                 case 2:
@@ -235,25 +236,30 @@ namespace DiscordSharp
         private async Task OpCode2(JObject message)
         {
             Params = JsonConvert.DeserializeObject<VoiceConnectionParameters>(message["d"].ToString());
-            await SendWebSocketKeepalive().ConfigureAwait(false); //sends an initial keepalive right away.
-            voiceSocketKeepAlive = Task.Run(async () =>
+            //await SendWebSocketKeepalive().ConfigureAwait(false); //sends an initial keepalive right away.
+            SendWebSocketKeepalive();
+            voiceSocketKeepAlive = Task.Run(() =>
             {
-                Thread.Sleep(Params.heartbeat_interval);
-                Console.WriteLine(DateTime.Now + " kekekekeke");
-                await SendWebSocketKeepalive().ConfigureAwait(false);
-                if (voiceSocketTaskSource.Token.IsCancellationRequested)
-                    voiceSocketTaskSource.Token.ThrowIfCancellationRequested();
+                try
+                {
+                    Thread.Sleep(Params.heartbeat_interval);
+                    SendWebSocketKeepalive();
+                    if (voiceSocketTaskSource.Token.IsCancellationRequested)
+                        voiceSocketTaskSource.Token.ThrowIfCancellationRequested();
+                }
+                catch { /*canceled*/}
             }, voiceSocketTaskSource.Token);
         }
 
-        private void VoiceWebSocket_OnError(object sender, WebSocketSharp.ErrorEventArgs e)
+        private void VoiceWebSocket_OnError(object sender, EventArgs e)
         {
-            //throw new NotImplementedException();
+            VoiceDebugLogger.Log("Error in VoiceWebSocket.");
         }
 
-        private void VoiceWebSocket_OnClose(object sender, CloseEventArgs e)
+        private void VoiceWebSocket_OnClose(object sender, EventArgs e)
         {
-            //throw new NotImplementedException();
+            VoiceDebugLogger.Log($"VoiceWebSocket was closed.", MessageLevel.Critical);
+            Dispose();
         }
 
         private static DateTime Epoch = new DateTime(1970, 1, 1);
@@ -261,11 +267,11 @@ namespace DiscordSharp
         /// Sends the WebSocket KeepAlive
         /// </summary>
         /// <returns></returns>
-        private async Task SendWebSocketKeepalive()
+        private void SendWebSocketKeepalive()
         {
             if(VoiceWebSocket != null)
             {
-                if(VoiceWebSocket.IsAlive)
+                if(VoiceWebSocket.State == WebSocketState.Open)
                 {
                     string keepAliveJson = JsonConvert.SerializeObject(new
                     {
@@ -282,10 +288,15 @@ namespace DiscordSharp
                 VoiceDebugLogger.Log("VoiceWebSocket null?", MessageLevel.Critical);
         }
 
-        public async Task Dispose()
+        public void Dispose()
         {
+            VoiceWebSocket.Closed -= VoiceWebSocket_OnClose;
+            VoiceWebSocket.Error -= VoiceWebSocket_OnError;
             VoiceWebSocket.Close();
+            VoiceWebSocket = null;
             voiceSocketTaskSource.Cancel(); //cancels the task
+            _udp.Close();
+            _udp = null;
 
             if (Disposed != null)
                 Disposed(this, new EventArgs());

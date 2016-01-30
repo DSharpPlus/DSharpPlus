@@ -1401,7 +1401,7 @@ namespace DiscordSharp
                     VoiceClientDebugMessageReceived(this, e);
             };
 
-            await VoiceClient.Initiate().ConfigureAwait(false);
+            VoiceClient.Initiate();
         }
 
         public async void ConnectToVoiceChannel(DiscordChannel channel, bool clientMuted = false, bool clientDeaf = false)
@@ -1410,13 +1410,13 @@ namespace DiscordSharp
                 throw new InvalidOperationException($"Channel '{channel.name}' is not a voice channel!");
 
             if (ConnectedToVoice())
-                await DisconnectFromVoice().ConfigureAwait(false);
+                DisconnectFromVoice();
 
             if (VoiceClient == null)
                 VoiceClient = new DiscordVoiceClient(this);
-            VoiceClient.Disposed += async (sender, e) =>
+            VoiceClient.Disposed += (sender, e) =>
             {
-                await DisconnectFromVoice().ConfigureAwait(false);
+                DisconnectFromVoice();
             };
             //VoiceClient.UserSpeaking += (sender, e) =>
             //{
@@ -1439,7 +1439,7 @@ namespace DiscordSharp
             ws.Send(joinVoicePayload);
         }
 
-        public async Task DisconnectFromVoice()
+        public void DisconnectFromVoice()
         {
             string disconnectMessage = JsonConvert.SerializeObject(new
             {
@@ -1456,7 +1456,7 @@ namespace DiscordSharp
             {
                 try
                 {
-                    await VoiceClient.Dispose();
+                    VoiceClient.Dispose();
                     VoiceClient = null;
                     
 
@@ -1464,7 +1464,8 @@ namespace DiscordSharp
                 }
                 catch
                 {
-                    ws.Send(disconnectMessage);
+                    if(ws != null)
+                        ws.Send(disconnectMessage);
                 }
             }
         }
