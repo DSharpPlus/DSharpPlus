@@ -22,7 +22,8 @@ namespace DiscordSharp
         Critical = 0x0,
         Debug = 0x1,
         Warning = 0x2,
-        Error = 0x3
+        Error = 0x3,
+        Unecessary = 0x4 //for the reallllllly annoying messages
     }
 
     public delegate void OnLogMessageReceived(object sender, LoggerMessageReceivedArgs e);

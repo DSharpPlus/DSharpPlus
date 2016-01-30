@@ -31,29 +31,13 @@ namespace DiscordSharp
         public int port;
     }
 
-    public class UserSpeakingEventArgs : EventArgs
+    public class DiscordAudioPacketEventArgs
     {
-        /// <summary>
-        /// The DiscordMember object of the user who is speaking.
-        /// </summary>
-        public DiscordMember UserSpeaking { get; internal set; }
-
-        /// <summary>
-        /// The channel that the user is speaking in.
-        /// </summary>
+        public DiscordAudioPacket Packet { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
-
-        /// <summary>
-        /// True is the user has begun speaking, false if not.
-        /// </summary>
-        public bool Speaking { get; internal set; }
-
-        /// <summary>
-        /// The SSRC integer assosciated with the user who is speaking.
-        /// </summary>
-        public int ssrc { get; internal set; }
+        public DiscordMember FromUser { get; internal set; }
     }
-
+    
     public class DiscordVoiceClient
     {
         private DiscordClient _parent;
@@ -62,9 +46,11 @@ namespace DiscordSharp
         public string SessionID { get; internal set; }
         public string VoiceEndpoint { get; internal set; }
         public string Token { get; internal set; }
+        public DiscordChannel Channel { get; internal set; }
         public DiscordServer Guild { get; internal set; }
         public DiscordMember Me { get; internal set; }
 
+        private DiscordMember LastSpoken { get; set; }
 
         private UdpClient _udp = new UdpClient();
         private VoiceConnectionParameters Params { get; set; }
@@ -81,6 +67,8 @@ namespace DiscordSharp
         #region Events
         public event EventHandler<LoggerMessageReceivedArgs> DebugMessageReceived;
         public event EventHandler<EventArgs> Disposed;
+        public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
+        public event EventHandler<DiscordAudioPacketEventArgs> PacketReceived;
         #endregion
 
         public DiscordVoiceClient(DiscordClient parentClient)
@@ -161,9 +149,17 @@ namespace DiscordSharp
                                 if (_udp.Available > 0)
                                 {
                                     byte[] packet = new byte[1920];
-                                    VoiceDebugLogger.Log("Received packet!! Length: " + _udp.Available);
+                                    VoiceDebugLogger.Log("Received packet!! Length: " + _udp.Available, MessageLevel.Unecessary);
                                     UdpReceiveResult d = await _udp.ReceiveAsync().ConfigureAwait(false);
                                     packet = d.Buffer;
+
+                                    DiscordAudioPacketEventArgs ae = new DiscordAudioPacketEventArgs();
+                                    ae.FromUser = LastSpoken;
+                                    ae.Channel = Channel;
+                                    ae.Packet = new DiscordAudioPacket(packet);
+
+                                    if (PacketReceived != null)
+                                        PacketReceived(this, ae);
 
                                     //VoiceDebugLogger.Log("Echoing back..");
                                     //DiscordAudioPacket echo = DiscordAudioPacket.EchoPacket(packet, Params.ssrc);
@@ -182,9 +178,14 @@ namespace DiscordSharp
                     break;
                 case 5:
                     VoiceDebugLogger.Log(e.Message);
-                    await OpCode5(message).ConfigureAwait(false);
+                    OpCode5(message);
                     break;
             }
+        }
+
+        public async Task EchoPacket(DiscordAudioPacket packet)
+        {
+            await SendPacket(DiscordAudioPacket.EchoPacket(packet.AsRawPacket(), Params.ssrc));
         }
 
         private async Task DoUDPKeepAlive()
@@ -213,6 +214,15 @@ namespace DiscordSharp
             catch (Exception ex)
             {
                 VoiceDebugLogger.Log($"Error sending UDP keepalive\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+            }
+        }
+
+        public async Task SendPacket(DiscordAudioPacket packet)
+        {
+            if(_udp != null && VoiceWebSocket.State == WebSocketState.Open)
+            {
+                await _udp.SendAsync(packet.AsRawPacket(), packet.AsRawPacket().Length);
+                VoiceDebugLogger.Log("Sent packet through SendPacket task.");
             }
         }
 
@@ -307,9 +317,18 @@ namespace DiscordSharp
             return returnVal;
         }
 
-        private async Task OpCode5(JObject message)
+        private void OpCode5(JObject message)
         {
-            //not yet! :)
+            DiscordVoiceUserSpeakingEventArgs e = new DiscordVoiceUserSpeakingEventArgs();
+            e.Channel = Channel;
+            e.UserSpeaking = Guild.members.Find(x => x.ID == message["d"]["user_id"].ToString());
+            e.Speaking = message["d"]["speaking"].ToObject<bool>();
+            e.ssrc = message["d"]["ssrc"].ToObject<int>();
+
+            LastSpoken = e.UserSpeaking;
+
+            if (UserSpeaking != null)
+                UserSpeaking(this, e);
         }
 
         private async Task OpCode4(JObject message)

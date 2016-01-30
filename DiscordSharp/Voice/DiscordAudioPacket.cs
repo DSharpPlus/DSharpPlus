@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp
 {
-    class DiscordAudioPacket
+    public class DiscordAudioPacket
     {
         //ty to JDA developer DV8 for documentating this in his library
-
-
         public static int RTP_HEADER_BYTE_LENGTH = 12;
 
         /**

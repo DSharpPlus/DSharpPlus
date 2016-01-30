@@ -144,6 +144,7 @@ namespace DiscordSharp
         public event EventHandler<DiscordLeftVoiceChannelEventArgs> UserLeftVoiceChannel;
         public event EventHandler<DiscordGuildBanEventArgs> GuildMemberBanned;
         public event EventHandler<DiscordPrivateChannelDeleteEventArgs> PrivateChannelDeleted;
+        public event EventHandler<DiscordAudioPacketEventArgs> AudioPacketReceived;
         #endregion
         
         public DiscordClient()
@@ -1393,8 +1394,15 @@ namespace DiscordSharp
         {
             VoiceClient.VoiceEndpoint = message["d"]["endpoint"].ToString();
             VoiceClient.Token = message["d"]["token"].ToString();
+            
             VoiceClient.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             VoiceClient.Me = Me;
+
+            VoiceClient.PacketReceived += (sender, e) =>
+            {
+                if (AudioPacketReceived != null)
+                    AudioPacketReceived(sender, e);
+            };
 
             VoiceClient.DebugMessageReceived += (sender, e) =>
             {
@@ -1403,6 +1411,16 @@ namespace DiscordSharp
             };
 
             VoiceClient.Initiate();
+        }
+
+        /// <summary>
+        /// Echoes a received audio packet back.
+        /// </summary>
+        /// <param name="packet"></param>
+        public void EchoPacket(DiscordAudioPacket packet)
+        {
+            if(VoiceClient != null && ConnectedToVoice())
+                VoiceClient.EchoPacket(packet);
         }
 
         public async void ConnectToVoiceChannel(DiscordChannel channel, bool clientMuted = false, bool clientDeaf = false)
@@ -1415,16 +1433,17 @@ namespace DiscordSharp
 
             if (VoiceClient == null)
                 VoiceClient = new DiscordVoiceClient(this);
+            VoiceClient.Channel = channel;
             VoiceClient.Disposed += (sender, e) =>
             {
                 GetLastVoiceClientLogger = VoiceClient.GetDebugLogger;
                 DisconnectFromVoice();
             };
-            //VoiceClient.UserSpeaking += (sender, e) =>
-            //{
-            //    if (UserSpeaking != null)
-            //        UserSpeaking(this, e);
-            //};
+            VoiceClient.UserSpeaking += (sender, e) =>
+            {
+                if (UserSpeaking != null)
+                    UserSpeaking(this, e);
+            };
 
             string joinVoicePayload = JsonConvert.SerializeObject(new
             {

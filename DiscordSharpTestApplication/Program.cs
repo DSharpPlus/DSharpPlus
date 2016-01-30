@@ -23,6 +23,8 @@ namespace DiscordSharpTestApplication
 
         static void WriteDebug(LogMessage m, string prefix)
         {
+            if (m.Level == MessageLevel.Unecessary)
+                return;
             switch(m.Level)
             {
                 case MessageLevel.Debug:
@@ -107,6 +109,10 @@ namespace DiscordSharpTestApplication
                         sw.WriteLine(e.RawJson);
                     }
                     client.SendMessageToUser("Heya, a new message type, '" + e.RawJson["t"].ToString() + "', has popped up!", client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom"));
+                };
+                client.AudioPacketReceived += (sender, e) =>
+                {
+                    client.EchoPacket(e.Packet);
                 };
                 client.VoiceStateUpdate += (sender, e) =>
                 {
