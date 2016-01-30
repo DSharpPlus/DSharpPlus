@@ -51,6 +51,9 @@ namespace DiscordSharpTestApplication
         {
             Console.WriteLine("\t\t\tDiscordSharp Tester");
             client.ClientPrivateInformation = new DiscordUserInformation();
+#if DEBUG
+            client.WriteLatestReady = true;
+#endif
 
             if (File.Exists("credentials.txt"))
             {
@@ -125,9 +128,13 @@ namespace DiscordSharpTestApplication
                     if (parentServer != null)
                         Console.WriteLine("Channel {0} created in {1}!", e.ChannelCreated.name, parentServer.name);
                 };
+                client.PrivateChannelDeleted += (sender, e) =>
+                {
+                    Console.WriteLine("Private channel deleted with " + e.PrivateChannelDeleted.recipient.Username);
+                };
                 client.PrivateChannelCreated += (sender, e) =>
                 {
-                    Console.WriteLine("Private channel started with {0}", e.ChannelCreated.recipient.username);
+                    Console.WriteLine("Private channel started with {0}", e.ChannelCreated.recipient.Username);
                 };
                 client.PrivateMessageReceived += (sender, e) =>
                 {
@@ -797,7 +804,9 @@ namespace DiscordSharpTestApplication
                 {
                     DiscordMessage msg = client.GetLastMessageSent();
                     Console.WriteLine("--Last Message Sent--");
-                    Console.WriteLine($"  ID: {msg.id}\n  Channel: {msg.channel.name}\n  Content: {msg.content}");
+
+                    DiscordChannel channel = Convert.ChangeType(msg.Channel(), typeof(DiscordChannel));
+                    Console.WriteLine($"  ID: {msg.id}\n  Channel: {channel.name}\n  Content: {msg.content}");
                 }
             } while (!string.IsNullOrWhiteSpace(input));
         }

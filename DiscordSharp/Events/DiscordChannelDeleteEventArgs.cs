@@ -10,4 +10,9 @@ namespace DiscordSharp.Events
     {
         public DiscordChannel ChannelDeleted { get; internal set; }
     }
+
+    public class DiscordPrivateChannelDeleteEventArgs : EventArgs
+    {
+        public DiscordPrivateChannel PrivateChannelDeleted { get; internal set; }
+    }
 }

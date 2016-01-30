@@ -6,13 +6,19 @@ using System.Drawing;
 
 namespace DiscordSharp
 {
-    public class DiscordChannel
+    public class DiscordChannelBase
+    {
+        [JsonProperty("id")]
+        public string id { get; internal set; }
+        [JsonProperty("is_private")]
+        public bool is_private { get; internal set; }
+    }
+
+    public class DiscordChannel : DiscordChannelBase
     {
         public string type { get; set; }
         public string name { get; set; }
-        public string id { get; set; }
         public string topic { get; set; }
-        public bool is_private { get; set; } = false;
         public List<DiscordPermissionOverride> PermissionOverrides { get; set; }
 
         public DiscordServer parent { get; internal set; }
@@ -42,9 +48,11 @@ namespace DiscordSharp
         }
     }
 
-    public class DiscordPrivateChannel : DiscordChannel
+    public class DiscordPrivateChannel : DiscordChannelBase
     {
-        public DiscordRecipient recipient { get; set; }
+        public DiscordMember recipient { get; set; }
+        [JsonProperty("last_message_id")]
+        private string LastMessageID { get; set; }
     }
 
     //kinda like the author

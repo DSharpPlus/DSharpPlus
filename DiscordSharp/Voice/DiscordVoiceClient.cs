@@ -77,7 +77,6 @@ namespace DiscordSharp
             };
             VoiceWebSocket.OnOpen += (sender, e) =>
             {
-                VoiceDebugLogger.Log("VoiceWebSocket opened, sending initial json.");
                 string initMsg = JsonConvert.SerializeObject(new
                 {
                     op = 0,
@@ -89,6 +88,8 @@ namespace DiscordSharp
                         token = Token
                     }
                 });
+
+                VoiceDebugLogger.Log("VoiceWebSocket opened, sending initial json. ( " + initMsg + ") ");
 
                 VoiceWebSocket.Send(initMsg);
             };
@@ -106,6 +107,7 @@ namespace DiscordSharp
                 case 2:
                     await OpCode2(message).ConfigureAwait(false); //do opcode 2 events
                     //ok, now that we have opcode 2 we have to send a packet and configure the UDP
+                    await InitialUDPConnection().ConfigureAwait(false);
                     break;
                 case 4:
                     //post initializing the UDP client, we will receive opcode 4 and will now do the final things
@@ -268,7 +270,7 @@ namespace DiscordSharp
                     string keepAliveJson = JsonConvert.SerializeObject(new
                     {
                         op = 3,
-                        d = (long)((DateTime.Now - Epoch).TotalMilliseconds)
+                        d = EpochTime.GetMilliseconds()
                     });
                     VoiceDebugLogger.Log("Sending voice keepalive ( " + keepAliveJson + " ) ");
                     VoiceWebSocket.Send(keepAliveJson);
