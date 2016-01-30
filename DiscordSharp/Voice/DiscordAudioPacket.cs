@@ -31,7 +31,7 @@ namespace DiscordSharp
         public static int TIMESTAMP_INDEX = 4;
         public static int SSRC_INDEX = 8;
 
-        private char seq;
+        private byte seq;
         private int timestamp;
         private int ssrc;
         private byte[] encodedAudio;
@@ -46,7 +46,7 @@ namespace DiscordSharp
                 using (BinaryReader reader = new BinaryReader(ms))
                 {
                     reader.BaseStream.Position = SEQ_INDEX;
-                    seq = reader.ReadChar();
+                    seq = reader.ReadByte();
 
                     reader.BaseStream.Position = TIMESTAMP_INDEX;
                     timestamp = reader.ReadInt32();
@@ -62,7 +62,7 @@ namespace DiscordSharp
 
         public DiscordAudioPacket(char seq, int timestamp, int ssrc, byte[] encodedaudio)
         {
-            this.seq = seq;
+            this.seq = (byte)seq;
             this.timestamp = timestamp;
             this.ssrc = ssrc;
             this.encodedAudio = encodedaudio;
@@ -113,9 +113,13 @@ namespace DiscordSharp
                     writer.BaseStream.Position = SSRC_INDEX;
                     writer.Write(ssrc);
 
-                    return new DiscordAudioPacket(ms.ToArray());
+                    //writer.BaseStream.Position = SSRC_INDEX + sizeof(int);
+                    //writer.Write(packet);
+                    byte[] asArray = ms.ToArray();
+                    return new DiscordAudioPacket(asArray);
                 }
             }
         }
+
     }
 }
