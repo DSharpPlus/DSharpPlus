@@ -56,6 +56,7 @@ namespace DiscordSharp
 
                     byte[] audio = new byte[rawPacket.Length - RTP_HEADER_BYTE_LENGTH];
                     Array.Copy(rawPacket, RTP_HEADER_BYTE_LENGTH, audio, 0, audio.Length);
+                    encodedAudio = audio;
                 }
             }
         }
@@ -85,12 +86,25 @@ namespace DiscordSharp
                     writer.Write(timestamp);
 
                     writer.BaseStream.Position = SSRC_INDEX;
-                    writer.Write(ssrc);
+                    writer.Write(IntToBytes(ssrc));
 
                     writer.BaseStream.Position = RTP_HEADER_BYTE_LENGTH;
                     writer.Write(fullPacket);
                 }
             }
+        }
+
+        //int is 4
+        private static byte[] IntToBytes(int i)
+        {
+            byte[] buffer = new byte[4];
+
+            buffer[0] = (byte)((i >> 24) & 0xFF);
+            buffer[1] = (byte)((i >> 16) & 0xFF);
+            buffer[2] = (byte)((i >> 8) & 0xFF);
+            buffer[3] = (byte)((i >> 0) & 0xFF);
+
+            return buffer;
         }
 
         public byte[] AsRawPacket()
@@ -111,7 +125,7 @@ namespace DiscordSharp
                     writer.Write(RTP_PAYLOAD_TYPE);
 
                     writer.BaseStream.Position = SSRC_INDEX;
-                    writer.Write(ssrc);
+                    writer.Write(IntToBytes(ssrc));
 
                     //writer.BaseStream.Position = SSRC_INDEX + sizeof(int);
                     //writer.Write(packet);

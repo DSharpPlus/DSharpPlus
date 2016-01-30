@@ -727,6 +727,12 @@ namespace DiscordSharpTestApplication
                 client.GetTextClientLogger.Save($"log-{DateTime.Now.Month}-{DateTime.Now.Day}-{DateTime.Now.Year} {DateTime.Now.Hour} {DateTime.Now.Minute}.log");
                 Console.WriteLine("Wrote log.");
             }
+            if(client.GetLastVoiceClientLogger != null && client.GetLastVoiceClientLogger.LogCount > 0)
+            {
+                client.GetLastVoiceClientLogger.Save($"voicelog-{DateTime.Now.Month}-{DateTime.Now.Day}-{DateTime.Now.Year} {DateTime.Now.Hour} {DateTime.Now.Minute}.log");
+                Console.WriteLine("Wrote voice log");
+            }
+            
             client.Dispose();
             Console.ReadLine();
         }

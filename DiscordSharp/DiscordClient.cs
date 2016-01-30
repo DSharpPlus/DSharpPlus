@@ -90,6 +90,7 @@ namespace DiscordSharp
         private DiscordVoiceClient VoiceClient;
         private Logger DebugLogger = new Logger();
         public Logger GetTextClientLogger => DebugLogger;
+        public Logger GetLastVoiceClientLogger;
 
         private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
         private CancellationToken KeepAliveTaskToken;
@@ -1416,6 +1417,7 @@ namespace DiscordSharp
                 VoiceClient = new DiscordVoiceClient(this);
             VoiceClient.Disposed += (sender, e) =>
             {
+                GetLastVoiceClientLogger = VoiceClient.GetDebugLogger;
                 DisconnectFromVoice();
             };
             //VoiceClient.UserSpeaking += (sender, e) =>
