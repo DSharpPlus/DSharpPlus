@@ -482,28 +482,7 @@ namespace DiscordSharpTestApplication
                     string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                     if (split.Length > 0)
                     {
-                        if (split[1].Trim() == "all")
-                        {
-                            int messagesDeleted = client.DeleteAllMessages();
-                            if (split.Length > 1 && split[2] != "nonotice")
-                                client.SendMessageToChannel(messagesDeleted + " messages deleted across all channels.", e.Channel);
-                        }
-                        else if (split[1].Trim() == "here")
-                        {
-                            int messagesDeleted = client.DeleteAllMessagesInChannel(e.Channel);
-                            if (split.Length > 1 && split[2] != "nonotice")
-                                client.SendMessageToChannel(messagesDeleted + " messages deleted in channel '" + e.Channel.name + "'.", e.Channel);
-                        }
-                        else
-                        {
-                            DiscordChannel channelToPrune = client.GetChannelByName(split[1].Trim());
-                            if (channelToPrune != null)
-                            {
-                                int messagesDeleted = client.DeleteAllMessagesInChannel(channelToPrune);
-                                if (split.Length > 1 && split[2] != "nonotice")
-                                    client.SendMessageToChannel(messagesDeleted + " messages deleted in channel '" + channelToPrune.name + "'.", e.Channel);
-                            }
-                        }
+                            client.DeleteMultipleMessagesInChannel(e.Channel, int.Parse(split[1]));
                     }
                     else
                     {

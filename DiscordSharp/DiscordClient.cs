@@ -687,18 +687,25 @@ namespace DiscordSharp
         public int DeleteAllMessages()
         {
             int count = 0;
-            foreach (var message in this.MessageLog)
+            MessageLog.ForEach(x =>
             {
-                if (message.Value.author.ID == Me.ID)
+                if (x.Value.author.ID == Me.ID)
                 {
-                    SendDeleteRequest(message.Value);
+                    SendDeleteRequest(x.Value);
                     count++;
                 }
-            }
+            });
+            
             return count;
         }
-
-        public int DeleteAllMessagesInChannel(DiscordChannel channel)
+        
+        /// <summary>
+        /// Deletes messages from the client's internal logs in a given channel.
+        /// Only deletes those sent by the client.
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns>How many messages were deleted.</returns>
+        public int DeleteMessagesFromClientInChannel(DiscordChannel channel)
         {
             int count = 0;
 
@@ -713,6 +720,34 @@ namespace DiscordSharp
             }
 
             return count;
+        }
+
+        /// <summary>
+        /// Deletes the specified number of messages in a given channel.
+        /// Thank you to Siegen for this idea/method!
+        /// </summary>
+        /// <param name="channel">The channel to delete messages in.</param>
+        /// <param name="count">The amount of messages to delete (max 100)</param>
+        /// <returns>The count of messages deleted.</returns>
+        public int DeleteMultipleMessagesInChannel(DiscordChannel channel, int count)
+        {
+            if (count > 100)
+                count = 100;
+
+            int __count = 0;
+
+            var messages = GetMessageHistory(channel, count, null, null);
+
+            messages.ForEach(x => 
+            {
+                if (x.channel.id == channel.id)
+                {
+                    SendDeleteRequest(x);
+                    __count++;
+                }
+            });
+
+            return __count;
         }
         
         public DiscordMember GetMemberFromChannel(DiscordChannel channel, string username, bool caseSensitive)
