@@ -167,7 +167,6 @@ namespace DiscordSharp
                                     //await _udp.SendAsync(echo.AsRawPacket(), echo.AsRawPacket().Length).ConfigureAwait(false);
                                     //VoiceDebugLogger.Log("Sent!");
                                 }
-                                await Task.Delay(1000).ConfigureAwait(false);
                             }
                         }
                         catch (ObjectDisposedException)
@@ -230,7 +229,7 @@ namespace DiscordSharp
             if(_udp != null && VoiceWebSocket.State == WebSocketState.Open)
             {
                 await _udp.SendAsync(packet.AsRawPacket(), packet.AsRawPacket().Length);
-                VoiceDebugLogger.Log("Sent packet through SendPacket task.");
+                VoiceDebugLogger.Log("Sent packet through SendPacket task.", MessageLevel.Unecessary);
             }
         }
 
