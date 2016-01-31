@@ -171,6 +171,8 @@ namespace DiscordSharp
                         }
                         catch (ObjectDisposedException)
                         { }
+                        catch(OperationCanceledException)
+                        { }
                         catch (Exception ex)
                         {
                             VoiceDebugLogger.Log($"Error in udpReceiveTask\n\t{ex.Message}\n\t{ex.StackTrace}",
