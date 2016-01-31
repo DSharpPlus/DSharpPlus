@@ -1208,7 +1208,7 @@ namespace DiscordSharp
             string message = JsonConvert.SerializeObject(new { roles = new string[] { role.id } });
             try
             {
-                Console.WriteLine(WebWrapper.Patch(url, token, message));
+                WebWrapper.Patch(url, token, message);
             }
             catch(Exception ex)
             {
