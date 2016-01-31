@@ -69,6 +69,7 @@ namespace DiscordSharp
         public event EventHandler<EventArgs> Disposed;
         public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<DiscordAudioPacketEventArgs> PacketReceived;
+        public event EventHandler<EventArgs> ErrorReceived;
         #endregion
 
         public DiscordVoiceClient(DiscordClient parentClient)
@@ -128,7 +129,7 @@ namespace DiscordSharp
                     await InitialUDPConnection().ConfigureAwait(false);
                     break;
                 case 3:
-                    VoiceDebugLogger.Log("KeepAlive echoed back successfully!");
+                    VoiceDebugLogger.Log("KeepAlive echoed back successfully!", MessageLevel.Unecessary);
                     break;
                 case 4:
                     VoiceDebugLogger.Log(e.Message);
@@ -166,11 +167,14 @@ namespace DiscordSharp
                                     //await _udp.SendAsync(echo.AsRawPacket(), echo.AsRawPacket().Length).ConfigureAwait(false);
                                     //VoiceDebugLogger.Log("Sent!");
                                 }
+                                await Task.Delay(1000).ConfigureAwait(false);
                             }
                         }
-                        catch(Exception ex)
+                        catch (ObjectDisposedException)
+                        { }
+                        catch (Exception ex)
                         {
-                            VoiceDebugLogger.Log($"Error in udpReceiveTask\n\t{ex.Message}\n\t{ex.StackTrace}", 
+                            VoiceDebugLogger.Log($"Error in udpReceiveTask\n\t{ex.Message}\n\t{ex.StackTrace}",
                                 MessageLevel.Critical);
                         }
                     }, udpReceiveSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -211,6 +215,10 @@ namespace DiscordSharp
                     }
                 }
             }
+            catch (ObjectDisposedException)
+            {/*cancel token disposed*/}
+            catch (NullReferenceException)
+            {/*disposed*/}
             catch (Exception ex)
             {
                 VoiceDebugLogger.Log($"Error sending UDP keepalive\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
@@ -355,26 +363,36 @@ namespace DiscordSharp
             SendWebSocketKeepalive();
             voiceSocketKeepAlive = Task.Run(() =>
             {
-                try
+                ///TODO: clean this up
+                while (VoiceWebSocket != null && VoiceWebSocket.State == WebSocketState.Open)
                 {
-                    Thread.Sleep(Params.heartbeat_interval);
-                    SendWebSocketKeepalive();
-                    if (voiceSocketTaskSource.Token.IsCancellationRequested)
-                        voiceSocketTaskSource.Token.ThrowIfCancellationRequested();
+                    try
+                    {
+                        SendWebSocketKeepalive();
+                        if (voiceSocketTaskSource.Token.IsCancellationRequested)
+                            voiceSocketTaskSource.Token.ThrowIfCancellationRequested();
+                        Thread.Sleep(Params.heartbeat_interval);
+                    }
+                    catch(ObjectDisposedException)
+                    {}
+                    catch(OperationCanceledException ex)
+                    {}
                 }
-                catch { /*canceled*/}
             }, voiceSocketTaskSource.Token);
         }
 
         private void VoiceWebSocket_OnError(object sender, EventArgs e)
         {
             VoiceDebugLogger.Log("Error in VoiceWebSocket.");
+            if (ErrorReceived != null)
+                ErrorReceived(this, new EventArgs());
         }
 
         private void VoiceWebSocket_OnClose(object sender, EventArgs e)
         {
             VoiceDebugLogger.Log($"VoiceWebSocket was closed.", MessageLevel.Critical);
-            Dispose();
+            if (ErrorReceived != null)
+                ErrorReceived(this, new EventArgs());
         }
 
         private static DateTime Epoch = new DateTime(1970, 1, 1);
@@ -384,9 +402,9 @@ namespace DiscordSharp
         /// <returns></returns>
         private void SendWebSocketKeepalive()
         {
-            if(VoiceWebSocket != null)
+            if (VoiceWebSocket != null)
             {
-                if(VoiceWebSocket.State == WebSocketState.Open)
+                if (VoiceWebSocket.State == WebSocketState.Open)
                 {
                     string keepAliveJson = JsonConvert.SerializeObject(new
                     {
@@ -397,10 +415,15 @@ namespace DiscordSharp
                     VoiceWebSocket.Send(keepAliveJson);
                 }
                 else
+                {
                     VoiceDebugLogger.Log("VoiceWebSocket not alive?", MessageLevel.Critical);
+                }
             }
-            else
-                VoiceDebugLogger.Log("VoiceWebSocket null?", MessageLevel.Critical);
+            //more than likely this is due to something being disposed and is non-critical
+            //else 
+            //{
+            //    VoiceDebugLogger.Log("VoiceWebSocket null?", MessageLevel.Critical);
+            //}
         }
 
         private void SendSpeaking(bool speaking)
@@ -436,6 +459,10 @@ namespace DiscordSharp
             VoiceWebSocket = null;
             voiceSocketTaskSource.Cancel(); //cancels the task
             udpReceiveSource.Cancel();
+            udpKeepAliveSource.Cancel();
+
+            voiceSocketTaskSource.Dispose();
+            udpReceiveSource.Dispose();
             udpKeepAliveSource.Cancel();
             _udp.Close();
             _udp = null;
