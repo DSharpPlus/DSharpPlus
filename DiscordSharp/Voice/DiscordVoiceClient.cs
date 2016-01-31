@@ -93,7 +93,14 @@ namespace DiscordSharp
 
             VoiceWebSocket.MessageReceived += async (s, e) =>
             {
-                await VoiceWebSocket_OnMessage(s, e).ConfigureAwait(false);
+                try
+                {
+                    await VoiceWebSocket_OnMessage(s, e).ConfigureAwait(false);
+                }
+                catch(Exception ex)
+                {
+                    VoiceDebugLogger.Log($"Exception while awaiting OnMessage?!\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Critical);
+                }
             };
             VoiceWebSocket.Opened += (sender, e) =>
             {

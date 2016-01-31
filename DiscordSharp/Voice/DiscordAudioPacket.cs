@@ -35,6 +35,10 @@ namespace DiscordSharp
         private byte[] encodedAudio;
         private byte[] rawPacket;
 
+        public byte Seq => seq;
+        public int Timestamp => timestamp;
+        public int SSRC => ssrc;
+
         public DiscordAudioPacket(byte[] raw)
         {
             rawPacket = raw;
@@ -109,6 +113,8 @@ namespace DiscordSharp
         {
             return rawPacket;
         }
+
+        public byte[] GetEncodedAudio() => encodedAudio;
 
         public static DiscordAudioPacket EchoPacket(byte[] packet, int ssrc)
         {
