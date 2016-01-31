@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp
 {
+    /// <summary>
+    /// Custom color class just because.
+    /// </summary>
     public class Color
     {
         public uint R { get; set; }

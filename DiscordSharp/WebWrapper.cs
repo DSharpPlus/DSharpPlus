@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -35,6 +36,15 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
+                    JObject jsonTest = JObject.Parse(result);
+                    if (jsonTest != null)
+                    {
+                        if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                        {
+                            Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+                            Delete(url, token); //try again
+                        }
+                    }
                     if (result != "")
                         return result;
                 }
@@ -70,7 +80,18 @@ namespace DiscordSharp
                 {
                     var result = sr.ReadToEnd();
                     if (result != "")
+                    {
+                        JObject jsonTest = JObject.Parse(result);
+                        if (jsonTest != null)
+                        {
+                            if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                            {
+                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+                                Put(url, token); //try again
+                            }
+                        }
                         return result;
+                    }
                 }
             }
             catch (WebException e)
@@ -123,6 +144,15 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
+                    JObject jsonTest = JObject.Parse(result);
+                    if (jsonTest != null)
+                    {
+                        if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                        {
+                            Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+                            Post(url, token, message, acceptInviteWorkaround); //try again
+                        }
+                    }
                     if (result != "")
                         return result;
                 }
@@ -217,6 +247,15 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
+                    JObject jsonTest = JObject.Parse(result);
+                    if (jsonTest != null)
+                    {
+                        if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                        {
+                            Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+                            Post(url, message); //try again
+                        }
+                    }
                     if (result != "")
                         return result;
                 }
@@ -231,7 +270,7 @@ namespace DiscordSharp
             }
             return "";
         }
-
+        [Obsolete]
         public static string PostWithAttachment(string url, string message, string fileToAttach)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
@@ -266,7 +305,15 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
-                    Console.WriteLine("Result: " + result);
+                    JObject jsonTest = JObject.Parse(result);
+                    if (jsonTest != null)
+                    {
+                        if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                        {
+                            Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+                            PostWithAttachment(url, message, fileToAttach); //try again
+                        }
+                    }
                     if (result != "")
                         return result;
                 }
@@ -309,6 +356,15 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
+                    JObject jsonTest = JObject.Parse(result);
+                    if (jsonTest != null)
+                    {
+                        if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                        {
+                            Task.Delay(jsonTest["retry_after"].ToObject<int>() + 2).Wait(); //wait with a 2ms buffer...JUST IN CASE
+                            Patch(url, token, message); //try again
+                        }
+                    }
                     if (result != "")
                         return result;
                 }
@@ -344,6 +400,15 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
+                    JObject jsonTest = JObject.Parse(result);
+                    if (jsonTest != null)
+                    {
+                        if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                        {
+                            Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+                            Get(url, token); //try again
+                        }
+                    }
                     return result;
                 }
             }
