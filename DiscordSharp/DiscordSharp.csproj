@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Color.cs" />
     <Compile Include="CustomWebSocket.cs" />
+    <Compile Include="Events\DiscordBanRemovedEventArgs.cs" />
     <Compile Include="EpochTime.cs" />
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />

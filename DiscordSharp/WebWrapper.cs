@@ -51,6 +51,40 @@ namespace DiscordSharp
         }
 
         /// <summary>
+        /// Sends a PUT HTTP request to the specified URL using the specified token.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public static string Put(string url, string token)
+        {
+            var httpRequest = (HttpWebRequest)WebRequest.Create(url);
+            httpRequest.Headers["authorization"] = token;
+            httpRequest.ContentType = "application/json";
+            httpRequest.Method = "PUT";
+            httpRequest.UserAgent += $" {UserAgentString}";
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = sr.ReadToEnd();
+                    if (result != "")
+                        return result;
+                }
+            }
+            catch (WebException e)
+            {
+                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                {
+                    string result = s.ReadToEnd();
+                    return result;
+                }
+            }
+            return "";
+        }
+
+        /// <summary>
         /// Sends a POST HTTP request to the specified URL, using the specified token, sending the specified message.
         /// </summary>
         /// <param name="url"></param>

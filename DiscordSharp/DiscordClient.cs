@@ -145,6 +145,7 @@ namespace DiscordSharp
         public event EventHandler<DiscordGuildBanEventArgs> GuildMemberBanned;
         public event EventHandler<DiscordPrivateChannelDeleteEventArgs> PrivateChannelDeleted;
         public event EventHandler<DiscordAudioPacketEventArgs> AudioPacketReceived;
+        public event EventHandler<DiscordBanRemovedEventArgs> BanRemoved;
         #endregion
         
         public DiscordClient()
@@ -174,6 +175,7 @@ namespace DiscordSharp
             foreach(var j in m["d"]["guilds"])
             {
                 DiscordServer temp = new DiscordServer();
+                temp.parentclient = this;
                 temp.id = j["id"].ToString();
                 temp.name = j["name"].ToString();
                 //temp.owner_id = j["owner_id"].ToString();
@@ -1112,6 +1114,7 @@ namespace DiscordSharp
                     DiscordServer server = new DiscordServer();
                     server.id = response["id"].ToString();
                     server.name = response["name"].ToString();
+                    server.parentclient = this;
 
                     string channelGuildUrl = createGuildUrl + $"/{server.id}" + Endpoints.Channels;
                     var channelRespone = JArray.Parse(WebWrapper.Get(channelGuildUrl, token));
@@ -1319,6 +1322,9 @@ namespace DiscordSharp
                         case ("GUILD_BAN_ADD"):
                             GuildMemberBannedEvents(message);
                             break;
+                        case ("GUILD_BAN_REMOVE"):
+                            GuildMemberBanRemovedEvents(message);
+                            break;
                         case("MESSAGE_ACK"): //ignore this message, it's irrelevant
                             break;
                         default:
@@ -1364,6 +1370,17 @@ namespace DiscordSharp
                 };
                 ws.Connect();
             DebugLogger.Log("Connecting..");
+        }
+
+        private void GuildMemberBanRemovedEvents(JObject message)
+        {
+            DiscordBanRemovedEventArgs e = new DiscordBanRemovedEventArgs();
+
+            e.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+            e.MemberStub = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+
+            if (BanRemoved != null)
+                BanRemoved(this, e);
         }
 
         private void GuildMemberBannedEvents(JObject message)
@@ -1414,13 +1431,113 @@ namespace DiscordSharp
         }
 
         /// <summary>
+        /// Kicks a specified DiscordMember from the guild that's assumed from their 
+        /// parent property.
+        /// </summary>
+        /// <param name="member"></param>
+        public void KickMember(DiscordMember member)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{member.Parent.id}" + Endpoints.Members + $"/{member.ID}";
+            try
+            {
+                WebWrapper.Delete(url, token);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error during KickMember\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+            }
+        }
+        
+        /// <summary>
+        /// Bans a specified DiscordMember from the guild that's assumed from their
+        /// parent property.
+        /// </summary>
+        /// <param name="member"></param>
+        /// <param name="days">The number of days the user should be banned for, or 0 for infinite.</param>
+        public void BanMember(DiscordMember member, int days = 0)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{member.Parent.id}" + Endpoints.Bans + $"/{member.ID}";
+            if (days >= 0)
+                url += $"?delete-message-days={days}";
+            try
+            {
+                WebWrapper.Put(url, token);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log($"Error during BanMember\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a DiscordMember List of members banned in the specified server.
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
+        public List<DiscordMember> GetBans(DiscordServer server)
+        {
+            List<DiscordMember> returnVal = new List<DiscordMember>();
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{server.id}" + Endpoints.Bans;
+            try
+            {
+                JArray response = JArray.Parse(WebWrapper.Get(url, token));
+                if (response != null && response.Count > 0)
+                {
+                    DebugLogger.Log($"Ban count: {response.Count}");
+
+                    foreach(var memberStub in response)
+                    {
+                        DiscordMember temp = JsonConvert.DeserializeObject<DiscordMember>(memberStub["user"].ToString());
+                        if (temp != null)
+                            returnVal.Add(temp);
+                        else
+                            DebugLogger.Log($"memberStub[\"user\"] was null?! Username: {memberStub["user"]["username"].ToString()} ID: {memberStub["user"]["username"].ToString()}", MessageLevel.Error);
+                    }
+                }
+                else
+                    return returnVal;
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"An error ocurred while retrieving bans for server \"{server.name}\"\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", 
+                    MessageLevel.Error);
+            }
+            return returnVal;
+        }
+
+        public void RemoveBan(DiscordServer guild, string userID)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Bans + $"/{userID}";
+            try
+            {
+                WebWrapper.Delete(url, token);
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
+            }
+        }
+        public void RemoveBan(DiscordServer guild, DiscordMember member)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Bans + $"/{member.ID}";
+            try
+            {
+                WebWrapper.Delete(url, token);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
+            }
+        }
+
+        /// <summary>
         /// Echoes a received audio packet back.
         /// </summary>
         /// <param name="packet"></param>
         public void EchoPacket(DiscordAudioPacket packet)
         {
             if(VoiceClient != null && ConnectedToVoice())
-                VoiceClient.EchoPacket(packet);
+                VoiceClient.EchoPacket(packet).Wait();
         }
 
         public async void ConnectToVoiceChannel(DiscordChannel channel, bool clientMuted = false, bool clientDeaf = false)
@@ -1647,6 +1764,7 @@ namespace DiscordSharp
                 name = message["d"]["name"].ToString(),
                 id = message["d"]["name"].ToString()
             };
+            newServer.parentclient = this;
             newServer.roles = new List<DiscordRole>();
             if (!message["d"]["roles"].IsNullOrEmpty())
             {
@@ -1808,6 +1926,7 @@ namespace DiscordSharp
             DiscordGuildCreateEventArgs e = new DiscordGuildCreateEventArgs();
             e.RawJson = message;
             DiscordServer server = new DiscordServer();
+            server.parentclient = this;
             server.id = message["d"]["id"].ToString();
             server.name = message["d"]["name"].ToString();
             server.members = new List<DiscordMember>();

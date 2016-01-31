@@ -66,23 +66,7 @@ namespace DiscordSharp
     {
         public string id { get; internal set; }
         public string name { get; internal set; }
-
-        //private string _ownerid;
-        ///// <summary>
-        ///// Soon to be replaced by owner exclusively.
-        ///// </summary>
-        //[Obsolete]
-        //public string owner_id
-        //{
-        //    get { return owner_id; }
-        //    internal set
-        //    {
-        //        if (members != null && members.Count > 0)
-        //            owner = members.Find(x => x.user.id == value);
-        //        owner_id = value;
-        //    }
-        //}
-
+        
 #pragma warning disable 0612
         private DiscordMember _owner;
         public DiscordMember owner { get { return _owner; } internal set
@@ -95,6 +79,8 @@ namespace DiscordSharp
         public List<DiscordChannel> channels { get; internal set; }
         public List<DiscordMember> members { get; internal set; }
         public List<DiscordRole> roles { get; internal set; }
+
+        internal DiscordClient parentclient { get; set; }
 
         public DiscordServer()
         {
@@ -219,6 +205,67 @@ namespace DiscordSharp
                 return dc;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Retrieves a DiscordMember List of members banned in this server.
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
+        public List<DiscordMember> GetBans()
+        {
+            List<DiscordMember> returnVal = new List<DiscordMember>();
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{id}" + Endpoints.Bans;
+            try
+            {
+                JArray response = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+                if (response != null && response.Count > 0)
+                {
+                    parentclient.GetTextClientLogger.Log($"Ban count: {response.Count}");
+
+                    foreach (var memberStub in response)
+                    {
+                        DiscordMember temp = JsonConvert.DeserializeObject<DiscordMember>(memberStub["user"].ToString());
+                        if (temp != null)
+                            returnVal.Add(temp);
+                        else
+                            parentclient.GetTextClientLogger.Log($"memberStub[\"user\"] was null?! Username: {memberStub["user"]["username"].ToString()} ID: {memberStub["user"]["username"].ToString()}", MessageLevel.Error);
+                    }
+                }
+                else
+                    return returnVal;
+            }
+            catch (Exception ex)
+            {
+                parentclient.GetTextClientLogger.Log($"An error ocurred while retrieving bans for server \"{name}\"\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}",
+                    MessageLevel.Error);
+            }
+            return returnVal;
+        }
+
+        public void RemoveBan(string userID)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{id}" + Endpoints.Bans + $"/{userID}";
+            try
+            {
+                WebWrapper.Delete(url, DiscordClient.token);
+            }
+            catch (Exception ex)
+            {
+                parentclient.GetTextClientLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
+            }
+        }
+        public void RemoveBan( DiscordMember member)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{id}" + Endpoints.Bans + $"/{member.ID}";
+            try
+            {
+                WebWrapper.Delete(url, DiscordClient.token);
+            }
+            catch (Exception ex)
+            {
+                parentclient.GetTextClientLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
+            }
         }
     }
 }

@@ -109,6 +109,45 @@ namespace DiscordSharp
             return new Uri(Endpoints.BaseAPI + Endpoints.Users + $"/{ID}" + Endpoints.Avatars + $"/{Avatar}.jpg");
         }
 
+        /// <summary>
+        /// Kicks this DiscordMember from the guild that's assumed from their 
+        /// parent property.
+        /// </summary>
+        public void Kick()
+        {
+            if(parentclient.Me.ID == this.ID)
+                throw new InvalidOperationException("Can't kick self!");
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.id}" + Endpoints.Members + $"/{ID}";
+            try
+            {
+                WebWrapper.Delete(url, DiscordClient.token);
+            }
+            catch (Exception ex)
+            {
+                parentclient.GetTextClientLogger.Log($"Error during Kick\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+            }
+        }
+
+        /// <summary>
+        /// Bans this DiscordMember from the guild that's assumed from their
+        /// parent property.
+        /// </summary>
+        /// <param name="days">The number of days the user should be banned for, or 0 for infinite.</param>
+        public void Ban(int days = 0)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.id}" + Endpoints.Bans + $"/{ID}";
+            if (days >= 0)
+                url += $"?delete-message-days={days}";
+            try
+            {
+                WebWrapper.Put(url, DiscordClient.token);
+            }
+            catch (Exception ex)
+            {
+                parentclient.GetTextClientLogger.Log($"Error during Ban\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+            }
+        }
+
         public void SlideIntoDMs(string message) => SendMessage(message);
 
         public void SendMessage(string message)
