@@ -140,14 +140,27 @@ namespace DiscordSharp
         public event EventHandler<DiscordGuildRoleDeleteEventArgs> RoleDeleted;
         public event EventHandler<DiscordGuildRoleUpdateEventArgs> RoleUpdated;
         public event EventHandler<DiscordGuildMemberUpdateEventArgs> GuildMemberUpdated;
-        public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
-        public event EventHandler<DiscordLeftVoiceChannelEventArgs> UserLeftVoiceChannel;
         public event EventHandler<DiscordGuildBanEventArgs> GuildMemberBanned;
         public event EventHandler<DiscordPrivateChannelDeleteEventArgs> PrivateChannelDeleted;
-        public event EventHandler<DiscordAudioPacketEventArgs> AudioPacketReceived;
         public event EventHandler<DiscordBanRemovedEventArgs> BanRemoved;
+        public event EventHandler<DiscordPrivateMessageDeletedEventArgs> PrivateMessageDeleted;
+
+        #region Voice
+        /// <summary>
+        /// For use when connected to voice only.
+        /// </summary>
+        public event EventHandler<DiscordAudioPacketEventArgs> AudioPacketReceived;
+        /// <summary>
+        /// For use when connected to voice only.
+        /// </summary>
+        public event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
+        /// <summary>
+        /// For use when connected to voice only.
+        /// </summary>
+        public event EventHandler<DiscordLeftVoiceChannelEventArgs> UserLeftVoiceChannel;
         #endregion
-        
+        #endregion
+
         public DiscordClient()
         {
             if (ClientPrivateInformation == null)
@@ -898,10 +911,10 @@ namespace DiscordSharp
         private void SendDeleteRequest(DiscordMessage message, bool user = false)
         {
             string url;
-            if(!user)
+            //if(!user)
                 url = Endpoints.BaseAPI + Endpoints.Channels + $"/{message.channel.id}" + Endpoints.Messages + $"/{message.id}";
-            else
-                url = Endpoints.BaseAPI + Endpoints.Users + $"/{message.channel.id}" + Endpoints.Messages + $"/{message.id}";
+            //else
+                //url = Endpoints.BaseAPI + Endpoints.Channels + $"/{message.channel.id}" + Endpoints.Messages + $"/{message.id}";
             try
             {
                 var result = WebWrapper.Delete(url, token);
@@ -1062,6 +1075,7 @@ namespace DiscordSharp
                     tempChannel.name = message["d"]["name"].ToString();
                     tempChannel.type = message["d"]["type"].ToString();
                     tempChannel.id = message["d"]["id"].ToString();
+                    tempChannel.parent = foundServer;
                     foundServer.channels.Add(tempChannel);
                     DiscordChannelCreateEventArgs fae = new DiscordChannelCreateEventArgs();
                     fae.ChannelCreated = tempChannel;
@@ -1994,6 +2008,7 @@ namespace DiscordSharp
                 tempChannel.name = chn["name"].ToString();
                 tempChannel.is_private = false;
                 tempChannel.PermissionOverrides = new List<DiscordPermissionOverride>();
+                tempChannel.parent = server;
                 foreach (var o in chn["permission_overwrites"])
                 {
                     if (tempChannel.type == "voice")
@@ -2138,8 +2153,23 @@ namespace DiscordSharp
         {
             DiscordMessageDeletedEventArgs e = new DiscordMessageDeletedEventArgs();
             e.DeletedMessage = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value;
-            e.Channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
-            e.RawJson = message;
+
+            DiscordServer inServer;
+            inServer = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
+            if(inServer == null) //dm delete
+            {
+                DiscordPrivateMessageDeletedEventArgs dm = new DiscordPrivateMessageDeletedEventArgs();
+                dm.DeletedMessage = e.DeletedMessage;
+                dm.RawJson = message;
+                dm.Channel = PrivateChannels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                if (PrivateMessageDeleted != null)
+                    PrivateMessageDeleted(this, dm);
+            }
+            else
+            {
+                e.Channel = inServer.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                e.RawJson = message;
+            }
 
             if (MessageDeleted != null)
                 MessageDeleted(this, e);

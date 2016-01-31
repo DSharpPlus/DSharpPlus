@@ -36,13 +36,16 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
-                    JObject jsonTest = JObject.Parse(result);
-                    if (jsonTest != null)
+                    if (!string.IsNullOrEmpty(result))
                     {
-                        if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                        JObject jsonTest = JObject.Parse(result);
+                        if (jsonTest != null)
                         {
-                            Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-                            Delete(url, token); //try again
+                            if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                            {
+                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+                                Delete(url, token); //try again
+                            }
                         }
                     }
                     if (result != "")

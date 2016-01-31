@@ -9,4 +9,9 @@ namespace DiscordSharp.Events
         public DiscordChannel Channel { get; internal set; }
         public JObject RawJson { get; internal set; }
     }
+
+    public class DiscordPrivateMessageDeletedEventArgs : DiscordMessageDeletedEventArgs
+    {
+        public new DiscordPrivateChannel Channel { get; internal set; }
+    }
 }
