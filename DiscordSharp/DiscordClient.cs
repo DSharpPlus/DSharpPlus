@@ -947,68 +947,79 @@ namespace DiscordSharp
 
         private void MessageUpdateEvents(JObject message)
         {
-            DiscordServer pserver = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
-            DiscordChannel pchannel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
-            if (pchannel != null)
+            try
             {
-                if (message["d"]["author"] != null)
+                DiscordServer pserver = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null);
+                DiscordChannel pchannel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                if (pchannel != null)
                 {
-                    KeyValuePair<string, DiscordMessage> toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
-                    if (toRemove.Value == null)
-                        return; //No message exists
-                    var jsonToEdit = toRemove.Value.RawJson;
-                    jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
-                    if (MessageEdited != null)
-                        MessageEdited(this, new DiscordMessageEditedEventArgs
-                        {
-                            author = pserver.members.Find(x => x.ID == message["d"]["author"]["id"].ToString()),
-                            Channel = pchannel,
-                            message = message["d"]["content"].ToString(),
-                            MessageType = DiscordMessageType.CHANNEL,
-                            MessageEdited = new DiscordMessage
+                    if (message["d"]["author"] != null)
+                    {
+                        KeyValuePair<string, DiscordMessage> toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
+                        if (toRemove.Value == null)
+                            return; //No message exists
+                        var jsonToEdit = toRemove.Value.RawJson;
+                        jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
+                        if (MessageEdited != null)
+                            MessageEdited(this, new DiscordMessageEditedEventArgs
                             {
                                 author = pserver.members.Find(x => x.ID == message["d"]["author"]["id"].ToString()),
-                                content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value.content,
-                                attachments = message["d"]["attachments"].ToObject<string[]>(),
-                                channel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString()),
-                                RawJson = message,
-                                id = message["d"]["id"].ToString(),
-                                timestamp = message["d"]["timestamp"].ToObject<DateTime>(),
-                            },
-                            EditedTimestamp = message["d"]["edited_timestamp"].ToObject<DateTime>()
-                        });
-                    int indexOfMessageToChange = MessageLog.IndexOf(toRemove);
-                    MessageLog.Remove(toRemove);
-                    DiscordMessage newMessage = toRemove.Value;
-                    newMessage.content = jsonToEdit["d"]["content"].ToString();
-                    MessageLog.Insert(indexOfMessageToChange, new KeyValuePair<string, DiscordMessage>(jsonToEdit["d"]["id"].ToString(), newMessage));
+                                Channel = pchannel,
+                                message = message["d"]["content"].ToString(),
+                                MessageType = DiscordMessageType.CHANNEL,
+                                MessageEdited = new DiscordMessage
+                                {
+                                    author = pserver.members.Find(x => x.ID == message["d"]["author"]["id"].ToString()),
+                                    content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value.content,
+                                    attachments = message["d"]["attachments"].ToObject<string[]>(),
+                                    channel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString()),
+                                    RawJson = message,
+                                    id = message["d"]["id"].ToString(),
+                                    timestamp = message["d"]["timestamp"].ToObject<DateTime>(),
+                                },
+                                EditedTimestamp = message["d"]["edited_timestamp"].ToObject<DateTime>()
+                            });
+                        int indexOfMessageToChange = MessageLog.IndexOf(toRemove);
+                        MessageLog.Remove(toRemove);
+                        DiscordMessage newMessage = toRemove.Value;
+                        newMessage.content = jsonToEdit["d"]["content"].ToString();
+                        MessageLog.Insert(indexOfMessageToChange, new KeyValuePair<string, DiscordMessage>(jsonToEdit["d"]["id"].ToString(), newMessage));
 
-                }
-                else //I know they say assume makes an ass out of you and me...but we're assuming it's Discord's weird auto edit of a just URL message
-                {
-                    if (URLMessageAutoUpdate != null)
+                    }
+                    else //I know they say assume makes an ass out of you and me...but we're assuming it's Discord's weird auto edit of a just URL message
                     {
-                        DiscordURLUpdateEventArgs asdf = new DiscordURLUpdateEventArgs(); //I'm running out of clever names and should probably split these off into different internal voids soon...
-                        asdf.id = message["d"]["id"].ToString();
-                        asdf.channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
-                        foreach (var embed in message["d"]["embeds"])
+                        if (URLMessageAutoUpdate != null)
                         {
-                            DiscordEmbeds temp = new DiscordEmbeds();
-                            temp.url = embed["url"].ToString();
-                            temp.description = embed["description"].ToString();
-                            try
+                            DiscordURLUpdateEventArgs asdf = new DiscordURLUpdateEventArgs(); //I'm running out of clever names and should probably split these off into different internal voids soon...
+                            asdf.id = message["d"]["id"].ToString();
+                            asdf.channel = ServersList.Find(x => x.channels.Find(y => y.id == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.id == message["d"]["channel_id"].ToString());
+                            foreach (var embed in message["d"]["embeds"])
                             {
-                                temp.provider_name = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString();
-                                temp.provider_url = embed["provider"]["url"].ToString();
+                                DiscordEmbeds temp = new DiscordEmbeds();
+                                temp.url = embed["url"].ToString();
+                                temp.description = embed["description"].ToString();
+                                try
+                                {
+                                    temp.provider_name = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString();
+                                    temp.provider_url = embed["provider"]["url"].ToString();
+                                }
+                                catch { }//noprovider
+                                temp.title = embed["title"].ToString();
+                                temp.type = embed["type"].ToString();
+                                asdf.embeds.Add(temp);
                             }
-                            catch { }//noprovider
-                            temp.title = embed["title"].ToString();
-                            temp.type = embed["type"].ToString();
-                            asdf.embeds.Add(temp);
+                            URLMessageAutoUpdate(this, asdf);
                         }
-                        URLMessageAutoUpdate(this, asdf);
                     }
                 }
+                else
+                {
+                    DebugLogger.Log("Couldn't find channel!", MessageLevel.Critical);
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log($"Exception during MessageUpdateEvents.\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Critical);
             }
         }
 
