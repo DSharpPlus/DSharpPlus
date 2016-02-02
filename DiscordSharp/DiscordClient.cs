@@ -13,40 +13,45 @@ using System.Drawing;
 
 namespace DiscordSharp
 {
-    class DiscordLoginResult
-    {
-        public string token { get; set; }
-        public string[] password { get; set; } //errors
-        public string[] email { get; set; }
-    }
+    //class DiscordLoginResult
+    //{
+    //    public string token { get; set; }
+    //    public string[] password { get; set; } //errors
+    //    public string[] email { get; set; }
+    //}
 
-    class DiscordInitObj
-    {
-        public int op { get; set; }
-        public DiscordD d { get; set; }
-        public DiscordInitObj() { d = new DiscordD(); }
-        public string AsJson()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-    }
+    //class DiscordInitObj
+    //{
+    //    public int op { get; set; }
+    //    public DiscordD d { get; set; }
+    //    public DiscordInitObj() { d = new DiscordD(); }
+    //    public string AsJson()
+    //    {
+    //        return JsonConvert.SerializeObject(this);
+    //    }
+    //}
 
-    class DiscordD
-    {
-        public string token { get; set; }
-        public DiscordProperties properties { get; set; }
-        public DiscordD() { properties = new DiscordProperties(); }
-        public string AsJson()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-    }
+    //class DiscordD
+    //{
+    //    public string token { get; set; }
+    //    public DiscordProperties properties { get; set; }
+    //    public DiscordD() { properties = new DiscordProperties(); }
+    //    public string AsJson()
+    //    {
+    //        return JsonConvert.SerializeObject(this);
+    //    }
+    //}
 
     class DiscordProperties
     {
-        public string os { get; set; }
-        public string browser { get; set; }
-        public string device
+        [JsonProperty("os")]
+        public string OS { get; set; }
+
+        [JsonProperty("browser")]
+        public string Browser { get; set; }
+
+        [JsonProperty("device")]
+        public string Device
         {
             get
             {
@@ -58,7 +63,7 @@ namespace DiscordSharp
 
         public DiscordProperties()
         {
-            os = Environment.OSVersion.ToString();
+            OS = Environment.OSVersion.ToString();
         }
         public string AsJson()
         {
@@ -1413,20 +1418,28 @@ namespace DiscordSharp
                             break;
                     }
                 };
-                ws.OnOpen += (sender, e) => 
+                ws.OnOpen += (sender, e) =>
                 {
-                    DiscordInitObj initObj = new DiscordInitObj();
-                    initObj.op = 2;
-                    initObj.d.token = token;
-                    string json = initObj.AsJson();
-                    ws.Send(json);
+                    string initJson = JsonConvert.SerializeObject(new
+                    {
+                        op = 2,
+                        d = new
+                        {
+                            token = token,
+                            properties = new DiscordProperties()
+                        }
+                    });
+
+                    DebugLogger.Log("Sending initJson ( " + initJson + " )");
+                    
+                    ws.Send(initJson);
                     if (SocketOpened != null)
                         SocketOpened(this, null);
 
                     KeepAliveTaskToken = KeepAliveTaskTokenSource.Token;
                     KeepAliveTask = new Task(() => 
                     {
-                        while (true)
+                        while (ws.IsAlive)
                         {
                             DebugLogger.Log("Hello from inside KeepAliveTask! Sending..");
                             KeepAlive();
@@ -2331,18 +2344,11 @@ namespace DiscordSharp
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = await sr.ReadToEndAsync().ConfigureAwait(false);
-                    DiscordLoginResult dlr = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
-                    if (dlr.token != null || dlr.token.Trim() != "")
+                    var jsonResult = JObject.Parse(result);
+
+                    if(!jsonResult["token"].IsNullOrEmpty() || jsonResult["token"].ToString() != "")
                     {
-                        token = dlr.token;
-                        try
-                        {
-                            string sessionKeyHeader = httpResponse.Headers["set-cookie"].ToString();
-                            string[] split = sessionKeyHeader.Split(new char[] { '=', ';' }, 3);
-                        }
-                        catch
-                        {/*no session key fo u!*/}
-                        return token;
+                        token = jsonResult["token"].ToString();
                     }
                     else
                         return null;
@@ -2353,11 +2359,12 @@ namespace DiscordSharp
                 using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
                 {
                     string result = await s.ReadToEndAsync().ConfigureAwait(false);
-                    DiscordLoginResult jresult = JsonConvert.DeserializeObject<DiscordLoginResult>(result);
-                    if (jresult.password != null)
-                        throw new DiscordLoginException(jresult.password[0]);
-                    if (jresult.email != null)
-                        throw new DiscordLoginException(jresult.email[0]);
+                    var jsonResult = JObject.Parse(result);
+
+                    if (!jsonResult["password"].IsNullOrEmpty())
+                        throw new DiscordLoginException((jsonResult["password"].ToObject<JArray>()[0].ToString()));
+                    if(!jsonResult["email"].IsNullOrEmpty())
+                        throw new DiscordLoginException((jsonResult["email"].ToObject<JArray>()[0].ToString()));
                 }
             }
 

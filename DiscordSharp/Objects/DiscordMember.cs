@@ -11,36 +11,36 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp
 {
-    [Obsolete]
-    public class DiscordUser
-    {
-        private DiscordClient __parent;
-        public DiscordUser(DiscordClient p)
-        {
-            __parent = p;
-        }
+    //[Obsolete]
+    //public class DiscordUser
+    //{
+    //    private DiscordClient __parent;
+    //    public DiscordUser(DiscordClient p)
+    //    {
+    //        __parent = p;
+    //    }
 
-        public string username { get; internal set; }
-        public string id { get; internal set; }
-        public string discriminator { get; internal set; }
-        public string avatar { get; internal set; }
-        public bool verified { get; internal set; }
-        public string email { get; internal set; }
+    //    public string username { get; internal set; }
+    //    public string id { get; internal set; }
+    //    public string discriminator { get; internal set; }
+    //    public string avatar { get; internal set; }
+    //    public bool verified { get; internal set; }
+    //    public string email { get; internal set; }
 
-        /*
-        Voice only
-        */
-        /// <summary>
-        /// Whether or not the member can speak/mic enabled in the voice channel.
-        /// </summary>
-        public bool mute { get; internal set; } = false;
-        /// <summary>
-        /// Whether or not the member can hear others in the voice channel.
-        /// </summary>
-        public bool deaf { get; internal set; } = false;
+    //    /*
+    //    Voice only
+    //    */
+    //    /// <summary>
+    //    /// Whether or not the member can speak/mic enabled in the voice channel.
+    //    /// </summary>
+    //    public bool mute { get; internal set; } = false;
+    //    /// <summary>
+    //    /// Whether or not the member can hear others in the voice channel.
+    //    /// </summary>
+    //    public bool deaf { get; internal set; } = false;
 
         
-    }
+    //}
 
     public class DiscordMember
     {
@@ -78,10 +78,12 @@ namespace DiscordSharp
         /// </summary>
         public DiscordServer Parent { get; internal set; }
         internal DiscordClient parentclient { get; set; }
-        public DiscordMember(DiscordClient parent)
+        
+        internal DiscordMember(DiscordClient parent)
         {
             Roles = new List<DiscordRole>();
         }
+
         /// <summary>
         /// should only be used for Newtonsoft.Json
         /// </summary>
