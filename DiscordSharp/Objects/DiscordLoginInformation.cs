@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiscordSharp
 {
+    [Obsolete]
     public class DiscordLoginInformation
     {
         public string[] email { get; set; }

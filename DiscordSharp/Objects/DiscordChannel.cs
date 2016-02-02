@@ -12,6 +12,8 @@ namespace DiscordSharp
         public string id { get; internal set; }
         [JsonProperty("is_private")]
         public bool is_private { get; internal set; }
+
+        internal DiscordChannelBase() { }
     }
 
     public class DiscordChannel : DiscordChannelBase
@@ -46,6 +48,8 @@ namespace DiscordSharp
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages + $"/{message.id}";
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
         }
+
+        internal DiscordChannel() { }
     }
 
     public class DiscordPrivateChannel : DiscordChannelBase
@@ -53,6 +57,8 @@ namespace DiscordSharp
         public DiscordMember recipient { get; set; }
         [JsonProperty("last_message_id")]
         private string LastMessageID { get; set; }
+
+        internal DiscordPrivateChannel() { }
     }
 
     //kinda like the author
@@ -60,6 +66,7 @@ namespace DiscordSharp
     {
         public string username { get; set; }
         public string id { get; set; }
+        internal DiscordRecipient() { }
     }
 
     public class DiscordServer
@@ -82,7 +89,7 @@ namespace DiscordSharp
 
         internal DiscordClient parentclient { get; set; }
 
-        public DiscordServer()
+        internal DiscordServer()
         {
             channels = new List<DiscordChannel>();
             members = new List<DiscordMember>();

@@ -31,5 +31,7 @@ namespace DiscordSharp
                 id = this.id
             };
         }
+
+        internal DiscordRole() { }
     }
 }

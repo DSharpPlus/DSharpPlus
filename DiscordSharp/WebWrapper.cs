@@ -13,7 +13,7 @@ namespace DiscordSharp
     /// <summary>
     /// Convienent wrapper for doing anything web related.
     /// </summary>
-    public class WebWrapper
+    internal class WebWrapper
     {
         static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
 

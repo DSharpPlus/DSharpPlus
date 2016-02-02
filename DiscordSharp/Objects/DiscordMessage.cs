@@ -39,5 +39,8 @@ namespace DiscordSharp
         public DateTime timestamp { get; internal set; }
 
         public JObject RawJson { get; internal set; }
+
+
+        internal DiscordMessage() { }
     }
 }

@@ -40,8 +40,8 @@ namespace DiscordSharp
     {
         private uint raw = 0;
 
-        public DiscordPermission() { }
-        public DiscordPermission(uint raw) { this.raw = raw; }
+        internal DiscordPermission() { }
+        internal DiscordPermission(uint raw) { this.raw = raw; }
 
         /// <summary>
         /// Checks to see if the role has a specific permission.

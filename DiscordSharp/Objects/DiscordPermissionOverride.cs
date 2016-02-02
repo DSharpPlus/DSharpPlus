@@ -21,8 +21,8 @@ namespace DiscordSharp
         /// </summary>
         public string id { get; set; }
 
-        public DiscordPermissionOverride() { }
-        public DiscordPermissionOverride(uint _allow_raw, uint _deny_raw) { allow_raw = _allow_raw; deny_raw = _deny_raw; }
+        internal DiscordPermissionOverride() { }
+        internal DiscordPermissionOverride(uint _allow_raw, uint _deny_raw) { allow_raw = _allow_raw; deny_raw = _deny_raw; }
         
         /// <summary>
         /// Checks to see if the role has a specific permission.
