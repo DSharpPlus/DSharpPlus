@@ -269,12 +269,32 @@ namespace DiscordSharp
             foreach(var privateChannel in m["d"]["private_channels"])
             {
                 DiscordPrivateChannel tempPrivate = JsonConvert.DeserializeObject<DiscordPrivateChannel>(privateChannel.ToString());
-                DiscordMember recipient = ServersList.Find(x => x.members.Find(y => y.ID == privateChannel["recipient"]["id"].ToString()) != null).members.Find(x => x.ID == privateChannel["recipient"]["id"].ToString());
-                if(recipient != null)
+                DiscordServer potentialServer = new DiscordServer();
+                ServersList.ForEach(x =>
                 {
-                    tempPrivate.recipient = recipient;
+                    x.members.ForEach(y =>
+                    {
+                        if (y.ID == privateChannel["recipient"]["id"].ToString())
+                            potentialServer = x;
+                    });
+                });
+                if(potentialServer.owner != null) //should be a safe test..i hope
+                {
+                    DiscordMember recipient = potentialServer.members.Find(x => x.ID == privateChannel["recipient"]["id"].ToString());
+                    if (recipient != null)
+                    {
+                        tempPrivate.recipient = recipient;
+                        PrivateChannels.Add(tempPrivate);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Recipient was null!!!!", MessageLevel.Critical);
+                    }
                 }
-                PrivateChannels.Add(tempPrivate);
+                else
+                {
+                    DebugLogger.Log("No potential server found for user's private channel null!!!!", MessageLevel.Critical);
+                }
             }
         }
 
