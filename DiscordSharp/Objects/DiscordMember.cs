@@ -100,6 +100,28 @@ namespace DiscordSharp
         }
 
         /// <summary>
+        /// Testing copy method.
+        /// </summary>
+        /// <returns>A copied member, idk what more you expected</returns>
+        internal DiscordMember Copy()
+        {
+            return new DiscordMember
+            {
+                ID = this.ID,
+                Username = this.Username,
+                Avatar = this.Avatar,
+                Deaf = this.Deaf,
+                Discriminator = this.Discriminator,
+                Email = this.Email,
+                Muted = this.Muted,
+                Parent = this.Parent,
+                parentclient = this.parentclient,
+                Roles = this.Roles,
+                Verified = this.Verified
+            };
+        }
+
+        /// <summary>
         /// Bans this DiscordMember from the guild that's assumed from their
         /// parent property.
         /// </summary>

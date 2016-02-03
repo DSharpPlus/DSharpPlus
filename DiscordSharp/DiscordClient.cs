@@ -1482,12 +1482,12 @@ namespace DiscordSharp
             e.Server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             if(e.Server != null)
             {
-                e.MemberBanned = e.Server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString());
+                e.MemberBanned = e.Server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString()).Copy();
                 if(e.MemberBanned != null)
                 {
-                    ServersList.Find(x => x.id == e.Server.id).members.Remove(e.MemberBanned);
                     if (GuildMemberBanned != null)
                         GuildMemberBanned(this, e);
+                    ServersList.Find(x => x.id == e.Server.id).members.Remove(e.MemberBanned);
                 }
                 else
                 {
