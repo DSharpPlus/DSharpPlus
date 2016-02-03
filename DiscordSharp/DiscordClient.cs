@@ -242,6 +242,14 @@ namespace DiscordSharp
 
                     temp.members.Add(member);
                 }
+                foreach(var presence in j["presence"])
+                {
+                    DiscordMember member = temp.members.Find(x => x.ID == presence["user"]["id"].ToString());
+                    member.SetPresence(presence["status"].ToString());
+                    if (!presence["game"].IsNullOrEmpty())
+                        member.CurrentGame = presence["game"]["name"].ToString();
+                }
+                temp.region = j["region"].ToString();
                 temp.owner = temp.members.Find(x => x.ID == j["owner_id"].ToString());
                 ServersList.Add(temp);
             }
@@ -659,13 +667,20 @@ namespace DiscordSharp
             if (pserver != null)
             {
                 var user = pserver.members.Find(x => x.ID == message["d"]["id"].ToString());
-                dpuea.user = user;
-
+                user.SetPresence(message["d"]["status"].ToString());
+                
                 string game = message["d"]["game"].ToString();
                 if (message["d"]["game"].IsNullOrEmpty())
+                {
                     dpuea.game = "";
+                    user.CurrentGame = null;
+                }
                 else
+                {
                     dpuea.game = message["d"]["game"]["name"].ToString();
+                    user.CurrentGame = dpuea.game;
+                }
+                dpuea.user = user;
 
                 if (message["d"]["status"].ToString() == "online")
                     dpuea.status = DiscordUserStatus.ONLINE;
@@ -1004,14 +1019,32 @@ namespace DiscordSharp
             }
         }
 
+        private DiscordChannel GetDiscordChannelByID(string id)
+        {
+            DiscordChannel returnVal = new DiscordChannel { id = "-1" };
+            ServersList.ForEach(x =>
+            {
+                x.channels.ForEach(y =>
+                {
+                    if (y.id == id)
+                        returnVal = y;
+                });
+            });
+            if (returnVal.id != "-1")
+                return returnVal;
+            else
+                return null;
+        }
+
         private void MessageCreateEvents(JObject message)
         {
-            try
-            {
+            //try
+            //{
                 string tempChannelID = message["d"]["channel_id"].ToString();
 
-                var foundServerChannel = ServersList.Find(x => x.channels.Find(y => y.id == tempChannelID) != null);
-                if (foundServerChannel == null)
+                //DiscordServer foundServerChannel = ServersList.Find(x => x.channels.Find(y => y.id == tempChannelID) != null);
+                DiscordChannel potentialChannel = GetDiscordChannelByID(message["d"]["channel_id"].ToString());
+                if (potentialChannel == null) //private message create
                 {
                     if (message["d"]["author"]["id"].ToString() != Me.ID)
                     {
@@ -1038,13 +1071,13 @@ namespace DiscordSharp
                 else
                 {
                     DiscordMessageEventArgs dmea = new DiscordMessageEventArgs();
-                    dmea.Channel = foundServerChannel.channels.Find(y => y.id == tempChannelID);
+                    dmea.Channel = potentialChannel;
 
                     dmea.message_text = message["d"]["content"].ToString();
 
                     DiscordMember tempMember = new DiscordMember(this);
                     tempMember.parentclient = this;
-                    tempMember = foundServerChannel.members.Find(x => x.ID == message["d"]["author"]["id"].ToString());
+                    tempMember = potentialChannel.parent.members.Find(x => x.ID == message["d"]["author"]["id"].ToString());
                     dmea.author = tempMember;
 
                     DiscordMessage m = new DiscordMessage();
@@ -1057,11 +1090,22 @@ namespace DiscordSharp
                     m.timestamp = DateTime.Now;
                     dmea.message = m;
 
-                    Regex r = new Regex("\\d+");
-                    foreach (Match mm in r.Matches(dmea.message_text))
-                        if (mm.Value == Me.ID)
-                            if (MentionReceived != null)
-                                MentionReceived(this, dmea);
+                    if (!message["d"]["mentions"].IsNullOrEmpty())
+                    {
+                        JArray mentionsAsArray = JArray.Parse(message["d"]["mentions"].ToString());
+                        foreach (var mention in mentionsAsArray)
+                        {
+                            Console.WriteLine(mention);
+                            Console.WriteLine(mention["id"].ToString());
+                            string id = mention["id"].ToString();
+                            Console.WriteLine(Me.ID);
+                            if (id.Equals(Me.ID))
+                            {
+                                if (MentionReceived != null)
+                                    MentionReceived(this, dmea);
+                            }
+                        }
+                    }
 
                     KeyValuePair<string, DiscordMessage> toAdd = new KeyValuePair<string, DiscordMessage>(message["d"]["id"].ToString(), m);
                     MessageLog.Add(toAdd);
@@ -1069,11 +1113,11 @@ namespace DiscordSharp
                     if (MessageReceived != null)
                         MessageReceived(this, dmea);
                 }
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.Log("Error ocurred during MessageCreateEvents: " + ex.Message, MessageLevel.Error);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    DebugLogger.Log("Error ocurred during MessageCreateEvents: " + ex.Message, MessageLevel.Error);
+            //}
         }
 
         private void ChannelCreateEvents (JObject message)

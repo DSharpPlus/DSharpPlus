@@ -73,6 +73,8 @@ namespace DiscordSharp
     {
         public string id { get; internal set; }
         public string name { get; internal set; }
+
+        public string region { get; internal set; }
         
 #pragma warning disable 0612
         private DiscordMember _owner;

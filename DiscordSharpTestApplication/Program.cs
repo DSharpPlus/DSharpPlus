@@ -160,10 +160,8 @@ namespace DiscordSharpTestApplication
                     DiscordServer fromServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
 
                     Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.Username, e.Channel.name, fromServer.name, e.message.content);
-
-                    if (e.message.content.StartsWith("?status"))
-                        client.SendMessageToChannel("I work ;)", e.Channel);
-                    else if (e.message.content.StartsWith("?typemonkey"))
+                    
+                    if (e.message.content.StartsWith("?typemonkey"))
                     {
                         client.SimulateTyping(e.Channel);
                     }
@@ -465,6 +463,26 @@ namespace DiscordSharpTestApplication
                         {
                             var foundMember = foundServer.members.Find(x => x.ID == m.Value);
                             client.SendMessageToChannel(string.Format("<@{0}>: {1}, {2}", foundMember.ID, foundMember.ID, foundMember.Username), e.Channel);
+                        }
+                    }
+                    else if(e.message.content.StartsWith("?statusof"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            string justID = split[1].Trim(new char []{ '<', '>', '@' });
+                            DiscordMember memberToCheck = e.Channel.parent.members.Find(x => x.ID == justID.Trim());
+                            if(memberToCheck != null)
+                            {
+                                string msg = $"{memberToCheck.Username}'s status: `{memberToCheck.Status.ToString()}`";
+                                if (memberToCheck.CurrentGame != null)
+                                    msg += $"\nCurrent Game: {memberToCheck.CurrentGame}";
+                                e.Channel.SendMessage(msg);
+                            }
+                            else
+                            {
+                                e.Channel.SendMessage("Couldn't find user with ID `" + justID + "`!");
+                            }
                         }
                     }
                     else if (e.message.content.StartsWith("?deletelast"))
