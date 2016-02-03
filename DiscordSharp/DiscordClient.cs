@@ -102,6 +102,11 @@ namespace DiscordSharp
         private Task KeepAliveTask;
 
         /// <summary>
+        /// Testing.
+        /// </summary>
+        private List<DiscordMember> RemovedMembers = new List<DiscordMember>();
+
+        /// <summary>
         /// Whether or not to write the latest READY upon receiving it.
         /// If this is true, the client will write the contents of the READY message to 'READY_LATEST.txt'
         /// If your client is connected to a lot of servers, this file will be quite large.
@@ -1482,7 +1487,7 @@ namespace DiscordSharp
             e.Server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             if(e.Server != null)
             {
-                e.MemberBanned = e.Server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString()).Copy();
+                e.MemberBanned = e.Server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString());
                 if(e.MemberBanned != null)
                 {
                     if (GuildMemberBanned != null)
@@ -1491,7 +1496,17 @@ namespace DiscordSharp
                 }
                 else
                 {
-                    DebugLogger.Log("Error in GuildMemberBannedEvents: MemberBanned is null?!", MessageLevel.Error);
+                    DebugLogger.Log("Error in GuildMemberBannedEvents: MemberBanned is null, attempting internal index of removed members.", MessageLevel.Error);
+                    e.MemberBanned = RemovedMembers.Find(x => x.ID == message["d"]["user"]["id"].ToString());
+                    if(e.MemberBanned != null)
+                    {
+                        if (GuildMemberBanned != null)
+                            GuildMemberBanned(this, e);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Error in GuildMemberBannedEvents: MemberBanned is null, not even found in internal index!", MessageLevel.Error);
+                    }
                 }
             }
             else
@@ -2124,6 +2139,7 @@ namespace DiscordSharp
                     {
                         removed = server.members[i];
                         membersToRemove.Add(removed);
+                        RemovedMembers.Add(removed);
                     }
                 }
             }
