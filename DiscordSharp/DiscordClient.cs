@@ -13,35 +13,6 @@ using System.Drawing;
 
 namespace DiscordSharp
 {
-    //class DiscordLoginResult
-    //{
-    //    public string token { get; set; }
-    //    public string[] password { get; set; } //errors
-    //    public string[] email { get; set; }
-    //}
-
-    //class DiscordInitObj
-    //{
-    //    public int op { get; set; }
-    //    public DiscordD d { get; set; }
-    //    public DiscordInitObj() { d = new DiscordD(); }
-    //    public string AsJson()
-    //    {
-    //        return JsonConvert.SerializeObject(this);
-    //    }
-    //}
-
-    //class DiscordD
-    //{
-    //    public string token { get; set; }
-    //    public DiscordProperties properties { get; set; }
-    //    public DiscordD() { properties = new DiscordProperties(); }
-    //    public string AsJson()
-    //    {
-    //        return JsonConvert.SerializeObject(this);
-    //    }
-    //}
-
     class DiscordProperties
     {
         [JsonProperty("os")]
