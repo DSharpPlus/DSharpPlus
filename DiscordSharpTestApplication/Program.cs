@@ -493,7 +493,7 @@ namespace DiscordSharpTestApplication
                     else if (e.message.content.StartsWith("?testdmdelete"))
                     {
                         var msg = client.SendMessageToUser("lmao you suck", client.GetServersList()[0].members.Find(x => x.Username == "Axiom"));
-                        client.DeletePrivateMessage(msg);
+                        client.DeleteMessage(msg);
                     }
                     else if (e.message.content.StartsWith("?prune"))
                     {

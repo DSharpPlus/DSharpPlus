@@ -696,18 +696,29 @@ namespace DiscordSharp
 
         /// <summary>
         /// Deletes a message with a specified ID.
+        /// This method will only work if the message was sent since the bot has ran.
         /// </summary>
         /// <param name="id"></param>
         public void DeleteMessage(string id)
         {
             var message = MessageLog.Find(x => x.Value.id == id);
-            SendDeleteRequest(message.Value);
+            if(message.Value != null)
+                SendDeleteRequest(message.Value);
         }
 
-        public void DeletePrivateMessage(DiscordMessage message)
+        /// <summary>
+        /// Deletes a specified DiscordMessage.
+        /// </summary>
+        /// <param name="message"></param>
+        public void DeleteMessage(DiscordMessage message)
         {
-            SendDeleteRequest(message, true);
+            SendDeleteRequest(message);
         }
+
+        //public void DeletePrivateMessage(DiscordMessage message)
+        //{
+        //    SendDeleteRequest(message, true);
+        //}
 
         /// <summary>
         /// Deletes all messages made by the bot since running.
@@ -728,28 +739,28 @@ namespace DiscordSharp
             return count;
         }
         
-        /// <summary>
-        /// Deletes messages from the client's internal logs in a given channel.
-        /// Only deletes those sent by the client.
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <returns>How many messages were deleted.</returns>
-        public int DeleteMessagesFromClientInChannel(DiscordChannel channel)
-        {
-            int count = 0;
+        ///// <summary>
+        ///// Deletes messages from the client's internal logs in a given channel.
+        ///// Only deletes those sent by the client.
+        ///// </summary>
+        ///// <param name="channel"></param>
+        ///// <returns>How many messages were deleted.</returns>
+        //public int DeleteMessagesFromClientInChannel(DiscordChannel channel)
+        //{
+        //    int count = 0;
 
-            foreach(var message in this.MessageLog)
-            {
-                if (message.Value.channel == channel)
-                    if (message.Value.author.ID == Me.ID)
-                    {
-                        SendDeleteRequest(message.Value);
-                        count++;
-                    }
-            }
+        //    foreach(var message in this.MessageLog)
+        //    {
+        //        if (message.Value.channel == channel)
+        //            if (message.Value.author.ID == Me.ID)
+        //            {
+        //                SendDeleteRequest(message.Value);
+        //                count++;
+        //            }
+        //    }
 
-            return count;
-        }
+        //    return count;
+        //}
 
         /// <summary>
         /// Deletes the specified number of messages in a given channel.
@@ -838,6 +849,9 @@ namespace DiscordSharp
 
         public void AcceptInvite(string inviteID)
         {
+            if (inviteID.StartsWith("http://"))
+                inviteID = inviteID.Substring(inviteID.LastIndexOf('/') + 1);
+
             string url = Endpoints.BaseAPI + Endpoints.Invite + $"/{inviteID}";
             try
             {
@@ -924,7 +938,7 @@ namespace DiscordSharp
             }
         }
 
-        private void SendDeleteRequest(DiscordMessage message, bool user = false)
+        private void SendDeleteRequest(DiscordMessage message)
         {
             string url;
             //if(!user)
