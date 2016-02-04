@@ -1089,6 +1089,15 @@ namespace DiscordSharp
                     m.RawJson = message;
                     m.timestamp = DateTime.Now;
                     dmea.message = m;
+                if(!message["d"]["attachments"].IsNullOrEmpty())
+                {
+                    List<DiscordAttachment> tempList = new List<DiscordAttachment>();
+                    foreach(var attachment in message["d"]["attachments"])
+                    {
+                        tempList.Add(JsonConvert.DeserializeObject<DiscordAttachment>(attachment.ToString()));
+                    }
+                    m.attachments = tempList.ToArray();
+                }
 
                     if (!message["d"]["mentions"].IsNullOrEmpty())
                     {
