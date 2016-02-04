@@ -314,7 +314,7 @@ namespace DiscordSharp
                 DiscordMessage m = new DiscordMessage
                 {
                     id = result["id"].ToString(),
-                    attachments = result["attachments"].ToObject<string[]>(),
+                    attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
                     author = channel.parent.members.Find(x => x.ID == result["author"]["id"].ToString()),
                     channel = channel,
                     TypeOfChannelObject = channel.GetType(),
@@ -887,7 +887,7 @@ namespace DiscordSharp
                 DiscordMessage m = new DiscordMessage
                 {
                     RawJson = result,
-                    attachments = result["attachments"].ToObject<string[]>(),
+                    attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
                     author = channel.parent.members.Find(x=>x.ID == result["author"]["id"].ToString()),
                     TypeOfChannelObject = channel.GetType(),
                     channel = channel,
@@ -967,7 +967,7 @@ namespace DiscordSharp
                                 {
                                     author = pserver.members.Find(x => x.ID == message["d"]["author"]["id"].ToString()),
                                     content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value.content,
-                                    attachments = message["d"]["attachments"].ToObject<string[]>(),
+                                    attachments = message["d"]["attachments"].ToObject<DiscordAttachment[]>(),
                                     channel = pserver.channels.Find(x => x.id == message["d"]["channel_id"].ToString()),
                                     RawJson = message,
                                     id = message["d"]["id"].ToString(),

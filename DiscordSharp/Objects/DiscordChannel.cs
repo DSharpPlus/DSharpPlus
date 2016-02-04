@@ -33,7 +33,7 @@ namespace DiscordSharp
             DiscordMessage m = new DiscordMessage
             {
                 id = result["id"].ToString(),
-                attachments = result["attachments"].ToObject<string[]>(),
+                attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
                 author = this.parent.members.Find(x => x.ID == result["author"]["id"].ToString()),
                 channel = this,
                 content = result["content"].ToString(),
