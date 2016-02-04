@@ -21,6 +21,8 @@ namespace DiscordSharp
         public string type { get; set; }
         public string name { get; set; }
         public string topic { get; set; }
+        public string icon { get; set; }
+
         public List<DiscordPermissionOverride> PermissionOverrides { get; set; }
 
         public DiscordServer parent { get; internal set; }
@@ -75,7 +77,18 @@ namespace DiscordSharp
         public string name { get; internal set; }
 
         public string region { get; internal set; }
-        
+
+        internal string icon { get; set; }
+        public string IconURL
+        {
+            get
+            {
+                if(icon != null)
+                    return Endpoints.ContentDeliveryNode + Endpoints.Icons + $"/{id}/{icon}";
+                return null;
+            }
+        }
+
 #pragma warning disable 0612
         private DiscordMember _owner;
         public DiscordMember owner { get { return _owner; } internal set

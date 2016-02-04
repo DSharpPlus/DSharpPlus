@@ -172,6 +172,11 @@ namespace DiscordSharp
                 temp.parentclient = this;
                 temp.id = j["id"].ToString();
                 temp.name = j["name"].ToString();
+                if (!j["icon"].IsNullOrEmpty())
+                    temp.icon = j["icon"].ToString();
+                else
+                    temp.icon = null;
+
                 //temp.owner_id = j["owner_id"].ToString();
                 List<DiscordChannel> tempSubs = new List<DiscordChannel>();
 

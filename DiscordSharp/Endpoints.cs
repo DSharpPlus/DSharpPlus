@@ -12,6 +12,10 @@ namespace DiscordSharp
     public static class Endpoints
     {
         public static string BaseAPI = "https://discordapp.com/api";
+
+        public static string ContentDeliveryNode = "https://cdn.discordapp.com/";
+
+        public static string Icons = "/icons";
         public static string Gateway = "/gateway";
         public static string Auth = "/auth";
         public static string Login = "/login";
