@@ -1,4 +1,5 @@
 ﻿using DiscordSharp;
+using DiscordSharp.Objects;
 using IF.Lastfm.Core.Api;
 using IF.Lastfm.Core.Objects;
 using System;

@@ -9,7 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscordSharp
+namespace DiscordSharp.Objects
 {
     public enum Status
     {

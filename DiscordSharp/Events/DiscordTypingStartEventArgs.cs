@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using DiscordSharp.Objects;
 
 namespace DiscordSharp
 {

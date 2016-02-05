@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using DiscordSharp.Objects;
 namespace DiscordSharp
 {
     public class DiscordEmbeds

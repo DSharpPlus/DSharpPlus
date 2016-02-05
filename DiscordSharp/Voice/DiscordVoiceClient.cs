@@ -1,4 +1,5 @@
 ﻿using DiscordSharp.Events;
+using DiscordSharp.Objects;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

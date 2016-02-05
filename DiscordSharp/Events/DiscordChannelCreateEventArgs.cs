@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DiscordSharp.Objects;
+using System;
 
 namespace DiscordSharp
 {

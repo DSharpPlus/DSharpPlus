@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using DiscordSharp.Events;
 using System.Text.RegularExpressions;
 using System.Drawing;
+using DiscordSharp.Objects;
 
 namespace DiscordSharp
 {

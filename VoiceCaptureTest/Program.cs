@@ -1,4 +1,5 @@
 ﻿using DiscordSharp;
+using DiscordSharp.Objects;
 using FragLabs.Audio.Codecs;
 using NAudio.Wave;
 using System;

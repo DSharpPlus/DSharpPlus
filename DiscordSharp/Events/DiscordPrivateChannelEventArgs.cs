@@ -1,5 +1,5 @@
 ﻿using System;
-
+using DiscordSharp.Objects;
 namespace DiscordSharp
 {
     public class DiscordPrivateChannelEventArgs : EventArgs
