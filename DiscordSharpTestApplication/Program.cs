@@ -452,19 +452,6 @@ namespace DiscordSharpTestApplication
                         }
                         client.SendMessageToChannel("Unable to change pic: No permission.", e.Channel);
                     }
-                    else if (e.message.content.StartsWith("?whois"))
-                    {
-                        //?whois <@01393408>
-                        Regex r = new Regex("\\d+");
-                        Match m = r.Match(e.message.content);
-                        Console.WriteLine("WHOIS INVOKED ON: " + m.Value);
-                        var foundServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
-                        if (foundServer != null)
-                        {
-                            var foundMember = foundServer.members.Find(x => x.ID == m.Value);
-                            client.SendMessageToChannel(string.Format("<@{0}>: {1}, {2}", foundMember.ID, foundMember.ID, foundMember.Username), e.Channel);
-                        }
-                    }
                     else if(e.message.content.StartsWith("?servericon"))
                     {
                         if(e.Channel.parent.IconURL != null)
@@ -472,7 +459,7 @@ namespace DiscordSharpTestApplication
                             e.Channel.SendMessage(e.Channel.parent.IconURL);
                         }
                     }
-                    else if(e.message.content.StartsWith("?statusof"))
+                    else if(e.message.content.StartsWith("?whois"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                         if(split.Length > 1)
@@ -481,9 +468,10 @@ namespace DiscordSharpTestApplication
                             DiscordMember memberToCheck = e.Channel.parent.members.Find(x => x.ID == justID.Trim());
                             if(memberToCheck != null)
                             {
-                                string msg = $"{memberToCheck.Username}'s status: `{memberToCheck.Status.ToString()}`";
+                                string msg = $"User info for {memberToCheck.Username}\n```\nID: {memberToCheck.ID}\nStatus: {memberToCheck.Status}\n";
                                 if (memberToCheck.CurrentGame != null)
                                     msg += $"\nCurrent Game: {memberToCheck.CurrentGame}";
+                                msg += "\n```";
                                 e.Channel.SendMessage(msg);
                             }
                             else

@@ -668,33 +668,50 @@ namespace DiscordSharp
         {
             DiscordPresenceUpdateEventArgs dpuea = new DiscordPresenceUpdateEventArgs();
             dpuea.RawJson = message;
-            var pserver = ServersList.Find(x => x.members.Find(y => y.ID == message["d"]["id"].ToString()) != null);
-            if (pserver != null)
+            //var pserver = ServersList.Find(x => x.members.Find(y => y.ID == message["d"]["id"].ToString()) != null);
+            foreach(var server in ServersList)
             {
-                var user = pserver.members.Find(x => x.ID == message["d"]["id"].ToString());
-                user.SetPresence(message["d"]["status"].ToString());
-                
-                string game = message["d"]["game"].ToString();
-                if (message["d"]["game"].IsNullOrEmpty())
+                var user = server.members.Find(x => x.ID == message["d"]["id"].ToString());
+                if(user != null)
                 {
-                    dpuea.game = "";
-                    user.CurrentGame = null;
+                    //If usernames change.
+                    if (!message["d"]["username"].IsNullOrEmpty())
+                        user.Username = message["d"]["username"].ToString();
+
+                    //If avatar changes.
+                    if (!message["d"]["avatar"].IsNullOrEmpty())
+                        user.Avatar = message["d"]["avatar"].ToString();
+
+                    //Actual presence update
+                    user.SetPresence(message["d"]["status"].ToString());
+
+                    //Updating games.
+                    string game = message["d"]["game"].ToString();
+                    if (message["d"]["game"].IsNullOrEmpty())
+                    {
+                        dpuea.game = "";
+                        user.CurrentGame = null;
+                    }
+                    else
+                    {
+                        dpuea.game = message["d"]["game"]["name"].ToString();
+                        user.CurrentGame = dpuea.game;
+                    }
+                    dpuea.user = user;
+
+                    if (message["d"]["status"].ToString() == "online")
+                        dpuea.status = DiscordUserStatus.ONLINE;
+                    else if (message["d"]["status"].ToString() == "idle")
+                        dpuea.status = DiscordUserStatus.IDLE;
+                    else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
+                        dpuea.status = DiscordUserStatus.OFFLINE;
+                    if (PresenceUpdated != null)
+                        PresenceUpdated(this, dpuea);
                 }
                 else
                 {
-                    dpuea.game = message["d"]["game"]["name"].ToString();
-                    user.CurrentGame = dpuea.game;
+                    DebugLogger.Log($"User doesn't exist in server, no problemo.", MessageLevel.Debug);
                 }
-                dpuea.user = user;
-
-                if (message["d"]["status"].ToString() == "online")
-                    dpuea.status = DiscordUserStatus.ONLINE;
-                else if (message["d"]["status"].ToString() == "idle")
-                    dpuea.status = DiscordUserStatus.IDLE;
-                else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
-                    dpuea.status = DiscordUserStatus.OFFLINE;
-                if (PresenceUpdated != null)
-                    PresenceUpdated(this, dpuea);
             }
         }
 
@@ -1369,13 +1386,14 @@ namespace DiscordSharp
                 ws.OnMessage += (sender, e) =>
                 {
                     var message = JObject.Parse(e.Data);
+                    if(message["t"].ToString() != "READY")
+                        DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
                     switch(message["t"].ToString())
                     {
                         case ("READY"):
                             if(WriteLatestReady)
                                 using (var sw = new StreamWriter("READY_LATEST.txt"))
                                     sw.Write(message);
-
                             Me = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
                             Me.parentclient = this;
                             ClientPrivateInformation.avatar = Me.Avatar;
@@ -1771,22 +1789,32 @@ namespace DiscordSharp
         private void GuildMemberUpdateEvents(JObject message)
         {
             DiscordServer server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-            
-            DiscordMember memberUpdated = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
-            memberUpdated.parentclient = this;
-            memberUpdated.Verified = server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString()).Verified;
-            memberUpdated.Parent = server;
 
-            foreach(var roles in message["d"]["roles"])
+            DiscordMember memberUpdated = server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString());
+            if (memberUpdated != null)
             {
-                memberUpdated.Roles.Add(server.roles.Find(x => x.id == roles.ToString()));    
-            }
-            //need to ask voltana if this is actually necessary or i can use the reference i got to server above
-            ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Remove(ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Find(x => x.ID == message["d"]["user"]["id"].ToString()));
-            ServersList.Find(x => x.id == message["d"]["guild_id"].ToString()).members.Add(memberUpdated);
+                memberUpdated.Username = message["d"]["user"]["username"].ToString();
+                if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
+                    memberUpdated.Avatar = message["d"]["user"]["avatar"].ToString();
+                memberUpdated.Discriminator = message["d"]["user"]["discriminator"].ToString();
+                memberUpdated.ID = message["d"]["user"]["id"].ToString();
 
-            if (GuildMemberUpdated != null)
-                GuildMemberUpdated(this, new DiscordGuildMemberUpdateEventArgs { MemberUpdate = memberUpdated, RawJson = message, ServerUpdated = server });            
+
+                foreach (var roles in message["d"]["roles"])
+                {
+                    memberUpdated.Roles.Add(server.roles.Find(x => x.id == roles.ToString()));
+                }
+
+                server.members.Remove(server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString()));
+                server.members.Add(memberUpdated);
+
+                if (GuildMemberUpdated != null)
+                    GuildMemberUpdated(this, new DiscordGuildMemberUpdateEventArgs { MemberUpdate = memberUpdated, RawJson = message, ServerUpdated = server });
+            }
+            else
+            {
+                DebugLogger.Log("memberUpdated was null?!?!?!", MessageLevel.Critical);
+            }
         }
 
         private void GuildRoleUpdateEvents(JObject message)
