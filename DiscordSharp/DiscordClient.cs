@@ -353,6 +353,23 @@ namespace DiscordSharp
             }
         }
 
+        public void AttachFile(DiscordChannel channel, string message, Stream stream)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.id}" + Endpoints.Messages;
+            //WebWrapper.PostWithAttachment(url, message, pathToFile);
+            try
+            {
+                var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, stream, "file", "image/jpeg", null));
+
+                if (!string.IsNullOrWhiteSpace(message))
+                    EditMessage(uploadResult["id"].ToString(), message, channel);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while sending file by stream to {channel.name}: {ex.Message}", MessageLevel.Error);
+            }
+        }
+
         //tysm voltana <3
         public void ChangeClientAvatar(Bitmap image)
         {
