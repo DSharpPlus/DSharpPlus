@@ -78,7 +78,7 @@ namespace VoiceCaptureTest
                             string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                             if(split[1] != "")
                             {
-                                DiscordChannel toJoin = e.Channel.parent.channels.Find(x => (x.name.ToLower() == split[1].ToLower()) && (x.type == "voice"));
+                                DiscordChannel toJoin = e.Channel.parent.channels.Find(x => (x.Name.ToLower() == split[1].ToLower()) && (x.Type == ChannelType.Voice));
                                 if(toJoin != null)
                                 {
                                     client.ConnectToVoiceChannel(toJoin);

@@ -131,9 +131,9 @@ namespace DiscordSharpTestApplication
                 };
                 client.ChannelCreated += (sender, e) =>
                 {
-                    var parentServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.ChannelCreated.id) != null);
+                    var parentServer = client.GetServersList().Find(x => x.channels.Find(y => y.ID == e.ChannelCreated.ID) != null);
                     if (parentServer != null)
-                        Console.WriteLine("Channel {0} created in {1}!", e.ChannelCreated.name, parentServer.name);
+                        Console.WriteLine("Channel {0} created in {1}!", e.ChannelCreated.Name, parentServer.name);
                 };
                 client.PrivateChannelDeleted += (sender, e) =>
                 {
@@ -150,7 +150,7 @@ namespace DiscordSharpTestApplication
                 client.MentionReceived += (sender, e) =>
                 {
                     string rawMessage = e.message.content;
-                    string whatToSend = $"I received a mention from @{e.author.Username} in #{e.Channel.name} in {e.Channel.parent.name}. It said: \n```\n{rawMessage}\n```";
+                    string whatToSend = $"I received a mention from @{e.author.Username} in #{e.Channel.Name} in {e.Channel.parent.name}. It said: \n```\n{rawMessage}\n```";
                     if (rawMessage.Contains($"{client.Me.ID}"))
                         whatToSend += $"Where `<@{client.Me.ID}>` is my user being mentioned.";
                     DiscordMember owner = client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom");
@@ -158,9 +158,9 @@ namespace DiscordSharpTestApplication
                 };
                 client.MessageReceived += (sender, e) =>
                 {
-                    DiscordServer fromServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
+                    DiscordServer fromServer = client.GetServersList().Find(x => x.channels.Find(y => y.ID == e.Channel.ID) != null);
 
-                    Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.Username, e.Channel.name, fromServer.name, e.message.content);
+                    Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.Username, e.Channel.Name, fromServer.name, e.message.content);
                     
                     if (e.message.content.StartsWith("?typemonkey"))
                     {
@@ -185,7 +185,7 @@ namespace DiscordSharpTestApplication
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                         if (split.Length > 1)
                         {
-                            DiscordChannel voiceToJoin = e.Channel.parent.channels.Find(x => x.name.ToLower() == split[1].ToLower() && x.type == "voice");
+                            DiscordChannel voiceToJoin = e.Channel.parent.channels.Find(x => x.Name.ToLower() == split[1].ToLower() && x.Type == ChannelType.Voice);
                             if (voiceToJoin != null)
                                 client.ConnectToVoiceChannel(voiceToJoin);
                         }
@@ -200,7 +200,7 @@ namespace DiscordSharpTestApplication
                         if (split.Length > 1)
                         {
                             DiscordServer created = client.CreateGuild(split[1]);
-                            DiscordChannel channel = created.channels.Find(x => x.type == "text");
+                            DiscordChannel channel = created.channels.Find(x => x.Type == ChannelType.Text);
                             client.ChangeChannelTopic("Created with DiscordSharp test bot", channel);
 
                             client.SendMessageToChannel($"Join: {client.MakeInviteURLFromCode(client.CreateInvite(channel))}", e.Channel);
@@ -210,14 +210,18 @@ namespace DiscordSharpTestApplication
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                     }
+                    else if(e.message.content.StartsWith("?channeltype"))
+                    {
+                        e.Channel.SendMessage(e.Channel.Type.ToString());
+                    }
                     else if (e.message.content.StartsWith("?whereami"))
                     {
-                        DiscordServer server = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
+                        DiscordServer server = client.GetServersList().Find(x => x.channels.Find(y => y.ID == e.Channel.ID) != null);
                         string owner = "";
                         foreach (var member in server.members)
                             if (member.ID == server.owner.ID)
                                 owner = member.Username;
-                        string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by @{4}. The channel's topic is: {5}", e.Channel.name, e.Channel.id, server.name, server.id, owner, e.Channel.topic);
+                        string whereami = String.Format("I am currently in *#{0}* ({1}) on server *{2}* ({3}) owned by @{4}. The channel's topic is: {5}", e.Channel.Name, e.Channel.ID, server.name, server.id, owner, e.Channel.Topic);
                         client.SendMessageToChannel(whereami, e.Channel);
                     }
                     else if (e.message.content.StartsWith("?makeroll"))
@@ -290,7 +294,7 @@ namespace DiscordSharpTestApplication
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                         if (split.Length > 1)
                         {
-                            DiscordServer curServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == split[1]) != null);
+                            DiscordServer curServer = client.GetServersList().Find(x => x.channels.Find(y => y.ID == split[1]) != null);
                             if (curServer != null)
                             {
                                 client.SendMessageToChannel("Leaving server " + curServer.name, e.Channel);
@@ -299,7 +303,7 @@ namespace DiscordSharpTestApplication
                         }
                         else
                         {
-                            DiscordServer curServer = client.GetServersList().Find(x => x.channels.Find(y => y.id == e.Channel.id) != null);
+                            DiscordServer curServer = client.GetServersList().Find(x => x.channels.Find(y => y.ID == e.Channel.ID) != null);
                             if (curServer != null)
                             {
                                 //client.SendMessageToChannel("Bye!", e.Channel);
@@ -516,7 +520,7 @@ namespace DiscordSharpTestApplication
                     else if (e.message.content.Contains("?checkchannelperm"))
                     {
                         DiscordChannel channel = e.Channel;
-                        string toSend = $"Channel Permission Overrides for #{channel.name}\n\n```";
+                        string toSend = $"Channel Permission Overrides for #{channel.Name}\n\n```";
                         foreach (var over in channel.PermissionOverrides)
                         {
                             toSend += $"* Type: {over.type}\n";
@@ -759,7 +763,7 @@ namespace DiscordSharpTestApplication
                     ofd.Title = "Select file to attach";
                     if (ofd.ShowDialog() == DialogResult.OK)
                     {
-                        DiscordChannel c = client.GetServersList().Find(x => x.name.Contains("Discord API")).channels.Find(x => x.name.Contains("dotnet_discord-net"));
+                        DiscordChannel c = client.GetServersList().Find(x => x.name.Contains("Discord API")).channels.Find(x => x.Name.Contains("dotnet_discord-net"));
                         client.AttachFile(c, "Test", ofd.FileName);
                     }
                 }
@@ -811,7 +815,7 @@ namespace DiscordSharpTestApplication
                     Console.WriteLine("--Last Message Sent--");
 
                     DiscordChannel channel = Convert.ChangeType(msg.Channel(), typeof(DiscordChannel));
-                    Console.WriteLine($"  ID: {msg.id}\n  Channel: {channel.name}\n  Content: {msg.content}");
+                    Console.WriteLine($"  ID: {msg.id}\n  Channel: {channel.Name}\n  Content: {msg.content}");
                 }
             } while (!string.IsNullOrWhiteSpace(input));
         }

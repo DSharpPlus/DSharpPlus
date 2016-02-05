@@ -9,19 +9,31 @@ namespace DiscordSharp.Objects
     public class DiscordChannelBase
     {
         [JsonProperty("id")]
-        public string id { get; internal set; }
+        public string ID { get; internal set; }
         [JsonProperty("is_private")]
-        public bool is_private { get; internal set; }
+        public bool Private { get; internal set; }
 
         internal DiscordChannelBase() { }
     }
 
+    public enum ChannelType
+    {
+        Text, Voice
+    }
+
     public class DiscordChannel : DiscordChannelBase
     {
-        public string type { get; set; }
-        public string name { get; set; }
-        public string topic { get; set; }
-        public string icon { get; set; }
+        [JsonProperty("type")]
+        public ChannelType Type { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("topic")]
+        public string Topic { get; set; }
+
+        [JsonProperty("icon")]
+        public string Icon { get; set; }
 
         public List<DiscordPermissionOverride> PermissionOverrides { get; set; }
 
@@ -29,7 +41,7 @@ namespace DiscordSharp.Objects
 
         public DiscordMessage SendMessage(string message)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages;
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
             JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
 
             DiscordMessage m = new DiscordMessage
@@ -47,7 +59,7 @@ namespace DiscordSharp.Objects
 
         private void DeleteMessage(DiscordMessage message)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages + $"/{message.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Messages + $"/{message.id}";
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
         }
 
@@ -64,6 +76,7 @@ namespace DiscordSharp.Objects
     }
 
     //kinda like the author
+    [Obsolete]
     public class DiscordRecipient
     {
         public string username { get; set; }
