@@ -465,6 +465,13 @@ namespace DiscordSharpTestApplication
                             client.SendMessageToChannel(string.Format("<@{0}>: {1}, {2}", foundMember.ID, foundMember.ID, foundMember.Username), e.Channel);
                         }
                     }
+                    else if(e.message.content.StartsWith("?servericon"))
+                    {
+                        if(e.Channel.parent.IconURL != null)
+                        {
+                            e.Channel.SendMessage(e.Channel.parent.IconURL);
+                        }
+                    }
                     else if(e.message.content.StartsWith("?statusof"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);

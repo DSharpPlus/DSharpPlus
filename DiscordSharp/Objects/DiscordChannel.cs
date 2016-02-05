@@ -84,7 +84,7 @@ namespace DiscordSharp
             get
             {
                 if(icon != null)
-                    return Endpoints.ContentDeliveryNode + Endpoints.Icons + $"/{id}/{icon}";
+                    return Endpoints.ContentDeliveryNode + Endpoints.Icons + $"/{id}/{icon}.jpg";
                 return null;
             }
         }

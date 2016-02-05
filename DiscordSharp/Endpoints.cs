@@ -13,7 +13,7 @@ namespace DiscordSharp
     {
         public static string BaseAPI = "https://discordapp.com/api";
 
-        public static string ContentDeliveryNode = "https://cdn.discordapp.com/";
+        public static string ContentDeliveryNode = "https://cdn.discordapp.com";
 
         public static string Icons = "/icons";
         public static string Gateway = "/gateway";

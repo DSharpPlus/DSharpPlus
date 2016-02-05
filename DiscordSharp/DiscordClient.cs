@@ -1123,10 +1123,7 @@ namespace DiscordSharp
                         JArray mentionsAsArray = JArray.Parse(message["d"]["mentions"].ToString());
                         foreach (var mention in mentionsAsArray)
                         {
-                            Console.WriteLine(mention);
-                            Console.WriteLine(mention["id"].ToString());
                             string id = mention["id"].ToString();
-                            Console.WriteLine(Me.ID);
                             if (id.Equals(Me.ID))
                             {
                                 if (MentionReceived != null)
@@ -1921,6 +1918,10 @@ namespace DiscordSharp
             };
             newServer.parentclient = this;
             newServer.roles = new List<DiscordRole>();
+            if(!message["d"]["icon"].IsNullOrEmpty())
+            {
+                newServer.icon = message["d"]["icon"].ToString();
+            }
             if (!message["d"]["roles"].IsNullOrEmpty())
             {
                 foreach (var roll in message["d"]["roles"])
