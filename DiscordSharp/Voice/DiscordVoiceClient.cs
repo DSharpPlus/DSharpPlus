@@ -2,6 +2,7 @@
 using DiscordSharp.Audio;
 using DiscordSharp.Events;
 using DiscordSharp.Objects;
+using Microsoft.Win32.SafeHandles;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using WebSocket4Net;
@@ -41,7 +43,7 @@ namespace DiscordSharp
         public DiscordMember FromUser { get; internal set; }
     }
     
-    public class DiscordVoiceClient
+    public class DiscordVoiceClient : IDisposable
     {
         private DiscordClient _parent;
 
@@ -425,10 +427,6 @@ namespace DiscordSharp
                     VoiceDebugLogger.Log("Sending voice keepalive ( " + keepAliveJson + " ) ");
                     VoiceWebSocket.Send(keepAliveJson);
                 }
-                else
-                {
-                    VoiceDebugLogger.Log("VoiceWebSocket not alive?", MessageLevel.Critical);
-                }
             }
         }
 
@@ -571,22 +569,43 @@ namespace DiscordSharp
                 VoiceDebugLogger.Log("VoiceWebSocket null?", MessageLevel.Critical);
         }
 
+        bool disposed = false;
+        SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+            if(disposing)
+            {
+                handle.Dispose();
+
+                if (VoiceWebSocket != null)
+                {
+                    VoiceWebSocket.Closed -= VoiceWebSocket_OnClose;
+                    VoiceWebSocket.Error -= VoiceWebSocket_OnError;
+                    VoiceWebSocket.Close();
+                }
+                VoiceWebSocket = null;
+                voiceSocketTaskSource.Cancel(); //cancels the task
+                udpReceiveSource.Cancel();
+                udpKeepAliveSource.Cancel();
+
+                voiceSocketTaskSource.Dispose();
+                udpReceiveSource.Dispose();
+                udpKeepAliveSource.Cancel();
+                if (_udp != null)
+                    _udp.Close();
+                _udp = null;
+            }
+            disposed = true;
+        }
+
         public void Dispose()
         {
-            VoiceWebSocket.Closed -= VoiceWebSocket_OnClose;
-            VoiceWebSocket.Error -= VoiceWebSocket_OnError;
-            VoiceWebSocket.Close();
-            VoiceWebSocket = null;
-            voiceSocketTaskSource.Cancel(); //cancels the task
-            udpReceiveSource.Cancel();
-            udpKeepAliveSource.Cancel();
-
-            voiceSocketTaskSource.Dispose();
-            udpReceiveSource.Dispose();
-            udpKeepAliveSource.Cancel();
-            _udp.Close();
-            _udp = null;
-
+            Dispose(true);
+            GC.SuppressFinalize(this); 
+            
             if (Disposed != null)
                 Disposed(this, new EventArgs());
         }

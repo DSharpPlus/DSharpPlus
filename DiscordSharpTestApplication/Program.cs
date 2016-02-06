@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using NAudio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using System.ComponentModel;
 
 namespace DiscordSharpTestApplication
 {
@@ -829,40 +830,49 @@ namespace DiscordSharpTestApplication
 
         private static async void VoiceStuffs(DiscordVoiceClient vc, string file)
         {
-            try
+            //yay threads
+            BackgroundWorker bw = new BackgroundWorker();
+            bw.DoWork += async (s, e) =>
             {
-                int ms = 20;
-                int channels = 1;
-                int sampleRate = 48000;
-
-                int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
-                byte[] buffer = new byte[blockSize];
-                var outFormat = new WaveFormat(sampleRate, 16, channels);
-
-                TimestampSequenceReturn sequence = new TimestampSequenceReturn();
-                sequence.sequence = 0;
-                sequence.timestamp = 0;
-                
-                using (var mp3Reader = new Mp3FileReader(file))
+                try
                 {
-                    using (var resampler = new WaveFormatConversionStream(outFormat, mp3Reader))
+                    int ms = 20;
+                    int channels = 1;
+                    int sampleRate = 48000;
+
+                    int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
+                    byte[] buffer = new byte[blockSize];
+                    var outFormat = new WaveFormat(sampleRate, 16, channels);
+
+                    TimestampSequenceReturn sequence = new TimestampSequenceReturn();
+                    sequence.sequence = 0;
+                    sequence.timestamp = 0;
+
+                    using (var mp3Reader = new Mp3FileReader(file))
                     {
-                        var volume = new VolumeWaveProvider16(resampler);
-                        volume.Volume = 0.1f; //REIGN OF DARKNESS
-                        int byteCount;
-                        vc.SendSpeaking(true);
-                        while ((byteCount = volume.Read(buffer, 0, blockSize)) > 0)
+                        using (var resampler = new WaveFormatConversionStream(outFormat, mp3Reader))
                         {
-                            sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence);
-                            await Task.Delay(20);
+                            var volume = new VolumeWaveProvider16(resampler);
+                            volume.Volume = 0.1f; //REIGN OF DARKNESS
+                            int byteCount;
+                            vc.SendSpeaking(true);
+                            while ((byteCount = volume.Read(buffer, 0, blockSize)) > 0)
+                            {
+                                if (vc != null)
+                                {
+                                    sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence);
+                                    await Task.Delay(ms / 2);
+                                }
+                            }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
-            }
+                catch (Exception ex)
+                {
+                    owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+                }
+            };
+            bw.RunWorkerAsync();
         }
 
         private static async void ConnectStuff()
