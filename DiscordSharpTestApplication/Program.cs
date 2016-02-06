@@ -828,7 +828,7 @@ namespace DiscordSharpTestApplication
             } while (!string.IsNullOrWhiteSpace(input));
         }
 
-        private static async void VoiceStuffs(DiscordVoiceClient vc, string file)
+        private static void VoiceStuffs(DiscordVoiceClient vc, string file)
         {
             //yay threads
             BackgroundWorker bw = new BackgroundWorker();
@@ -848,20 +848,20 @@ namespace DiscordSharpTestApplication
                     sequence.sequence = 0;
                     sequence.timestamp = 0;
 
+                    vc.SendSpeaking(true);
                     using (var mp3Reader = new Mp3FileReader(file))
                     {
                         using (var resampler = new WaveFormatConversionStream(outFormat, mp3Reader))
                         {
                             var volume = new VolumeWaveProvider16(resampler);
-                            volume.Volume = 0.1f; //REIGN OF DARKNESS
+                            volume.Volume = 0.5f; //REIGN OF DARKNESS
                             int byteCount;
-                            vc.SendSpeaking(true);
                             while ((byteCount = volume.Read(buffer, 0, blockSize)) > 0)
                             {
                                 if (vc != null)
                                 {
                                     sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence);
-                                    await Task.Delay(ms / 2);
+                                    Thread.Sleep(ms);
                                 }
                             }
                         }

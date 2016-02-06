@@ -430,6 +430,7 @@ namespace DiscordSharp
             }
         }
 
+        [Obsolete]
         public async Task SendLargeOpusAudioPacket(byte[] opusAudio, int rate, int size)
         {
             UInt16 sequence = 0;
@@ -482,7 +483,7 @@ namespace DiscordSharp
 
         public async Task<TimestampSequenceReturn> SendSmallOpusAudioPacket(byte[] pcmAudio, int rate, int size, TimestampSequenceReturn timestampSeq)
         {
-            OpusEncoder encoder = new OpusEncoder(rate, 1, 20, null, OpusApplication.MusicOrMixed);
+            OpusEncoder encoder = new OpusEncoder(48000, 1, 20, 192, OpusApplication.MusicOrMixed);
             byte[] opusAudio = new byte[pcmAudio.Length];
             encoder.EncodeFrame(pcmAudio, 0, opusAudio);
 
@@ -526,7 +527,7 @@ namespace DiscordSharp
                 try
                 {
                     dataSent = await _udp.SendAsync(buffer, buffer.Length).ConfigureAwait(false);
-                    VoiceDebugLogger.Log($"Sent {dataSent} Given {buffer.Length}");
+                    VoiceDebugLogger.Log($"Sent {dataSent} Given {buffer.Length}", MessageLevel.Unecessary);
                 }
                 catch(Exception ex)
                 {
@@ -559,7 +560,7 @@ namespace DiscordSharp
                             delay = 0
                         }
                     });
-                    VoiceDebugLogger.Log("Sending voice speaking ( " + speakingJson + " ) ");
+                    VoiceDebugLogger.Log("Sending voice speaking ( " + speakingJson + " ) ", MessageLevel.Unecessary);
                     VoiceWebSocket.Send(speakingJson);
                 }
                 else
