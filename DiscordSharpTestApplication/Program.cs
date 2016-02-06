@@ -15,12 +15,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NAudio;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 
 namespace DiscordSharpTestApplication
 {
     class Program
     {
         static DiscordClient client = new DiscordClient();
+        static DiscordMember owner;
         static WaitHandle waitHandle = new AutoResetEvent(false);
         static LastAuth lastfmAuthentication = new LastAuth("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c");
 
@@ -657,6 +659,8 @@ namespace DiscordSharpTestApplication
                             client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom"));
                         }
                     }
+
+                    owner = client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom");
                 };
                 client.SocketClosed += (sender, e) =>
                 {
@@ -825,26 +829,39 @@ namespace DiscordSharpTestApplication
 
         private static async void VoiceStuffs(DiscordVoiceClient vc, string file)
         {
-            //blockSize is 48 * 2 * channels * milliseconds
-            var outFormat = new WaveFormat(48000, 16, 1);
-            using (var mp3Reader = new MediaFoundationReader(file))
+            try
             {
-                using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
+                int ms = 20;
+                int channels = 1;
+                int sampleRate = 48000;
+
+                int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
+                byte[] buffer = new byte[blockSize];
+                var outFormat = new WaveFormat(sampleRate, 16, channels);
+
+                TimestampSequenceReturn sequence = new TimestampSequenceReturn();
+                sequence.sequence = 0;
+                sequence.timestamp = 0;
+                
+                using (var mp3Reader = new Mp3FileReader(file))
                 {
-                    var volume = new VolumeWaveProvider16(resampler);
-                    volume.Volume = 0.1f;
-                    int byteCount;
-                    int blockSize = 48 * 2 * 1 * 20;
-                    byte[] buffer = new byte[blockSize];
-                    TimestampSequenceReturn sequence = new TimestampSequenceReturn();
-                    sequence.sequence = 0;
-                    sequence.timestamp = 0;
-                    while ((byteCount = volume.Read(buffer, 0, blockSize)) > 0)
+                    using (var resampler = new WaveFormatConversionStream(outFormat, mp3Reader))
                     {
-                        sequence = await vc.SendSmallOpusAudioPacket(buffer, 48000, byteCount, sequence);
-                        await Task.Delay(20);
+                        var volume = new VolumeWaveProvider16(resampler);
+                        volume.Volume = 0.1f; //REIGN OF DARKNESS
+                        int byteCount;
+                        vc.SendSpeaking(true);
+                        while ((byteCount = volume.Read(buffer, 0, blockSize)) > 0)
+                        {
+                            sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence);
+                            await Task.Delay(20);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
             }
         }
 

@@ -430,11 +430,6 @@ namespace DiscordSharp
                     VoiceDebugLogger.Log("VoiceWebSocket not alive?", MessageLevel.Critical);
                 }
             }
-            //more than likely this is due to something being disposed and is non-critical
-            //else 
-            //{
-            //    VoiceDebugLogger.Log("VoiceWebSocket null?", MessageLevel.Critical);
-            //}
         }
 
         public async Task SendLargeOpusAudioPacket(byte[] opusAudio, int rate, int size)
@@ -452,8 +447,7 @@ namespace DiscordSharp
             udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
             udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
             udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
-
-            SendSpeaking(true);
+            
             int loopMax = (DateTime.Now.Millisecond * (size / (rate / 100)));
             for(int i = 0; i < loopMax; i++)
             {
@@ -490,7 +484,7 @@ namespace DiscordSharp
 
         public async Task<TimestampSequenceReturn> SendSmallOpusAudioPacket(byte[] pcmAudio, int rate, int size, TimestampSequenceReturn timestampSeq)
         {
-            OpusEncoder encoder = new OpusEncoder(48000, 1, 20, null, OpusApplication.MusicOrMixed);
+            OpusEncoder encoder = new OpusEncoder(rate, 1, 20, null, OpusApplication.MusicOrMixed);
             byte[] opusAudio = new byte[pcmAudio.Length];
             encoder.EncodeFrame(pcmAudio, 0, opusAudio);
 
@@ -505,7 +499,7 @@ namespace DiscordSharp
             udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
             udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
 
-            int dataSent;
+            int dataSent = 0;
 
             SendSpeaking(true);
             {
@@ -520,7 +514,7 @@ namespace DiscordSharp
                 udpHeader[7] = (byte)((timestampSeq.timestamp >> 0) & 0xFF);
 
                 if (opusAudio == null)
-                    return new TimestampSequenceReturn();
+                    throw new ArgumentNullException("opusAudio");
 
                 int maxSize = 0;
                 for (int i = 0; i < opusAudio.Length; i++)
@@ -531,16 +525,18 @@ namespace DiscordSharp
                 byte[] buffer = new byte[udpHeader.Length + maxSize]; //make big thing
                 System.Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
                 System.Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length, maxSize);
-
-                dataSent = await _udp.SendAsync(buffer, buffer.Length).ConfigureAwait(false);
-                VoiceDebugLogger.Log($"Sent {dataSent} Given {buffer.Length}");
-
-                if (timestampSeq.sequence == 0xFFFF)
-                    timestampSeq.sequence = 0;
-                else
-                    timestampSeq.sequence++;
-
-                timestampSeq.timestamp = (UInt32)unchecked(timestampSeq.timestamp + (960));
+                try
+                {
+                    dataSent = await _udp.SendAsync(buffer, buffer.Length).ConfigureAwait(false);
+                    VoiceDebugLogger.Log($"Sent {dataSent} Given {buffer.Length}");
+                }
+                catch(Exception ex)
+                {
+                    VoiceDebugLogger.Log(ex.Message, MessageLevel.Critical);
+                }
+                
+                timestampSeq.sequence = unchecked(timestampSeq.sequence++);
+                timestampSeq.timestamp = unchecked(timestampSeq.timestamp + (960));
             }
 
             TimestampSequenceReturn r = new TimestampSequenceReturn();
@@ -550,7 +546,7 @@ namespace DiscordSharp
             return r;
         }
 
-        private void SendSpeaking(bool speaking)
+        public void SendSpeaking(bool speaking)
         {
             if (VoiceWebSocket != null)
             {
