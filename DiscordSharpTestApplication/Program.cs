@@ -13,6 +13,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NAudio;
+using NAudio.Wave;
 
 namespace DiscordSharpTestApplication
 {
@@ -113,7 +115,7 @@ namespace DiscordSharpTestApplication
                 };
                 client.AudioPacketReceived += (sender, e) =>
                 {
-                    client.EchoPacket(e.Packet);
+                    //client.EchoPacket(e.Packet);
                 };
                 client.VoiceStateUpdate += (sender, e) =>
                 {
@@ -789,6 +791,7 @@ namespace DiscordSharpTestApplication
                         DiscordVoiceClient vc = client.GetVoiceClient();
                         if (vc != null)
                         {
+                            VoiceStuffs(vc, ofd.FileName);
                         }
                     }
                 }
@@ -818,6 +821,31 @@ namespace DiscordSharpTestApplication
                     Console.WriteLine($"  ID: {msg.id}\n  Channel: {channel.Name}\n  Content: {msg.content}");
                 }
             } while (!string.IsNullOrWhiteSpace(input));
+        }
+
+        private static async void VoiceStuffs(DiscordVoiceClient vc, string file)
+        {
+            //blockSize is 48 * 2 * channels * milliseconds
+            var outFormat = new WaveFormat(48000, 16, 1);
+            using (var mp3Reader = new MediaFoundationReader(file))
+            {
+                using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
+                {
+                    var volume = new VolumeWaveProvider16(resampler);
+                    volume.Volume = 0.1f;
+                    int byteCount;
+                    int blockSize = 48 * 2 * 1 * 20;
+                    byte[] buffer = new byte[blockSize];
+                    TimestampSequenceReturn sequence = new TimestampSequenceReturn();
+                    sequence.sequence = 0;
+                    sequence.timestamp = 0;
+                    while ((byteCount = volume.Read(buffer, 0, blockSize)) > 0)
+                    {
+                        sequence = await vc.SendSmallOpusAudioPacket(buffer, 48000, byteCount, sequence);
+                        await Task.Delay(20);
+                    }
+                }
+            }
         }
 
         private static async void ConnectStuff()
