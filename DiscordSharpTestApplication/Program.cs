@@ -830,14 +830,10 @@ namespace DiscordSharpTestApplication
 
         private static void VoiceStuffs(DiscordVoiceClient vc, string file)
         {
-            //yay threads
-            BackgroundWorker bw = new BackgroundWorker();
-            bw.DoWork += async (s, e) =>
-            {
-                try
+            try
                 {
                     int ms = 20;
-                    int channels = 1;
+                    int channels = 2;
                     int sampleRate = 48000;
 
                     int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
@@ -848,6 +844,7 @@ namespace DiscordSharpTestApplication
                     sequence.sequence = 0;
                     sequence.timestamp = 0;
 
+                    vc.InitializeOpusEncoder(sampleRate, channels, ms, null);
                     vc.SendSpeaking(true);
                     using (var mp3Reader = new Mp3FileReader(file))
                     {
@@ -858,10 +855,12 @@ namespace DiscordSharpTestApplication
                             int byteCount;
                             while ((byteCount = volume.Read(buffer, 0, blockSize)) > 0)
                             {
-                                if (vc != null)
+                                if (vc.Connected)
                                 {
-                                    sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence);
-                                    Thread.Sleep(ms);
+                                //sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence).ConfigureAwait(false);
+                                sequence = vc.SendSmallOpusAudioPacket(buffer, 48000, buffer.Length, sequence);
+                                //await Task.Delay(new TimeSpan(18 * TimeSpan.TicksPerMillisecond));
+                                Thread.Sleep(20);
                                 }
                             }
                         }
@@ -871,8 +870,6 @@ namespace DiscordSharpTestApplication
                 {
                     owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
                 }
-            };
-            bw.RunWorkerAsync();
         }
 
         private static async void ConnectStuff()

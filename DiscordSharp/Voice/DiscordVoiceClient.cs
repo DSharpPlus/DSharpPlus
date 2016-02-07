@@ -7,7 +7,9 @@ using NAudio.Wave;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -64,10 +66,11 @@ namespace DiscordSharp
 
         public Logger GetDebugLogger => VoiceDebugLogger;
 
-        private Task voiceSocketKeepAlive, udpReceiveTask, udpKeepAliveTask;
+        private Task voiceSocketKeepAlive, udpReceiveTask, udpKeepAliveTask, sendTask;
         private CancellationTokenSource voiceSocketTaskSource = new CancellationTokenSource();
         private CancellationTokenSource udpReceiveSource = new CancellationTokenSource();
         private CancellationTokenSource udpKeepAliveSource = new CancellationTokenSource();
+        private CancellationTokenSource udpSendSource = new CancellationTokenSource();
 
         #region Events
         public event EventHandler<LoggerMessageReceivedArgs> DebugMessageReceived;
@@ -77,9 +80,15 @@ namespace DiscordSharp
         public event EventHandler<EventArgs> ErrorReceived;
         #endregion
 
+        #region voice sending stuff
+        //private ConcurrentQueue<byte[]> sendBuffer;
+        //private ushort _sequence;
+        #endregion
+
         public DiscordVoiceClient(DiscordClient parentClient)
         {
             _parent = parentClient;
+            //sendBuffer = new ConcurrentQueue<byte[]>();
         }
 
         public void Initiate()
@@ -150,18 +159,18 @@ namespace DiscordSharp
                     udpKeepAliveTask = Task.Factory.StartNew(async () =>
                     {
                         await DoUDPKeepAlive().ConfigureAwait(false);
-                    }, udpKeepAliveSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    }, udpKeepAliveSource.Token, TaskCreationOptions.None, TaskScheduler.Default);
                     udpReceiveTask = Task.Factory.StartNew(async () => 
                     {
                         try
                         {
-                            while (true)
+                            while (!udpReceiveSource.IsCancellationRequested)
                             {
                                 if (udpReceiveSource.IsCancellationRequested)
                                     udpReceiveSource.Token.ThrowIfCancellationRequested();
                                 if (_udp.Available > 0)
                                 {
-                                    byte[] packet = new byte[1920];
+                                    byte[] packet = new byte[_udp.Available];
                                     VoiceDebugLogger.Log("Received packet!! Length: " + _udp.Available, MessageLevel.Unecessary);
                                     UdpReceiveResult d = await _udp.ReceiveAsync().ConfigureAwait(false);
                                     packet = d.Buffer;
@@ -190,7 +199,7 @@ namespace DiscordSharp
                             VoiceDebugLogger.Log($"Error in udpReceiveTask\n\t{ex.Message}\n\t{ex.StackTrace}",
                                 MessageLevel.Critical);
                         }
-                    }, udpReceiveSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    }, udpReceiveSource.Token, TaskCreationOptions.None, TaskScheduler.Default);
                     SendSpeaking(true);
                     break;
                 case 5:
@@ -202,7 +211,7 @@ namespace DiscordSharp
 
         public async Task EchoPacket(DiscordAudioPacket packet)
         {
-            await SendPacket(DiscordAudioPacket.EchoPacket(packet.AsRawPacket(), Params.ssrc));
+            await SendPacket(DiscordAudioPacket.EchoPacket(packet.AsRawPacket(), Params.ssrc)).ConfigureAwait(false);
         }
 
         private async Task DoUDPKeepAlive()
@@ -210,7 +219,7 @@ namespace DiscordSharp
             try
             {
                 long seq = 0;
-                while (VoiceWebSocket.State == WebSocketState.Open)
+                while (VoiceWebSocket.State == WebSocketState.Open && !udpKeepAliveSource.Token.IsCancellationRequested)
                 {
                     if (udpKeepAliveSource.IsCancellationRequested)
                         udpKeepAliveSource.Token.ThrowIfCancellationRequested();
@@ -221,7 +230,7 @@ namespace DiscordSharp
                             bw.Write(0xC9);
                             bw.Write((long)seq);
 
-                            await _udp.SendAsync(ms.ToArray(), ms.ToArray().Length);
+                            await _udp.SendAsync(ms.ToArray(), ms.ToArray().Length).ConfigureAwait(false);
                             VoiceDebugLogger.Log("Sent UDP Keepalive");
                             Thread.Sleep(5 * 1000); //5 seconds
                         }
@@ -242,7 +251,7 @@ namespace DiscordSharp
         {
             if(_udp != null && VoiceWebSocket.State == WebSocketState.Open)
             {
-                await _udp.SendAsync(packet.AsRawPacket(), packet.AsRawPacket().Length);
+                await _udp.SendAsync(packet.AsRawPacket(), packet.AsRawPacket().Length).ConfigureAwait(false);
                 VoiceDebugLogger.Log("Sent packet through SendPacket task.", MessageLevel.Unecessary);
             }
         }
@@ -303,7 +312,7 @@ namespace DiscordSharp
                 }
             });
             VoiceDebugLogger.Log("Sending our IP over WebSocket ( " + msg.ToString() + " ) ");
-            await Task.Run(()=>VoiceWebSocket.Send(msg)); //idk lets try it
+            await Task.Run(()=>VoiceWebSocket.Send(msg)).ConfigureAwait(false); //idk lets try it
         }
 
         private DiscordIpPort GetIPAndPortFromPacket(byte[] packet)
@@ -377,20 +386,20 @@ namespace DiscordSharp
             voiceSocketKeepAlive = Task.Run(() =>
             {
                 ///TODO: clean this up
-                while (VoiceWebSocket != null && VoiceWebSocket.State == WebSocketState.Open)
+                try
                 {
-                    try
+                    while (VoiceWebSocket != null && VoiceWebSocket.State == WebSocketState.Open && !voiceSocketTaskSource.Token.IsCancellationRequested)
                     {
                         SendWebSocketKeepalive();
                         if (voiceSocketTaskSource.Token.IsCancellationRequested)
                             voiceSocketTaskSource.Token.ThrowIfCancellationRequested();
                         Thread.Sleep(Params.heartbeat_interval);
                     }
-                    catch(ObjectDisposedException)
-                    {}
-                    catch(OperationCanceledException ex)
-                    {}
                 }
+                catch (ObjectDisposedException)
+                { }
+                catch (OperationCanceledException ex)
+                { }
             }, voiceSocketTaskSource.Token);
         }
 
@@ -466,7 +475,7 @@ namespace DiscordSharp
                 System.Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
                 System.Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length, opusAudio.Length);
                 
-                int x = await _udp.SendAsync(buffer, buffer.Length);
+                int x = await _udp.SendAsync(buffer, buffer.Length).ConfigureAwait(false);
                 
                 if (sequence == 0xFFFF)
                     sequence = 0;
@@ -481,26 +490,167 @@ namespace DiscordSharp
             SendSpeaking(false);
         }
 
-        public async Task<TimestampSequenceReturn> SendSmallOpusAudioPacket(byte[] pcmAudio, int rate, int size, TimestampSequenceReturn timestampSeq)
+        private OpusEncoder mainOpusEncoder;
+
+        /// <summary>
+        /// Initializes the Opus encoder for encoding frames.
+        /// Please run this again if you want to change the frame length, bitrate, or channels.
+        /// </summary>
+        /// <param name="rate"></param>
+        /// <param name="channels"></param>
+        /// <param name="frameLengthMs"></param>
+        /// <param name="bitRate">If null, recommended values will be used.</param>
+        public void InitializeOpusEncoder(int rate, int channels, int frameLengthMs, int? bitRate)
         {
-            OpusEncoder encoder = new OpusEncoder(48000, 1, 20, 192, OpusApplication.MusicOrMixed);
+            mainOpusEncoder = new OpusEncoder(rate, channels, frameLengthMs, bitRate, OpusApplication.MusicOrMixed);
+            mainOpusEncoder.SetForwardErrorCorrection(true);
+        }
+        
+        //private async Task SendVoiceDataAsync(CancellationToken token)
+        //{
+        //    try
+        //    {
+        //        while (!token.IsCancellationRequested && Connected != true)
+        //            await Task.Delay(1).ConfigureAwait(false);
+
+        //        if (token.IsCancellationRequested)
+        //            return;
+
+        //        byte[] frame = new byte[mainOpusEncoder.FrameSize];
+        //        byte[] encodedFrame = new byte[4000]; //max opus frame size
+        //        byte[] voicePacket, pingPacket = null;
+        //        uint timestamp = 0;
+        //        double nextTicks = 0.0, nextPingTicks = 0.0;
+        //        long ticksPerSecond = Stopwatch.Frequency;
+        //        double ticksPerMillisecond = Stopwatch.Frequency / 1000.0;
+        //        double ticksPerFrame = ticksPerMillisecond * mainOpusEncoder.FrameLength;
+        //        double spinLockThreshold = 3 * ticksPerMillisecond;
+        //        uint samplesPerFrame = (uint)mainOpusEncoder.SamplesPerFrame;
+        //        Stopwatch sw = Stopwatch.StartNew();
+        //        //here's where the fun beings
+        //        {
+        //            voicePacket = new byte[4000 + 12]; //header size is 12
+
+        //            pingPacket = new byte[8];
+        //            int rtpPacketLength = 0; //size of the packet we're sending.
+        //            voicePacket[0] = 0x80; //flags
+        //            voicePacket[1] = 0x78; //payload type
+
+        //            //setup our ssrc
+        //            voicePacket[8] = (byte)((Params.ssrc >> 24) & 0xFF);
+        //            voicePacket[9] = (byte)((Params.ssrc >> 16) & 0xFF);
+        //            voicePacket[10] = (byte)((Params.ssrc >> 8) & 0xFF);
+        //            voicePacket[11] = (byte)((Params.ssrc >> 0) & 0xFF);
+
+        //            bool hasFrame = false;
+        //            while (!token.IsCancellationRequested)
+        //            {
+        //                byte[] result;
+        //                if (!hasFrame && sendBuffer.TryDequeue(out result))
+        //                {
+        //                    ushort sequence = unchecked(_sequence++);
+        //                    voicePacket[2] = (byte)((sequence >> 8) & 0xFF);
+        //                    voicePacket[3] = (byte)((sequence >> 0) & 0xFF); //prepare the sequence
+
+        //                    voicePacket[4] = (byte)((timestamp >> 24) & 0xFF); //now the timestamp
+        //                    voicePacket[6] = (byte)((timestamp >> 16) & 0xFF);
+        //                    voicePacket[7] = (byte)((timestamp >> 8) & 0xFF);
+        //                    voicePacket[8] = (byte)((timestamp >> 0) & 0xFF);
+
+        //                    int encodeLength = mainOpusEncoder.EncodeFrame(result, 0, encodedFrame);
+
+        //                    Buffer.BlockCopy(encodedFrame, 0, voicePacket, 12, encodeLength);
+        //                    rtpPacketLength = encodeLength + 12; //12 is the size of the header
+
+        //                    timestamp = unchecked(timestamp + samplesPerFrame);
+        //                    hasFrame = true;
+        //                }
+
+        //                long currentTicks = sw.ElapsedTicks;
+        //                double ticksToNextFrame = nextTicks - currentTicks;
+        //                if (ticksToNextFrame <= 0.0)
+        //                {
+        //                    if (hasFrame)
+        //                    {
+        //                        try
+        //                        {
+        //                            _udp.Send(voicePacket, rtpPacketLength);
+        //                        }
+        //                        catch (SocketException ex)
+        //                        {
+        //                            VoiceDebugLogger.Log($"Failed to send UDP packet: {ex.Message}", MessageLevel.Error);
+        //                        }
+        //                        hasFrame = false;
+        //                    }
+        //                    nextTicks += ticksPerFrame;
+
+        //                    //Is it time to send out another ping?
+        //                    if (currentTicks > nextPingTicks)
+        //                    {
+        //                        //Increment in LE
+        //                        for (int i = 0; i < 8; i++)
+        //                        {
+        //                            var b = pingPacket[i];
+        //                            if (b == byte.MaxValue)
+        //                                pingPacket[i] = 0;
+        //                            else
+        //                            {
+        //                                pingPacket[i] = (byte)(b + 1);
+        //                                break;
+        //                            }
+        //                        }
+        //                        _udp.Send(pingPacket, pingPacket.Length);
+        //                        nextPingTicks = currentTicks + 5 * ticksPerSecond;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    if (hasFrame)
+        //                    {
+        //                        int time = (int)Math.Floor(ticksToNextFrame / ticksPerMillisecond);
+        //                        if (time > 0)
+        //                            await Task.Delay(time).ConfigureAwait(false);
+        //                    }
+        //                    else
+        //                        await Task.Delay(1).ConfigureAwait(false); //Give as much time to the encrypter as possible
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (OperationCanceledException) { }
+        //    catch (InvalidOperationException) { }
+        //}
+
+        /// <summary>
+        /// Sends a single PCM Audio packet re-encoded as opus.
+        /// </summary>
+        /// <param name="pcmAudio">The byte[] containing enough bytes to encode.</param>
+        /// <param name="rate">The rate in kHz of the audio.</param>
+        /// <param name="size">The size you're sending.</param>
+        /// <param name="timestampSeq">The TimestampSequenceReturn struct that this function returns. If it's your first time using it, you can create a new one with 0 for all values.</param>
+        /// <returns>A TimestampSequenceReturn with the updated sequence and timestamp values.</returns>
+        [Obsolete]
+        public TimestampSequenceReturn SendSmallOpusAudioPacket(byte[] pcmAudio, int rate, int size, TimestampSequenceReturn timestampSeq) //async Task<TimestampSequenceReturn>
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            if (mainOpusEncoder == null)
+                throw new NullReferenceException("Please initialize Opus Encoder first.");
+
             byte[] opusAudio = new byte[pcmAudio.Length];
-            encoder.EncodeFrame(pcmAudio, 0, opusAudio);
+            int encodedLength = mainOpusEncoder.EncodeFrame(pcmAudio, 0, opusAudio);
 
             byte[] udpHeader = new byte[12];
             udpHeader[0] = 0x80;
             udpHeader[1] = 0x78;
 
             //big endian
-            //sizeof(int) = 4;
             udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
             udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
             udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
             udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
-
+            
             int dataSent = 0;
-
-            SendSpeaking(true);
             {
                 //sequence big endian
                 udpHeader[2] = (byte)((timestampSeq.sequence >> 8));
@@ -515,34 +665,25 @@ namespace DiscordSharp
                 if (opusAudio == null)
                     throw new ArgumentNullException("opusAudio");
 
-                int maxSize = 0;
-                for (int i = 0; i < opusAudio.Length; i++)
-                {
-                    if (opusAudio[i] != '\0')
-                        maxSize++;
-                }
+                int maxSize = encodedLength; //0
+                //for (int i = 0; i < opusAudio.Length; i++)
+                //{
+                //    if (opusAudio[i] != '\0')
+                //        maxSize++;
+                //}
                 byte[] buffer = new byte[udpHeader.Length + maxSize]; //make big thing
                 System.Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
-                System.Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length, maxSize);
-                try
-                {
-                    dataSent = await _udp.SendAsync(buffer, buffer.Length).ConfigureAwait(false);
-                    VoiceDebugLogger.Log($"Sent {dataSent} Given {buffer.Length}", MessageLevel.Unecessary);
-                }
-                catch(Exception ex)
-                {
-                    VoiceDebugLogger.Log(ex.Message, MessageLevel.Critical);
-                }
-                
-                timestampSeq.sequence = unchecked(timestampSeq.sequence++);
-                timestampSeq.timestamp = unchecked(timestampSeq.timestamp + (960));
-            }
+                System.Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length /*12*/, encodedLength);
 
-            TimestampSequenceReturn r = new TimestampSequenceReturn();
-            r.sequence = timestampSeq.sequence;
-            r.timestamp = timestampSeq.timestamp;
-            r.SentBytes = dataSent;
-            return r;
+                _udp.Send(buffer, buffer.Length);
+
+                timestampSeq.sequence = unchecked(timestampSeq.sequence++);
+                timestampSeq.timestamp = unchecked(timestampSeq.timestamp + (UInt32)(pcmAudio.Length / 2));
+            }
+            stopwatch.Stop();
+            timestampSeq.SentBytes = dataSent;
+            timestampSeq.MsTookToEncode = stopwatch.Elapsed.Milliseconds;
+            return timestampSeq;
         }
 
         public void SendSpeaking(bool speaking)
@@ -580,7 +721,7 @@ namespace DiscordSharp
             if(disposing)
             {
                 handle.Dispose();
-
+                Connected = false;
                 if (VoiceWebSocket != null)
                 {
                     VoiceWebSocket.Closed -= VoiceWebSocket_OnClose;
@@ -594,7 +735,7 @@ namespace DiscordSharp
 
                 voiceSocketTaskSource.Dispose();
                 udpReceiveSource.Dispose();
-                udpKeepAliveSource.Cancel();
+                udpKeepAliveSource.Dispose();
                 if (_udp != null)
                     _udp.Close();
                 _udp = null;
@@ -616,5 +757,6 @@ namespace DiscordSharp
         public UInt16 sequence;
         public UInt32 timestamp;
         public int SentBytes;
+        public int MsTookToEncode;
     }
 }

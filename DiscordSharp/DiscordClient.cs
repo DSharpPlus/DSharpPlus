@@ -317,6 +317,9 @@ namespace DiscordSharp
             try
             {
                 JObject result = JObject.Parse(WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
+                if(result["message"].IsNullOrEmpty())
+                    throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
+
                 DiscordMessage m = new DiscordMessage
                 {
                     id = result["id"].ToString(),
