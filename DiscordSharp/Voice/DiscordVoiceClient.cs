@@ -66,11 +66,8 @@ namespace DiscordSharp
 
         public Logger GetDebugLogger => VoiceDebugLogger;
 
-        private Task voiceSocketKeepAlive, udpReceiveTask, udpKeepAliveTask, sendTask;
-        private CancellationTokenSource voiceSocketTaskSource = new CancellationTokenSource();
-        private CancellationTokenSource udpReceiveSource = new CancellationTokenSource();
-        private CancellationTokenSource udpKeepAliveSource = new CancellationTokenSource();
-        private CancellationTokenSource udpSendSource = new CancellationTokenSource();
+        //private Task voiceSocketKeepAlive, udpReceiveTask, udpKeepAliveTask, sendTask;
+        private CancellationTokenSource globalTaskSource = new CancellationTokenSource();
         private ConcurrentQueue<byte[]> voiceToSend = new ConcurrentQueue<byte[]>();
 
         #region Events
@@ -102,6 +99,8 @@ namespace DiscordSharp
 
             VoiceWebSocket = new WebSocket(VoiceEndpoint.StartsWith("wss://") ? VoiceEndpoint.Replace(":80", "") :
                 "wss://" + VoiceEndpoint.Replace(":80", ""));
+            VoiceWebSocket.AllowUnstrustedCertificate = true;
+            VoiceWebSocket.NoDelay = true;
             //VoiceWebSocket.Log.File = "VOICESOCKETLOG.txt";
             VoiceWebSocket.Closed += VoiceWebSocket_OnClose;
             VoiceWebSocket.Error += VoiceWebSocket_OnError;
@@ -245,75 +244,72 @@ namespace DiscordSharp
                     VoiceDebugLogger.Log(e.Message);
                     //post initializing the UDP client, we will receive opcode 4 and will now do the final things
                     await OpCode4(message).ConfigureAwait(false);
-                    udpKeepAliveTask = Task.Factory.StartNew(async () =>
-                    {
-                        await DoUDPKeepAlive().ConfigureAwait(false);
-                    }, udpKeepAliveSource.Token, TaskCreationOptions.None, TaskScheduler.Default);
-                    udpReceiveTask = Task.Factory.StartNew(async () => 
-                    {
-                        try
-                        {
-                            while (!udpReceiveSource.IsCancellationRequested)
-                            {
-                                if (udpReceiveSource.IsCancellationRequested)
-                                    udpReceiveSource.Token.ThrowIfCancellationRequested();
-                                if (_udp.Available > 0)
-                                {
-                                    byte[] packet = new byte[_udp.Available];
-                                    VoiceDebugLogger.Log("Received packet!! Length: " + _udp.Available, MessageLevel.Unecessary);
-                                    UdpReceiveResult d = await _udp.ReceiveAsync().ConfigureAwait(false);
-                                    packet = d.Buffer;
+                    DoUDPKeepAlive(globalTaskSource.Token);
+                    //udpReceiveTask = Task.Factory.StartNew(async () => 
+                    //{
+                    //    try
+                    //    {
+                    //        while (!udpReceiveSource.IsCancellationRequested)
+                    //        {
+                    //            if (udpReceiveSource.IsCancellationRequested)
+                    //                break;
+                    //            if (_udp.Available > 0)
+                    //            {
+                    //                byte[] packet = new byte[_udp.Available];
+                    //                VoiceDebugLogger.Log("Received packet!! Length: " + _udp.Available, MessageLevel.Unecessary);
+                    //                UdpReceiveResult d = await _udp.ReceiveAsync().ConfigureAwait(false);
+                    //                packet = d.Buffer;
 
-                                    DiscordAudioPacketEventArgs ae = new DiscordAudioPacketEventArgs();
-                                    ae.FromUser = LastSpoken;
-                                    ae.Channel = Channel;
-                                    ae.Packet = new DiscordAudioPacket(packet);
+                    //                DiscordAudioPacketEventArgs ae = new DiscordAudioPacketEventArgs();
+                    //                ae.FromUser = LastSpoken;
+                    //                ae.Channel = Channel;
+                    //                ae.Packet = new DiscordAudioPacket(packet);
 
-                                    if (PacketReceived != null)
-                                        PacketReceived(this, ae);
+                    //                if (PacketReceived != null)
+                    //                    PacketReceived(this, ae);
 
-                                    //VoiceDebugLogger.Log("Echoing back..");
-                                    //DiscordAudioPacket echo = DiscordAudioPacket.EchoPacket(packet, Params.ssrc);
-                                    //await _udp.SendAsync(echo.AsRawPacket(), echo.AsRawPacket().Length).ConfigureAwait(false);
-                                    //VoiceDebugLogger.Log("Sent!");
-                                }
-                            }
-                        }
-                        catch (ObjectDisposedException)
-                        { }
-                        catch(OperationCanceledException)
-                        { }
-                        catch (Exception ex)
-                        {
-                            VoiceDebugLogger.Log($"Error in udpReceiveTask\n\t{ex.Message}\n\t{ex.StackTrace}",
-                                MessageLevel.Critical);
-                        }
-                    }, udpReceiveSource.Token, TaskCreationOptions.None, TaskScheduler.Default);
-                    sendTask = Task.Factory.StartNew(async () =>
-                    {
-                        try
-                        {
-                            while(!udpSendSource.IsCancellationRequested)
-                            {
-                                if (udpSendSource.IsCancellationRequested)
-                                    udpSendSource.Token.ThrowIfCancellationRequested();
-                                await SendVoiceAsync(udpSendSource.Token);
-                                if (voiceToSend.IsEmpty)
-                                {
-                                    //reset sequence and timestamp so the client doesn't break
-                                    ___sequence = 0;
-                                    ___timestamp = 0;
-                                }
-                            }
-                        }
-                        catch (ObjectDisposedException) { }
-                        catch (OperationCanceledException) { }
-                        catch(Exception ex)
-                        {
-                            VoiceDebugLogger.Log($"Error in sendTask\n\t{ex.Message}\n\t{ex.StackTrace}",
-                                MessageLevel.Critical);
-                        }
-                    });
+                    //                //VoiceDebugLogger.Log("Echoing back..");
+                    //                //DiscordAudioPacket echo = DiscordAudioPacket.EchoPacket(packet, Params.ssrc);
+                    //                //await _udp.SendAsync(echo.AsRawPacket(), echo.AsRawPacket().Length).ConfigureAwait(false);
+                    //                //VoiceDebugLogger.Log("Sent!");
+                    //            }
+                    //        }
+                    //    }
+                    //    catch (ObjectDisposedException)
+                    //    { }
+                    //    catch(OperationCanceledException)
+                    //    { }
+                    //    catch (Exception ex)
+                    //    {
+                    //        VoiceDebugLogger.Log($"Error in udpReceiveTask\n\t{ex.Message}\n\t{ex.StackTrace}",
+                    //            MessageLevel.Critical);
+                    //    }
+                    //}, udpReceiveSource.Token, TaskCreationOptions.None, TaskScheduler.Default);
+                    //sendTask = Task.Factory.StartNew(async () =>
+                    //{
+                    //    try
+                    //    {
+                    //        while(!udpSendSource.IsCancellationRequested)
+                    //        {
+                    //            if (udpSendSource.IsCancellationRequested)
+                    //                break;
+                    //            await SendVoiceAsync(udpSendSource.Token);
+                    //            if (voiceToSend.IsEmpty)
+                    //            {
+                    //                //reset sequence and timestamp so the client doesn't break
+                    //                ___sequence = 0;
+                    //                ___timestamp = 0;
+                    //            }
+                    //        }
+                    //    }
+                    //    catch (ObjectDisposedException) { }
+                    //    catch (OperationCanceledException) { }
+                    //    catch(Exception ex)
+                    //    {
+                    //        VoiceDebugLogger.Log($"Error in sendTask\n\t{ex.Message}\n\t{ex.StackTrace}",
+                    //            MessageLevel.Critical);
+                    //    }
+                    //});
                     SendSpeaking(true);
                     break;
                 case 5:
@@ -323,42 +319,66 @@ namespace DiscordSharp
             }
         }
 
+        private Task DoWebSocketKeepAlive(CancellationToken token)
+        {
+            return Task.Run(async () =>
+            {
+                while(VoiceWebSocket.State == WebSocketState.Open && !token.IsCancellationRequested)
+                {
+                    if (VoiceWebSocket != null)
+                    {
+                        if (VoiceWebSocket.State == WebSocketState.Open)
+                        {
+                            string keepAliveJson = JsonConvert.SerializeObject(new
+                            {
+                                op = 3,
+                                d = EpochTime.GetMilliseconds()
+                            });
+                            VoiceDebugLogger.Log("Sending voice keepalive ( " + keepAliveJson + " ) ", MessageLevel.Unecessary);
+                            VoiceWebSocket.Send(keepAliveJson);
+                            await Task.Delay(Params.heartbeat_interval);
+                        }
+                    }
+                }
+            });
+        }
+
         public async Task EchoPacket(DiscordAudioPacket packet)
         {
             await SendPacket(DiscordAudioPacket.EchoPacket(packet.AsRawPacket(), Params.ssrc)).ConfigureAwait(false);
         }
 
-        private async Task DoUDPKeepAlive()
+        private Task DoUDPKeepAlive(CancellationToken token)
         {
-            try
+            return Task.Run(async () =>
             {
-                long seq = 0;
-                while (VoiceWebSocket.State == WebSocketState.Open && !udpKeepAliveSource.Token.IsCancellationRequested)
+                byte[] keepAlive = new byte[5];
+                keepAlive[0] = (byte)0xC9;
+                try
                 {
-                    if (udpKeepAliveSource.IsCancellationRequested)
-                        udpKeepAliveSource.Token.ThrowIfCancellationRequested();
-                    using (MemoryStream ms = new MemoryStream())
+                    long seq = 0;
+                    while (VoiceWebSocket.State == WebSocketState.Open && !token.IsCancellationRequested)
                     {
-                        using (BinaryWriter bw = new BinaryWriter(ms))
-                        {
-                            bw.Write(0xC9);
-                            bw.Write((long)seq);
-
-                            await _udp.SendAsync(ms.ToArray(), ms.ToArray().Length).ConfigureAwait(false);
-                            VoiceDebugLogger.Log("Sent UDP Keepalive");
-                            Thread.Sleep(5 * 1000); //5 seconds
-                        }
+                        if (token.IsCancellationRequested)
+                            break;
+                        keepAlive[1] = (byte)((___sequence >> 24) & 0xFF);
+                        keepAlive[2] = (byte)((___sequence >> 16) & 0xFF);
+                        keepAlive[3] = (byte)((___sequence >> 8) & 0xFF);
+                        keepAlive[4] = (byte)((___sequence >> 0) & 0xFF);
+                        await _udp.SendAsync(keepAlive, keepAlive.Length).ConfigureAwait(false);
+                        VoiceDebugLogger.Log("Sent UDP Keepalive.", MessageLevel.Unecessary);
+                        await Task.Delay(5 * 1000); //5 seconds usually
                     }
                 }
-            }
-            catch (ObjectDisposedException)
-            {/*cancel token disposed*/}
-            catch (NullReferenceException)
-            {/*disposed*/}
-            catch (Exception ex)
-            {
-                VoiceDebugLogger.Log($"Error sending UDP keepalive\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
-            }
+                catch (ObjectDisposedException)
+                {/*cancel token disposed*/}
+                catch (NullReferenceException)
+                {/*disposed*/}
+                catch (Exception ex)
+                {
+                    VoiceDebugLogger.Log($"Error sending UDP keepalive\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+                }
+            });
         }
 
         public async Task SendPacket(DiscordAudioPacket packet)
@@ -495,26 +515,8 @@ namespace DiscordSharp
         private async Task OpCode2(JObject message)
         {
             Params = JsonConvert.DeserializeObject<VoiceConnectionParameters>(message["d"].ToString());
-            //await SendWebSocketKeepalive().ConfigureAwait(false); //sends an initial keepalive right away.
-            SendWebSocketKeepalive();
-            voiceSocketKeepAlive = Task.Run(() =>
-            {
-                ///TODO: clean this up
-                try
-                {
-                    while (VoiceWebSocket != null && VoiceWebSocket.State == WebSocketState.Open && !voiceSocketTaskSource.Token.IsCancellationRequested)
-                    {
-                        SendWebSocketKeepalive();
-                        if (voiceSocketTaskSource.Token.IsCancellationRequested)
-                            voiceSocketTaskSource.Token.ThrowIfCancellationRequested();
-                        Thread.Sleep(Params.heartbeat_interval);
-                    }
-                }
-                catch (ObjectDisposedException)
-                { }
-                catch (OperationCanceledException ex)
-                { }
-            }, voiceSocketTaskSource.Token);
+            //SendWebSocketKeepalive();
+            DoWebSocketKeepAlive(globalTaskSource.Token);
         }
 
         private void VoiceWebSocket_OnError(object sender, EventArgs e)
@@ -532,26 +534,6 @@ namespace DiscordSharp
         }
 
         private static DateTime Epoch = new DateTime(1970, 1, 1);
-        /// <summary>
-        /// Sends the WebSocket KeepAlive
-        /// </summary>
-        /// <returns></returns>
-        private void SendWebSocketKeepalive()
-        {
-            if (VoiceWebSocket != null)
-            {
-                if (VoiceWebSocket.State == WebSocketState.Open)
-                {
-                    string keepAliveJson = JsonConvert.SerializeObject(new
-                    {
-                        op = 3,
-                        d = EpochTime.GetMilliseconds()
-                    });
-                    VoiceDebugLogger.Log("Sending voice keepalive ( " + keepAliveJson + " ) ");
-                    VoiceWebSocket.Send(keepAliveJson);
-                }
-            }
-        }
 
         [Obsolete]
         public async Task SendLargeOpusAudioPacket(byte[] opusAudio, int rate, int size)
@@ -728,20 +710,8 @@ namespace DiscordSharp
                     VoiceWebSocket.Close();
                 }
                 VoiceWebSocket = null;
-                voiceSocketTaskSource.Cancel(); //cancels the task
-                udpReceiveSource.Cancel();
-                udpKeepAliveSource.Cancel();
-                udpSendSource.Cancel();
-
-                sendTask.Dispose();
-                udpReceiveTask.Dispose();
-                voiceSocketKeepAlive.Dispose();
-                udpKeepAliveTask.Dispose();
-
-                voiceSocketTaskSource.Dispose();
-                udpReceiveSource.Dispose();
-                udpKeepAliveSource.Dispose();
-                udpSendSource.Dispose();
+                globalTaskSource.Cancel(false);
+                globalTaskSource.Dispose();
                 if (_udp != null)
                     _udp.Close();
                 _udp = null;

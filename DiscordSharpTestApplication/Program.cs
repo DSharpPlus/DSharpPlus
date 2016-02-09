@@ -47,7 +47,7 @@ namespace DiscordSharpTestApplication
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     break;
             }
-            Console.Write($"[{prefix}: {m.TimeStamp}]: ");
+            Console.Write($"[{prefix}: {m.TimeStamp}:{m.TimeStamp.Millisecond}]: ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(m.Message + "\n");
 
