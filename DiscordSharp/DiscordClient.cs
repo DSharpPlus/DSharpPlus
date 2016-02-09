@@ -437,7 +437,8 @@ namespace DiscordSharp
 
             try
             {
-                result = JArray.Parse(WebWrapper.Get(request, token));
+                string res = WebWrapper.Get(request, token);
+                result = JArray.Parse(res);
             }
             catch(Exception ex)
             {

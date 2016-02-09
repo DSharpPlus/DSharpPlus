@@ -49,7 +49,7 @@ namespace DiscordSharp.Objects
         public Type TypeOfChannelObject { get; internal set; }
 
         public dynamic Channel() =>
-            Convert.ChangeType(this, TypeOfChannelObject);
+            Convert.ChangeType(this.channel, TypeOfChannelObject);
 
         [JsonProperty("timestamp")]
         public DateTime timestamp { get; internal set; }

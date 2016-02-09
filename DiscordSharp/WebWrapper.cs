@@ -471,15 +471,23 @@ namespace DiscordSharp
                     var result = sr.ReadToEnd();
                     if (!string.IsNullOrEmpty(result))
                     {
-                        JObject jsonTest = JObject.Parse(result);
-                        if (jsonTest != null)
+                        try
                         {
-                            if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                            JObject jsonTest = JObject.Parse(result);
+                            if (jsonTest != null)
                             {
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-                                Get(url, token); //try again
+                                if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
+                                {
+                                    Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+                                    Get(url, token); //try again
+                                }
                             }
                         }
+                        catch(Exception ) //must be a jarray
+                        {
+                            return result;
+                        }
+                        
                     }
                     return result;
                 }

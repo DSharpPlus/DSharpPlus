@@ -855,13 +855,15 @@ namespace DiscordSharpTestApplication
                             int byteCount;
                             while ((byteCount = volume.Read(buffer, 0, blockSize)) > 0)
                             {
-                                if (vc.Connected)
-                                {
+                            if (vc.Connected)
+                            {
                                 //sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence).ConfigureAwait(false);
                                 sequence = vc.SendSmallOpusAudioPacket(buffer, 48000, buffer.Length, sequence);
                                 //await Task.Delay(new TimeSpan(18 * TimeSpan.TicksPerMillisecond));
-                                Thread.Sleep(20);
-                                }
+                                Thread.Sleep(19);
+                            }
+                            else
+                                break;
                             }
                         }
                     }

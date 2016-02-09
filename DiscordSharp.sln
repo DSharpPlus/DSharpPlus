@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharpTestApplication
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceCaptureTest", "VoiceCaptureTest\VoiceCaptureTest.csproj", "{8CD30B38-9D45-4E49-94F9-7A48977CDA49}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomDiscordClient", "..\WPFDiscordSharp\CustomDiscordClient\CustomDiscordClient.csproj", "{A346587F-457B-4822-A05D-ABF87890C1B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8CD30B38-9D45-4E49-94F9-7A48977CDA49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CD30B38-9D45-4E49-94F9-7A48977CDA49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CD30B38-9D45-4E49-94F9-7A48977CDA49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A346587F-457B-4822-A05D-ABF87890C1B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A346587F-457B-4822-A05D-ABF87890C1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A346587F-457B-4822-A05D-ABF87890C1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A346587F-457B-4822-A05D-ABF87890C1B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
