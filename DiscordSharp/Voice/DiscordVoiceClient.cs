@@ -71,7 +71,7 @@ namespace DiscordSharp
         private CancellationTokenSource udpReceiveSource = new CancellationTokenSource();
         private CancellationTokenSource udpKeepAliveSource = new CancellationTokenSource();
         private CancellationTokenSource udpSendSource = new CancellationTokenSource();
-        private BlockingCollection<byte[]> voiceToSend = new BlockingCollection<byte[]>();
+        private ConcurrentQueue<byte[]> voiceToSend = new ConcurrentQueue<byte[]>();
 
         #region Events
         public event EventHandler<LoggerMessageReceivedArgs> DebugMessageReceived;
@@ -142,18 +142,18 @@ namespace DiscordSharp
         public void EnqueueVoice(byte[] voice)
         {
             //maybe ??????
-            while (voiceToSend.IsAddingCompleted == false) ;
-            voiceToSend.Add(voice);
+            //while (voiceToSend.IsAddingCompleted == false) ;
+            //voiceToSend.Add(voice);
         }
 
         public void FinishedQueing()
         {
-            voiceToSend.CompleteAdding();
+            //voiceToSend.CompleteAdding();
         }
 
         public void SendVoice(byte[] voice)
         {
-            voiceToSend.Add(voice);
+            voiceToSend.Enqueue(voice);
         }
 
         static int msToSend = 20;
@@ -163,64 +163,66 @@ namespace DiscordSharp
 
         private async Task SendVoiceAsync(CancellationToken cancelToken)
         {
-            if (!(voiceToSend.Count > 0))
-                return;
-            byte[] voiceToEncode = voiceToSend.Take(cancelToken);
-            Stopwatch timeToSend = Stopwatch.StartNew();
-
-            byte[] opusAudio = new byte[voiceToEncode.Length];
-            int encodedLength = mainOpusEncoder.EncodeFrame(voiceToEncode, 0, opusAudio);
-
-            byte[] udpHeader = new byte[12];
-            udpHeader[0] = 0x80;
-            udpHeader[1] = 0x78;
-
-            //big endian
-            udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
-            udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
-            udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
-            udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
-            int dataSent = 0;
-
-            //actual sending
+            byte[] voiceToEncode;
+            voiceToSend.TryDequeue(out voiceToEncode);
+            if (voiceToEncode != null)
             {
-                //sequence big endian
-                udpHeader[2] = (byte)((___sequence >> 8));
-                udpHeader[3] = (byte)((___sequence >> 0) & 0xFF);
+                Stopwatch timeToSend = Stopwatch.StartNew();
 
-                //timestamp big endian
-                udpHeader[4] = (byte)((___timestamp >> 24) & 0xFF);
-                udpHeader[5] = (byte)((___timestamp >> 16) & 0xFF);
-                udpHeader[6] = (byte)((___timestamp >> 8));
-                udpHeader[7] = (byte)((___timestamp >> 0) & 0xFF);
+                byte[] opusAudio = new byte[voiceToEncode.Length];
+                int encodedLength = mainOpusEncoder.EncodeFrame(voiceToEncode, 0, opusAudio);
 
-                if (opusAudio == null)
-                    throw new ArgumentNullException("opusAudio");
+                byte[] udpHeader = new byte[12];
+                udpHeader[0] = 0x80;
+                udpHeader[1] = 0x78;
 
-                int maxSize = encodedLength;
-                byte[] buffer = new byte[udpHeader.Length + maxSize]; //make big thing
-                System.Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
-                System.Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length /*12*/, encodedLength);
+                //big endian
+                udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
+                udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
+                udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
+                udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
+                int dataSent = 0;
 
-                dataSent = await _udp.SendAsync(buffer, buffer.Length);
+                //actual sending
+                {
+                    //sequence big endian
+                    udpHeader[2] = (byte)((___sequence >> 8));
+                    udpHeader[3] = (byte)((___sequence >> 0) & 0xFF);
 
-                ___sequence = unchecked(___sequence++);
-                ___timestamp = unchecked(___timestamp + (UInt32)(voiceToEncode.Length / 2));
+                    //timestamp big endian
+                    udpHeader[4] = (byte)((___timestamp >> 24) & 0xFF);
+                    udpHeader[5] = (byte)((___timestamp >> 16) & 0xFF);
+                    udpHeader[6] = (byte)((___timestamp >> 8));
+                    udpHeader[7] = (byte)((___timestamp >> 0) & 0xFF);
+
+                    if (opusAudio == null)
+                        throw new ArgumentNullException("opusAudio");
+
+                    int maxSize = encodedLength;
+                    byte[] buffer = new byte[udpHeader.Length + maxSize]; //make big thing
+                    System.Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
+                    System.Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length /*12*/, encodedLength);
+
+                    dataSent = await _udp.SendAsync(buffer, buffer.Length);
+
+                    ___sequence = unchecked(___sequence++);
+                    ___timestamp = unchecked(___timestamp + (UInt32)(voiceToEncode.Length / 2));
+                }
+
+                timeToSend.Stop(); //stop after completely sending
+
+                //Compensate for however long it took to sent.
+                if (timeToSend.ElapsedMilliseconds > 0)
+                {
+                    long timeToWait = msToSend - timeToSend.ElapsedMilliseconds;
+                    if (!(timeToWait < 0)) //if it's negative then don't bother waiting
+                        await Task.Delay((int)timeToWait);
+                }
+                else
+                    await Task.Delay(msToSend);
+
+                VoiceDebugLogger.Log("Sent " + dataSent + " bytes of Opus audio", MessageLevel.Unecessary);
             }
-
-            timeToSend.Stop(); //stop after completely sending
-
-            //Compensate for however long it took to sent.
-            if (timeToSend.ElapsedMilliseconds > 0)
-            {
-                long timeToWait = msToSend - timeToSend.ElapsedMilliseconds;
-                if (!(timeToWait < 0)) //if it's negative then don't bother waiting
-                    await Task.Delay((int)timeToWait);
-            }
-            else
-                await Task.Delay(msToSend);
-
-            VoiceDebugLogger.Log("Sent " + dataSent + " bytes of Opus audio", MessageLevel.Unecessary);
         }
 
         private async Task VoiceWebSocket_OnMessage(object sender, MessageReceivedEventArgs e)
@@ -293,13 +295,13 @@ namespace DiscordSharp
                             {
                                 if (udpSendSource.IsCancellationRequested)
                                     udpSendSource.Token.ThrowIfCancellationRequested();
-                                if(voiceToSend.IsCompleted)
+                                await SendVoiceAsync(udpSendSource.Token);
+                                if (voiceToSend.IsEmpty)
                                 {
                                     //reset sequence and timestamp so the client doesn't break
                                     ___sequence = 0;
                                     ___timestamp = 0;
                                 }
-                                await SendVoiceAsync(udpSendSource.Token);
                             }
                         }
                         catch (ObjectDisposedException) { }
