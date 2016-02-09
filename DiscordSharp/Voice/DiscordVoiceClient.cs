@@ -153,7 +153,9 @@ namespace DiscordSharp
 
         public void SendVoice(byte[] voice)
         {
-            voiceToSend.Enqueue(voice);
+            byte[] copyOf = new byte[voice.Length];
+            voice.CopyTo(copyOf, 0);
+            voiceToSend.Enqueue(copyOf);
         }
 
         static int msToSend = 20;
@@ -215,7 +217,7 @@ namespace DiscordSharp
                 if (timeToSend.ElapsedMilliseconds > 0)
                 {
                     long timeToWait = msToSend - timeToSend.ElapsedMilliseconds;
-                    if (!(timeToWait < 0)) //if it's negative then don't bother waiting
+                    if (timeToWait > 0) //if it's negative then don't bother waiting
                         await Task.Delay((int)timeToWait);
                 }
                 else
