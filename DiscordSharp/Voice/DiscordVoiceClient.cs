@@ -137,9 +137,9 @@ namespace DiscordSharp
 
         public void SendVoice(byte[] voice)
         {
-            byte[] copyOf = new byte[voice.Length];
-            voice.CopyTo(copyOf, 0);
-            voiceToSend.Enqueue(copyOf);
+            //byte[] copyOf = new byte[voice.Length];
+            //voice.CopyTo(copyOf, 0);
+            voiceToSend.Enqueue((byte[])voice.Clone());
         }
 
         public void ClearVoiceQueue()
@@ -158,13 +158,13 @@ namespace DiscordSharp
         {
             return Task.Factory.StartNew(async () =>
             {
-                udpHeader[0] = (byte)0x80;
-                udpHeader[1] = (byte)0x78;
-                //big endian
-                udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
-                udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
-                udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
-                udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
+                //udpHeader[0] = (byte)0x80;
+                //udpHeader[1] = (byte)0x78;
+                ////big endian
+                //udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
+                //udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
+                //udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
+                //udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
 
                 while (!token.IsCancellationRequested)
                 {
@@ -188,36 +188,43 @@ namespace DiscordSharp
             if (voiceToEncode != null)
             {
                 Stopwatch timeToSend = Stopwatch.StartNew();
+                byte[] rtpPacket = new byte[12 + voiceToEncode.Length];
+                rtpPacket[0] = (byte)0x80;
+                rtpPacket[1] = (byte)0x78;
+
+                rtpPacket[8] = (byte)((Params.ssrc >> 24) & 0xFF);
+                rtpPacket[9] = (byte)((Params.ssrc >> 16) & 0xFF);
+                rtpPacket[10] = (byte)((Params.ssrc >> 8) & 0xFF);
+                rtpPacket[11] = (byte)((Params.ssrc >> 0) & 0xFF);
 
                 byte[] opusAudio = new byte[voiceToEncode.Length];
                 int encodedLength = mainOpusEncoder.EncodeFrame(voiceToEncode, 0, opusAudio);
+                
 
                 int dataSent = 0;
 
                 //actual sending
                 {
                     //sequence big endian
-                    udpHeader[2] = (byte)((___sequence >> 8));
-                    udpHeader[3] = (byte)((___sequence >> 0) & 0xFF);
+                    rtpPacket[2] = (byte)((___sequence >> 8));
+                    rtpPacket[3] = (byte)((___sequence >> 0) & 0xFF);
 
                     //timestamp big endian
-                    udpHeader[4] = (byte)((___timestamp >> 24) & 0xFF);
-                    udpHeader[5] = (byte)((___timestamp >> 16) & 0xFF);
-                    udpHeader[6] = (byte)((___timestamp >> 8));
-                    udpHeader[7] = (byte)((___timestamp >> 0) & 0xFF);
+                    rtpPacket[4] = (byte)((___timestamp >> 24) & 0xFF);
+                    rtpPacket[5] = (byte)((___timestamp >> 16) & 0xFF);
+                    rtpPacket[6] = (byte)((___timestamp >> 8));
+                    rtpPacket[7] = (byte)((___timestamp >> 0) & 0xFF);
 
                     if (opusAudio == null)
                         throw new ArgumentNullException("opusAudio");
 
                     int maxSize = encodedLength;
-                    byte[] buffer = new byte[udpHeader.Length + maxSize]; //make big thing
-                    Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
-                    Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length /*12*/, encodedLength);
+                    Buffer.BlockCopy(opusAudio, 0, rtpPacket, 12, encodedLength);
 
-                    dataSent = _udp.SendAsync(buffer, buffer.Length).Result;
+                    dataSent = _udp.SendAsync(rtpPacket, encodedLength + 12).Result;
 
                     ___sequence = unchecked(___sequence++);
-                    ___timestamp = unchecked(___timestamp + (UInt32)(voiceToEncode.Length / 2));
+                    ___timestamp = unchecked(___timestamp + (uint)(voiceToEncode.Length / 2));
                 }
 
                 timeToSend.Stop(); //stop after completely sending
@@ -231,6 +238,7 @@ namespace DiscordSharp
                 }
                 else
                     await Task.Delay(msToSend).ConfigureAwait(false);
+
                 VoiceDebugLogger.LogAsync("Sent " + dataSent + " bytes of Opus audio", MessageLevel.Unecessary);
             }
         }
@@ -482,56 +490,6 @@ namespace DiscordSharp
 
         private static DateTime Epoch = new DateTime(1970, 1, 1);
 
-        [Obsolete]
-        public async Task SendLargeOpusAudioPacket(byte[] opusAudio, int rate, int size)
-        {
-            UInt16 sequence = 0;
-            UInt32 timestamp = 0;
-            byte[] udpHeader = new byte[12];
-            udpHeader[0] = 0x80;
-            udpHeader[1] = 0x78;
-
-            //big endian
-            //sizeof(int) = 4;
-            byte[] intTobytes = DiscordAudioPacket.IntToBytes(Params.ssrc);
-            udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
-            udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
-            udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
-            udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
-            
-            int loopMax = (DateTime.Now.Millisecond * (size / (rate / 100)));
-            for(int i = 0; i < loopMax; i++)
-            {
-                //sequence big endian
-                udpHeader[2] = (byte)((sequence >> 8) & 0xFF);
-                udpHeader[3] = (byte)((sequence >> 0) & 0xFF);
-
-                //timestamp big endian
-                udpHeader[4] = (byte)((sequence >> 24) & 0xFF);
-                udpHeader[5] = (byte)((sequence >> 16) & 0xFF);
-                udpHeader[6] = (byte)((sequence >> 8) & 0xFF);
-                udpHeader[7] = (byte)((sequence >> 0) & 0xFF);
-
-                if (opusAudio == null)
-                    return;
-                byte[] buffer = new byte[udpHeader.Length + opusAudio.Length]; //make big thing
-                System.Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
-                System.Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length, opusAudio.Length);
-                
-                int x = await _udp.SendAsync(buffer, buffer.Length).ConfigureAwait(false);
-                
-                if (sequence == 0xFFFF)
-                    sequence = 0;
-                else
-                    sequence++;
-
-                if (timestamp + (UInt32)size >= 0xFFFFFF)
-                    timestamp = 0;
-                else
-                    timestamp += (UInt32)size;
-            }
-            SendSpeaking(false);
-        }
 
         private OpusEncoder mainOpusEncoder;
 
@@ -548,71 +506,6 @@ namespace DiscordSharp
             mainOpusEncoder = new OpusEncoder(rate, channels, frameLengthMs, bitRate, OpusApplication.MusicOrMixed);
             mainOpusEncoder.SetForwardErrorCorrection(true);
             msToSend = frameLengthMs;
-        }
-        
-        /// <summary>
-        /// Sends a single PCM Audio packet re-encoded as opus.
-        /// </summary>
-        /// <param name="pcmAudio">The byte[] containing enough bytes to encode.</param>
-        /// <param name="rate">The rate in kHz of the audio.</param>
-        /// <param name="size">The size you're sending.</param>
-        /// <param name="timestampSeq">The TimestampSequenceReturn struct that this function returns. If it's your first time using it, you can create a new one with 0 for all values.</param>
-        /// <returns>A TimestampSequenceReturn with the updated sequence and timestamp values.</returns>
-        [Obsolete]
-        public TimestampSequenceReturn SendSmallOpusAudioPacket(byte[] pcmAudio, int rate, int size, TimestampSequenceReturn timestampSeq) //async Task<TimestampSequenceReturn>
-        {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            if (mainOpusEncoder == null)
-                throw new NullReferenceException("Please initialize Opus Encoder first.");
-
-            byte[] opusAudio = new byte[pcmAudio.Length];
-            int encodedLength = mainOpusEncoder.EncodeFrame(pcmAudio, 0, opusAudio);
-
-            byte[] udpHeader = new byte[12];
-            udpHeader[0] = 0x80;
-            udpHeader[1] = 0x78;
-
-            //big endian
-            udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
-            udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
-            udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
-            udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
-            
-            int dataSent = 0;
-            {
-                //sequence big endian
-                udpHeader[2] = (byte)((timestampSeq.sequence >> 8));
-                udpHeader[3] = (byte)((timestampSeq.sequence >> 0) & 0xFF);
-
-                //timestamp big endian
-                udpHeader[4] = (byte)((timestampSeq.timestamp >> 24) & 0xFF);
-                udpHeader[5] = (byte)((timestampSeq.timestamp >> 16) & 0xFF);
-                udpHeader[6] = (byte)((timestampSeq.timestamp >> 8));
-                udpHeader[7] = (byte)((timestampSeq.timestamp >> 0) & 0xFF);
-
-                if (opusAudio == null)
-                    throw new ArgumentNullException("opusAudio");
-
-                int maxSize = encodedLength; //0
-                //for (int i = 0; i < opusAudio.Length; i++)
-                //{
-                //    if (opusAudio[i] != '\0')
-                //        maxSize++;
-                //}
-                byte[] buffer = new byte[udpHeader.Length + maxSize]; //make big thing
-                System.Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
-                System.Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length /*12*/, encodedLength);
-
-                _udp.Send(buffer, buffer.Length);
-
-                timestampSeq.sequence = unchecked(timestampSeq.sequence++);
-                timestampSeq.timestamp = unchecked(timestampSeq.timestamp + (UInt32)(pcmAudio.Length / 2));
-            }
-            stopwatch.Stop();
-            timestampSeq.SentBytes = dataSent;
-            timestampSeq.MsTookToEncode = stopwatch.Elapsed.Milliseconds;
-            return timestampSeq;
         }
 
         public void SendSpeaking(bool speaking)

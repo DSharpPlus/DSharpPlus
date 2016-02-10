@@ -1602,7 +1602,7 @@ namespace DiscordSharp
             }
         }
 
-        private async void VoiceServerUpdateEvents(JObject message)
+        private void VoiceServerUpdateEvents(JObject message)
         {
             VoiceClient.VoiceEndpoint = message["d"]["endpoint"].ToString();
             VoiceClient.Token = message["d"]["token"].ToString();
@@ -1622,8 +1622,10 @@ namespace DiscordSharp
                     VoiceClientDebugMessageReceived(this, e);
             };
 
-            VoiceClient.Initiate();
+            ConnectToVoiceAsync();
         }
+
+        private Task ConnectToVoiceAsync() => Task.Run(() => VoiceClient.Initiate());
 
         /// <summary>
         /// Kicks a specified DiscordMember from the guild that's assumed from their 
@@ -1975,6 +1977,7 @@ namespace DiscordSharp
             };
             newServer.parentclient = this;
             newServer.roles = new List<DiscordRole>();
+            newServer.region = message["d"]["region"].ToString();
             if(!message["d"]["icon"].IsNullOrEmpty())
             {
                 newServer.icon = message["d"]["icon"].ToString();
@@ -1995,6 +1998,10 @@ namespace DiscordSharp
                     };
                     newServer.roles.Add(t);
                 }
+            }
+            else
+            {
+                newServer.roles = oldServer.roles;
             }
             newServer.channels = new List<DiscordChannel>();
             if (!message["d"]["channels"].IsNullOrEmpty())
@@ -2021,6 +2028,10 @@ namespace DiscordSharp
                     newServer.channels.Add(tempSub);
                 }
             }
+            else
+            {
+                newServer.channels = oldServer.channels;
+            }
             if (!message["d"]["members"].IsNullOrEmpty())
             {
                 foreach (var mm in message["d"]["members"])
@@ -2044,6 +2055,10 @@ namespace DiscordSharp
 
                     newServer.members.Add(member);
                 }
+            }
+            else
+            {
+                newServer.members = oldServer.members;
             }
             if (!message["d"]["owner_id"].IsNullOrEmpty())
             {

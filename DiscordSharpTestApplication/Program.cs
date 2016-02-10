@@ -859,28 +859,29 @@ namespace DiscordSharpTestApplication
         private static void VoiceStuffs(DiscordVoiceClient vc, string file)
         {
             try
+            {
+                int ms = 60;
+                int channels = 1;
+                int sampleRate = 48000;
+
+                int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
+                byte[] buffer = new byte[blockSize];
+                var outFormat = new WaveFormat(sampleRate, 16, channels);
+
+                TimestampSequenceReturn sequence = new TimestampSequenceReturn();
+                sequence.sequence = 0;
+                sequence.timestamp = 0;
+
+                vc.InitializeOpusEncoder(sampleRate, channels, ms, null);
+                vc.SendSpeaking(true);
+                using (var mp3Reader = new MediaFoundationReader(file))
                 {
-                    int ms = 20;
-                    int channels = 2;
-                    int sampleRate = 48000;
-
-                    int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
-                    byte[] buffer = new byte[blockSize];
-                    var outFormat = new WaveFormat(sampleRate, 16, channels);
-
-                    TimestampSequenceReturn sequence = new TimestampSequenceReturn();
-                    sequence.sequence = 0;
-                    sequence.timestamp = 0;
-
-                    vc.InitializeOpusEncoder(sampleRate, channels, ms, null);
-                    vc.SendSpeaking(true);
-                    using (var mp3Reader = new Mp3FileReader(file))
+                    using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
                     {
-                        using (var resampler = new WaveFormatConversionStream(outFormat, mp3Reader))
+                        //resampler.ResamplerQuality = 60;
+                        int byteCount;
+                        while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
                         {
-                            int byteCount;
-                            while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
-                            {
                             if (vc.Connected)
                             {
                                 //sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence).ConfigureAwait(false);
@@ -890,18 +891,65 @@ namespace DiscordSharpTestApplication
                             }
                             else
                                 break;
-                            }
+                        }
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine("Voice finished enqueuing");
                         Console.ForegroundColor = ConsoleColor.White;
                     }
-                    }
                 }
-                catch (Exception ex)
-                {
-                    owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
-                }
+            }
+            catch (Exception ex)
+            {
+                owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+            }
         }
+
+        //private static void VoiceStuffs(DiscordVoiceClient vc, string file)
+        //{
+        //    try
+        //        {
+        //            int ms = 20;
+        //            int channels = 2;
+        //            int sampleRate = 48000;
+
+        //            int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
+        //            byte[] buffer = new byte[blockSize];
+        //            var outFormat = new WaveFormat(sampleRate, 16, channels);
+
+        //            TimestampSequenceReturn sequence = new TimestampSequenceReturn();
+        //            sequence.sequence = 0;
+        //            sequence.timestamp = 0;
+
+        //            vc.InitializeOpusEncoder(sampleRate, channels, ms, null);
+        //            vc.SendSpeaking(true);
+        //            using (var mp3Reader = new Mp3FileReader(file))
+        //            {
+        //                using (var resampler = new WaveFormatConversionStream(outFormat, mp3Reader))
+        //                {
+        //                    int byteCount;
+        //                    while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
+        //                    {
+        //                    if (vc.Connected)
+        //                    {
+        //                        //sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence).ConfigureAwait(false);
+        //                        vc.SendVoice(buffer);
+        //                        //sequence = vc.SendSmallOpusAudioPacket(buffer, 48000, buffer.Length, sequence);
+        //                        //Task.Delay(19).Wait();
+        //                    }
+        //                    else
+        //                        break;
+        //                    }
+        //                Console.ForegroundColor = ConsoleColor.Yellow;
+        //                Console.WriteLine("Voice finished enqueuing");
+        //                Console.ForegroundColor = ConsoleColor.White;
+        //            }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+        //        }
+        //}
 
         private static async void ConnectStuff()
         {

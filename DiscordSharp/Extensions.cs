@@ -19,6 +19,7 @@ public static class JsonExtensions
 
 public static class EnumExtensions
 {
+    
     private static void CheckIsEnum<T>(bool withFlags)
     {
         if (!typeof(T).IsEnum)
