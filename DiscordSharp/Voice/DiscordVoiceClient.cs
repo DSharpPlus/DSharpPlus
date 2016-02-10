@@ -153,10 +153,19 @@ namespace DiscordSharp
         internal ushort ___sequence = 0;
         internal uint ___timestamp = 0;
 
+#pragma warning disable 4014
         private Task SendVoiceTask(CancellationToken token)
         {
             return Task.Factory.StartNew(async () =>
             {
+                udpHeader[0] = (byte)0x80;
+                udpHeader[1] = (byte)0x78;
+                //big endian
+                udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
+                udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
+                udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
+                udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
+
                 while (!token.IsCancellationRequested)
                 {
                     if (!voiceToSend.IsEmpty)
@@ -169,22 +178,9 @@ namespace DiscordSharp
                     }
                 }
             });
-            //return Task.Run(async () =>
-            //{
-            //    while (!token.IsCancellationRequested)
-            //    {
-            //        if(!voiceToSend.IsEmpty)
-            //            await SendVoiceAsync(token);
-            //        if (voiceToSend.IsEmpty)
-            //        {
-            //            //reset these
-            //            ___sequence = 0;
-            //            ___timestamp = 0;
-            //        }
-            //    }
-            //});
         }
-
+#pragma warning restore 4014
+        byte[] udpHeader = new byte[12];
         private async Task SendVoiceAsync(CancellationToken cancelToken)
         {
             byte[] voiceToEncode;
@@ -196,15 +192,6 @@ namespace DiscordSharp
                 byte[] opusAudio = new byte[voiceToEncode.Length];
                 int encodedLength = mainOpusEncoder.EncodeFrame(voiceToEncode, 0, opusAudio);
 
-                byte[] udpHeader = new byte[12];
-                udpHeader[0] = 0x80;
-                udpHeader[1] = 0x78;
-
-                //big endian
-                udpHeader[8] = (byte)((Params.ssrc >> 24) & 0xFF);
-                udpHeader[9] = (byte)((Params.ssrc >> 16) & 0xFF);
-                udpHeader[10] = (byte)((Params.ssrc >> 8) & 0xFF);
-                udpHeader[11] = (byte)((Params.ssrc >> 0) & 0xFF);
                 int dataSent = 0;
 
                 //actual sending
@@ -227,7 +214,7 @@ namespace DiscordSharp
                     Buffer.BlockCopy(udpHeader, 0, buffer, 0, udpHeader.Length);
                     Buffer.BlockCopy(opusAudio, 0, buffer, udpHeader.Length /*12*/, encodedLength);
 
-                    dataSent = await _udp.SendAsync(buffer, buffer.Length).ConfigureAwait(false);
+                    dataSent = _udp.SendAsync(buffer, buffer.Length).Result;
 
                     ___sequence = unchecked(___sequence++);
                     ___timestamp = unchecked(___timestamp + (UInt32)(voiceToEncode.Length / 2));
@@ -238,13 +225,12 @@ namespace DiscordSharp
                 //Compensate for however long it took to sent.
                 if (timeToSend.ElapsedMilliseconds > 0)
                 {
-                    long timeToWait = msToSend - timeToSend.ElapsedMilliseconds;
+                    long timeToWait = (msToSend * TimeSpan.TicksPerMillisecond) - (timeToSend.ElapsedMilliseconds * TimeSpan.TicksPerMillisecond);
                     if (timeToWait > 0) //if it's negative then don't bother waiting
-                        await Task.Delay((int)timeToWait).ConfigureAwait(false);
+                        await Task.Delay(new TimeSpan(timeToWait)).ConfigureAwait(false);
                 }
                 else
                     await Task.Delay(msToSend).ConfigureAwait(false);
-
                 VoiceDebugLogger.LogAsync("Sent " + dataSent + " bytes of Opus audio", MessageLevel.Unecessary);
             }
         }
@@ -355,7 +341,7 @@ namespace DiscordSharp
             try
             {
                 _udp = new UdpClient(Params.port); //passes in proper port
-                _udp.DontFragment = true;
+                _udp.DontFragment = false;
                 _udp.Connect(VoiceEndpoint.Replace(":80", ""), Params.port);
 
                 VoiceDebugLogger.Log($"Initialized UDP Client at {VoiceEndpoint.Replace(":80", "")}:{Params.port}");
