@@ -1737,7 +1737,14 @@ namespace DiscordSharp
                 VoiceClient.EchoPacket(packet).Wait();
         }
 
-        public void ConnectToVoiceChannel(DiscordChannel channel, bool clientMuted = false, bool clientDeaf = false)
+        /// <summary>
+        /// Connects to a given voice channel.
+        /// </summary>
+        /// <param name="channel">The channel to connect to. </param>
+        /// <param name="voiceConfig">The voice configuration to use. If null, default values will be used.</param>
+        /// <param name="clientMuted">Whether or not the client will connect muted. Defaults to false.</param>
+        /// <param name="clientDeaf">Whether or not the client will connect deaf. Defaults to false.</param>
+        public void ConnectToVoiceChannel(DiscordChannel channel, DiscordVoiceConfig voiceConfig = null, bool clientMuted = false, bool clientDeaf = false)
         {
             if (channel.Type != ChannelType.Voice)
                 throw new InvalidOperationException($"Channel '{channel.ID}' is not a voice channel!");
@@ -1746,7 +1753,14 @@ namespace DiscordSharp
                 DisconnectFromVoice();
 
             if (VoiceClient == null)
-                VoiceClient = new DiscordVoiceClient(this);
+            {
+                if (voiceConfig == null)
+                {
+                    VoiceClient = new DiscordVoiceClient(this, new DiscordVoiceConfig());
+                }
+                else
+                    VoiceClient = new DiscordVoiceClient(this, voiceConfig);
+            }
             VoiceClient.Channel = channel;
             VoiceClient.ErrorReceived += (sender, e) =>
             {
@@ -1807,6 +1821,7 @@ namespace DiscordSharp
                 }
             }
             VoiceClient = null;
+            DebugLogger.Log($"Disconnected from voice. VoiceClient null: {VoiceClient == null}");
         }
 
         public DiscordVoiceClient GetVoiceClient()
@@ -2362,36 +2377,49 @@ namespace DiscordSharp
                 le.guild = inServer;
                 le.RawJson = message;
 
+                if (VoiceClient != null && VoiceClient.Connected)
+                    VoiceClient.MemberRemoved(le.user);
                 if (UserLeftVoiceChannel != null)
                     UserLeftVoiceChannel(this, le);
                 return;
             }
             DiscordVoiceStateUpdateEventArgs e = new DiscordVoiceStateUpdateEventArgs();
-            e.user = ServersList.Find(x => x.members.Find(y => y.ID == message["d"]["user_id"].ToString()) != null).members.Find(x => x.ID == message["d"]["user_id"].ToString());
             e.guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-            e.channel = ServersList.Find(x => x.channels.Find(y => y.ID == message["d"]["channel_id"].ToString()) != null).channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
-            if(!message["d"]["self_deaf"].IsNullOrEmpty())
-                e.self_deaf = message["d"]["self_deaf"].ToObject<bool>();
-            e.deaf = message["d"]["deaf"].ToObject<bool>();
-            if(!message["d"]["self_mute"].IsNullOrEmpty())
-                e.self_mute = message["d"]["self_mute"].ToObject<bool>();
-            e.mute = message["d"]["mute"].ToObject<bool>();
-            e.suppress = message["d"]["suppress"].ToObject<bool>();
-            e.RawJson = message;
-
-            if (!message["d"]["session_id"].IsNullOrEmpty())
+            DiscordMember memberToUpdate = e.guild.members.Find(x => x.ID == message["d"]["user_id"].ToString());
+            if (memberToUpdate != null)
             {
-                if(e.user.ID == Me.ID)
-                {
-                    Me.Muted = e.self_mute;
-                    Me.Deaf = e.self_deaf;
-                    if(VoiceClient != null)
-                        VoiceClient.SessionID = message["d"]["session_id"].ToString();
-                }
-            }
+                e.channel = e.guild.channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
+                memberToUpdate.CurrentVoiceChannel = e.channel;
+                if (!message["d"]["self_deaf"].IsNullOrEmpty())
+                    e.self_deaf = message["d"]["self_deaf"].ToObject<bool>();
+                e.deaf = message["d"]["deaf"].ToObject<bool>();
+                if (!message["d"]["self_mute"].IsNullOrEmpty())
+                    e.self_mute = message["d"]["self_mute"].ToObject<bool>();
+                e.mute = message["d"]["mute"].ToObject<bool>();
+                memberToUpdate.Muted = e.mute;
+                e.suppress = message["d"]["suppress"].ToObject<bool>();
+                memberToUpdate.Deaf = e.suppress;
+                e.RawJson = message;
 
-            if (VoiceStateUpdate != null)
-                VoiceStateUpdate(this, e);
+                e.user = memberToUpdate;
+                
+                if (VoiceClient != null && VoiceClient.Connected)
+                    VoiceClient.MemberAdded(e.user);
+
+                if (!message["d"]["session_id"].IsNullOrEmpty()) //then this has to do with you
+                {
+                    if (e.user.ID == Me.ID)
+                    {
+                        Me.Muted = e.self_mute;
+                        Me.Deaf = e.self_deaf;
+                        if (VoiceClient != null)
+                            VoiceClient.SessionID = message["d"]["session_id"].ToString();
+                    }
+                }
+
+                if (VoiceStateUpdate != null)
+                    VoiceStateUpdate(this, e);
+            }
         }
         private JObject ServerInfo(string channelOrServerId)
         {

@@ -867,13 +867,8 @@ namespace DiscordSharpTestApplication
                 int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
                 byte[] buffer = new byte[blockSize];
                 var outFormat = new WaveFormat(sampleRate, 16, channels);
-
-                TimestampSequenceReturn sequence = new TimestampSequenceReturn();
-                sequence.sequence = 0;
-                sequence.timestamp = 0;
-
-                vc.InitializeOpusEncoder(sampleRate, channels, ms, null);
-                vc.SendSpeaking(true);
+                
+                vc.SetSpeaking(true);
                 using (var mp3Reader = new MediaFoundationReader(file))
                 {
                     using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
@@ -884,10 +879,7 @@ namespace DiscordSharpTestApplication
                         {
                             if (vc.Connected)
                             {
-                                //sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence).ConfigureAwait(false);
                                 vc.SendVoice(buffer);
-                                //sequence = vc.SendSmallOpusAudioPacket(buffer, 48000, buffer.Length, sequence);
-                                //Task.Delay(19).Wait();
                             }
                             else
                                 break;

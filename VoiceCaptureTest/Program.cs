@@ -13,9 +13,6 @@ namespace VoiceCaptureTest
 {
     class Program
     {
-        static bool capture = false;
-        static int ssrcToCapture = -1;
-        static List<DiscordAudioPacket> packets;
         static DiscordClient client;
 
         static void Main(string[] args)
@@ -95,13 +92,8 @@ namespace VoiceCaptureTest
                     int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
                     byte[] buffer = new byte[blockSize];
                     var outFormat = new WaveFormat(sampleRate, 16, channels);
-
-                    TimestampSequenceReturn sequence = new TimestampSequenceReturn();
-                    sequence.sequence = 0;
-                    sequence.timestamp = 0;
-
-                    vc.InitializeOpusEncoder(sampleRate, channels, ms, null);
-                    vc.SendSpeaking(true);
+                    
+                    vc.SetSpeaking(true);
                     using (var mp3Reader = new Mp3FileReader(file))
                     {
                         using (var resampler = new WaveFormatConversionStream(outFormat, mp3Reader))
