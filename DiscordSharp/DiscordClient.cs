@@ -140,6 +140,10 @@ namespace DiscordSharp
         /// For use when connected to voice only.
         /// </summary>
         public event EventHandler<DiscordLeftVoiceChannelEventArgs> UserLeftVoiceChannel;
+        /// <summary>
+        /// Occurs when the voice client is fully connected to voice.
+        /// </summary>
+        public event EventHandler<EventArgs> VoiceClientConnected;
         #endregion
         #endregion
 
@@ -1771,6 +1775,11 @@ namespace DiscordSharp
             {
                 if (UserSpeaking != null)
                     UserSpeaking(this, e);
+            };
+            VoiceClient.VoiceConnectionComplete += (sender, e) =>
+            {
+                if (VoiceClientConnected != null)
+                    VoiceClientConnected(this, e);
             };
 
             string joinVoicePayload = JsonConvert.SerializeObject(new

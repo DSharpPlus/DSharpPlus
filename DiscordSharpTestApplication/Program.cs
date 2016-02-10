@@ -94,6 +94,10 @@ namespace DiscordSharpTestApplication
 
             var worker = new Thread(() =>
             {
+                client.VoiceClientConnected += (sender, e) =>
+                {
+                    owner.SlideIntoDMs("Voice client connection complete.");
+                };
                 client.TextClientDebugMessageReceived += (sender, e) =>
                 {
                     if (e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Warning)
@@ -178,6 +182,13 @@ namespace DiscordSharpTestApplication
                     if (e.message.content.StartsWith("?typemonkey"))
                     {
                         client.SimulateTyping(e.Channel);
+                    }
+                    else if(e.message.content.StartsWith("?stop"))
+                    {
+                        if(client.ConnectedToVoice())
+                        {
+                            client.GetVoiceClient().ClearVoiceQueue();
+                        }
                     }
                     else if (e.message.content.StartsWith("?editlast"))
                     {

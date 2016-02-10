@@ -148,6 +148,7 @@ namespace DiscordSharp
         internal event EventHandler<DiscordVoiceUserSpeakingEventArgs> UserSpeaking;
         internal event EventHandler<DiscordAudioPacketEventArgs> PacketReceived;
         internal event EventHandler<EventArgs> ErrorReceived;
+        internal event EventHandler<EventArgs> VoiceConnectionComplete;
         #endregion
 
         #region voice sending stuff
@@ -276,6 +277,8 @@ namespace DiscordSharp
                         DoUDPKeepAlive(globalTaskSource.Token);
                     SendVoiceTask(globalTaskSource.Token);
                     SetSpeaking(true);
+                    if (VoiceConnectionComplete != null)
+                        VoiceConnectionComplete(this, new EventArgs());
                     break;
                 case 5: //User speaking
                     //VoiceDebugLogger.Log(e.Message);
