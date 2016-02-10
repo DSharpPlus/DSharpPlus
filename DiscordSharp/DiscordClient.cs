@@ -1536,7 +1536,7 @@ namespace DiscordSharp
                             KeepAlive();
                             Thread.Sleep(HeartbeatInterval);
                             if (KeepAliveTaskToken.IsCancellationRequested)
-                                KeepAliveTaskToken.ThrowIfCancellationRequested();
+                                break;
                         }
                     }, KeepAliveTaskToken, TaskCreationOptions.LongRunning);
                     KeepAliveTask.Start();

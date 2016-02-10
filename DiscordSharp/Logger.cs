@@ -100,6 +100,16 @@ namespace DiscordSharp
             pushLog(m);
         }
 
+        public async void LogAsync(string message, MessageLevel level)
+        {
+            LogMessage m = new LogMessage();
+            m.Message = message;
+            m.Level = level;
+            m.TimeStamp = DateTime.Now;
+
+            pushLog(m);
+        }
+
         /// <summary>
         /// Returns the first log at the given time.
         /// </summary>

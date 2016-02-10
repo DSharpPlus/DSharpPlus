@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharp", "DiscordShar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharpTestApplication", "DiscordSharpTestApplication\DiscordSharpTestApplication.csproj", "{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceCaptureTest", "VoiceCaptureTest\VoiceCaptureTest.csproj", "{8CD30B38-9D45-4E49-94F9-7A48977CDA49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickVoiceTest", "VoiceCaptureTest\QuickVoiceTest.csproj", "{8CD30B38-9D45-4E49-94F9-7A48977CDA49}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomDiscordClient", "..\WPFDiscordSharp\CustomDiscordClient\CustomDiscordClient.csproj", "{A346587F-457B-4822-A05D-ABF87890C1B8}"
 EndProject

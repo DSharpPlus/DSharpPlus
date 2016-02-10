@@ -40,99 +40,96 @@ namespace VoiceCaptureTest
                 Console.ReadLine();
             }
 
-            if(client.SendLoginRequest() != null)
-            {
-                Task.Run(() =>
-                {
-                    client.AudioPacketReceived += (sender, e) =>
-                    {
-                        if(capture)
-                        {
-                            if(e.Packet.SSRC == ssrcToCapture)
-                            {
-                                packets.Add(e.Packet);
-                            }
-                        }
-                    };
-                    client.UserSpeaking += (sender, e) =>
-                    {
-                        if (e.Speaking)
-                        {
-                            Console.WriteLine("Capturing audio for user " + e.UserSpeaking.Username + " (ssrc: " + e.ssrc + ")");
-                            capture = true;
-                            ssrcToCapture = e.ssrc;
-                            packets = new List<DiscordAudioPacket>();
-                        }
-                        else
-                        {
-                            Console.WriteLine("Stopped capturing");
-                            capture = false;
-                            ssrcToCapture = -1;
-                            justwait();
-                        }
-                    };
-                    client.MessageReceived += (sender, e) =>
-                    {
-                        if(e.message.content.StartsWith("?joinvoice"))
-                        {
-                            string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                            if(split[1] != "")
-                            {
-                                DiscordChannel toJoin = e.Channel.parent.channels.Find(x => (x.Name.ToLower() == split[1].ToLower()) && (x.Type == ChannelType.Voice));
-                                if(toJoin != null)
-                                {
-                                    client.ConnectToVoiceChannel(toJoin);
-                                }
-                            }
-                        }
-                    };
-                    client.Connected += (sender, e) =>
-                    {
-                        Console.WriteLine("Connected as " + e.user.Username);
-                    };
-                    client.Connect();
-                });
-            }
+            if (client.SendLoginRequest() != null)
+                ClientTask(client);
 
             Console.ReadLine();
         }
 
-        static void justwait()
+        static Task ClientTask(DiscordClient client)
         {
-            //1. do initial packet size calculation
-            long totalSize = 0;
-            packets.ForEach(x =>
+            return Task.Run(() =>
             {
-                totalSize += x.GetEncodedAudio().Length;
-            });
-
-            //2. create giant buffer.
-            byte[] bigBossBuffer = new byte[totalSize];
-
-            //3. write packets to giant buffer
-            using (MemoryStream ms = new MemoryStream(bigBossBuffer))
-            {
-                using (BinaryWriter bw = new BinaryWriter(ms))
+                client.MessageReceived += (sender, e) =>
                 {
-                    packets.ForEach(x => bw.Write(x.GetEncodedAudio()));
-                }
-
-                bigBossBuffer = ms.ToArray(); //just in case
-            }
-
-            //4. opus decoder yay
-            var decoder = OpusDecoder.Create(480000, 1);
-            int length = bigBossBuffer.Length;
-            byte[] test = decoder.Decode(bigBossBuffer, length, out length);
-
-            //5. write to a wave
-            using (WaveFileWriter writer = new WaveFileWriter("lol.wav", new WaveFormat()))
+                    if (e.message.content.StartsWith("?joinvoice"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if (split[1] != "")
+                        {
+                            DiscordChannel toJoin = e.Channel.parent.channels.Find(x => (x.Name.ToLower() == split[1].ToLower()) && (x.Type == ChannelType.Voice));
+                            if (toJoin != null)
+                            {
+                                client.ConnectToVoiceChannel(toJoin);
+                            }
+                        }
+                    }
+                    else if (e.message.content.StartsWith("?voice"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if (File.Exists(split[1]))
+                            DoVoice(client.GetVoiceClient(), split[1]);
+                    }
+                    else if(e.message.content.StartsWith("?disconnect"))
+                    {
+                        client.DisconnectFromVoice();
+                    }
+                };
+                client.Connected += (sender, e) =>
+                {
+                    Console.WriteLine("Connected as " + e.user.Username);
+                };
+                client.Connect();
+            });
+        }
+        static Task DoVoice(DiscordVoiceClient vc, string file)
+        {
+            return Task.Run(() =>
             {
-                writer.Write(test, 0, test.Length);
-            }
+                try
+                {
+                    int ms = 20;
+                    int channels = 2;
+                    int sampleRate = 48000;
 
-            //6. free
-            packets = new List<DiscordAudioPacket>();
+                    int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
+                    byte[] buffer = new byte[blockSize];
+                    var outFormat = new WaveFormat(sampleRate, 16, channels);
+
+                    TimestampSequenceReturn sequence = new TimestampSequenceReturn();
+                    sequence.sequence = 0;
+                    sequence.timestamp = 0;
+
+                    vc.InitializeOpusEncoder(sampleRate, channels, ms, null);
+                    vc.SendSpeaking(true);
+                    using (var mp3Reader = new Mp3FileReader(file))
+                    {
+                        using (var resampler = new WaveFormatConversionStream(outFormat, mp3Reader))
+                        {
+                            int byteCount;
+                            while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
+                            {
+                                if (vc.Connected)
+                                {
+                                    //sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence).ConfigureAwait(false);
+                                    vc.SendVoice(buffer);
+                                    //sequence = vc.SendSmallOpusAudioPacket(buffer, 48000, buffer.Length, sequence);
+                                    //Task.Delay(19).Wait();
+                                }
+                                else
+                                    break;
+                            }
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Voice finished enqueuing");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            });
         }
     }
 }
