@@ -858,14 +858,17 @@ namespace DiscordSharpTestApplication
                             if (vc.Connected)
                             {
                                 //sequence = await vc.SendSmallOpusAudioPacket(buffer, sampleRate, byteCount, sequence).ConfigureAwait(false);
-                                sequence = vc.SendSmallOpusAudioPacket(buffer, 48000, buffer.Length, sequence);
-                                //await Task.Delay(new TimeSpan(18 * TimeSpan.TicksPerMillisecond));
-                                Thread.Sleep(19);
+                                vc.SendVoice(buffer);
+                                //sequence = vc.SendSmallOpusAudioPacket(buffer, 48000, buffer.Length, sequence);
+                                //Task.Delay(19).Wait();
                             }
                             else
                                 break;
                             }
-                        }
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Voice finished enqueuing");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
                     }
                 }
                 catch (Exception ex)
