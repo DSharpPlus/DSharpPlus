@@ -1,0 +1,3 @@
+[submodule "WPFDiscordSharp"]
+	path = WPFDiscordSharp
+	url = https://github.com/Luigifan/WPFDiscordSharp
