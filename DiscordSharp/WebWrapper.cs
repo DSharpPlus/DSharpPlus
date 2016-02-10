@@ -54,11 +54,8 @@ namespace DiscordSharp
             }
             catch (WebException e)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    return result;
-                }
+                Console.WriteLine(e.Message);
+                throw e;
             }
             return "";
         }
@@ -76,6 +73,7 @@ namespace DiscordSharp
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PUT";
             httpRequest.UserAgent += $" {UserAgentString}";
+            httpRequest.ContentLength = 0;
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
@@ -102,11 +100,7 @@ namespace DiscordSharp
             }
             catch (WebException e)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    string result = s.ReadToEnd();
-                    return result;
-                }
+                throw e;
             }
             return "";
         }

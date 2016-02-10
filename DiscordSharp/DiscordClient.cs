@@ -1655,18 +1655,19 @@ namespace DiscordSharp
         /// </summary>
         /// <param name="member"></param>
         /// <param name="days">The number of days the user should be banned for, or 0 for infinite.</param>
-        public void BanMember(DiscordMember member, int days = 0)
+        public DiscordMember BanMember(DiscordMember member, int days = 0)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{member.Parent.id}" + Endpoints.Bans + $"/{member.ID}";
-            if (days >= 0)
-                url += $"?delete-message-days={days}";
+            url += $"?delete-message-days={days}";
             try
             {
                 WebWrapper.Put(url, token);
+                return member;
             }
             catch (Exception ex)
             {
                 DebugLogger.Log($"Error during BanMember\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+                return null;
             }
         }
 
@@ -1674,14 +1675,20 @@ namespace DiscordSharp
         /// Retrieves a DiscordMember List of members banned in the specified server.
         /// </summary>
         /// <param name="server"></param>
-        /// <returns></returns>
+        /// <returns>Null if no permission.</returns>
         public List<DiscordMember> GetBans(DiscordServer server)
         {
             List<DiscordMember> returnVal = new List<DiscordMember>();
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{server.id}" + Endpoints.Bans;
             try
             {
-                JArray response = JArray.Parse(WebWrapper.Get(url, token));
+                var __res = WebWrapper.Get(url, token);
+                var permissionCheck = JObject.Parse(__res);
+                {
+                    if (!permissionCheck["message"].IsNullOrEmpty())
+                        return null; //no permission
+                }
+                JArray response = JArray.Parse(__res);
                 if (response != null && response.Count > 0)
                 {
                     DebugLogger.Log($"Ban count: {response.Count}");

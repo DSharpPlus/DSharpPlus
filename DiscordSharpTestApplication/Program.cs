@@ -183,6 +183,75 @@ namespace DiscordSharpTestApplication
                     {
                         client.SimulateTyping(e.Channel);
                     }
+                    else if(e.message.content.StartsWith("?unban"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            DiscordMember meInServer = e.Channel.parent.members.Find(x => x.ID == client.Me.ID);
+                            bool hasPermission = false;
+                            foreach(var role in meInServer.Roles)
+                            {
+                                if (role.permissions.HasPermission(DiscordSpecialPermissions.BanMembers) || role.permissions.HasPermission(DiscordSpecialPermissions.ManageServer))
+                                {
+                                    hasPermission = true;
+                                    break;
+                                }
+                            }
+                            if(hasPermission)
+                                client.RemoveBan(e.Channel.parent, split[1]);
+                            else
+                                e.Channel.SendMessage("No permission to do so!");
+
+                        }
+                    }
+                    else if(e.message.content.StartsWith("?getbans"))
+                    {
+                        var banList = client.GetBans(e.Channel.parent);
+                        if (banList == null)
+                        {
+                            e.Channel.SendMessage("No permission!");
+                            return;
+                        }
+                        if(banList.Count > 0)
+                        {
+                            string msg = $"**{banList.Count}** bans in this server.";
+                            msg += "\n```";
+                            for(int i = 0; i < banList.Count; i++)
+                            {
+                                if (i > 5)
+                                    break;
+                                msg += $"\n* {banList[i].Username} ({banList[i].ID})";
+                            }
+                            msg += "\n```";
+                            e.Channel.SendMessage(msg);
+                        }
+                        else
+                        {
+                            e.Channel.SendMessage("No bans in this server!");
+                        }
+                    }
+                    else if(e.message.content.StartsWith("?ban"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            //<@09380598340598>
+                            string id = split[1].Trim(new char[] { '<', '@', '>' });
+                            DiscordMember toBan = e.Channel.parent.members.Find(x => x.ID == id);
+                            if (toBan != null)
+                            {
+                                if (client.BanMember(toBan) != null)
+                                    e.Channel.SendMessage($"**{toBan.Username}** will be missed.");
+                                else
+                                    e.Channel.SendMessage("No permission!");
+                            }
+                            else
+                                e.Channel.SendMessage("Ban who?");
+                        }
+                        else
+                            e.Channel.SendMessage("Ban who?");
+                    }
                     else if(e.message.content.StartsWith("?stop"))
                     {
                         if(client.ConnectedToVoice())
@@ -787,7 +856,8 @@ namespace DiscordSharpTestApplication
                 do
                 {
                     input = Console.ReadLine();
-
+                    if (input == null)
+                        break;
                     if (input.Contains("?changepass"))
                     {
                         Console.Write("Please enter the new password (will be visible): ");
