@@ -456,6 +456,7 @@ namespace DiscordSharp
                     {
                         id = item["id"].ToString(),
                         channel = channel,
+                        attachments = item["attachments"].ToObject<DiscordAttachment[]>(),
                         TypeOfChannelObject = channel.GetType(),
                         author = GetMemberFromChannel(channel, item["author"]["id"].ToString()),
                         content = item["content"].ToString(),
