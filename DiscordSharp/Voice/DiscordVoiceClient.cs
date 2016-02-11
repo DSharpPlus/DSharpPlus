@@ -149,6 +149,7 @@ namespace DiscordSharp
         internal event EventHandler<DiscordAudioPacketEventArgs> PacketReceived;
         internal event EventHandler<EventArgs> ErrorReceived;
         internal event EventHandler<EventArgs> VoiceConnectionComplete;
+        internal event EventHandler<EventArgs> QueueEmpty;
         #endregion
 
         #region voice sending stuff
@@ -372,7 +373,7 @@ namespace DiscordSharp
         }
         #endregion
 
-
+        private bool QueueEmptyEventTriggered = false;
         #region Internal Voice Methods
 #pragma warning disable 4014
         private Task SendVoiceTask(CancellationToken token)
@@ -382,12 +383,23 @@ namespace DiscordSharp
                 while (!token.IsCancellationRequested)
                 {
                     if (!voiceToSend.IsEmpty)
+                    {
+                        QueueEmptyEventTriggered = false;
                         await SendVoiceAsync(token).ConfigureAwait(false);
+                    }
                     if (voiceToSend.IsEmpty)
                     {
                         //reset these
                         ___sequence = 0;
                         ___timestamp = 0;
+                        if (!QueueEmptyEventTriggered)
+                        {
+                            if (QueueEmpty != null)
+                            {
+                                QueueEmpty(this, new EventArgs());
+                                QueueEmptyEventTriggered = true;
+                            }
+                        }
                     }
                 }
             });

@@ -46,7 +46,7 @@ namespace DiscordSharp.Objects
             if (checkAgainst == "online")
                 Status = Status.Online;
             else if (checkAgainst == "idle")
-                Status = Status.Offline;
+                Status = Status.Idle;
             else
                 Status = Status.Offline;
         }

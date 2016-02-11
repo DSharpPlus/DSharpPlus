@@ -144,6 +144,10 @@ namespace DiscordSharp
         /// Occurs when the voice client is fully connected to voice.
         /// </summary>
         public event EventHandler<EventArgs> VoiceClientConnected;
+        /// <summary>
+        /// Occurs when the voice queue is emptied.
+        /// </summary>
+        public event EventHandler<EventArgs> VoiceQueueEmpty;
         #endregion
         #endregion
 
@@ -1787,6 +1791,11 @@ namespace DiscordSharp
             {
                 if (VoiceClientConnected != null)
                     VoiceClientConnected(this, e);
+            };
+            VoiceClient.QueueEmpty += (sender, e) =>
+            {
+                if (VoiceQueueEmpty != null)
+                    VoiceQueueEmpty(this, e);
             };
 
             string joinVoicePayload = JsonConvert.SerializeObject(new

@@ -691,6 +691,24 @@ namespace DiscordSharpTestApplication
                             }
                         }
                     }
+                    else if (e.message.content.StartsWith("?statusof"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            string id = split[1].Trim(new char[] { '<', '@', '>' });
+                            DiscordMember member = e.Channel.parent.members.Find(x => x.ID == id);
+                            if(member != null)
+                            {
+                                string msg = $"Status of **{member.Username}**";
+                                msg += $"\n```\nStatus: " + member.Status.ToString();
+                                if (member.CurrentGame != null)
+                                    msg += "\nPlaying: " + member.CurrentGame;
+                                msg += "\n```";
+                                e.Channel.SendMessage(msg);
+                            }
+                        }
+                    }
                     else if (e.message.content.StartsWith("?playing"))
                     {
                         DiscordMember member = e.Channel.parent.members.Find(x => x.Username == "Axiom");
