@@ -433,12 +433,12 @@ namespace DiscordSharp
         /// <param name="idBefore">Messages before this message ID.</param>
         /// <param name="idAfter">Messages after this message ID.</param>
         /// <returns></returns>
-        public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, int? idBefore, int ?idAfter)
+        public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, string idBefore, string idAfter)
         {
             string request = "https://discordapp.com/api/channels/" + channel.ID + $"/messages?&limit={count}";
-            if (idBefore != null)
+            if (!string.IsNullOrEmpty(idBefore))
                 request += $"&before={idBefore}";
-            if (idAfter != null)
+            if (string.IsNullOrEmpty(idAfter))
                 request += $"&after={idAfter}";
 
             JArray result = null;

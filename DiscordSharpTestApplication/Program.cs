@@ -29,6 +29,8 @@ namespace DiscordSharpTestApplication
 
         static ManualResetEvent quitEvent = new ManualResetEvent(false);
 
+        static Random rng = new Random(DateTime.Now.Millisecond);
+
         static void WriteDebug(LogMessage m, string prefix)
         {
             if (m.Level == MessageLevel.Unecessary)
@@ -172,6 +174,13 @@ namespace DiscordSharpTestApplication
                         whatToSend += $"Where `<@{client.Me.ID}>` is my user being mentioned.";
                     DiscordMember owner = client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom");
                     client.SendMessageToUser(whatToSend, owner);
+                };
+                client.MessageDeleted += (sender, e) =>
+                {
+                    if (e.DeletedMessage != null)
+                        Console.WriteLine($"Message {e.DeletedMessage.content} deleted");
+                    else
+                        Console.WriteLine("Message deleted, message was null.");
                 };
                 client.MessageReceived += (sender, e) =>
                 {
@@ -680,13 +689,37 @@ namespace DiscordSharpTestApplication
                     }
                     else if(e.message.content.StartsWith("?testvoice"))
                     {
-                        if (!client.ConnectedToVoice())
-                            return;
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                         if(split.Length > 1)
                         {
-                            if(File.Exists(split[1]))
+                            if(split[1].Trim() == "list")
                             {
+                                string msg = $"Available Songs\n```";
+                                foreach(var file in Directory.GetFiles(Environment.CurrentDirectory))
+                                {
+                                    if(file.EndsWith(".mp3"))
+                                        msg += "* " + Path.GetFileName(file.ToString()) + "\n";
+                                }
+                                msg += $"\n```";
+                                e.Channel.SendMessage(msg);
+                            }
+                            else if(split[1].Trim() == "ran")
+                            {
+                                if (!client.ConnectedToVoice())
+                                    return;
+                                List<string> availableSongs = new List<string>();
+                                foreach (var file in Directory.GetFiles(Environment.CurrentDirectory))
+                                    if (file.EndsWith(".mp3"))
+                                        availableSongs.Add(file);
+
+                                string fileToPlay = availableSongs[rng.Next(availableSongs.Count - 1)];
+                                e.Channel.SendMessage($"Playing `{Path.GetFileName(fileToPlay)}`");
+                                VoiceStuffs(client.GetVoiceClient(), fileToPlay);
+                            }
+                            else if(File.Exists(split[1]))
+                            {
+                                if (!client.ConnectedToVoice())
+                                    return;
                                 VoiceStuffs(client.GetVoiceClient(), split[1]);
                             }
                         }
