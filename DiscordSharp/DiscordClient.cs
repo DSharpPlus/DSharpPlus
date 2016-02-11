@@ -1676,6 +1676,30 @@ namespace DiscordSharp
         }
 
         /// <summary>
+        /// Bans a specified DiscordMember from the guild that's assumed from their
+        /// parent property.
+        /// </summary>
+        /// <param name="member"></param>
+        /// <param name="serverOverride"></param>
+        /// <param name="days"></param>
+        /// <returns></returns>
+        public DiscordMember BanMember(DiscordMember member, DiscordServer serverOverride, int days = 0)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{serverOverride.id}" + Endpoints.Bans + $"/{member.ID}";
+            url += $"?delete-message-days={days}";
+            try
+            {
+                WebWrapper.Put(url, token);
+                return member;
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log($"Error during BanMember\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Retrieves a DiscordMember List of members banned in the specified server.
         /// </summary>
         /// <param name="server"></param>
