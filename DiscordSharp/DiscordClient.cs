@@ -86,6 +86,11 @@ namespace DiscordSharp
         public bool WriteLatestReady { get; set; } = false;
 
         /// <summary>
+        /// Whether or not to request all users in a guild (including offlines) on startup.
+        /// </summary>
+        public bool RequestAllUsersOnStartup { get; set; } = false;
+
+        /// <summary>
         /// A log of messages kept in a KeyValuePair.
         /// The key is the id of the message, and the value is a DiscordMessage object. If you need raw json, this is contained inside of the DiscordMessage object now.
         /// </summary>
@@ -1437,8 +1442,32 @@ namespace DiscordSharp
                             ClientPrivateInformation.username = Me.Username;
                             HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
                             GetChannelsList(message);
+
+                            //TESTING
+                            string[] guildID = new string[ServersList.Count];
+                            for (int i = 0; i < guildID.Length; i++)
+                                guildID[i] = ServersList[i].id;
+
+                            if (RequestAllUsersOnStartup)
+                            {
+                                string wsChunkTest = JsonConvert.SerializeObject(new
+                                {
+                                    op = 8,
+                                    d = new
+                                    {
+                                        guild_id = guildID,
+                                        query = "",
+                                        limit = 0
+                                    }
+                                });
+                                ws.Send(wsChunkTest);
+                            }
+
                             if (Connected != null)
                                 Connected(this, new DiscordConnectEventArgs { user = Me }); //Since I already know someone will ask for it.
+                            break;
+                        case ("GUILD_MEMBERS_CHUNK"):
+                            GuildMemberChunkEvents(message);
                             break;
                         case ("GUILD_MEMBER_REMOVE"):
                             GuildMemberRemoveEvents(message);
@@ -1563,6 +1592,47 @@ namespace DiscordSharp
                 };
                 ws.Connect();
             DebugLogger.Log("Connecting..");
+        }
+
+        private bool GuildHasMemberWithID(DiscordServer guild, string id)
+        {
+            bool has = false;
+            foreach (var x in guild.members)
+                if (x.ID == id)
+                    has = true;
+
+            return has;
+        }
+
+        private void GuildMemberChunkEvents(JObject message)
+        {
+            if(!message["d"]["members"].IsNullOrEmpty())
+            {
+                DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+                JArray membersAsArray = JArray.Parse(message["d"]["members"].ToString());
+                foreach (var member in membersAsArray)
+                {
+                    if (GuildHasMemberWithID(inServer, member["user"]["id"].ToString()))
+                        continue;
+                    DiscordMember _member = JsonConvert.DeserializeObject<DiscordMember>(member["user"].ToString());
+                    if (!member["user"]["roles"].IsNullOrEmpty())
+                    {
+                        JArray rollsArray = JArray.Parse(member["user"]["roles"].ToString());
+                        if (rollsArray.Count > 0)
+                        {
+                            foreach (var rollID in rollsArray)
+                                _member.Roles.Add(inServer.roles.Find(x => x.id == rollID.ToString()));
+                        }
+                    }
+                    _member.Muted = member["mute"].ToObject<bool>();
+                    _member.Deaf = member["deaf"].ToObject<bool>();
+                    _member.Roles.Add(inServer.roles.Find(x => x.name == "@everyone"));
+                    _member.Status = Status.Offline;
+                    _member.parentclient = this;
+                    _member.Parent = inServer;
+                    inServer.members.Add(_member);
+                }
+            }
         }
 
         private void GuildMemberBanRemovedEvents(JObject message)

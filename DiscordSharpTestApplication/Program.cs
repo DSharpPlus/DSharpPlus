@@ -26,6 +26,7 @@ namespace DiscordSharpTestApplication
         static DiscordMember owner;
         static WaitHandle waitHandle = new AutoResetEvent(false);
         static LastAuth lastfmAuthentication = new LastAuth("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c");
+        static bool repeatVoice;
 
         static ManualResetEvent quitEvent = new ManualResetEvent(false);
 
@@ -91,6 +92,7 @@ namespace DiscordSharpTestApplication
                 string pass = Console.ReadLine();
                 client.ClientPrivateInformation.password = pass;
             }
+            client.RequestAllUsersOnStartup = true;
 
             Console.WriteLine("Attempting login..");
 
@@ -213,6 +215,11 @@ namespace DiscordSharpTestApplication
                                 e.Channel.SendMessage("No permission to do so!");
 
                         }
+                    }
+                    else if(e.message.content.StartsWith("?repeatvoice"))
+                    {
+                        repeatVoice = !repeatVoice;
+                        e.Channel.SendMessage("Repeat: " + repeatVoice);
                     }
                     else if(e.message.content.StartsWith("?getbans"))
                     {
@@ -689,6 +696,7 @@ namespace DiscordSharpTestApplication
                     }
                     else if(e.message.content.StartsWith("?testvoice"))
                     {
+                        bool played = false;
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                         if(split.Length > 1)
                         {
@@ -714,14 +722,32 @@ namespace DiscordSharpTestApplication
 
                                 string fileToPlay = availableSongs[rng.Next(availableSongs.Count - 1)];
                                 e.Channel.SendMessage($"Playing `{Path.GetFileName(fileToPlay)}`");
+                                played = true;
                                 VoiceStuffs(client.GetVoiceClient(), fileToPlay);
                             }
                             else if(File.Exists(split[1]))
                             {
                                 if (!client.ConnectedToVoice())
                                     return;
+                                played = true;
                                 VoiceStuffs(client.GetVoiceClient(), split[1]);
                             }
+                        }
+                        if(played)
+                        {
+                            client.VoiceQueueEmpty += (sx, ex) =>
+                            {
+                                if (!client.ConnectedToVoice())
+                                    return;
+                                List<string> availableSongs = new List<string>();
+                                foreach (var file in Directory.GetFiles(Environment.CurrentDirectory))
+                                    if (file.EndsWith(".mp3"))
+                                        availableSongs.Add(file);
+
+                                string fileToPlay = availableSongs[rng.Next(availableSongs.Count - 1)];
+                                client.GetServersList().Find(x=>x.name == "Axiom's Test Server").channels.Find(x=>x.Name == "testing" && x.Type == ChannelType.Text).SendMessage($"Playing `{Path.GetFileName(fileToPlay)}`");
+                                VoiceStuffs(client.GetVoiceClient(), fileToPlay);
+                            };
                         }
                     }
                     else if (e.message.content.StartsWith("?statusof"))

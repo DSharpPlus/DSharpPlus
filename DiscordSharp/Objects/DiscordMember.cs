@@ -58,7 +58,6 @@ namespace DiscordSharp.Objects
         public string Email { get; internal set; }
 
 
-        //public DiscordUser user { get; set; }
         public List<DiscordRole> Roles { get; set; }
 
         /// <summary>
