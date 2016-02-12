@@ -1555,6 +1555,7 @@ namespace DiscordSharp
                         d = new
                         {
                             token = token,
+                            large_threshold = true,
                             properties = new DiscordProperties()
                         }
                     });
