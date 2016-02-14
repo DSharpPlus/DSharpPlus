@@ -1,7 +1,5 @@
 ﻿using DiscordSharp;
 using DiscordSharp.Objects;
-using IF.Lastfm.Core.Api;
-using IF.Lastfm.Core.Objects;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -20,12 +18,12 @@ using System.ComponentModel;
 
 namespace DiscordSharpTestApplication
 {
-    class Program
+    public class Program
     {
         static DiscordClient client = new DiscordClient();
         static DiscordMember owner;
         static WaitHandle waitHandle = new AutoResetEvent(false);
-        static LastAuth lastfmAuthentication = new LastAuth("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c");
+        //static LastAuth lastfmAuthentication = new LastAuth("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c");
         static bool repeatVoice;
 
         static ManualResetEvent quitEvent = new ManualResetEvent(false);
@@ -447,7 +445,7 @@ namespace DiscordSharpTestApplication
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                         if (split.Length > 1)
                         {
-                            using (var lllfclient = new LastfmClient(lastfmAuthentication))
+                            /*using (var lllfclient = new LastfmClient(lastfmAuthentication))
                             {
                                 try
                                 {
@@ -459,7 +457,7 @@ namespace DiscordSharpTestApplication
                                 {
                                     client.SendMessageToChannel(string.Format("User _*{0}*_ not found!", split[1]), e.Channel);
                                 }
-                            }
+                            }*/
                         }
                         else
                             client.SendMessageToChannel("Who??", e.Channel);
@@ -807,7 +805,7 @@ namespace DiscordSharpTestApplication
                     else if (e.message.content.StartsWith("?playing"))
                     {
                         DiscordMember member = e.Channel.parent.members.Find(x => x.Username == "Axiom");
-                        using (var lllfclient = new LastfmClient(lastfmAuthentication))
+                        /*using (var lllfclient = new LastfmClient(lastfmAuthentication))
                         {
                             try
                             {
@@ -845,7 +843,7 @@ namespace DiscordSharpTestApplication
                                 string whatToSend = $"Couldn't get Last.fm recent scrobbles for you! Exception:\n```{ex.Message}\n{ex.StackTrace}\n```\n";
                                 client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom"));
                             }
-                        }
+                        }*/
                     }
                 };
 
@@ -858,7 +856,7 @@ namespace DiscordSharpTestApplication
                         sw.WriteLine(client.ClientPrivateInformation.password);
                         sw.Flush();
                     }
-                    using (var lllfclient = new LastfmClient(lastfmAuthentication))
+                    /*using (var lllfclient = new LastfmClient(lastfmAuthentication))
                     {
                         try
                         {
@@ -873,7 +871,7 @@ namespace DiscordSharpTestApplication
                             string whatToSend = $"Couldn't get Last.fm recent scrobbles for you! Exception:\n```{ex.Message}\n{ex.StackTrace}\n```\n";
                             client.SendMessageToUser(whatToSend, client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom"));
                         }
-                    }
+                    }*/
 
                     owner = client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom");
                 };
@@ -896,7 +894,7 @@ namespace DiscordSharpTestApplication
             });
             worker.Start();
 
-            System.Timers.Timer lastfmUpdateTimer = new System.Timers.Timer(25 * 1000); //check last.fm every 25 seconds
+            /*System.Timers.Timer lastfmUpdateTimer = new System.Timers.Timer(25 * 1000); //check last.fm every 25 seconds
             lastfmUpdateTimer.Elapsed += (sender, e) =>
             {
                 using (var lllfclient = new LastfmClient(lastfmAuthentication))
@@ -930,7 +928,7 @@ namespace DiscordSharpTestApplication
                     }
                 }
             };
-            lastfmUpdateTimer.Start();
+            lastfmUpdateTimer.Start();*/
 
             InputCheck();
             //System.Windows.Forms.Application.Run();

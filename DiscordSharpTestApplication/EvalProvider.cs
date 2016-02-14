@@ -22,7 +22,7 @@ public static class EvalProvider
         using (CSharpCodeProvider compiler = new CSharpCodeProvider())
         {
             var name = "F" + Guid.NewGuid().ToString().Replace("-", string.Empty);
-            var includeAssemblies = new HashSet<string>(new[] { "system.dll" });
+            var includeAssemblies = new HashSet<string>(new[] { "System.dll" });
             if (assemblies != null)
                 foreach (var assembly in assemblies)
                     includeAssemblies.Add(assembly);
