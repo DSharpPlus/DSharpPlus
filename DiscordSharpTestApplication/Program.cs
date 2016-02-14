@@ -17,8 +17,6 @@ using NAudio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System.ComponentModel;
-using System.Speech.Synthesis;
-using System.Speech.AudioFormat;
 
 namespace DiscordSharpTestApplication
 {
@@ -803,27 +801,6 @@ namespace DiscordSharpTestApplication
                                     msg += "\nPlaying: " + member.CurrentGame;
                                 msg += "\n```";
                                 e.Channel.SendMessage(msg);
-                            }
-                        }
-                    }
-                    else if(e.message.content.StartsWith("?say"))
-                    {
-                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if(split.Length > 1)
-                        {
-                            if(client.ConnectedToVoice())
-                            {
-                                using (SpeechSynthesizer synth = new SpeechSynthesizer())
-                                {
-                                    using (MemoryStream stream = new MemoryStream())
-                                    {
-                                        MemoryStream streamAudio = new MemoryStream();
-                                        synth.SetOutputToWaveFile("tempvoice.wav", new System.Speech.AudioFormat.SpeechAudioFormatInfo(48000, AudioBitsPerSample.Sixteen, AudioChannel.Stereo));
-                                        synth.Speak(split[1]);
-                                        synth.Dispose();
-                                    }
-                                }
-                                VoiceStuffs(client.GetVoiceClient(), "tempvoice.wav");
                             }
                         }
                     }

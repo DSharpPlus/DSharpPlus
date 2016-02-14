@@ -4,7 +4,7 @@ using System.IO;
 
 namespace DiscordSharp
 {
-    public struct LoggerMessageReceivedArgs
+	public class LoggerMessageReceivedArgs : EventArgs
     {
         public LogMessage message;
     }

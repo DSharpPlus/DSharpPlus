@@ -68,7 +68,7 @@ namespace DiscordSharp
         public int port;
     }
 
-    public class DiscordAudioPacketEventArgs
+    public class DiscordAudioPacketEventArgs : EventArgs
     {
         public DiscordAudioPacket Packet { get; internal set; }
         public DiscordChannel Channel { get; internal set; }

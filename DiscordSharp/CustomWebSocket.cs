@@ -32,7 +32,7 @@ namespace DiscordSharp
         public static Task CompletedTask { get; }
         static TaskHelper()
         {
-            CompletedTask = Task.Delay(0);
+            //CompletedTask = Task.Delay(0);
         }
     }
 
