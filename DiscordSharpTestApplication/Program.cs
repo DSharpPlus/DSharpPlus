@@ -17,6 +17,8 @@ using NAudio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System.ComponentModel;
+using System.Speech.Synthesis;
+using System.Speech.AudioFormat;
 
 namespace DiscordSharpTestApplication
 {
@@ -189,19 +191,19 @@ namespace DiscordSharpTestApplication
                     DiscordServer fromServer = client.GetServersList().Find(x => x.channels.Find(y => y.ID == e.Channel.ID) != null);
 
                     Console.WriteLine("[- Message from {0} in {1} on {2}: {3}", e.author.Username, e.Channel.Name, fromServer.name, e.message.content);
-                    
+
                     if (e.message.content.StartsWith("?typemonkey"))
                     {
                         client.SimulateTyping(e.Channel);
                     }
-                    else if(e.message.content.StartsWith("?unban"))
+                    else if (e.message.content.StartsWith("?unban"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if(split.Length > 1)
+                        if (split.Length > 1)
                         {
                             DiscordMember meInServer = e.Channel.parent.members.Find(x => x.ID == client.Me.ID);
                             bool hasPermission = false;
-                            foreach(var role in meInServer.Roles)
+                            foreach (var role in meInServer.Roles)
                             {
                                 if (role.permissions.HasPermission(DiscordSpecialPermissions.BanMembers) || role.permissions.HasPermission(DiscordSpecialPermissions.ManageServer))
                                 {
@@ -209,19 +211,19 @@ namespace DiscordSharpTestApplication
                                     break;
                                 }
                             }
-                            if(hasPermission)
+                            if (hasPermission)
                                 client.RemoveBan(e.Channel.parent, split[1]);
                             else
                                 e.Channel.SendMessage("No permission to do so!");
 
                         }
                     }
-                    else if(e.message.content.StartsWith("?repeatvoice"))
+                    else if (e.message.content.StartsWith("?repeatvoice"))
                     {
                         repeatVoice = !repeatVoice;
                         e.Channel.SendMessage("Repeat: " + repeatVoice);
                     }
-                    else if(e.message.content.StartsWith("?getbans"))
+                    else if (e.message.content.StartsWith("?getbans"))
                     {
                         var banList = client.GetBans(e.Channel.parent);
                         if (banList == null)
@@ -229,11 +231,11 @@ namespace DiscordSharpTestApplication
                             e.Channel.SendMessage("No permission!");
                             return;
                         }
-                        if(banList.Count > 0)
+                        if (banList.Count > 0)
                         {
                             string msg = $"**{banList.Count}** bans in this server.";
                             msg += "\n```";
-                            for(int i = 0; i < banList.Count; i++)
+                            for (int i = 0; i < banList.Count; i++)
                             {
                                 if (i > 5)
                                     break;
@@ -247,10 +249,10 @@ namespace DiscordSharpTestApplication
                             e.Channel.SendMessage("No bans in this server!");
                         }
                     }
-                    else if(e.message.content.StartsWith("?ban"))
+                    else if (e.message.content.StartsWith("?ban"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if(split.Length > 1)
+                        if (split.Length > 1)
                         {
                             //<@09380598340598>
                             string id = split[1].Trim(new char[] { '<', '@', '>' });
@@ -268,9 +270,9 @@ namespace DiscordSharpTestApplication
                         else
                             e.Channel.SendMessage("Ban who?");
                     }
-                    else if(e.message.content.StartsWith("?stop"))
+                    else if (e.message.content.StartsWith("?stop"))
                     {
-                        if(client.ConnectedToVoice())
+                        if (client.ConnectedToVoice())
                         {
                             client.GetVoiceClient().ClearVoiceQueue();
                         }
@@ -319,7 +321,7 @@ namespace DiscordSharpTestApplication
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
                     }
-                    else if(e.message.content.StartsWith("?channeltype"))
+                    else if (e.message.content.StartsWith("?channeltype"))
                     {
                         e.Channel.SendMessage(e.Channel.Type.ToString());
                     }
@@ -566,21 +568,21 @@ namespace DiscordSharpTestApplication
                         }
                         client.SendMessageToChannel("Unable to change pic: No permission.", e.Channel);
                     }
-                    else if(e.message.content.StartsWith("?servericon"))
+                    else if (e.message.content.StartsWith("?servericon"))
                     {
-                        if(e.Channel.parent.IconURL != null)
+                        if (e.Channel.parent.IconURL != null)
                         {
                             e.Channel.SendMessage(e.Channel.parent.IconURL);
                         }
                     }
-                    else if(e.message.content.StartsWith("?whois"))
+                    else if (e.message.content.StartsWith("?whois"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if(split.Length > 1)
+                        if (split.Length > 1)
                         {
-                            string justID = split[1].Trim(new char []{ '<', '>', '@' });
+                            string justID = split[1].Trim(new char[] { '<', '>', '@' });
                             DiscordMember memberToCheck = e.Channel.parent.members.Find(x => x.ID == justID.Trim());
-                            if(memberToCheck != null)
+                            if (memberToCheck != null)
                             {
                                 string msg = $"User info for {memberToCheck.Username}\n```\nID: {memberToCheck.ID}\nStatus: {memberToCheck.Status}\n";
                                 if (memberToCheck.CurrentGame != null)
@@ -694,24 +696,24 @@ namespace DiscordSharpTestApplication
                             }
                         }
                     }
-                    else if(e.message.content.StartsWith("?testvoice"))
+                    else if (e.message.content.StartsWith("?testvoice"))
                     {
                         bool played = false;
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if(split.Length > 1)
+                        if (split.Length > 1)
                         {
-                            if(split[1].Trim() == "list")
+                            if (split[1].Trim() == "list")
                             {
                                 string msg = $"Available Songs\n```";
-                                foreach(var file in Directory.GetFiles(Environment.CurrentDirectory))
+                                foreach (var file in Directory.GetFiles(Environment.CurrentDirectory))
                                 {
-                                    if(file.EndsWith(".mp3"))
+                                    if (file.EndsWith(".mp3"))
                                         msg += "* " + Path.GetFileName(file.ToString()) + "\n";
                                 }
                                 msg += $"\n```";
                                 e.Channel.SendMessage(msg);
                             }
-                            else if(split[1].Trim() == "ran")
+                            else if (split[1].Trim() == "ran")
                             {
                                 if (!client.ConnectedToVoice())
                                     return;
@@ -725,7 +727,7 @@ namespace DiscordSharpTestApplication
                                 played = true;
                                 VoiceStuffs(client.GetVoiceClient(), fileToPlay);
                             }
-                            else if(File.Exists(split[1]))
+                            else if (File.Exists(split[1]))
                             {
                                 if (!client.ConnectedToVoice())
                                     return;
@@ -733,7 +735,7 @@ namespace DiscordSharpTestApplication
                                 VoiceStuffs(client.GetVoiceClient(), split[1]);
                             }
                         }
-                        if(played)
+                        if (played)
                         {
                             client.VoiceQueueEmpty += (sx, ex) =>
                             {
@@ -745,9 +747,45 @@ namespace DiscordSharpTestApplication
                                         availableSongs.Add(file);
 
                                 string fileToPlay = availableSongs[rng.Next(availableSongs.Count - 1)];
-                                client.GetServersList().Find(x=>x.name == "Axiom's Test Server").channels.Find(x=>x.Name == "testing" && x.Type == ChannelType.Text).SendMessage($"Playing `{Path.GetFileName(fileToPlay)}`");
+                                client.GetServersList().Find(x => x.name == "Axiom's Test Server").channels.Find(x => x.Name == "testing" && x.Type == ChannelType.Text).SendMessage($"Playing `{Path.GetFileName(fileToPlay)}`");
                                 VoiceStuffs(client.GetVoiceClient(), fileToPlay);
                             };
+                        }
+                    }
+                    else if (e.message.content.StartsWith("?eval"))
+                    {
+                        if (e.author.Username == "Axiom" || e.author.Username == "Uniquoooo")
+                        {
+                            string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                            if (split.Length > 1)
+                            {
+                                string whatToEval = split[1];
+                                if (whatToEval.StartsWith("`") && whatToEval.EndsWith("`"))
+                                    whatToEval = whatToEval.Trim('`');
+                                try
+                                {
+                                    //var eval = EvalProvider.CreateEvalMethod<string, string>($"return \"Arg: \" + arg;");
+                                    var eval = EvalProvider.CreateEvalMethod<DiscordClient, string>(whatToEval, new string[] { "DiscordSharp", "System.Threading", "DiscordSharp.Objects" }, new string[] { "DiscordSharp.dll" });
+                                    string res = eval(client);
+                                    Console.WriteLine(res);
+                                    e.Channel.SendMessage("Result: `" + res + "`");
+                                }
+                                catch (Exception)
+                                {
+                                    string errors = "";
+                                    if (EvalProvider.errors != null)
+                                    {
+                                        foreach (var error in EvalProvider.errors)
+                                        {
+                                            errors += $"{error.ToString()}\n\n";
+                                        }
+                                        e.Channel.SendMessage($"```\n{errors}\n```");
+                                    }
+                                    else
+                                        e.Channel.SendMessage("Errors!");
+                                    
+                                }
+                            }
                         }
                     }
                     else if (e.message.content.StartsWith("?statusof"))
@@ -765,6 +803,27 @@ namespace DiscordSharpTestApplication
                                     msg += "\nPlaying: " + member.CurrentGame;
                                 msg += "\n```";
                                 e.Channel.SendMessage(msg);
+                            }
+                        }
+                    }
+                    else if(e.message.content.StartsWith("?say"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            if(client.ConnectedToVoice())
+                            {
+                                using (SpeechSynthesizer synth = new SpeechSynthesizer())
+                                {
+                                    using (MemoryStream stream = new MemoryStream())
+                                    {
+                                        MemoryStream streamAudio = new MemoryStream();
+                                        synth.SetOutputToWaveFile("tempvoice.wav", new System.Speech.AudioFormat.SpeechAudioFormatInfo(48000, AudioBitsPerSample.Sixteen, AudioChannel.Stereo));
+                                        synth.Speak(split[1]);
+                                        synth.Dispose();
+                                    }
+                                }
+                                VoiceStuffs(client.GetVoiceClient(), "tempvoice.wav");
                             }
                         }
                     }
@@ -1027,24 +1086,43 @@ namespace DiscordSharpTestApplication
                 var outFormat = new WaveFormat(sampleRate, 16, channels);
                 
                 vc.SetSpeaking(true);
-                using (var mp3Reader = new MediaFoundationReader(file))
+                if (file.EndsWith(".wav"))
                 {
-                    using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
+                    using (var waveReader = new WaveFileReader(file))
                     {
-                        //resampler.ResamplerQuality = 60;
                         int byteCount;
-                        while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
+                        while((byteCount = waveReader.Read(buffer, 0, blockSize)) > 0)
                         {
                             if (vc.Connected)
-                            {
                                 vc.SendVoice(buffer);
-                            }
                             else
                                 break;
                         }
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine("Voice finished enqueuing");
-                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                }
+                else if (file.EndsWith(".mp3"))
+                {
+                    using (var mp3Reader = new MediaFoundationReader(file))
+                    {
+                        using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
+                        {
+                            //resampler.ResamplerQuality = 60;
+                            int byteCount;
+                            while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
+                            {
+                                if (vc.Connected)
+                                {
+                                    vc.SendVoice(buffer);
+                                }
+                                else
+                                    break;
+                            }
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Voice finished enqueuing");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            resampler.Dispose();
+                            mp3Reader.Close();
+                        }
                     }
                 }
             }
