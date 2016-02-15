@@ -162,11 +162,7 @@ namespace DiscordSharp
             }
             catch (WebException e)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-                    var result = s.ReadToEnd();
-                    return result;
-                }
+                throw e;
             }
             return "";
         }

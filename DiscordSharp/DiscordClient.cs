@@ -988,7 +988,7 @@ namespace DiscordSharp
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Typing;
             try
             {
-                WebWrapper.Post(url, token, "");
+                WebWrapper.Post(url, token, "", true);
             }
             catch(Exception ex)
             {
