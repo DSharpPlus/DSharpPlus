@@ -14,7 +14,7 @@ using DiscordSharp.Objects;
 
 namespace DiscordSharp
 {
-    class DiscordProperties
+    public class DiscordProperties
     {
         [JsonProperty("os")]
         public string OS { get; set; }
@@ -24,12 +24,7 @@ namespace DiscordSharp
 
         [JsonProperty("device")]
         public string Device
-        {
-            get
-            {
-                return "DiscordSharp Bot";
-            }
-        }
+        { get; set; } = "DiscordSharp Bot";
         public string referrer { get; set; }
         public string referring_domain { get; set; }
 
@@ -58,6 +53,7 @@ namespace DiscordSharp
         [Obsolete]
         private string Cookie { get; set; }
         public DiscordUserInformation ClientPrivateInformation { get; set; }
+        public DiscordProperties DiscordProperties { get; set; } = new DiscordProperties();
         public DiscordMember Me { get; internal set; }
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
@@ -1557,7 +1553,7 @@ namespace DiscordSharp
                         {
                             token = token,
                             large_threshold = true,
-                            properties = new DiscordProperties()
+                            properties = DiscordProperties
                         }
                     });
 
