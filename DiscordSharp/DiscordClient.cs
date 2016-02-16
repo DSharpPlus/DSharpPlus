@@ -1552,6 +1552,7 @@ namespace DiscordSharp
                     string initJson = JsonConvert.SerializeObject(new
                     {
                         op = 2,
+                        v = 3,
                         d = new
                         {
                             token = token,
