@@ -305,7 +305,8 @@ namespace DiscordSharp
 
         public void LeaveServer(string ServerID)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ServerID}";
+            string url = //Endpoints.BaseAPI + Endpoints.Guilds + $"/{ServerID}";
+                Endpoints.BaseAPI + Endpoints.Users + Endpoints.Me + Endpoints.Guilds + $"/{ServerID}"; //old, left for lulz
             try
             {
                 WebWrapper.Delete(url, token);
