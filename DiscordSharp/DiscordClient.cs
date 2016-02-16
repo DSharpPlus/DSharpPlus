@@ -303,6 +303,9 @@ namespace DiscordSharp
         }
 
 
+        public void LeaveServer(DiscordServer server) => LeaveServer(server.id);
+        public void DeleteServer(DiscordServer server) => DeleteServer(server.id);
+
         public void LeaveServer(string ServerID)
         {
             string url = //Endpoints.BaseAPI + Endpoints.Guilds + $"/{ServerID}";
@@ -316,6 +319,21 @@ namespace DiscordSharp
                 DebugLogger.Log($"Error ocurred while leaving server ({ServerID}): {ex.Message}", MessageLevel.Error);
             }
         }
+
+        public void DeleteServer(string ServerID)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ServerID}";
+            try
+            {
+                WebWrapper.Delete(url, token);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while deleting server ({ServerID}): {ex.Message}", MessageLevel.Error);
+            }
+        }
+
+
         /// <summary>
         /// Sends a message to a channel, what else did you expect?
         /// </summary>
