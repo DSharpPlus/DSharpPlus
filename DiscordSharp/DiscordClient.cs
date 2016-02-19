@@ -2284,7 +2284,11 @@ namespace DiscordSharp
             e.OldChannel = oldChannel;
             DiscordChannel newChannel = oldChannel;
             newChannel.Name = message["d"]["name"].ToString();
-            newChannel.Topic = message["d"]["topic"].ToString();
+            if (!message["d"]["topic"].IsNullOrEmpty())
+                newChannel.Topic = message["d"]["topic"].ToString();
+            else
+                newChannel.Topic = oldChannel.Topic;
+
             newChannel.Private = message["d"]["is_private"].ToObject<bool>();
 
             List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
