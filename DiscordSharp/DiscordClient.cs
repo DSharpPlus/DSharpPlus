@@ -212,7 +212,8 @@ namespace DiscordSharp
                     tempSub.ID = u["id"].ToString();
                     tempSub.Name = u["name"].ToString();
                     tempSub.Type = u["type"].ToObject<ChannelType>();
-                    tempSub.Topic = u["topic"].ToString();
+                    if(!u["topic"].IsNullOrEmpty())
+                        tempSub.Topic = u["topic"].ToString();
                     tempSub.parent = temp;
                     List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
                     foreach(var o in u["permission_overwrites"])
