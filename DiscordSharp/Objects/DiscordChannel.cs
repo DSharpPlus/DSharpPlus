@@ -35,6 +35,28 @@ namespace DiscordSharp.Objects
         [JsonProperty("icon")]
         public string Icon { get; set; }
 
+        private int __bitrate;
+        /// <summary>
+        /// (Voice only) The channel's configured bitrate, in bps (bits per second).
+        /// It's highly recommended you use this as opposed to your own bitrate.
+        /// To retrieve the bitrate in kbps, divide by 1000.
+        /// </summary>
+        [JsonProperty("bitrate")]
+        public int Bitrate
+        {
+            get
+            {
+                if (Type != ChannelType.Voice)
+                    return -1;
+                else
+                    return __bitrate;
+            }
+            internal set
+            {
+                __bitrate = value;
+            }
+        }
+
         public List<DiscordPermissionOverride> PermissionOverrides { get; set; }
 
         public DiscordServer parent { get; internal set; }

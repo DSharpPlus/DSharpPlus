@@ -214,6 +214,8 @@ namespace DiscordSharp
                     tempSub.Type = u["type"].ToObject<ChannelType>();
                     if(!u["topic"].IsNullOrEmpty())
                         tempSub.Topic = u["topic"].ToString();
+                    if (tempSub.Type == ChannelType.Voice && !u["bitrate"].IsNullOrEmpty())
+                        tempSub.Bitrate = u["bitrate"].ToObject<int>();
                     tempSub.parent = temp;
                     List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
                     foreach(var o in u["permission_overwrites"])
@@ -1224,6 +1226,9 @@ namespace DiscordSharp
                     DiscordChannel tempChannel = new DiscordChannel();
                     tempChannel.Name = message["d"]["name"].ToString();
                     tempChannel.Type = message["d"]["type"].ToObject<ChannelType>();
+                    if (tempChannel.Type == ChannelType.Voice && !message["d"]["bitrate"].IsNullOrEmpty())
+                        tempChannel.Bitrate = message["d"]["bitrate"].ToObject<int>();
+
                     tempChannel.ID = message["d"]["id"].ToString();
                     tempChannel.parent = foundServer;
                     foundServer.channels.Add(tempChannel);
@@ -1288,7 +1293,19 @@ namespace DiscordSharp
                 var result = JObject.Parse(WebWrapper.Post(url, token, reqJson));
                 if (result != null)
                 {
-                    DiscordChannel dc = new DiscordChannel { Name = result["name"].ToString(), ID = result["id"].ToString(), Type = result["type"].ToObject<ChannelType>(), Private = result["is_private"].ToObject<bool>(), Topic = result["topic"].ToString() };
+                    DiscordChannel dc = new DiscordChannel
+                    {
+                        Name = result["name"].ToString(),
+                        ID = result["id"].ToString(),
+                        Type = result["type"].ToObject<ChannelType>(),
+                        Private = result["is_private"].ToObject<bool>(),
+                        
+                    };
+                    if (!result["topic"].IsNullOrEmpty())
+                        dc.Topic = result["topic"].ToString();
+                    if (dc.Type == ChannelType.Voice && !result["bitrate"].IsNullOrEmpty())
+                        dc.Bitrate = result["bitrate"].ToObject<int>();
+
                     server.channels.Add(dc);
                     return dc;
                 }
@@ -2164,7 +2181,12 @@ namespace DiscordSharp
                     tempSub.ID = u["id"].ToString();
                     tempSub.Name = u["name"].ToString();
                     tempSub.Type = u["type"].ToObject<ChannelType>();
-                    tempSub.Topic = u["topic"].ToString();
+
+                    if(!u["topic"].IsNullOrEmpty())
+                        tempSub.Topic = u["topic"].ToString();
+                    if (tempSub.Type == ChannelType.Voice && !u["bitrate"].IsNullOrEmpty())
+                        tempSub.Bitrate = u["bitrate"].ToObject<int>();
+
                     tempSub.parent = newServer;
                     List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
                     foreach (var o in u["permission_overwrites"])
@@ -2331,7 +2353,12 @@ namespace DiscordSharp
                 DiscordChannel tempChannel = new DiscordChannel();
                 tempChannel.ID = chn["id"].ToString();
                 tempChannel.Type = chn["type"].ToObject<ChannelType>();
-                tempChannel.Topic = chn["topic"].ToString();
+
+                if(!chn["topic"].IsNullOrEmpty())
+                    tempChannel.Topic = chn["topic"].ToString();
+                if (tempChannel.Type == ChannelType.Voice && !chn["bitrate"].IsNullOrEmpty())
+                    tempChannel.Bitrate = chn["bitrate"].ToObject<int>();
+
                 tempChannel.Name = chn["name"].ToString();
                 tempChannel.Private = false;
                 tempChannel.PermissionOverrides = new List<DiscordPermissionOverride>();

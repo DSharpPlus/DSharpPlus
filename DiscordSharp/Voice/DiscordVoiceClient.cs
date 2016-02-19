@@ -91,9 +91,9 @@ namespace DiscordSharp
         public int FrameLengthMs { get; set; } = 60;
 
         /// <summary>
-        /// The bitrate you wish to send at.
-        /// Setting to null will use the Opus recommended value.
+        /// The voice client now auto-configures this based on the channel.
         /// </summary>
+        [Obsolete]
         public int? Bitrate { get; set; } = null;
 
         /// <summary>
@@ -185,9 +185,35 @@ namespace DiscordSharp
             InitializeOpusEncoder();
         }
 
+        public DiscordVoiceClient(DiscordClient parentClient, DiscordVoiceConfig config, DiscordChannel channel)
+        {
+            _parent = parentClient;
+            VoiceConfig = config;
+            Channel = channel;
+            InitializeOpusEncoder();
+        }
+
         private void InitializeOpusEncoder()
         {
-            mainOpusEncoder = new OpusEncoder(VoiceConfig.SampleRate, VoiceConfig.Channels, VoiceConfig.FrameLengthMs, VoiceConfig.Bitrate, VoiceConfig.OpusMode);
+            if (Channel != null && Channel.Type == ChannelType.Voice)
+            {
+                if (Channel.Bitrate > 0)
+                {
+                    mainOpusEncoder = new OpusEncoder(VoiceConfig.SampleRate,
+                        VoiceConfig.Channels,
+                        VoiceConfig.FrameLengthMs,
+                        (Channel.Bitrate / 1000),
+                        VoiceConfig.OpusMode);
+                }
+            }
+            else
+            {
+                mainOpusEncoder = new OpusEncoder(VoiceConfig.SampleRate,
+                    VoiceConfig.Channels,
+                    VoiceConfig.FrameLengthMs,
+                    null,
+                    VoiceConfig.OpusMode);
+            }
             mainOpusEncoder.SetForwardErrorCorrection(true);
             msToSend = VoiceConfig.FrameLengthMs;
         }

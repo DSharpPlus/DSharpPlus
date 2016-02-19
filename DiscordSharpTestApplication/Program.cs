@@ -214,6 +214,16 @@ namespace DiscordSharpTestApplication
 
                         }
                     }
+                    else if(e.message.content.StartsWith("?bitrateof"))
+                    {
+                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                        if(split.Length > 1)
+                        {
+                            DiscordChannel channel = (e.Channel.parent.channels.Find(x => x.Name.ToLower() == split[1].ToLower() && x.Type == ChannelType.Voice));
+                            if (channel != null && channel.Type == ChannelType.Voice)
+                                e.Channel.SendMessage($"Bitrate of {channel.Name}: `{channel.Bitrate / 1000} kbps ({channel.Bitrate} bps)`");
+                        }
+                    }
                     else if (e.message.content.StartsWith("?repeatvoice"))
                     {
                         repeatVoice = !repeatVoice;
