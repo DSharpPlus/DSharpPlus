@@ -15,6 +15,7 @@ using NAudio;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace DiscordSharpTestApplication
 {
@@ -26,6 +27,29 @@ namespace DiscordSharpTestApplication
         //static LastAuth lastfmAuthentication = new LastAuth("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c");
         static bool repeatVoice;
 
+        static string[] KhaledQuotes = new string[]
+        {
+            "Always have faith. Always have hope.",
+            "The key is to make it.",
+            "Another one.",
+            "Key to success is clean heart and clean face.",
+            "Smh they get mad when you have joy.",
+            "Baby, you smart. I want you to film me taking a shower.",
+            "You smart! You loyal! You a genius!",
+            "Give thanks to the most high.",
+            "They will try to close the door on you, just open it.",
+            "They don’t want you to have the No. 1 record in the country.",
+            "Those that weather the storm are the great ones.",
+            "The key to success is more cocoa butter.",
+            "I changed... a lot.",
+            "My fans expect me to be greater and keep being great.",
+            "There will be road blocks but we will overcome it.",
+            "They don\"t want you to jet ski.",
+            "Them doors that was always closed, I ripped the doors off, took the hinges off. And when I took the hinges off, I put the hinges on the f*ckboys’ hands.",
+            "Congratulations, you played yourself.",
+            "Don\"t play yourself.",
+            "Another one, no. Another two, drop two singles at a time.",
+        };
         static ManualResetEvent quitEvent = new ManualResetEvent(false);
 
         static Random rng = new Random(DateTime.Now.Millisecond);
@@ -213,6 +237,10 @@ namespace DiscordSharpTestApplication
                                 e.Channel.SendMessage("No permission to do so!");
 
                         }
+                    }
+                    else if(e.message.content.StartsWith("?khaled"))
+                    {
+                        e.Channel.SendMessage($"**\"{KhaledQuotes[rng.Next(0, KhaledQuotes.Length)]}\"**");
                     }
                     else if(e.message.content.StartsWith("?bitrateof"))
                     {
@@ -772,9 +800,25 @@ namespace DiscordSharpTestApplication
                                 {
                                     //var eval = EvalProvider.CreateEvalMethod<string, string>($"return \"Arg: \" + arg;");
                                     var eval = EvalProvider.CreateEvalMethod<DiscordClient, string>(whatToEval, new string[] { "DiscordSharp", "System.Threading", "DiscordSharp.Objects" }, new string[] { "DiscordSharp.dll" });
-                                    string res = eval(client);
+                                    string res = "";
+
+                                    CancellationTokenSource taskCancelToken = new CancellationTokenSource(5 * 1000);
+                                    Thread thread = null;
+                                    Task evalTask = new Task(() => 
+                                    {
+                                        thread = Thread.CurrentThread;
+                                        res = eval(client);
+                                    }, taskCancelToken.Token);
+                                    evalTask.Start();
+                                    evalTask.Wait(5 * 1000);
+                                    thread.Abort(); //hacky
+                                    evalTask = null;
+                                    eval = null;
                                     Console.WriteLine(res);
-                                    e.Channel.SendMessage("Result: `" + res + "`");
+                                    if (res == null || res == "")
+                                        e.Channel.SendMessage("Termined after 5 second timeout.");
+                                    else
+                                        e.Channel.SendMessage("Result: `" + res + "`");
                                 }
                                 catch (Exception)
                                 {
