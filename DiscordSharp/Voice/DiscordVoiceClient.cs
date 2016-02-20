@@ -70,7 +70,8 @@ namespace DiscordSharp
 
     public class DiscordAudioPacketEventArgs : EventArgs
     {
-        public DiscordAudioPacket Packet { get; internal set; }
+        //public DiscordAudioPacket Packet { get; internal set; }
+        public byte[] PCMPacket { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
         public DiscordMember FromUser { get; internal set; }
     }
@@ -141,6 +142,7 @@ namespace DiscordSharp
         private DiscordVoiceConfig VoiceConfig;
         private List<DiscordMember> MembersInChannel = new List<DiscordMember>();
         private Dictionary<DiscordMember, int> SsrcDictionary = new Dictionary<DiscordMember, int>();
+        private List<OpusDecoder> OpusDecoders = new List<OpusDecoder>();
 
         #region Events
         internal event EventHandler<LoggerMessageReceivedArgs> DebugMessageReceived;
@@ -216,6 +218,18 @@ namespace DiscordSharp
             }
             mainOpusEncoder.SetForwardErrorCorrection(true);
             msToSend = VoiceConfig.FrameLengthMs;
+        }
+
+        private void InitializeOpusDecoder()
+        {
+            if(Channel != null && Channel.Type == ChannelType.Voice)
+            {
+                OpusDecoders.Add(new OpusDecoder(VoiceConfig.SampleRate, VoiceConfig.Channels, VoiceConfig.FrameLengthMs));
+            }
+            else
+            {
+                OpusDecoders.Add(new OpusDecoder(VoiceConfig.SampleRate, VoiceConfig.Channels, VoiceConfig.FrameLengthMs));
+            }
         }
 
         /// <summary>
@@ -303,6 +317,8 @@ namespace DiscordSharp
                     if (!VoiceConfig.SendOnly)
                         DoUDPKeepAlive(globalTaskSource.Token);
                     SendVoiceTask(globalTaskSource.Token);
+                    if (!VoiceConfig.SendOnly)
+                        ReceiveVoiceTask(globalTaskSource.Token);
                     SetSpeaking(true);
                     if (VoiceConnectionComplete != null)
                         VoiceConnectionComplete(this, new EventArgs());
@@ -404,7 +420,7 @@ namespace DiscordSharp
 #pragma warning disable 4014
         private Task SendVoiceTask(CancellationToken token)
         {
-            return Task.Factory.StartNew(async () =>
+            return Task.Run(async () =>
             {
                 while (!token.IsCancellationRequested)
                 {
@@ -426,6 +442,36 @@ namespace DiscordSharp
                                 QueueEmptyEventTriggered = true;
                             }
                         }
+                    }
+                }
+            });
+        }
+        private Task ReceiveVoiceTask(CancellationToken token)
+        {
+            VoiceDebugLogger.Log("Setting up for voice receive.");
+            return Task.Run(async () =>
+            {
+                while(!token.IsCancellationRequested)
+                {
+                    UdpReceiveResult receivedResult = await _udp.ReceiveAsync().ConfigureAwait(false);
+                    byte[] receivedBytes = receivedResult.Buffer;
+                    if (receivedBytes.Length > 0)
+                    {
+                        DiscordAudioPacket packet = new DiscordAudioPacket(receivedBytes);
+                        if(PacketReceived != null)
+                        {
+                            DiscordMember memberSpeaking = Me;
+                            foreach (var dictItem in SsrcDictionary)
+                                if (dictItem.Value == packet.SSRC)
+                                    memberSpeaking = dictItem.Key;
+                            if (memberSpeaking.ID != Me.ID)
+                            {
+                                byte[] pcmPacket = new byte[48 * VoiceConfig.Channels * VoiceConfig.FrameLengthMs];
+                                OpusDecoders[0].DecodeFrame(packet.AsRawPacket(), 0, packet.AsRawPacket().Length, pcmPacket);
+                                PacketReceived(this, new DiscordAudioPacketEventArgs { Channel = this.Channel, FromUser = memberSpeaking, PCMPacket = pcmPacket });
+                            }
+                        }
+                            
                     }
                 }
             });

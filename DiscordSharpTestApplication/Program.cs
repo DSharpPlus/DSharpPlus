@@ -19,10 +19,46 @@ using System.Diagnostics;
 
 namespace DiscordSharpTestApplication
 {
+    internal class AudioPlayer
+    {
+        WaveCallbackInfo callbackInfo;
+        WaveOut outputDevice;
+        BufferedWaveProvider bufferedWaveProvider;
+        DiscordVoiceConfig config;
+
+        public AudioPlayer(DiscordVoiceConfig __config)
+        {
+            config = __config;
+            callbackInfo = WaveCallbackInfo.FunctionCallback();
+            outputDevice = new WaveOut(callbackInfo);
+            bufferedWaveProvider = new BufferedWaveProvider(new WaveFormat(48000, 16, config.Channels));
+        }
+        
+        public void EnqueueBytes(byte[] bytes)
+        {
+            bufferedWaveProvider.AddSamples(bytes, 0, bytes.Length);
+        }
+
+        public Task PlayAudio()
+        {
+            return Task.Run(() =>
+            {
+                outputDevice.Init(bufferedWaveProvider);
+                outputDevice.Play();
+            });
+        }
+
+        public void StopAudio()
+        {
+            outputDevice.Stop();
+        }
+    }
+
     public class Program
     {
         static DiscordClient client = new DiscordClient();
         static DiscordMember owner;
+        static AudioPlayer audioPlayer;
         static WaitHandle waitHandle = new AutoResetEvent(false);
         //static LastAuth lastfmAuthentication = new LastAuth("4de0532fe30150ee7a553e160fbbe0e0", "0686c5e41f20d2dc80b64958f2df0f0c");
         static bool repeatVoice;
@@ -156,7 +192,8 @@ namespace DiscordSharpTestApplication
                 };
                 client.AudioPacketReceived += (sender, e) =>
                 {
-                    //client.EchoPacket(e.Packet);
+                    audioPlayer.EnqueueBytes(e.PCMPacket);
+                    audioPlayer.PlayAudio();
                 };
                 client.VoiceStateUpdate += (sender, e) =>
                 {
@@ -331,6 +368,8 @@ namespace DiscordSharpTestApplication
                         if (split.Length > 1)
                         {
                             DiscordChannel voiceToJoin = e.Channel.parent.channels.Find(x => x.Name.ToLower() == split[1].ToLower() && x.Type == ChannelType.Voice);
+                            DiscordVoiceConfig voiceConfig = new DiscordVoiceConfig() { Bitrate = null, Channels = 1, FrameLengthMs = 60, OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency, SendOnly = false };
+                            audioPlayer = new AudioPlayer(voiceConfig);
                             if (voiceToJoin != null)
                                 client.ConnectToVoiceChannel(voiceToJoin);
                         }
@@ -1039,7 +1078,7 @@ namespace DiscordSharpTestApplication
                         ofd.Title = "Select file to attach";
                         if (ofd.ShowDialog() == DialogResult.OK)
                         {
-                            DiscordChannel c = client.GetServersList().Find(x => x.name.Contains("Discord API")).channels.Find(x => x.Name.Contains("dotnet_discord-net"));
+                            DiscordChannel c = client.GetServersList().Find(x => x.name.Contains("Discord API")).channels.Find(x => x.Name.Contains("dotnet_discordsharp"));
                             client.AttachFile(c, "Test", ofd.FileName);
                         }
                     }

@@ -114,6 +114,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Voice\OpusConverter.cs" />
+    <Compile Include="Voice\OpusDecoder.cs" />
     <Compile Include="Voice\OpusEncoder.cs" />
     <Compile Include="WebWrapper.cs" />
   </ItemGroup>
