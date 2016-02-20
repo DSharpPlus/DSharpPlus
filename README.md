@@ -1,3 +1,8 @@
+# Hi please read this
+**Please do not just clone, build the `DiscordSharpTestApplication` and run it as your own bot** 
+The test application is there as reference. This bot references my username in many places and will more than likely message me. Or worse, this
+![This is why we can't have nice things](http://i.imgur.com/LtyQU6i.png)
+
 # DiscordSharp [![Build status](https://ci.appveyor.com/api/projects/status/6ufv2gtyrc087xrd?svg=true)](https://ci.appveyor.com/project/Luigifan/discordsharp)
 
 
