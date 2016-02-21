@@ -4,8 +4,10 @@ using DiscordSharp.Objects;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -165,7 +167,7 @@ namespace DiscordSharpTestApplication
             }, token);
         }
 
-        private void Exit()
+        public void Exit()
         {
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(config));
             File.WriteAllText("permissions.json", JsonConvert.SerializeObject(CommandsManager.UserRoles));
@@ -343,12 +345,26 @@ namespace DiscordSharpTestApplication
                     message += "Mono\n";
                 else
                     message += ".Net\n";
+                long memUsage = GetMemoryUsage();
+                if (memUsage > 0)
+                    message += "Memory Usage: " + (memUsage / 1024) / 2 + "mb\n";
                 message += "Commands: " + CommandsManager.Commands.Count + "\n";
                 message += "Command Prefix: " + config.CommandPrefix + "\n";
                 message += "Total Servers: " + client.GetServersList().Count + "\n";
                 cmdArgs.Channel.SendMessage(message);
             }));
             #endregion
+        }
+
+        private long GetMemoryUsage()
+        {
+            Process luigibotProcess = Process.GetCurrentProcess();
+            if (luigibotProcess == null)
+                return 0;
+            else
+            {
+                return (luigibotProcess.WorkingSet64 / 1024);
+            }
         }
 
         public bool Mono()

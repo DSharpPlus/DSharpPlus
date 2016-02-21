@@ -127,6 +127,7 @@ namespace DiscordSharpTestApplication
                 LuigibotMain luigibot = new LuigibotMain();
                 luigibot.RunLuigibot();
                 Console.ReadLine();
+                luigibot.Exit();
             }
         }
 
