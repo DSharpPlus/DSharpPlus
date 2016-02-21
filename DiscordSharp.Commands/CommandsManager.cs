@@ -37,7 +37,14 @@ namespace DiscordSharp.Commands
         internal static PermissionType GetPermissionFromID(string id)
         {
             if (__internalUserRoles.Count > 0)
-                return __internalUserRoles.Select(m => m).Where(x => x.Key == id).First().Value;
+            {
+                foreach(var perm in __internalUserRoles)
+                {
+                    if (perm.Key == id)
+                        return perm.Value;
+                }
+                return PermissionType.User;
+            }
             else
                 return PermissionType.User;
         }
@@ -49,8 +56,18 @@ namespace DiscordSharp.Commands
             __internalUserRoles = new Dictionary<string, PermissionType>();
         }
 
-        public void AddPermission(DiscordMember member, PermissionType permission) => __internalUserRoles.Add(member.ID, permission);
-        public void AddPermission(string memberID, PermissionType permission) => __internalUserRoles.Add(memberID, permission);
+        public void AddPermission(DiscordMember member, PermissionType permission)
+        {
+            if (__internalUserRoles.ContainsKey(member.ID))
+                __internalUserRoles.Remove(member.ID);
+            __internalUserRoles.Add(member.ID, permission);
+        }
+        public void AddPermission(string memberID, PermissionType permission)
+        {
+            if (__internalUserRoles.ContainsKey(memberID))
+                __internalUserRoles.Remove(memberID);
+            __internalUserRoles.Add(memberID, permission);
+        }
         public void OverridePermissionsDictionary(Dictionary<string, PermissionType> dict) => __internalUserRoles = dict;
 
         public int ExecuteCommand(string rawCommandText, DiscordChannel channel, DiscordMember author)

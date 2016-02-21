@@ -115,7 +115,7 @@ namespace DiscordSharpTestApplication
                     }
                     else
                     {
-                        if(e.message.content[0] == config.CommandPrefix)
+                        if(e.message.content.Length > 0 && (e.message.content[0] == config.CommandPrefix))
                         {
                             string rawCommand = e.message.content.Substring(1);
                             try
@@ -125,6 +125,10 @@ namespace DiscordSharpTestApplication
                             catch(UnauthorizedAccessException ex)
                             {
                                 e.Channel.SendMessage(ex.Message);
+                            }
+                            catch(Exception ex)
+                            {
+                                e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
                             }
                         }
                     }
