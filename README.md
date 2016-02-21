@@ -3,7 +3,7 @@
 The test application is there as reference. This bot references my username in many places and will more than likely message me. Or worse, this
 ![This is why we can't have nice things](http://i.imgur.com/LtyQU6i.png)
 
-# DiscordSharp [![Build status](https://ci.appveyor.com/api/projects/status/6ufv2gtyrc087xrd?svg=true)](https://ci.appveyor.com/project/Luigifan/discordsharp)
+# DiscordSharp [![Build status](https://ci.appveyor.com/api/projects/status/v9v18kn0gar9nb3y?svg=true)](https://ci.appveyor.com/project/Luigifan/discordsharp-f8oy7)
 
 
 A C# API for Discord.
