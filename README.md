@@ -1,4 +1,4 @@
-# DiscordSharp [![Build status](https://ci.appveyor.com/api/projects/status/6ufv2gtyrc087xrd?svg=true)](https://ci.appveyor.com/project/Luigifan/discordsharp)
+# DiscordSharp [![Build status](https://ci.appveyor.com/api/projects/status/6ufv2gtyrc087xrd/branch/dev?svg=true)](https://ci.appveyor.com/project/Luigifan/discordsharp/branch/dev)
 
 Welcome to the DiscordSharp dev branch!
 
