@@ -1,4 +1,5 @@
 ﻿using DiscordSharp;
+using DiscordSharp.Commands;
 using DiscordSharp.Objects;
 using FragLabs.Audio.Codecs;
 using NAudio.Wave;
@@ -14,6 +15,7 @@ namespace VoiceCaptureTest
     class Program
     {
         static DiscordClient client;
+        static CommandsManager CommandManager;
 
         static void Main(string[] args)
         {
@@ -49,32 +51,50 @@ namespace VoiceCaptureTest
             {
                 client.MessageReceived += (sender, e) =>
                 {
-                    if (e.message.content.StartsWith("?joinvoice"))
+                    string message = e.message.content;
+                    if(message[0] == '?')
                     {
-                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if (split[1] != "")
+                        message = message.Substring(1); //to remove the command prefix
+                        try
                         {
-                            DiscordChannel toJoin = e.Channel.parent.channels.Find(x => (x.Name.ToLower() == split[1].ToLower()) && (x.Type == ChannelType.Voice));
-                            if (toJoin != null)
-                            {
-                                client.ConnectToVoiceChannel(toJoin);
-                            }
+                            CommandManager.ExecuteCommand(message, e.Channel, e.author);
                         }
-                    }
-                    else if (e.message.content.StartsWith("?voice"))
-                    {
-                        string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if (File.Exists(split[1]))
-                            DoVoice(client.GetVoiceClient(), split[1]);
-                    }
-                    else if(e.message.content.StartsWith("?disconnect"))
-                    {
-                        client.DisconnectFromVoice();
+                        catch(UnauthorizedAccessException ex)
+                        {
+                            e.Channel.SendMessage(ex.Message);
+                        }
                     }
                 };
                 client.Connected += (sender, e) =>
                 {
                     Console.WriteLine("Connected as " + e.user.Username);
+                    CommandManager = new CommandsManager(client);
+                    CommandManager.AddCommand(new CommandStub("joinvoice",
+                            "Joins a voice channel",
+                            "Usage: ?joinvoice <channel name>", PermissionType.Owner, cmdArgs =>
+                            {
+                                if (cmdArgs.Args.Count < 1)
+                                    return;
+                                DiscordChannel toJoin = cmdArgs.Channel.parent.channels.Find(x => (x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice));
+                                if (toJoin != null)
+                                    client.ConnectToVoiceChannel(toJoin);
+                            }));
+                    CommandManager.AddCommand(new CommandStub("disconnect", "Disconnects from a voice channel.", "", PermissionType.Owner, cmdArgs =>
+                    {
+                        if (client.ConnectedToVoice())
+                            client.DisconnectFromVoice();
+                    }));
+                    CommandManager.AddCommand(new CommandStub("khaled", "Anotha one.", "", cmdArgs =>
+                    {
+                        cmdArgs.Channel.SendMessage("Anotha one.\n***Bless up***");
+                    }));
+                    CommandManager.AddCommand(new CommandStub("test", "Tests", "", cmdArgs =>
+                    {
+                        cmdArgs.Channel.SendMessage("Hey whassup hello.");
+                    }));
+
+                    DiscordMember owner = client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom");
+                    //CommandManager.AddPermission(owner, PermissionType.Owner);
                 };
                 client.Connect();
             });
