@@ -81,6 +81,18 @@ namespace DiscordSharp.Commands
             Args = new List<string>();
         }
 
+        public CommandStub(string name, string description, string helpTag, PermissionType minPerm, int argCount, Action<CommandArgs> action)
+        {
+            Do = action;
+            CommandName = name;
+            Description = description;
+            HelpTag = helpTag;
+            MinimumPermission = minPerm;
+            ArgCount = argCount;
+
+            Args = new List<string>();
+        }
+
         [Obsolete]
         public override void ExecuteCommand()
         {

@@ -37,6 +37,8 @@ namespace DiscordSharp.Commands
         /// </summary>
         public virtual List<string> Args { get; set; }
 
+        public virtual int ArgCount { get; set; }
+
         /// <summary>
         /// The permission type that the command takes.
         /// </summary>

@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharp", "DiscordSharp\DiscordSharp.csproj", "{A96FFE9E-3650-4976-872E-5BB336CC1589}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharpTestApplication", "DiscordSharpTestApplication\DiscordSharpTestApplication.csproj", "{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luigibot", "DiscordSharpTestApplication\Luigibot.csproj", "{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandsTest", "VoiceCaptureTest\CommandsTest.csproj", "{8CD30B38-9D45-4E49-94F9-7A48977CDA49}"
 EndProject

@@ -19,13 +19,20 @@ namespace DiscordSharp.Commands
         }
 
         private List<ICommand> __commands;
-        internal List<ICommand> Commands
+        public List<ICommand> Commands
         {
             get { return __commands; }
         }
 
         //id, permission 
         private static Dictionary<string, PermissionType> __internalUserRoles;
+        public static Dictionary<string, PermissionType> UserRoles
+        {
+            get
+            {
+                return __internalUserRoles;
+            }
+        }
 
         internal static PermissionType GetPermissionFromID(string id)
         {
@@ -54,9 +61,14 @@ namespace DiscordSharp.Commands
                 var command = __commands.Find(x => x.CommandName == split[0]);
                 if(command != null)
                 {
-                    //adds all the arguments
-                    for (int i = 1; i < split.Length; i++)
-                        command.AddArgument(split[i]);
+                    command.Args.Clear();
+                    if (command.ArgCount > 0)
+                    {
+                        string[] argsSplit = rawCommandText.Split(new char[] { ' ' }, command.ArgCount + 1);
+                        //adds all the arguments
+                        for (int i = 1; i < argsSplit.Length; i++)
+                            command.AddArgument(argsSplit[i]);
+                    }
                     //finally, executes it
                     command.ExecuteCommand(channel, author);
                     return 0;

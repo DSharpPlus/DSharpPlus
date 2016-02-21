@@ -120,16 +120,22 @@ namespace DiscordSharpTestApplication
         [STAThread]
         public static void Main(string[] args)
         {
-            Console.CancelKeyPress += (sender, e) =>
+            if (args.Length > 0 && args[0] == "legacy")
+                legacy();
+            else
             {
-                quitEvent.Set();
-                e.Cancel = true;
-            };
+                LuigibotMain luigibot = new LuigibotMain();
+                luigibot.RunLuigibot();
+                Console.ReadLine();
+            }
+        }
 
+        private static void legacy()
+        {
             Console.WriteLine("\t\t\tDiscordSharp Tester");
             client.ClientPrivateInformation = new DiscordUserInformation();
 #if DEBUG
-            client.WriteLatestReady = true;
+        client.WriteLatestReady = true;
 #endif
 
             if (File.Exists("credentials.txt"))
@@ -139,16 +145,16 @@ namespace DiscordSharpTestApplication
                     client.ClientPrivateInformation.email = sr.ReadLine();
                     client.ClientPrivateInformation.password = sr.ReadLine();
                 }
-            }
+}
             else
             {
                 Console.Write("Please enter your email: ");
                 string email = Console.ReadLine();
-                client.ClientPrivateInformation.email = email;
+client.ClientPrivateInformation.email = email;
 
                 Console.Write("Now, your password (visible): ");
                 string pass = Console.ReadLine();
-                client.ClientPrivateInformation.password = pass;
+client.ClientPrivateInformation.password = pass;
             }
             client.RequestAllUsersOnStartup = true;
 
@@ -275,14 +281,14 @@ namespace DiscordSharpTestApplication
 
                         }
                     }
-                    else if(e.message.content.StartsWith("?khaled"))
+                    else if (e.message.content.StartsWith("?khaled"))
                     {
                         e.Channel.SendMessage($"**\"{KhaledQuotes[rng.Next(0, KhaledQuotes.Length)]}\"**");
                     }
-                    else if(e.message.content.StartsWith("?bitrateof"))
+                    else if (e.message.content.StartsWith("?bitrateof"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if(split.Length > 1)
+                        if (split.Length > 1)
                         {
                             DiscordChannel channel = (e.Channel.parent.channels.Find(x => x.Name.ToLower() == split[1].ToLower() && x.Type == ChannelType.Voice));
                             if (channel != null && channel.Type == ChannelType.Voice)
@@ -843,7 +849,7 @@ namespace DiscordSharpTestApplication
 
                                     CancellationTokenSource taskCancelToken = new CancellationTokenSource(5 * 1000);
                                     Thread thread = null;
-                                    Task evalTask = new Task(() => 
+                                    Task evalTask = new Task(() =>
                                     {
                                         thread = Thread.CurrentThread;
                                         res = eval(client);
@@ -872,7 +878,7 @@ namespace DiscordSharpTestApplication
                                     }
                                     else
                                         e.Channel.SendMessage("Errors!");
-                                    
+
                                 }
                             }
                         }
@@ -880,11 +886,11 @@ namespace DiscordSharpTestApplication
                     else if (e.message.content.StartsWith("?statusof"))
                     {
                         string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                        if(split.Length > 1)
+                        if (split.Length > 1)
                         {
                             string id = split[1].Trim(new char[] { '<', '@', '>' });
                             DiscordMember member = e.Channel.parent.members.Find(x => x.ID == id);
-                            if(member != null)
+                            if (member != null)
                             {
                                 string msg = $"Status of **{member.Username}**";
                                 msg += $"\n```\nStatus: " + member.Status.ToString();
@@ -985,7 +991,7 @@ namespace DiscordSharpTestApplication
 
                 }
             });
-            worker.Start();
+worker.Start();
 
             /*System.Timers.Timer lastfmUpdateTimer = new System.Timers.Timer(25 * 1000); //check last.fm every 25 seconds
             lastfmUpdateTimer.Elapsed += (sender, e) =>

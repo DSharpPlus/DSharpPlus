@@ -63,8 +63,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EvalProvider.cs" />
+    <Compile Include="LuigibotMain.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RandomCodeGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -83,9 +85,18 @@
   </Target>
   -->
   <ItemGroup>
+    <ProjectReference Include="..\DiscordSharp.Commands\DiscordSharp.Commands.csproj">
+      <Project>{2e99d97f-3480-43e2-ac9d-7dae521cb610}</Project>
+      <Name>DiscordSharp.Commands</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DiscordSharp\DiscordSharp.csproj">
       <Project>{A96FFE9E-3650-4976-872E-5BB336CC1589}</Project>
       <Name>DiscordSharp</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ascii.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
