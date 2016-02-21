@@ -50,6 +50,8 @@ namespace DiscordSharpTestApplication
                 config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("settings.json"));
             else
                 config = new Config();
+            if (config.CommandPrefix.ToString().Length == 0)
+                config.CommandPrefix = '?';
         }
 
         public void RunLuigibot()
@@ -107,7 +109,6 @@ namespace DiscordSharpTestApplication
                                 {
                                     config.OwnerID = e.author.ID;
                                     doingInitialRun = false;
-                                    CommandsManager = new CommandsManager(client);
                                     e.Channel.SendMessage("Authentication successful! **You are now my owner, " + e.author.Username + ".**");
                                     CommandsManager.AddPermission(e.author, PermissionType.Owner);
                                     owner = e.author;
