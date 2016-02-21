@@ -70,6 +70,7 @@ namespace DiscordSharpTestApplication
         public void DoLogin()
         {
             client = new DiscordClient();
+            client.RequestAllUsersOnStartup = true;
 
             if (!File.Exists("token_cache"))
             {
@@ -106,6 +107,7 @@ namespace DiscordSharpTestApplication
                                 {
                                     config.OwnerID = e.author.ID;
                                     doingInitialRun = false;
+                                    CommandsManager = new CommandsManager(client);
                                     e.Channel.SendMessage("Authentication successful! **You are now my owner, " + e.author.Username + ".**");
                                     CommandsManager.AddPermission(e.author, PermissionType.Owner);
                                     owner = e.author;
