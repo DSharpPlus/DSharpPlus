@@ -7,10 +7,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using YugiohPrices;
 
 namespace DiscordSharpTestApplication
 {
@@ -37,6 +39,31 @@ namespace DiscordSharpTestApplication
         CancellationToken cancelToken;
         Config config;
         DateTime loginDate;
+
+        Random rng = new Random((int)DateTime.Now.Ticks);
+        string[] KhaledQuotes = new string[]
+        {
+            "Always have faith. Always have hope.",
+            "The key is to make it.",
+            "Another one.",
+            "Key to success is clean heart and clean face.",
+            "Smh they get mad when you have joy.",
+            "Baby, you smart. I want you to film me taking a shower.",
+            "You smart! You loyal! You a genius!",
+            "Give thanks to the most high.",
+            "They will try to close the door on you, just open it.",
+            "They don’t want you to have the No. 1 record in the country.",
+            "Those that weather the storm are the great ones.",
+            "The key to success is more cocoa butter.",
+            "I changed... a lot.",
+            "My fans expect me to be greater and keep being great.",
+            "There will be road blocks but we will overcome it.",
+            "They don\"t want you to jet ski.",
+            "Them doors that was always closed, I ripped the doors off, took the hinges off. And when I took the hinges off, I put the hinges on the f*ckboys’ hands.",
+            "Congratulations, you played yourself.",
+            "Don\"t play yourself.",
+            "Another one, no. Another two, drop two singles at a time.",
+        };
 
         #region Initial Run
         bool doingInitialRun = false;
@@ -345,7 +372,7 @@ namespace DiscordSharpTestApplication
             {
                 string message = "**About Luigibot**\n";
                 message += "Owner: " + owner.Username + "\n";
-                message += "Library: DiscordSharp\n";
+                message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
                 message += "Uptime: " + (DateTime.Now - loginDate).ToString() + "\n";
                 message += "Compiled Under: ";
                 if (Mono())
@@ -359,6 +386,43 @@ namespace DiscordSharpTestApplication
                 message += "Command Prefix: " + config.CommandPrefix + "\n";
                 message += "Total Servers: " + client.GetServersList().Count + "\n";
                 cmdArgs.Channel.SendMessage(message);
+            }));
+            CommandsManager.AddCommand(new CommandStub("ygo", "Retrieves information for a Yu-Gi-Oh card from the YugiohPrices database.", 
+                "Card names are (unfortunately) case sensitive.\n\n**Valid:** Dark Magician\n**Invalid: **dark magician", PermissionType.User, 1, cmdArgs =>
+            {
+                if (cmdArgs.Args.Count > 0)
+                {
+                    YugiohPricesSearcher searcher = new YugiohPricesSearcher();
+                    try
+                    {
+                        var card = searcher.GetCardByName(cmdArgs.Args[0]).Result;
+                        if (card.Name != "<NULL CARD>")
+                        {
+                            card.CardImage.Save("ygotemp.png");
+                            string message = $"**{card.Name}**";
+                            if (card.Type == CardType.Monster)
+                                message += $" Level: {card.Level} Attribute: {card.Attribute}\n";
+                            else
+                                message += "\n";
+                            message += $"**Description:** {card.Description}";
+                            if (card.Type == CardType.Monster)
+                                message += $"\n**Type:** {card.MonsterType}\n**ATK/DEF:** {card.Attack}/{card.Defense}";
+
+                            client.AttachFile(cmdArgs.Channel, message, "ygotemp.png");
+                        }
+                        else
+                            cmdArgs.Channel.SendMessage("Couldn't find that specified card!");
+                    }
+                    catch(HttpRequestException ex)
+                    {
+                        cmdArgs.Channel.SendMessage("Couldn't find that specified card! (" + ex.Message + ")");
+                    }
+                    
+                }
+            }));
+            CommandsManager.AddCommand(new CommandStub("khaled", "Anotha one.", "", cmdArgs =>
+            {
+                cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
             }));
             #endregion
         }
