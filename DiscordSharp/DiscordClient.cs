@@ -260,12 +260,15 @@ namespace DiscordSharp
 
                     temp.members.Add(member);
                 }
-                foreach(var presence in j["presence"])
+                if (!j["presences"].IsNullOrEmpty())
                 {
-                    DiscordMember member = temp.members.Find(x => x.ID == presence["user"]["id"].ToString());
-                    member.SetPresence(presence["status"].ToString());
-                    if (!presence["game"].IsNullOrEmpty())
-                        member.CurrentGame = presence["game"]["name"].ToString();
+                    foreach (var presence in j["presences"])
+                    {
+                        DiscordMember member = temp.members.Find(x => x.ID == presence["user"]["id"].ToString());
+                        member.SetPresence(presence["status"].ToString());
+                        if (!presence["game"].IsNullOrEmpty())
+                            member.CurrentGame = presence["game"]["name"].ToString();
+                    }
                 }
                 temp.region = j["region"].ToString();
                 temp.owner = temp.members.Find(x => x.ID == j["owner_id"].ToString());
@@ -725,16 +728,16 @@ namespace DiscordSharp
             //var pserver = ServersList.Find(x => x.members.Find(y => y.ID == message["d"]["id"].ToString()) != null);
             foreach(var server in ServersList)
             {
-                var user = server.members.Find(x => x.ID == message["d"]["id"].ToString());
+                var user = server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString());
                 if(user != null)
                 {
                     //If usernames change.
-                    if (!message["d"]["username"].IsNullOrEmpty())
-                        user.Username = message["d"]["username"].ToString();
+                    if (!message["d"]["user"]["username"].IsNullOrEmpty())
+                        user.Username = message["d"]["user"]["username"].ToString();
 
                     //If avatar changes.
-                    if (!message["d"]["avatar"].IsNullOrEmpty())
-                        user.Avatar = message["d"]["avatar"].ToString();
+                    if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
+                        user.Avatar = message["d"]["user"]["avatar"].ToString();
 
                     //Actual presence update
                     user.SetPresence(message["d"]["status"].ToString());
@@ -764,7 +767,31 @@ namespace DiscordSharp
                 }
                 else
                 {
-                    DebugLogger.Log($"User doesn't exist in server, no problemo.", MessageLevel.Debug);
+                    DebugLogger.Log($"User doesn't exist in server, no problemo. Creating/adding", MessageLevel.Debug);
+                    DiscordMember memeber = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+                    memeber.parentclient = this;
+                    memeber.SetPresence(message["d"]["status"].ToString());
+                    memeber.Parent = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+
+                    if (message["d"]["game"].IsNullOrEmpty())
+                    {
+                        dpuea.game = "";
+                        memeber.CurrentGame = null;
+                    }
+                    else
+                    {
+                        dpuea.game = message["d"]["game"]["name"].ToString();
+                        memeber.CurrentGame = dpuea.game;
+                    }
+
+                    if (message["d"]["status"].ToString() == "online")
+                        dpuea.status = DiscordUserStatus.ONLINE;
+                    else if (message["d"]["status"].ToString() == "idle")
+                        dpuea.status = DiscordUserStatus.IDLE;
+                    else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
+                        dpuea.status = DiscordUserStatus.OFFLINE;
+
+                    memeber.Parent.members.Add(memeber);
                 }
             }
         }

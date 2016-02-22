@@ -1,5 +1,6 @@
 # DiscordSharp [![Build status](https://ci.appveyor.com/api/projects/status/v9v18kn0gar9nb3y/branch/master?svg=true)](https://ci.appveyor.com/project/Luigifan/discordsharp-f8oy7/branch/master)
 
+Welcome to the DiscordSharp dev branch!
 
 A C# API for Discord.
 
