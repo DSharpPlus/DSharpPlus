@@ -96,6 +96,14 @@ namespace DiscordSharpTestApplication
             Console.Write(text + "\n");
         }
 
+        private void WriteWarning(string text)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Error: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(text + "\n");
+        }
+
         public void DoLogin()
         {
             client = new DiscordClient();
@@ -114,6 +122,14 @@ namespace DiscordSharpTestApplication
             client.ClientPrivateInformation.password = config.BotPass;
 
             SetupEvents(cancelToken);
+        }
+
+        public void Cleanup()
+        {
+            if (!Directory.Exists("logs"))
+                Directory.CreateDirectory("logs");
+            var date = DateTime.Now;
+            client.GetTextClientLogger.Save($"logs/{date.Month}-{date.Day}-{date.Year} {date.Hour}-{date.Minute}-{date.Second}.log");
         }
 
         private Task SetupEvents(CancellationToken token)
@@ -165,7 +181,28 @@ namespace DiscordSharpTestApplication
                 };
                 client.GuildCreated += (sender, e) =>
                 {
-                    Console.WriteLine("Joined server " + e.server.name);
+                    owner.SlideIntoDMs($"Joined server {e.server.name} ({e.server.id})");
+                };
+                client.SocketClosed += (sender, e) =>
+                {
+                    WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
+                    Console.WriteLine("Waiting 6 seconds to reconnect..");
+                    Thread.Sleep(6 * 1000);
+                    client.Connect();
+                };
+                client.TextClientDebugMessageReceived += (sender, e) =>
+                {
+                    if (e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Critical)
+                    {
+                        WriteError($"(Logger Error) {e.message.Message}");
+                        try
+                        {
+                            owner.SlideIntoDMs($"Bot error ocurred: ({e.message.Level.ToString()})```\n{e.message.Message}\n```");
+                        }
+                        catch { }
+                    }
+                    if (e.message.Level == MessageLevel.Warning)
+                        WriteWarning($"(Logger Warning) {e.message.Message}");
                 };
                 client.Connected += (sender, e) =>
                 {
@@ -208,6 +245,7 @@ namespace DiscordSharpTestApplication
 
             client.Logout();
             client.Dispose();
+            Cleanup();
             Environment.Exit(0);
         }
 
@@ -217,6 +255,10 @@ namespace DiscordSharpTestApplication
             CommandsManager.AddCommand(new CommandStub("selfdestruct", "Shuts the bot down.", "", PermissionType.Owner, cmdArgs=>
             {
                 Exit();
+            }));
+            CommandsManager.AddCommand(new CommandStub("sendchanneltest", "`Client.SendMessageToChannel` Test", "", PermissionType.Owner, cmdArgs =>
+            {
+                client.SendMessageToChannel("Works!", cmdArgs.Channel);
             }));
             CommandsManager.AddCommand(new CommandStub("setplaying", "Sets the current game the bot is playing.", "", PermissionType.Owner, 1, cmdArgs =>
             {
@@ -263,6 +305,20 @@ namespace DiscordSharpTestApplication
                     string id = e.Args[1].Trim(new char[] { '<', '@', '>' });
                     CommandsManager.AddPermission(id, type);
                     e.Channel.SendMessage($"Given permission {type.ToString().Substring(type.ToString().IndexOf('.') + 1)} to <@{id}>!");
+                }
+            }));
+            CommandsManager.AddCommand(new CommandStub("prune", "Prune test", "", PermissionType.Owner, 1, cmdArgs =>
+            {
+                int messageCount = 0;
+                if(int.TryParse(cmdArgs.Args[0], out messageCount))
+                {
+                    var messagesToPrune = client.GetMessageHistory(cmdArgs.Channel, messageCount);
+                    foreach(var msg in messagesToPrune)
+                    {
+                        client.DeleteMessage(msg);
+                        Thread.Sleep(100);
+                    }
+                    cmdArgs.Channel.SendMessage($"Attempted pruning of {messageCount} messages.");
                 }
             }));
             #endregion

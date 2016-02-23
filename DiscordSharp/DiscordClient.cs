@@ -351,7 +351,7 @@ namespace DiscordSharp
             try
             {
                 JObject result = JObject.Parse(WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
-                if(result["message"].IsNullOrEmpty())
+                if(result["content"].IsNullOrEmpty())
                     throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
 
                 DiscordMessage m = new DiscordMessage
@@ -459,7 +459,7 @@ namespace DiscordSharp
         /// <param name="idBefore">Messages before this message ID.</param>
         /// <param name="idAfter">Messages after this message ID.</param>
         /// <returns></returns>
-        public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, string idBefore, string idAfter)
+        public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, string idBefore = "", string idAfter = "")
         {
             string request = "https://discordapp.com/api/channels/" + channel.ID + $"/messages?&limit={count}";
             if (!string.IsNullOrEmpty(idBefore))
@@ -2070,7 +2070,14 @@ namespace DiscordSharp
             DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             DiscordRole deletedRole = inServer.roles.Find(x => x.id == message["d"]["role_id"].ToString());
 
-            ServersList.Find(x => x.id == inServer.id).roles.Remove(ServersList.Find(x => x.id == inServer.id).roles.Find(y => y.id == deletedRole.id));
+            try
+            {
+                ServersList.Find(x => x.id == inServer.id).roles.Remove(ServersList.Find(x => x.id == inServer.id).roles.Find(y => y.id == deletedRole.id));
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Couldn't delete role with ID {message["d"]["role_id"].ToString()}! ({ex.Message})", MessageLevel.Critical);
+            }
 
             if (RoleDeleted != null)
                 RoleDeleted(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });

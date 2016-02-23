@@ -66,6 +66,9 @@ namespace DiscordSharp.Objects
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
             JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
 
+            if (result["content"].IsNullOrEmpty())
+                throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
+
             DiscordMessage m = new DiscordMessage
             {
                 id = result["id"].ToString(),
