@@ -96,7 +96,7 @@ namespace DiscordSharp
         #region Event declaration
         public event EventHandler<DiscordMessageEventArgs> MessageReceived;
         public event EventHandler<DiscordConnectEventArgs> Connected;
-        public event EventHandler<DiscordSocketOpenedEventArgs> SocketOpened;
+        public event EventHandler<EventArgs> SocketOpened;
         public event EventHandler<DiscordSocketClosedEventArgs> SocketClosed;
         public event EventHandler<DiscordChannelCreateEventArgs> ChannelCreated;
         public event EventHandler<DiscordPrivateChannelEventArgs> PrivateChannelCreated;
@@ -382,7 +382,7 @@ namespace DiscordSharp
             {
                 var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, pathToFile, "file", "image/jpeg", null));
 
-                if (!string.IsNullOrWhiteSpace(message))
+                if (!string.IsNullOrEmpty(message))
                     EditMessage(uploadResult["id"].ToString(), message, channel);
             }
             catch(Exception ex)
@@ -391,7 +391,7 @@ namespace DiscordSharp
             }
         }
 
-        public void AttachFile(DiscordChannel channel, string message, Stream stream)
+        public void AttachFile(DiscordChannel channel, string message, System.IO.Stream stream)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages;
             //WebWrapper.PostWithAttachment(url, message, pathToFile);
@@ -399,7 +399,7 @@ namespace DiscordSharp
             {
                 var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, stream, "file", "image/jpeg", null));
 
-                if (!string.IsNullOrWhiteSpace(message))
+                if (!string.IsNullOrEmpty(message))
                     EditMessage(uploadResult["id"].ToString(), message, channel);
             }
             catch (Exception ex)
@@ -1765,7 +1765,14 @@ namespace DiscordSharp
             ConnectToVoiceAsync();
         }
 
+#if V45
         private Task ConnectToVoiceAsync() => Task.Run(() => VoiceClient.Initiate());
+#else
+        private Task ConnectToVoiceAsync()
+        {
+            return Task.Factory.StartNew(() => VoiceClient.Initiate());
+        }
+#endif
 
         /// <summary>
         /// Kicks a specified DiscordMember from the guild that's assumed from their 
@@ -2527,7 +2534,7 @@ namespace DiscordSharp
                 {
                     foreach (var role in rawRoles.Children())
                     {
-                        newMember.Roles.Add(newMember.Parent.roles.Find(x => x.id == role.Value<string>()));
+                        newMember.Roles.Add(newMember.Parent.roles.Find(x => x.id == role.ToString()));
                     }
                 }
                 else
@@ -2571,7 +2578,7 @@ namespace DiscordSharp
         private void VoiceStateUpdateEvents(JObject message)
         {
             var f = message["d"]["channel_id"];
-            if (f.Value<String>() == null)
+            if (f.ToString() == null)
             {
                 DiscordLeftVoiceChannelEventArgs le = new DiscordLeftVoiceChannelEventArgs();
                 DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
@@ -2695,17 +2702,29 @@ namespace DiscordSharp
                     email = ClientPrivateInformation.email,
                     password = ClientPrivateInformation.password
                 });
+#if V45
                 await sw.WriteAsync(msg).ConfigureAwait(false);
+#else
+                sw.Write(msg);
+#endif
                 sw.Flush();
                 sw.Close();
             }
             try
             {
+#if V45
                 var httpResponseT = await httpWebRequest.GetResponseAsync().ConfigureAwait(false);
+#else
+                var httpResponseT = httpWebRequest.GetResponse();
+#endif
                 var httpResponse = (HttpWebResponse)httpResponseT;
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
+#if V45
                     var result = await sr.ReadToEndAsync().ConfigureAwait(false);
+#else
+                    var result = sr.ReadToEnd();
+#endif
                     var jsonResult = JObject.Parse(result);
 
                     if(!jsonResult["token"].IsNullOrEmpty() || jsonResult["token"].ToString() != "")
@@ -2720,7 +2739,11 @@ namespace DiscordSharp
             {
                 using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
                 {
+#if V45
                     string result = await s.ReadToEndAsync().ConfigureAwait(false);
+#else
+                    string result = s.ReadToEnd();
+#endif
                     var jsonResult = JObject.Parse(result);
 
                     if (!jsonResult["password"].IsNullOrEmpty())

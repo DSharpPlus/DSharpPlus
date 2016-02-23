@@ -65,10 +65,10 @@ namespace DiscordSharpTestApplication
             "Another one, no. Another two, drop two singles at a time.",
         };
 
-        #region Initial Run
+#region Initial Run
         bool doingInitialRun = false;
         string codeToEnter = "";
-        #endregion
+#endregion
 
         public LuigibotMain()
         {
@@ -251,7 +251,7 @@ namespace DiscordSharpTestApplication
 
         private void SetupCommands()
         {
-            #region Owner only
+#region Owner only
             CommandsManager.AddCommand(new CommandStub("selfdestruct", "Shuts the bot down.", "", PermissionType.Owner, cmdArgs=>
             {
                 Exit();
@@ -321,8 +321,8 @@ namespace DiscordSharpTestApplication
                     cmdArgs.Channel.SendMessage($"Attempted pruning of {messageCount} messages.");
                 }
             }));
-            #endregion
-            #region Admin
+#endregion
+#region Admin
             CommandsManager.AddCommand(new CommandStub("eval", "Evaluates real-time C# code. Be careful with this", 
                 "Evaluates C# code that is dynamically compiled.\n\nThe following namespaces are available for use:\n * DiscordSharp\n * System.Threading\n * DiscordSharp.Objects\n\n\nMake sure your function returns a string value.\nYou can reference the DiscordSharp client by using `discordClient`.", PermissionType.Admin, 1, e =>
             {
@@ -388,8 +388,8 @@ namespace DiscordSharpTestApplication
                         e.Channel.SendMessage("Errors!");
                 }
             }));
-            #endregion
-            #region Anyone, but limited to server mods
+#endregion
+#region Anyone, but limited to server mods
             CommandsManager.AddCommand(new CommandStub("gtfo", "Makes the bot leave the server", "", PermissionType.User, cmdArgs =>
             {
                 bool canExecute = false;
@@ -401,8 +401,8 @@ namespace DiscordSharpTestApplication
                 else
                     cmdArgs.Channel.SendMessage("You don't have the proper permissions to do this! You need the ManagerServer permission.");
             }));
-            #endregion
-            #region Literally anyone
+#endregion
+#region Literally anyone
             CommandsManager.AddCommand(new CommandStub("cmdinfo", "Displays help for a command.", "Help", PermissionType.User, 2, e =>
             {
                 if (!String.IsNullOrEmpty(e.Args[0]))
@@ -480,7 +480,7 @@ namespace DiscordSharpTestApplication
             {
                 cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
             }));
-            #endregion
+#endregion
         }
 
         private long GetMemoryUsage()

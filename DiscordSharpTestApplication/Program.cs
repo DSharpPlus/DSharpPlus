@@ -1141,7 +1141,7 @@ worker.Start();
                         DiscordMessage msg = client.GetLastMessageSent();
                         Console.WriteLine("--Last Message Sent--");
 
-                        DiscordChannel channel = Convert.ChangeType(msg.Channel(), typeof(DiscordChannel));
+                        DiscordChannel channel = msg.Channel();
                         Console.WriteLine($"  ID: {msg.id}\n  Channel: {channel.Name}\n  Content: {msg.content}");
                     }
                 } while (!string.IsNullOrWhiteSpace(input));
@@ -1256,12 +1256,12 @@ worker.Start();
 
         private static async void ConnectStuff()
         {
-            if (await client.SendLoginRequestAsync() != null)
-            {
-                Console.WriteLine("Logged in..async!");
-                client.Connect();
-                client.UpdateCurrentGame("");
-            }
+            //if (await client.SendLoginRequestAsync() != null)
+            //{
+              //  Console.WriteLine("Logged in..async!");
+                //client.Connect();
+                //client.UpdateCurrentGame("");
+            //}
         }
     }
 }
