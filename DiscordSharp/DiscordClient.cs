@@ -1523,6 +1523,9 @@ namespace DiscordSharp
                                 });
                                 ws.Send(wsChunkTest);
                             }
+
+                            if (Connected != null)
+                                Connected(this, new DiscordConnectEventArgs { user = Me });
                             break;
                         case ("GUILD_MEMBERS_CHUNK"):
                             GuildMemberChunkEvents(message);
@@ -1696,7 +1699,7 @@ namespace DiscordSharp
                     DiscordPrivateChannel _channel = PrivateChannels.Find(x => x.user_id == _member.ID);
                     if(_channel != null)
                     {
-                        DebugLogger.Log("Found user for private channel!", MessageLevel.Critical);
+                        DebugLogger.Log("Found user for private channel!", MessageLevel.Debug);
                         _channel.recipient = _member;
                     }
                 }

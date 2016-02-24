@@ -164,18 +164,18 @@ namespace DiscordSharpTestApplication
                         if(e.message.content.Length > 0 && (e.message.content[0] == config.CommandPrefix))
                         {
                             string rawCommand = e.message.content.Substring(1);
-                            try
-                            {
+                            //try
+                            //{
                                 CommandsManager.ExecuteCommand(rawCommand, e.Channel, e.author);
-                            }
-                            catch(UnauthorizedAccessException ex)
-                            {
-                                e.Channel.SendMessage(ex.Message);
-                            }
-                            catch(Exception ex)
-                            {
-                                e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
-                            }
+                            //}
+                            //catch(UnauthorizedAccessException ex)
+                            //{
+                                //e.Channel.SendMessage(ex.Message);
+                            //}
+                            //c/atch(Exception ex)
+                            //{
+                                //e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
+                            //}
                         }
                     }
                 };
@@ -255,6 +255,23 @@ namespace DiscordSharpTestApplication
             CommandsManager.AddCommand(new CommandStub("selfdestruct", "Shuts the bot down.", "", PermissionType.Owner, cmdArgs=>
             {
                 Exit();
+            }));
+            CommandsManager.AddCommand(new CommandStub("statusof", "`Status` test", "", PermissionType.Owner, 1, cmdArgs=>
+            {
+                string id = cmdArgs.Args[0].Trim(new char[] { '<', '@', '>' });
+                if(!string.IsNullOrEmpty(id))
+                {
+                    DiscordMember member = cmdArgs.Channel.parent.members.Find(x => x.ID == id);
+                    if (member != null)
+                    {
+                        string msg = $"Status of `{member.Username}`\n{member.Status}";
+                        if (!string.IsNullOrEmpty(member.CurrentGame))
+                        {
+                            msg += $"\nPlaying: *{member.CurrentGame}*";
+                        }
+                        cmdArgs.Channel.SendMessage(msg);
+                    }
+                }
             }));
             CommandsManager.AddCommand(new CommandStub("sendchanneltest", "`Client.SendMessageToChannel` Test", "", PermissionType.Owner, cmdArgs =>
             {
