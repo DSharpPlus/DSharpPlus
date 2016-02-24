@@ -86,7 +86,6 @@
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
     <Compile Include="Objects\DiscordServer.cs" />
-    <Compile Include="Stream.cs" />
     <Compile Include="Voice\DiscordAudioPacket.cs" />
     <Compile Include="Voice\DiscordSynchronousVoiceClient.cs" />
     <Compile Include="Voice\DiscordVoiceClient.cs" />

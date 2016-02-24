@@ -276,7 +276,16 @@ namespace DiscordSharp
             }
             if (PrivateChannels == null)
                 PrivateChannels = new List<DiscordPrivateChannel>();
-            foreach(var privateChannel in m["d"]["private_channels"])
+            privateChannelsJson = m["d"]["private_channels"];
+            
+        }
+
+        private JToken privateChannelsJson;
+        private void parsePrivateChannels(object state)
+        {
+            //TODO: use members endpoint to get member 
+            DebugLogger.Log("Parsing channels after delay..", MessageLevel.Debug);
+            foreach (var privateChannel in privateChannelsJson["d"]["private_channels"])
             {
                 DiscordPrivateChannel tempPrivate = JsonConvert.DeserializeObject<DiscordPrivateChannel>(privateChannel.ToString());
                 DiscordServer potentialServer = new DiscordServer();
@@ -288,7 +297,7 @@ namespace DiscordSharp
                             potentialServer = x;
                     });
                 });
-                if(potentialServer.owner != null) //should be a safe test..i hope
+                if (potentialServer.owner != null) //should be a safe test..i hope
                 {
                     DiscordMember recipient = potentialServer.members.Find(x => x.ID == privateChannel["recipient"]["id"].ToString());
                     if (recipient != null)
@@ -307,7 +316,6 @@ namespace DiscordSharp
                 }
             }
         }
-
 
         public void LeaveServer(DiscordServer server) => LeaveServer(server.id);
         public void DeleteServer(DiscordServer server) => DeleteServer(server.id);
@@ -1522,7 +1530,7 @@ namespace DiscordSharp
                                 });
                                 ws.Send(wsChunkTest);
                             }
-
+                            Timer t = new Timer(parsePrivateChannels, null, 25 * 1000, 1);
                             if (Connected != null)
                                 Connected(this, new DiscordConnectEventArgs { user = Me }); //Since I already know someone will ask for it.
                             break;
