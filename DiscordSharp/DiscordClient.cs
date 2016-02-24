@@ -276,18 +276,10 @@ namespace DiscordSharp
             }
             if (PrivateChannels == null)
                 PrivateChannels = new List<DiscordPrivateChannel>();
-            privateChannelsJson = m["d"]["private_channels"];
-            
-        }
-
-        private JToken privateChannelsJson;
-        private void parsePrivateChannels(object state)
-        {
-            //TODO: use members endpoint to get member 
-            DebugLogger.Log("Parsing channels after delay..", MessageLevel.Debug);
-            foreach (var privateChannel in privateChannelsJson["d"]["private_channels"])
+            foreach (var privateChannel in m["d"]["private_channels"])
             {
                 DiscordPrivateChannel tempPrivate = JsonConvert.DeserializeObject<DiscordPrivateChannel>(privateChannel.ToString());
+                tempPrivate.user_id = privateChannel["recipient"]["id"].ToString();
                 DiscordServer potentialServer = new DiscordServer();
                 ServersList.ForEach(x =>
                 {
@@ -303,7 +295,6 @@ namespace DiscordSharp
                     if (recipient != null)
                     {
                         tempPrivate.recipient = recipient;
-                        PrivateChannels.Add(tempPrivate);
                     }
                     else
                     {
@@ -312,9 +303,11 @@ namespace DiscordSharp
                 }
                 else
                 {
-                    DebugLogger.Log("No potential server found for user's private channel null!!!!", MessageLevel.Critical);
+                    DebugLogger.Log("No potential server found for user's private channel null!", MessageLevel.Critical);
                 }
+                PrivateChannels.Add(tempPrivate);
             }
+
         }
 
         public void LeaveServer(DiscordServer server) => LeaveServer(server.id);
@@ -1530,9 +1523,6 @@ namespace DiscordSharp
                                 });
                                 ws.Send(wsChunkTest);
                             }
-                            Timer t = new Timer(parsePrivateChannels, null, 25 * 1000, 1);
-                            if (Connected != null)
-                                Connected(this, new DiscordConnectEventArgs { user = Me }); //Since I already know someone will ask for it.
                             break;
                         case ("GUILD_MEMBERS_CHUNK"):
                             GuildMemberChunkEvents(message);
@@ -1701,6 +1691,14 @@ namespace DiscordSharp
                     _member.parentclient = this;
                     _member.Parent = inServer;
                     inServer.members.Add(_member);
+
+                    ///Check private channels
+                    DiscordPrivateChannel _channel = PrivateChannels.Find(x => x.user_id == _member.ID);
+                    if(_channel != null)
+                    {
+                        DebugLogger.Log("Found user for private channel!", MessageLevel.Critical);
+                        _channel.recipient = _member;
+                    }
                 }
             }
         }

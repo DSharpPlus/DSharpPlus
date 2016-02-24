@@ -93,6 +93,8 @@ namespace DiscordSharp.Objects
 
     public class DiscordPrivateChannel : DiscordChannelBase
     {
+        internal string user_id { get; set; }
+
         public DiscordMember recipient { get; set; }
         [JsonProperty("last_message_id")]
         private string LastMessageID { get; set; }
