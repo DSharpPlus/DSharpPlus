@@ -303,7 +303,8 @@ namespace DiscordSharp
                 }
                 else
                 {
-                    DebugLogger.Log("No potential server found for user's private channel null!", MessageLevel.Critical);
+                    //DebugLogger.Log("No potential server found for user's private channel null!", MessageLevel.Critical);
+                    //no biggie now
                 }
                 PrivateChannels.Add(tempPrivate);
             }
