@@ -5,11 +5,14 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using YugiohPrices;
@@ -270,6 +273,26 @@ namespace DiscordSharpTestApplication
                             msg += $"\nPlaying: *{member.CurrentGame}*";
                         }
                         cmdArgs.Channel.SendMessage(msg);
+                    }
+                }
+            }));
+            CommandsManager.AddCommand(new CommandStub("changepic", "Changes the bot's guild pic test.", "Test", PermissionType.Owner, 1, cmdArgs =>
+            {
+                Regex linkParser = new Regex(@"\b(?:https?://|www\.)\S+\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                string rawString = $"{cmdArgs.Args[0]}";
+                if (linkParser.Matches(rawString).Count > 0)
+                {
+                    string url = linkParser.Matches(rawString)[0].ToString();
+                    using (WebClient wc = new WebClient())
+                    {
+                        byte[] data = wc.DownloadData(url);
+                        using (MemoryStream mem = new MemoryStream(data))
+                        {
+                            using (var image = System.Drawing.Image.FromStream(mem))
+                            {
+                                client.ChangeClientAvatar(new Bitmap(image));
+                            }
+                        }
                     }
                 }
             }));

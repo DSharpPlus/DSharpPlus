@@ -425,7 +425,19 @@ namespace DiscordSharp
             string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
             try
             {
-                WebWrapper.Patch(url, token, usernameRequestJson);
+                string result = WebWrapper.Patch(url, token, usernameRequestJson);
+                if(!string.IsNullOrEmpty(result))
+                {
+                    JObject parsed = JObject.Parse(result);
+                    if(!parsed["password"].IsNullOrEmpty())
+                    {
+                        throw new ArgumentException("Password is incorrect!");
+                    }
+                    if (!parsed["email"].IsNullOrEmpty() && parsed["username"].IsNullOrEmpty())
+                    {
+                        throw new ArgumentException("Email is incorrect!");
+                    }
+                }
             }
             catch(Exception ex)
             {
