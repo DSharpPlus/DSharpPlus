@@ -15,6 +15,7 @@ namespace DiscordSharp
         public string Message;
         public DateTime TimeStamp;
     }
+    
 
     [Flags]
     public enum MessageLevel : uint

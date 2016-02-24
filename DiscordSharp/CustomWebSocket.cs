@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿#if V45
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Net;
@@ -81,3 +82,4 @@ namespace DiscordSharp
         }
     }
 }
+#endif

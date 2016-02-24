@@ -96,7 +96,7 @@ namespace DiscordSharp
         #region Event declaration
         public event EventHandler<DiscordMessageEventArgs> MessageReceived;
         public event EventHandler<DiscordConnectEventArgs> Connected;
-        public event EventHandler<DiscordSocketOpenedEventArgs> SocketOpened;
+        public event EventHandler<EventArgs> SocketOpened;
         public event EventHandler<DiscordSocketClosedEventArgs> SocketClosed;
         public event EventHandler<DiscordChannelCreateEventArgs> ChannelCreated;
         public event EventHandler<DiscordPrivateChannelEventArgs> PrivateChannelCreated;
@@ -276,9 +276,10 @@ namespace DiscordSharp
             }
             if (PrivateChannels == null)
                 PrivateChannels = new List<DiscordPrivateChannel>();
-            foreach(var privateChannel in m["d"]["private_channels"])
+            foreach (var privateChannel in m["d"]["private_channels"])
             {
                 DiscordPrivateChannel tempPrivate = JsonConvert.DeserializeObject<DiscordPrivateChannel>(privateChannel.ToString());
+                tempPrivate.user_id = privateChannel["recipient"]["id"].ToString();
                 DiscordServer potentialServer = new DiscordServer();
                 ServersList.ForEach(x =>
                 {
@@ -288,13 +289,12 @@ namespace DiscordSharp
                             potentialServer = x;
                     });
                 });
-                if(potentialServer.owner != null) //should be a safe test..i hope
+                if (potentialServer.owner != null) //should be a safe test..i hope
                 {
                     DiscordMember recipient = potentialServer.members.Find(x => x.ID == privateChannel["recipient"]["id"].ToString());
                     if (recipient != null)
                     {
                         tempPrivate.recipient = recipient;
-                        PrivateChannels.Add(tempPrivate);
                     }
                     else
                     {
@@ -303,11 +303,12 @@ namespace DiscordSharp
                 }
                 else
                 {
-                    DebugLogger.Log("No potential server found for user's private channel null!!!!", MessageLevel.Critical);
+                    DebugLogger.Log("No potential server found for user's private channel null!", MessageLevel.Critical);
                 }
+                PrivateChannels.Add(tempPrivate);
             }
-        }
 
+        }
 
         public void LeaveServer(DiscordServer server) => LeaveServer(server.id);
         public void DeleteServer(DiscordServer server) => DeleteServer(server.id);
@@ -351,7 +352,7 @@ namespace DiscordSharp
             try
             {
                 JObject result = JObject.Parse(WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
-                if(result["message"].IsNullOrEmpty())
+                if(result["content"].IsNullOrEmpty())
                     throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
 
                 DiscordMessage m = new DiscordMessage
@@ -382,7 +383,7 @@ namespace DiscordSharp
             {
                 var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, pathToFile, "file", "image/jpeg", null));
 
-                if (!string.IsNullOrWhiteSpace(message))
+                if (!string.IsNullOrEmpty(message))
                     EditMessage(uploadResult["id"].ToString(), message, channel);
             }
             catch(Exception ex)
@@ -391,7 +392,7 @@ namespace DiscordSharp
             }
         }
 
-        public void AttachFile(DiscordChannel channel, string message, Stream stream)
+        public void AttachFile(DiscordChannel channel, string message, System.IO.Stream stream)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages;
             //WebWrapper.PostWithAttachment(url, message, pathToFile);
@@ -399,7 +400,7 @@ namespace DiscordSharp
             {
                 var uploadResult = JObject.Parse(WebWrapper.HttpUploadFile(url, token, stream, "file", "image/jpeg", null));
 
-                if (!string.IsNullOrWhiteSpace(message))
+                if (!string.IsNullOrEmpty(message))
                     EditMessage(uploadResult["id"].ToString(), message, channel);
             }
             catch (Exception ex)
@@ -459,7 +460,7 @@ namespace DiscordSharp
         /// <param name="idBefore">Messages before this message ID.</param>
         /// <param name="idAfter">Messages after this message ID.</param>
         /// <returns></returns>
-        public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, string idBefore, string idAfter)
+        public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, string idBefore = "", string idAfter = "")
         {
             string request = "https://discordapp.com/api/channels/" + channel.ID + $"/messages?&limit={count}";
             if (!string.IsNullOrEmpty(idBefore))
@@ -1524,7 +1525,7 @@ namespace DiscordSharp
                             }
 
                             if (Connected != null)
-                                Connected(this, new DiscordConnectEventArgs { user = Me }); //Since I already know someone will ask for it.
+                                Connected(this, new DiscordConnectEventArgs { user = Me });
                             break;
                         case ("GUILD_MEMBERS_CHUNK"):
                             GuildMemberChunkEvents(message);
@@ -1693,6 +1694,14 @@ namespace DiscordSharp
                     _member.parentclient = this;
                     _member.Parent = inServer;
                     inServer.members.Add(_member);
+
+                    ///Check private channels
+                    DiscordPrivateChannel _channel = PrivateChannels.Find(x => x.user_id == _member.ID);
+                    if(_channel != null)
+                    {
+                        DebugLogger.Log("Found user for private channel!", MessageLevel.Debug);
+                        _channel.recipient = _member;
+                    }
                 }
             }
         }
@@ -1765,7 +1774,14 @@ namespace DiscordSharp
             ConnectToVoiceAsync();
         }
 
+#if V45
         private Task ConnectToVoiceAsync() => Task.Run(() => VoiceClient.Initiate());
+#else
+        private Task ConnectToVoiceAsync()
+        {
+            return Task.Factory.StartNew(() => VoiceClient.Initiate());
+        }
+#endif
 
         /// <summary>
         /// Kicks a specified DiscordMember from the guild that's assumed from their 
@@ -2070,7 +2086,14 @@ namespace DiscordSharp
             DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
             DiscordRole deletedRole = inServer.roles.Find(x => x.id == message["d"]["role_id"].ToString());
 
-            ServersList.Find(x => x.id == inServer.id).roles.Remove(ServersList.Find(x => x.id == inServer.id).roles.Find(y => y.id == deletedRole.id));
+            try
+            {
+                ServersList.Find(x => x.id == inServer.id).roles.Remove(ServersList.Find(x => x.id == inServer.id).roles.Find(y => y.id == deletedRole.id));
+            }
+            catch(Exception ex)
+            {
+                DebugLogger.Log($"Couldn't delete role with ID {message["d"]["role_id"].ToString()}! ({ex.Message})", MessageLevel.Critical);
+            }
 
             if (RoleDeleted != null)
                 RoleDeleted(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });
@@ -2520,7 +2543,7 @@ namespace DiscordSharp
                 {
                     foreach (var role in rawRoles.Children())
                     {
-                        newMember.Roles.Add(newMember.Parent.roles.Find(x => x.id == role.Value<string>()));
+                        newMember.Roles.Add(newMember.Parent.roles.Find(x => x.id == role.ToString()));
                     }
                 }
                 else
@@ -2564,7 +2587,7 @@ namespace DiscordSharp
         private void VoiceStateUpdateEvents(JObject message)
         {
             var f = message["d"]["channel_id"];
-            if (f.Value<String>() == null)
+            if (f.ToString() == null)
             {
                 DiscordLeftVoiceChannelEventArgs le = new DiscordLeftVoiceChannelEventArgs();
                 DiscordServer inServer = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
@@ -2688,17 +2711,29 @@ namespace DiscordSharp
                     email = ClientPrivateInformation.email,
                     password = ClientPrivateInformation.password
                 });
+#if V45
                 await sw.WriteAsync(msg).ConfigureAwait(false);
+#else
+                sw.Write(msg);
+#endif
                 sw.Flush();
                 sw.Close();
             }
             try
             {
+#if V45
                 var httpResponseT = await httpWebRequest.GetResponseAsync().ConfigureAwait(false);
+#else
+                var httpResponseT = httpWebRequest.GetResponse();
+#endif
                 var httpResponse = (HttpWebResponse)httpResponseT;
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
+#if V45
                     var result = await sr.ReadToEndAsync().ConfigureAwait(false);
+#else
+                    var result = sr.ReadToEnd();
+#endif
                     var jsonResult = JObject.Parse(result);
 
                     if(!jsonResult["token"].IsNullOrEmpty() || jsonResult["token"].ToString() != "")
@@ -2713,7 +2748,11 @@ namespace DiscordSharp
             {
                 using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
                 {
+#if V45
                     string result = await s.ReadToEndAsync().ConfigureAwait(false);
+#else
+                    string result = s.ReadToEnd();
+#endif
                     var jsonResult = JObject.Parse(result);
 
                     if (!jsonResult["password"].IsNullOrEmpty())

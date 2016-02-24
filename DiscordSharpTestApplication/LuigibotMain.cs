@@ -65,10 +65,10 @@ namespace DiscordSharpTestApplication
             "Another one, no. Another two, drop two singles at a time.",
         };
 
-        #region Initial Run
+#region Initial Run
         bool doingInitialRun = false;
         string codeToEnter = "";
-        #endregion
+#endregion
 
         public LuigibotMain()
         {
@@ -96,6 +96,14 @@ namespace DiscordSharpTestApplication
             Console.Write(text + "\n");
         }
 
+        private void WriteWarning(string text)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Error: ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(text + "\n");
+        }
+
         public void DoLogin()
         {
             client = new DiscordClient();
@@ -114,6 +122,14 @@ namespace DiscordSharpTestApplication
             client.ClientPrivateInformation.password = config.BotPass;
 
             SetupEvents(cancelToken);
+        }
+
+        public void Cleanup()
+        {
+            if (!Directory.Exists("logs"))
+                Directory.CreateDirectory("logs");
+            var date = DateTime.Now;
+            client.GetTextClientLogger.Save($"logs/{date.Month}-{date.Day}-{date.Year} {date.Hour}-{date.Minute}-{date.Second}.log");
         }
 
         private Task SetupEvents(CancellationToken token)
@@ -148,24 +164,45 @@ namespace DiscordSharpTestApplication
                         if(e.message.content.Length > 0 && (e.message.content[0] == config.CommandPrefix))
                         {
                             string rawCommand = e.message.content.Substring(1);
-                            try
-                            {
+                            //try
+                            //{
                                 CommandsManager.ExecuteCommand(rawCommand, e.Channel, e.author);
-                            }
-                            catch(UnauthorizedAccessException ex)
-                            {
-                                e.Channel.SendMessage(ex.Message);
-                            }
-                            catch(Exception ex)
-                            {
-                                e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
-                            }
+                            //}
+                            //catch(UnauthorizedAccessException ex)
+                            //{
+                                //e.Channel.SendMessage(ex.Message);
+                            //}
+                            //c/atch(Exception ex)
+                            //{
+                                //e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
+                            //}
                         }
                     }
                 };
                 client.GuildCreated += (sender, e) =>
                 {
-                    Console.WriteLine("Joined server " + e.server.name);
+                    owner.SlideIntoDMs($"Joined server {e.server.name} ({e.server.id})");
+                };
+                client.SocketClosed += (sender, e) =>
+                {
+                    WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
+                    Console.WriteLine("Waiting 6 seconds to reconnect..");
+                    Thread.Sleep(6 * 1000);
+                    client.Connect();
+                };
+                client.TextClientDebugMessageReceived += (sender, e) =>
+                {
+                    if (e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Critical)
+                    {
+                        WriteError($"(Logger Error) {e.message.Message}");
+                        try
+                        {
+                            owner.SlideIntoDMs($"Bot error ocurred: ({e.message.Level.ToString()})```\n{e.message.Message}\n```");
+                        }
+                        catch { }
+                    }
+                    if (e.message.Level == MessageLevel.Warning)
+                        WriteWarning($"(Logger Warning) {e.message.Message}");
                 };
                 client.Connected += (sender, e) =>
                 {
@@ -208,15 +245,37 @@ namespace DiscordSharpTestApplication
 
             client.Logout();
             client.Dispose();
+            Cleanup();
             Environment.Exit(0);
         }
 
         private void SetupCommands()
         {
-            #region Owner only
+#region Owner only
             CommandsManager.AddCommand(new CommandStub("selfdestruct", "Shuts the bot down.", "", PermissionType.Owner, cmdArgs=>
             {
                 Exit();
+            }));
+            CommandsManager.AddCommand(new CommandStub("statusof", "`Status` test", "", PermissionType.Owner, 1, cmdArgs=>
+            {
+                string id = cmdArgs.Args[0].Trim(new char[] { '<', '@', '>' });
+                if(!string.IsNullOrEmpty(id))
+                {
+                    DiscordMember member = cmdArgs.Channel.parent.members.Find(x => x.ID == id);
+                    if (member != null)
+                    {
+                        string msg = $"Status of `{member.Username}`\n{member.Status}";
+                        if (!string.IsNullOrEmpty(member.CurrentGame))
+                        {
+                            msg += $"\nPlaying: *{member.CurrentGame}*";
+                        }
+                        cmdArgs.Channel.SendMessage(msg);
+                    }
+                }
+            }));
+            CommandsManager.AddCommand(new CommandStub("sendchanneltest", "`Client.SendMessageToChannel` Test", "", PermissionType.Owner, cmdArgs =>
+            {
+                client.SendMessageToChannel("Works!", cmdArgs.Channel);
             }));
             CommandsManager.AddCommand(new CommandStub("setplaying", "Sets the current game the bot is playing.", "", PermissionType.Owner, 1, cmdArgs =>
             {
@@ -265,8 +324,22 @@ namespace DiscordSharpTestApplication
                     e.Channel.SendMessage($"Given permission {type.ToString().Substring(type.ToString().IndexOf('.') + 1)} to <@{id}>!");
                 }
             }));
-            #endregion
-            #region Admin
+            CommandsManager.AddCommand(new CommandStub("prune", "Prune test", "", PermissionType.Owner, 1, cmdArgs =>
+            {
+                int messageCount = 0;
+                if(int.TryParse(cmdArgs.Args[0], out messageCount))
+                {
+                    var messagesToPrune = client.GetMessageHistory(cmdArgs.Channel, messageCount);
+                    foreach(var msg in messagesToPrune)
+                    {
+                        client.DeleteMessage(msg);
+                        Thread.Sleep(100);
+                    }
+                    cmdArgs.Channel.SendMessage($"Attempted pruning of {messageCount} messages.");
+                }
+            }));
+#endregion
+#region Admin
             CommandsManager.AddCommand(new CommandStub("eval", "Evaluates real-time C# code. Be careful with this", 
                 "Evaluates C# code that is dynamically compiled.\n\nThe following namespaces are available for use:\n * DiscordSharp\n * System.Threading\n * DiscordSharp.Objects\n\n\nMake sure your function returns a string value.\nYou can reference the DiscordSharp client by using `discordClient`.", PermissionType.Admin, 1, e =>
             {
@@ -332,8 +405,8 @@ namespace DiscordSharpTestApplication
                         e.Channel.SendMessage("Errors!");
                 }
             }));
-            #endregion
-            #region Anyone, but limited to server mods
+#endregion
+#region Anyone, but limited to server mods
             CommandsManager.AddCommand(new CommandStub("gtfo", "Makes the bot leave the server", "", PermissionType.User, cmdArgs =>
             {
                 bool canExecute = false;
@@ -345,8 +418,8 @@ namespace DiscordSharpTestApplication
                 else
                     cmdArgs.Channel.SendMessage("You don't have the proper permissions to do this! You need the ManagerServer permission.");
             }));
-            #endregion
-            #region Literally anyone
+#endregion
+#region Literally anyone
             CommandsManager.AddCommand(new CommandStub("cmdinfo", "Displays help for a command.", "Help", PermissionType.User, 2, e =>
             {
                 if (!String.IsNullOrEmpty(e.Args[0]))
@@ -424,7 +497,7 @@ namespace DiscordSharpTestApplication
             {
                 cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
             }));
-            #endregion
+#endregion
         }
 
         private long GetMemoryUsage()

@@ -48,8 +48,13 @@ namespace DiscordSharp.Objects
         internal DiscordChannelBase channel { get; set; }
         public Type TypeOfChannelObject { get; internal set; }
 
+#if V45
         public dynamic Channel() =>
             Convert.ChangeType(this.channel, TypeOfChannelObject);
+#else
+        public DiscordChannel Channel() => (DiscordChannel)channel;
+        public DiscordPrivateChannel ChannelAsPrivate() => (DiscordPrivateChannel)channel;
+#endif
 
         [JsonProperty("timestamp")]
         public DateTime timestamp { get; internal set; }
