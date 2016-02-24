@@ -13,9 +13,9 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-#if V45
-using System.Threading.Tasks;
-using WebSocket4Net;
+#if NETFX4_5
+using ws4n.WebSocket4Net;
+using CONCURRENT = System.Collections.Concurrent;
 #else
 using ws4n.WebSocket4Net;
 using CONCURRENT = System.Collections.Concurrent;
