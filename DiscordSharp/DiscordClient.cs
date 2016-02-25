@@ -1189,7 +1189,7 @@ namespace DiscordSharp
                         dpmea.author = tempMember;
                         tempMember.parentclient = this;
 
-
+                    DebugLogger.Log($"Private message received from {tempMember.Username}: {dpmea.message}");
                         if (PrivateMessageReceived != null)
                             PrivateMessageReceived(this, dpmea);
                     }
@@ -1247,6 +1247,7 @@ namespace DiscordSharp
                     KeyValuePair<string, DiscordMessage> toAdd = new KeyValuePair<string, DiscordMessage>(message["d"]["id"].ToString(), m);
                     MessageLog.Add(toAdd);
 
+                DebugLogger.Log($"Message received from {dmea.author.Username} in #{dmea.Channel.Name} on {dmea.Channel.parent.name}: {dmea.message.content}");
                     if (MessageReceived != null)
                         MessageReceived(this, dmea);
                 }
@@ -1276,6 +1277,8 @@ namespace DiscordSharp
                     DiscordChannelCreateEventArgs fae = new DiscordChannelCreateEventArgs();
                     fae.ChannelCreated = tempChannel;
                     fae.ChannelType = DiscordChannelCreateType.CHANNEL;
+
+                    DebugLogger.Log($"Channel {tempChannel.Name} created in {tempChannel.parent.name}. ({tempChannel.Type}, {tempChannel.ID}, {tempChannel.Topic})");
                     if (ChannelCreated != null)
                         ChannelCreated(this, fae);
                 }
@@ -2464,6 +2467,9 @@ namespace DiscordSharp
 
             ServersList.Add(server);
             e.server = server;
+
+            DebugLogger.Log($"Joined or created guild {server.name} ({server.id} owned by {server.owner.Username})");
+
             if (GuildCreated != null)
                 GuildCreated(this, e);
         }

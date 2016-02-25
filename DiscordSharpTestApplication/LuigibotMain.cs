@@ -131,8 +131,15 @@ namespace DiscordSharpTestApplication
         {
             if (!Directory.Exists("logs"))
                 Directory.CreateDirectory("logs");
+
             var date = DateTime.Now;
-            client.GetTextClientLogger.Save($"logs/{date.Month}-{date.Day}-{date.Year} {date.Hour}-{date.Minute}-{date.Second}.log");
+            string mmddyy = $"{date.Month}-{date.Day}-{date.Year}";
+            if (!Directory.Exists("logs/" + mmddyy))
+                Directory.CreateDirectory("logs/" + mmddyy);
+
+            int levels = (int)(MessageLevel.Debug & MessageLevel.Error & MessageLevel.Critical & MessageLevel.Warning);
+
+            client.GetTextClientLogger.Save($"logs/{mmddyy}/{date.Month}-{date.Day}-{date.Year} {date.Hour}-{date.Minute}-{date.Second}.log", (MessageLevel)levels);
         }
 
         private Task SetupEvents(CancellationToken token)
@@ -188,10 +195,17 @@ namespace DiscordSharpTestApplication
                 };
                 client.SocketClosed += (sender, e) =>
                 {
-                    WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
-                    Console.WriteLine("Waiting 6 seconds to reconnect..");
-                    Thread.Sleep(6 * 1000);
-                    client.Connect();
+                    if (e.Code != 1000 && !e.WasClean)
+                    {
+                        WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
+                        Console.WriteLine("Waiting 6 seconds to reconnect..");
+                        Thread.Sleep(6 * 1000);
+                        client.Connect();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Shutting down ({e.Code}, {e.Reason}, {e.WasClean})");
+                    }
                 };
                 client.TextClientDebugMessageReceived += (sender, e) =>
                 {
