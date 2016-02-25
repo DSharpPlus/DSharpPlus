@@ -1965,6 +1965,7 @@ namespace DiscordSharp
                     VoiceClient = new DiscordVoiceClient(this, voiceConfig);
             }
             VoiceClient.Channel = channel;
+            VoiceClient.InitializeOpusEncoder();
             VoiceClient.ErrorReceived += (sender, e) =>
             {
                 GetLastVoiceClientLogger = VoiceClient.GetDebugLogger;

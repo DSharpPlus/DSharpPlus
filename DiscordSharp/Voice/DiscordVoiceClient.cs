@@ -2,6 +2,7 @@
 using Discord.Audio.Opus;
 using DiscordSharp.Events;
 using DiscordSharp.Objects;
+using DiscordSharp.Voice;
 using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -15,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 #if NETFX4_5
 using ws4n.WebSocket4Net;
-using CONCURRENT = System.Collections.Concurrent;
+using System.Collections.Concurrent;
 #else
 using ws4n.WebSocket4Net;
 using CONCURRENT = System.Collections.Concurrent;
@@ -145,7 +146,11 @@ namespace DiscordSharp
         private OpusEncoder mainOpusEncoder;
         private CancellationTokenSource globalTaskSource = new CancellationTokenSource();
         //private CONCURRENT.ConcurrentQueue<byte[]> voiceToSend = new CONCURRENT.ConcurrentConcurrentQueue<byte[]>();\
-        private CONCURRENT.ConcurrentQueue<byte[]> voiceToSend = new CONCURRENT.ConcurrentQueue<byte[]>();
+#if NETFX4_5
+        private ConcurrentQueue<byte[]> voiceToSend = new ConcurrentQueue<byte[]>();
+#else
+            private CONCURRENT.ConcurrentQueue<byte[]> voiceToSend = new CONCURRENT.ConcurrentQueue<byte[]>();
+#endif
         private DiscordVoiceConfig VoiceConfig;
         private List<DiscordMember> MembersInChannel = new List<DiscordMember>();
         private Dictionary<DiscordMember, int> SsrcDictionary = new Dictionary<DiscordMember, int>();
@@ -188,14 +193,12 @@ namespace DiscordSharp
         {
             _parent = parentClient;
             VoiceConfig = new DiscordVoiceConfig();
-            InitializeOpusEncoder();
         }
 
         public DiscordVoiceClient(DiscordClient parentClient, DiscordVoiceConfig config)
         {
             _parent = parentClient;
             VoiceConfig = config;
-            InitializeOpusEncoder();
         }
 
         public DiscordVoiceClient(DiscordClient parentClient, DiscordVoiceConfig config, DiscordChannel channel)
@@ -203,10 +206,9 @@ namespace DiscordSharp
             _parent = parentClient;
             VoiceConfig = config;
             Channel = channel;
-            InitializeOpusEncoder();
         }
 
-        private void InitializeOpusEncoder()
+        internal void InitializeOpusEncoder()
         {
             if (Channel != null && Channel.Type == ChannelType.Voice)
             {
@@ -218,17 +220,18 @@ namespace DiscordSharp
                         (Channel.Bitrate / 1000),
                         VoiceConfig.OpusMode);
                 }
+                else
+                {
+                    mainOpusEncoder = new OpusEncoder(VoiceConfig.SampleRate,
+                        VoiceConfig.Channels,
+                        VoiceConfig.FrameLengthMs,
+                        null,
+                        VoiceConfig.OpusMode);
+                }
+
+                mainOpusEncoder.SetForwardErrorCorrection(true);
+                msToSend = VoiceConfig.FrameLengthMs;
             }
-            else
-            {
-                mainOpusEncoder = new OpusEncoder(VoiceConfig.SampleRate,
-                    VoiceConfig.Channels,
-                    VoiceConfig.FrameLengthMs,
-                    null,
-                    VoiceConfig.OpusMode);
-            }
-            mainOpusEncoder.SetForwardErrorCorrection(true);
-            msToSend = VoiceConfig.FrameLengthMs;
         }
 
         private void InitializeOpusDecoder()
@@ -322,7 +325,7 @@ namespace DiscordSharp
                 case 3:
                     VoiceDebugLogger.Log("KeepAlive echoed back successfully!", MessageLevel.Unecessary);
                     break;
-                case 4:
+                case 4: //you get your secret key from here
                     //post initializing the UDP client, we will receive opcode 4 and will now do the final connection steps
                     await OpCode4(message).ConfigureAwait(false);
                     if (!VoiceConfig.SendOnly)
@@ -386,6 +389,7 @@ namespace DiscordSharp
 
         private async Task OpCode4(JObject message)
         {
+
             string speakingJson = JsonConvert.SerializeObject(new
             {
                 op = 5,
@@ -508,18 +512,20 @@ namespace DiscordSharp
             if (voiceToEncode != null)
             {
                 Stopwatch timeToSend = Stopwatch.StartNew();
-                byte[] rtpPacket = new byte[12 + voiceToEncode.Length];
-                rtpPacket[0] = (byte)0x80;
-                rtpPacket[1] = (byte)0x78;
+                byte[] rtpPacket = new byte[12 + 16 + voiceToEncode.Length]; //add 16 for none
+                byte[] nonce = new byte[24]; //nonce for encryption
+                rtpPacket[0] = (byte)0x80; //flags
+                rtpPacket[1] = (byte)0x78; //flags
 
-                rtpPacket[8] = (byte)((Params.ssrc >> 24) & 0xFF);
-                rtpPacket[9] = (byte)((Params.ssrc >> 16) & 0xFF);
-                rtpPacket[10] = (byte)((Params.ssrc >> 8) & 0xFF);
-                rtpPacket[11] = (byte)((Params.ssrc >> 0) & 0xFF);
+                rtpPacket[8] = (byte)((Params.ssrc >> 24) & 0xFF); //ssrc
+                rtpPacket[9] = (byte)((Params.ssrc >> 16) & 0xFF); //ssrc
+                rtpPacket[10] = (byte)((Params.ssrc >> 8) & 0xFF); //ssrc
+                rtpPacket[11] = (byte)((Params.ssrc >> 0) & 0xFF); //ssrc
 
                 byte[] opusAudio = new byte[voiceToEncode.Length];
                 int encodedLength = mainOpusEncoder.EncodeFrame(voiceToEncode, 0, opusAudio);
-                
+
+                Buffer.BlockCopy(rtpPacket, 0, nonce, 0, 12); //copy first 12 bytes for nonce
 
                 int dataSent = 0;
 
@@ -535,6 +541,12 @@ namespace DiscordSharp
                     rtpPacket[6] = (byte)((___timestamp >> 8));
                     rtpPacket[7] = (byte)((___timestamp >> 0) & 0xFF);
 
+                    Buffer.BlockCopy(rtpPacket, 2, nonce, 2, 6); //copy 6 bytes for nonce
+                    //int returnVal = SecretBox.Encrypt(opusAudio, encodedLength, rtpPacket, 12, nonce, secretKey);
+                    //if (returnVal != 0)
+                        //return;
+
+
                     if (opusAudio == null)
                         throw new ArgumentNullException("opusAudio");
 
@@ -542,9 +554,9 @@ namespace DiscordSharp
                     Buffer.BlockCopy(opusAudio, 0, rtpPacket, 12, encodedLength);
 
 #if V45
-                    dataSent = _udp.SendAsync(rtpPacket, encodedLength + 12).Result;
+                    dataSent = _udp.SendAsync(rtpPacket, encodedLength + 12 + 16).Result;
 #else
-                    dataSent = _udp.Send(rtpPacket, encodedLength + 12);
+                    dataSent = _udp.Send(rtpPacket, encodedLength + 12 + 16);
 #endif
 
                     ___sequence = unchecked(___sequence++);

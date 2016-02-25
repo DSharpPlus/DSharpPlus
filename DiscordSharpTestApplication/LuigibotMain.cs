@@ -174,20 +174,24 @@ namespace DiscordSharpTestApplication
                         if(e.message.content.Length > 0 && (e.message.content[0] == config.CommandPrefix))
                         {
                             string rawCommand = e.message.content.Substring(1);
-                            //try
-                            //{
+                            try
+                            {
                                 CommandsManager.ExecuteCommand(rawCommand, e.Channel, e.author);
-                            //}
-                            //catch(UnauthorizedAccessException ex)
-                            //{
-                                //e.Channel.SendMessage(ex.Message);
-                            //}
-                            //c/atch(Exception ex)
-                            //{
-                                //e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
-                            //}
+                            }
+                            catch(UnauthorizedAccessException ex)
+                            {
+                                e.Channel.SendMessage(ex.Message);
+                            }
+                            catch(Exception ex)
+                            {
+                                e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
+                            }
                         }
                     }
+                };
+                client.VoiceClientConnected += (sender, e) =>
+                {
+                    owner.SlideIntoDMs($"Voice connection complete.");
                 };
                 client.GuildCreated += (sender, e) =>
                 {
@@ -272,6 +276,24 @@ namespace DiscordSharpTestApplication
             CommandsManager.AddCommand(new CommandStub("selfdestruct", "Shuts the bot down.", "", PermissionType.Owner, cmdArgs=>
             {
                 Exit();
+            }));
+            CommandsManager.AddCommand(new CommandStub("joinvoice", "Joins a specified voice channel", "Arg is case insensitive voice channel name to join.", PermissionType.Owner, 1, cmdArgs =>
+            {
+                DiscordChannel channelToJoin = cmdArgs.Channel.parent.channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
+                if (channelToJoin != null)
+                {
+                    DiscordVoiceConfig config = new DiscordVoiceConfig
+                    {
+                        FrameLengthMs = 60,
+                        Channels = 1,
+                        OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
+                        SendOnly = true
+                    };
+
+                    client.ConnectToVoiceChannel(channelToJoin, config);
+                }
+                else
+                    cmdArgs.Channel.SendMessage("Couldn't find the specified channel as a voice channel!");
             }));
             CommandsManager.AddCommand(new CommandStub("statusof", "`Status` test", "", PermissionType.Owner, 1, cmdArgs=>
             {

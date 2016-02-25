@@ -47,16 +47,16 @@
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(TargetFrameworkVersion' == 'v3.5' ">
-        <ItemGroup>
-            <Reference Include="AsyncBridge.Net35, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b3b1c0202c0d6a87, processorArchitecture=MSIL">
-                <HintPath>..\packages\AsyncBridge.Net35.0.2.0\lib\net35-Client\AsyncBridge.Net35.dll</HintPath>
-                <Private>True</Private>
-            </Reference>
-            <Reference Include="System.Threading, Version=1.0.2856.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-                <HintPath>..\packages\TaskParallelLibrary.1.0.2856.0\lib\Net35\System.Threading.dll</HintPath>
-                <Private>True</Private>
-            </Reference>
-        </ItemGroup>
+      <ItemGroup>
+        <Reference Include="AsyncBridge.Net35, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b3b1c0202c0d6a87, processorArchitecture=MSIL">
+          <HintPath>..\packages\AsyncBridge.Net35.0.2.0\lib\net35-Client\AsyncBridge.Net35.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Threading, Version=1.0.2856.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+          <HintPath>..\packages\TaskParallelLibrary.1.0.2856.0\lib\Net35\System.Threading.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+      </ItemGroup>
     </When>
   </Choose>
   <ItemGroup>
@@ -146,9 +146,13 @@
     <Compile Include="Voice\OpusConverter.cs" />
     <Compile Include="Voice\OpusDecoder.cs" />
     <Compile Include="Voice\OpusEncoder.cs" />
+    <Compile Include="Voice\Sodium.cs" />
     <Compile Include="WebWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="libsodium.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="opus.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

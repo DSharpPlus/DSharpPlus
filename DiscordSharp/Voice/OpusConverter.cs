@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+#if NETFX4_5
 using System.Security;
+#endif
 
 namespace Discord.Audio.Opus
 {
@@ -32,7 +34,7 @@ namespace Discord.Audio.Opus
             GetInbandFECRequest = 4013
         }
 
-#if NET45
+#if NETFX4_5
         [SuppressUnmanagedCodeSecurity]
 #endif
         protected unsafe static class UnsafeNativeMethods
