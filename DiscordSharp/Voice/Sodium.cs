@@ -1,4 +1,4 @@
-﻿/*using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 #if NETFX4_5
 using System.Security;
 #endif
@@ -29,4 +29,4 @@ namespace DiscordSharp.Voice
                 return SafeNativeMethods.SecretBoxOpenEasy(output, inPtr + inputLength, inputLength, nonce, secret);
         }
     }
-}*/
+}

@@ -1,6 +1,7 @@
 ﻿using DiscordSharp;
 using DiscordSharp.Commands;
 using DiscordSharp.Objects;
+using NAudio.Wave;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -189,6 +190,11 @@ namespace DiscordSharpTestApplication
                         }
                     }
                 };
+                client.VoiceClientDebugMessageReceived += (sender, e) =>
+                {
+                    if(e.message.Level != MessageLevel.Unecessary)
+                        Console.WriteLine($"[{e.message.Level} {e.message.TimeStamp.ToString()}] {e.message.Message}");
+                };
                 client.VoiceClientConnected += (sender, e) =>
                 {
                     owner.SlideIntoDMs($"Voice connection complete.");
@@ -294,6 +300,22 @@ namespace DiscordSharpTestApplication
                 }
                 else
                     cmdArgs.Channel.SendMessage("Couldn't find the specified channel as a voice channel!");
+            }));
+            CommandsManager.AddCommand(new CommandStub("disconnect", "Disconnects from voice", "", PermissionType.Owner, 1, cmdArgs =>
+            {
+                    client.DisconnectFromVoice();
+            }));
+            CommandsManager.AddCommand(new CommandStub("testvoice", "Broadcasts specified file over voice.", "", PermissionType.Owner, 1, cmdArgs =>
+            {
+                if (File.Exists(cmdArgs.Args[0]))
+                {
+                    if (client.ConnectedToVoice())
+                        SendVoice(cmdArgs.Args[0]);
+                    else
+                        cmdArgs.Channel.SendMessage("Not connected to voice!");
+                }
+                else
+                    cmdArgs.Channel.SendMessage("Couldn't broadcast specified file! It doesn't exist!");
             }));
             CommandsManager.AddCommand(new CommandStub("statusof", "`Status` test", "", PermissionType.Owner, 1, cmdArgs=>
             {
@@ -576,6 +598,66 @@ namespace DiscordSharpTestApplication
             return true;
 #endif
             return false;
+        }
+
+        private void SendVoice(string file)
+        {
+            DiscordVoiceClient vc = client.GetVoiceClient();
+            try
+            {
+                int ms = 60;
+                int channels = 1;
+                int sampleRate = 48000;
+
+                int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
+                byte[] buffer = new byte[blockSize];
+                var outFormat = new WaveFormat(sampleRate, 16, channels);
+
+                vc.SetSpeaking(true);
+                if (file.EndsWith(".wav"))
+                {
+                    using (var waveReader = new WaveFileReader(file))
+                    {
+                        int byteCount;
+                        while ((byteCount = waveReader.Read(buffer, 0, blockSize)) > 0)
+                        {
+                            if (vc.Connected)
+                                vc.SendVoice(buffer);
+                            else
+                                break;
+                        }
+                    }
+                }
+                else if (file.EndsWith(".mp3"))
+                {
+                    using (var mp3Reader = new MediaFoundationReader(file))
+                    {
+                        using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
+                        {
+                            //resampler.ResamplerQuality = 60;
+                            int byteCount;
+                            while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
+                            {
+                                if (vc.Connected)
+                                {
+                                    vc.SendVoice(buffer);
+                                }
+                                else
+                                    break;
+                            }
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("Voice finished enqueuing");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            resampler.Dispose();
+                            mp3Reader.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+            }
         }
     }
 }
