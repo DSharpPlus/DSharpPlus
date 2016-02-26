@@ -99,7 +99,6 @@
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
     <Compile Include="Objects\DiscordServer.cs" />
     <Compile Include="Voice\DiscordAudioPacket.cs" />
-    <Compile Include="Voice\DiscordSynchronousVoiceClient.cs" />
     <Compile Include="Voice\DiscordVoiceClient.cs" />
     <Compile Include="Events\DiscordGuildMemberUpdateEventArgs.cs" />
     <Compile Include="Events\DiscordGuildRoleUpdateEventArgs.cs" />

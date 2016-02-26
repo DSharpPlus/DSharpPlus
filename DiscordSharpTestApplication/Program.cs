@@ -199,8 +199,8 @@ client.ClientPrivateInformation.password = pass;
                 };
                 client.AudioPacketReceived += (sender, e) =>
                 {
-                    audioPlayer.EnqueueBytes(e.PCMPacket);
-                    audioPlayer.PlayAudio();
+                    //audioPlayer.EnqueueBytes(e.PCMPacket);
+                    //audioPlayer.PlayAudio();
                 };
                 client.VoiceStateUpdate += (sender, e) =>
                 {

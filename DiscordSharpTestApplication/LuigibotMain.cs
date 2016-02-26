@@ -43,6 +43,7 @@ namespace DiscordSharpTestApplication
         CancellationToken cancelToken;
         Config config;
         DateTime loginDate;
+        AudioPlayer player;
 
         Random rng = new Random((int)DateTime.Now.Ticks);
         string[] KhaledQuotes = new string[]
@@ -198,6 +199,19 @@ namespace DiscordSharpTestApplication
                 client.VoiceClientConnected += (sender, e) =>
                 {
                     owner.SlideIntoDMs($"Voice connection complete.");
+                    player = new AudioPlayer(client.GetVoiceClient().VoiceConfig);
+                };
+                client.AudioPacketReceived += (sender, e) =>
+                {
+                    if(player != null)
+                    {
+                        byte[] potential = new byte[4000];
+                        int decodedFrames = client.GetVoiceClient().Decoder.DecodeFrame(e.OpusAudio, 0, 1, potential);
+                        byte[] actualPcm = new byte[decodedFrames];
+                        Buffer.BlockCopy(e.OpusAudio, 0, actualPcm, 0, decodedFrames);
+                        player.EnqueueBytes(actualPcm);
+                        player.PlayAudio();
+                    }
                 };
                 client.GuildCreated += (sender, e) =>
                 {
@@ -293,7 +307,7 @@ namespace DiscordSharpTestApplication
                         FrameLengthMs = 60,
                         Channels = 1,
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
-                        SendOnly = true
+                        SendOnly = false
                     };
 
                     client.ConnectToVoiceChannel(channelToJoin, config);
