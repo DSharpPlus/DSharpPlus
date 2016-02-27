@@ -3,6 +3,7 @@ using DiscordSharp.Commands;
 using DiscordSharp.Objects;
 using NAudio.Wave;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,6 +38,9 @@ namespace DiscordSharpTestApplication
 
     public class LuigibotMain
     {
+        //internal static readonly string OAUTH_ID = "152966395884339200";
+        //internal static readonly string OAUTH_SECRET = "RFtPxLA19Lu1t3J-r4O7nNw0aaS8Wdg2";
+
         DiscordClient client;
         DiscordMember owner;
         CommandsManager CommandsManager;
@@ -92,7 +96,7 @@ namespace DiscordSharpTestApplication
             Console.WriteLine(asciiArt);
             DoLogin();
         }
-
+        
         private void WriteError(string text)
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -541,7 +545,8 @@ namespace DiscordSharpTestApplication
                 string message = "**About Luigibot**\n";
                 message += "Owner: " + owner.Username + "\n";
                 message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
-                message += "Uptime: " + (DateTime.Now - loginDate).ToString() + "\n";
+                var uptime = (DateTime.Now - loginDate);
+                message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
                 message += "Compiled Under: ";
                 if (Mono())
                     message += "Mono\n";
