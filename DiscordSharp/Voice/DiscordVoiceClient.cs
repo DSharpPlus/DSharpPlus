@@ -160,9 +160,7 @@ namespace DiscordSharp
         private string encryptionMode = "xsalsa20_poly1305";
         private byte[] __secretKey;
 
-#if !V45
         private IPEndPoint udpEndpoint;
-#endif
 
 #region Events
         internal event EventHandler<LoggerMessageReceivedArgs> DebugMessageReceived;
@@ -488,6 +486,7 @@ namespace DiscordSharp
             {
                 while(!token.IsCancellationRequested)
                 {
+                    await Task.Delay(1).ConfigureAwait(false);
                     try
                     {
                         await DoReceiveVoice().ConfigureAwait(false);
@@ -502,13 +501,14 @@ namespace DiscordSharp
 
         private async Task DoReceiveVoice()
         {
+            _udp.DontFragment = false;
             if (_udp.Available > 0)
             {
                 //the packet received, the 4000 size buffer for decoding, the nonce header for encryption and the decrypted/decoded result :)
                 byte[] packet, decodingBuffer = null, nonce = null, result;
 #if NETFX4_5
-                UdpReceiveResult receivedResult = await _udp.ReceiveAsync().ConfigureAwait(false);
-                packet = receivedResult.Buffer;
+                //UdpReceiveResult receivedResult = await _udp.ReceiveAsync().ConfigureAwait(false);
+                packet = _udp.Receive(ref udpEndpoint);
                 int packetLength, resultOffset, resultLength;
                 decodingBuffer = new byte[4000];
                 nonce = new byte[24];
@@ -518,7 +518,7 @@ namespace DiscordSharp
                 packetLength = packet.Length;
                 if (packet.Length > 0)
                 {
-                    if (packetLength < 12) return; //irrelevant
+                    if (packetLength < 12) return; //irrelevant packet
                     if (packet[0] != 0x80) return; //flags
                     if (packet[1] != 0x78) return; //payload type. you know, from before.
 
@@ -527,10 +527,11 @@ namespace DiscordSharp
                     uint ssrc = (uint)((packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | (packet[11] << 0));
 
                     //encryption is enabled by default
-                    if (packetLength < 28) return; //irrelevant
+                    if (packetLength < 28) return; //irrelevant packet
 
                     Buffer.BlockCopy(packet, 0, nonce, 0, 12); //copy nonce
-                    int returnValue = SecretBox.Decrypt(packet, 12, packetLength - 12, decodingBuffer, nonce, __secretKey);
+                    var length = Convert.ToUInt64(packetLength - 12);
+                    int returnValue = SecretBox.Decrypt(packet, 12, length, decodingBuffer, nonce, __secretKey);
                     if (returnValue != 0)
                         return;
                     result = decodingBuffer;
@@ -728,9 +729,8 @@ namespace DiscordSharp
 
                 VoiceDebugLogger.Log($"Initialized UDP Client at {VoiceEndpoint.Replace(":80", "")}:{Params.port}");
 
-#if !NETFX4_5
-                udpEndpoint = new IPEndPoint(IPAddress.Parse(VoiceEndpoint.Replace(":80", "")), 80);
-#endif
+                udpEndpoint = new IPEndPoint(Dns.GetHostAddresses(VoiceEndpoint.Replace(":80", ""))[0], 80);
+
 
                 byte[] packet = new byte[70]; //the initial packet
                 packet[0] = (byte)((Params.ssrc >> 24) & 0xFF);
