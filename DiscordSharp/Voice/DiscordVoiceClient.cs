@@ -481,7 +481,7 @@ namespace DiscordSharp
 #if NETFX4_5
             return Task.Run(async () =>
 #else
-            return Task.Factory.StartNew(() =>
+            return Task.Factory.StartNew(async () =>
 #endif
             {
                 while(!token.IsCancellationRequested)
@@ -514,8 +514,11 @@ namespace DiscordSharp
                 nonce = new byte[24];
 #else
                     byte[] receivedBytes = _udp.Receive(ref udpEndpoint);
+				packet = receivedBytes;
+				int packetLength = receivedBytes.Length;
+				int resultOffset, resultLength;
 #endif
-                packetLength = packet.Length;
+				packetLength = packet.Length;
                 if (packet.Length > 0)
                 {
                     if (packetLength < 12) return; //irrelevant packet

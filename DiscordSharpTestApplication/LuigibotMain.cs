@@ -48,6 +48,8 @@ namespace DiscordSharpTestApplication
         Config config;
         DateTime loginDate;
         AudioPlayer player;
+		bool runningOnMono = false;
+		string osString;
 
         Random rng = new Random((int)DateTime.Now.Ticks);
         string[] KhaledQuotes = new string[]
@@ -88,6 +90,9 @@ namespace DiscordSharpTestApplication
                 config = new Config();
             if (config.CommandPrefix.ToString().Length == 0)
                 config.CommandPrefix = '?';
+
+			runningOnMono = Type.GetType ("Mono.Runtime") != null;
+			osString = Environment.OSVersion.ToString ();
         }
 
         public void RunLuigibot()
@@ -547,11 +552,14 @@ namespace DiscordSharpTestApplication
                 message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
                 var uptime = (DateTime.Now - loginDate);
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
-                message += "Compiled Under: ";
-                if (Mono())
+                message += "Runtime: ";
+
+				if (runningOnMono)
                     message += "Mono\n";
                 else
                     message += ".Net\n";
+					
+				message += $"OS: {osString}\n";
                 long memUsage = GetMemoryUsage();
                 if (memUsage > 0)
                     message += "Memory Usage: " + (memUsage / 1024) / 2 + "mb\n";
@@ -609,14 +617,6 @@ namespace DiscordSharpTestApplication
             {
                 return (luigibotProcess.WorkingSet64 / 1024);
             }
-        }
-
-        public bool Mono()
-        {
-#if __MONOCS__
-            return true;
-#endif
-            return false;
         }
 
         private void SendVoice(string file)
