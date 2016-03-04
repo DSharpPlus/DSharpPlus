@@ -1301,7 +1301,11 @@ namespace DiscordSharp
             string url = Endpoints.BaseAPI + Endpoints.Gateway;
             try
             {
-                return JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
+                string gatewayResult = JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
+                if (!gatewayResult.IsNullOrEmpty())
+                    return gatewayResult;
+                else
+                    throw new ArgumentNullException("gatewayResult", $"Retrieving the gateway resulted in a null or empty gateway value. Please verify user credentials. \n\tToken: {token}");
             }
             catch(Exception ex)
             {
