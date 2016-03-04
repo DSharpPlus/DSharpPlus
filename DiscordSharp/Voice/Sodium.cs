@@ -26,7 +26,7 @@ namespace DiscordSharp.Voice
         public static int Decrypt(byte[] input, int inputOffset, ulong inputLength, byte[] output, byte[] nonce, byte[] secret)
         {
             fixed (byte* inPtr = input)
-                return SafeNativeMethods.SecretBoxOpenEasy(output, inPtr + inputLength, inputLength, nonce, secret);
+                return SafeNativeMethods.SecretBoxOpenEasy(output, inPtr + inputOffset, inputLength, nonce, secret);
         }
     }
 }
