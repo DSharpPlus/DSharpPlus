@@ -234,6 +234,8 @@ namespace DiscordSharp
                 mainOpusEncoder.SetForwardErrorCorrection(true);
                 msToSend = VoiceConfig.FrameLengthMs;
             }
+            if(!VoiceConfig.SendOnly)
+                InitializeOpusDecoder();
         }
 
         private void InitializeOpusDecoder()
@@ -547,7 +549,7 @@ namespace DiscordSharp
                             PacketReceived(this, new DiscordAudioPacketEventArgs
                             {
                                 Channel = this.Channel,
-                                FromUser = SsrcDictionary.Where(x => x.Value == (int)ssrc).Cast<DiscordMember>().First(),
+                                FromUser = GetUserBySsrc(ssrc),
                                 OpusAudio = result
                             });
                         }
@@ -555,6 +557,15 @@ namespace DiscordSharp
 
                 }
             }
+        }
+
+        private DiscordMember GetUserBySsrc(uint ssrc)
+        {
+            foreach (var user in SsrcDictionary)
+                if (user.Value == ssrc)
+                    return user.Key;
+
+            return null;
         }
 
 #pragma warning restore 4014
