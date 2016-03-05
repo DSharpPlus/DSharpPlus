@@ -3,17 +3,13 @@ using DiscordSharp.Commands;
 using DiscordSharp.Objects;
 using NAudio.Wave;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,8 +43,15 @@ namespace DiscordSharpTestApplication
         CancellationToken cancelToken;
         Config config;
         DateTime loginDate;
-        AudioPlayer player;
-		bool runningOnMono = false;
+        #region Audio playback
+        WaveFormat waveFormat;
+        BufferedWaveProvider bufferedWaveProvider;
+        WaveCallbackInfo waveCallbackInfo;
+        IWavePlayer outputDevice;
+        VolumeWaveProvider16 volumeProvider;
+        System.Timers.Timer stutterReducingTimer;
+        #endregion
+        bool runningOnMono = false;
 		string osString;
 
         Random rng = new Random((int)DateTime.Now.Ticks);
@@ -69,10 +72,10 @@ namespace DiscordSharpTestApplication
             "I changed... a lot.",
             "My fans expect me to be greater and keep being great.",
             "There will be road blocks but we will overcome it.",
-            "They don\"t want you to jet ski.",
-            "Them doors that was always closed, I ripped the doors off, took the hinges off. And when I took the hinges off, I put the hinges on the f*ckboys’ hands.",
+            "They don't want you to jet ski.",
+            "Them doors that was always closed, I ripped the doors off, took the hinges off. And when I took the hinges off, I put the hinges on the fuckboys’ hands.",
             "Congratulations, you played yourself.",
-            "Don\"t play yourself.",
+            "Don't play yourself.",
             "Another one, no. Another two, drop two singles at a time.",
         };
 
@@ -208,18 +211,24 @@ namespace DiscordSharpTestApplication
                 client.VoiceClientConnected += (sender, e) =>
                 {
                     owner.SlideIntoDMs($"Voice connection complete.");
-                    player = new AudioPlayer(client.GetVoiceClient().VoiceConfig);
+                    //player = new AudioPlayer(client.GetVoiceClient().VoiceConfig);
+                    bufferedWaveProvider = new BufferedWaveProvider(waveFormat);
+                    bufferedWaveProvider.BufferDuration = new TimeSpan(0, 0, 50);
+                    volumeProvider = new VolumeWaveProvider16(bufferedWaveProvider);
+                    volumeProvider.Volume = 1.1f;
+                    outputDevice.Init(volumeProvider);
+
+                    stutterReducingTimer = new System.Timers.Timer(500);
+                    stutterReducingTimer.Elapsed += StutterReducingTimer_Elapsed;
+                    PlayAudioAsync(cancelToken);
                 };
                 client.AudioPacketReceived += (sender, e) =>
                 {
-                    if(player != null)
+                    if(bufferedWaveProvider != null)
                     {
                         byte[] potential = new byte[4000];
-                        int decodedFrames = client.GetVoiceClient().Decoder.DecodeFrame(e.OpusAudio, 0, 1, potential);
-                        byte[] actualPcm = new byte[decodedFrames];
-                        Buffer.BlockCopy(e.OpusAudio, 0, actualPcm, 0, decodedFrames);
-                        player.EnqueueBytes(actualPcm);
-                        player.PlayAudio();
+                        int decodedFrames = client.GetVoiceClient().Decoder.DecodeFrame(e.OpusAudio, 0, e.OpusAudioLength, potential);
+                        bufferedWaveProvider.AddSamples(potential, 0, decodedFrames);
                     }
                 };
                 client.GuildCreated += (sender, e) =>
@@ -288,6 +297,25 @@ namespace DiscordSharpTestApplication
             }, token);
         }
 
+        private void StutterReducingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if(outputDevice.PlaybackState != PlaybackState.Stopped)
+            {
+                if(bufferedWaveProvider != null)
+                {
+                    var bufferedSeconds = bufferedWaveProvider.BufferedDuration.TotalSeconds;
+                    if(bufferedSeconds < 0.5 && outputDevice.PlaybackState == PlaybackState.Playing)
+                    {
+                        outputDevice.Pause();
+                    }
+                    else if(bufferedSeconds > 4 && outputDevice.PlaybackState == PlaybackState.Paused)
+                    {
+                        outputDevice.Play();
+                    }
+                }
+            }
+        }
+
         public void Exit()
         {
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(config));
@@ -318,6 +346,14 @@ namespace DiscordSharpTestApplication
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
                         SendOnly = false
                     };
+
+                    waveFormat = new WaveFormat(48000, 16, config.Channels);
+
+                    if (!config.SendOnly)
+                    {
+                        waveCallbackInfo = WaveCallbackInfo.FunctionCallback();
+                        outputDevice = new WaveOut();
+                    }
 
                     client.ConnectToVoiceChannel(channelToJoin, config);
                 }
@@ -606,6 +642,29 @@ namespace DiscordSharpTestApplication
                 cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
             }));
 #endregion
+        }
+
+        private Task PlayAudioAsync(CancellationToken cancelToken)
+        {
+            return Task.Run(async () =>
+            {
+                do
+                {
+                    if (bufferedWaveProvider.BufferedDuration > TimeSpan.Zero)
+                    {
+                        if (outputDevice != null && outputDevice.PlaybackState != PlaybackState.Playing)
+                        {
+                            outputDevice.Play();
+                        }
+                    }
+                    else
+                    {
+                        outputDevice.Pause();
+                        await Task.Delay(1).ConfigureAwait(false);
+                    }
+                }
+                while (bufferedWaveProvider != null && !cancelToken.IsCancellationRequested);
+            });
         }
 
         private long GetMemoryUsage()

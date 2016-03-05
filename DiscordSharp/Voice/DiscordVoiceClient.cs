@@ -80,6 +80,7 @@ namespace DiscordSharp
     {
         //public DiscordAudioPacket Packet { get; internal set; }
         public byte[] OpusAudio { get; internal set; }
+        public int OpusAudioLength { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
         public DiscordMember FromUser { get; internal set; }
     }
@@ -550,7 +551,8 @@ namespace DiscordSharp
                             {
                                 Channel = this.Channel,
                                 FromUser = GetUserBySsrc(ssrc),
-                                OpusAudio = result
+                                OpusAudio = result,
+                                OpusAudioLength = resultLength
                             });
                         }
                     }
