@@ -509,19 +509,13 @@ namespace DiscordSharp
             {
                 //the packet received, the 4000 size buffer for decoding, the nonce header for encryption and the decrypted/decoded result :)
                 byte[] packet, decodingBuffer = null, nonce = null, result;
-#if NETFX4_5
                 //UdpReceiveResult receivedResult = await _udp.ReceiveAsync().ConfigureAwait(false);
                 packet = _udp.Receive(ref udpEndpoint);
                 int packetLength, resultOffset, resultLength;
                 decodingBuffer = new byte[4000];
                 nonce = new byte[24];
-#else
-                    byte[] receivedBytes = _udp.Receive(ref udpEndpoint);
-				packet = receivedBytes;
-				int packetLength = receivedBytes.Length;
-				int resultOffset, resultLength;
-#endif
 				packetLength = packet.Length;
+
                 if (packet.Length > 0)
                 {
                     if (packetLength < 12) return; //irrelevant packet
