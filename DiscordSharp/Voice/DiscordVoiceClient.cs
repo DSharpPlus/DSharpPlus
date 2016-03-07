@@ -444,7 +444,7 @@ namespace DiscordSharp
 #pragma warning disable 4014
         private Task SendVoiceTask(CancellationToken token)
         {
-#if V45
+#if NETFX4_5
             return Task.Run(async () =>
 #else
             return Task.Factory.StartNew(async ()=>
@@ -653,8 +653,8 @@ namespace DiscordSharp
 
         private Task DoWebSocketKeepAlive(CancellationToken token)
         {
-#if V45
-            return Task.Run(async () =>
+#if NETFX4_5
+            return Task.Run(() =>
 #else
             return Task.Factory.StartNew(()=>
 #endif
@@ -690,7 +690,7 @@ namespace DiscordSharp
         private Task DoUDPKeepAlive(CancellationToken token)
         {
 #if NETFX4_5
-            return Task.Run(() =>
+            return Task.Run(async () =>
 #else
             return Task.Factory.StartNew(() =>
 #endif
@@ -708,7 +708,7 @@ namespace DiscordSharp
                         keepAlive[2] = (byte)((___sequence >> 16) & 0xFF);
                         keepAlive[3] = (byte)((___sequence >> 8) & 0xFF);
                         keepAlive[4] = (byte)((___sequence >> 0) & 0xFF);
-#if V45
+#if NETFX4_5
                         await _udp.SendAsync(keepAlive, keepAlive.Length).ConfigureAwait(false);
                         VoiceDebugLogger.Log("Sent UDP Keepalive.", MessageLevel.Unecessary);
                         await Task.Delay(5 * 1000); //5 seconds usually
@@ -825,10 +825,7 @@ namespace DiscordSharp
             }
 
             byte[] ipArray = new byte[endingIPIndex - startingIPIndex];
-            for (int i = 0; i < ipArray.Length; i++)
-            {
-                ipArray[i] = packet[i + startingIPIndex];
-            }
+            Buffer.BlockCopy(packet, startingIPIndex, ipArray, 0, endingIPIndex);
             //quoth thy wise danny part two:
             //# the port is a little endian unsigned short in the last two bytes
             //# yes, this is different endianness from everything else
