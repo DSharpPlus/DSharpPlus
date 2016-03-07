@@ -212,15 +212,15 @@ namespace DiscordSharpTestApplication
                 {
                     owner.SlideIntoDMs($"Voice connection complete.");
                     //player = new AudioPlayer(client.GetVoiceClient().VoiceConfig);
-                    bufferedWaveProvider = new BufferedWaveProvider(waveFormat);
-                    bufferedWaveProvider.BufferDuration = new TimeSpan(0, 0, 50);
-                    volumeProvider = new VolumeWaveProvider16(bufferedWaveProvider);
-                    volumeProvider.Volume = 1.1f;
-                    outputDevice.Init(volumeProvider);
+                    //bufferedWaveProvider = new BufferedWaveProvider(waveFormat);
+                    //bufferedWaveProvider.BufferDuration = new TimeSpan(0, 0, 50);
+                    //volumeProvider = new VolumeWaveProvider16(bufferedWaveProvider);
+                    //volumeProvider.Volume = 1.1f;
+                    //outputDevice.Init(volumeProvider);
 
-                    stutterReducingTimer = new System.Timers.Timer(500);
-                    stutterReducingTimer.Elapsed += StutterReducingTimer_Elapsed;
-                    PlayAudioAsync(cancelToken);
+                    //stutterReducingTimer = new System.Timers.Timer(500);
+                    //stutterReducingTimer.Elapsed += StutterReducingTimer_Elapsed;
+                    //PlayAudioAsync(cancelToken);
                 };
                 client.AudioPacketReceived += (sender, e) =>
                 {
@@ -341,10 +341,10 @@ namespace DiscordSharpTestApplication
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
-                        FrameLengthMs = 60,
+                        FrameLengthMs = 20,
                         Channels = 1,
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
-                        SendOnly = false
+                        SendOnly = true
                     };
 
                     waveFormat = new WaveFormat(48000, 16, config.Channels);

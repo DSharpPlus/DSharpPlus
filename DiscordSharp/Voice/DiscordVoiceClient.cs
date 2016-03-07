@@ -457,6 +457,8 @@ namespace DiscordSharp
                         QueueEmptyEventTriggered = false;
                         await SendVoiceAsync(token).ConfigureAwait(false);
                     }
+                    else
+                        await Task.Delay(1000).ConfigureAwait(false);
                     if (___sequence > 0 && ___timestamp > 0)
                     {
                         if (voiceToSend.IsEmpty)
@@ -489,14 +491,16 @@ namespace DiscordSharp
             {
                 while(!token.IsCancellationRequested)
                 {
-                    await Task.Delay(1).ConfigureAwait(false);
-                    try
+                    if (_udp.Available > 0)
                     {
-                        await DoReceiveVoice().ConfigureAwait(false);
-                    }
-                    catch(Exception ex)
-                    {
-                        VoiceDebugLogger.Log($"Exception in receive loop: {ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+                        try
+                        {
+                            await DoReceiveVoice().ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            VoiceDebugLogger.Log($"Exception in receive loop: {ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
+                        }
                     }
                 }
             }, token);
@@ -615,11 +619,12 @@ namespace DiscordSharp
                     int rtpPacketLength = encodedLength + 12 + 16;
 
 #if NETFX4_5
-                    dataSent = _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16).Result;
+                    //dataSent = _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16).Result;
+                    await _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16);
 #else
                     dataSent = _udp.Send(fullVoicePacket, rtpPacketLength);
 #endif
-                    
+
                     ___timestamp = unchecked(___timestamp + (uint)(voiceToEncode.Length / 2));
                 }
 
@@ -825,7 +830,7 @@ namespace DiscordSharp
             }
 
             byte[] ipArray = new byte[endingIPIndex - startingIPIndex];
-            Buffer.BlockCopy(packet, startingIPIndex, ipArray, 0, endingIPIndex);
+            Buffer.BlockCopy(packet, startingIPIndex, ipArray, 0, ipArray.Length);
             //quoth thy wise danny part two:
             //# the port is a little endian unsigned short in the last two bytes
             //# yes, this is different endianness from everything else

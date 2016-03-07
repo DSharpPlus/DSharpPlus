@@ -44,6 +44,7 @@
     <LangVersion>6</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(TargetFrameworkVersion' == 'v3.5' ">
