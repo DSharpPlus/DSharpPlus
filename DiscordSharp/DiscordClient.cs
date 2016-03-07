@@ -1794,7 +1794,7 @@ namespace DiscordSharp
             ConnectToVoiceAsync();
         }
 
-#if V45
+#if NETFX4_5
         private Task ConnectToVoiceAsync() => Task.Run(() => VoiceClient.Initiate());
 #else
         private Task ConnectToVoiceAsync()
@@ -2735,7 +2735,7 @@ namespace DiscordSharp
                     email = ClientPrivateInformation.email,
                     password = ClientPrivateInformation.password
                 });
-#if V45
+#if NETFX4_5
                 await sw.WriteAsync(msg).ConfigureAwait(false);
 #else
                 sw.Write(msg);
@@ -2745,7 +2745,7 @@ namespace DiscordSharp
             }
             try
             {
-#if V45
+#if NETFX4_5
                 var httpResponseT = await httpWebRequest.GetResponseAsync().ConfigureAwait(false);
 #else
                 var httpResponseT = httpWebRequest.GetResponse();
@@ -2753,7 +2753,7 @@ namespace DiscordSharp
                 var httpResponse = (HttpWebResponse)httpResponseT;
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
-#if V45
+#if NETFX4_5
                     var result = await sr.ReadToEndAsync().ConfigureAwait(false);
 #else
                     var result = sr.ReadToEnd();
@@ -2772,7 +2772,7 @@ namespace DiscordSharp
             {
                 using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
                 {
-#if V45
+#if NETFX4_5
                     string result = await s.ReadToEndAsync().ConfigureAwait(false);
 #else
                     string result = s.ReadToEnd();
