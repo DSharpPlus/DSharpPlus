@@ -614,7 +614,7 @@ namespace DiscordSharp
                     int maxSize = encodedLength;
                     int rtpPacketLength = encodedLength + 12 + 16;
 
-#if V45
+#if NETFX4_5
                     dataSent = _udp.SendAsync(rtpPacket, encodedLength + 12 + 16).Result;
 #else
                     dataSent = _udp.Send(fullVoicePacket, rtpPacketLength);
@@ -631,7 +631,7 @@ namespace DiscordSharp
                     long timeToWait = (msToSend * TimeSpan.TicksPerMillisecond) - (timeToSend.ElapsedMilliseconds * TimeSpan.TicksPerMillisecond);
                     if (timeToWait > 0) //if it's negative then don't bother waiting
                     {
-#if V45
+#if NETFX4_5
                         await Task.Delay(new TimeSpan(timeToWait)).ConfigureAwait(false);
 #else
                         Thread.Sleep(new TimeSpan(timeToWait));
@@ -640,7 +640,7 @@ namespace DiscordSharp
                 }
                 else
                 {
-#if V45
+#if NETFX4_5
                     await Task.Delay(msToSend).ConfigureAwait(false);
 #else
                     Thread.Sleep(msToSend);
@@ -654,7 +654,7 @@ namespace DiscordSharp
         private Task DoWebSocketKeepAlive(CancellationToken token)
         {
 #if NETFX4_5
-            return Task.Run(() =>
+            return Task.Run(async () =>
 #else
             return Task.Factory.StartNew(()=>
 #endif
@@ -674,8 +674,8 @@ namespace DiscordSharp
                                 });
                                 VoiceDebugLogger.Log("Sending voice keepalive ( " + keepAliveJson + " ) ", MessageLevel.Unecessary);
                                 VoiceWebSocket.Send(keepAliveJson);
-#if V45
-                            await Task.Delay(Params.heartbeat_interval);
+#if NETFX4_5
+                                await Task.Delay(Params.heartbeat_interval);
 #else
                                 Thread.Sleep(Params.heartbeat_interval);
 #endif
@@ -876,7 +876,7 @@ namespace DiscordSharp
         {
             if (_udp != null && VoiceWebSocket.State == WebSocketState.Open)
             {
-#if V45
+#if NETFX4_5
                 await _udp.SendAsync(packet.AsRawPacket(), packet.AsRawPacket().Length).ConfigureAwait(false);
 #else
                 _udp.Send(packet.AsRawPacket(), packet.AsRawPacket().Length);
