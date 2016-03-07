@@ -615,7 +615,7 @@ namespace DiscordSharp
                     int rtpPacketLength = encodedLength + 12 + 16;
 
 #if NETFX4_5
-                    dataSent = _udp.SendAsync(rtpPacket, encodedLength + 12 + 16).Result;
+                    dataSent = _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16).Result;
 #else
                     dataSent = _udp.Send(fullVoicePacket, rtpPacketLength);
 #endif
