@@ -28,6 +28,10 @@ t.Start();
 ```
 This will get you logged in, and print out a login notification to the console with the username you've logged in as.
 
+##Getting Started bot
+* https://github.com/NaamloosDT/DiscordSharp_Starter 
+ * Kindly donated by NaamloosDT :)
+
 #Notes
 * This is in such beta it's not even funny.
 * All of the internal classes are meant to model Discord's internal Json. This is why DiscordMember has a subset, user with the actual information.
