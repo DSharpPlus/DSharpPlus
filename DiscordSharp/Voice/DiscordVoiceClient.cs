@@ -458,7 +458,13 @@ namespace DiscordSharp
                         await SendVoiceAsync(token).ConfigureAwait(false);
                     }
                     else
+                    {
+#if NETFX4_5
                         await Task.Delay(1000).ConfigureAwait(false);
+#else
+                        Thread.Sleep(1000);
+#endif
+                    }
                     if (___sequence > 0 && ___timestamp > 0)
                     {
                         if (voiceToSend.IsEmpty)
