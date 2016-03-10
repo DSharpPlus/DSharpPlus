@@ -186,9 +186,12 @@ namespace DiscordSharpTestApplication
                 client.SocketClosed += (sender, e) =>
                 {
                     WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
-                    Console.WriteLine("Waiting 6 seconds to reconnect..");
+					if(!e.WasClean)
+						{
+							Console.WriteLine("Waiting 6 seconds to reconnect..");
                     Thread.Sleep(6 * 1000);
-                    client.Connect();
+                    	client.Connect();
+						}
                 };
                 client.TextClientDebugMessageReceived += (sender, e) =>
                 {
@@ -495,6 +498,11 @@ namespace DiscordSharpTestApplication
             }));
             CommandsManager.AddCommand(new CommandStub("khaled", "Anotha one.", "", cmdArgs =>
             {
+					if(rng == null)
+					{
+						Console.WriteLine("RNG null?!");
+						rng = new Random((int)DateTime.Now.Ticks);
+					}
                 cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
             }));
 #endregion
