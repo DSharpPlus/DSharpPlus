@@ -2798,12 +2798,12 @@ namespace DiscordSharp
         /// <returns>The token if login was succesful, or null if not</returns>
         public string SendLoginRequest()
         {
-            if(String.IsNullOrEmpty(ClientPrivateInformation.email))
-            {
-                throw new ArgumentNullException("Email was null/invalid!");
-            }
             if (token == null) //no token override provided, need to read token
             {
+                if (String.IsNullOrEmpty(ClientPrivateInformation.email))
+                {
+                    throw new ArgumentNullException("Email was null/invalid!");
+                }
                 StrippedEmail = ClientPrivateInformation.email.Replace('@', '_').Replace('.', '_'); //strips characters from email for hashing
 
                 if (File.Exists(StrippedEmail.GetHashCode() + ".cache"))

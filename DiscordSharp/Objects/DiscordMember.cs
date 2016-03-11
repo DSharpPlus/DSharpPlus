@@ -27,6 +27,8 @@ namespace DiscordSharp.Objects
         public string Avatar { get; internal set; }
         [JsonProperty("verified")]
         public bool Verified { get; internal set; }
+        [JsonProperty("bot")]
+        public bool IsBot { get; internal set; } = false;
 
         public Status Status { get; internal set; } = Status.Offline;
         public string CurrentGame { get; internal set; } = null;
