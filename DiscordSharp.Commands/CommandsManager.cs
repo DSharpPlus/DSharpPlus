@@ -54,6 +54,7 @@ namespace DiscordSharp.Commands
             __client = client;
             __commands = new List<ICommand>();
             __internalUserRoles = new Dictionary<string, PermissionType>();
+            Console.Write("");
         }
 
         public void AddPermission(DiscordMember member, PermissionType permission)

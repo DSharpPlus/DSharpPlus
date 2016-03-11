@@ -127,14 +127,14 @@ namespace DiscordSharpTestApplication
             client = new DiscordClient(botToken, true);
             client.RequestAllUsersOnStartup = true;
 
-            if (!File.Exists("token_cache"))
-            {
-                if (config.BotEmail == null || config.BotPass == null)
-                {
-                    WriteError("Please edit settings.json with the bot's email and password. owner_id is not necessary to edit yet as this will be part of the setup after.");
-                    return;
-                }
-            }
+            //if (!File.Exists("token_cache"))
+            //{
+            //    if (config.BotEmail == null || config.BotPass == null)
+            //    {
+            //        WriteError("Please edit settings.json with the bot's email and password. owner_id is not necessary to edit yet as this will be part of the setup after.");
+            //        return;
+            //    }
+            //}
 
             client.ClientPrivateInformation.email = config.BotEmail;
             client.ClientPrivateInformation.password = config.BotPass;
