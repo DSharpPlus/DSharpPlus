@@ -2,7 +2,7 @@
 
 namespace Discord.Audio.Opus
 {
-    internal class OpusDecoder : OpusConverter
+    public class OpusDecoder : OpusConverter
     {
         /// <summary> Creates a new Opus decoder. </summary>
         /// <param name="samplingRate">Sampling rate of the input PCM (in Hz). Supported Values:  8000, 12000, 16000, 24000, or 48000</param>

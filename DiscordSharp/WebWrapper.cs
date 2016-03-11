@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiscordSharp
@@ -26,7 +27,7 @@ namespace DiscordSharp
         public static string Delete(string url, string token)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "DELETE";
             httpRequest.UserAgent += $" {UserAgentString}";
@@ -43,7 +44,11 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
+#if V45
                                 Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#else
+                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
+#endif
                                 Delete(url, token); //try again
                             }
                         }
@@ -69,7 +74,7 @@ namespace DiscordSharp
         public static string Put(string url, string token)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PUT";
             httpRequest.UserAgent += $" {UserAgentString}";
@@ -89,7 +94,11 @@ namespace DiscordSharp
                             {
                                 if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                                 {
-                                    Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#if V45
+                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#else
+                                    Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
+#endif
                                     Put(url, token); //try again
                                 }
                             }
@@ -115,8 +124,8 @@ namespace DiscordSharp
         public static string Post(string url, string token, string message, bool acceptInviteWorkaround = false)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
-            if(acceptInviteWorkaround)
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
+            if (acceptInviteWorkaround)
                 httpRequest.ContentLength = message.Length;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
@@ -141,6 +150,10 @@ namespace DiscordSharp
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                if(httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException("401");
+                }
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
@@ -151,7 +164,11 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
+#if V45
                                 Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#else
+                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
+#endif
                                 Post(url, token, message, acceptInviteWorkaround); //try again
                             }
                         }
@@ -173,14 +190,13 @@ namespace DiscordSharp
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
-            wr.Headers["authorization"] = token;
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
             wr.UserAgent += UserAgentString;
             wr.KeepAlive = true;
             wr.Credentials = System.Net.CredentialCache.DefaultCredentials;
 
-            Stream rs = wr.GetRequestStream();
+            System.IO.Stream rs = wr.GetRequestStream();
 
             string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
 
@@ -210,7 +226,7 @@ namespace DiscordSharp
 
             WebResponse wresp = null;
             wresp = wr.GetResponse();
-            Stream stream2 = wresp.GetResponseStream();
+            System.IO.Stream stream2 = wresp.GetResponseStream();
             StreamReader reader2 = new StreamReader(stream2);
             string returnVal = reader2.ReadToEnd();
 
@@ -220,20 +236,19 @@ namespace DiscordSharp
             return returnVal;
         }
 
-        public static string HttpUploadFile(string url, string token, Stream file, string paramName, string contentType, NameValueCollection nvc)
+        public static string HttpUploadFile(string url, string token, System.IO.Stream file, string paramName, string contentType, NameValueCollection nvc)
         {
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
-            wr.Headers["authorization"] = token;
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
             wr.UserAgent += UserAgentString;
             wr.KeepAlive = true;
             wr.Credentials = System.Net.CredentialCache.DefaultCredentials;
 
-            Stream rs = wr.GetRequestStream();
+            System.IO.Stream rs = wr.GetRequestStream();
 
             string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
 
@@ -262,7 +277,7 @@ namespace DiscordSharp
 
             WebResponse wresp = null;
             wresp = wr.GetResponse();
-            Stream stream2 = wresp.GetResponseStream();
+            System.IO.Stream stream2 = wresp.GetResponseStream();
             StreamReader reader2 = new StreamReader(stream2);
             string returnVal = reader2.ReadToEnd();
 
@@ -304,7 +319,11 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
+#if V45
                                 Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#else
+                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
+#endif
                                 Post(url, message); //try again
                             }
                         }
@@ -331,7 +350,7 @@ namespace DiscordSharp
             httpRequest.Method = "POST";
             httpRequest.UserAgent += $" {UserAgentString}";
 
-            using (Stream s = httpRequest.GetRequestStream())
+            using (System.IO.Stream s = httpRequest.GetRequestStream())
             {
                 byte[] f = new byte[4096];
                 var ss = File.Open(fileToAttach, FileMode.Open);
@@ -365,7 +384,11 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
+#if V45
                                 Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#else
+                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
+#endif
                                 PostWithAttachment(url, message, fileToAttach); //try again
                             }
                         }
@@ -395,7 +418,7 @@ namespace DiscordSharp
         public static string Patch(string url, string token, string message)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PATCH";
             httpRequest.UserAgent += $" {UserAgentString}";
@@ -419,7 +442,11 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>() + 2).Wait(); //wait with a 2ms buffer...JUST IN CASE
+#if V45
+                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#else
+                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
+#endif
                                 Patch(url, token, message); //try again
                             }
                         }
@@ -448,7 +475,7 @@ namespace DiscordSharp
         public static string Get(string url, string token)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "GET";
             httpRequest.UserAgent += $" {UserAgentString}";
@@ -456,6 +483,10 @@ namespace DiscordSharp
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                if(httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException("401");
+                }
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
@@ -468,7 +499,11 @@ namespace DiscordSharp
                             {
                                 if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                                 {
-                                    Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#if V45
+                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
+#else
+                                    Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
+#endif
                                     Get(url, token); //try again
                                 }
                             }

@@ -15,15 +15,16 @@ namespace DiscordSharp
         public string Message;
         public DateTime TimeStamp;
     }
+    
 
     [Flags]
-    public enum MessageLevel : uint
+    public enum MessageLevel : int
     {
         Critical = 0x0,
         Debug = 0x1,
         Warning = 0x2,
         Error = 0x3,
-        Unecessary = 0x4 //for the reallllllly annoying messages
+        Unecessary = 666 //for the reallllllly annoying messages
     }
 
     public delegate void OnLogMessageReceived(object sender, LoggerMessageReceivedArgs e);

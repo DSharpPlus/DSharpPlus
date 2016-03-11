@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+#if NETFX4_5
 using System.Security;
+#endif
 
 namespace Discord.Audio.Opus
 {
@@ -10,7 +12,7 @@ namespace Discord.Audio.Opus
         MusicOrMixed = 2049,
         LowLatency = 2051
     }
-    internal enum OpusError : int
+    public enum OpusError : int
     {
         OK = 0,
         BadArg = -1,
@@ -22,7 +24,7 @@ namespace Discord.Audio.Opus
         AllocFail = -7
     }
 
-    internal abstract class OpusConverter : IDisposable
+    public abstract class OpusConverter : IDisposable
     {
         protected enum Ctl : int
         {
@@ -32,7 +34,7 @@ namespace Discord.Audio.Opus
             GetInbandFECRequest = 4013
         }
 
-#if NET45
+#if NETFX4_5
         [SuppressUnmanagedCodeSecurity]
 #endif
         protected unsafe static class UnsafeNativeMethods

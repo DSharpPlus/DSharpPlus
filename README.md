@@ -1,5 +1,6 @@
 # DiscordSharp [![Build status](https://ci.appveyor.com/api/projects/status/v9v18kn0gar9nb3y/branch/master?svg=true)](https://ci.appveyor.com/project/Luigifan/discordsharp-f8oy7/branch/master)
 
+Welcome to the DiscordSharp dev branch!
 
 A C# API for Discord.
 
@@ -26,6 +27,10 @@ Thread t = new Thread(client.Connect);
 t.Start();
 ```
 This will get you logged in, and print out a login notification to the console with the username you've logged in as.
+
+##Getting Started bot
+* https://github.com/NaamloosDT/DiscordSharp_Starter 
+ * Kindly donated by NaamloosDT :)
 
 #Notes
 * This is in such beta it's not even funny.
