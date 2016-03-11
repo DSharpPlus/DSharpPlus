@@ -640,6 +640,11 @@ namespace DiscordSharpTestApplication
             }));
             CommandsManager.AddCommand(new CommandStub("khaled", "Anotha one.", "", cmdArgs =>
             {
+					if(rng == null)
+					{
+						Console.WriteLine("RNG null?!");
+						rng = new Random((int)DateTime.Now.Ticks);
+					}
                 cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
             }));
 #endregion
