@@ -55,6 +55,10 @@ namespace DiscordSharp
         public DiscordUserInformation ClientPrivateInformation { get; set; }
         public DiscordProperties DiscordProperties { get; set; } = new DiscordProperties();
         public DiscordMember Me { get; internal set; }
+        public Logger GetTextClientLogger => DebugLogger;
+        public Logger GetLastVoiceClientLogger;
+
+
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
         private string CurrentGameName = "";
@@ -62,12 +66,10 @@ namespace DiscordSharp
         static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
         private DiscordVoiceClient VoiceClient;
         private Logger DebugLogger = new Logger();
-        public Logger GetTextClientLogger => DebugLogger;
-        public Logger GetLastVoiceClientLogger;
-
         private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
         private CancellationToken KeepAliveTaskToken;
         private Task KeepAliveTask;
+        private static string StrippedEmail = "";
 
         /// <summary>
         /// Testing.
@@ -303,8 +305,7 @@ namespace DiscordSharp
                 }
                 else
                 {
-                    //DebugLogger.Log("No potential server found for user's private channel null!", MessageLevel.Critical);
-                    //no biggie now
+                    DebugLogger.Log("No potential server found for user's private channel null!", MessageLevel.Critical);
                 }
                 PrivateChannels.Add(tempPrivate);
             }
@@ -426,19 +427,7 @@ namespace DiscordSharp
             string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
             try
             {
-                string result = WebWrapper.Patch(url, token, usernameRequestJson);
-                if(!string.IsNullOrEmpty(result))
-                {
-                    JObject parsed = JObject.Parse(result);
-                    if(!parsed["password"].IsNullOrEmpty())
-                    {
-                        throw new ArgumentException("Password is incorrect!");
-                    }
-                    if (!parsed["email"].IsNullOrEmpty() && parsed["username"].IsNullOrEmpty())
-                    {
-                        throw new ArgumentException("Email is incorrect!");
-                    }
-                }
+                WebWrapper.Patch(url, token, usernameRequestJson);
             }
             catch(Exception ex)
             {
@@ -1189,7 +1178,7 @@ namespace DiscordSharp
                         dpmea.author = tempMember;
                         tempMember.parentclient = this;
 
-                    DebugLogger.Log($"Private message received from {tempMember.Username}: {dpmea.message}");
+
                         if (PrivateMessageReceived != null)
                             PrivateMessageReceived(this, dpmea);
                     }
@@ -1247,7 +1236,6 @@ namespace DiscordSharp
                     KeyValuePair<string, DiscordMessage> toAdd = new KeyValuePair<string, DiscordMessage>(message["d"]["id"].ToString(), m);
                     MessageLog.Add(toAdd);
 
-                DebugLogger.Log($"Message received from {dmea.author.Username} in #{dmea.Channel.Name} on {dmea.Channel.parent.name}: {dmea.message.content}");
                     if (MessageReceived != null)
                         MessageReceived(this, dmea);
                 }
@@ -1277,8 +1265,6 @@ namespace DiscordSharp
                     DiscordChannelCreateEventArgs fae = new DiscordChannelCreateEventArgs();
                     fae.ChannelCreated = tempChannel;
                     fae.ChannelType = DiscordChannelCreateType.CHANNEL;
-
-                    DebugLogger.Log($"Channel {tempChannel.Name} created in {tempChannel.parent.name}. ({tempChannel.Type}, {tempChannel.ID}, {tempChannel.Topic})");
                     if (ChannelCreated != null)
                         ChannelCreated(this, fae);
                 }
@@ -1298,14 +1284,26 @@ namespace DiscordSharp
         #endregion
         private string GetGatewayUrl()
         {
+        //i'm ashamed of myself for this but i'm tired
+        tryAgain:
             string url = Endpoints.BaseAPI + Endpoints.Gateway;
             try
             {
-                string gatewayResult = JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
-                if (!gatewayResult.IsNullOrEmpty())
-                    return gatewayResult;
+                string gateway = JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
+                if(!string.IsNullOrEmpty(gateway))
+                    return gateway;
                 else
-                    throw new ArgumentNullException("gatewayResult", $"Retrieving the gateway resulted in a null or empty gateway value. Please verify user credentials. \n\tToken: {token}");
+                    throw new NullReferenceException("Failed to retrieve Gateway urL!");
+            }
+            catch(UnauthorizedAccessException) //bad token
+            {
+                DebugLogger.Log("Got 401 from Discord. Token bad, deleting and retrying login...");
+                if(File.Exists(StrippedEmail.GetHashCode() + ".cache"))
+                {
+                    File.Delete(StrippedEmail.GetHashCode() + ".cache");
+                }
+                SendLoginRequest();
+                goto tryAgain;
             }
             catch(Exception ex)
             {
@@ -1502,6 +1500,11 @@ namespace DiscordSharp
         public void Connect()
         {
             CurrentGatewayURL = GetGatewayUrl();
+            if(String.IsNullOrEmpty(CurrentGatewayURL))
+            {
+                DebugLogger.Log("Gateway URL was null or empty?!", MessageLevel.Critical);
+                return;
+            }
             DebugLogger.Log("Gateway retrieved: " + CurrentGatewayURL);
             ws = new WebSocket(CurrentGatewayURL);
             ws.EnableRedirection = true;
@@ -1794,7 +1797,7 @@ namespace DiscordSharp
             ConnectToVoiceAsync();
         }
 
-#if NETFX4_5
+#if V45
         private Task ConnectToVoiceAsync() => Task.Run(() => VoiceClient.Initiate());
 #else
         private Task ConnectToVoiceAsync()
@@ -1969,7 +1972,6 @@ namespace DiscordSharp
                     VoiceClient = new DiscordVoiceClient(this, voiceConfig);
             }
             VoiceClient.Channel = channel;
-            VoiceClient.InitializeOpusEncoder();
             VoiceClient.ErrorReceived += (sender, e) =>
             {
                 GetLastVoiceClientLogger = VoiceClient.GetDebugLogger;
@@ -2472,9 +2474,6 @@ namespace DiscordSharp
 
             ServersList.Add(server);
             e.server = server;
-
-            DebugLogger.Log($"Joined or created guild {server.name} ({server.id} owned by {server.owner.Username})");
-
             if (GuildCreated != null)
                 GuildCreated(this, e);
         }
@@ -2719,6 +2718,7 @@ namespace DiscordSharp
             Dispose();
         }
 
+        /*[Obsolete]
         public async Task<string> SendLoginRequestAsync()
         {
             if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
@@ -2735,7 +2735,7 @@ namespace DiscordSharp
                     email = ClientPrivateInformation.email,
                     password = ClientPrivateInformation.password
                 });
-#if NETFX4_5
+#if V45
                 await sw.WriteAsync(msg).ConfigureAwait(false);
 #else
                 sw.Write(msg);
@@ -2745,7 +2745,7 @@ namespace DiscordSharp
             }
             try
             {
-#if NETFX4_5
+#if V45
                 var httpResponseT = await httpWebRequest.GetResponseAsync().ConfigureAwait(false);
 #else
                 var httpResponseT = httpWebRequest.GetResponse();
@@ -2753,7 +2753,7 @@ namespace DiscordSharp
                 var httpResponse = (HttpWebResponse)httpResponseT;
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
-#if NETFX4_5
+#if V45
                     var result = await sr.ReadToEndAsync().ConfigureAwait(false);
 #else
                     var result = sr.ReadToEnd();
@@ -2772,7 +2772,7 @@ namespace DiscordSharp
             {
                 using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
                 {
-#if NETFX4_5
+#if V45
                     string result = await s.ReadToEndAsync().ConfigureAwait(false);
 #else
                     string result = s.ReadToEnd();
@@ -2787,7 +2787,7 @@ namespace DiscordSharp
             }
 
             return "";
-        }
+        }*/
 
         /// <summary>
         /// Sends a login request.
@@ -2795,12 +2795,23 @@ namespace DiscordSharp
         /// <returns>The token if login was succesful, or null if not</returns>
         public string SendLoginRequest()
         {
-            if (File.Exists("token_cache"))
+            if(String.IsNullOrEmpty(ClientPrivateInformation.email))
             {
-                using (var sr = new StreamReader("token_cache"))
+                throw new ArgumentNullException("Email was null/invalid!");
+            }
+            StrippedEmail = ClientPrivateInformation.email.Replace('@', '_').Replace('.', '_'); //strips characters from email for hashing
+
+            if (File.Exists(StrippedEmail.GetHashCode() + ".cache"))
+            {
+                string read = "";
+                using (var sr = new StreamReader(StrippedEmail.GetHashCode() + ".cache"))
                 {
-                    token = sr.ReadLine();
-                    DebugLogger.Log("Loading token from cache.");
+                    read = sr.ReadLine();
+                    if(!read.StartsWith("#")) //comment
+                    {
+                        token = sr.ReadLine();
+                        DebugLogger.Log("Loading token from cache.");
+                    }
                 }
             }
             else
@@ -2815,12 +2826,24 @@ namespace DiscordSharp
                 });
                 DebugLogger.Log("No token present, sending login request..");
                 var result = JObject.Parse(WebWrapper.Post(url, msg));
+
+                if(result["token"].IsNullOrEmpty())
+                {
+                    string message = "Failed to login to Discord.";
+                    if(!result["email"].IsNullOrEmpty())
+                        message += " Email was invalid.";
+                    if(!result["password"].IsNullOrEmpty())
+                        message += " password was invalid.";
+
+                    throw new DiscordLoginException(message);
+                }
                 token = result["token"].ToString();
 
-                using (var sw = new StreamWriter("token_cache"))
+                using (var sw = new StreamWriter(StrippedEmail.GetHashCode() + ".cache"))
                 {
+                    sw.WriteLine($"#Token cache for {ClientPrivateInformation.email}");
                     sw.WriteLine(token);
-                    DebugLogger.Log("token_cache written!");
+                    DebugLogger.Log($"{StrippedEmail.GetHashCode()}.cache written!");
                 }
             }
 

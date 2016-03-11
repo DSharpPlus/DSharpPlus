@@ -150,6 +150,10 @@ namespace DiscordSharp
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                if(httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException("401");
+                }
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
@@ -481,6 +485,10 @@ namespace DiscordSharp
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                if(httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException("401");
+                }
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
