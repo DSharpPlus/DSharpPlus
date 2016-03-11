@@ -238,6 +238,7 @@ namespace DiscordSharpTestApplication
                 };
                 client.SocketClosed += (sender, e) =>
                 {
+<<<<<<< HEAD
                     if (e.Code != 1000 && !e.WasClean)
                     {
                         WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
@@ -249,6 +250,15 @@ namespace DiscordSharpTestApplication
                     {
                         Console.WriteLine($"Shutting down ({e.Code}, {e.Reason}, {e.WasClean})");
                     }
+=======
+                    WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
+					if(!e.WasClean)
+						{
+							Console.WriteLine("Waiting 6 seconds to reconnect..");
+                    Thread.Sleep(6 * 1000);
+                    	client.Connect();
+						}
+>>>>>>> b3ac7b8061904604246f3bcaf88c5fd0279b70c1
                 };
                 client.TextClientDebugMessageReceived += (sender, e) =>
                 {
@@ -640,6 +650,11 @@ namespace DiscordSharpTestApplication
             }));
             CommandsManager.AddCommand(new CommandStub("khaled", "Anotha one.", "", cmdArgs =>
             {
+					if(rng == null)
+					{
+						Console.WriteLine("RNG null?!");
+						rng = new Random((int)DateTime.Now.Ticks);
+					}
                 cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
             }));
 #endregion
