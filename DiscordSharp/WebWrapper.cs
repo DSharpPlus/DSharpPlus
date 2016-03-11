@@ -27,7 +27,7 @@ namespace DiscordSharp
         public static string Delete(string url, string token)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "DELETE";
             httpRequest.UserAgent += $" {UserAgentString}";
@@ -74,7 +74,7 @@ namespace DiscordSharp
         public static string Put(string url, string token)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PUT";
             httpRequest.UserAgent += $" {UserAgentString}";
@@ -124,8 +124,8 @@ namespace DiscordSharp
         public static string Post(string url, string token, string message, bool acceptInviteWorkaround = false)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
-            if(acceptInviteWorkaround)
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
+            if (acceptInviteWorkaround)
                 httpRequest.ContentLength = message.Length;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "POST";
@@ -190,7 +190,6 @@ namespace DiscordSharp
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
-            wr.Headers["authorization"] = token;
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
             wr.UserAgent += UserAgentString;
@@ -243,7 +242,6 @@ namespace DiscordSharp
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
-            wr.Headers["authorization"] = token;
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
             wr.UserAgent += UserAgentString;
@@ -420,7 +418,7 @@ namespace DiscordSharp
         public static string Patch(string url, string token, string message)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "PATCH";
             httpRequest.UserAgent += $" {UserAgentString}";
@@ -477,7 +475,7 @@ namespace DiscordSharp
         public static string Get(string url, string token)
         {
             var httpRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpRequest.Headers["authorization"] = token;
+            httpRequest.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             httpRequest.ContentType = "application/json";
             httpRequest.Method = "GET";
             httpRequest.UserAgent += $" {UserAgentString}";

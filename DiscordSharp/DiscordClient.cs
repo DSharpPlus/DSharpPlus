@@ -46,6 +46,7 @@ namespace DiscordSharp
     public class DiscordClient
     {
         public static string token { get; internal set; } = null;
+        public static bool IsBotAccount { get; internal set; } = false;
 
         [Obsolete]
         public string sessionKey { get; set; }
@@ -154,9 +155,10 @@ namespace DiscordSharp
         #endregion
         #endregion
 
-        public DiscordClient(string tokenOverride = null)
+        public DiscordClient(string tokenOverride = null, bool isBotAccount = false)
         {
             token = tokenOverride;
+            isBotAccount = IsBotAccount;
             if (ClientPrivateInformation == null)
                 ClientPrivateInformation = new DiscordUserInformation();
 
