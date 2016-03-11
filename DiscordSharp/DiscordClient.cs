@@ -45,7 +45,7 @@ namespace DiscordSharp
 
     public class DiscordClient
     {
-        public static string token { get; internal set; }
+        public static string token { get; internal set; } = null;
 
         [Obsolete]
         public string sessionKey { get; set; }
@@ -154,8 +154,9 @@ namespace DiscordSharp
         #endregion
         #endregion
 
-        public DiscordClient()
+        public DiscordClient(string tokenOverride = null)
         {
+            token = tokenOverride;
             if (ClientPrivateInformation == null)
                 ClientPrivateInformation = new DiscordUserInformation();
 
@@ -2799,54 +2800,56 @@ namespace DiscordSharp
             {
                 throw new ArgumentNullException("Email was null/invalid!");
             }
-            StrippedEmail = ClientPrivateInformation.email.Replace('@', '_').Replace('.', '_'); //strips characters from email for hashing
-
-            if (File.Exists(StrippedEmail.GetHashCode() + ".cache"))
+            if (token == null) //no token override provided, need to read token
             {
-                string read = "";
-                using (var sr = new StreamReader(StrippedEmail.GetHashCode() + ".cache"))
+                StrippedEmail = ClientPrivateInformation.email.Replace('@', '_').Replace('.', '_'); //strips characters from email for hashing
+
+                if (File.Exists(StrippedEmail.GetHashCode() + ".cache"))
                 {
-                    read = sr.ReadLine();
-                    if(!read.StartsWith("#")) //comment
+                    string read = "";
+                    using (var sr = new StreamReader(StrippedEmail.GetHashCode() + ".cache"))
                     {
-                        token = sr.ReadLine();
-                        DebugLogger.Log("Loading token from cache.");
+                        read = sr.ReadLine();
+                        if (!read.StartsWith("#")) //comment
+                        {
+                            token = sr.ReadLine();
+                            DebugLogger.Log("Loading token from cache.");
+                        }
+                    }
+                }
+                else
+                {
+                    if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
+                        throw new ArgumentNullException("You didn't supply login information!");
+                    string url = Endpoints.BaseAPI + Endpoints.Auth + Endpoints.Login;
+                    string msg = JsonConvert.SerializeObject(new
+                    {
+                        email = ClientPrivateInformation.email,
+                        password = ClientPrivateInformation.password
+                    });
+                    DebugLogger.Log("No token present, sending login request..");
+                    var result = JObject.Parse(WebWrapper.Post(url, msg));
+
+                    if (result["token"].IsNullOrEmpty())
+                    {
+                        string message = "Failed to login to Discord.";
+                        if (!result["email"].IsNullOrEmpty())
+                            message += " Email was invalid: " + result["email"];
+                        if (!result["password"].IsNullOrEmpty())
+                            message += " password was invalid: " + result["password"];
+
+                        throw new DiscordLoginException(message);
+                    }
+                    token = result["token"].ToString();
+
+                    using (var sw = new StreamWriter(StrippedEmail.GetHashCode() + ".cache"))
+                    {
+                        sw.WriteLine($"#Token cache for {ClientPrivateInformation.email}");
+                        sw.WriteLine(token);
+                        DebugLogger.Log($"{StrippedEmail.GetHashCode()}.cache written!");
                     }
                 }
             }
-            else
-            {
-                if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
-                    throw new ArgumentNullException("You didn't supply login information!");
-                string url = Endpoints.BaseAPI + Endpoints.Auth + Endpoints.Login;
-                string msg = JsonConvert.SerializeObject(new
-                {
-                    email = ClientPrivateInformation.email,
-                    password = ClientPrivateInformation.password
-                });
-                DebugLogger.Log("No token present, sending login request..");
-                var result = JObject.Parse(WebWrapper.Post(url, msg));
-
-                if(result["token"].IsNullOrEmpty())
-                {
-                    string message = "Failed to login to Discord.";
-                    if(!result["email"].IsNullOrEmpty())
-                        message += " Email was invalid.";
-                    if(!result["password"].IsNullOrEmpty())
-                        message += " password was invalid.";
-
-                    throw new DiscordLoginException(message);
-                }
-                token = result["token"].ToString();
-
-                using (var sw = new StreamWriter(StrippedEmail.GetHashCode() + ".cache"))
-                {
-                    sw.WriteLine($"#Token cache for {ClientPrivateInformation.email}");
-                    sw.WriteLine(token);
-                    DebugLogger.Log($"{StrippedEmail.GetHashCode()}.cache written!");
-                }
-            }
-
             return token;
         }
     }
