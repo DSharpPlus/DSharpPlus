@@ -95,7 +95,13 @@ namespace DiscordSharpTestApplication
                 config.CommandPrefix = '?';
 
 			runningOnMono = Type.GetType ("Mono.Runtime") != null;
-			osString = Environment.OSVersion.ToString ();
+
+			if (OSDetermination.IsOnUnix ()) 
+			{
+				osString = OSDetermination.GetUnixName ();
+			}
+			else
+				osString = Environment.OSVersion.ToString ();
         }
 
         public void RunLuigibot()
@@ -290,6 +296,8 @@ namespace DiscordSharpTestApplication
                         CommandsManager.OverridePermissionsDictionary(permissionsDictionary);
                     }
                     SetupCommands();
+
+					client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
                 };
                 if(client.SendLoginRequest() != null)
                 {
@@ -599,7 +607,7 @@ namespace DiscordSharpTestApplication
 				message += $"OS: {osString}\n";
                 long memUsage = GetMemoryUsage();
                 if (memUsage > 0)
-                    message += "Memory Usage: " + (memUsage / 1024) / 2 + "mb\n";
+						message += "Memory Usage: " + (memUsage / 1024) /* / 2*/ + "mb\n";
                 message += "Commands: " + CommandsManager.Commands.Count + "\n";
                 message += "Command Prefix: " + config.CommandPrefix + "\n";
                 message += "Total Servers: " + client.GetServersList().Count + "\n";
