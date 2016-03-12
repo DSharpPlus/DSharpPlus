@@ -249,7 +249,7 @@ namespace DiscordSharpTestApplication
                         WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
                         Console.WriteLine("Waiting 6 seconds to reconnect..");
                         Thread.Sleep(6 * 1000);
-                        client.Connect();
+						LetsGoAgain();
                     }
                     else
                     {
@@ -305,6 +305,30 @@ namespace DiscordSharpTestApplication
                 }
             }, token);
         }
+
+		private void LetsGoAgain()
+		{
+			client.Dispose ();
+			client = null;
+
+			string botToken = File.ReadAllText("bot_token_important.txt");
+			client = new DiscordClient(botToken, true);
+			client.RequestAllUsersOnStartup = true;
+
+			//if (!File.Exists("token_cache"))
+			//{
+			//    if (config.BotEmail == null || config.BotPass == null)
+			//    {
+			//        WriteError("Please edit settings.json with the bot's email and password. owner_id is not necessary to edit yet as this will be part of the setup after.");
+			//        return;
+			//    }
+			//}
+
+			client.ClientPrivateInformation.email = config.BotEmail;
+			client.ClientPrivateInformation.password = config.BotPass;
+
+			SetupEvents(cancelToken);
+		}
 
         private void StutterReducingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -527,8 +551,9 @@ namespace DiscordSharpTestApplication
                     });
                     evalTask.Start();
                     evalTask.Wait(10 * 1000);
-                    if(executionThread != null)
-                        executionThread.Abort();
+					if(!runningOnMono) //causes exceptions apparently >.>
+                    	if(executionThread != null)
+                        	executionThread.Abort();
                     if (res == null || res == "")
                         e.Channel.SendMessage("Terminated after 10 second timeout.");
                     else
