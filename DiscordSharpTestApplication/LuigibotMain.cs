@@ -130,9 +130,11 @@ namespace DiscordSharpTestApplication
         public void DoLogin()
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
-            client = new DiscordClient(botToken, true);
-            client.RequestAllUsersOnStartup = true;
-
+            //client = new DiscordClient(botToken, true);
+            client = new DiscordClient();
+            client.ClientPrivateInformation.email = "miketheripper1@gmail.com";
+            client.ClientPrivateInformation.password = "papabear12";
+            
             //if (!File.Exists("token_cache"))
             //{
             //    if (config.BotEmail == null || config.BotPass == null)
@@ -142,8 +144,8 @@ namespace DiscordSharpTestApplication
             //    }
             //}
 
-            client.ClientPrivateInformation.email = config.BotEmail;
-            client.ClientPrivateInformation.password = config.BotPass;
+            //client.ClientPrivateInformation.email = config.BotEmail;
+            //client.ClientPrivateInformation.password = config.BotPass;
 
             SetupEvents(cancelToken);
         }

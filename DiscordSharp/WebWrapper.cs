@@ -190,6 +190,7 @@ namespace DiscordSharp
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
+            wr.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
             wr.UserAgent += UserAgentString;
@@ -242,6 +243,7 @@ namespace DiscordSharp
             byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest wr = (HttpWebRequest)WebRequest.Create(url);
+            wr.Headers["authorization"] = DiscordClient.IsBotAccount ? "Bot " + token : token;
             wr.ContentType = "multipart/form-data; boundary=" + boundary;
             wr.Method = "POST";
             wr.UserAgent += UserAgentString;
