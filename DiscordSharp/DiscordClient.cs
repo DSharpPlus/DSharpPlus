@@ -1034,7 +1034,7 @@ namespace DiscordSharp
         /// -A message is sent
         /// </summary>
         /// <param name="channel"></param>
-        public void SimulateTyping(DiscordChannel channel)
+        public void SimulateTyping(DiscordChannelBase channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Typing;
             try
