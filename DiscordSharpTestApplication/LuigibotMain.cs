@@ -258,6 +258,20 @@ namespace DiscordSharpTestApplication
                         Console.WriteLine($"Shutting down ({e.Code}, {e.Reason}, {e.WasClean})");
                     }
                 };
+                client.UnknownMessageTypeReceived += (sender, e) =>
+                {
+                    if (!Directory.Exists("dumps"))
+                        Directory.CreateDirectory("dumps");
+                    string message = $"Ahoy! An unknown message type `{e.RawJson["t"].ToString()}` was discovered with the contents: \n\n";
+                    message += $"```\n{e.RawJson.ToString()}\n```\nIt's been dumped to `dumps/{e.RawJson["t"].ToString()}.json` for your viewing pleasure.";
+
+                    string filename = $"dumps/{e.RawJson["t"].ToString()}.json";
+                    if(!File.Exists(filename))
+                    {
+                        File.WriteAllText(e.RawJson.ToString(), filename);
+                        owner.SlideIntoDMs(message);
+                    }
+                };
                 client.TextClientDebugMessageReceived += (sender, e) =>
                 {
                     if (e.message.Level == MessageLevel.Error || e.message.Level == MessageLevel.Critical)
@@ -620,7 +634,7 @@ namespace DiscordSharpTestApplication
             CommandsManager.AddCommand(new CommandStub("about", "Shows bot information", "", cmdArgs =>
             {
                 string message = "**About Luigibot**\n";
-                message += "Owner: " + owner.Username + "\n";
+                message += $"Owner: {owner.Username}#{owner.Discriminator}\n";
                 message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
                 var uptime = (DateTime.Now - loginDate);
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
