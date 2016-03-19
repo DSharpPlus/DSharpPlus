@@ -88,14 +88,24 @@ namespace DiscordSharpTestApplication
         {
             cancelToken = new CancellationToken();
             if (File.Exists("settings.json"))
+            {
                 config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("settings.json"));
+                if (config == null)
+                    config = new Config();
+            }
             else
                 config = new Config();
             if (config.CommandPrefix.ToString().Length == 0)
                 config.CommandPrefix = '?';
 
 			runningOnMono = Type.GetType ("Mono.Runtime") != null;
-			osString = Environment.OSVersion.ToString ();
+
+			if (OSDetermination.IsOnUnix ()) 
+			{
+				osString = OSDetermination.GetUnixName ();
+			}
+			else
+				osString = Environment.OSVersion.ToString ();
         }
 
         public void RunLuigibot()
@@ -125,8 +135,8 @@ namespace DiscordSharpTestApplication
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
             client = new DiscordClient(botToken, true);
-            client.RequestAllUsersOnStartup = true;
-
+            //client = new DiscordClient();
+            
             //if (!File.Exists("token_cache"))
             //{
             //    if (config.BotEmail == null || config.BotPass == null)
@@ -136,8 +146,8 @@ namespace DiscordSharpTestApplication
             //    }
             //}
 
-            client.ClientPrivateInformation.email = config.BotEmail;
-            client.ClientPrivateInformation.password = config.BotPass;
+            //client.ClientPrivateInformation.email = config.BotEmail;
+            //client.ClientPrivateInformation.password = config.BotPass;
 
             SetupEvents(cancelToken);
         }
@@ -243,11 +253,25 @@ namespace DiscordSharpTestApplication
                         WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
                         Console.WriteLine("Waiting 6 seconds to reconnect..");
                         Thread.Sleep(6 * 1000);
-                        client.Connect();
+						LetsGoAgain();
                     }
                     else
                     {
                         Console.WriteLine($"Shutting down ({e.Code}, {e.Reason}, {e.WasClean})");
+                    }
+                };
+                client.UnknownMessageTypeReceived += (sender, e) =>
+                {
+                    if (!Directory.Exists("dumps"))
+                        Directory.CreateDirectory("dumps");
+                    string message = $"Ahoy! An unknown message type `{e.RawJson["t"].ToString()}` was discovered with the contents: \n\n";
+                    message += $"```\n{e.RawJson.ToString()}\n```\nIt's been dumped to `dumps/{e.RawJson["t"].ToString()}.json` for your viewing pleasure.";
+
+                    string filename = $"dumps{Path.DirectorySeparatorChar}{e.RawJson["t"].ToString()}.json";
+                    if(!File.Exists(filename))
+                    {
+                        File.WriteAllText(e.RawJson.ToString(), filename);
+                        owner.SlideIntoDMs(message);
                     }
                 };
                 client.TextClientDebugMessageReceived += (sender, e) =>
@@ -290,6 +314,8 @@ namespace DiscordSharpTestApplication
                         CommandsManager.OverridePermissionsDictionary(permissionsDictionary);
                     }
                     SetupCommands();
+
+					client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
                 };
                 if(client.SendLoginRequest() != null)
                 {
@@ -297,6 +323,30 @@ namespace DiscordSharpTestApplication
                 }
             }, token);
         }
+
+		private void LetsGoAgain()
+		{
+			client.Dispose ();
+			client = null;
+
+			string botToken = File.ReadAllText("bot_token_important.txt");
+			client = new DiscordClient(botToken, true);
+			client.RequestAllUsersOnStartup = true;
+
+			//if (!File.Exists("token_cache"))
+			//{
+			//    if (config.BotEmail == null || config.BotPass == null)
+			//    {
+			//        WriteError("Please edit settings.json with the bot's email and password. owner_id is not necessary to edit yet as this will be part of the setup after.");
+			//        return;
+			//    }
+			//}
+
+			client.ClientPrivateInformation.email = config.BotEmail;
+			client.ClientPrivateInformation.password = config.BotPass;
+
+			SetupEvents(cancelToken);
+		}
 
         private void StutterReducingTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -342,7 +392,7 @@ namespace DiscordSharpTestApplication
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
-                        FrameLengthMs = 20,
+                        FrameLengthMs = 60,
                         Channels = 1,
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
                         SendOnly = true
@@ -431,9 +481,18 @@ namespace DiscordSharpTestApplication
             {
                 if (cmdArgs.Args.Count > 0)
                 {
-                    char newPrefix = cmdArgs.Args[0][0];
-                    config.CommandPrefix = newPrefix;
-                    cmdArgs.Channel.SendMessage($"Command prefix changed to **{config.CommandPrefix}** successfully!");
+                    char oldPrefix = config.CommandPrefix;
+                    try
+                    {
+                        char newPrefix = cmdArgs.Args[0][0];
+                        config.CommandPrefix = newPrefix;
+                        cmdArgs.Channel.SendMessage($"Command prefix changed to **{config.CommandPrefix}** successfully!");
+                    }
+                    catch(Exception)
+                    {
+                        cmdArgs.Channel.SendMessage($"Unable to change prefix to `{cmdArgs.Args[0][0]}`. Falling back to `{oldPrefix}`.");
+                        config.CommandPrefix = oldPrefix;
+                    }
                 }
                 else
                     cmdArgs.Channel.SendMessage("What prefix?");
@@ -519,8 +578,9 @@ namespace DiscordSharpTestApplication
                     });
                     evalTask.Start();
                     evalTask.Wait(10 * 1000);
-                    if(executionThread != null)
-                        executionThread.Abort();
+					if(!runningOnMono) //causes exceptions apparently >.>
+                    	if(executionThread != null)
+                        	executionThread.Abort();
                     if (res == null || res == "")
                         e.Channel.SendMessage("Terminated after 10 second timeout.");
                     else
@@ -585,7 +645,7 @@ namespace DiscordSharpTestApplication
             CommandsManager.AddCommand(new CommandStub("about", "Shows bot information", "", cmdArgs =>
             {
                 string message = "**About Luigibot**\n";
-                message += "Owner: " + owner.Username + "\n";
+                message += $"Owner: {owner.Username}#{owner.Discriminator}\n";
                 message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
                 var uptime = (DateTime.Now - loginDate);
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
@@ -599,7 +659,7 @@ namespace DiscordSharpTestApplication
 				message += $"OS: {osString}\n";
                 long memUsage = GetMemoryUsage();
                 if (memUsage > 0)
-                    message += "Memory Usage: " + (memUsage / 1024) / 2 + "mb\n";
+						message += "Memory Usage: " + (memUsage / 1024) /* / 2*/ + "mb\n";
                 message += "Commands: " + CommandsManager.Commands.Count + "\n";
                 message += "Command Prefix: " + config.CommandPrefix + "\n";
                 message += "Total Servers: " + client.GetServersList().Count + "\n";

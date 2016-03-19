@@ -1800,11 +1800,16 @@ namespace DiscordSharp
             ConnectToVoiceAsync();
         }
 
-#if V45
-        private Task ConnectToVoiceAsync() => Task.Run(() => VoiceClient.Initiate());
+#if NETFX4_5
+        private Task ConnectToVoiceAsync()
+        {
+            VoiceClient.InitializeOpusEncoder();
+            return Task.Run(() => VoiceClient.Initiate());
+        }
 #else
         private Task ConnectToVoiceAsync()
         {
+            VoiceClient.InitializeOpusEncoder();
             return Task.Factory.StartNew(() => VoiceClient.Initiate());
         }
 #endif
@@ -2812,11 +2817,13 @@ namespace DiscordSharp
                     using (var sr = new StreamReader(StrippedEmail.GetHashCode() + ".cache"))
                     {
                         read = sr.ReadLine();
-                        if (!read.StartsWith("#")) //comment
+                        if (read.StartsWith("#")) //comment
                         {
                             token = sr.ReadLine();
                             DebugLogger.Log("Loading token from cache.");
                         }
+                        token = token.Trim(); //trim any excess whitespace
+                        Console.Write("");
                     }
                 }
                 else
