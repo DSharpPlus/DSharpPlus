@@ -392,8 +392,8 @@ namespace DiscordSharpTestApplication
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
-                        FrameLengthMs = 20,
-                        Channels = 2,
+                        FrameLengthMs = 60,
+                        Channels = 1,
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
                         SendOnly = true
                     };
