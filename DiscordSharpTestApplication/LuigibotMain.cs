@@ -134,7 +134,7 @@ namespace DiscordSharpTestApplication
         public void DoLogin()
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
-            client = new DiscordClient(botToken, true);
+			client = new DiscordClient(botToken.Trim(), true);
             //client = new DiscordClient();
             
             //if (!File.Exists("token_cache"))
@@ -311,6 +311,9 @@ namespace DiscordSharpTestApplication
                     if (File.Exists("permissions.json"))
                     {
                         var permissionsDictionary = JsonConvert.DeserializeObject<Dictionary<string, PermissionType>>(File.ReadAllText("permissions.json"));
+						if(permissionsDictionary.Count == 0 && owner != null)
+							permissionsDictionary.Add(owner.ID, PermissionType.Owner);
+								
                         CommandsManager.OverridePermissionsDictionary(permissionsDictionary);
                     }
                     SetupCommands();
@@ -370,7 +373,8 @@ namespace DiscordSharpTestApplication
         public void Exit()
         {
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(config));
-            File.WriteAllText("permissions.json", JsonConvert.SerializeObject(CommandsManager.UserRoles));
+			if(CommandsManager.UserRoles != null && CommandsManager.UserRoles.Count > 0)
+            	File.WriteAllText("permissions.json", JsonConvert.SerializeObject(CommandsManager.UserRoles));
 
             client.Logout();
             client.Dispose();
