@@ -88,7 +88,11 @@ namespace DiscordSharpTestApplication
         {
             cancelToken = new CancellationToken();
             if (File.Exists("settings.json"))
+            {
                 config = JsonConvert.DeserializeObject<Config>(File.ReadAllText("settings.json"));
+                if (config == null)
+                    config = new Config();
+            }
             else
                 config = new Config();
             if (config.CommandPrefix.ToString().Length == 0)
@@ -130,10 +134,8 @@ namespace DiscordSharpTestApplication
         public void DoLogin()
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
-            //client = new DiscordClient(botToken, true);
-            client = new DiscordClient();
-            client.ClientPrivateInformation.email = "miketheripper1@gmail.com";
-            client.ClientPrivateInformation.password = "papabear12";
+            client = new DiscordClient(botToken, true);
+            //client = new DiscordClient();
             
             //if (!File.Exists("token_cache"))
             //{
@@ -265,7 +267,7 @@ namespace DiscordSharpTestApplication
                     string message = $"Ahoy! An unknown message type `{e.RawJson["t"].ToString()}` was discovered with the contents: \n\n";
                     message += $"```\n{e.RawJson.ToString()}\n```\nIt's been dumped to `dumps/{e.RawJson["t"].ToString()}.json` for your viewing pleasure.";
 
-                    string filename = $"dumps/{e.RawJson["t"].ToString()}.json";
+                    string filename = $"dumps{Path.DirectorySeparatorChar}{e.RawJson["t"].ToString()}.json";
                     if(!File.Exists(filename))
                     {
                         File.WriteAllText(e.RawJson.ToString(), filename);
@@ -391,7 +393,7 @@ namespace DiscordSharpTestApplication
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
                         FrameLengthMs = 20,
-                        Channels = 1,
+                        Channels = 2,
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
                         SendOnly = true
                     };
@@ -479,9 +481,18 @@ namespace DiscordSharpTestApplication
             {
                 if (cmdArgs.Args.Count > 0)
                 {
-                    char newPrefix = cmdArgs.Args[0][0];
-                    config.CommandPrefix = newPrefix;
-                    cmdArgs.Channel.SendMessage($"Command prefix changed to **{config.CommandPrefix}** successfully!");
+                    char oldPrefix = config.CommandPrefix;
+                    try
+                    {
+                        char newPrefix = cmdArgs.Args[0][0];
+                        config.CommandPrefix = newPrefix;
+                        cmdArgs.Channel.SendMessage($"Command prefix changed to **{config.CommandPrefix}** successfully!");
+                    }
+                    catch(Exception)
+                    {
+                        cmdArgs.Channel.SendMessage($"Unable to change prefix to `{cmdArgs.Args[0][0]}`. Falling back to `{oldPrefix}`.");
+                        config.CommandPrefix = oldPrefix;
+                    }
                 }
                 else
                     cmdArgs.Channel.SendMessage("What prefix?");

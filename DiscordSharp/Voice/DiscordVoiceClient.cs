@@ -625,7 +625,9 @@ namespace DiscordSharp
 
 #if NETFX4_5
                     //dataSent = _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16).Result;
-                    await _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16);
+                    dataSent = await _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16);
+                    if (dataSent < (encodedLength + 12 + 16))
+                        VoiceDebugLogger.Log($"Dropped packets! Sent {(encodedLength + 12 + 16)}. {dataSent} went through.");
 #else
                     dataSent = _udp.Send(fullVoicePacket, rtpPacketLength);
 #endif
