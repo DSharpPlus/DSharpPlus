@@ -195,12 +195,14 @@ namespace DiscordSharp
         {
             _parent = parentClient;
             VoiceConfig = new DiscordVoiceConfig();
+            InitializeOpusEncoder();
         }
 
         public DiscordVoiceClient(DiscordClient parentClient, DiscordVoiceConfig config)
         {
             _parent = parentClient;
             VoiceConfig = config;
+            InitializeOpusEncoder();
         }
 
         public DiscordVoiceClient(DiscordClient parentClient, DiscordVoiceConfig config, DiscordChannel channel)
@@ -208,6 +210,7 @@ namespace DiscordSharp
             _parent = parentClient;
             VoiceConfig = config;
             Channel = channel;
+            InitializeOpusEncoder();
         }
 
         internal void InitializeOpusEncoder()
@@ -632,7 +635,7 @@ namespace DiscordSharp
 
 #if NETFX4_5
                     //dataSent = _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16).Result;
-                    await _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16);
+                    dataSent = await _udp.SendAsync(fullVoicePacket, encodedLength + 12 + 16);
 #else
                     dataSent = _udp.Send(fullVoicePacket, rtpPacketLength);
 #endif

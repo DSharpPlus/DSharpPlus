@@ -1800,11 +1800,16 @@ namespace DiscordSharp
             ConnectToVoiceAsync();
         }
 
-#if V45
-        private Task ConnectToVoiceAsync() => Task.Run(() => VoiceClient.Initiate());
+#if NETFX4_5
+        private Task ConnectToVoiceAsync()
+        {
+            VoiceClient.InitializeOpusEncoder();
+            return Task.Run(() => VoiceClient.Initiate());
+        }
 #else
         private Task ConnectToVoiceAsync()
         {
+            VoiceClient.InitializeOpusEncoder();
             return Task.Factory.StartNew(() => VoiceClient.Initiate());
         }
 #endif
