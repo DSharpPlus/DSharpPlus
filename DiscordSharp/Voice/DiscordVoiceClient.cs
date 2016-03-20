@@ -463,7 +463,7 @@ namespace DiscordSharp
                         }
                         catch (Exception ex)
                         {
-                            GetDebugLogger.Log(ex.Message, MessageLevel.Error);
+                            VoiceDebugLogger.Log(ex.Message, MessageLevel.Error);
                         }
                     }
                     else
