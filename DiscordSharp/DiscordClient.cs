@@ -1486,6 +1486,9 @@ namespace DiscordSharp
         #endregion
         private string GetGatewayUrl()
         {
+            if (token == null)
+                throw new NullReferenceException("token was null!");
+
         //i'm ashamed of myself for this but i'm tired
         tryAgain:
             string url = Endpoints.BaseAPI + Endpoints.Gateway;

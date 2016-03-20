@@ -165,7 +165,7 @@ namespace DiscordSharpTestApplication
         public void DoLogin()
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
-			client = new DiscordClient(botToken.Trim(), true, false);
+			client = new DiscordClient(botToken.Trim(), true);
             //client = new DiscordClient();
             
             //if (!File.Exists("token_cache"))
