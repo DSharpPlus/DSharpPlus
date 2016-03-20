@@ -457,7 +457,14 @@ namespace DiscordSharp
                     if (!voiceToSend.IsEmpty)
                     {
                         QueueEmptyEventTriggered = false;
-                        await SendVoiceAsync(token).ConfigureAwait(false);
+                        try
+                        {
+                            await SendVoiceAsync(token).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            VoiceDebugLogger.Log(ex.Message, MessageLevel.Error);
+                        }
                     }
                     else
                     {
