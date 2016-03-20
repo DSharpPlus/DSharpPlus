@@ -42,7 +42,7 @@ namespace DiscordSharpTestApplication
 			"DiscordSharp", 
 			"System.Threading", 
 			"DiscordSharp.Objects", 
-			"System.Linq", 
+			"System.Data.Linq", 
 			"System.Collections.Generic" 
 		};
 
@@ -87,8 +87,30 @@ namespace DiscordSharpTestApplication
             "Don't play yourself.",
             "Another one, no. Another two, drop two singles at a time.",
         };
+        string[] EightballMessages = new string[] {
+            "Signs point to yes.",
+            "Yes.",
+            "Reply hazy, try again.",
+            "Without a doubt",
+            "My sources say no",
+            "As I see it, yes.",
+            "You may rely on it.",
+            "Concentrate and ask again",
+            "Outlook not so good",
+            "It is decidedly so",
+            "Better not tell you now.",
+            "Very doubtful",
+            "Yes - definitely",
+            "It is certain",
+            "Cannot predict now",
+            "Most likely",
+            "Ask again later",
+            "My reply is no",
+            "Outlook good",
+            "Don't count on it"
+        };
 
-#region Initial Run
+        #region Initial Run
         bool doingInitialRun = false;
         string codeToEnter = "";
 #endregion
@@ -320,6 +342,8 @@ namespace DiscordSharpTestApplication
                     if (File.Exists("permissions.json"))
                     {
                         var permissionsDictionary = JsonConvert.DeserializeObject<Dictionary<string, PermissionType>>(File.ReadAllText("permissions.json"));
+                        if (permissionsDictionary == null)
+                            permissionsDictionary = new Dictionary<string, PermissionType>();
 						if(permissionsDictionary.Count == 0 && owner != null)
 							permissionsDictionary.Add(owner.ID, PermissionType.Owner);
 								
@@ -477,6 +501,34 @@ namespace DiscordSharpTestApplication
                     }
                 }
             }));
+            CommandsManager.AddCommand(new CommandStub("serverstats", "Server stats", "help me", PermissionType.Owner, cmdArgs =>
+            {
+                if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
+                {
+                    DiscordServer guild = cmdArgs.Channel.parent;
+                    string msg = $"Stats for **{guild.name}**\n```\n";
+                    msg += $"{guild.members.Count} members\n";
+                    msg += $"{guild.roles.Count} roles\n";
+                    msg += $"Owned by {guild.owner.Username}#{guild.owner.Discriminator}\n";
+                    msg += $"{guild.region}\n```";
+                    cmdArgs.Channel.SendMessage(msg);
+                }
+            }));
+            CommandsManager.AddCommand(new CommandStub("listroles", "Lists rolls", "help me", PermissionType.Owner, cmdArgs =>
+            {
+                if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
+                {
+                    DiscordServer guild = cmdArgs.Channel.parent;
+                    string msg = $"Roles for **{guild.name}**, per your request.\n```\n";
+                    foreach(var role in guild.roles)
+                    {
+                        msg += $"{role.position} - {role.name} - {role.id} - {role.permissions.GetRawPermissions()}\n";
+                    }
+                    msg += "\n```";
+                    owner.SlideIntoDMs(msg);
+                    cmdArgs.Channel.SendMessage($"DMed to you ;)");
+                }
+            }));
             CommandsManager.AddCommand(new CommandStub("sendchanneltest", "`Client.SendMessageToChannel` Test", "", PermissionType.Owner, cmdArgs =>
             {
                 client.SendMessageToChannel("Works!", cmdArgs.Channel);
@@ -543,10 +595,34 @@ namespace DiscordSharpTestApplication
                 if(int.TryParse(cmdArgs.Args[0], out messageCount))
                 {
                     var messagesToPrune = client.GetMessageHistory(cmdArgs.Channel, messageCount);
+                    DiscordMember selfInServer = cmdArgs.Channel.parent.members.Find(x => x.ID == client.Me.ID);
+                    bool pruneAll = false;
+                    if(selfInServer != null)
+                    {
+                        foreach (var roll in selfInServer.Roles)
+                        {
+                            if (roll.permissions.HasPermission(DiscordSpecialPermissions.ManageMessages))
+                            {
+                                pruneAll = true;
+                                break;
+                            }
+                        }
+                    }
                     foreach(var msg in messagesToPrune)
                     {
-                        client.DeleteMessage(msg);
-                        Thread.Sleep(100);
+                        if (!pruneAll)
+                        {
+                            if (msg.author.ID == client.Me.ID)
+                            {
+                                client.DeleteMessage(msg);
+                                Thread.Sleep(100);
+                            }
+                        }
+                        else
+                        {
+                            client.DeleteMessage(msg);
+                            Thread.Sleep(100);
+                        }
                     }
                     cmdArgs.Channel.SendMessage($"Attempted pruning of {messageCount} messages.");
                 }
@@ -561,7 +637,7 @@ namespace DiscordSharpTestApplication
                     whatToEval = whatToEval.Trim('`');
                 try
                 {
-                    var eval = EvalProvider.CreateEvalMethod<DiscordClient, string>(whatToEval, EvalNamespaces, new string[] { "DiscordSharp.dll" });
+                    var eval = EvalProvider.CreateEvalMethod<DiscordClient, string>(whatToEval, EvalNamespaces, new string[] { "DiscordSharp.dll", "System.Data.Linq.dll" });
                     string res = "";
                     Thread.Sleep(1000);
                     Thread executionThread = null;
@@ -632,8 +708,19 @@ namespace DiscordSharpTestApplication
                 else
                     cmdArgs.Channel.SendMessage("You don't have the proper permissions to do this! You need the ManagerServer permission.");
             }));
-#endregion
-#region Literally anyone
+            #endregion
+            #region Literally anyone
+            CommandsManager.AddCommand(new CommandStub("8ball", "Have your fortune told.", "8ball <your message here>", PermissionType.User, cmdArgs =>
+            {
+                rng.Next(0, EightballMessages.Length);
+                rng.Next(0, EightballMessages.Length);
+                int index = rng.Next(0, EightballMessages.Length);
+                cmdArgs.Channel.SendMessage($"<@{cmdArgs.Author.ID}>: **{EightballMessages[index]}**");
+            }));
+            CommandsManager.AddCommand(new CommandStub("42", "..", "...", PermissionType.User, cmdArgs =>
+            {
+                cmdArgs.Channel.SendMessage("The answer to life, the universe, and everything.");
+            }));
             CommandsManager.AddCommand(new CommandStub("cmdinfo", "Displays help for a command.", "Help", PermissionType.User, 2, e =>
             {
                 if (!String.IsNullOrEmpty(e.Args[0]))

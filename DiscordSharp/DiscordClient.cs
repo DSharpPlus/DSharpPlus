@@ -64,7 +64,7 @@ namespace DiscordSharp
         private List<DiscordServer> ServersList { get; set; }
         private string CurrentGameName = "";
         private int? IdleSinceUnixTime = null;
-        static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
+        static string UserAgentString = $" (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
         private DiscordVoiceClient VoiceClient;
         private Logger DebugLogger = new Logger();
         private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
@@ -159,6 +159,11 @@ namespace DiscordSharp
         {
             token = tokenOverride;
             isBotAccount = IsBotAccount;
+            if (IsBotAccount)
+                UserAgentString = "DiscordBot " + UserAgentString;
+            else
+                UserAgentString = "Custom Discord Client " + UserAgentString;
+
             if (ClientPrivateInformation == null)
                 ClientPrivateInformation = new DiscordUserInformation();
 
@@ -930,7 +935,9 @@ namespace DiscordSharp
                 if (foundMember != null)
                     return foundMember;
                 else
-                    DebugLogger.Log("Error in GetMemberFromChannel: foundMember was null!", MessageLevel.Error);
+                {
+                    DebugLogger.Log($"Error in GetMemberFromChannel: foundMember was null! ID: {id}", MessageLevel.Error);
+                }
             }
             else
             {
@@ -958,19 +965,24 @@ namespace DiscordSharp
 
         public void AcceptInvite(string inviteID)
         {
-            if (inviteID.StartsWith("http://"))
-                inviteID = inviteID.Substring(inviteID.LastIndexOf('/') + 1);
+            if (!IsBotAccount)
+            {
+                if (inviteID.StartsWith("http://"))
+                    inviteID = inviteID.Substring(inviteID.LastIndexOf('/') + 1);
 
-            string url = Endpoints.BaseAPI + Endpoints.Invite + $"/{inviteID}";
-            try
-            {
-                var result = WebWrapper.Post(url, token, "", true);
-                DebugLogger.Log("Accept invite result: " + result.ToString());
+                string url = Endpoints.BaseAPI + Endpoints.Invite + $"/{inviteID}";
+                try
+                {
+                    var result = WebWrapper.Post(url, token, "", true);
+                    DebugLogger.Log("Accept invite result: " + result.ToString());
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log($"Error accepting invite: {ex.Message}", MessageLevel.Error);
+                }
             }
-            catch(Exception ex)
-            {
-                DebugLogger.Log($"Error accepting invite: {ex.Message}", MessageLevel.Error);
-            }
+            else
+                throw new InvalidOperationException("Bot accounts can't accept invites normally! Please use the OAuth flow to add bots to servers you have the \"Manage Server\" permission in.");
         }
 
         public DiscordMessage GetLastMessageSent()
