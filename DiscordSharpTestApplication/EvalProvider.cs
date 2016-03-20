@@ -39,6 +39,7 @@ namespace {1}
 	public static class EvalClass
 	{{
         static DiscordClient discordClient;
+		static bool SubwayTime = true;
 		public static {2} Eval({3} arg)
 		{{
             discordClient = arg;

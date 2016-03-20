@@ -14,49 +14,118 @@ using DiscordSharp.Objects;
 
 namespace DiscordSharp
 {
+    /// <summary>
+    /// Properties that Discord uses upon connection to the websocket. Mostly used for analytics internally.
+    /// </summary>
     public class DiscordProperties
     {
+        /// <summary>
+        /// The OS you're on
+        /// </summary>
         [JsonProperty("os")]
         public string OS { get; set; }
 
+        /// <summary>
+        /// The "browser" you're using.
+        /// </summary>
         [JsonProperty("browser")]
         public string Browser { get; set; }
 
+        /// <summary>
+        /// Whatever device you want to be on. (Default: DiscordSharp Bot)
+        /// </summary>
         [JsonProperty("device")]
         public string Device
         { get; set; } = "DiscordSharp Bot";
-        public string referrer { get; set; }
-        public string referring_domain { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public string referrer { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public string referring_domain { get; set; }
+        
+        /// <summary>
+        /// Default constructor setting the OS property to Environment.OSVersion.ToString();
+        /// </summary>
         public DiscordProperties()
         {
             OS = Environment.OSVersion.ToString();
         }
+
+        /// <summary>
+        /// Serializes this object as json.
+        /// </summary>
+        /// <returns>Json string of this object serialized</returns>
         public string AsJson()
         {
             return JsonConvert.SerializeObject(this);
         }
     }
 
+    /// <summary>
+    /// The type of message that the Discord message is.
+    /// </summary>
     public enum DiscordMessageType
     {
-        PRIVATE, CHANNEL
+        /// <summary>
+        /// Private/DM
+        /// </summary>
+        PRIVATE,
+        /// <summary>
+        /// Public/in a channel.
+        /// </summary>
+        CHANNEL
     }
 
+    /// <summary>
+    /// Where the magic happens. 
+    /// </summary>
     public class DiscordClient
     {
+        /// <summary>
+        /// The token associated with authenticating your bot and ensuring they can send messages.
+        /// </summary>
         public static string token { get; internal set; } = null;
+        /// <summary>
+        /// If this is true, the account this client is running on is a special bot account.
+        /// </summary>
         public static bool IsBotAccount { get; internal set; } = false;
 
-        [Obsolete]
-        public string sessionKey { get; set; }
+        /// <summary>
+        /// The URL that the client websocket is currently connected to.
+        /// </summary>
         public string CurrentGatewayURL { get; internal set; }
-        [Obsolete]
-        private string Cookie { get; set; }
+        
+        /// <summary>
+        /// Any private information assosciated with the account (regular clients only)
+        /// </summary>
         public DiscordUserInformation ClientPrivateInformation { get; set; }
+
+        /// <summary>
+        /// Custom properties containing parameters such as
+        /// * OS
+        /// * Referrer
+        /// * Browser
+        /// Used by Discord internally for connection.
+        /// </summary>
         public DiscordProperties DiscordProperties { get; set; } = new DiscordProperties();
+
+        /// <summary>
+        /// The current DiscordMember object assosciated with the account you're connected to.
+        /// </summary>
         public DiscordMember Me { get; internal set; }
+
+        /// <summary>
+        /// Returns the debug logger used to log various debug events.
+        /// </summary>
         public Logger GetTextClientLogger => DebugLogger;
+
+        /// <summary>
+        /// Returns the last debug logger for when the voice client was last connected.
+        /// </summary>
         public Logger GetLastVoiceClientLogger;
 
 
@@ -64,7 +133,7 @@ namespace DiscordSharp
         private List<DiscordServer> ServersList { get; set; }
         private string CurrentGameName = "";
         private int? IdleSinceUnixTime = null;
-        static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
+        static string UserAgentString = $" (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
         private DiscordVoiceClient VoiceClient;
         private Logger DebugLogger = new Logger();
         private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
@@ -155,10 +224,25 @@ namespace DiscordSharp
         #endregion
         #endregion
 
-        public DiscordClient(string tokenOverride = null, bool isBotAccount = false)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tokenOverride">If you have a token you wish to use, provide it here. Else, a login attempt will be made.</param>
+        /// <param name="isBotAccount">Set this to true if your bot is going to be a bot account</param>
+        public DiscordClient(string tokenOverride = null, bool isBotAccount = false, bool enableLogging = true)
         {
+            if (isBotAccount && tokenOverride == null)
+                throw new Exception("Token override cannot be null if using a bot account!");
+            DebugLogger.EnableLogging = enableLogging;
+
             token = tokenOverride;
             isBotAccount = IsBotAccount;
+
+            if (IsBotAccount)
+                UserAgentString = "DiscordBot " + UserAgentString;
+            else
+                UserAgentString = "Custom Discord Client " + UserAgentString;
+
             if (ClientPrivateInformation == null)
                 ClientPrivateInformation = new DiscordUserInformation();
 
@@ -171,9 +255,28 @@ namespace DiscordSharp
             };
         }
 
+        /// <summary>
+        /// Current DiscordServers you're connected to.
+        /// </summary>
+        /// <returns>DiscordServer list of servers you're currently connected to.</returns>
         public List<DiscordServer> GetServersList() => ServersList;
+
+        /// <summary>
+        /// Any messages logged since connection to the websocket.
+        /// </summary>
+        /// <returns>A KeyValuePair list of string-DiscordMessage. Where string is the message's ID</returns>
         public List<KeyValuePair<string, DiscordMessage>> GetMessageLog() => MessageLog;
+
+        /// <summary>
+        /// Private channels assosciated with the account.
+        /// </summary>
+        /// <returns>a list of DiscordPrivateChannels.</returns>
         public List<DiscordPrivateChannel> GetPrivateChannels() => PrivateChannels;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>True if connected to voice.</returns>
         public bool ConnectedToVoice() => VoiceClient != null ? VoiceClient.Connected : false;
 
         //eh
@@ -244,10 +347,6 @@ namespace DiscordSharp
                 {
                     DiscordMember member = JsonConvert.DeserializeObject<DiscordMember>(mm["user"].ToString());
                     member.parentclient = this;
-                    //member.ID = mm["user"]["id"].ToString();
-                    //member.Username = mm["user"]["username"].ToString();
-                    //member.Avatar = mm["user"]["avatar"].ToString();
-                    //member.Discriminator = mm["user"]["discriminator"].ToString();
                     member.Roles = new List<DiscordRole>();
                     JArray rawRoles = JArray.Parse(mm["roles"].ToString());
                     if(rawRoles.Count > 0)
@@ -315,9 +414,22 @@ namespace DiscordSharp
 
         }
 
+        /// <summary>
+        /// Sends an http DELETE request to leave the server you send in this parameter.
+        /// </summary>
+        /// <param name="server">The DiscordServer object you want to leave.</param>
         public void LeaveServer(DiscordServer server) => LeaveServer(server.id);
+
+        /// <summary>
+        /// (Owner only, non-bot only) Sends an http DELETE request to delete the server you specify.
+        /// </summary>
+        /// <param name="server">The DiscordServer object you want to delete.</param>
         public void DeleteServer(DiscordServer server) => DeleteServer(server.id);
 
+        /// <summary>
+        /// (Owner only, non-bot only) Sends an http DELETE request to delete the server you specify.
+        /// </summary>
+        /// <param name="ServerID">The server's ID you want to delete.</param>
         public void LeaveServer(string ServerID)
         {
             string url = //Endpoints.BaseAPI + Endpoints.Guilds + $"/{ServerID}";
@@ -332,8 +444,15 @@ namespace DiscordSharp
             }
         }
 
+        /// <summary>
+        /// (Owner only, non-bot only) Sends an http DELETE request to delete the server you specify by ID.
+        /// </summary>
+        /// <param name="ServerID">The server's ID you want to delete.</param>
         public void DeleteServer(string ServerID)
         {
+            if (IsBotAccount)
+                throw new Exception("Bot accounts can't own servers!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ServerID}";
             try
             {
@@ -349,8 +468,9 @@ namespace DiscordSharp
         /// <summary>
         /// Sends a message to a channel, what else did you expect?
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="channel"></param>
+        /// <param name="message">The text to send</param>
+        /// <param name="channel">DiscordChannel object to send the message to.</param>
+        /// <returns>A DiscordMessage object of the message sent to Discord.</returns>
         public DiscordMessage SendMessageToChannel(string message, DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages;
@@ -380,6 +500,12 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// Sends a file to the specified DiscordChannel with the given message.
+        /// </summary>
+        /// <param name="channel">The channel to send the message to.</param>
+        /// <param name="message">The message you want the file to have with it.</param>
+        /// <param name="pathToFile">The path to the file you wish to send (be careful!)</param>
         public void AttachFile(DiscordChannel channel, string message, string pathToFile)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages;
@@ -397,6 +523,12 @@ namespace DiscordSharp
             }
         }
 
+        /// <summary>
+        /// Sends a file to the specified DiscordChannel with the given message.
+        /// </summary>
+        /// <param name="channel">The channel to send the message to.</param>
+        /// <param name="message">The message you want the file to have with it.</param>
+        /// <param name="stream">A stream object to send the bytes from.</param>
         public void AttachFile(DiscordChannel channel, string message, System.IO.Stream stream)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages;
@@ -414,7 +546,11 @@ namespace DiscordSharp
             }
         }
 
-        //tysm voltana <3
+        /// <summary>
+        /// Changes the current client's avatar.
+        /// Any high resolution pictures are automatically downscaled and Discord will perform jpeg compression on them.
+        /// </summary>
+        /// <param name="image">The Bitmap object assosciated with the avatar you wish to upload.</param>
         public void ChangeClientAvatar(Bitmap image)
         {
             string base64 = Convert.ToBase64String(Utils.ImageToByteArray(image));
@@ -438,6 +574,11 @@ namespace DiscordSharp
             }
         }
 
+        /// <summary>
+        /// Changes the icon assosciated with the guild. Discord will perform jpeg compression and this image is automatically downscaled.
+        /// </summary>
+        /// <param name="image">The bitmap object associated </param>
+        /// <param name="guild">The guild of the icon you wish to change.</param>
         public void ChangeGuildIcon(Bitmap image, DiscordServer guild)
         {
             Bitmap resized = new Bitmap((Image)image, 200, 200);
@@ -464,7 +605,7 @@ namespace DiscordSharp
         /// <param name="count">How many to return</param>
         /// <param name="idBefore">Messages before this message ID.</param>
         /// <param name="idAfter">Messages after this message ID.</param>
-        /// <returns></returns>
+        /// <returns>A List of DiscordMessages that you can iterate through.</returns>
         public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, string idBefore = "", string idAfter = "")
         {
             string request = "https://discordapp.com/api/channels/" + channel.ID + $"/messages?&limit={count}";
@@ -510,6 +651,11 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// Changes the channel topic assosciated with the Discord text channel.
+        /// </summary>
+        /// <param name="Channeltopic">The new channel topic.</param>
+        /// <param name="channel">The channel you wish to change the topic for.</param>
         public void ChangeChannelTopic(string Channeltopic, DiscordChannel channel)
         {
             string topicChangeJson = JsonConvert.SerializeObject(
@@ -530,11 +676,17 @@ namespace DiscordSharp
             }
         }
 
+        /*
         public List<DiscordRole> GetRoles(DiscordServer server)
         {
             return null;
         }
+        */
 
+        /// <summary>
+        /// Used for changing the client's email, password, username, etc.
+        /// </summary>
+        /// <param name="info"></param>
         public void ChangeClientInformation(DiscordUserInformation info)
         {
             string usernameRequestJson;
@@ -549,8 +701,12 @@ namespace DiscordSharp
                     avatar = info.avatar
                 });
                 ClientPrivateInformation.password = info.password;
-                File.Delete("token_cache");
-                DebugLogger.Log("Deleted token_cache due to change of password.");
+                try
+                {
+                    File.Delete("token_cache");
+                    DebugLogger.Log("Deleted token_cache due to change of password.");
+                }
+                catch (Exception) { /*ignore*/ }
             }
             else
             {
@@ -617,7 +773,12 @@ namespace DiscordSharp
             }
         }
 
-        //Special thanks to the node-discord developer, izy521, for helping me out with this :D
+        /// <summary>
+        /// Sends a private message to the given user.
+        /// </summary>
+        /// <param name="message">The message text to send them.</param>
+        /// <param name="member">The member you want to send this to.</param>
+        /// <returns></returns>
         public DiscordMessage SendMessageToUser(string message, DiscordMember member)
         {
             string url = Endpoints.BaseAPI + Endpoints.Users + $"/{Me.ID}" + Endpoints.Channels;
@@ -666,14 +827,20 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// Gets the string value of the current game your bot is 'playing'.
+        /// </summary>
         public string GetCurrentGame => CurrentGameName;
 
+        /// <summary>
+        /// Returns true if the websocket is not null and is alive.
+        /// </summary>
         public bool WebsocketAlive => (ws != null) ? ws.IsAlive : false;
 
         #region Message Received Crap..
 
         /// <summary>
-        /// Set gameId to null if you want to remove the current game.
+        /// Updates the bot's 'Currently playing' status to the following text. Pass in null if you want to remove this.
         /// </summary>
         /// <param name="gameName">The game's name. Old gameid lookup can be seen at: http://hastebin.com/azijiyaboc.json/ </param>
         public void UpdateCurrentGame(string gameName)
@@ -711,6 +878,10 @@ namespace DiscordSharp
             ws.Send(msg.ToString());
         }
 
+        /// <summary>
+        /// Updates the bot's status.
+        /// </summary>
+        /// <param name="idle">True if you want the bot to report as idle.</param>
         public void UpdateBotStatus(bool idle)
         {
             string msg;
@@ -848,29 +1019,6 @@ namespace DiscordSharp
             return count;
         }
         
-        ///// <summary>
-        ///// Deletes messages from the client's internal logs in a given channel.
-        ///// Only deletes those sent by the client.
-        ///// </summary>
-        ///// <param name="channel"></param>
-        ///// <returns>How many messages were deleted.</returns>
-        //public int DeleteMessagesFromClientInChannel(DiscordChannel channel)
-        //{
-        //    int count = 0;
-
-        //    foreach(var message in this.MessageLog)
-        //    {
-        //        if (message.Value.channel == channel)
-        //            if (message.Value.author.ID == Me.ID)
-        //            {
-        //                SendDeleteRequest(message.Value);
-        //                count++;
-        //            }
-        //    }
-
-        //    return count;
-        //}
-
         /// <summary>
         /// Deletes the specified number of messages in a given channel.
         /// Thank you to Siegen for this idea/method!
@@ -899,6 +1047,13 @@ namespace DiscordSharp
             return __count;
         }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="username"></param>
+        /// <param name="caseSensitive"></param>
+        /// <returns></returns>
         public DiscordMember GetMemberFromChannel(DiscordChannel channel, string username, bool caseSensitive)
         {
             if (string.IsNullOrEmpty(username))
@@ -922,6 +1077,12 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public DiscordMember GetMemberFromChannel(DiscordChannel channel, string id)
         {
             if (channel != null)
@@ -930,7 +1091,9 @@ namespace DiscordSharp
                 if (foundMember != null)
                     return foundMember;
                 else
-                    DebugLogger.Log("Error in GetMemberFromChannel: foundMember was null!", MessageLevel.Error);
+                {
+                    DebugLogger.Log($"Error in GetMemberFromChannel: foundMember was null! ID: {id}", MessageLevel.Error);
+                }
             }
             else
             {
@@ -939,6 +1102,11 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// you probably shouldn't use this.
+        /// </summary>
+        /// <param name="channelName"></param>
+        /// <returns></returns>
         public DiscordChannel GetChannelByName(string channelName)
         {
             try
@@ -951,28 +1119,46 @@ namespace DiscordSharp
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public DiscordChannel GetChannelByID(long id)
         {
             return ServersList.Find(x => x.channels.Find(y => y.ID == id.ToString()) != null).channels.Find(z => z.ID == id.ToString());
         }
 
+        /// <summary>
+        /// (Client account only) accepts an invite to a server.
+        /// </summary>
+        /// <param name="inviteID">The ID of the invite you want to accept. This is NOT the full URL of the invite</param>
         public void AcceptInvite(string inviteID)
         {
-            if (inviteID.StartsWith("http://"))
-                inviteID = inviteID.Substring(inviteID.LastIndexOf('/') + 1);
+            if (!IsBotAccount)
+            {
+                if (inviteID.StartsWith("http://"))
+                    inviteID = inviteID.Substring(inviteID.LastIndexOf('/') + 1);
 
-            string url = Endpoints.BaseAPI + Endpoints.Invite + $"/{inviteID}";
-            try
-            {
-                var result = WebWrapper.Post(url, token, "", true);
-                DebugLogger.Log("Accept invite result: " + result.ToString());
+                string url = Endpoints.BaseAPI + Endpoints.Invite + $"/{inviteID}";
+                try
+                {
+                    var result = WebWrapper.Post(url, token, "", true);
+                    DebugLogger.Log("Accept invite result: " + result.ToString());
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log($"Error accepting invite: {ex.Message}", MessageLevel.Error);
+                }
             }
-            catch(Exception ex)
-            {
-                DebugLogger.Log($"Error accepting invite: {ex.Message}", MessageLevel.Error);
-            }
+            else
+                throw new InvalidOperationException("Bot accounts can't accept invites normally! Please use the OAuth flow to add bots to servers you have the \"Manage Server\" permission in.");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>The last DiscordMessage sent</returns>
         public DiscordMessage GetLastMessageSent()
         {
             for(int i = MessageLog.Count - 1; i > -1; i--)
@@ -982,6 +1168,12 @@ namespace DiscordSharp
             }
             return null;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inChannel"></param>
+        /// <returns>The last DiscordMessage sent in the given channel</returns>
         public DiscordMessage GetLastMessageSent(DiscordChannel inChannel)
         {
             for (int i = MessageLog.Count - 1; i > -1; i--)
@@ -993,6 +1185,13 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// If you screwed up, you can use this method to edit a given message. This sends out an http patch request with a replacement message
+        /// </summary>
+        /// <param name="MessageID">The ID of the message you want to edit.</param>
+        /// <param name="replacementMessage">What you want the text to be edited to.</param>
+        /// <param name="channel">The channel the message is in</param>
+        /// <returns>the new and improved DiscordMessage object.</returns>
         public DiscordMessage EditMessage(string MessageID, string replacementMessage, DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages + $"/{MessageID}";
@@ -1287,6 +1486,9 @@ namespace DiscordSharp
         #endregion
         private string GetGatewayUrl()
         {
+            if (token == null)
+                throw new NullReferenceException("token was null!");
+
         //i'm ashamed of myself for this but i'm tired
         tryAgain:
             string url = Endpoints.BaseAPI + Endpoints.Gateway;
@@ -1315,11 +1517,20 @@ namespace DiscordSharp
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
         public DiscordServer GetServerChannelIsIn(DiscordChannel channel)
         {
             return ServersList.Find(x => x.channels.Find(y => y.ID == channel.ID) != null);
         }
 
+        /// <summary>
+        /// Deletes a specified Discord channel given you have the permission.
+        /// </summary>
+        /// <param name="channel">The DiscordChannel object to delete</param>
         public void DeleteChannel(DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}";
@@ -1333,6 +1544,13 @@ namespace DiscordSharp
             }
         }
 
+        /// <summary>
+        /// Creates either a text or voice channel in a DiscordServer given a name. Given you have the permission of course.
+        /// </summary>
+        /// <param name="server">The server to create the channel in.</param>
+        /// <param name="ChannelName">The name of the channel (will automatically be lowercased if text)</param>
+        /// <param name="voice">True if you want the channel to be a voice channel.</param>
+        /// <returns>The newly created DiscordChannel</returns>
         public DiscordChannel CreateChannel(DiscordServer server, string ChannelName, bool voice)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{server.id}" + Endpoints.Channels;
@@ -1366,6 +1584,12 @@ namespace DiscordSharp
             return null;
         }
         
+        /// <summary>
+        /// Creates an empty guild with only this client in it given the following name.
+        /// Unknown if works on bot accounts or not.
+        /// </summary>
+        /// <param name="GuildName">The name of the guild you wish to create.</param>
+        /// <returns>the created DiscordServer</returns>
         public DiscordServer CreateGuild(string GuildName)
         {
             string createGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds;
@@ -1410,6 +1634,11 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// Edits the name of the guild, given you have the permission.
+        /// </summary>
+        /// <param name="guild">The guild's name you wish to edit.</param>
+        /// <param name="NewGuildName">The new guild name.</param>
         public void EditGuildName(DiscordServer guild, string NewGuildName)
         {
             string editGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}";
@@ -1424,6 +1653,12 @@ namespace DiscordSharp
             }
         }
 
+        /// <summary>
+        /// Assigns a specified role to a member, given you have the permission.
+        /// </summary>
+        /// <param name="guild">The guild you and the user are in.</param>
+        /// <param name="role">The role you wish to assign them.</param>
+        /// <param name="member">The member you wish to assign the role to.</param>
         public void AssignRoleToMember(DiscordServer guild, DiscordRole role, DiscordMember member)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.ID}";
@@ -1438,6 +1673,13 @@ namespace DiscordSharp
                     + ex.Message, MessageLevel.Error);
             }
         }
+
+        /// <summary>
+        /// Assigns the specified roles to a member, given you have the permission.
+        /// </summary>
+        /// <param name="guild">The guild you and the user are in.</param>
+        /// <param name="roles">The roles you wish to assign them.</param>
+        /// <param name="member">The member you wish to assign the role to.</param>
         public void AssignRoleToMember(DiscordServer guild, List<DiscordRole> roles, DiscordMember member)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Members + $"/{member.ID}";
@@ -1459,7 +1701,7 @@ namespace DiscordSharp
         /// Creates and invite to the given channel.
         /// </summary>
         /// <param name="channel"></param>
-        /// <returns>The invite's code.</returns>
+        /// <returns>The invite's id.</returns>
         public string CreateInvite(DiscordChannel channel)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Invites;
@@ -1478,6 +1720,10 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// Deletes an invite by id
+        /// </summary>
+        /// <param name="id">The ID of the invite you wish to delete.</param>
         public void DeleteInvite(string id)
         {
             string url = Endpoints.BaseAPI + Endpoints.Invites + $"/{id}";
@@ -1491,7 +1737,12 @@ namespace DiscordSharp
             }
         }
 
-        public string MakeInviteURLFromCode(string code) => "https://discord.gg/" + code;
+        /// <summary>
+        /// Just prepends https://discord.gg/ to a given invite :)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>A full invite URL.</returns>
+        public string MakeInviteURLFromCode(string id) => "https://discord.gg/" + id;
 
         /// <summary>
         /// This method temporarily points to the .Connect(); method.
@@ -1500,6 +1751,9 @@ namespace DiscordSharp
         [Obsolete]
         public void ConnectAndReadMessages() => Connect();
 
+        /// <summary>
+        /// Runs the websocket connection for the client hooking up the appropriate events.
+        /// </summary>
         public void Connect()
         {
             CurrentGatewayURL = GetGatewayUrl();
@@ -1920,6 +2174,11 @@ namespace DiscordSharp
             return returnVal;
         }
 
+        /// <summary>
+        /// Removes a ban on the user.
+        /// </summary>
+        /// <param name="guild">The guild to lift the ban from.</param>
+        /// <param name="userID">The ID of the user to lift the ban.</param>
         public void RemoveBan(DiscordServer guild, string userID)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Bans + $"/{userID}";
@@ -1932,6 +2191,12 @@ namespace DiscordSharp
                 DebugLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
             }
         }
+
+        /// <summary>
+        /// Removes a ban on the user.
+        /// </summary>
+        /// <param name="guild">The guild to lift the ban from.</param>
+        /// <param name="member">The DiscordMember object of the user to lift the ban from, assuming you have it.</param>
         public void RemoveBan(DiscordServer guild, DiscordMember member)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Bans + $"/{member.ID}";
@@ -2026,7 +2291,7 @@ namespace DiscordSharp
                 op = 4,
                 d = new
                 {
-                    guild_id = (object)null,
+                    guild_id = VoiceClient.Channel.parent.id,
                     channel_id = (object)null,
                     self_mute = true,
                     self_deaf = false
@@ -2043,15 +2308,18 @@ namespace DiscordSharp
                     ws.Send(disconnectMessage);
                 }
                 catch
-                {
-                    if(ws != null)
-                        ws.Send(disconnectMessage);
-                }
+                {}
             }
+            if (ws != null)
+                ws.Send(disconnectMessage);
             VoiceClient = null;
             DebugLogger.Log($"Disconnected from voice. VoiceClient null: {VoiceClient == null}");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>The current VoiceClient or null.</returns>
         public DiscordVoiceClient GetVoiceClient()
         {
             if (ConnectedToVoice() && VoiceClient != null)
@@ -2130,6 +2398,11 @@ namespace DiscordSharp
                 RoleDeleted(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });
         }
 
+        /// <summary>
+        /// Creates a default role in the specified guild.
+        /// </summary>
+        /// <param name="guild">The guild to make the role in.</param>
+        /// <returns>The newly created role.</returns>
         public DiscordRole CreateRole(DiscordServer guild)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Roles;
@@ -2162,6 +2435,12 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// Edits a role with the new role information.
+        /// </summary>
+        /// <param name="guild">The guild the role is in.</param>
+        /// <param name="newRole">the new role.</param>
+        /// <returns>The newly edited role returned from Discord.</returns>
         public DiscordRole EditRole(DiscordServer guild, DiscordRole newRole)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Roles + $"/{newRole.id}";
@@ -2204,6 +2483,11 @@ namespace DiscordSharp
             return null;
         }
 
+        /// <summary>
+        /// Deletes a specified role.
+        /// </summary>
+        /// <param name="guild">The guild the role is in.</param>
+        /// <param name="role">The role to delete.</param>
         public void DeleteRole(DiscordServer guild, DiscordRole role)
         {
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{guild.id}" + Endpoints.Roles + $"/{role.id}";
@@ -2700,8 +2984,9 @@ namespace DiscordSharp
                 }
         }
 
-        
-        //Thread ConnectReadMessagesThread;
+        /// <summary>
+        /// Disposes.
+        /// </summary>
         public void Dispose()
         {
             try
@@ -2718,6 +3003,9 @@ namespace DiscordSharp
             catch { /*already been disposed elsewhere */ }
         }
 
+        /// <summary>
+        /// Logs out of Discord and then disposes.
+        /// </summary>
         public void Logout()
         {
             string url = Endpoints.BaseAPI + Endpoints.Auth + "/logout";
@@ -2725,78 +3013,7 @@ namespace DiscordSharp
             WebWrapper.Post(url, msg);
             Dispose();
         }
-
-        /*[Obsolete]
-        public async Task<string> SendLoginRequestAsync()
-        {
-            if (ClientPrivateInformation == null || ClientPrivateInformation.email == null || ClientPrivateInformation.password == null)
-                throw new ArgumentNullException("You didn't supply login information!");
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://discordapp.com/api/auth/login");
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = "POST";
-            httpWebRequest.Timeout = 20000;
-
-            using (var sw = new StreamWriter(httpWebRequest.GetRequestStream()))
-            {
-                string msg = JsonConvert.SerializeObject(new
-                {
-                    email = ClientPrivateInformation.email,
-                    password = ClientPrivateInformation.password
-                });
-#if V45
-                await sw.WriteAsync(msg).ConfigureAwait(false);
-#else
-                sw.Write(msg);
-#endif
-                sw.Flush();
-                sw.Close();
-            }
-            try
-            {
-#if V45
-                var httpResponseT = await httpWebRequest.GetResponseAsync().ConfigureAwait(false);
-#else
-                var httpResponseT = httpWebRequest.GetResponse();
-#endif
-                var httpResponse = (HttpWebResponse)httpResponseT;
-                using (var sr = new StreamReader(httpResponse.GetResponseStream()))
-                {
-#if V45
-                    var result = await sr.ReadToEndAsync().ConfigureAwait(false);
-#else
-                    var result = sr.ReadToEnd();
-#endif
-                    var jsonResult = JObject.Parse(result);
-
-                    if(!jsonResult["token"].IsNullOrEmpty() || jsonResult["token"].ToString() != "")
-                    {
-                        token = jsonResult["token"].ToString();
-                    }
-                    else
-                        return null;
-                }
-            }
-            catch (WebException e)
-            {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
-                {
-#if V45
-                    string result = await s.ReadToEndAsync().ConfigureAwait(false);
-#else
-                    string result = s.ReadToEnd();
-#endif
-                    var jsonResult = JObject.Parse(result);
-
-                    if (!jsonResult["password"].IsNullOrEmpty())
-                        throw new DiscordLoginException((jsonResult["password"].ToObject<JArray>()[0].ToString()));
-                    if(!jsonResult["email"].IsNullOrEmpty())
-                        throw new DiscordLoginException((jsonResult["email"].ToObject<JArray>()[0].ToString()));
-                }
-            }
-
-            return "";
-        }*/
-
+        
         /// <summary>
         /// Sends a login request.
         /// </summary>
