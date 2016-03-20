@@ -165,7 +165,7 @@ namespace DiscordSharpTestApplication
         public void DoLogin()
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
-			client = new DiscordClient(botToken.Trim(), true);
+			client = new DiscordClient(botToken.Trim(), true, false);
             //client = new DiscordClient();
             
             //if (!File.Exists("token_cache"))
@@ -185,17 +185,20 @@ namespace DiscordSharpTestApplication
 
         public void Cleanup()
         {
-            if (!Directory.Exists("logs"))
-                Directory.CreateDirectory("logs");
+            if (client.GetTextClientLogger.EnableLogging)
+            {
+                if (!Directory.Exists("logs"))
+                    Directory.CreateDirectory("logs");
 
-            var date = DateTime.Now;
-            string mmddyy = $"{date.Month}-{date.Day}-{date.Year}";
-            if (!Directory.Exists("logs/" + mmddyy))
-                Directory.CreateDirectory("logs/" + mmddyy);
+                var date = DateTime.Now;
+                string mmddyy = $"{date.Month}-{date.Day}-{date.Year}";
+                if (!Directory.Exists("logs/" + mmddyy))
+                    Directory.CreateDirectory("logs/" + mmddyy);
 
-            int levels = (int)(MessageLevel.Debug & MessageLevel.Error & MessageLevel.Critical & MessageLevel.Warning);
+                int levels = (int)(MessageLevel.Debug & MessageLevel.Error & MessageLevel.Critical & MessageLevel.Warning);
 
-            client.GetTextClientLogger.Save($"logs/{mmddyy}/{date.Month}-{date.Day}-{date.Year} {date.Hour}-{date.Minute}-{date.Second}.log", (MessageLevel)levels);
+                client.GetTextClientLogger.Save($"logs/{mmddyy}/{date.Month}-{date.Day}-{date.Year} {date.Hour}-{date.Minute}-{date.Second}.log", (MessageLevel)levels);
+            }
         }
 
         private Task SetupEvents(CancellationToken token)

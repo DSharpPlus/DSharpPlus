@@ -34,6 +34,7 @@ namespace DiscordSharp
         List<LogMessage> __log;
 
         public event OnLogMessageReceived LogMessageReceived;
+        public bool EnableLogging { get; set; } = true;
 
         public Logger()
         {
@@ -83,32 +84,41 @@ namespace DiscordSharp
         /// <param name="message"></param>
         public void Log(string message)
         {
-            LogMessage m = new LogMessage();
-            m.Message = message;
-            m.Level = MessageLevel.Debug;
-            m.TimeStamp = DateTime.Now;
+            if (EnableLogging)
+            {
+                LogMessage m = new LogMessage();
+                m.Message = message;
+                m.Level = MessageLevel.Debug;
+                m.TimeStamp = DateTime.Now;
 
-            pushLog(m);
+                pushLog(m);
+            }
         }
 
         public void Log(string message, MessageLevel level)
         {
-            LogMessage m = new LogMessage();
-            m.Message = message;
-            m.Level = level;
-            m.TimeStamp = DateTime.Now;
+            if (EnableLogging)
+            {
+                LogMessage m = new LogMessage();
+                m.Message = message;
+                m.Level = level;
+                m.TimeStamp = DateTime.Now;
 
-            pushLog(m);
+                pushLog(m);
+            }
         }
 
         public async void LogAsync(string message, MessageLevel level)
         {
-            LogMessage m = new LogMessage();
-            m.Message = message;
-            m.Level = level;
-            m.TimeStamp = DateTime.Now;
+            if (EnableLogging)
+            {
+                LogMessage m = new LogMessage();
+                m.Message = message;
+                m.Level = level;
+                m.TimeStamp = DateTime.Now;
 
-            pushLog(m);
+                pushLog(m);
+            }
         }
 
         /// <summary>
