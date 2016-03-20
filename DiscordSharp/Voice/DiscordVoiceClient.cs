@@ -542,7 +542,7 @@ namespace DiscordSharp
                     if (packet[1] != 0x78) return; //payload type. you know, from before.
 
                     ushort sequenceNumber = (ushort)((packet[2] << 8) | packet[3] << 0);
-                    uint timestamp = (uint)((packet[4] << 24) | packet[5] << 16 | packet[6] << 8 | packet[7] << 0);
+                    uint timDocuestamp = (uint)((packet[4] << 24) | packet[5] << 16 | packet[6] << 8 | packet[7] << 0);
                     uint ssrc = (uint)((packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | (packet[11] << 0));
 
                     //encryption is enabled by default
@@ -651,7 +651,8 @@ namespace DiscordSharp
                 //Compensate for however long it took to sent.
                 if (timeToSend.ElapsedMilliseconds > 0)
                 {
-                    long timeToWait = (msToSend * TimeSpan.TicksPerMillisecond) - (timeToSend.ElapsedMilliseconds * TimeSpan.TicksPerMillisecond);
+                    //long timeToWait = (msToSend * TimeSpan.TicksPerMillisecond) - (timeToSend.ElapsedMilliseconds * TimeSpan.TicksPerMillisecond);
+                    long timeToWait = (long)(msToSend * TimeSpan.TicksPerMillisecond * 0.80) - (timeToSend.ElapsedMilliseconds * TimeSpan.TicksPerMillisecond);
                     if (timeToWait > 0) //if it's negative then don't bother waiting
                     {
 #if NETFX4_5

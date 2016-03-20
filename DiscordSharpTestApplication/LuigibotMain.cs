@@ -165,7 +165,8 @@ namespace DiscordSharpTestApplication
         public void DoLogin()
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
-			client = new DiscordClient(botToken.Trim(), true);
+            client = new DiscordClient(botToken.Trim(), true);
+            
             //client = new DiscordClient();
             
             //if (!File.Exists("token_cache"))
@@ -432,7 +433,7 @@ namespace DiscordSharpTestApplication
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
-                        FrameLengthMs = 60,
+                        FrameLengthMs = 80,
                         Channels = 1,
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
                         SendOnly = true
@@ -852,7 +853,7 @@ namespace DiscordSharpTestApplication
             DiscordVoiceClient vc = client.GetVoiceClient();
             try
             {
-                int ms = 60;
+                int ms = 80;
                 int channels = 1;
                 int sampleRate = 48000;
 
