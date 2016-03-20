@@ -37,6 +37,15 @@ namespace DiscordSharpTestApplication
         //internal static readonly string OAUTH_ID = "152966395884339200";
         //internal static readonly string OAUTH_SECRET = "RFtPxLA19Lu1t3J-r4O7nNw0aaS8Wdg2";
 
+		private string[] EvalNamespaces = new string[] 
+		{ 
+			"DiscordSharp", 
+			"System.Threading", 
+			"DiscordSharp.Objects", 
+			"System.Linq", 
+			"System.Collections.Generic" 
+		};
+
         DiscordClient client;
         DiscordMember owner;
         CommandsManager CommandsManager;
@@ -552,7 +561,7 @@ namespace DiscordSharpTestApplication
                     whatToEval = whatToEval.Trim('`');
                 try
                 {
-                    var eval = EvalProvider.CreateEvalMethod<DiscordClient, string>(whatToEval, new string[] { "DiscordSharp", "System.Threading", "DiscordSharp.Objects" }, new string[] { "DiscordSharp.dll" });
+                    var eval = EvalProvider.CreateEvalMethod<DiscordClient, string>(whatToEval, EvalNamespaces, new string[] { "DiscordSharp.dll" });
                     string res = "";
                     Thread.Sleep(1000);
                     Thread executionThread = null;
