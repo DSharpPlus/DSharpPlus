@@ -47,6 +47,31 @@ namespace DiscordSharpTestApplication
 			"System.Collections.Generic" 
 		};
 
+        private string CustomLuaFunctions = @"--- Returns HEX representation of num
+function num2hex(num)
+    local hexstr = '0123456789abcdef'
+    local s = ''
+    while num > 0 do
+        local mod = math.fmod(num, 16)
+        s = string.sub(hexstr, mod+1, mod+1) .. s
+        num = math.floor(num / 16)
+    end
+    if s == '' then s = '0' end
+    return s
+end
+
+--- Returns HEX representation of str
+function str2hex(str)
+    local hex = ''
+    while #str > 0 do
+        local hb = num2hex(string.byte(str, 1, 1))
+        if #hb < 2 then hb = '0' .. hb end
+        hex = hex..hb
+        str = string.sub(str, 2)
+    end
+    return hex
+end";
+
         DiscordClient client;
         DiscordMember owner;
         CommandsManager CommandsManager;
@@ -852,6 +877,7 @@ namespace DiscordSharpTestApplication
                 {
                     state.DoString("import = function () end");
                 }
+                state.DoString(CustomLuaFunctions);
 
                 var res = state.DoString(whatToEval);
                 string resultMessage = $"**Result: {res.Length}**\n```";
