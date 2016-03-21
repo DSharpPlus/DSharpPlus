@@ -946,31 +946,34 @@ namespace DiscordSharp
                 {
                     if (!message["d"]["guild_id"].IsNullOrEmpty()) //if this is null or empty, that means this pertains to friends list
                     {
-                        DebugLogger.Log($"User doesn't exist in server, no problemo. Creating/adding", MessageLevel.Debug);
-                        DiscordMember memeber = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
-                        memeber.parentclient = this;
-                        memeber.SetPresence(message["d"]["status"].ToString());
-                        memeber.Parent = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-
-                        if (message["d"]["game"].IsNullOrEmpty())
+                        if (!message["d"]["user"]["username"].IsNullOrEmpty() && !message["d"]["user"]["id"].IsNullOrEmpty())
                         {
-                            dpuea.game = "";
-                            memeber.CurrentGame = null;
-                        }
-                        else
-                        {
-                            dpuea.game = message["d"]["game"]["name"].ToString();
-                            memeber.CurrentGame = dpuea.game;
-                        }
+                            DebugLogger.Log($"User {message["d"]["user"]["username"]} doesn't exist in server {server.name} no problemo. Creating/adding", MessageLevel.Debug);
+                            DiscordMember memeber = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+                            memeber.parentclient = this;
+                            memeber.SetPresence(message["d"]["status"].ToString());
+                            memeber.Parent = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
 
-                        if (message["d"]["status"].ToString() == "online")
-                            dpuea.status = DiscordUserStatus.ONLINE;
-                        else if (message["d"]["status"].ToString() == "idle")
-                            dpuea.status = DiscordUserStatus.IDLE;
-                        else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
-                            dpuea.status = DiscordUserStatus.OFFLINE;
+                            if (message["d"]["game"].IsNullOrEmpty())
+                            {
+                                dpuea.game = "";
+                                memeber.CurrentGame = null;
+                            }
+                            else
+                            {
+                                dpuea.game = message["d"]["game"]["name"].ToString();
+                                memeber.CurrentGame = dpuea.game;
+                            }
 
-                        memeber.Parent.members.Add(memeber);
+                            if (message["d"]["status"].ToString() == "online")
+                                dpuea.status = DiscordUserStatus.ONLINE;
+                            else if (message["d"]["status"].ToString() == "idle")
+                                dpuea.status = DiscordUserStatus.IDLE;
+                            else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
+                                dpuea.status = DiscordUserStatus.OFFLINE;
+
+                            memeber.Parent.members.Add(memeber);
+                        }
                     }
                 }
             }

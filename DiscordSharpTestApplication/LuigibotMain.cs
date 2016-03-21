@@ -696,7 +696,7 @@ namespace DiscordSharpTestApplication
                         e.Channel.SendMessage($"```\n{errors}\n```");
                     }
                     else
-                        e.Channel.SendMessage("Errors!");
+                        e.Channel.SendMessage($"Errors! {ex.Message}");
                 }
             }));
 #endregion
