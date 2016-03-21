@@ -198,13 +198,11 @@ namespace DiscordSharp.Objects
 
         private bool Equals(DiscordMember obj)
         {
-            Console.WriteLine($"Comparing IDs {obj.ID} and {this.ID}");
             return this.ID == obj.ID;
         }
 
         public override bool Equals(object obj)
         {
-            Console.WriteLine("Equals");
             if (obj.GetType() == typeof(DiscordMember))
                 return Equals((DiscordMember)obj);
 
