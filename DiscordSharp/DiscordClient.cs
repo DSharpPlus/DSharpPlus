@@ -1385,7 +1385,7 @@ namespace DiscordSharp
                         tempMember.ID = message["d"]["author"]["id"].ToString();
                         dpmea.author = tempMember;
                         tempMember.parentclient = this;
-
+                    dpmea.RawJson = message;
 
                         if (PrivateMessageReceived != null)
                             PrivateMessageReceived(this, dpmea);
@@ -1399,7 +1399,8 @@ namespace DiscordSharp
                 else
                 {
                     DiscordMessageEventArgs dmea = new DiscordMessageEventArgs();
-                    dmea.Channel = potentialChannel;
+                dmea.RawJson = message;
+                dmea.Channel = potentialChannel;
 
                     dmea.message_text = message["d"]["content"].ToString();
 

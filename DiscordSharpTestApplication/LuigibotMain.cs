@@ -235,42 +235,50 @@ end";
             {
                 client.MessageReceived += (sender, e) =>
                 {
-                    Console.WriteLine($"[-- Message from {e.author.Username} in #{e.Channel.Name} on {e.Channel.parent.name}: {e.message.content}");
-
-                    if(doingInitialRun)
+                    if (e.author == null)
                     {
-                        if(e.message.content.StartsWith("?authenticate"))
-                        {
-                            string[] split = e.message.content.Split(new char[] { ' ' }, 2);
-                            if(split.Length > 1)
-                            {
-                                if(codeToEnter.Trim() == split[1].Trim())
-                                {
-                                    config.OwnerID = e.author.ID;
-                                    doingInitialRun = false;
-                                    e.Channel.SendMessage("Authentication successful! **You are now my owner, " + e.author.Username + ".**");
-                                    CommandsManager.AddPermission(e.author, PermissionType.Owner);
-                                    owner = e.author;
-                                }
-                            }
-                        }
+                        string msg = $"Author had null id in message received!\nRaw JSON:\n```\n{e.RawJson}\n```\nFix it, asshat.";
+                        owner.SlideIntoDMs(msg);
                     }
                     else
                     {
-                        if(e.message.content.Length > 0 && (e.message.content[0] == config.CommandPrefix))
+                        Console.WriteLine($"[-- Message from {e.author.Username} in #{e.Channel.Name} on {e.Channel.parent.name}: {e.message.content}");
+
+                        if (doingInitialRun)
                         {
-                            string rawCommand = e.message.content.Substring(1);
-                            try
+                            if (e.message.content.StartsWith("?authenticate"))
                             {
-                                CommandsManager.ExecuteCommand(rawCommand, e.Channel, e.author);
+                                string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                                if (split.Length > 1)
+                                {
+                                    if (codeToEnter.Trim() == split[1].Trim())
+                                    {
+                                        config.OwnerID = e.author.ID;
+                                        doingInitialRun = false;
+                                        e.Channel.SendMessage("Authentication successful! **You are now my owner, " + e.author.Username + ".**");
+                                        CommandsManager.AddPermission(e.author, PermissionType.Owner);
+                                        owner = e.author;
+                                    }
+                                }
                             }
-                            catch(UnauthorizedAccessException ex)
+                        }
+                        else
+                        {
+                            if (e.message.content.Length > 0 && (e.message.content[0] == config.CommandPrefix))
                             {
-                                e.Channel.SendMessage(ex.Message);
-                            }
-                            catch(Exception ex)
-                            {
-                                e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
+                                string rawCommand = e.message.content.Substring(1);
+                                try
+                                {
+                                    CommandsManager.ExecuteCommand(rawCommand, e.Channel, e.author);
+                                }
+                                catch (UnauthorizedAccessException ex)
+                                {
+                                    e.Channel.SendMessage(ex.Message);
+                                }
+                                catch (Exception ex)
+                                {
+                                    e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
+                                }
                             }
                         }
                     }
@@ -477,6 +485,24 @@ end";
                 }
                 else
                     cmdArgs.Channel.SendMessage("Couldn't find the specified channel as a voice channel!");
+            }));
+            CommandsManager.AddCommand(new CommandStub("invite", "Makes an invite to specified server given its ID", "Pass ID douchebag.", PermissionType.Owner, 1, cmdArgs =>
+            {
+                if (cmdArgs.Args.Count > 0)
+                {
+                    if (cmdArgs.Args[0].Length > 0)
+                    {
+                        DiscordServer server = client.GetServersList().Find(x => x.id == cmdArgs.Args[0]);
+                        DiscordChannel channel = server.channels.Find(x => x.Name == "general");
+                        cmdArgs.Channel.SendMessage(client.CreateInvite(channel));
+                    }
+                    else
+                        cmdArgs.Channel.SendMessage("kek");
+                }
+                else
+                {
+                    cmdArgs.Channel.SendMessage("kek");
+                }
             }));
             CommandsManager.AddCommand(new CommandStub("disconnect", "Disconnects from voice", "", PermissionType.Owner, 1, cmdArgs =>
             {
@@ -740,16 +766,30 @@ end";
                         e.Channel.SendMessage($"Errors! {ex.Message}");
                 }
             }));
-#endregion
-#region Anyone, but limited to server mods
+            #endregion
+            #region Anyone, but limited to server mods
+            CommandsManager.AddCommand(new CommandStub("orange", "Orangifies your text.", "", PermissionType.User, 1, cmdArgs =>
+            {
+                cmdArgs.Channel.SendMessage($"```fix\n{cmdArgs.Args[0]}\n```");
+            }));
             CommandsManager.AddCommand(new CommandStub("gtfo", "Makes the bot leave the server", "", PermissionType.User, cmdArgs =>
             {
                 bool canExecute = false;
                 foreach (var roll in cmdArgs.Author.Roles)
                     if (roll.permissions.HasPermission(DiscordSpecialPermissions.ManageServer))
                         canExecute = true;
+                if (cmdArgs.Author.Equals(owner))
+                    canExecute = true;
+
                 if (canExecute)
-                    client.LeaveServer(cmdArgs.Channel.parent);
+                {
+                    if (cmdArgs.Channel.parent.owner.Equals(client.Me))
+                    {
+                        client.DeleteServer(cmdArgs.Channel.parent);
+                    }
+                    else
+                        client.LeaveServer(cmdArgs.Channel.parent);
+                }
                 else
                     cmdArgs.Channel.SendMessage("You don't have the proper permissions to do this! You need the ManagerServer permission.");
             }));
@@ -864,6 +904,7 @@ end";
 
                 Lua state = new Lua();
 
+                bool isAdmin = false;
                 if(CommandsManager.HasPermission(cmdArgs.Author, PermissionType.Admin))
                 {
                     state["discordClient"] = client;
@@ -872,14 +913,16 @@ end";
                     foreach (var use in EvalNamespaces)
                         importStatements += $"import('{use}')\n";
                     state.DoString(importStatements);
+                    isAdmin = true;
                 }
                 else
                 {
-                    state.DoString("import = function () end");
+                    //state.DoString("import = function () end");
                 }
                 state.DoString(CustomLuaFunctions);
 
-                var res = state.DoString(whatToEval);
+                string prefix = isAdmin ? $"{whatToEval}" : $"return run({whatToEval});";
+                var res = state.DoString(prefix);
                 string resultMessage = $"**Result: {res.Length}**\n```";
                 foreach(var obj in res)
                 {
