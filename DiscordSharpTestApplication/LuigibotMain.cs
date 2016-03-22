@@ -237,7 +237,8 @@ end";
                 {
                     if (e.author == null)
                     {
-                        string msg = $"Author had null id in message received!\nRaw JSON:\n```\n{e.RawJson}\n```\nFix it, asshat.";
+                        string msg = $"Author had null id in message received!\nRaw JSON:\n```\n{e.RawJson}\n```\n";
+                        msg += $"Args\nChannel: {e.Channel.Name}/{e.Channel.ID}\nMessage: {e.message}";
                         owner.SlideIntoDMs(msg);
                     }
                     else
