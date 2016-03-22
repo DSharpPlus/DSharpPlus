@@ -158,7 +158,7 @@ namespace DiscordSharp
         public DiscordClient(string tokenOverride = null, bool isBotAccount = false)
         {
             token = tokenOverride;
-            isBotAccount = IsBotAccount;
+            IsBotAccount = isBotAccount;
             if (ClientPrivateInformation == null)
                 ClientPrivateInformation = new DiscordUserInformation();
 
