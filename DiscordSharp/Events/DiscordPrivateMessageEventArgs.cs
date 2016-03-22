@@ -1,5 +1,7 @@
 ﻿using System;
 using DiscordSharp.Objects;
+using Newtonsoft.Json.Linq;
+
 namespace DiscordSharp
 {
     public class DiscordPrivateMessageEventArgs : EventArgs
