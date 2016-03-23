@@ -57,6 +57,17 @@ namespace DiscordSharp.Commands
             Console.Write("");
         }
 
+        public bool HasPermission(DiscordMember member, PermissionType permission)
+        {
+            if(__internalUserRoles.ContainsKey(member.ID))
+            {
+                foreach (var perm in __internalUserRoles)
+                    if (perm.Key == member.ID && (int)perm.Value >= (int)permission)
+                        return true;
+            }
+            return false;
+        }
+
         public void AddPermission(DiscordMember member, PermissionType permission)
         {
             if (__internalUserRoles.ContainsKey(member.ID))

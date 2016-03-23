@@ -1,5 +1,7 @@
 ﻿using System;
 using DiscordSharp.Objects;
+using Newtonsoft.Json.Linq;
+
 namespace DiscordSharp
 {
     public class DiscordPrivateMessageEventArgs : EventArgs
@@ -7,5 +9,6 @@ namespace DiscordSharp
         public DiscordPrivateChannel Channel { get; internal set; }
         public DiscordMember author { get; internal set; }
         public string message { get; internal set; }
+        public JObject RawJson { get; internal set; }
     }
 }

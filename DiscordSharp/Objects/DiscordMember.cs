@@ -196,5 +196,17 @@ namespace DiscordSharp.Objects
             }
         }
 
+        private bool Equals(DiscordMember obj)
+        {
+            return this.ID == obj.ID;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType() == typeof(DiscordMember))
+                return Equals((DiscordMember)obj);
+
+            return base.Equals(obj);
+        }
     }
 }

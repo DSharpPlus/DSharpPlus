@@ -1,8 +1,8 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.CodeDom.Compiler;
 using Microsoft.CSharp;
 
 public static class EvalProvider
@@ -19,7 +19,8 @@ public static class EvalProvider
             foreach (var usingStatement in usingStatements)
                 includeUsings.Add(usingStatement);
 
-        using (CSharpCodeProvider compiler = new CSharpCodeProvider())
+        using (CSharpCodeProvider compiler = 
+            new CSharpCodeProvider())
         {
             var name = "F" + Guid.NewGuid().ToString().Replace("-", string.Empty);
             var includeAssemblies = new HashSet<string>(new[] { "System.dll" });
@@ -29,7 +30,8 @@ public static class EvalProvider
 
             var parameters = new CompilerParameters(includeAssemblies.ToArray())
             {
-                GenerateInMemory = true
+                GenerateInMemory = true,
+                //CompilerOptions = "/langversion:6"
             };
 
             string source = string.Format(@"
@@ -39,6 +41,7 @@ namespace {1}
 	public static class EvalClass
 	{{
         static DiscordClient discordClient;
+		static bool SubwayTime = true;
 		public static {2} Eval({3} arg)
 		{{
             discordClient = arg;
