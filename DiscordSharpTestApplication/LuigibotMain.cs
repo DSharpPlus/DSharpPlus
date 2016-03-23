@@ -135,6 +135,14 @@ end";
             "Outlook good",
             "Don't count on it"
         };
+        string[] FEmojis = new string[]
+        {
+            "💩","🍆","👌","`lol`","😛","💀","🎆", "😏", "🖕", "💀🎺🎺"
+        };
+        string[] NaughtyWords = new string[]
+        {
+            "bitch", "fucking", "fuck", "cunt", "shit", "reest", "reested", "asswipe"
+        };
 
         #region Initial Run
         bool doingInitialRun = false;
@@ -228,6 +236,15 @@ end";
             }
         }
 
+        private bool StringContainsObjectInArray(string str, string[] array)
+        {
+            for (int i = 0; i < array.Length; i++)
+                if (str.Contains(array[i]))
+                    return true;
+
+            return false;
+        }
+
         private Task SetupEvents(CancellationToken token)
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -279,6 +296,41 @@ end";
                                 catch (Exception ex)
                                 {
                                     e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
+                                }
+                            }
+                        }
+                        //Now, for fun.
+                        //if(e.author == owner)
+                        //{
+                        //    if (StringContainsObjectInArray(e.message.content.ToLower(), NaughtyWords))
+                        //    {
+                        //        try
+                        //        {
+                        //            var msg = client.GetMessageLog()[client.GetMessageLog().Count - 1].Value;
+                        //            if (msg.author == owner
+                        //                && client.GetLastMessageSent(e.Channel).content != null &&
+                        //                client.GetLastMessageSent(e.Channel).content != "hey now")
+                        //            {
+                        //                //if(msg.timestamp.AddMinutes(1) < DateTime.Now)
+                        //                int timebetween = (DateTime.Now.Minute - msg.timestamp.Minute);
+                        //                if ((timebetween < 1) && (timebetween > -1)) //less than one minute between his message and my vulgarity
+                        //                    e.Channel.SendMessage("hey now");
+                        //            }
+                        //        }
+                        //        catch { }
+                        //    }
+                        //}
+
+                        if(e.Channel.ID == "91265608326324224") //discord-sharp on discordapi
+                        {
+                            if(e.author != owner)
+                            {
+                                if(e.message.content != null && e.message.content.ToLower().Contains("how"))
+                                {
+                                    if(e.message.content.ToLower().Contains("bot") && e.message.content.ToLower().Contains("tag"))
+                                    {
+                                        e.Channel.SendMessage($"<#124294271900712960>");//#api-changes
+                                    }
                                 }
                             }
                         }
@@ -358,7 +410,7 @@ end";
                     if (e.message.Level == MessageLevel.Warning)
                         WriteWarning($"(Logger Warning) {e.message.Message}");
                 };
-                client.Connected += (sender, e) =>
+                client.Connected += (sender, e) => 
                 {
                     Console.WriteLine("Connected as " + e.user.Username);
                     loginDate = DateTime.Now;
@@ -769,10 +821,6 @@ end";
             }));
             #endregion
             #region Anyone, but limited to server mods
-            CommandsManager.AddCommand(new CommandStub("orange", "Orangifies your text.", "", PermissionType.User, 1, cmdArgs =>
-            {
-                cmdArgs.Channel.SendMessage($"```fix\n{cmdArgs.Args[0]}\n```");
-            }));
             CommandsManager.AddCommand(new CommandStub("gtfo", "Makes the bot leave the server", "", PermissionType.User, cmdArgs =>
             {
                 bool canExecute = false;
@@ -796,6 +844,18 @@ end";
             }));
             #endregion
             #region Literally anyone
+            CommandsManager.AddCommand(new CommandStub("orange", "Orangifies your text.", "", PermissionType.User, 1, cmdArgs =>
+            {
+                cmdArgs.Channel.SendMessage($"```fix\n{cmdArgs.Args[0]}\n```");
+            }));
+            CommandsManager.AddCommand(new CommandStub("f", "Pay respect.", "Press f", PermissionType.User, cmdArgs =>
+            {
+                cmdArgs.Channel.SendMessage($"{cmdArgs.Author.Username} has paid their respects. {FEmojis[rng.Next(0, FEmojis.Length - 1)]}");
+            }));
+            CommandsManager.AddCommand(new CommandStub("nf", "Pay no respect.", "Press nf", PermissionType.User, cmdArgs =>
+            {
+                cmdArgs.Channel.SendMessage($"{cmdArgs.Author.Username} refuses to pay respect. {FEmojis[rng.Next(0, FEmojis.Length - 1)]}");
+            }));
             CommandsManager.AddCommand(new CommandStub("8ball", "Have your fortune told.", "8ball <your message here>", PermissionType.User, cmdArgs =>
             {
                 rng.Next(0, EightballMessages.Length);
@@ -859,6 +919,7 @@ end";
                     YugiohPricesSearcher searcher = new YugiohPricesSearcher();
                     try
                     {
+                        client.SimulateTyping(cmdArgs.Channel);
                         var card = searcher.GetCardByName(cmdArgs.Args[0]).Result;
                         if (card.Name != "<NULL CARD>")
                         {
@@ -893,7 +954,7 @@ end";
 					}
                 cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
             }));
-            CommandsManager.AddCommand(new CommandStub("lua", "Evals Lua code.", "WIP.", PermissionType.User, 1, cmdArgs =>
+            CommandsManager.AddCommand(new CommandStub("lua", "Evals Lua code.", "WIP.", PermissionType.Admin, 1, cmdArgs =>
             {
                 string whatToEval = cmdArgs.Args[0];
                 if (whatToEval.StartsWith("`") && whatToEval.EndsWith("`"))

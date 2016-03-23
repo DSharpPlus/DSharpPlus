@@ -201,12 +201,30 @@ namespace DiscordSharp.Objects
             return this.ID == obj.ID;
         }
 
+        public static bool operator==(DiscordMember x, DiscordMember y)
+        {
+            if ((object)x == null || (object)y == null)
+                return false;
+
+            return x.ID == y.ID;
+        }
+
+        public static bool operator !=(DiscordMember x, DiscordMember y)
+        {
+            if ((object)x == null && (object)x == null)
+                return false;
+            if ((object)x == null || (object)y == null)
+                return true;
+
+            return x.ID != y.ID;
+        }
+
         public override bool Equals(object obj)
         {
-            if (obj.GetType() == typeof(DiscordMember))
-                return Equals((DiscordMember)obj);
-
-            return base.Equals(obj);
+            if(obj.GetType() == typeof(DiscordMember))
+                return this == (DiscordMember)obj;
+            else
+                return false;
         }
     }
 }
