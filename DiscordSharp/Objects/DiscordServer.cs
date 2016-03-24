@@ -227,5 +227,10 @@ namespace DiscordSharp.Objects
                 parentclient.GetTextClientLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
             }
         }
+
+        public DiscordServer ShallowCopy()
+        {
+            return (DiscordServer)this.MemberwiseClone();
+        }
     }
 }

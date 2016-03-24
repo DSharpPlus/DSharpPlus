@@ -2521,11 +2521,10 @@ namespace DiscordSharp
         private void GuildUpdateEvents(JObject message)
         {
             DiscordServer oldServer = ServersList.Find(x => x.id == message["d"]["id"].ToString());
-            DiscordServer newServer = new DiscordServer
-            {
-                name = message["d"]["name"].ToString(),
-                id = message["d"]["name"].ToString()
-            };
+            DiscordServer newServer = oldServer.ShallowCopy();
+
+            newServer.name = message["d"]["name"].ToString();
+            newServer.id = message["d"]["id"].ToString();
             newServer.parentclient = this;
             newServer.roles = new List<DiscordRole>();
             newServer.region = message["d"]["region"].ToString();
@@ -2663,7 +2662,7 @@ namespace DiscordSharp
             DiscordChannelUpdateEventArgs e = new DiscordChannelUpdateEventArgs();
             e.RawJson = message;
             DiscordChannel oldChannel = ServersList.Find(x => x.channels.Find(y => y.ID == message["d"]["id"].ToString()) != null).channels.Find(x=>x.ID == message["d"]["id"].ToString());
-            e.OldChannel = oldChannel;
+            e.OldChannel = oldChannel.ShallowCopy();
             DiscordChannel newChannel = oldChannel;
             newChannel.Name = message["d"]["name"].ToString();
             if (!message["d"]["topic"].IsNullOrEmpty())

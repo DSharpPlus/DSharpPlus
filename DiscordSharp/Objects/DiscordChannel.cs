@@ -88,6 +88,12 @@ namespace DiscordSharp.Objects
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
         }
 
+        public DiscordChannel ShallowCopy()
+        {
+            DiscordChannel channel = (DiscordChannel)this.MemberwiseClone();
+            return channel;
+        }
+
         internal DiscordChannel() { }
     }
 

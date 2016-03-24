@@ -93,6 +93,7 @@
     <Compile Include="Modules\EvalModules.cs" />
     <Compile Include="Modules\NoFunAllowedModule.cs" />
     <Compile Include="Modules\ServerAdminModules.cs" />
+    <Compile Include="Modules\TestServerLog.cs" />
     <Compile Include="Modules\YugiohModules.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

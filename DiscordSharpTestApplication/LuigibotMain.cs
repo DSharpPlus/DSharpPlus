@@ -637,6 +637,9 @@ namespace DiscordSharpTestApplication
 
             var yugiohModules = new YugiohModules();
             yugiohModules.Install(CommandsManager);
+
+            var serverLogs = new TestServerLog(client);
+            serverLogs.Install(CommandsManager);
         }
 
         private Task PlayAudioAsync(CancellationToken cancelToken)
