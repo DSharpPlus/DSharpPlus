@@ -409,7 +409,7 @@ namespace DiscordSharp
                 }
                 else
                 {
-                    DebugLogger.Log("No potential server found for user's private channel null!", MessageLevel.Critical);
+                    DebugLogger.Log("No potential server found for user's private channel null! This will probably fix itself.", MessageLevel.Debug);
                 }
                 PrivateChannels.Add(tempPrivate);
             }
@@ -2308,7 +2308,7 @@ namespace DiscordSharp
                 op = 4,
                 d = new
                 {
-                    guild_id = VoiceClient.Channel.parent.id,
+                    guild_id = VoiceClient != null && VoiceClient.Channel != null ? VoiceClient.Channel.parent.id : (object)null,
                     channel_id = (object)null,
                     self_mute = true,
                     self_deaf = false

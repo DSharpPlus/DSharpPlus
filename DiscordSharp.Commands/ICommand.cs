@@ -40,6 +40,11 @@ namespace DiscordSharp.Commands
         public virtual int ArgCount { get; set; }
 
         /// <summary>
+        /// The module this command came from.
+        /// </summary>
+        public virtual IModule Parent { get; internal set; }
+
+        /// <summary>
         /// The permission type that the command takes.
         /// </summary>
         public virtual PermissionType MinimumPermission { get; set; } = PermissionType.User;
@@ -47,6 +52,7 @@ namespace DiscordSharp.Commands
         public virtual Action<CommandArgs> Do { get; internal set; }
 
         internal virtual Type __typeofCommand { get; set; }
+        public virtual string ID { get; set; }
 
         public abstract void ExecuteCommand();
         public abstract void ExecuteCommand(DiscordChannel channel, DiscordMember member);
