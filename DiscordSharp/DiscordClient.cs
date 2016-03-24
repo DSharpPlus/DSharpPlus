@@ -2711,7 +2711,6 @@ namespace DiscordSharp
 
         private void GuildCreateEvents(JObject message)
         {
-            DebugLogger.Log("Guild create! " + message.ToString(), MessageLevel.Critical);
             DiscordGuildCreateEventArgs e = new DiscordGuildCreateEventArgs();
             e.RawJson = message;
             DiscordServer server = new DiscordServer();

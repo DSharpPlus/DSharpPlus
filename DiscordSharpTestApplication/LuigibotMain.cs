@@ -938,9 +938,13 @@ end";
                         else
                             cmdArgs.Channel.SendMessage("Couldn't find that specified card!");
                     }
-                    catch(HttpRequestException ex)
+                    catch(AggregateException ex)
                     {
-                        cmdArgs.Channel.SendMessage("Couldn't find that specified card! (" + ex.Message + ")");
+                        ex.Handle((x) =>
+                        {
+                            cmdArgs.Channel.SendMessage("Couldn't find that specified card! (" + x.Message + ")");
+                            return true;
+                        });
                     }
                     
                 }
