@@ -927,7 +927,7 @@ namespace DiscordSharp
 
                         //Updating games.
                         string game = message["d"]["game"].ToString();
-                        if (message["d"]["game"].IsNullOrEmpty())
+                        if (message["d"]["game"].IsNullOrEmpty()) //null means not playing
                         {
                             dpuea.game = "";
                             user.CurrentGame = null;
@@ -935,7 +935,10 @@ namespace DiscordSharp
                         else
                         {
                             if (message["d"]["game"]["name"].IsNullOrEmpty())
-                                dpuea.game = message["d"]["game"]["game"].ToString();
+                                if (message["d"]["game"]["game"].IsNullOrEmpty())
+                                    dpuea.game = "";
+                                else
+                                    dpuea.game = message["d"]["game"]["game"].ToString();
                             else
                                 dpuea.game = message["d"]["game"]["name"].ToString();
                             user.CurrentGame = dpuea.game;
