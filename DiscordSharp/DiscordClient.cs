@@ -934,7 +934,7 @@ namespace DiscordSharp
                         }
                         else
                         {
-                            dpuea.game = message["d"]["game"]["name"].ToString();
+                            dpuea.game = message["d"]["game"]["game"].ToString();
                             user.CurrentGame = dpuea.game;
                         }
                         dpuea.user = user;
