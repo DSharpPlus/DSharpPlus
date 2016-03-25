@@ -12,6 +12,8 @@ using System.Text.RegularExpressions;
 using System.Drawing;
 using DiscordSharp.Objects;
 
+using ID = System.String;
+
 namespace DiscordSharp
 {
     /// <summary>
@@ -128,6 +130,11 @@ namespace DiscordSharp
         /// </summary>
         public Logger GetLastVoiceClientLogger;
 
+        /// <summary>
+        /// If true, the logger will log everything.
+        /// Everything.
+        /// </summary>
+        public bool EnableVerboseLogging { get; set; } = false;
 
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
@@ -162,7 +169,8 @@ namespace DiscordSharp
         /// A log of messages kept in a KeyValuePair.
         /// The key is the id of the message, and the value is a DiscordMessage object. If you need raw json, this is contained inside of the DiscordMessage object now.
         /// </summary>
-        private List<KeyValuePair<string, DiscordMessage>> MessageLog = new List<KeyValuePair<string, DiscordMessage>>();
+        private Dictionary<ID, DiscordMessage> MessageLog = new Dictionary<string, DiscordMessage>();
+        //private List<KeyValuePair<string, DiscordMessage>> MessageLog = new List<KeyValuePair<string, DiscordMessage>>();
         private List<DiscordPrivateChannel> PrivateChannels = new List<DiscordPrivateChannel>();
 
         #region Event declaration
@@ -265,7 +273,7 @@ namespace DiscordSharp
         /// Any messages logged since connection to the websocket.
         /// </summary>
         /// <returns>A KeyValuePair list of string-DiscordMessage. Where string is the message's ID</returns>
-        public List<KeyValuePair<string, DiscordMessage>> GetMessageLog() => MessageLog;
+        public Dictionary<ID, DiscordMessage> GetMessageLog() => MessageLog;
 
         /// <summary>
         /// Private channels assosciated with the account.
@@ -1000,9 +1008,9 @@ namespace DiscordSharp
         /// <param name="id"></param>
         public void DeleteMessage(string id)
         {
-            var message = MessageLog.Find(x => x.Value.ID == id);
-            if(message.Value != null)
-                SendDeleteRequest(message.Value);
+            var message = MessageLog[id];
+            if(message != null)
+                SendDeleteRequest(message);
         }
 
         /// <summary>
@@ -1026,15 +1034,15 @@ namespace DiscordSharp
         public int DeleteAllMessages()
         {
             int count = 0;
-            MessageLog.ForEach(x =>
+
+            foreach(var kvp in MessageLog)
             {
-                if (x.Value.Author.ID == Me.ID)
+                if(kvp.Value.Author.ID == Me.ID)
                 {
-                    SendDeleteRequest(x.Value);
+                    SendDeleteRequest(kvp.Value);
                     count++;
                 }
-            });
-            
+            }
             return count;
         }
         
@@ -1180,10 +1188,12 @@ namespace DiscordSharp
         /// <returns>The last DiscordMessage sent</returns>
         public DiscordMessage GetLastMessageSent()
         {
-            for(int i = MessageLog.Count - 1; i > -1; i--)
+            foreach (var message in MessageLog)
             {
-                if (MessageLog[i].Value.Author.ID == Me.ID)
-                    return MessageLog[i].Value;
+                if (message.Value.Author.ID == Me.ID)
+                {
+                    return message.Value;
+                }
             }
             return null;
         }
@@ -1195,11 +1205,12 @@ namespace DiscordSharp
         /// <returns>The last DiscordMessage sent in the given channel</returns>
         public DiscordMessage GetLastMessageSent(DiscordChannel inChannel)
         {
-            for (int i = MessageLog.Count - 1; i > -1; i--)
+            foreach(var message in MessageLog)
             {
-                if (MessageLog[i].Value.Author.ID == Me.ID)
-                    if(MessageLog[i].Value.channel.ID == inChannel.ID)
-                        return MessageLog[i].Value;
+                if(message.Value.Author.ID == Me.ID && message.Value.channel.ID == inChannel.ID)
+                {
+                    return message.Value;
+                }
             }
             return null;
         }
@@ -1282,6 +1293,15 @@ namespace DiscordSharp
             }
         }
 
+        private DiscordMessage FindInMessageLog(ID id)
+        {
+            foreach (var message in MessageLog)
+                if (message.Key == id)
+                    return message.Value;
+
+            return null;
+        }
+
         private void MessageUpdateEvents(JObject message)
         {
             try
@@ -1292,10 +1312,10 @@ namespace DiscordSharp
                 {
                     if (message["d"]["author"] != null)
                     {
-                        KeyValuePair<string, DiscordMessage> toRemove = MessageLog.Find(x => x.Key == message["d"]["id"].ToString());
-                        if (toRemove.Value == null)
+                        var toRemove = FindInMessageLog(message["d"]["id"].ToString());
+                        if (toRemove == null)
                             return; //No message exists
-                        var jsonToEdit = toRemove.Value.RawJson;
+                        var jsonToEdit = toRemove.RawJson;
                         jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
                         if (MessageEdited != null)
                             MessageEdited(this, new DiscordMessageEditedEventArgs
@@ -1307,7 +1327,7 @@ namespace DiscordSharp
                                 MessageEdited = new DiscordMessage
                                 {
                                     Author = pserver.Members.Find(x => x.ID == message["d"]["author"]["id"].ToString()),
-                                    Content = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value.Content,
+                                    Content = toRemove.Content,
                                     Attachments = message["d"]["attachments"].ToObject<DiscordAttachment[]>(),
                                     channel = pserver.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString()),
                                     RawJson = message,
@@ -1316,11 +1336,11 @@ namespace DiscordSharp
                                 },
                                 EditedTimestamp = message["d"]["edited_timestamp"].ToObject<DateTime>()
                             });
-                        int indexOfMessageToChange = MessageLog.IndexOf(toRemove);
-                        MessageLog.Remove(toRemove);
-                        DiscordMessage newMessage = toRemove.Value;
+                        MessageLog.Remove(message["d"]["id"].ToString());
+                        
+                        DiscordMessage newMessage = toRemove;
                         newMessage.Content = jsonToEdit["d"]["content"].ToString();
-                        MessageLog.Insert(indexOfMessageToChange, new KeyValuePair<string, DiscordMessage>(jsonToEdit["d"]["id"].ToString(), newMessage));
+                        MessageLog.Add(message["d"]["id"].ToString(), newMessage);
 
                     }
                     else //I know they say assume makes an ass out of you and me...but we're assuming it's Discord's weird auto edit of a just URL message
@@ -1464,7 +1484,7 @@ namespace DiscordSharp
                 }
 
                 KeyValuePair<string, DiscordMessage> toAdd = new KeyValuePair<string, DiscordMessage>(message["d"]["id"].ToString(), m);
-                MessageLog.Add(toAdd);
+                MessageLog.Add(message["d"]["id"].ToString(), m);
 
                 if (MessageReceived != null)
                     MessageReceived(this, dmea);
@@ -1798,8 +1818,9 @@ namespace DiscordSharp
                 ws.OnMessage += (sender, e) =>
                 {
                     var message = JObject.Parse(e.Data);
-                    if(message["t"].ToString() != "READY")
-                        DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
+                    if(EnableVerboseLogging)
+                        if(message["t"].ToString() != "READY")
+                            DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
                     switch(message["t"].ToString())
                     {
                         case ("READY"):
@@ -2936,7 +2957,7 @@ namespace DiscordSharp
         private void MessageDeletedEvents(JObject message)
         {
             DiscordMessageDeletedEventArgs e = new DiscordMessageDeletedEventArgs();
-            e.DeletedMessage = MessageLog.Find(x => x.Key == message["d"]["id"].ToString()).Value;
+            e.DeletedMessage = FindInMessageLog(message["d"]["id"].ToString());
 
             DiscordServer inServer;
             inServer = ServersList.Find(x => x.Channels.Find(y => y.ID == message["d"]["channel_id"].ToString()) != null);
