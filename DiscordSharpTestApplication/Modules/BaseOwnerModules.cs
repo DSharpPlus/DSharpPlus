@@ -177,6 +177,27 @@ namespace DiscordSharpTestApplication.Modules
                     cmdArgs.Channel.SendMessage($"Attempted pruning of {messageCount} messages.");
                 }
             }));
+
+            manager.AddCommand(new CommandStub("flush", "Flushes various internal DiscordSharp caches.", "Flushes either `offline` or `messages`. \n`offline` as parameter will flush offline users from the current server.\n`messages` will flush the internal message log.", PermissionType.Owner, 1, cmdArgs =>
+            {
+                if(cmdArgs.Args.Count > 0)
+                {
+                    if(cmdArgs.Args[0].ToLower().Trim() == "offline")
+                    {
+                        int flushedCount = manager.Client.ClearOfflineUsersFromServer(cmdArgs.Channel.parent);
+                        cmdArgs.Channel.SendMessage($"Flushed {flushedCount} offliners from {cmdArgs.Channel.parent.name}.");
+                    }
+                    else if(cmdArgs.Args[0].ToLower().Trim() == "messages")
+                    {
+                        int flushedCount = manager.Client.ClearInternalMessageLog();
+                        cmdArgs.Channel.SendMessage($"Flushed {flushedCount} messages from the internal message log.");
+                    }
+                }
+                else
+                {
+                    cmdArgs.Channel.SendMessage("Flush what? The toilet?");
+                }
+            }), this);
         }
     }
 }
