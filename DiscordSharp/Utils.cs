@@ -47,7 +47,7 @@ namespace DiscordSharp
             //dm.content = message;
             //dm.mentions = foundIDS.ToArray();
             //dm.mentions = new string[] { "" };
-            return new DiscordMessage { content = message };
+            return new DiscordMessage { Content = message };
         }
     }
 }

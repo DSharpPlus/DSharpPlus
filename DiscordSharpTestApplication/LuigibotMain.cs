@@ -165,13 +165,13 @@ namespace DiscordSharpTestApplication
                     }
                     else
                     {
-                        Console.WriteLine($"[-- Message from {e.author.Username} in #{e.Channel.Name} on {e.Channel.parent.name}: {e.message.content}");
+                        Console.WriteLine($"[-- Message from {e.author.Username} in #{e.Channel.Name} on {e.Channel.parent.Name}: {e.message.Content}");
 
                         if (doingInitialRun)
                         {
-                            if (e.message.content.StartsWith("?authenticate"))
+                            if (e.message.Content.StartsWith("?authenticate"))
                             {
-                                string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                                string[] split = e.message.Content.Split(new char[] { ' ' }, 2);
                                 if (split.Length > 1)
                                 {
                                     if (codeToEnter.Trim() == split[1].Trim())
@@ -187,9 +187,9 @@ namespace DiscordSharpTestApplication
                         }
                         else
                         {
-                            if (e.message.content.Length > 0 && (e.message.content[0] == config.CommandPrefix))
+                            if (e.message.Content.Length > 0 && (e.message.Content[0] == config.CommandPrefix))
                             {
-                                string rawCommand = e.message.content.Substring(1);
+                                string rawCommand = e.message.Content.Substring(1);
                                 try
                                 {
                                     CommandsManager.ExecuteOnMessageCommand(rawCommand, e.Channel, e.author);
@@ -234,9 +234,9 @@ namespace DiscordSharpTestApplication
                         {
                             if(e.author != owner)
                             {
-                                if(e.message.content != null && e.message.content.ToLower().Contains("how"))
+                                if(e.message.Content != null && e.message.Content.ToLower().Contains("how"))
                                 {
-                                    if(e.message.content.ToLower().Contains("bot") && e.message.content.ToLower().Contains("tag"))
+                                    if(e.message.Content.ToLower().Contains("bot") && e.message.Content.ToLower().Contains("tag"))
                                     {
                                         e.Channel.SendMessage($"<#124294271900712960>");//#api-changes
                                     }
@@ -275,7 +275,7 @@ namespace DiscordSharpTestApplication
                 };
                 client.GuildCreated += (sender, e) =>
                 {
-                    owner.SlideIntoDMs($"Joined server {e.server.name} ({e.server.id})");
+                    owner.SlideIntoDMs($"Joined server {e.server.Name} ({e.server.ID})");
                 };
                 client.SocketClosed += (sender, e) =>
                 {
@@ -325,7 +325,7 @@ namespace DiscordSharpTestApplication
                     loginDate = DateTime.Now;
 
                     if(!String.IsNullOrEmpty(config.OwnerID))
-                        owner = client.GetServersList().Find(x => x.members.Find(y => y.ID == config.OwnerID) != null).members.Find(x => x.ID == config.OwnerID);
+                        owner = client.GetServersList().Find(x => x.Members.Find(y => y.ID == config.OwnerID) != null).Members.Find(x => x.ID == config.OwnerID);
                     else
                     {
                         doingInitialRun = true;
@@ -375,8 +375,8 @@ namespace DiscordSharpTestApplication
 			client = new DiscordClient(botToken, true);
 			client.RequestAllUsersOnStartup = true;
             
-			client.ClientPrivateInformation.email = config.BotEmail;
-			client.ClientPrivateInformation.password = config.BotPass;
+			client.ClientPrivateInformation.Email = config.BotEmail;
+			client.ClientPrivateInformation.Password = config.BotPass;
 
 			SetupEvents(cancelToken);
 		}
@@ -418,7 +418,7 @@ namespace DiscordSharpTestApplication
             #region Old Commands
             CommandsManager.AddCommand(new CommandStub("joinvoice", "Joins a specified voice channel", "Arg is case insensitive voice channel name to join.", PermissionType.Owner, 1, cmdArgs =>
             {
-                DiscordChannel channelToJoin = cmdArgs.Channel.parent.channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
+                DiscordChannel channelToJoin = cmdArgs.Channel.parent.Channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
                 if (channelToJoin != null)
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
@@ -448,8 +448,8 @@ namespace DiscordSharpTestApplication
                 {
                     if (cmdArgs.Args[0].Length > 0)
                     {
-                        DiscordServer server = client.GetServersList().Find(x => x.id == cmdArgs.Args[0]);
-                        DiscordChannel channel = server.channels.Find(x => x.Name == "general");
+                        DiscordServer server = client.GetServersList().Find(x => x.ID == cmdArgs.Args[0]);
+                        DiscordChannel channel = server.Channels.Find(x => x.Name == "general");
                         cmdArgs.Channel.SendMessage(client.CreateInvite(channel));
                     }
                     else
@@ -481,7 +481,7 @@ namespace DiscordSharpTestApplication
                 string id = cmdArgs.Args[0].Trim(new char[] { '<', '@', '>' });
                 if(!string.IsNullOrEmpty(id))
                 {
-                    DiscordMember member = cmdArgs.Channel.parent.members.Find(x => x.ID == id);
+                    DiscordMember member = cmdArgs.Channel.parent.Members.Find(x => x.ID == id);
                     if (member != null)
                     {
                         string msg = $"Status of `{member.Username}`\n{member.Status}";
@@ -518,11 +518,11 @@ namespace DiscordSharpTestApplication
                 if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
                 {
                     DiscordServer guild = cmdArgs.Channel.parent;
-                    string msg = $"Stats for **{guild.name}**\n```\n";
-                    msg += $"{guild.members.Count} members\n";
-                    msg += $"{guild.roles.Count} roles\n";
-                    msg += $"Owned by {guild.owner.Username}#{guild.owner.Discriminator}\n";
-                    msg += $"{guild.region}\n```";
+                    string msg = $"Stats for **{guild.Name}**\n```\n";
+                    msg += $"{guild.Members.Count} members\n";
+                    msg += $"{guild.Roles.Count} roles\n";
+                    msg += $"Owned by {guild.Owner.Username}#{guild.Owner.Discriminator}\n";
+                    msg += $"{guild.Region}\n```";
                     cmdArgs.Channel.SendMessage(msg);
                 }
             }));
@@ -531,10 +531,10 @@ namespace DiscordSharpTestApplication
                 if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
                 {
                     DiscordServer guild = cmdArgs.Channel.parent;
-                    string msg = $"Roles for **{guild.name}**, per your request.\n```\n";
-                    foreach(var role in guild.roles)
+                    string msg = $"Roles for **{guild.Name}**, per your request.\n```\n";
+                    foreach(var role in guild.Roles)
                     {
-                        msg += $"{role.position} - {role.name} - {role.id} - {role.permissions.GetRawPermissions()}\n";
+                        msg += $"{role.Position} - {role.Name} - {role.ID} - {role.Permissions.GetRawPermissions()}\n";
                     }
                     msg += "\n```";
                     owner.SlideIntoDMs(msg);

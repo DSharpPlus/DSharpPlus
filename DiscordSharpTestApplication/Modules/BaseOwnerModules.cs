@@ -145,13 +145,13 @@ namespace DiscordSharpTestApplication.Modules
                 if (int.TryParse(cmdArgs.Args[0], out messageCount))
                 {
                     var messagesToPrune = manager.Client.GetMessageHistory(cmdArgs.Channel, messageCount);
-                    DiscordMember selfInServer = cmdArgs.Channel.parent.members.Find(x => x.ID == manager.Client.Me.ID);
+                    DiscordMember selfInServer = cmdArgs.Channel.parent.Members.Find(x => x.ID == manager.Client.Me.ID);
                     bool pruneAll = false;
                     if (selfInServer != null)
                     {
                         foreach (var roll in selfInServer.Roles)
                         {
-                            if (roll.permissions.HasPermission(DiscordSpecialPermissions.ManageMessages))
+                            if (roll.Permissions.HasPermission(DiscordSpecialPermissions.ManageMessages))
                             {
                                 pruneAll = true;
                                 break;
@@ -162,7 +162,7 @@ namespace DiscordSharpTestApplication.Modules
                     {
                         if (!pruneAll)
                         {
-                            if (msg.author.ID == manager.Client.Me.ID)
+                            if (msg.Author.ID == manager.Client.Me.ID)
                             {
                                 manager.Client.DeleteMessage(msg);
                                 Thread.Sleep(100);
@@ -178,14 +178,14 @@ namespace DiscordSharpTestApplication.Modules
                 }
             }));
 
-            manager.AddCommand(new CommandStub("flush", "Flushes various internal DiscordSharp caches.", "Flushes either `offline` or `messages`. \n`offline` as parameter will flush offline users from the current server.\n`messages` will flush the internal message log.", PermissionType.Owner, 1, cmdArgs =>
+            manager.AddCommand(new CommandStub("flush", "Flushes various internal DiscordSharp caches.", "Flushes either `offline` or `messages`. \n  `offline` as parameter will flush offline users from the current server.\n  `messages` will flush the internal message log.", PermissionType.Owner, 1, cmdArgs =>
             {
                 if(cmdArgs.Args.Count > 0)
                 {
                     if(cmdArgs.Args[0].ToLower().Trim() == "offline")
                     {
                         int flushedCount = manager.Client.ClearOfflineUsersFromServer(cmdArgs.Channel.parent);
-                        cmdArgs.Channel.SendMessage($"Flushed {flushedCount} offliners from {cmdArgs.Channel.parent.name}.");
+                        cmdArgs.Channel.SendMessage($"Flushed {flushedCount} offliners from {cmdArgs.Channel.parent.Name}.");
                     }
                     else if(cmdArgs.Args[0].ToLower().Trim() == "messages")
                     {

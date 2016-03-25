@@ -30,25 +30,22 @@ namespace DiscordSharp.Objects
     public class DiscordMessage
     {
         [JsonProperty("content")]
-        public string content { get; set; }
+        public string Content { get; set; }
         [JsonProperty("id")]
-        public string id { get; internal set; }
-
-        [Obsolete] //Obsolete, mention array is no longer the proper way to do this.
-        public string[] mentions { get; internal set; }
+        public string ID { get; internal set; }
 
         [JsonProperty("attachments")]
-        public DiscordAttachment[] attachments { get; internal set; }
+        public DiscordAttachment[] Attachments { get; internal set; }
 
 
         //public string recipient_id { get; set; }
         public DiscordMember Recipient { get; internal set; }
 
-        public DiscordMember author { get; internal set; }
+        public DiscordMember Author { get; internal set; }
         internal DiscordChannelBase channel { get; set; }
         public Type TypeOfChannelObject { get; internal set; }
 
-#if V45
+#if NETFX4_5
         public dynamic Channel() =>
             Convert.ChangeType(this.channel, TypeOfChannelObject);
 #else

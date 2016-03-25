@@ -10,8 +10,10 @@ namespace DiscordSharp.Objects
     [Obsolete]
     public class DiscordLoginInformation
     {
-        public string[] email { get; set; }
-        public string[] password { get; set; }
+        [JsonProperty("email")]
+        public string[] Email { get; set; }
+        [JsonProperty("password")]
+        public string[] Password { get; set; }
 
         public string AsJson()
         {
@@ -19,8 +21,8 @@ namespace DiscordSharp.Objects
         }
         public DiscordLoginInformation()
         {
-            email = new string[1];
-            password = new string[1];
+            Email = new string[1];
+            Password = new string[1];
         }
     }
 }

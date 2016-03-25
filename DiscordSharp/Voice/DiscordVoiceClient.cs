@@ -298,7 +298,7 @@ namespace DiscordSharp
                     op = 0,
                     d = new
                     {
-                        server_id = Guild.id,
+                        server_id = Guild.ID,
                         user_id = Me.ID,
                         session_id = SessionID,
                         token = Token
@@ -374,7 +374,7 @@ namespace DiscordSharp
         {
             DiscordVoiceUserSpeakingEventArgs e = new DiscordVoiceUserSpeakingEventArgs();
             e.Channel = Channel;
-            e.UserSpeaking = Guild.members.Find(x => x.ID == message["d"]["user_id"].ToString());
+            e.UserSpeaking = Guild.Members.Find(x => x.ID == message["d"]["user_id"].ToString());
             e.Speaking = message["d"]["speaking"].ToObject<bool>();
             e.ssrc = message["d"]["ssrc"].ToObject<int>();
 

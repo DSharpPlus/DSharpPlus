@@ -8,10 +8,10 @@ namespace DiscordSharp.Objects
 {
     public class DiscordUserInformation
     {
-        public string email { get; set; }
-        public string password { get; set; }
-        public string username { get; set; }
-        public string avatar { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string Username { get; set; }
+        public string Avatar { get; set; }
         public DiscordUserInformation()
         {}
 
@@ -19,10 +19,10 @@ namespace DiscordSharp.Objects
         {
             return new DiscordUserInformation
             {
-                email = this.email,
-                password = this.password,
-                username = this.username,
-                avatar = this.avatar
+                Email = this.Email,
+                Password = this.Password,
+                Username = this.Username,
+                Avatar = this.Avatar
             };
         }
     }

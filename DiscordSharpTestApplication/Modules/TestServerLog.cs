@@ -20,11 +20,11 @@ namespace DiscordSharpTestApplication.Modules
             Description = "nunya";
 
             DiscordSharpTestServer = client.GetServersList().Find(
-                x => x.name == "DiscordSharp Test Server"
+                x => x.Name == "DiscordSharp Test Server"
             ); //todo replace with id
             if(DiscordSharpTestServer != null)
             {
-                LogChannel = DiscordSharpTestServer.channels.Find(x => x.Name == "log" && x.Type == ChannelType.Text);
+                LogChannel = DiscordSharpTestServer.Channels.Find(x => x.Name == "log" && x.Type == ChannelType.Text);
             }
         }
 
@@ -35,20 +35,20 @@ namespace DiscordSharpTestApplication.Modules
             */
             manager.Client.GuildUpdated += (sender, e) =>
             {
-                Console.WriteLine($"[TestServerLog Module] Guild update. Old guild name: {e.OldServer.name}");
+                Console.WriteLine($"[TestServerLog Module] Guild update. Old guild name: {e.OldServer.Name}");
                 if(DiscordSharpTestServer != null)
                 {
-                    if (e.NewServer.id == DiscordSharpTestServer.id) //test server
+                    if (e.NewServer.ID == DiscordSharpTestServer.ID) //test server
                     {
                         Console.WriteLine($"[TestServerLog Module] Posting comparison.");
                         string msg = $"**Server Update**\n";
-                        msg += $"\n**Name: **: {e.OldServer.name} -> {e.NewServer.name}";
+                        msg += $"\n**Name: **: {e.OldServer.Name} -> {e.NewServer.Name}";
                         msg += $"\n**Icon:** <{e.OldServer.IconURL}> -> <{e.OldServer.IconURL}>";
-                        msg += $"\n**ID:** {e.NewServer.id}";
-                        msg += $"\n**Owner: ** {e.OldServer.owner.ID} -> {e.NewServer.owner.ID}";
-                        msg += $"\n**Region: ** {e.OldServer.region} -> {e.NewServer.region}";
+                        msg += $"\n**ID:** {e.NewServer.ID}";
+                        msg += $"\n**Owner: ** {e.OldServer.Owner.ID} -> {e.NewServer.Owner.ID}";
+                        msg += $"\n**Region: ** {e.OldServer.Region} -> {e.NewServer.Region}";
                         msg += $"\n**Users Online: **";
-                        foreach (var user in DiscordSharpTestServer.members)
+                        foreach (var user in DiscordSharpTestServer.Members)
                         {
                             if (user != null && user.Status == Status.Online)
                                 msg += $"{user.Username}, ";
@@ -64,14 +64,14 @@ namespace DiscordSharpTestApplication.Modules
             {
                 if (LogChannel != null && DiscordSharpTestServer != null)
                 {
-                    if (e.NewChannel.parent.id == DiscordSharpTestServer.id)
+                    if (e.NewChannel.parent.ID == DiscordSharpTestServer.ID)
                     {
                         string msg = $"**Channel Update**\n";
                         msg += $"\n**Name: ** {e.OldChannel.Name} -> {e.NewChannel.Name}";
                         msg += $"\n**Topic:** {e.OldChannel.Topic} -> {e.NewChannel.Topic}";
                         msg += $"\n**ID:** {e.NewChannel.ID}";
                         msg += $"\n**Users Online: **";
-                        foreach (var user in DiscordSharpTestServer.members)
+                        foreach (var user in DiscordSharpTestServer.Members)
                         {
                             if (user != null && user.Status == Status.Online)
                                 msg += $"{user.Username}, ";

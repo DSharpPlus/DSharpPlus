@@ -24,14 +24,14 @@ namespace DiscordSharpTestApplication.Modules
             {
                 bool canExecute = false;
                 foreach (var roll in cmdArgs.Author.Roles)
-                    if (roll.permissions.HasPermission(DiscordSpecialPermissions.ManageServer))
+                    if (roll.Permissions.HasPermission(DiscordSpecialPermissions.ManageServer))
                         canExecute = true;
                 if (cmdArgs.Author.Equals(mainEntry.owner))
                     canExecute = true;
 
                 if (canExecute)
                 {
-                    if (cmdArgs.Channel.parent.owner.Equals(manager.Client.Me))
+                    if (cmdArgs.Channel.parent.Owner.Equals(manager.Client.Me))
                     {
                         manager.Client.DeleteServer(cmdArgs.Channel.parent);
                     }
