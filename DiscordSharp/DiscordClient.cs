@@ -904,77 +904,81 @@ namespace DiscordSharp
         {
             DiscordPresenceUpdateEventArgs dpuea = new DiscordPresenceUpdateEventArgs();
             dpuea.RawJson = message;
-            //var pserver = ServersList.Find(x => x.members.Find(y => y.ID == message["d"]["id"].ToString()) != null);
-            foreach(var server in ServersList)
+
+            if (!message["d"]["guild_id"].IsNullOrEmpty())
             {
-                var user = server.members.Find(x => x.ID == message["d"]["user"]["id"].ToString());
-                if(user != null)
+                var server = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
+                if(server != null)
                 {
-                    //If usernames change.
-                    if (!message["d"]["user"]["username"].IsNullOrEmpty())
-                        user.Username = message["d"]["user"]["username"].ToString();
-
-                    //If avatar changes.
-                    if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
-                        user.Avatar = message["d"]["user"]["avatar"].ToString();
-
-                    //Actual presence update
-                    user.SetPresence(message["d"]["status"].ToString());
-
-                    //Updating games.
-                    string game = message["d"]["game"].ToString();
-                    if (message["d"]["game"].IsNullOrEmpty())
+                    var user = server.members.Find(x => x.ID.Trim() == message["d"]["user"]["id"].ToString().Trim());
+                    if (user != null)
                     {
-                        dpuea.game = "";
-                        user.CurrentGame = null;
+                        //If usernames change.
+                        if (!message["d"]["user"]["username"].IsNullOrEmpty())
+                            user.Username = message["d"]["user"]["username"].ToString();
+
+                        //If avatar changes.
+                        if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
+                            user.Avatar = message["d"]["user"]["avatar"].ToString();
+
+                        //Actual presence update
+                        user.SetPresence(message["d"]["status"].ToString());
+
+                        //Updating games.
+                        string game = message["d"]["game"].ToString();
+                        if (message["d"]["game"].IsNullOrEmpty())
+                        {
+                            dpuea.game = "";
+                            user.CurrentGame = null;
+                        }
+                        else
+                        {
+                            dpuea.game = message["d"]["game"]["name"].ToString();
+                            user.CurrentGame = dpuea.game;
+                        }
+                        dpuea.user = user;
+
+                        if (message["d"]["status"].ToString() == "online")
+                            dpuea.status = DiscordUserStatus.ONLINE;
+                        else if (message["d"]["status"].ToString() == "idle")
+                            dpuea.status = DiscordUserStatus.IDLE;
+                        else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
+                            dpuea.status = DiscordUserStatus.OFFLINE;
+                        if (PresenceUpdated != null)
+                            PresenceUpdated(this, dpuea);
                     }
                     else
                     {
-                        dpuea.game = message["d"]["game"]["name"].ToString();
-                        user.CurrentGame = dpuea.game;
-                    }
-                    dpuea.user = user;
-
-                    if (message["d"]["status"].ToString() == "online")
-                        dpuea.status = DiscordUserStatus.ONLINE;
-                    else if (message["d"]["status"].ToString() == "idle")
-                        dpuea.status = DiscordUserStatus.IDLE;
-                    else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
-                        dpuea.status = DiscordUserStatus.OFFLINE;
-                    if (PresenceUpdated != null)
-                        PresenceUpdated(this, dpuea);
-                }
-                else
-                {
-                    if (!message["d"]["guild_id"].IsNullOrEmpty()) //if this is null or empty, that means this pertains to friends list
-                    {
-                        if (!message["d"]["user"]["username"].IsNullOrEmpty() && !message["d"]["user"]["id"].IsNullOrEmpty())
+                        if (!message["d"]["guild_id"].IsNullOrEmpty()) //if this is null or empty, that means this pertains to friends list
                         {
-                            DebugLogger.Log($"User {message["d"]["user"]["username"]} doesn't exist in server {server.name} no problemo. Creating/adding", MessageLevel.Debug);
-                            DiscordMember memeber = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
-                            memeber.parentclient = this;
-                            memeber.SetPresence(message["d"]["status"].ToString());
-                            memeber.Parent = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-
-                            if (message["d"]["game"].IsNullOrEmpty())
+                            if (!message["d"]["user"]["username"].IsNullOrEmpty() && !message["d"]["user"]["id"].IsNullOrEmpty())
                             {
-                                dpuea.game = "";
-                                memeber.CurrentGame = null;
-                            }
-                            else
-                            {
-                                dpuea.game = message["d"]["game"]["name"].ToString();
-                                memeber.CurrentGame = dpuea.game;
-                            }
+                                DebugLogger.Log($"User {message["d"]["user"]["username"]} ({message["d"]["user"]["id"].ToString()}) doesn't exist in server {server.name} ({server.id}) no problemo. Creating/adding", MessageLevel.Debug);
+                                DiscordMember memeber = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+                                memeber.parentclient = this;
+                                memeber.SetPresence(message["d"]["status"].ToString());
+                                memeber.Parent = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
 
-                            if (message["d"]["status"].ToString() == "online")
-                                dpuea.status = DiscordUserStatus.ONLINE;
-                            else if (message["d"]["status"].ToString() == "idle")
-                                dpuea.status = DiscordUserStatus.IDLE;
-                            else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
-                                dpuea.status = DiscordUserStatus.OFFLINE;
+                                if (message["d"]["game"].IsNullOrEmpty())
+                                {
+                                    dpuea.game = "";
+                                    memeber.CurrentGame = null;
+                                }
+                                else
+                                {
+                                    dpuea.game = message["d"]["game"]["name"].ToString();
+                                    memeber.CurrentGame = dpuea.game;
+                                }
 
-                            memeber.Parent.members.Add(memeber);
+                                if (message["d"]["status"].ToString() == "online")
+                                    dpuea.status = DiscordUserStatus.ONLINE;
+                                else if (message["d"]["status"].ToString() == "idle")
+                                    dpuea.status = DiscordUserStatus.IDLE;
+                                else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
+                                    dpuea.status = DiscordUserStatus.OFFLINE;
+
+                                memeber.Parent.members.Add(memeber);
+                            }
                         }
                     }
                 }
@@ -2299,6 +2303,27 @@ namespace DiscordSharp
         }
 
         /// <summary>
+        /// Clears the internal message log cache
+        /// </summary>
+        /// <returns>The number of internal messages cleared.</returns>
+        public int ClearInternalMessageLog()
+        {
+            int totalCount = MessageLog.Count;
+            MessageLog.Clear();
+            return totalCount;
+        }
+
+        /// <summary>
+        /// Iterates through a server's members and removes offline users.
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns>The amount of users cleared.</returns>
+        public int ClearOfflineUsersFromServer(DiscordServer server)
+        {
+            return server.members.RemoveAll(x => x.Status == Status.Offline);
+        }
+
+        /// <summary>
         /// Also disposes
         /// </summary>
         public void DisconnectFromVoice()
@@ -2790,17 +2815,27 @@ namespace DiscordSharp
         {
             DiscordGuildMemberAddEventArgs e = new DiscordGuildMemberAddEventArgs();
             e.RawJson = message;
-            DiscordMember newMember = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
-            newMember.parentclient = this;
-            e.AddedMember = newMember;
             e.Guild = ServersList.Find(x => x.id == message["d"]["guild_id"].ToString());
-            newMember.Parent = e.Guild;
-            e.roles = message["d"]["roles"].ToObject<string[]>();
-            e.JoinedAt = DateTime.Parse(message["d"]["joined_at"].ToString());
 
-            ServersList.Find(x => x == e.Guild).members.Add(newMember);
-            if (UserAddedToServer != null)
-                UserAddedToServer(this, e);
+            DiscordMember existingMember = e.Guild.members.Find(x => x.ID == message["d"]["user"]["id"].ToString());
+            if (existingMember != null)
+            {
+
+                DiscordMember newMember = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+                newMember.parentclient = this;
+                e.AddedMember = newMember;
+                newMember.Parent = e.Guild;
+                e.roles = message["d"]["roles"].ToObject<string[]>();
+                e.JoinedAt = DateTime.Parse(message["d"]["joined_at"].ToString());
+
+                ServersList.Find(x => x == e.Guild).members.Add(newMember);
+                if (UserAddedToServer != null)
+                    UserAddedToServer(this, e);
+            }
+            else
+            {
+                DebugLogger.Log($"Skipping guild member add because user already exists in server.", MessageLevel.Debug);
+            }
         }
         private void GuildMemberRemoveEvents(JObject message)
         {

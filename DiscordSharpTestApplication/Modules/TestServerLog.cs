@@ -55,6 +55,8 @@ namespace DiscordSharpTestApplication.Modules
                         }
                         msg += "\n------------------------------";
                         LogChannel.SendMessage(msg);
+
+                        DiscordSharpTestServer = e.NewServer;
                     }
                 }
             };
@@ -62,18 +64,21 @@ namespace DiscordSharpTestApplication.Modules
             {
                 if (LogChannel != null && DiscordSharpTestServer != null)
                 {
-                    string msg = $"**Channel Update**\n";
-                    msg += $"\n**Name: ** {e.OldChannel.Name} -> {e.NewChannel.Name}";
-                    msg += $"\n**Topic:** {e.OldChannel.Topic} -> {e.NewChannel.Topic}";
-                    msg += $"\n**ID:** {e.NewChannel.ID}";
-                    msg += $"\n**Users Online: **";
-                    foreach(var user in DiscordSharpTestServer.members)
+                    if (e.NewChannel.parent.id == DiscordSharpTestServer.id)
                     {
-                        if (user != null && user.Status == Status.Online)
-                            msg += $"{user.Username}, ";
+                        string msg = $"**Channel Update**\n";
+                        msg += $"\n**Name: ** {e.OldChannel.Name} -> {e.NewChannel.Name}";
+                        msg += $"\n**Topic:** {e.OldChannel.Topic} -> {e.NewChannel.Topic}";
+                        msg += $"\n**ID:** {e.NewChannel.ID}";
+                        msg += $"\n**Users Online: **";
+                        foreach (var user in DiscordSharpTestServer.members)
+                        {
+                            if (user != null && user.Status == Status.Online)
+                                msg += $"{user.Username}, ";
+                        }
+                        msg += "\n------------------------------";
+                        LogChannel.SendMessage(msg);
                     }
-                    msg += "\n------------------------------";
-                    LogChannel.SendMessage(msg);
                 }
             };
         }

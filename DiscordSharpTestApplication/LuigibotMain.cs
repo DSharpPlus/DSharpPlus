@@ -56,6 +56,7 @@ namespace DiscordSharpTestApplication
         System.Timers.Timer stutterReducingTimer;
         #endregion
         bool runningOnMono = false;
+        public bool actuallyExit = false;
 		string osString;
         
         string[] NaughtyWords = new string[]
@@ -278,9 +279,9 @@ namespace DiscordSharpTestApplication
                 };
                 client.SocketClosed += (sender, e) =>
                 {
-                    if (e.Code != 1000 && !e.WasClean)
-                    {
-                        WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
+                    if(!actuallyExit)
+                    { 
+                        WriteError($"\n\nSocket Closed Unexpectedly! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.\n\n");
                         Console.WriteLine("Waiting 6 seconds to reconnect..");
                         Thread.Sleep(6 * 1000);
 						LetsGoAgain();

@@ -150,7 +150,7 @@ namespace DiscordSharp.Commands
             {
                 var command = __commands.Find(x => x.CommandName == split[0]);
 
-                if (command.Parent != null) //if it's a generic command without a parent then don't bother doing this.
+                if (command != null && command.Parent != null) //if it's a generic command without a parent then don't bother doing this.
                 {
                     lock(__modules)
                     {

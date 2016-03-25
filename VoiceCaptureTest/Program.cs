@@ -57,7 +57,7 @@ namespace VoiceCaptureTest
                         message = message.Substring(1); //to remove the command prefix
                         try
                         {
-                            CommandManager.ExecuteCommand(message, e.Channel, e.author);
+                            CommandManager.ExecuteOnMessageCommand(message, e.Channel, e.author);
                         }
                         catch(UnauthorizedAccessException ex)
                         {
