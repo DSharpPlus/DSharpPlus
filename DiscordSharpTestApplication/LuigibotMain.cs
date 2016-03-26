@@ -15,6 +15,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using YugiohPrices;
+using DiscordSharpTestApplication.Modules;
+using System.Linq;
 
 namespace DiscordSharpTestApplication
 {
@@ -31,52 +33,19 @@ namespace DiscordSharpTestApplication
 
         [JsonProperty("command_prefix")]
         public char CommandPrefix { get; internal set; } = '?';
+
+        [JsonProperty("modules")]
+        public Dictionary<string, bool> ModulesDictionary { get; internal set; } //null will mean all enabled
     }
 
     public class LuigibotMain
     {
-        //internal static readonly string OAUTH_ID = "152966395884339200";
-        //internal static readonly string OAUTH_SECRET = "RFtPxLA19Lu1t3J-r4O7nNw0aaS8Wdg2";
-
-		private string[] EvalNamespaces = new string[] 
-		{ 
-			"DiscordSharp", 
-			"System.Threading", 
-			"DiscordSharp.Objects", 
-			"System.Data.Linq", 
-			"System.Collections.Generic" 
-		};
-
-        private string CustomLuaFunctions = @"--- Returns HEX representation of num
-function num2hex(num)
-    local hexstr = '0123456789abcdef'
-    local s = ''
-    while num > 0 do
-        local mod = math.fmod(num, 16)
-        s = string.sub(hexstr, mod+1, mod+1) .. s
-        num = math.floor(num / 16)
-    end
-    if s == '' then s = '0' end
-    return s
-end
-
---- Returns HEX representation of str
-function str2hex(str)
-    local hex = ''
-    while #str > 0 do
-        local hb = num2hex(string.byte(str, 1, 1))
-        if #hb < 2 then hb = '0' .. hb end
-        hex = hex..hb
-        str = string.sub(str, 2)
-    end
-    return hex
-end";
+        public DiscordMember owner;
+        public Config config;
 
         DiscordClient client;
-        DiscordMember owner;
         CommandsManager CommandsManager;
         CancellationToken cancelToken;
-        Config config;
         DateTime loginDate;
         #region Audio playback
         WaveFormat waveFormat;
@@ -87,53 +56,12 @@ end";
         System.Timers.Timer stutterReducingTimer;
         #endregion
         bool runningOnMono = false;
+        public bool actuallyExit = false;
 		string osString;
-
-        Random rng = new Random((int)DateTime.Now.Ticks);
-        string[] KhaledQuotes = new string[]
+        
+        string[] NaughtyWords = new string[]
         {
-            "Always have faith. Always have hope.",
-            "The key is to make it.",
-            "Another one.",
-            "Key to success is clean heart and clean face.",
-            "Smh they get mad when you have joy.",
-            "Baby, you smart. I want you to film me taking a shower.",
-            "You smart! You loyal! You a genius!",
-            "Give thanks to the most high.",
-            "They will try to close the door on you, just open it.",
-            "They don’t want you to have the No. 1 record in the country.",
-            "Those that weather the storm are the great ones.",
-            "The key to success is more cocoa butter.",
-            "I changed... a lot.",
-            "My fans expect me to be greater and keep being great.",
-            "There will be road blocks but we will overcome it.",
-            "They don't want you to jet ski.",
-            "Them doors that was always closed, I ripped the doors off, took the hinges off. And when I took the hinges off, I put the hinges on the fuckboys’ hands.",
-            "Congratulations, you played yourself.",
-            "Don't play yourself.",
-            "Another one, no. Another two, drop two singles at a time.",
-        };
-        string[] EightballMessages = new string[] {
-            "Signs point to yes.",
-            "Yes.",
-            "Reply hazy, try again.",
-            "Without a doubt",
-            "My sources say no",
-            "As I see it, yes.",
-            "You may rely on it.",
-            "Concentrate and ask again",
-            "Outlook not so good",
-            "It is decidedly so",
-            "Better not tell you now.",
-            "Very doubtful",
-            "Yes - definitely",
-            "It is certain",
-            "Cannot predict now",
-            "Most likely",
-            "Ask again later",
-            "My reply is no",
-            "Outlook good",
-            "Don't count on it"
+            "bitch", "fucking", "fuck", "cunt", "shit", "reest", "reested", "asswipe"
         };
 
         #region Initial Run
@@ -192,21 +120,6 @@ end";
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
             client = new DiscordClient(botToken.Trim(), true);
-            
-            //client = new DiscordClient();
-            
-            //if (!File.Exists("token_cache"))
-            //{
-            //    if (config.BotEmail == null || config.BotPass == null)
-            //    {
-            //        WriteError("Please edit settings.json with the bot's email and password. owner_id is not necessary to edit yet as this will be part of the setup after.");
-            //        return;
-            //    }
-            //}
-
-            //client.ClientPrivateInformation.email = config.BotEmail;
-            //client.ClientPrivateInformation.password = config.BotPass;
-
             SetupEvents(cancelToken);
         }
 
@@ -228,6 +141,15 @@ end";
             }
         }
 
+        private bool StringContainsObjectInArray(string str, string[] array)
+        {
+            for (int i = 0; i < array.Length; i++)
+                if (str.Contains(array[i]))
+                    return true;
+
+            return false;
+        }
+
         private Task SetupEvents(CancellationToken token)
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -243,13 +165,13 @@ end";
                     }
                     else
                     {
-                        Console.WriteLine($"[-- Message from {e.author.Username} in #{e.Channel.Name} on {e.Channel.parent.name}: {e.message.content}");
+                        Console.WriteLine($"[-- Message from {e.author.Username} in #{e.Channel.Name} on {e.Channel.parent.Name}: {e.message.Content}");
 
                         if (doingInitialRun)
                         {
-                            if (e.message.content.StartsWith("?authenticate"))
+                            if (e.message.Content.StartsWith("?authenticate"))
                             {
-                                string[] split = e.message.content.Split(new char[] { ' ' }, 2);
+                                string[] split = e.message.Content.Split(new char[] { ' ' }, 2);
                                 if (split.Length > 1)
                                 {
                                     if (codeToEnter.Trim() == split[1].Trim())
@@ -265,20 +187,59 @@ end";
                         }
                         else
                         {
-                            if (e.message.content.Length > 0 && (e.message.content[0] == config.CommandPrefix))
+                            if (e.message.Content.Length > 0 && (e.message.Content[0] == config.CommandPrefix))
                             {
-                                string rawCommand = e.message.content.Substring(1);
+                                string rawCommand = e.message.Content.Substring(1);
                                 try
                                 {
-                                    CommandsManager.ExecuteCommand(rawCommand, e.Channel, e.author);
+                                    CommandsManager.ExecuteOnMessageCommand(rawCommand, e.Channel, e.author);
                                 }
                                 catch (UnauthorizedAccessException ex)
                                 {
                                     e.Channel.SendMessage(ex.Message);
                                 }
+                                catch(ModuleNotEnabledException x)
+                                {
+                                    e.Channel.SendMessage($"{x.Message}");
+                                }
                                 catch (Exception ex)
                                 {
                                     e.Channel.SendMessage("Exception occurred while running command:\n```" + ex.Message + "\n```");
+                                }
+                            }
+                        }
+                        //Now, for fun.
+                        //if(e.author == owner)
+                        //{
+                        //    if (StringContainsObjectInArray(e.message.content.ToLower(), NaughtyWords))
+                        //    {
+                        //        try
+                        //        {
+                        //            var msg = client.GetMessageLog()[client.GetMessageLog().Count - 1].Value;
+                        //            if (msg.author == owner
+                        //                && client.GetLastMessageSent(e.Channel).content != null &&
+                        //                client.GetLastMessageSent(e.Channel).content != "hey now")
+                        //            {
+                        //                //if(msg.timestamp.AddMinutes(1) < DateTime.Now)
+                        //                int timebetween = (DateTime.Now.Minute - msg.timestamp.Minute);
+                        //                if ((timebetween < 1) && (timebetween > -1)) //less than one minute between his message and my vulgarity
+                        //                    e.Channel.SendMessage("hey now");
+                        //            }
+                        //        }
+                        //        catch { }
+                        //    }
+                        //}
+
+                        if(e.Channel.ID == "91265608326324224") //discord-sharp on discordapi
+                        {
+                            if(e.author != owner)
+                            {
+                                if(e.message.Content != null && e.message.Content.ToLower().Contains("how"))
+                                {
+                                    if(e.message.Content.ToLower().Contains("bot") && e.message.Content.ToLower().Contains("tag"))
+                                    {
+                                        e.Channel.SendMessage($"<#124294271900712960>");//#api-changes
+                                    }
                                 }
                             }
                         }
@@ -314,13 +275,13 @@ end";
                 };
                 client.GuildCreated += (sender, e) =>
                 {
-                    owner.SlideIntoDMs($"Joined server {e.server.name} ({e.server.id})");
+                    owner.SlideIntoDMs($"Joined server {e.server.Name} ({e.server.ID})");
                 };
                 client.SocketClosed += (sender, e) =>
                 {
-                    if (e.Code != 1000 && !e.WasClean)
-                    {
-                        WriteError($"Socket Closed! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.");
+                    if(!actuallyExit)
+                    { 
+                        WriteError($"\n\nSocket Closed Unexpectedly! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.\n\n");
                         Console.WriteLine("Waiting 6 seconds to reconnect..");
                         Thread.Sleep(6 * 1000);
 						LetsGoAgain();
@@ -358,13 +319,13 @@ end";
                     if (e.message.Level == MessageLevel.Warning)
                         WriteWarning($"(Logger Warning) {e.message.Message}");
                 };
-                client.Connected += (sender, e) =>
+                client.Connected += (sender, e) => 
                 {
                     Console.WriteLine("Connected as " + e.user.Username);
                     loginDate = DateTime.Now;
 
                     if(!String.IsNullOrEmpty(config.OwnerID))
-                        owner = client.GetServersList().Find(x => x.members.Find(y => y.ID == config.OwnerID) != null).members.Find(x => x.ID == config.OwnerID);
+                        owner = client.GetServersList().Find(x => x.Members.Find(y => y.ID == config.OwnerID) != null).Members.Find(x => x.ID == config.OwnerID);
                     else
                     {
                         doingInitialRun = true;
@@ -390,6 +351,11 @@ end";
                     }
                     SetupCommands();
 
+                    if(config.ModulesDictionary != null)
+                    {
+                        CommandsManager.OverrideModulesDictionary(config.ModulesDictionary);
+                    }
+
 					client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
                 };
                 if(client.SendLoginRequest() != null)
@@ -399,6 +365,7 @@ end";
             }, token);
         }
 
+        //yes, this is a bullet for my valentine reference
 		private void LetsGoAgain()
 		{
 			client.Dispose ();
@@ -407,18 +374,9 @@ end";
 			string botToken = File.ReadAllText("bot_token_important.txt");
 			client = new DiscordClient(botToken, true);
 			client.RequestAllUsersOnStartup = true;
-
-			//if (!File.Exists("token_cache"))
-			//{
-			//    if (config.BotEmail == null || config.BotPass == null)
-			//    {
-			//        WriteError("Please edit settings.json with the bot's email and password. owner_id is not necessary to edit yet as this will be part of the setup after.");
-			//        return;
-			//    }
-			//}
-
-			client.ClientPrivateInformation.email = config.BotEmail;
-			client.ClientPrivateInformation.password = config.BotPass;
+            
+			client.ClientPrivateInformation.Email = config.BotEmail;
+			client.ClientPrivateInformation.Password = config.BotPass;
 
 			SetupEvents(cancelToken);
 		}
@@ -444,6 +402,7 @@ end";
 
         public void Exit()
         {
+            config.ModulesDictionary = CommandsManager.ModuleDictionaryForJson();
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(config));
 			if(CommandsManager.UserRoles != null && CommandsManager.UserRoles.Count > 0)
             	File.WriteAllText("permissions.json", JsonConvert.SerializeObject(CommandsManager.UserRoles));
@@ -456,19 +415,15 @@ end";
 
         private void SetupCommands()
         {
-#region Owner only
-            CommandsManager.AddCommand(new CommandStub("selfdestruct", "Shuts the bot down.", "", PermissionType.Owner, cmdArgs=>
-            {
-                Exit();
-            }));
+            #region Old Commands
             CommandsManager.AddCommand(new CommandStub("joinvoice", "Joins a specified voice channel", "Arg is case insensitive voice channel name to join.", PermissionType.Owner, 1, cmdArgs =>
             {
-                DiscordChannel channelToJoin = cmdArgs.Channel.parent.channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
+                DiscordChannel channelToJoin = cmdArgs.Channel.parent.Channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
                 if (channelToJoin != null)
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
-                        FrameLengthMs = 80,
+                        FrameLengthMs = 60,
                         Channels = 1,
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
                         SendOnly = true
@@ -493,8 +448,8 @@ end";
                 {
                     if (cmdArgs.Args[0].Length > 0)
                     {
-                        DiscordServer server = client.GetServersList().Find(x => x.id == cmdArgs.Args[0]);
-                        DiscordChannel channel = server.channels.Find(x => x.Name == "general");
+                        DiscordServer server = client.GetServersList().Find(x => x.ID == cmdArgs.Args[0]);
+                        DiscordChannel channel = server.Channels.Find(x => x.Name == "general");
                         cmdArgs.Channel.SendMessage(client.CreateInvite(channel));
                     }
                     else
@@ -521,12 +476,16 @@ end";
                 else
                     cmdArgs.Channel.SendMessage("Couldn't broadcast specified file! It doesn't exist!");
             }));
+            CommandsManager.AddCommand(new CommandStub("testvoice2", "Broadcasts specified file over voice.", "", PermissionType.Owner, 1, cmdArgs =>
+            {
+                TestRheaStream();
+            }));
             CommandsManager.AddCommand(new CommandStub("statusof", "`Status` test", "", PermissionType.Owner, 1, cmdArgs=>
             {
                 string id = cmdArgs.Args[0].Trim(new char[] { '<', '@', '>' });
                 if(!string.IsNullOrEmpty(id))
                 {
-                    DiscordMember member = cmdArgs.Channel.parent.members.Find(x => x.ID == id);
+                    DiscordMember member = cmdArgs.Channel.parent.Members.Find(x => x.ID == id);
                     if (member != null)
                     {
                         string msg = $"Status of `{member.Username}`\n{member.Status}";
@@ -563,11 +522,11 @@ end";
                 if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
                 {
                     DiscordServer guild = cmdArgs.Channel.parent;
-                    string msg = $"Stats for **{guild.name}**\n```\n";
-                    msg += $"{guild.members.Count} members\n";
-                    msg += $"{guild.roles.Count} roles\n";
-                    msg += $"Owned by {guild.owner.Username}#{guild.owner.Discriminator}\n";
-                    msg += $"{guild.region}\n```";
+                    string msg = $"Stats for **{guild.Name}**\n```\n";
+                    msg += $"{guild.Members.Count} members\n";
+                    msg += $"{guild.Roles.Count} roles\n";
+                    msg += $"Owned by {guild.Owner.Username}#{guild.Owner.Discriminator}\n";
+                    msg += $"{guild.Region}\n```";
                     cmdArgs.Channel.SendMessage(msg);
                 }
             }));
@@ -576,10 +535,10 @@ end";
                 if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
                 {
                     DiscordServer guild = cmdArgs.Channel.parent;
-                    string msg = $"Roles for **{guild.name}**, per your request.\n```\n";
-                    foreach(var role in guild.roles)
+                    string msg = $"Roles for **{guild.Name}**, per your request.\n```\n";
+                    foreach(var role in guild.Roles)
                     {
-                        msg += $"{role.position} - {role.name} - {role.id} - {role.permissions.GetRawPermissions()}\n";
+                        msg += $"{role.Position} - {role.Name} - {role.ID} - {role.Permissions.GetRawPermissions()}\n";
                     }
                     msg += "\n```";
                     owner.SlideIntoDMs(msg);
@@ -599,214 +558,6 @@ end";
                 string substring = cmdArgs.Args[0].Substring(cmdArgs.Args[0].LastIndexOf('/') + 1);
                 client.AcceptInvite(substring);
             }));
-            CommandsManager.AddCommand(new CommandStub("changeprefix", "Changes the command prefix to a specified character.", "", PermissionType.Owner, 1, cmdArgs =>
-            {
-                if (cmdArgs.Args.Count > 0)
-                {
-                    char oldPrefix = config.CommandPrefix;
-                    try
-                    {
-                        char newPrefix = cmdArgs.Args[0][0];
-                        config.CommandPrefix = newPrefix;
-                        cmdArgs.Channel.SendMessage($"Command prefix changed to **{config.CommandPrefix}** successfully!");
-                    }
-                    catch(Exception)
-                    {
-                        cmdArgs.Channel.SendMessage($"Unable to change prefix to `{cmdArgs.Args[0][0]}`. Falling back to `{oldPrefix}`.");
-                        config.CommandPrefix = oldPrefix;
-                    }
-                }
-                else
-                    cmdArgs.Channel.SendMessage("What prefix?");
-            }));
-            CommandsManager.AddCommand(new CommandStub("giveperm", "Gives the perm to the specified user (bot scope)", "", PermissionType.Owner, 2, e =>
-            {
-                //giveperm Admin <@2309208509852>
-                if (e.Args.Count > 1)
-                {
-                    string permString = e.Args[0];
-                    PermissionType type = PermissionType.User;
-                    switch(permString.ToLower())
-                    {
-                        case "admin":
-                            type = PermissionType.Admin;
-                            break;
-                        case "mod":
-                            type = PermissionType.Mod;
-                            break;
-                        case "none":
-                            type = PermissionType.None;
-                            break;
-                        case "user":
-                            type = PermissionType.User;
-                            break;
-                    }
-                    string id = e.Args[1].Trim(new char[] { '<', '@', '>' });
-                    CommandsManager.AddPermission(id, type);
-                    e.Channel.SendMessage($"Given permission {type.ToString().Substring(type.ToString().IndexOf('.') + 1)} to <@{id}>!");
-                }
-            }));
-            CommandsManager.AddCommand(new CommandStub("prune", "Prune test", "", PermissionType.Owner, 1, cmdArgs =>
-            {
-                int messageCount = 0;
-                if(int.TryParse(cmdArgs.Args[0], out messageCount))
-                {
-                    var messagesToPrune = client.GetMessageHistory(cmdArgs.Channel, messageCount);
-                    DiscordMember selfInServer = cmdArgs.Channel.parent.members.Find(x => x.ID == client.Me.ID);
-                    bool pruneAll = false;
-                    if(selfInServer != null)
-                    {
-                        foreach (var roll in selfInServer.Roles)
-                        {
-                            if (roll.permissions.HasPermission(DiscordSpecialPermissions.ManageMessages))
-                            {
-                                pruneAll = true;
-                                break;
-                            }
-                        }
-                    }
-                    foreach(var msg in messagesToPrune)
-                    {
-                        if (!pruneAll)
-                        {
-                            if (msg.author.ID == client.Me.ID)
-                            {
-                                client.DeleteMessage(msg);
-                                Thread.Sleep(100);
-                            }
-                        }
-                        else
-                        {
-                            client.DeleteMessage(msg);
-                            Thread.Sleep(100);
-                        }
-                    }
-                    cmdArgs.Channel.SendMessage($"Attempted pruning of {messageCount} messages.");
-                }
-            }));
-#endregion
-#region Admin
-            CommandsManager.AddCommand(new CommandStub("eval", "Evaluates real-time C# code. Be careful with this", 
-                "Evaluates C# code that is dynamically compiled.\n\nThe following namespaces are available for use:\n * DiscordSharp\n * System.Threading\n * DiscordSharp.Objects\n\n\nMake sure your function returns a string value.\nYou can reference the DiscordSharp client by using `discordClient`.", PermissionType.User, 1, e =>
-            {
-                bool canExec = false;
-                if (CommandsManager.HasPermission(e.Author, PermissionType.Admin))
-                    canExec = true;
-                if(!canExec)
-                {
-                    e.Channel.SendMessage("kek");
-                    return;
-                }
-
-                string whatToEval = e.Args[0];
-                if (whatToEval.StartsWith("`") && whatToEval.EndsWith("`"))
-                    whatToEval = whatToEval.Trim('`');
-                try
-                {
-                    var eval = EvalProvider.CreateEvalMethod<DiscordClient, string>(whatToEval, EvalNamespaces, new string[] { "DiscordSharp.dll", "System.Data.Linq.dll" });
-                    string res = "";
-                    Thread.Sleep(1000);
-                    Thread executionThread = null;
-                    Task evalTask = new Task(() =>
-                    {
-                        executionThread = Thread.CurrentThread;
-                        if(eval != null)
-                        {
-                            try
-                            {
-                                res = eval(client);
-                            }
-                            catch(Exception ex) { res = "Exception occurred while running: " + ex.Message; }
-                        }
-                        else
-                        {
-                            string errors = "Errors While Compiling: \n";
-                            if (EvalProvider.errors != null)
-                            {
-                                if (EvalProvider.errors.Count > 0)
-                                {
-                                    foreach (var error in EvalProvider.errors)
-                                    {
-                                        errors += $"{error.ToString()}\n\n";
-                                    }
-                                }
-                                e.Channel.SendMessage($"```\n{errors}\n```");
-                            }
-                            else
-                                e.Channel.SendMessage("Errors!");
-                        }
-
-                    });
-                    evalTask.Start();
-                    evalTask.Wait(10 * 1000);
-					if(!runningOnMono) //causes exceptions apparently >.>
-                    	if(executionThread != null)
-                        	executionThread.Abort();
-                    if (res == null || res == "")
-                        e.Channel.SendMessage("Terminated after 10 second timeout.");
-                    else
-                        e.Channel.SendMessage($"**Result**\n```\n{res}\n```");
-                }
-                catch(Exception ex)
-                {
-                    string errors = "Errors While Compiling: \n";
-                    if (EvalProvider.errors != null)
-                    {
-                        if (EvalProvider.errors.Count > 0)
-                        {
-                            foreach (var error in EvalProvider.errors)
-                            {
-                                errors += $"{error.ToString()}\n\n";
-                            }
-                        }
-                        else
-                            errors += ex.Message;
-                        e.Channel.SendMessage($"```\n{errors}\n```");
-                    }
-                    else
-                        e.Channel.SendMessage($"Errors! {ex.Message}");
-                }
-            }));
-            #endregion
-            #region Anyone, but limited to server mods
-            CommandsManager.AddCommand(new CommandStub("orange", "Orangifies your text.", "", PermissionType.User, 1, cmdArgs =>
-            {
-                cmdArgs.Channel.SendMessage($"```fix\n{cmdArgs.Args[0]}\n```");
-            }));
-            CommandsManager.AddCommand(new CommandStub("gtfo", "Makes the bot leave the server", "", PermissionType.User, cmdArgs =>
-            {
-                bool canExecute = false;
-                foreach (var roll in cmdArgs.Author.Roles)
-                    if (roll.permissions.HasPermission(DiscordSpecialPermissions.ManageServer))
-                        canExecute = true;
-                if (cmdArgs.Author.Equals(owner))
-                    canExecute = true;
-
-                if (canExecute)
-                {
-                    if (cmdArgs.Channel.parent.owner.Equals(client.Me))
-                    {
-                        client.DeleteServer(cmdArgs.Channel.parent);
-                    }
-                    else
-                        client.LeaveServer(cmdArgs.Channel.parent);
-                }
-                else
-                    cmdArgs.Channel.SendMessage("You don't have the proper permissions to do this! You need the ManagerServer permission.");
-            }));
-            #endregion
-            #region Literally anyone
-            CommandsManager.AddCommand(new CommandStub("8ball", "Have your fortune told.", "8ball <your message here>", PermissionType.User, cmdArgs =>
-            {
-                rng.Next(0, EightballMessages.Length);
-                rng.Next(0, EightballMessages.Length);
-                int index = rng.Next(0, EightballMessages.Length);
-                cmdArgs.Channel.SendMessage($"<@{cmdArgs.Author.ID}>: **{EightballMessages[index]}**");
-            }));
-            CommandsManager.AddCommand(new CommandStub("42", "..", "...", PermissionType.User, cmdArgs =>
-            {
-                cmdArgs.Channel.SendMessage("The answer to life, the universe, and everything.");
-            }));
             CommandsManager.AddCommand(new CommandStub("cmdinfo", "Displays help for a command.", "Help", PermissionType.User, 2, e =>
             {
                 if (!String.IsNullOrEmpty(e.Args[0]))
@@ -818,6 +569,10 @@ end";
                         msg += $"\n{stub.Description}";
                         if (!String.IsNullOrEmpty(stub.HelpTag))
                             msg += $"\n\n{stub.HelpTag}";
+                        if (stub.Parent != null)
+                            msg += $"\nFrom module `{stub.Parent.Name}`";
+                        if (stub.ID != null)
+                            msg += $"\n`{stub.ID}`";
                         e.Channel.SendMessage(msg);
                     }
                     else
@@ -837,106 +592,59 @@ end";
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
                 message += "Runtime: ";
 
-				if (runningOnMono)
+                if (runningOnMono)
                     message += "Mono\n";
                 else
                     message += ".Net\n";
-					
-				message += $"OS: {osString}\n";
+
+                message += $"OS: {osString}\n";
                 long memUsage = GetMemoryUsage();
                 if (memUsage > 0)
-						message += "Memory Usage: " + (memUsage / 1024) /* / 2*/ + "mb\n";
+                    message += "Memory Usage: " + (memUsage / 1024) /* / 2*/ + "mb\n";
                 message += "Commands: " + CommandsManager.Commands.Count + "\n";
                 message += "Command Prefix: " + config.CommandPrefix + "\n";
                 message += "Total Servers: " + client.GetServersList().Count + "\n";
                 cmdArgs.Channel.SendMessage(message);
             }));
-            CommandsManager.AddCommand(new CommandStub("ygo", "Retrieves information for a Yu-Gi-Oh card from the YugiohPrices database.", 
-                "Card names are (unfortunately) case sensitive.\n\n**Valid:** Dark Magician\n**Invalid: **dark magician", PermissionType.User, 1, cmdArgs =>
+            CommandsManager.AddCommand(new CommandStub("moduleinfo", "Shows information about a specific module.", "", PermissionType.User, 1, cmdArgs =>
             {
-                if (cmdArgs.Args.Count > 0)
+                if(cmdArgs.Args.Count > 0 && cmdArgs.Args[0].Length > 0)
                 {
-                    YugiohPricesSearcher searcher = new YugiohPricesSearcher();
-                    try
+                    foreach(var module in CommandsManager.Modules.ToList())
                     {
-                        var card = searcher.GetCardByName(cmdArgs.Args[0]).Result;
-                        if (card.Name != "<NULL CARD>")
+                        if(module.Key.Name.ToLower().Trim() == cmdArgs.Args[0].ToLower().Trim())
                         {
-                            card.CardImage.Save("ygotemp.png");
-                            string message = $"**{card.Name}**";
-                            if (card.Type == CardType.Monster)
-                                message += $" Level: {card.Level} Attribute: {card.Attribute}\n";
-                            else
-                                message += "\n";
-                            message += $"**Description:** {card.Description}";
-                            if (card.Type == CardType.Monster)
-                                message += $"\n**Type:** {card.MonsterType}\n**ATK/DEF:** {card.Attack}/{card.Defense}";
+                            string msg = $"**About Module {module.Key.Name}**";
 
-                            client.AttachFile(cmdArgs.Channel, message, "ygotemp.png");
+                            msg += $"\n{module.Key.Description}\nEnabled: {module.Value}";
+                            msg += $"\nCommands: ";
+                            module.Key.Commands.ForEach(x => msg += $"{x.CommandName}, ");
+
+                            cmdArgs.Channel.SendMessage(msg);
+                            break;
                         }
-                        else
-                            cmdArgs.Channel.SendMessage("Couldn't find that specified card!");
                     }
-                    catch(HttpRequestException ex)
-                    {
-                        cmdArgs.Channel.SendMessage("Couldn't find that specified card! (" + ex.Message + ")");
-                    }
-                    
                 }
             }));
-            CommandsManager.AddCommand(new CommandStub("khaled", "Anotha one.", "", cmdArgs =>
-            {
-					if(rng == null)
-					{
-						Console.WriteLine("RNG null?!");
-						rng = new Random((int)DateTime.Now.Ticks);
-					}
-                cmdArgs.Channel.SendMessage($"***{KhaledQuotes[rng.Next(0, KhaledQuotes.Length - 1)]}***");
-            }));
-            CommandsManager.AddCommand(new CommandStub("lua", "Evals Lua code.", "WIP.", PermissionType.User, 1, cmdArgs =>
-            {
-                string whatToEval = cmdArgs.Args[0];
-                if (whatToEval.StartsWith("`") && whatToEval.EndsWith("`"))
-                {
-                    whatToEval = whatToEval.Trim('`');
-                    if (whatToEval.StartsWith("\n"))
-                        whatToEval = whatToEval.Trim('\n');
-                }
+            #endregion
 
-                Lua state = new Lua();
+            var OwnerModules = new BaseOwnerModules(this);
+            OwnerModules.Install(CommandsManager);
 
-                bool isAdmin = false;
-                if(CommandsManager.HasPermission(cmdArgs.Author, PermissionType.Admin))
-                {
-                    state["discordClient"] = client;
-                    state.LoadCLRPackage();
-                    string importStatements = "";
-                    foreach (var use in EvalNamespaces)
-                        importStatements += $"import('{use}')\n";
-                    state.DoString(importStatements);
-                    isAdmin = true;
-                }
-                else
-                {
-                    //state.DoString("import = function () end");
-                }
-                state.DoString(CustomLuaFunctions);
+            var funModule = new NoFunAllowedModule();
+            funModule.Install(CommandsManager);
 
-                string prefix = isAdmin ? $"{whatToEval}" : $"return run({whatToEval});";
-                var res = state.DoString(prefix);
-                string resultMessage = $"**Result: {res.Length}**\n```";
-                foreach(var obj in res)
-                {
-                    resultMessage += $"\n{obj.ToString()}";
-                }
-                resultMessage += "\n```";
+            var serverAdminModules = new ServerAdminModules(this);
+            serverAdminModules.Install(CommandsManager);
 
-                if (res != null)
-                    cmdArgs.Channel.SendMessage($"{resultMessage}");
-                else
-                    cmdArgs.Channel.SendMessage($"No result given.");
-            }));
-#endregion
+            var evalModules = new EvalModules();
+            evalModules.Install(CommandsManager);
+
+            var yugiohModules = new YugiohModules();
+            yugiohModules.Install(CommandsManager);
+
+            var serverLogs = new TestServerLog(client);
+            serverLogs.Install(CommandsManager);
         }
 
         private Task PlayAudioAsync(CancellationToken cancelToken)
@@ -973,12 +681,54 @@ end";
             }
         }
 
+        private void TestRheaStream()
+        {
+            DiscordVoiceClient vc = client.GetVoiceClient();
+            try
+            {
+                int ms = 60;
+                int channels = 1;
+                int sampleRate = 48000;
+
+                int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
+                byte[] buffer = new byte[blockSize];
+                var outFormat = new WaveFormat(sampleRate, 16, channels);
+                vc.SetSpeaking(true);
+                using (var mp3Reader = new MediaFoundationReader("http://radiosidewinder.out.airtime.pro:8000/radiosidewinder_a"))
+                {
+                    using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
+                    {
+                        //resampler.ResamplerQuality = 60;
+                        int byteCount;
+                        while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
+                        {
+                            if (vc.Connected)
+                            {
+                                vc.SendVoice(buffer);
+                            }
+                            else
+                                break;
+                        }
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Voice finished enqueuing");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        resampler.Dispose();
+                        mp3Reader.Close();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+            }
+        }
+
         private void SendVoice(string file)
         {
             DiscordVoiceClient vc = client.GetVoiceClient();
             try
             {
-                int ms = 80;
+                int ms = 60;
                 int channels = 1;
                 int sampleRate = 48000;
 

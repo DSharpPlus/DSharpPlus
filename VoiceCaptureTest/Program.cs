@@ -24,8 +24,8 @@ namespace VoiceCaptureTest
             {
                 using (StreamReader sr = new StreamReader("credentials.txt"))
                 {
-                    client.ClientPrivateInformation.email = sr.ReadLine();
-                    client.ClientPrivateInformation.password = sr.ReadLine();
+                    client.ClientPrivateInformation.Email = sr.ReadLine();
+                    client.ClientPrivateInformation.Password = sr.ReadLine();
                     sr.Close();
                 }
             }
@@ -51,13 +51,13 @@ namespace VoiceCaptureTest
             {
                 client.MessageReceived += (sender, e) =>
                 {
-                    string message = e.message.content;
+                    string message = e.message.Content;
                     if(message[0] == '?')
                     {
                         message = message.Substring(1); //to remove the command prefix
                         try
                         {
-                            CommandManager.ExecuteCommand(message, e.Channel, e.author);
+                            CommandManager.ExecuteOnMessageCommand(message, e.Channel, e.author);
                         }
                         catch(UnauthorizedAccessException ex)
                         {
@@ -75,7 +75,7 @@ namespace VoiceCaptureTest
                             {
                                 if (cmdArgs.Args.Count < 1)
                                     return;
-                                DiscordChannel toJoin = cmdArgs.Channel.parent.channels.Find(x => (x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice));
+                                DiscordChannel toJoin = cmdArgs.Channel.parent.Channels.Find(x => (x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice));
                                 if (toJoin != null)
                                     client.ConnectToVoiceChannel(toJoin);
                             }));
@@ -93,7 +93,7 @@ namespace VoiceCaptureTest
                         cmdArgs.Channel.SendMessage("Hey whassup hello.");
                     }));
 
-                    DiscordMember owner = client.GetServersList().Find(x => x.members.Find(y => y.Username == "Axiom") != null).members.Find(x => x.Username == "Axiom");
+                    DiscordMember owner = client.GetServersList().Find(x => x.Members.Find(y => y.Username == "Axiom") != null).Members.Find(x => x.Username == "Axiom");
                     //CommandManager.AddPermission(owner, PermissionType.Owner);
                 };
                 client.Connect();

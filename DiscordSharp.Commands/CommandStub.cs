@@ -25,10 +25,14 @@ namespace DiscordSharp.Commands
         }
 
         internal CommandStub()
-        {}
+        {
+            this.ID = IDGenerator.GenerateRandomCode();
+        }
 
         public CommandStub(string name, string description, string helpTag)
         {
+            this.ID = IDGenerator.GenerateRandomCode();
+
             CommandName = name;
             Description = description;
             HelpTag = helpTag;
@@ -38,6 +42,8 @@ namespace DiscordSharp.Commands
 
         public CommandStub(string name, string description)
         {
+            this.ID = IDGenerator.GenerateRandomCode();
+
             CommandName = name;
             Description = description;
 
@@ -46,6 +52,8 @@ namespace DiscordSharp.Commands
 
         public CommandStub(Action<CommandArgs> action)
         {
+            this.ID = IDGenerator.GenerateRandomCode();
+
             Do = action;
 
             Args = new List<string>();
@@ -53,6 +61,8 @@ namespace DiscordSharp.Commands
 
         public CommandStub(string name, string description, Action<CommandArgs> action)
         {
+            this.ID = IDGenerator.GenerateRandomCode();
+
             Do = action;
             CommandName = name;
             Description = description;
@@ -62,6 +72,8 @@ namespace DiscordSharp.Commands
 
         public CommandStub(string name, string description, string helpTag, Action<CommandArgs> action)
         {
+            this.ID = IDGenerator.GenerateRandomCode();
+
             Do = action;
             CommandName = name;
             Description = description;
@@ -72,6 +84,8 @@ namespace DiscordSharp.Commands
 
         public CommandStub(string name, string description, string helpTag, PermissionType minPerm, Action<CommandArgs> action)
         {
+            this.ID = IDGenerator.GenerateRandomCode();
+
             Do = action;
             CommandName = name;
             Description = description;
@@ -83,6 +97,8 @@ namespace DiscordSharp.Commands
 
         public CommandStub(string name, string description, string helpTag, PermissionType minPerm, int argCount, Action<CommandArgs> action)
         {
+            this.ID = IDGenerator.GenerateRandomCode();
+
             Do = action;
             CommandName = name;
             Description = description;

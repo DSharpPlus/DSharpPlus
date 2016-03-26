@@ -43,6 +43,8 @@
     <Compile Include="CommandsManager.cs" />
     <Compile Include="CommandStub.cs" />
     <Compile Include="ICommand.cs" />
+    <Compile Include="IDGenerator.cs" />
+    <Compile Include="IModule.cs" />
     <Compile Include="Permission.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

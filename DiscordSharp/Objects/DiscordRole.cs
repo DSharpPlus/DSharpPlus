@@ -1,34 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace DiscordSharp.Objects
 {
     public class DiscordRole
     {
-        public DiscordSharp.Color color { get; set; }
-        //public Color ccolor { get; set; }
-        public bool hoist { get; set; }
-        public string name { get; set; }
-        public DiscordPermission permissions { get; set; }
-        public bool managed { get; set; }
-        public int position { get; set; }
-        public string id { get; set; }
+        [JsonProperty("color")]
+        public DiscordSharp.Color Color { get; set; }
+
+        /// <summary>
+        /// Whether or not to display all members seperate of others.
+        /// </summary>
+        [JsonProperty("hoist")]
+        public bool Hoist { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("permission")]
+        public DiscordPermission Permissions { get; set; }
+
+        [JsonProperty("managed")]
+        public bool Managed { get; set; }
+
+        [JsonProperty("position")]
+        public int Position { get; set; }
+
+        [JsonProperty("id")]
+        public string ID { get; set; }
 
         public DiscordRole Copy()
         {
             return new DiscordRole
             {
-                color = this.color,
-                hoist = this.hoist,
-                name = this.name,
-                permissions = this.permissions,
-                managed = this.managed,
-                position = this.position,
-                id = this.id
+                Color = this.Color,
+                Hoist = this.Hoist,
+                Name = this.Name,
+                Permissions = this.Permissions,
+                Managed = this.Managed,
+                Position = this.Position,
+                ID = this.ID
             };
         }
 

@@ -29,6 +29,8 @@ namespace DiscordSharp.Objects
         public bool Verified { get; internal set; }
         [JsonProperty("bot")]
         public bool IsBot { get; internal set; } = false;
+        [JsonProperty("joined_at")]
+        public DateTime JoinedAt { get; internal set; }
 
         public Status Status { get; internal set; } = Status.Offline;
         public string CurrentGame { get; internal set; } = null;
@@ -108,7 +110,7 @@ namespace DiscordSharp.Objects
         {
             if(parentclient.Me.ID == this.ID)
                 throw new InvalidOperationException("Can't kick self!");
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.id}" + Endpoints.Members + $"/{ID}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.ID}" + Endpoints.Members + $"/{ID}";
             try
             {
                 WebWrapper.Delete(url, DiscordClient.token);
@@ -148,7 +150,7 @@ namespace DiscordSharp.Objects
         /// <param name="days">The number of days the user should be banned for, or 0 for infinite.</param>
         public void Ban(int days = 0)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.id}" + Endpoints.Bans + $"/{ID}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.ID}" + Endpoints.Bans + $"/{ID}";
             if (days >= 0)
                 url += $"?delete-message-days={days}";
             try
@@ -201,12 +203,30 @@ namespace DiscordSharp.Objects
             return this.ID == obj.ID;
         }
 
+        public static bool operator==(DiscordMember x, DiscordMember y)
+        {
+            if ((object)x == null || (object)y == null)
+                return false;
+
+            return x.ID == y.ID;
+        }
+
+        public static bool operator !=(DiscordMember x, DiscordMember y)
+        {
+            if ((object)x == null && (object)x == null)
+                return false;
+            if ((object)x == null || (object)y == null)
+                return true;
+
+            return x.ID != y.ID;
+        }
+
         public override bool Equals(object obj)
         {
-            if (obj.GetType() == typeof(DiscordMember))
-                return Equals((DiscordMember)obj);
-
-            return base.Equals(obj);
+            if(obj.GetType() == typeof(DiscordMember))
+                return this == (DiscordMember)obj;
+            else
+                return false;
         }
     }
 }

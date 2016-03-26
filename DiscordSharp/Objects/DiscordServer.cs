@@ -8,25 +8,33 @@ namespace DiscordSharp.Objects
 {
     public class DiscordServer
     {
-        public string id { get; internal set; }
-        public string name { get; internal set; }
+        [JsonProperty("joined_at")]
+        public DateTime JoinedAt { get; internal set; }
 
-        public string region { get; internal set; }
+        [JsonProperty("id")]
+        public string ID { get; internal set; }
+        [JsonProperty("name")]
+        public string Name { get; internal set; }
 
+        [JsonProperty("region")]
+        public string Region { get; internal set; }
+
+        [JsonProperty("icon")]
         internal string icon { get; set; }
         public string IconURL
         {
             get
             {
                 if (icon != null)
-                    return Endpoints.ContentDeliveryNode + Endpoints.Icons + $"/{id}/{icon}.jpg";
+                    return Endpoints.ContentDeliveryNode + Endpoints.Icons + $"/{ID}/{icon}.jpg";
                 return null;
             }
         }
 
 #pragma warning disable 0612
         private DiscordMember _owner;
-        public DiscordMember owner
+        [JsonProperty("owner")]
+        public DiscordMember Owner
         {
             get { return _owner; }
             internal set
@@ -36,16 +44,21 @@ namespace DiscordSharp.Objects
         }
 #pragma warning restore 0612
 
-        public List<DiscordChannel> channels { get; internal set; }
-        public List<DiscordMember> members { get; internal set; }
-        public List<DiscordRole> roles { get; internal set; }
+        [JsonProperty("channels")]
+        public List<DiscordChannel> Channels { get; internal set; }
+
+        [JsonProperty("members")]
+        public List<DiscordMember> Members { get; internal set; }
+
+        [JsonProperty("roles")]
+        public List<DiscordRole> Roles { get; internal set; }
 
         internal DiscordClient parentclient { get; set; }
 
         internal DiscordServer()
         {
-            channels = new List<DiscordChannel>();
-            members = new List<DiscordMember>();
+            Channels = new List<DiscordChannel>();
+            Members = new List<DiscordMember>();
         }
 
         public void ChangeIcon(Bitmap image)
@@ -55,52 +68,52 @@ namespace DiscordSharp.Objects
             string base64 = Convert.ToBase64String(Utils.ImageToByteArray(resized));
             string type = "image/jpeg;base64";
             string req = $"data:{type},{base64}";
-            string guildjson = JsonConvert.SerializeObject(new { icon = req, name = this.name });
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + "/" + this.id;
+            string guildjson = JsonConvert.SerializeObject(new { icon = req, name = this.Name });
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + "/" + this.ID;
             var result = JObject.Parse(WebWrapper.Patch(url, DiscordClient.token, guildjson));
         }
 
         public void ChangeName(string NewGuildName)
         {
-            string editGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}";
+            string editGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}";
             var newNameJson = JsonConvert.SerializeObject(new { name = NewGuildName });
             var result = JObject.Parse(WebWrapper.Patch(editGuildUrl, DiscordClient.token, newNameJson));
         }
 
         public void AssignRoleToMember(DiscordRole role, DiscordMember member)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Members + $"/{member.ID}";
-            string message = JsonConvert.SerializeObject(new { roles = new string[] { role.id } });
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Members + $"/{member.ID}";
+            string message = JsonConvert.SerializeObject(new { roles = new string[] { role.ID } });
             Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
         }
         public void AssignRoleToMember(List<DiscordRole> roles, DiscordMember member)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Members + $"/{member.ID}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Members + $"/{member.ID}";
             List<string> rolesAsIds = new List<string>();
-            roles.ForEach(x => rolesAsIds.Add(x.id));
+            roles.ForEach(x => rolesAsIds.Add(x.ID));
             string message = JsonConvert.SerializeObject(new { roles = rolesAsIds.ToArray() });
             Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
         }
 
         public DiscordRole CreateRole()
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Roles;
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Roles;
             var result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, ""));
 
             if (result != null)
             {
                 DiscordRole d = new DiscordRole
                 {
-                    color = new Color(result["color"].ToObject<int>().ToString("x")),
-                    hoist = result["hoist"].ToObject<bool>(),
-                    id = result["id"].ToString(),
-                    managed = result["managed"].ToObject<bool>(),
-                    name = result["name"].ToString(),
-                    permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
-                    position = result["position"].ToObject<int>()
+                    Color = new Color(result["color"].ToObject<int>().ToString("x")),
+                    Hoist = result["hoist"].ToObject<bool>(),
+                    ID = result["id"].ToString(),
+                    Managed = result["managed"].ToObject<bool>(),
+                    Name = result["name"].ToString(),
+                    Permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
+                    Position = result["position"].ToObject<int>()
                 };
 
-                this.roles.Add(d);
+                this.Roles.Add(d);
                 return d;
             }
             return null;
@@ -108,14 +121,14 @@ namespace DiscordSharp.Objects
 
         public DiscordRole EditRole(DiscordRole role)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Roles + $"/{role.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Roles + $"/{role.ID}";
             string request = JsonConvert.SerializeObject(
                 new
                 {
-                    color = decimal.Parse(role.color.ToDecimal().ToString()),
-                    hoist = role.hoist,
-                    name = role.name,
-                    permissions = role.permissions.GetRawPermissions()
+                    color = decimal.Parse(role.Color.ToDecimal().ToString()),
+                    hoist = role.Hoist,
+                    name = role.Name,
+                    permissions = role.Permissions.GetRawPermissions()
                 }
             );
 
@@ -124,17 +137,17 @@ namespace DiscordSharp.Objects
             {
                 DiscordRole d = new DiscordRole
                 {
-                    color = new Color(result["color"].ToObject<int>().ToString("x")),
-                    hoist = result["hoist"].ToObject<bool>(),
-                    id = result["id"].ToString(),
-                    managed = result["managed"].ToObject<bool>(),
-                    name = result["name"].ToString(),
-                    permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
-                    position = result["position"].ToObject<int>()
+                    Color = new Color(result["color"].ToObject<int>().ToString("x")),
+                    Hoist = result["hoist"].ToObject<bool>(),
+                    ID = result["id"].ToString(),
+                    Managed = result["managed"].ToObject<bool>(),
+                    Name = result["name"].ToString(),
+                    Permissions = new DiscordPermission(result["permissions"].ToObject<uint>()),
+                    Position = result["position"].ToObject<int>()
                 };
 
-                this.roles.Remove(d);
-                this.roles.Add(d);
+                this.Roles.Remove(d);
+                this.Roles.Add(d);
                 return d;
             }
 
@@ -143,7 +156,7 @@ namespace DiscordSharp.Objects
 
         public void DeleteRole(DiscordRole role)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Roles + $"/{role.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Roles + $"/{role.ID}";
             WebWrapper.Delete(url, DiscordClient.token);
         }
 
@@ -155,13 +168,13 @@ namespace DiscordSharp.Objects
 
         public DiscordChannel CreateChannel(string ChannelName, bool voice)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.id}" + Endpoints.Channels;
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Channels;
             var reqJson = JsonConvert.SerializeObject(new { name = ChannelName, type = voice ? "voice" : "text" });
             var result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, reqJson));
             if (result != null)
             {
                 DiscordChannel dc = new DiscordChannel { Name = result["name"].ToString(), ID = result["id"].ToString(), Type = result["type"].ToObject<ChannelType>(), Private = result["is_private"].ToObject<bool>(), Topic = result["topic"].ToString() };
-                this.channels.Add(dc);
+                this.Channels.Add(dc);
                 return dc;
             }
             return null;
@@ -175,7 +188,7 @@ namespace DiscordSharp.Objects
         public List<DiscordMember> GetBans()
         {
             List<DiscordMember> returnVal = new List<DiscordMember>();
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{id}" + Endpoints.Bans;
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ID}" + Endpoints.Bans;
             try
             {
                 JArray response = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
@@ -197,7 +210,7 @@ namespace DiscordSharp.Objects
             }
             catch (Exception ex)
             {
-                parentclient.GetTextClientLogger.Log($"An error ocurred while retrieving bans for server \"{name}\"\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}",
+                parentclient.GetTextClientLogger.Log($"An error ocurred while retrieving bans for server \"{Name}\"\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}",
                     MessageLevel.Error);
             }
             return returnVal;
@@ -205,7 +218,7 @@ namespace DiscordSharp.Objects
 
         public void RemoveBan(string userID)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{id}" + Endpoints.Bans + $"/{userID}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ID}" + Endpoints.Bans + $"/{userID}";
             try
             {
                 WebWrapper.Delete(url, DiscordClient.token);
@@ -217,7 +230,7 @@ namespace DiscordSharp.Objects
         }
         public void RemoveBan(DiscordMember member)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{id}" + Endpoints.Bans + $"/{member.ID}";
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ID}" + Endpoints.Bans + $"/{member.ID}";
             try
             {
                 WebWrapper.Delete(url, DiscordClient.token);
@@ -226,6 +239,11 @@ namespace DiscordSharp.Objects
             {
                 parentclient.GetTextClientLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
             }
+        }
+
+        public DiscordServer ShallowCopy()
+        {
+            return (DiscordServer)this.MemberwiseClone();
         }
     }
 }

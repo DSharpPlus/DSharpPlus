@@ -71,11 +71,11 @@ namespace DiscordSharp.Objects
 
             DiscordMessage m = new DiscordMessage
             {
-                id = result["id"].ToString(),
-                attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
-                author = this.parent.members.Find(x => x.ID == result["author"]["id"].ToString()),
+                ID = result["id"].ToString(),
+                Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
+                Author = this.parent.Members.Find(x => x.ID == result["author"]["id"].ToString()),
                 channel = this,
-                content = result["content"].ToString(),
+                Content = result["content"].ToString(),
                 RawJson = result,
                 timestamp = result["timestamp"].ToObject<DateTime>()
             };
@@ -84,8 +84,14 @@ namespace DiscordSharp.Objects
 
         private void DeleteMessage(DiscordMessage message)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Messages + $"/{message.id}";
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Messages + $"/{message.ID}";
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
+        }
+
+        public DiscordChannel ShallowCopy()
+        {
+            DiscordChannel channel = (DiscordChannel)this.MemberwiseClone();
+            return channel;
         }
 
         internal DiscordChannel() { }

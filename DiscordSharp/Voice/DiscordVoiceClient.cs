@@ -298,7 +298,7 @@ namespace DiscordSharp
                     op = 0,
                     d = new
                     {
-                        server_id = Guild.id,
+                        server_id = Guild.ID,
                         user_id = Me.ID,
                         session_id = SessionID,
                         token = Token
@@ -374,7 +374,7 @@ namespace DiscordSharp
         {
             DiscordVoiceUserSpeakingEventArgs e = new DiscordVoiceUserSpeakingEventArgs();
             e.Channel = Channel;
-            e.UserSpeaking = Guild.members.Find(x => x.ID == message["d"]["user_id"].ToString());
+            e.UserSpeaking = Guild.Members.Find(x => x.ID == message["d"]["user_id"].ToString());
             e.Speaking = message["d"]["speaking"].ToObject<bool>();
             e.ssrc = message["d"]["ssrc"].ToObject<int>();
 
@@ -758,6 +758,7 @@ namespace DiscordSharp
             try
             {
                 _udp = new UdpClient(Params.port); //passes in proper port
+                //_udp.
                 _udp.DontFragment = false;
                 _udp.Connect(VoiceEndpoint.Replace(":80", ""), Params.port);
 
@@ -777,8 +778,9 @@ namespace DiscordSharp
                 VoiceDebugLogger.Log("Sent ssrc packet.");
 
                 UdpReceiveResult resultingMessage = await _udp.ReceiveAsync().ConfigureAwait(false); //receive a response packet
+                Console.WriteLine($"Receiving");
 #else
-                _udp.Send(packet, packet.Length);
+                _udp.Send(packet, packet.Length, udpEndpoint);
                 VoiceDebugLogger.Log("Sent ssrc packet.");
 
                 byte[] resultingMessage = _udp.Receive(ref udpEndpoint);
