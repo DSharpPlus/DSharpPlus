@@ -423,7 +423,7 @@ namespace DiscordSharpTestApplication
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
-                        FrameLengthMs = 80,
+                        FrameLengthMs = 60,
                         Channels = 1,
                         OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
                         SendOnly = true
@@ -475,6 +475,10 @@ namespace DiscordSharpTestApplication
                 }
                 else
                     cmdArgs.Channel.SendMessage("Couldn't broadcast specified file! It doesn't exist!");
+            }));
+            CommandsManager.AddCommand(new CommandStub("testvoice2", "Broadcasts specified file over voice.", "", PermissionType.Owner, 1, cmdArgs =>
+            {
+                TestRheaStream();
             }));
             CommandsManager.AddCommand(new CommandStub("statusof", "`Status` test", "", PermissionType.Owner, 1, cmdArgs=>
             {
@@ -677,12 +681,54 @@ namespace DiscordSharpTestApplication
             }
         }
 
+        private void TestRheaStream()
+        {
+            DiscordVoiceClient vc = client.GetVoiceClient();
+            try
+            {
+                int ms = 60;
+                int channels = 1;
+                int sampleRate = 48000;
+
+                int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
+                byte[] buffer = new byte[blockSize];
+                var outFormat = new WaveFormat(sampleRate, 16, channels);
+                vc.SetSpeaking(true);
+                using (var mp3Reader = new MediaFoundationReader("http://radiosidewinder.out.airtime.pro:8000/radiosidewinder_a"))
+                {
+                    using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
+                    {
+                        //resampler.ResamplerQuality = 60;
+                        int byteCount;
+                        while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
+                        {
+                            if (vc.Connected)
+                            {
+                                vc.SendVoice(buffer);
+                            }
+                            else
+                                break;
+                        }
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Voice finished enqueuing");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        resampler.Dispose();
+                        mp3Reader.Close();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+            }
+        }
+
         private void SendVoice(string file)
         {
             DiscordVoiceClient vc = client.GetVoiceClient();
             try
             {
-                int ms = 80;
+                int ms = 60;
                 int channels = 1;
                 int sampleRate = 48000;
 

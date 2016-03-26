@@ -758,6 +758,7 @@ namespace DiscordSharp
             try
             {
                 _udp = new UdpClient(Params.port); //passes in proper port
+                //_udp.
                 _udp.DontFragment = false;
                 _udp.Connect(VoiceEndpoint.Replace(":80", ""), Params.port);
 
@@ -777,8 +778,9 @@ namespace DiscordSharp
                 VoiceDebugLogger.Log("Sent ssrc packet.");
 
                 UdpReceiveResult resultingMessage = await _udp.ReceiveAsync().ConfigureAwait(false); //receive a response packet
+                Console.WriteLine($"Receiving");
 #else
-                _udp.Send(packet, packet.Length);
+                _udp.Send(packet, packet.Length, udpEndpoint);
                 VoiceDebugLogger.Log("Sent ssrc packet.");
 
                 byte[] resultingMessage = _udp.Receive(ref udpEndpoint);

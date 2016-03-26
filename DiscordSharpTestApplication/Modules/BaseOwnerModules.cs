@@ -157,6 +157,17 @@ namespace DiscordSharpTestApplication.Modules
                                 break;
                             }
                         }
+                        foreach(var roll in cmdArgs.Channel.PermissionOverrides)
+                        {
+                            if(roll.id == manager.Client.Me.ID)
+                            {
+                                if(roll.AllowedPermission(DiscordSpecialPermissions.ManageMessages))
+                                {
+                                    pruneAll = true;
+                                    break;
+                                }
+                            }
+                        }
                     }
                     foreach (var msg in messagesToPrune)
                     {
