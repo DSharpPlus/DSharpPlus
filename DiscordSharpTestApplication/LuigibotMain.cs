@@ -15,10 +15,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using YugiohPrices;
-using DiscordSharpTestApplication.Modules;
+using Luigibot.Modules;
 using System.Linq;
 
-namespace DiscordSharpTestApplication
+namespace Luigibot
 {
     public class Config
     {

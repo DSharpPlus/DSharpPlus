@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscordSharpTestApplication.Modules
+namespace Luigibot.Modules
 {
     class TestServerLog : IModule
     {

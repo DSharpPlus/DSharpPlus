@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace DiscordSharpTestApplication
+namespace Luigibot
 {
 	public static class OSDetermination
 	{
