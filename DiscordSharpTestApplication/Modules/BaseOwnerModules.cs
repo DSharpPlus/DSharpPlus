@@ -145,7 +145,7 @@ namespace Luigibot.Modules
                 if (int.TryParse(cmdArgs.Args[0], out messageCount))
                 {
                     var messagesToPrune = manager.Client.GetMessageHistory(cmdArgs.Channel, messageCount);
-                    DiscordMember selfInServer = cmdArgs.Channel.parent.Members.Find(x => x.ID == manager.Client.Me.ID);
+                    DiscordMember selfInServer = cmdArgs.Channel.parent.GetMemberByKey(manager.Client.Me.ID);
                     bool pruneAll = false;
                     if (selfInServer != null)
                     {

@@ -205,6 +205,8 @@ namespace DiscordSharp.Objects
 
         public static bool operator==(DiscordMember x, DiscordMember y)
         {
+            if ((object)x == null && (object)y == null)
+                return true;
             if ((object)x == null || (object)y == null)
                 return false;
 

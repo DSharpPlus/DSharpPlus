@@ -73,7 +73,7 @@ namespace DiscordSharp.Objects
             {
                 ID = result["id"].ToString(),
                 Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
-                Author = this.parent.Members.Find(x => x.ID == result["author"]["id"].ToString()),
+                Author = this.parent.GetMemberByKey(result["author"]["id"].ToString()),
                 channel = this,
                 Content = result["content"].ToString(),
                 RawJson = result,

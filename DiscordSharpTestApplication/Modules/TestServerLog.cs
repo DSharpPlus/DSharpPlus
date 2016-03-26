@@ -50,8 +50,8 @@ namespace Luigibot.Modules
                         msg += $"\n**Users Online: **";
                         foreach (var user in DiscordSharpTestServer.Members)
                         {
-                            if (user != null && user.Status == Status.Online)
-                                msg += $"{user.Username}, ";
+                            if (user.Value != null && user.Value.Status == Status.Online)
+                                msg += $"{user.Value.Username}, ";
                         }
                         msg += "\n------------------------------";
                         LogChannel.SendMessage(msg);
@@ -73,8 +73,8 @@ namespace Luigibot.Modules
                         msg += $"\n**Users Online: **";
                         foreach (var user in DiscordSharpTestServer.Members)
                         {
-                            if (user != null && user.Status == Status.Online)
-                                msg += $"{user.Username}, ";
+                            if (user.Value != null && user.Value.Status == Status.Online)
+                                msg += $"{user.Value.Username}, ";
                         }
                         msg += "\n------------------------------";
                         LogChannel.SendMessage(msg);

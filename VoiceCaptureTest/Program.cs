@@ -93,7 +93,7 @@ namespace VoiceCaptureTest
                         cmdArgs.Channel.SendMessage("Hey whassup hello.");
                     }));
 
-                    DiscordMember owner = client.GetServersList().Find(x => x.Members.Find(y => y.Username == "Axiom") != null).Members.Find(x => x.Username == "Axiom");
+                    DiscordMember owner = client.GetServersList().Find(x => x.GetMemberByUsername("Axiom") != null).GetMemberByUsername("Axiom");
                     //CommandManager.AddPermission(owner, PermissionType.Owner);
                 };
                 client.Connect();

@@ -3,6 +3,8 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using ID = System.String;
 
 namespace DiscordSharp.Objects
 {
@@ -12,7 +14,7 @@ namespace DiscordSharp.Objects
         public DateTime JoinedAt { get; internal set; }
 
         [JsonProperty("id")]
-        public string ID { get; internal set; }
+        public ID ID { get; internal set; }
         [JsonProperty("name")]
         public string Name { get; internal set; }
 
@@ -48,7 +50,17 @@ namespace DiscordSharp.Objects
         public List<DiscordChannel> Channels { get; internal set; }
 
         [JsonProperty("members")]
-        public List<DiscordMember> Members { get; internal set; }
+        private List<DiscordMember> membersAsList
+        {
+            get
+            {
+                return Members.Values.ToList();
+            }
+        }
+
+        public Dictionary<ID, DiscordMember> Members { get; internal set; }
+
+        //public List<DiscordMember> Members { get; internal set; }
 
         [JsonProperty("roles")]
         public List<DiscordRole> Roles { get; internal set; }
@@ -58,7 +70,55 @@ namespace DiscordSharp.Objects
         internal DiscordServer()
         {
             Channels = new List<DiscordChannel>();
-            Members = new List<DiscordMember>();
+            Members = new Dictionary<ID, DiscordMember>();
+        }
+
+        internal void AddMember(DiscordMember member)
+        {
+            if (member == null)
+                return;
+            if(Members.ContainsKey(member.ID)) //then replace
+            {
+                Members.Remove(member.ID);
+            }
+            Members.Add(member.ID, member);
+        }
+        internal int ClearOfflineMembers()
+        {
+            int count = 0;
+            foreach(var member in Members)
+            {
+                if (member.Value.Status == Status.Offline)
+                    return count;
+            }
+            return count;
+        }
+        internal bool RemoveMember(ID key)
+        {
+            if(Members.ContainsKey(key))
+            {
+                Members.Remove(key);
+            }
+            return false;
+        }
+        public DiscordMember GetMemberByKey(ID key)
+        {
+            try
+            {
+                return Members.First(x => x.Key == key).Value;
+            }
+            catch
+            {
+                return null; //because instead of just returning null by default, it has to do this shit.
+            }
+            return null;
+        }
+        public DiscordMember GetMemberByUsername(string username, bool caseSensitive = false)
+        {
+            if(!caseSensitive)
+                return Members.First(x => x.Value.Username.ToLower() == username.ToLower()).Value;
+            else
+                return Members.First(x => x.Value.Username == username).Value;
         }
 
         public void ChangeIcon(Bitmap image)

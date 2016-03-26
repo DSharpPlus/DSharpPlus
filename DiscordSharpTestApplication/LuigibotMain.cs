@@ -55,9 +55,12 @@ namespace Luigibot
         VolumeWaveProvider16 volumeProvider;
         System.Timers.Timer stutterReducingTimer;
         #endregion
-        bool runningOnMono = false;
+        private bool runningOnMono = false;
+        private const int voiceMsBuffer = 20;
+        private string osString;
         public bool actuallyExit = false;
-		string osString;
+		
+        
         
         string[] NaughtyWords = new string[]
         {
@@ -325,7 +328,7 @@ namespace Luigibot
                     loginDate = DateTime.Now;
 
                     if(!String.IsNullOrEmpty(config.OwnerID))
-                        owner = client.GetServersList().Find(x => x.Members.Find(y => y.ID == config.OwnerID) != null).Members.Find(x => x.ID == config.OwnerID);
+                        owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID);
                     else
                     {
                         doingInitialRun = true;
@@ -423,9 +426,9 @@ namespace Luigibot
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
-                        FrameLengthMs = 60,
+                        FrameLengthMs = voiceMsBuffer,
                         Channels = 1,
-                        OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
+                        OpusMode = Discord.Audio.Opus.OpusApplication.MusicOrMixed,
                         SendOnly = true
                     };
 
@@ -441,6 +444,13 @@ namespace Luigibot
                 }
                 else
                     cmdArgs.Channel.SendMessage("Couldn't find the specified channel as a voice channel!");
+            }));
+            CommandsManager.AddCommand(new CommandStub("stop", "Stops current voice without disconnecting.", "", PermissionType.Owner, cmdArgs =>
+            {
+                if(client.GetVoiceClient() != null)
+                {
+                    client.GetVoiceClient().ClearVoiceQueue();
+                }
             }));
             CommandsManager.AddCommand(new CommandStub("invite", "Makes an invite to specified server given its ID", "Pass ID douchebag.", PermissionType.Owner, 1, cmdArgs =>
             {
@@ -485,7 +495,7 @@ namespace Luigibot
                 string id = cmdArgs.Args[0].Trim(new char[] { '<', '@', '>' });
                 if(!string.IsNullOrEmpty(id))
                 {
-                    DiscordMember member = cmdArgs.Channel.parent.Members.Find(x => x.ID == id);
+                    DiscordMember member = cmdArgs.Channel.parent.GetMemberByKey(id);
                     if (member != null)
                     {
                         string msg = $"Status of `{member.Username}`\n{member.Status}";
@@ -686,7 +696,7 @@ namespace Luigibot
             DiscordVoiceClient vc = client.GetVoiceClient();
             try
             {
-                int ms = 60;
+                int ms = voiceMsBuffer;
                 int channels = 1;
                 int sampleRate = 48000;
 
@@ -728,7 +738,7 @@ namespace Luigibot
             DiscordVoiceClient vc = client.GetVoiceClient();
             try
             {
-                int ms = 60;
+                int ms = voiceMsBuffer;
                 int channels = 1;
                 int sampleRate = 48000;
 
