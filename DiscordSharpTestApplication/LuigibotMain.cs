@@ -98,6 +98,7 @@ namespace Luigibot
         {
             string asciiArt = System.IO.File.ReadAllText("ascii.txt");
             Console.WriteLine(asciiArt);
+            Console.Title = "Luigibot - Discord";
             DoLogin();
         }
         
@@ -280,6 +281,7 @@ namespace Luigibot
                 };
                 client.SocketClosed += (sender, e) =>
                 {
+                    Console.Title = "Luigibot - Discord - Socket Closed..";
                     if(!actuallyExit)
                     { 
                         WriteError($"\n\nSocket Closed Unexpectedly! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.\n\n");
@@ -322,6 +324,7 @@ namespace Luigibot
                 };
                 client.Connected += (sender, e) => 
                 {
+                    Console.Title = "Luigibot - Discord - Logged in as " + e.user.Username;
                     Console.WriteLine("Connected as " + e.user.Username);
 
                     if(!String.IsNullOrEmpty(config.OwnerID))
