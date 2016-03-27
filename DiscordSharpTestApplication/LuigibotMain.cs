@@ -603,6 +603,9 @@ namespace Luigibot
 
             var voice = new Voice(this);
             voice.Install(CommandsManager);
+
+            var holupholup = new Holup();
+            holupholup.Install(CommandsManager);
         }
 
         private Task PlayAudioAsync(CancellationToken cancelToken)
