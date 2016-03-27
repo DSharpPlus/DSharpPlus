@@ -94,6 +94,7 @@
     <Compile Include="LuigibotMain.cs" />
     <Compile Include="Modules\BaseOwnerModules.cs" />
     <Compile Include="Modules\EvalModules.cs" />
+    <Compile Include="Modules\Holup.cs" />
     <Compile Include="Modules\NoFunAllowedModule.cs" />
     <Compile Include="Modules\ServerAdminModules.cs" />
     <Compile Include="Modules\TestServerLog.cs" />

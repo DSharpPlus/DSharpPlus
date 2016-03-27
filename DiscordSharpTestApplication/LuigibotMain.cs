@@ -655,6 +655,9 @@ namespace Luigibot
 
             var serverLogs = new TestServerLog(client);
             serverLogs.Install(CommandsManager);
+
+            var holupholup = new Holup();
+            holupholup.Install(CommandsManager);
         }
 
         private Task PlayAudioAsync(CancellationToken cancelToken)
