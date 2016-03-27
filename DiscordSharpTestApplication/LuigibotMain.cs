@@ -46,7 +46,7 @@ namespace Luigibot
         DiscordClient client;
         CommandsManager CommandsManager;
         CancellationToken cancelToken;
-        DateTime loginDate;
+        DateTime loginDate = DateTime.Now;
         #region Audio playback
         WaveFormat waveFormat;
         BufferedWaveProvider bufferedWaveProvider;
@@ -60,8 +60,6 @@ namespace Luigibot
         private string osString;
         public bool actuallyExit = false;
 		
-        
-        
         string[] NaughtyWords = new string[]
         {
             "bitch", "fucking", "fuck", "cunt", "shit", "reest", "reested", "asswipe"
@@ -325,7 +323,6 @@ namespace Luigibot
                 client.Connected += (sender, e) => 
                 {
                     Console.WriteLine("Connected as " + e.user.Username);
-                    loginDate = DateTime.Now;
 
                     if(!String.IsNullOrEmpty(config.OwnerID))
                         owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID);
@@ -419,39 +416,6 @@ namespace Luigibot
         private void SetupCommands()
         {
             #region Old Commands
-            CommandsManager.AddCommand(new CommandStub("joinvoice", "Joins a specified voice channel", "Arg is case insensitive voice channel name to join.", PermissionType.Owner, 1, cmdArgs =>
-            {
-                DiscordChannel channelToJoin = cmdArgs.Channel.parent.Channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
-                if (channelToJoin != null)
-                {
-                    DiscordVoiceConfig config = new DiscordVoiceConfig
-                    {
-                        FrameLengthMs = voiceMsBuffer,
-                        Channels = 1,
-                        OpusMode = Discord.Audio.Opus.OpusApplication.MusicOrMixed,
-                        SendOnly = true
-                    };
-
-                    waveFormat = new WaveFormat(48000, 16, config.Channels);
-
-                    if (!config.SendOnly)
-                    {
-                        waveCallbackInfo = WaveCallbackInfo.FunctionCallback();
-                        outputDevice = new WaveOut();
-                    }
-
-                    client.ConnectToVoiceChannel(channelToJoin, config);
-                }
-                else
-                    cmdArgs.Channel.SendMessage("Couldn't find the specified channel as a voice channel!");
-            }));
-            CommandsManager.AddCommand(new CommandStub("stop", "Stops current voice without disconnecting.", "", PermissionType.Owner, cmdArgs =>
-            {
-                if(client.GetVoiceClient() != null)
-                {
-                    client.GetVoiceClient().ClearVoiceQueue();
-                }
-            }));
             CommandsManager.AddCommand(new CommandStub("invite", "Makes an invite to specified server given its ID", "Pass ID douchebag.", PermissionType.Owner, 1, cmdArgs =>
             {
                 if (cmdArgs.Args.Count > 0)
@@ -470,26 +434,7 @@ namespace Luigibot
                     cmdArgs.Channel.SendMessage("kek");
                 }
             }));
-            CommandsManager.AddCommand(new CommandStub("disconnect", "Disconnects from voice", "", PermissionType.Owner, 1, cmdArgs =>
-            {
-                    client.DisconnectFromVoice();
-            }));
-            CommandsManager.AddCommand(new CommandStub("testvoice", "Broadcasts specified file over voice.", "", PermissionType.Owner, 1, cmdArgs =>
-            {
-                if (File.Exists(cmdArgs.Args[0]))
-                {
-                    if (client.ConnectedToVoice())
-                        SendVoice(cmdArgs.Args[0]);
-                    else
-                        cmdArgs.Channel.SendMessage("Not connected to voice!");
-                }
-                else
-                    cmdArgs.Channel.SendMessage("Couldn't broadcast specified file! It doesn't exist!");
-            }));
-            CommandsManager.AddCommand(new CommandStub("testvoice2", "Broadcasts specified file over voice.", "", PermissionType.Owner, 1, cmdArgs =>
-            {
-                TestRheaStream();
-            }));
+            
             CommandsManager.AddCommand(new CommandStub("statusof", "`Status` test", "", PermissionType.Owner, 1, cmdArgs=>
             {
                 string id = cmdArgs.Args[0].Trim(new char[] { '<', '@', '>' });
@@ -655,6 +600,9 @@ namespace Luigibot
 
             var serverLogs = new TestServerLog(client);
             serverLogs.Install(CommandsManager);
+
+            var voice = new Voice(this);
+            voice.Install(CommandsManager);
         }
 
         private Task PlayAudioAsync(CancellationToken cancelToken)
@@ -728,66 +676,6 @@ namespace Luigibot
                 }
             }
             catch(Exception ex)
-            {
-                owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
-            }
-        }
-
-        private void SendVoice(string file)
-        {
-            DiscordVoiceClient vc = client.GetVoiceClient();
-            try
-            {
-                int ms = voiceMsBuffer;
-                int channels = 1;
-                int sampleRate = 48000;
-
-                int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
-                byte[] buffer = new byte[blockSize];
-                var outFormat = new WaveFormat(sampleRate, 16, channels);
-
-                vc.SetSpeaking(true);
-                if (file.EndsWith(".wav"))
-                {
-                    using (var waveReader = new WaveFileReader(file))
-                    {
-                        int byteCount;
-                        while ((byteCount = waveReader.Read(buffer, 0, blockSize)) > 0)
-                        {
-                            if (vc.Connected)
-                                vc.SendVoice(buffer);
-                            else
-                                break;
-                        }
-                    }
-                }
-                else if (file.EndsWith(".mp3"))
-                {
-                    using (var mp3Reader = new MediaFoundationReader(file))
-                    {
-                        using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
-                        {
-                            //resampler.ResamplerQuality = 60;
-                            int byteCount;
-                            while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
-                            {
-                                if (vc.Connected)
-                                {
-                                    vc.SendVoice(buffer);
-                                }
-                                else
-                                    break;
-                            }
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Voice finished enqueuing");
-                            Console.ForegroundColor = ConsoleColor.White;
-                            resampler.Dispose();
-                            mp3Reader.Close();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
             {
                 owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
             }
