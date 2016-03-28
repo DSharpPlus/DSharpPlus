@@ -372,8 +372,6 @@ namespace DiscordSharp
                     {
                         member.Roles.Add(temp.Roles.Find(x => x.Name == "@everyone"));
                     }
-                    member.Parent = temp;
-
                     temp.AddMember(member);
                 }
                 if (!j["presences"].IsNullOrEmpty())

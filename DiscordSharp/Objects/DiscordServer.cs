@@ -73,6 +73,7 @@ namespace DiscordSharp.Objects
             Members = new Dictionary<ID, DiscordMember>();
         }
 
+        
         internal void AddMember(DiscordMember member)
         {
             if (member == null)
@@ -83,6 +84,7 @@ namespace DiscordSharp.Objects
             }
             Members.Add(member.ID, member);
         }
+
         internal int ClearOfflineMembers()
         {
             int count = 0;
@@ -111,7 +113,6 @@ namespace DiscordSharp.Objects
             {
                 return null; //because instead of just returning null by default, it has to do this shit.
             }
-            return null;
         }
         public DiscordMember GetMemberByUsername(string username, bool caseSensitive = false)
         {
