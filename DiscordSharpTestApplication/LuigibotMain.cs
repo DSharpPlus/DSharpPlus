@@ -159,42 +159,42 @@ namespace Luigibot
             {
                 client.MessageReceived += (sender, e) =>
                 {
-                    if (e.author == null)
+                    if (e.Author == null)
                     {
                         string msg = $"Author had null id in message received!\nRaw JSON:\n```\n{e.RawJson}\n```\n";
-                        msg += $"Args\nChannel: {e.Channel.Name}/{e.Channel.ID}\nMessage: {e.message}";
+                        msg += $"Args\nChannel: {e.Channel.Name}/{e.Channel.ID}\nMessage: {e.Message}";
                         owner.SlideIntoDMs(msg);
                     }
                     else
                     {
-                        Console.WriteLine($"[-- Message from {e.author.Username} in #{e.Channel.Name} on {e.Channel.parent.Name}: {e.message.Content}");
+                        Console.WriteLine($"[-- Message from {e.Author.Username} in #{e.Channel.Name} on {e.Channel.Parent.Name}: {e.Message.Content}");
 
                         if (doingInitialRun)
                         {
-                            if (e.message.Content.StartsWith("?authenticate"))
+                            if (e.Message.Content.StartsWith("?authenticate"))
                             {
-                                string[] split = e.message.Content.Split(new char[] { ' ' }, 2);
+                                string[] split = e.Message.Content.Split(new char[] { ' ' }, 2);
                                 if (split.Length > 1)
                                 {
                                     if (codeToEnter.Trim() == split[1].Trim())
                                     {
-                                        config.OwnerID = e.author.ID;
+                                        config.OwnerID = e.Author.ID;
                                         doingInitialRun = false;
-                                        e.Channel.SendMessage("Authentication successful! **You are now my owner, " + e.author.Username + ".**");
-                                        CommandsManager.AddPermission(e.author, PermissionType.Owner);
-                                        owner = e.author;
+                                        e.Channel.SendMessage("Authentication successful! **You are now my owner, " + e.Author.Username + ".**");
+                                        CommandsManager.AddPermission(e.Author, PermissionType.Owner);
+                                        owner = e.Author;
                                     }
                                 }
                             }
                         }
                         else
                         {
-                            if (e.message.Content.Length > 0 && (e.message.Content[0] == config.CommandPrefix))
+                            if (e.Message.Content.Length > 0 && (e.Message.Content[0] == config.CommandPrefix))
                             {
-                                string rawCommand = e.message.Content.Substring(1);
+                                string rawCommand = e.Message.Content.Substring(1);
                                 try
                                 {
-                                    CommandsManager.ExecuteOnMessageCommand(rawCommand, e.Channel, e.author);
+                                    CommandsManager.ExecuteOnMessageCommand(rawCommand, e.Channel, e.Author);
                                 }
                                 catch (UnauthorizedAccessException ex)
                                 {
@@ -234,11 +234,11 @@ namespace Luigibot
 
                         if(e.Channel.ID == "91265608326324224") //discord-sharp on discordapi
                         {
-                            if(e.author != owner)
+                            if(e.Author != owner)
                             {
-                                if(e.message.Content != null && e.message.Content.ToLower().Contains("how"))
+                                if(e.Message.Content != null && e.Message.Content.ToLower().Contains("how"))
                                 {
-                                    if(e.message.Content.ToLower().Contains("bot") && e.message.Content.ToLower().Contains("tag"))
+                                    if(e.Message.Content.ToLower().Contains("bot") && e.Message.Content.ToLower().Contains("tag"))
                                     {
                                         e.Channel.SendMessage($"<#124294271900712960>");//#api-changes
                                     }
@@ -277,7 +277,7 @@ namespace Luigibot
                 };
                 client.GuildCreated += (sender, e) =>
                 {
-                    owner.SlideIntoDMs($"Joined server {e.server.Name} ({e.server.ID})");
+                    owner.SlideIntoDMs($"Joined server {e.Server.Name} ({e.Server.ID})");
                 };
                 client.SocketClosed += (sender, e) =>
                 {
@@ -324,8 +324,8 @@ namespace Luigibot
                 };
                 client.Connected += (sender, e) => 
                 {
-                    Console.Title = "Luigibot - Discord - Logged in as " + e.user.Username;
-                    Console.WriteLine("Connected as " + e.user.Username);
+                    Console.Title = "Luigibot - Discord - Logged in as " + e.User.Username;
+                    Console.WriteLine("Connected as " + e.User.Username);
 
                     if(!String.IsNullOrEmpty(config.OwnerID))
                         owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID);
@@ -443,7 +443,7 @@ namespace Luigibot
                 string id = cmdArgs.Args[0].Trim(new char[] { '<', '@', '>' });
                 if(!string.IsNullOrEmpty(id))
                 {
-                    DiscordMember member = cmdArgs.Channel.parent.GetMemberByKey(id);
+                    DiscordMember member = cmdArgs.Channel.Parent.GetMemberByKey(id);
                     if (member != null)
                     {
                         string msg = $"Status of `{member.Username}`\n{member.Status}";
@@ -477,9 +477,9 @@ namespace Luigibot
             }));
             CommandsManager.AddCommand(new CommandStub("serverstats", "Server stats", "help me", PermissionType.Owner, cmdArgs =>
             {
-                if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
+                if(cmdArgs.Channel != null && cmdArgs.Channel.Parent != null)
                 {
-                    DiscordServer guild = cmdArgs.Channel.parent;
+                    DiscordServer guild = cmdArgs.Channel.Parent;
                     string msg = $"Stats for **{guild.Name}**\n```\n";
                     msg += $"{guild.Members.Count} members\n";
                     msg += $"{guild.Roles.Count} roles\n";
@@ -490,9 +490,9 @@ namespace Luigibot
             }));
             CommandsManager.AddCommand(new CommandStub("listroles", "Lists rolls", "help me", PermissionType.Owner, cmdArgs =>
             {
-                if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
+                if(cmdArgs.Channel != null && cmdArgs.Channel.Parent != null)
                 {
-                    DiscordServer guild = cmdArgs.Channel.parent;
+                    DiscordServer guild = cmdArgs.Channel.Parent;
                     string msg = $"Roles for **{guild.Name}**, per your request.\n```\n";
                     foreach(var role in guild.Roles)
                     {

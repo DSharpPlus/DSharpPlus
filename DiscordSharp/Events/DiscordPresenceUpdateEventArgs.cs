@@ -7,9 +7,9 @@ namespace DiscordSharp
 
     public class DiscordPresenceUpdateEventArgs : EventArgs
     {
-        public DiscordMember user { get; internal set; }
-        public DiscordUserStatus status { get; internal set; }
-        public string game { get; internal set; }
+        public DiscordMember User { get; internal set; }
+        public DiscordUserStatus Status { get; internal set; }
+        public string Game { get; internal set; }
 
         public JObject RawJson { get; internal set; }
     }

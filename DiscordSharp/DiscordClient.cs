@@ -329,6 +329,7 @@ namespace DiscordSharp
                 foreach(var u in j["channels"])
                 {
                     DiscordChannel tempSub = new DiscordChannel();
+                    tempSub.Client = this;
                     tempSub.ID = u["id"].ToString();
                     tempSub.Name = u["name"].ToString();
                     tempSub.Type = u["type"].ToObject<ChannelType>();
@@ -336,7 +337,7 @@ namespace DiscordSharp
                         tempSub.Topic = u["topic"].ToString();
                     if (tempSub.Type == ChannelType.Voice && !u["bitrate"].IsNullOrEmpty())
                         tempSub.Bitrate = u["bitrate"].ToObject<int>();
-                    tempSub.parent = temp;
+                    tempSub.Parent = temp;
                     List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
                     foreach(var o in u["permission_overwrites"])
                     {
@@ -393,6 +394,7 @@ namespace DiscordSharp
             foreach (var privateChannel in m["d"]["private_channels"])
             {
                 DiscordPrivateChannel tempPrivate = JsonConvert.DeserializeObject<DiscordPrivateChannel>(privateChannel.ToString());
+                tempPrivate.Client = this;
                 tempPrivate.user_id = privateChannel["recipient"]["id"].ToString();
                 DiscordServer potentialServer = new DiscordServer();
                 ServersList.ForEach(x =>
@@ -407,7 +409,7 @@ namespace DiscordSharp
                     DiscordMember recipient = potentialServer.GetMemberByKey(privateChannel["recipient"]["id"].ToString());
                     if (recipient != null)
                     {
-                        tempPrivate.recipient = recipient;
+                        tempPrivate.Recipient = recipient;
                     }
                     else
                     {
@@ -493,7 +495,7 @@ namespace DiscordSharp
                 {
                     ID = result["id"].ToString(),
                     Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
-                    Author = channel.parent.GetMemberByKey(result["author"]["id"].ToString()),
+                    Author = channel.Parent.GetMemberByKey(result["author"]["id"].ToString()),
                     channel = channel,
                     TypeOfChannelObject = channel.GetType(),
                     Content = result["content"].ToString(),
@@ -926,28 +928,28 @@ namespace DiscordSharp
                         string game = message["d"]["game"].ToString();
                         if (message["d"]["game"].IsNullOrEmpty()) //null means not playing
                         {
-                            dpuea.game = "";
+                            dpuea.Game = "";
                             user.CurrentGame = null;
                         }
                         else
                         {
                             if (message["d"]["game"]["name"].IsNullOrEmpty())
                                 if (message["d"]["game"]["game"].IsNullOrEmpty())
-                                    dpuea.game = "";
+                                    dpuea.Game = "";
                                 else
-                                    dpuea.game = message["d"]["game"]["game"].ToString();
+                                    dpuea.Game = message["d"]["game"]["game"].ToString();
                             else
-                                dpuea.game = message["d"]["game"]["name"].ToString();
-                            user.CurrentGame = dpuea.game;
+                                dpuea.Game = message["d"]["game"]["name"].ToString();
+                            user.CurrentGame = dpuea.Game;
                         }
-                        dpuea.user = user;
+                        dpuea.User = user;
 
                         if (message["d"]["status"].ToString() == "online")
-                            dpuea.status = DiscordUserStatus.ONLINE;
+                            dpuea.Status = DiscordUserStatus.ONLINE;
                         else if (message["d"]["status"].ToString() == "idle")
-                            dpuea.status = DiscordUserStatus.IDLE;
+                            dpuea.Status = DiscordUserStatus.IDLE;
                         else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
-                            dpuea.status = DiscordUserStatus.OFFLINE;
+                            dpuea.Status = DiscordUserStatus.OFFLINE;
                         if (PresenceUpdated != null)
                             PresenceUpdated(this, dpuea);
                     }
@@ -965,21 +967,21 @@ namespace DiscordSharp
 
                                 if (message["d"]["game"].IsNullOrEmpty())
                                 {
-                                    dpuea.game = "";
+                                    dpuea.Game = "";
                                     memeber.CurrentGame = null;
                                 }
                                 else
                                 {
-                                    dpuea.game = message["d"]["game"]["name"].ToString();
-                                    memeber.CurrentGame = dpuea.game;
+                                    dpuea.Game = message["d"]["game"]["name"].ToString();
+                                    memeber.CurrentGame = dpuea.Game;
                                 }
 
                                 if (message["d"]["status"].ToString() == "online")
-                                    dpuea.status = DiscordUserStatus.ONLINE;
+                                    dpuea.Status = DiscordUserStatus.ONLINE;
                                 else if (message["d"]["status"].ToString() == "idle")
-                                    dpuea.status = DiscordUserStatus.IDLE;
+                                    dpuea.Status = DiscordUserStatus.IDLE;
                                 else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
-                                    dpuea.status = DiscordUserStatus.OFFLINE;
+                                    dpuea.Status = DiscordUserStatus.OFFLINE;
 
                                 memeber.Parent.AddMember(memeber);
                             }
@@ -1076,7 +1078,7 @@ namespace DiscordSharp
                 throw new ArgumentException("Argument given for username was null/empty.");
             if(channel != null)
             {
-                DiscordMember foundMember = channel.parent.GetMemberByUsername(username, caseSensitive);
+                DiscordMember foundMember = channel.Parent.GetMemberByUsername(username, caseSensitive);
                 if(foundMember != null)
                 {
                     return foundMember;
@@ -1103,7 +1105,7 @@ namespace DiscordSharp
         {
             if (channel != null)
             {
-                DiscordMember foundMember = channel.parent.GetMemberByKey(id);
+                DiscordMember foundMember = channel.Parent.GetMemberByKey(id);
                 if (foundMember != null)
                     return foundMember;
                 else
@@ -1229,7 +1231,7 @@ namespace DiscordSharp
                 {
                     RawJson = result,
                     Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
-                    Author = channel.parent.GetMemberByKey(result["author"]["id"].ToString()),
+                    Author = channel.Parent.GetMemberByKey(result["author"]["id"].ToString()),
                     TypeOfChannelObject = channel.GetType(),
                     channel = channel,
                     Content = result["content"].ToString(),
@@ -1245,26 +1247,7 @@ namespace DiscordSharp
 
             return null;
         }
-
-        /// <summary>
-        /// Simulates typing in the specified channel. Automatically times out/stops after either:
-        /// -10 Seconds
-        /// -A message is sent
-        /// </summary>
-        /// <param name="channel"></param>
-        public void SimulateTyping(DiscordChannelBase channel)
-        {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Typing;
-            try
-            {
-                WebWrapper.Post(url, token, "", true);
-            }
-            catch(Exception ex)
-            {
-                DebugLogger.Log("Exception ocurred while simulating typing: " + ex.Message, MessageLevel.Error);
-            }
-        }
-
+        
         private void SendDeleteRequest(DiscordMessage message)
         {
             string url;
@@ -1309,9 +1292,9 @@ namespace DiscordSharp
                         if (MessageEdited != null)
                             MessageEdited(this, new DiscordMessageEditedEventArgs
                             {
-                                author = pserver.GetMemberByKey(message["d"]["author"]["id"].ToString()),
+                                Author = pserver.GetMemberByKey(message["d"]["author"]["id"].ToString()),
                                 Channel = pchannel,
-                                message = message["d"]["content"].ToString(),
+                                MessageText = message["d"]["content"].ToString(),
                                 MessageType = DiscordMessageType.CHANNEL,
                                 MessageEdited = new DiscordMessage
                                 {
@@ -1337,22 +1320,22 @@ namespace DiscordSharp
                         if (URLMessageAutoUpdate != null)
                         {
                             DiscordURLUpdateEventArgs asdf = new DiscordURLUpdateEventArgs(); //I'm running out of clever names and should probably split these off into different internal voids soon...
-                            asdf.id = message["d"]["id"].ToString();
-                            asdf.channel = ServersList.Find(x => x.Channels.Find(y => y.ID == message["d"]["channel_id"].ToString()) != null).Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
+                            asdf.ID = message["d"]["id"].ToString();
+                            asdf.Channel = ServersList.Find(x => x.Channels.Find(y => y.ID == message["d"]["channel_id"].ToString()) != null).Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
                             foreach (var embed in message["d"]["embeds"])
                             {
                                 DiscordEmbeds temp = new DiscordEmbeds();
-                                temp.url = embed["url"].ToString();
-                                temp.description = embed["description"].ToString();
+                                temp.URL = embed["url"].ToString();
+                                temp.Description = embed["description"].ToString();
                                 try
                                 {
-                                    temp.provider_name = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString();
-                                    temp.provider_url = embed["provider"]["url"].ToString();
+                                    temp.ProviderName = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString();
+                                    temp.ProviderURL = embed["provider"]["url"].ToString();
                                 }
                                 catch { }//noprovider
-                                temp.title = embed["title"].ToString();
-                                temp.type = embed["type"].ToString();
-                                asdf.embeds.Add(temp);
+                                temp.Title = embed["title"].ToString();
+                                temp.Type = embed["type"].ToString();
+                                asdf.Embeds.Add(temp);
                             }
                             URLMessageAutoUpdate(this, asdf);
                         }
@@ -1401,11 +1384,11 @@ namespace DiscordSharp
                     var foundPM = PrivateChannels.Find(x => x.ID == message["d"]["channel_id"].ToString());
                     DiscordPrivateMessageEventArgs dpmea = new DiscordPrivateMessageEventArgs();
                     dpmea.Channel = foundPM;
-                    dpmea.message = message["d"]["content"].ToString();
+                    dpmea.Message = message["d"]["content"].ToString();
                     DiscordMember tempMember = new DiscordMember(this);
                     tempMember.Username = message["d"]["author"]["username"].ToString();
                     tempMember.ID = message["d"]["author"]["id"].ToString();
-                    dpmea.author = tempMember;
+                    dpmea.Author = tempMember;
                     tempMember.parentclient = this;
                     dpmea.RawJson = message;
 
@@ -1424,30 +1407,30 @@ namespace DiscordSharp
                 dmea.RawJson = message;
                 dmea.Channel = potentialChannel;
 
-                dmea.message_text = message["d"]["content"].ToString();
+                dmea.MessageText = message["d"]["content"].ToString();
 
                 DiscordMember tempMember = null;
-                tempMember = potentialChannel.parent.GetMemberByKey(message["d"]["author"]["id"].ToString());
+                tempMember = potentialChannel.Parent.GetMemberByKey(message["d"]["author"]["id"].ToString());
                 if (tempMember == null)
                 {
                     tempMember = JsonConvert.DeserializeObject<DiscordMember>(message["author"].ToString());
                     tempMember.parentclient = this;
-                    tempMember.Parent = potentialChannel.parent;
+                    tempMember.Parent = potentialChannel.Parent;
 
-                    potentialChannel.parent.AddMember(tempMember);
+                    potentialChannel.Parent.AddMember(tempMember);
                 }
 
-                dmea.author = tempMember;
+                dmea.Author = tempMember;
 
                 DiscordMessage m = new DiscordMessage();
-                m.Author = dmea.author;
+                m.Author = dmea.Author;
                 m.channel = dmea.Channel;
                 m.TypeOfChannelObject = dmea.Channel.GetType();
-                m.Content = dmea.message_text;
+                m.Content = dmea.MessageText;
                 m.ID = message["d"]["id"].ToString();
                 m.RawJson = message;
                 m.timestamp = DateTime.Now;
-                dmea.message = m;
+                dmea.Message = m;
                 if (!message["d"]["attachments"].IsNullOrEmpty())
                 {
                     List<DiscordAttachment> tempList = new List<DiscordAttachment>();
@@ -1493,13 +1476,14 @@ namespace DiscordSharp
                 if (foundServer != null)
                 {
                     DiscordChannel tempChannel = new DiscordChannel();
+                    tempChannel.Client = this;
                     tempChannel.Name = message["d"]["name"].ToString();
                     tempChannel.Type = message["d"]["type"].ToObject<ChannelType>();
                     if (tempChannel.Type == ChannelType.Voice && !message["d"]["bitrate"].IsNullOrEmpty())
                         tempChannel.Bitrate = message["d"]["bitrate"].ToObject<int>();
 
                     tempChannel.ID = message["d"]["id"].ToString();
-                    tempChannel.parent = foundServer;
+                    tempChannel.Parent = foundServer;
                     foundServer.Channels.Add(tempChannel);
                     DiscordChannelCreateEventArgs fae = new DiscordChannelCreateEventArgs();
                     fae.ChannelCreated = tempChannel;
@@ -1511,9 +1495,10 @@ namespace DiscordSharp
             else
             {
                 DiscordPrivateChannel tempPrivate = new DiscordPrivateChannel();
+                tempPrivate.Client = this;
                 tempPrivate.ID = message["d"]["id"].ToString();
                 DiscordMember recipient = ServersList.Find(x => x.GetMemberByKey(message["d"]["recipient"]["id"].ToString()) != null).GetMemberByKey(message["d"]["recipient"]["id"].ToString());
-                tempPrivate.recipient = recipient;
+                tempPrivate.Recipient = recipient;
                 PrivateChannels.Add(tempPrivate);
                 DiscordPrivateChannelEventArgs fak = new DiscordPrivateChannelEventArgs { ChannelType = DiscordChannelCreateType.PRIVATE, ChannelCreated = tempPrivate };
                 if (PrivateChannelCreated != null)
@@ -1599,11 +1584,11 @@ namespace DiscordSharp
                 {
                     DiscordChannel dc = new DiscordChannel
                     {
+                        Client = this,
                         Name = result["name"].ToString(),
                         ID = result["id"].ToString(),
                         Type = result["type"].ToObject<ChannelType>(),
                         Private = result["is_private"].ToObject<bool>(),
-                        
                     };
                     if (!result["topic"].IsNullOrEmpty())
                         dc.Topic = result["topic"].ToString();
@@ -1649,6 +1634,7 @@ namespace DiscordSharp
                     {
                         server.Channels.Add(new DiscordChannel
                         {
+                            Client = this,
                             Name = item["name"].ToString(),
                             ID = item["id"].ToString(),
                             Topic = item["topic"].ToString(),
@@ -1844,7 +1830,7 @@ namespace DiscordSharp
                             }
 
                             if (Connected != null)
-                                Connected(this, new DiscordConnectEventArgs { user = Me });
+                                Connected(this, new DiscordConnectEventArgs { User = Me });
                             break;
                         case ("GUILD_MEMBERS_CHUNK"):
                             GuildMemberChunkEvents(message);
@@ -1886,7 +1872,7 @@ namespace DiscordSharp
                                 DiscordChannel channel = server.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
                                 DiscordMember uuser = server.GetMemberByKey(message["d"]["user_id"].ToString());
                                 if (UserTypingStart != null)
-                                    UserTypingStart(this, new DiscordTypingStartEventArgs { user = uuser, channel = channel, timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
+                                    UserTypingStart(this, new DiscordTypingStartEventArgs { user = uuser, Channel = channel, Timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
                             }
                             break;
                         case ("MESSAGE_CREATE"):
@@ -2023,7 +2009,7 @@ namespace DiscordSharp
                     if(_channel != null)
                     {
                         DebugLogger.Log("Found user for private channel!", MessageLevel.Debug);
-                        _channel.recipient = _member;
+                        _channel.Recipient = _member;
                     }
                 }
             }
@@ -2318,7 +2304,7 @@ namespace DiscordSharp
                 op = 4,
                 d = new
                 {
-                    guild_id = channel.parent.ID,
+                    guild_id = channel.Parent.ID,
                     channel_id = channel.ID,
                     self_mute = clientMuted,
                     self_deaf = clientDeaf
@@ -2359,7 +2345,7 @@ namespace DiscordSharp
                 op = 4,
                 d = new
                 {
-                    guild_id = VoiceClient != null && VoiceClient.Channel != null ? VoiceClient.Channel.parent.ID : (object)null,
+                    guild_id = VoiceClient != null && VoiceClient.Channel != null ? VoiceClient.Channel.Parent.ID : (object)null,
                     channel_id = (object)null,
                     self_mute = true,
                     self_deaf = false
@@ -2612,6 +2598,7 @@ namespace DiscordSharp
                 foreach (var u in message["d"]["channels"])
                 {
                     DiscordChannel tempSub = new DiscordChannel();
+                    tempSub.Client = this;
                     tempSub.ID = u["id"].ToString();
                     tempSub.Name = u["name"].ToString();
                     tempSub.Type = u["type"].ToObject<ChannelType>();
@@ -2621,7 +2608,7 @@ namespace DiscordSharp
                     if (tempSub.Type == ChannelType.Voice && !u["bitrate"].IsNullOrEmpty())
                         tempSub.Bitrate = u["bitrate"].ToObject<int>();
 
-                    tempSub.parent = newServer;
+                    tempSub.Parent = newServer;
                     List<DiscordPermissionOverride> permissionoverrides = new List<DiscordPermissionOverride>();
                     foreach (var o in u["permission_overwrites"])
                     {
@@ -2702,7 +2689,7 @@ namespace DiscordSharp
             {
                 DiscordChannelDeleteEventArgs e = new DiscordChannelDeleteEventArgs { ChannelDeleted = GetChannelByID(message["d"]["id"].ToObject<long>()) };
                 DiscordServer server;
-                server = e.ChannelDeleted.parent;
+                server = e.ChannelDeleted.Parent;
                 server.Channels.Remove(server.Channels.Find(x => x.ID == e.ChannelDeleted.ID));
 
                 if (ChannelDeleted != null)
@@ -2739,7 +2726,7 @@ namespace DiscordSharp
             e.NewChannel = newChannel;
 
             DiscordServer serverToRemoveFrom = ServersList.Find(x => x.Channels.Find(y => y.ID == newChannel.ID) != null);
-            newChannel.parent = serverToRemoveFrom;
+            newChannel.Parent = serverToRemoveFrom;
             int indexOfServer = ServersList.IndexOf(serverToRemoveFrom);
             serverToRemoveFrom.Channels.Remove(oldChannel);
             serverToRemoveFrom.Channels.Add(newChannel);
@@ -2754,9 +2741,9 @@ namespace DiscordSharp
         private void GuildDeleteEvents(JObject message)
         {
             DiscordGuildDeleteEventArgs e = new DiscordGuildDeleteEventArgs();
-            e.server = ServersList.Find(x => x.ID == message["d"]["id"].ToString());
+            e.Server = ServersList.Find(x => x.ID == message["d"]["id"].ToString());
             e.RawJson = message;
-            ServersList.Remove(e.server);
+            ServersList.Remove(e.Server);
             if (GuildDeleted != null)
                 GuildDeleted(this, e);
         }
@@ -2790,6 +2777,7 @@ namespace DiscordSharp
             foreach (var chn in message["d"]["channels"])
             {
                 DiscordChannel tempChannel = new DiscordChannel();
+                tempChannel.Client = this;
                 tempChannel.ID = chn["id"].ToString();
                 tempChannel.Type = chn["type"].ToObject<ChannelType>();
 
@@ -2801,7 +2789,7 @@ namespace DiscordSharp
                 tempChannel.Name = chn["name"].ToString();
                 tempChannel.Private = false;
                 tempChannel.PermissionOverrides = new List<DiscordPermissionOverride>();
-                tempChannel.parent = server;
+                tempChannel.Parent = server;
                 foreach (var o in chn["permission_overwrites"])
                 {
                     if (tempChannel.Type == ChannelType.Voice)
@@ -2835,7 +2823,7 @@ namespace DiscordSharp
             server.Owner = server.GetMemberByKey(message["d"]["owner_id"].ToString());
 
             ServersList.Add(server);
-            e.server = server;
+            e.Server = server;
             if (GuildCreated != null)
                 GuildCreated(this, e);
         }
@@ -2854,7 +2842,7 @@ namespace DiscordSharp
                 newMember.parentclient = this;
                 e.AddedMember = newMember;
                 newMember.Parent = e.Guild;
-                e.roles = message["d"]["roles"].ToObject<string[]>();
+                e.Roles = message["d"]["roles"].ToObject<string[]>();
                 e.JoinedAt = DateTime.Parse(message["d"]["joined_at"].ToString());
 
                 ServersList.Find(x => x == e.Guild).AddMember(newMember);
@@ -2986,45 +2974,45 @@ namespace DiscordSharp
             {
                 DiscordLeftVoiceChannelEventArgs le = new DiscordLeftVoiceChannelEventArgs();
                 DiscordServer inServer = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
-                le.user = inServer.GetMemberByKey(message["d"]["user_id"].ToString());
-                le.guild = inServer;
+                le.User = inServer.GetMemberByKey(message["d"]["user_id"].ToString());
+                le.Guild = inServer;
                 le.RawJson = message;
 
                 if (VoiceClient != null && VoiceClient.Connected)
-                    VoiceClient.MemberRemoved(le.user);
+                    VoiceClient.MemberRemoved(le.User);
                 if (UserLeftVoiceChannel != null)
                     UserLeftVoiceChannel(this, le);
                 return;
             }
             DiscordVoiceStateUpdateEventArgs e = new DiscordVoiceStateUpdateEventArgs();
-            e.guild = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
-            DiscordMember memberToUpdate = e.guild.GetMemberByKey(message["d"]["user_id"].ToString());
+            e.Guild = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
+            DiscordMember memberToUpdate = e.Guild.GetMemberByKey(message["d"]["user_id"].ToString());
             if (memberToUpdate != null)
             {
-                e.channel = e.guild.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
-                memberToUpdate.CurrentVoiceChannel = e.channel;
+                e.Channel = e.Guild.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
+                memberToUpdate.CurrentVoiceChannel = e.Channel;
                 if (!message["d"]["self_deaf"].IsNullOrEmpty())
-                    e.self_deaf = message["d"]["self_deaf"].ToObject<bool>();
-                e.deaf = message["d"]["deaf"].ToObject<bool>();
+                    e.SelfDeaf = message["d"]["self_deaf"].ToObject<bool>();
+                e.Deaf = message["d"]["deaf"].ToObject<bool>();
                 if (!message["d"]["self_mute"].IsNullOrEmpty())
-                    e.self_mute = message["d"]["self_mute"].ToObject<bool>();
-                e.mute = message["d"]["mute"].ToObject<bool>();
-                memberToUpdate.Muted = e.mute;
-                e.suppress = message["d"]["suppress"].ToObject<bool>();
-                memberToUpdate.Deaf = e.suppress;
+                    e.SelfMute = message["d"]["self_mute"].ToObject<bool>();
+                e.Mute = message["d"]["mute"].ToObject<bool>();
+                memberToUpdate.Muted = e.Mute;
+                e.Suppress = message["d"]["suppress"].ToObject<bool>();
+                memberToUpdate.Deaf = e.Suppress;
                 e.RawJson = message;
 
-                e.user = memberToUpdate;
+                e.User = memberToUpdate;
                 
                 if (VoiceClient != null && VoiceClient.Connected)
-                    VoiceClient.MemberAdded(e.user);
+                    VoiceClient.MemberAdded(e.User);
 
                 if (!message["d"]["session_id"].IsNullOrEmpty()) //then this has to do with you
                 {
-                    if (e.user.ID == Me.ID)
+                    if (e.User.ID == Me.ID)
                     {
-                        Me.Muted = e.self_mute;
-                        Me.Deaf = e.self_deaf;
+                        Me.Muted = e.SelfMute;
+                        Me.Deaf = e.SelfDeaf;
                         if (VoiceClient != null)
                             VoiceClient.SessionID = message["d"]["session_id"].ToString();
                     }

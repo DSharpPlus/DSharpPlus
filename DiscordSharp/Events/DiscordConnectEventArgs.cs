@@ -4,6 +4,6 @@ namespace DiscordSharp
 {
     public class DiscordConnectEventArgs : EventArgs
     {
-        public DiscordMember user { get; internal set; }
+        public DiscordMember User { get; internal set; }
     }
 }

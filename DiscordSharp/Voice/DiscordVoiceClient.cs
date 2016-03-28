@@ -1,5 +1,4 @@
 ﻿extern alias ws4n;
-using Discord.Audio.Opus;
 using DiscordSharp.Events;
 using DiscordSharp.Objects;
 using DiscordSharp.Voice;
@@ -377,12 +376,12 @@ namespace DiscordSharp
             e.Channel = Channel;
             e.UserSpeaking = Guild.GetMemberByKey(message["d"]["user_id"].ToString());
             e.Speaking = message["d"]["speaking"].ToObject<bool>();
-            e.ssrc = message["d"]["ssrc"].ToObject<int>();
+            e.Ssrc = message["d"]["ssrc"].ToObject<int>();
 
             if(e.UserSpeaking != null)
             {
                 if (!SsrcDictionary.ContainsKey(e.UserSpeaking))
-                    SsrcDictionary.Add(e.UserSpeaking, e.ssrc);
+                    SsrcDictionary.Add(e.UserSpeaking, e.Ssrc);
             }
 
             LastSpoken = e.UserSpeaking;

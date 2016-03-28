@@ -25,7 +25,7 @@ namespace Luigibot.Modules
                         YugiohPricesSearcher searcher = new YugiohPricesSearcher();
                         try
                         {
-                            manager.Client.SimulateTyping(cmdArgs.Channel);
+                            cmdArgs.Channel.SimulateTyping();
                             var card = searcher.GetCardByName(cmdArgs.Args[0]).Result;
                             if (card.Name != "<NULL CARD>")
                             {

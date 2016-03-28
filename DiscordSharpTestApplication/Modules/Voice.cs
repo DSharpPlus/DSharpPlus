@@ -192,14 +192,14 @@ namespace Luigibot.Modules
             }), this);
             manager.AddCommand(new CommandStub("joinvoice", "Joins a specified voice channel", "Arg is case insensitive voice channel name to join.", PermissionType.Owner, 1, cmdArgs =>
             {
-                DiscordChannel channelToJoin = cmdArgs.Channel.parent.Channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
+                DiscordChannel channelToJoin = cmdArgs.Channel.Parent.Channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
                 if (channelToJoin != null)
                 {
                     DiscordVoiceConfig config = new DiscordVoiceConfig
                     {
                         FrameLengthMs = 60,
                         Channels = 1,
-                        OpusMode = Discord.Audio.Opus.OpusApplication.MusicOrMixed,
+                        OpusMode = DiscordSharp.Voice.OpusApplication.MusicOrMixed,
                         SendOnly = true
                     };
 

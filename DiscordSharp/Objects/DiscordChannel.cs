@@ -6,14 +6,35 @@ using System.Drawing;
 
 namespace DiscordSharp.Objects
 {
-    public class DiscordChannelBase
+    public abstract class DiscordChannelBase
     {
         [JsonProperty("id")]
         public string ID { get; internal set; }
         [JsonProperty("is_private")]
         public bool Private { get; internal set; }
 
+        internal DiscordClient Client { get; set; }
+
         internal DiscordChannelBase() { }
+
+        /// <summary>
+        /// Simulates typing in the specified channel. Automatically times out/stops after either:
+        /// -10 Seconds
+        /// -A message is sent
+        /// </summary>
+        /// <param name="channel"></param>
+        public void SimulateTyping()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Typing;
+            try
+            {
+                WebWrapper.Post(url, DiscordClient.token, "", true);
+            }
+            catch (Exception ex)
+            {
+                Client.GetTextClientLogger.Log("Exception ocurred while simulating typing: " + ex.Message, MessageLevel.Error);
+            }
+        }
     }
 
     public enum ChannelType
@@ -36,6 +57,7 @@ namespace DiscordSharp.Objects
         public string Icon { get; set; }
 
         private int __bitrate;
+
         /// <summary>
         /// (Voice only) The channel's configured bitrate, in bps (bits per second).
         /// It's highly recommended you use this as opposed to your own bitrate.
@@ -59,7 +81,7 @@ namespace DiscordSharp.Objects
 
         public List<DiscordPermissionOverride> PermissionOverrides { get; set; }
 
-        public DiscordServer parent { get; internal set; }
+        public DiscordServer Parent { get; internal set; }
 
         public DiscordMessage SendMessage(string message)
         {
@@ -73,7 +95,7 @@ namespace DiscordSharp.Objects
             {
                 ID = result["id"].ToString(),
                 Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
-                Author = this.parent.GetMemberByKey(result["author"]["id"].ToString()),
+                Author = this.Parent.GetMemberByKey(result["author"]["id"].ToString()),
                 channel = this,
                 Content = result["content"].ToString(),
                 RawJson = result,
@@ -101,7 +123,7 @@ namespace DiscordSharp.Objects
     {
         internal string user_id { get; set; }
 
-        public DiscordMember recipient { get; set; }
+        public DiscordMember Recipient { get; set; }
         [JsonProperty("last_message_id")]
         private string LastMessageID { get; set; }
 

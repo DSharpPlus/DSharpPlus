@@ -64,7 +64,7 @@ namespace Luigibot.Modules
             {
                 if (LogChannel != null && DiscordSharpTestServer != null)
                 {
-                    if (e.NewChannel.parent.ID == DiscordSharpTestServer.ID)
+                    if (e.NewChannel.Parent.ID == DiscordSharpTestServer.ID)
                     {
                         string msg = $"**Channel Update**\n";
                         msg += $"\n**Name: ** {e.OldChannel.Name} -> {e.NewChannel.Name}";

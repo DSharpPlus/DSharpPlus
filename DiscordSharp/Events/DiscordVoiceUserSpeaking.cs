@@ -20,6 +20,6 @@ namespace DiscordSharp.Events
         /// </summary>
         public bool Speaking { get; internal set; }
 
-        public int ssrc { get; internal set; }
+        public int Ssrc { get; internal set; }
     }
 }

@@ -14,9 +14,9 @@ namespace Luigibot.Modules
         {
             manager.Client.MessageReceived += (sender, e) =>
             {
-                if(e.author.ID == "72465239836196864" || e.author.ID == "78703938047582208") //if it's me or uniqu0
+                if(e.Author.ID == "72465239836196864" || e.Author.ID == "78703938047582208") //if it's me or uniqu0
                 {
-                    if(e.message.Content.Trim().ToLower() == "hol up" || e.message.Content.Trim().ToLower() == "holup")
+                    if(e.Message.Content.Trim().ToLower() == "hol up" || e.Message.Content.Trim().ToLower() == "holup")
                     {
                         e.Channel.SendMessage("we dem");
                     }

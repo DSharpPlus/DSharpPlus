@@ -34,7 +34,7 @@ namespace Luigibot.Modules
             {
                 if(cmdArgs.Args.Count > 0)
                 {
-                    DiscordMember member = cmdArgs.Channel.parent.Members.First(x => x.Value.ID == cmdArgs.Args[0]).Value;
+                    DiscordMember member = cmdArgs.Channel.Parent.Members.First(x => x.Value.ID == cmdArgs.Args[0]).Value;
                     if(member != null)
                     {
                         cmdArgs.Channel.SendMessage($"```\n{RolesToString(member.Roles)}\n```");
@@ -46,7 +46,7 @@ namespace Luigibot.Modules
             {
                 if (cmdArgs.Args.Count > 0)
                 {
-                    DiscordMember member = cmdArgs.Channel.parent.Members.First(x => x.Value.Username == cmdArgs.Args[0]).Value;
+                    DiscordMember member = cmdArgs.Channel.Parent.Members.First(x => x.Value.Username == cmdArgs.Args[0]).Value;
                     if (member != null)
                     {
                         cmdArgs.Channel.SendMessage($"```\n{RolesToString(member.Roles)}\n```");
@@ -59,7 +59,7 @@ namespace Luigibot.Modules
                 if (cmdArgs.Args.Count > 0)
                 {
                     string msg = "**Users with passed Username in this Server**\n\n";
-                    foreach(var member in cmdArgs.Channel.parent.Members)
+                    foreach(var member in cmdArgs.Channel.Parent.Members)
                     {
                         if (member.Value.Username.ToLower() == cmdArgs.Args[0].ToLower())
                             msg += $"* {member.Value.Username} ({member.Value.ID})";
