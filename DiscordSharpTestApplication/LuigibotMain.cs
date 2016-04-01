@@ -375,8 +375,7 @@ namespace Luigibot
                         CommandsManager.OverrideModulesDictionary(config.ModulesDictionary);
                     }
 
-                    //client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
-                    client.UpdateCurrentGame("DiscordCraft 0.0.1");
+                    client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
                 };
                 if(client.SendLoginRequest() != null)
                 {
@@ -566,21 +565,20 @@ namespace Luigibot
             {
                 string message = "**About Luigibot**\n";
                 message += $"Owner: {owner.Username}#{owner.Discriminator}\n";
-                //message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
-                message += "Library: DiscordCraft 0.0.1\n";
+                message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
                 var uptime = (DateTime.Now - loginDate);
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
-                //message += "Runtime: ";
+                message += "Runtime: ";
 
-                //if (runningOnMono)
-                //    message += "Mono\n";
-                //else
-                //    message += ".Net\n";
+                if (runningOnMono)
+                    message += "Mono\n";
+                else
+                    message += ".Net\n";
 
-                //message += $"OS: {osString}\n";
+                message += $"OS: {osString}\n";
                 long memUsage = GetMemoryUsage();
                 if (memUsage > 0)
-                    message += "Memory Usage: " + (memUsage / 1024) /* / 2*/ + "mb\n";
+                    message += "Memory Usage: " + (memUsage / 1024) + "mb\n";
                 message += "Commands: " + CommandsManager.Commands.Count + "\n";
                 message += "Command Prefix: " + config.CommandPrefix + "\n";
                 message += "Total Servers: " + client.GetServersList().Count + "\n";
@@ -687,7 +685,6 @@ namespace Luigibot
                 {
                     using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
                     {
-                        //resampler.ResamplerQuality = 60;
                         int byteCount;
                         while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
                         {

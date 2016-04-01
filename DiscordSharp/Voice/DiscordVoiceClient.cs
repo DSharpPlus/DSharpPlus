@@ -438,7 +438,7 @@ namespace DiscordSharp
         {
             VoiceDebugLogger.Log($"VoiceWebSocket was closed.", MessageLevel.Critical);
             ErrorReceived?.Invoke(this, new EventArgs());
-
+            
             Dispose();
         }
 #endregion
