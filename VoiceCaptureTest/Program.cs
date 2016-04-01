@@ -51,13 +51,13 @@ namespace VoiceCaptureTest
             {
                 client.MessageReceived += (sender, e) =>
                 {
-                    string message = e.message.Content;
+                    string message = e.Message.Content;
                     if(message[0] == '?')
                     {
                         message = message.Substring(1); //to remove the command prefix
                         try
                         {
-                            CommandManager.ExecuteOnMessageCommand(message, e.Channel, e.author);
+                            CommandManager.ExecuteOnMessageCommand(message, e.Channel, e.Author);
                         }
                         catch(UnauthorizedAccessException ex)
                         {
@@ -67,7 +67,7 @@ namespace VoiceCaptureTest
                 };
                 client.Connected += (sender, e) =>
                 {
-                    Console.WriteLine("Connected as " + e.user.Username);
+                    Console.WriteLine("Connected as " + e.User.Username);
                     CommandManager = new CommandsManager(client);
                     CommandManager.AddCommand(new CommandStub("joinvoice",
                             "Joins a voice channel",
@@ -75,7 +75,7 @@ namespace VoiceCaptureTest
                             {
                                 if (cmdArgs.Args.Count < 1)
                                     return;
-                                DiscordChannel toJoin = cmdArgs.Channel.parent.Channels.Find(x => (x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice));
+                                DiscordChannel toJoin = cmdArgs.Channel.Parent.Channels.Find(x => (x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice));
                                 if (toJoin != null)
                                     client.ConnectToVoiceChannel(toJoin);
                             }));

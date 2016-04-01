@@ -180,6 +180,10 @@ namespace DiscordSharp.Objects
             }
             catch (Exception ex)
             {
+#if DEBUG
+                if (ex.Message.Contains("400"))
+                    return;
+#endif
                 parentclient.GetTextClientLogger.Log($"Error ocurred while sending message to user, step 1: {ex.Message}", MessageLevel.Error);
             }
         }

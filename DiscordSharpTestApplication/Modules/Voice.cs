@@ -91,7 +91,11 @@ namespace Luigibot.Modules
             }
             catch (Exception ex)
             {
-                MainEntry.owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+                try
+                {
+                    MainEntry.owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+                }
+                catch { }
             }
         }
 
@@ -151,7 +155,11 @@ namespace Luigibot.Modules
             }
             catch (Exception ex)
             {
-                MainEntry.owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+                try
+                {
+                    MainEntry.owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
+                }
+                catch { }
             }
         }
 

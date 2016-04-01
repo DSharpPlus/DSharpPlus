@@ -163,7 +163,11 @@ namespace Luigibot
                     {
                         string msg = $"Author had null id in message received!\nRaw JSON:\n```\n{e.RawJson}\n```\n";
                         msg += $"Args\nChannel: {e.Channel.Name}/{e.Channel.ID}\nMessage: {e.Message}";
-                        owner.SlideIntoDMs(msg);
+                        try
+                        {
+                            owner.SlideIntoDMs(msg);
+                        }
+                        catch { }
                     }
                     else
                     {
@@ -254,7 +258,11 @@ namespace Luigibot
                 };
                 client.VoiceClientConnected += (sender, e) =>
                 {
-                    owner.SlideIntoDMs($"Voice connection complete.");
+                    try
+                    {
+                        owner.SlideIntoDMs($"Voice connection complete.");
+                    }
+                    catch { }
                     //player = new AudioPlayer(client.GetVoiceClient().VoiceConfig);
                     //bufferedWaveProvider = new BufferedWaveProvider(waveFormat);
                     //bufferedWaveProvider.BufferDuration = new TimeSpan(0, 0, 50);
@@ -277,7 +285,11 @@ namespace Luigibot
                 };
                 client.GuildCreated += (sender, e) =>
                 {
-                    owner.SlideIntoDMs($"Joined server {e.Server.Name} ({e.Server.ID})");
+                    try
+                    {
+                        owner.SlideIntoDMs($"Joined server {e.Server.Name} ({e.Server.ID})");
+                    }
+                    catch { }
                 };
                 client.SocketClosed += (sender, e) =>
                 {
@@ -301,11 +313,15 @@ namespace Luigibot
                     string message = $"Ahoy! An unknown message type `{e.RawJson["t"].ToString()}` was discovered with the contents: \n\n";
                     message += $"```\n{e.RawJson.ToString()}\n```\nIt's been dumped to `dumps/{e.RawJson["t"].ToString()}.json` for your viewing pleasure.";
 
-                    string filename = $"dumps{Path.DirectorySeparatorChar}{e.RawJson["t"].ToString()}.json";
+                    string filename = $"{Environment.CurrentDirectory}{Path.DirectorySeparatorChar}dumps{Path.DirectorySeparatorChar}{e.RawJson["t"].ToString()}.json";
                     if(!File.Exists(filename))
                     {
                         File.WriteAllText(e.RawJson.ToString(), filename);
-                        owner.SlideIntoDMs(message);
+                        try
+                        {
+                            owner.SlideIntoDMs(message);
+                        }
+                        catch { }
                     }
                 };
                 client.TextClientDebugMessageReceived += (sender, e) =>
@@ -359,7 +375,8 @@ namespace Luigibot
                         CommandsManager.OverrideModulesDictionary(config.ModulesDictionary);
                     }
 
-					client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
+                    //client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
+                    client.UpdateCurrentGame("DiscordCraft 0.0.1");
                 };
                 if(client.SendLoginRequest() != null)
                 {
@@ -499,7 +516,11 @@ namespace Luigibot
                         msg += $"{role.Position} - {role.Name} - {role.ID} - {role.Permissions.GetRawPermissions()}\n";
                     }
                     msg += "\n```";
-                    owner.SlideIntoDMs(msg);
+                    try
+                    {
+                        owner.SlideIntoDMs(msg);
+                    }
+                    catch { }
                     cmdArgs.Channel.SendMessage($"DMed to you ;)");
                 }
             }));
@@ -545,17 +566,18 @@ namespace Luigibot
             {
                 string message = "**About Luigibot**\n";
                 message += $"Owner: {owner.Username}#{owner.Discriminator}\n";
-                message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
+                //message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
+                message += "Library: DiscordCraft 0.0.1\n";
                 var uptime = (DateTime.Now - loginDate);
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
-                message += "Runtime: ";
+                //message += "Runtime: ";
 
-                if (runningOnMono)
-                    message += "Mono\n";
-                else
-                    message += ".Net\n";
+                //if (runningOnMono)
+                //    message += "Mono\n";
+                //else
+                //    message += ".Net\n";
 
-                message += $"OS: {osString}\n";
+                //message += $"OS: {osString}\n";
                 long memUsage = GetMemoryUsage();
                 if (memUsage > 0)
                     message += "Memory Usage: " + (memUsage / 1024) /* / 2*/ + "mb\n";

@@ -429,15 +429,17 @@ namespace DiscordSharp
         private void VoiceWebSocket_OnError(object sender, EventArgs e)
         {
             VoiceDebugLogger.Log("Error in VoiceWebSocket.", MessageLevel.Critical);
-            if (ErrorReceived != null)
-                ErrorReceived(this, new EventArgs());
+            ErrorReceived?.Invoke(this, new EventArgs());
+
+            //Won't worror about on error for now
         }
 
         private void VoiceWebSocket_OnClose(object sender, EventArgs e)
         {
             VoiceDebugLogger.Log($"VoiceWebSocket was closed.", MessageLevel.Critical);
-            if (ErrorReceived != null)
-                ErrorReceived(this, new EventArgs());
+            ErrorReceived?.Invoke(this, new EventArgs());
+
+            Dispose();
         }
 #endregion
 

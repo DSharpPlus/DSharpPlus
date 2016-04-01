@@ -23,7 +23,7 @@
     <CustomConstants Condition=" '$(TargetFrameworkVersion' == 'v4.5'">V45</CustomConstants>
     <DefineConstants Condition=" '$(DefineConstants)' != '' And '$(CustomConstants)' != '' ">$(DefineConstants);</DefineConstants>-->
     <DefineConstants>NETFX$(TargetFrameworkVersion.Replace("v", "").Replace(".", "_"));$(DefineConstants)</DefineConstants>
-    <DefineConstants>$(DefineConstants)$(CustomConstants)</DefineConstants>
+    <DefineConstants>NETFX4_5;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>6</LangVersion>
