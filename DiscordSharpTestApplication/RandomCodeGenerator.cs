@@ -9,7 +9,7 @@ namespace Luigibot
     public class RandomCodeGenerator
     {
         private Random AlphaGenerator = new Random(DateTime.Now.Millisecond);
-        private Random NumericalGenerator = new Random((int)(DateTime.Now.Millisecond * 98734));
+        private Random NumericalGenerator = new Random(DateTime.Now.Millisecond * 98734);
 
         private String[] Alphabet = new string[] { "a", "b", "c", "d", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
 
@@ -39,7 +39,7 @@ namespace Luigibot
                     code.Add(num.ToString());
                 }
             }
-
+ 
 
             return ArrayToString(code.ToArray<string>());
         }

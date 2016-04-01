@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using DiscordSharp.Objects;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -44,12 +45,7 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
-#if V45
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-#else
-                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
-#endif
-                                Delete(url, token); //try again
+                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
                             }
                         }
                     }
@@ -94,12 +90,7 @@ namespace DiscordSharp
                             {
                                 if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                                 {
-#if V45
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-#else
-                                    Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
-#endif
-                                    Put(url, token); //try again
+                                    throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
                                 }
                             }
                             return result;
@@ -164,12 +155,7 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
-#if V45
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-#else
-                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
-#endif
-                                Post(url, token, message, acceptInviteWorkaround); //try again
+                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
                             }
                         }
                     }
@@ -321,12 +307,7 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
-#if V45
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-#else
-                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
-#endif
-                                Post(url, message); //try again
+                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
                             }
                         }
                         if (result != "")
@@ -386,12 +367,7 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
-#if V45
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-#else
-                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
-#endif
-                                PostWithAttachment(url, message, fileToAttach); //try again
+                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
                             }
                         }
                     }
@@ -444,12 +420,7 @@ namespace DiscordSharp
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
-#if V45
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-#else
-                                Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
-#endif
-                                Patch(url, token, message); //try again
+                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
                             }
                         }
                     }
@@ -501,12 +472,7 @@ namespace DiscordSharp
                             {
                                 if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                                 {
-#if V45
-                                Task.Delay(jsonTest["retry_after"].ToObject<int>()).Wait(); //wait
-#else
-                                    Thread.Sleep(jsonTest["retry_after"].ToObject<int>());
-#endif
-                                    Get(url, token); //try again
+                                    throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
                                 }
                             }
                         }
