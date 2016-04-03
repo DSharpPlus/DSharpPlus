@@ -138,6 +138,17 @@ namespace DiscordSharp
 
         public bool V4Testing { get; set; } = true;
 
+        /// <summary>
+        /// V4 related things. Getting this means our session has been successfully initiated.
+        /// </summary>
+        private string SessionID;
+
+        /// <summary>
+        /// The last sequence we received used for v4 heartbeat.
+        /// </summary>
+        private int Sequence;
+
+
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
         private string CurrentGameName = "";
@@ -382,9 +393,12 @@ namespace DiscordSharp
                     foreach (var presence in j["presences"])
                     {
                         DiscordMember member = temp.GetMemberByKey(presence["user"]["id"].ToString());
-                        member.SetPresence(presence["status"].ToString());
-                        if (!presence["game"].IsNullOrEmpty())
-                            member.CurrentGame = presence["game"]["name"].ToString();
+                        if (member != null)
+                        {
+                            member.SetPresence(presence["status"].ToString());
+                            if (!presence["game"].IsNullOrEmpty())
+                                member.CurrentGame = presence["game"]["name"].ToString();
+                        }
                     }
                 }
                 temp.Region = j["region"].ToString();
@@ -840,6 +854,8 @@ namespace DiscordSharp
         /// Returns true if the websocket is not null and is alive.
         /// </summary>
         public bool WebsocketAlive => (ws != null) ? ws.IsAlive : false;
+
+        public bool ReadyComplete { get; private set; }
 
         #region Message Received Crap..
 
@@ -1512,26 +1528,28 @@ namespace DiscordSharp
         {
             if (token == null)
                 throw new NullReferenceException("token was null!");
-            
+
             //i'm ashamed of myself for this but i'm tired
             tryAgain:
             string url = Endpoints.BaseAPI + Endpoints.Gateway;
             if (V4Testing)
-                url = "https://ptb.discordapp.com/api/gateway?encoding=json&v=4";
+                url = "https://ptb.discordapp.com/api/gateway";
             try
             {
                 string gateway = JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
-                if(!string.IsNullOrEmpty(gateway))
-                    return gateway;
+                if (!string.IsNullOrEmpty(gateway))
+                {
+                    return gateway + (V4Testing ? "?encoding=json&v=4" : "");
+                }
                 else
                     throw new NullReferenceException("Failed to retrieve Gateway urL!");
             }
             catch(UnauthorizedAccessException) //bad token
             {
                 DebugLogger.Log("Got 401 from Discord. Token bad, deleting and retrying login...");
-                if(File.Exists(StrippedEmail.GetHashCode() + ".cache"))
+                if(File.Exists(((uint)StrippedEmail.GetHashCode()) + ".cache"))
                 {
-                    File.Delete(StrippedEmail.GetHashCode() + ".cache");
+                    File.Delete(((uint)StrippedEmail.GetHashCode()) + ".cache");
                 }
                 SendLoginRequest();
                 goto tryAgain;
@@ -1795,6 +1813,10 @@ namespace DiscordSharp
                         if(message["t"].ToString() != "READY")
                             DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
 
+                    // TODO: sequence
+                    if (!message["s"].IsNullOrEmpty())
+                        Sequence = message["s"].ToObject<int>();
+
                     ClientPacketReceived(message);
                 };
                 ws.OnOpen += (sender, e) =>
@@ -1832,6 +1854,7 @@ namespace DiscordSharp
                     ClientPrivateInformation.Username = Me.Username;
                     HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
                     GetChannelsList(message);
+                    SessionID = message["d"]["session_id"].ToString();
 
                     //TESTING
                     string[] guildID = new string[ServersList.Count];
@@ -1853,6 +1876,7 @@ namespace DiscordSharp
                         ws.Send(wsChunkTest);
                     }
 
+                    ReadyComplete = true;
                     if (Connected != null)
                         Connected(this, new DiscordConnectEventArgs { User = Me });
                     break;
@@ -3043,7 +3067,7 @@ namespace DiscordSharp
         private static DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private void KeepAlive()
         {
-            string keepAliveJson = "{\"op\":1, \"d\":" + DateTime.Now.Millisecond + "}";
+            string keepAliveJson = "{\"op\":1, \"d\":" + Sequence + "}";
                 if (ws != null)
                 if (ws.IsAlive)
                 {

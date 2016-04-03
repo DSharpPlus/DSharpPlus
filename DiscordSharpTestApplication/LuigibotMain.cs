@@ -122,9 +122,7 @@ namespace Luigibot
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
             client = new DiscordClient(botToken.Trim(), true);
-            //client = new DiscordClient();
-            //client.ClientPrivateInformation.Email = "miketheripper1@gmail.com";
-            //client.ClientPrivateInformation.Password = "Papabear123";
+            client.WriteLatestReady = true;
             SetupEvents(cancelToken);
         }
 
