@@ -150,6 +150,11 @@ namespace DiscordSharp
         /// </summary>
         private int Sequence = 0;
 
+        /// <summary>
+        /// Whether or not to send Opcode 6 (resume) upon a socket being closed.
+        /// </summary>
+        public bool Autoconnect { get; set; } = true;
+
 
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
@@ -1811,11 +1816,15 @@ namespace DiscordSharp
                 ws.OnMessage += (sender, e) =>
                 {
                     var message = JObject.Parse(e.Data);
+
                     if(EnableVerboseLogging)
                         if(message["t"].ToString() != "READY")
                             DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
-                    
-                    ClientPacketReceived(message);
+
+                    if (!message["t"].IsNullOrEmpty()) //contains a t parameter used for client events.
+                        ClientPacketReceived(message);
+                    else
+                        MiscellaneousOpcodes(message);
 
                     if (!message["s"].IsNullOrEmpty())
                         Sequence = message["s"].ToObject<int>();
@@ -1833,9 +1842,39 @@ namespace DiscordSharp
                     scev.Reason = e.Reason;
                     scev.WasClean = e.WasClean;
                     SocketClosed?.Invoke(this, scev);
+
+                    if(Autoconnect && !e.WasClean)
+                    {
+                        PerformReconnection();
+                    }
                 };
                 ws.Connect();
             DebugLogger.Log("Connecting..");
+        }
+
+        private void MiscellaneousOpcodes(JObject message)
+        {
+            switch(message["d"].ToObject<int>())
+            {
+                case Opcodes.INVALIDATE_SESSION:
+                    // TODO: the session was invalidated and a full reconnection must be performed.
+                    DebugLogger.Log($"The session was invalidated. ", MessageLevel.Critical);
+                    break;
+            }
+        }
+
+        private void PerformReconnection()
+        {
+            string resumeJson = JsonConvert.SerializeObject(new
+            {
+                op = Opcodes.RESUME,
+                d = new
+                {
+                    seq = Sequence,
+                    token = DiscordClient.token,
+                    session_id = SessionID
+                }
+            });
         }
 
         private void ClientPacketReceived(JObject message)
