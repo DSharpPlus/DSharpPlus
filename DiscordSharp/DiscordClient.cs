@@ -136,6 +136,8 @@ namespace DiscordSharp
         /// </summary>
         public bool EnableVerboseLogging { get; set; } = false;
 
+        public bool V4Testing { get; set; } = true;
+
         private WebSocket ws;
         private List<DiscordServer> ServersList { get; set; }
         private string CurrentGameName = "";
@@ -1510,10 +1512,12 @@ namespace DiscordSharp
         {
             if (token == null)
                 throw new NullReferenceException("token was null!");
-
-        //i'm ashamed of myself for this but i'm tired
-        tryAgain:
+            
+            //i'm ashamed of myself for this but i'm tired
+            tryAgain:
             string url = Endpoints.BaseAPI + Endpoints.Gateway;
+            if (V4Testing)
+                url = "https://ptb.discordapp.com/api/gateway?encoding=json&v=4";
             try
             {
                 string gateway = JObject.Parse(WebWrapper.Get(url, token))["url"].ToString();
@@ -1767,13 +1771,7 @@ namespace DiscordSharp
         /// <param name="id"></param>
         /// <returns>A full invite URL.</returns>
         public string MakeInviteURLFromCode(string id) => "https://discord.gg/" + id;
-
-        /// <summary>
-        /// This method temporarily points to the .Connect(); method.
-        /// Eventually, this will be removed entirely. Switch while you can!
-        /// </summary>
-        [Obsolete]
-        public void ConnectAndReadMessages() => Connect();
+        
 
         /// <summary>
         /// Runs the websocket connection for the client hooking up the appropriate events.
@@ -1796,161 +1794,14 @@ namespace DiscordSharp
                     if(EnableVerboseLogging)
                         if(message["t"].ToString() != "READY")
                             DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
-                    switch(message["t"].ToString())
-                    {
-                        case ("READY"):
-                            if(WriteLatestReady)
-                                using (var sw = new StreamWriter("READY_LATEST.txt"))
-                                    sw.Write(message);
-                            Me = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
-                            Me.parentclient = this;
-                            ClientPrivateInformation.Avatar = Me.Avatar;
-                            ClientPrivateInformation.Username = Me.Username;
-                            HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
-                            GetChannelsList(message);
 
-                            //TESTING
-                            string[] guildID = new string[ServersList.Count];
-                            for (int i = 0; i < guildID.Length; i++)
-                                guildID[i] = ServersList[i].ID;
-
-                            if (RequestAllUsersOnStartup)
-                            {
-                                string wsChunkTest = JsonConvert.SerializeObject(new
-                                {
-                                    op = 8,
-                                    d = new
-                                    {
-                                        guild_id = guildID,
-                                        query = "",
-                                        limit = 0
-                                    }
-                                });
-                                ws.Send(wsChunkTest);
-                            }
-
-                            if (Connected != null)
-                                Connected(this, new DiscordConnectEventArgs { User = Me });
-                            break;
-                        case ("GUILD_MEMBERS_CHUNK"):
-                            GuildMemberChunkEvents(message);
-                            break;
-                        case ("GUILD_MEMBER_REMOVE"):
-                            GuildMemberRemoveEvents(message);
-                            break;
-                        case ("GUILD_MEMBER_ADD"):
-                            GuildMemberAddEvents(message);
-                            break;
-                        case ("GUILD_DELETE"):
-                            GuildDeleteEvents(message);
-                            break;
-                        case ("GUILD_CREATE"):
-                            GuildCreateEvents(message);
-                            break;
-                        case ("GUILD_MEMBER_UPDATE"):
-                            GuildMemberUpdateEvents(message);
-                            break;
-                        case ("GUILD_UPDATE"):
-                            GuildUpdateEvents(message);
-                            break;
-                        case ("GUILD_ROLE_DELETE"):
-                            GuildRoleDeleteEvents(message);
-                            break;
-                        case ("GUILD_ROLE_UPDATE"):
-                            GuildRoleUpdateEvents(message);
-                            break;
-                        case ("PRESENCE_UPDATE"):
-                            PresenceUpdateEvents(message);
-                            break;
-                        case ("MESSAGE_UPDATE"):
-                            MessageUpdateEvents(message);
-                            break;
-                        case ("TYPING_START"):
-                            DiscordServer server = ServersList.Find(x => x.Channels.Find(y => y.ID == message["d"]["channel_id"].ToString()) != null);
-                            if (server != null)
-                            {
-                                DiscordChannel channel = server.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
-                                DiscordMember uuser = server.GetMemberByKey(message["d"]["user_id"].ToString());
-                                if (UserTypingStart != null)
-                                    UserTypingStart(this, new DiscordTypingStartEventArgs { user = uuser, Channel = channel, Timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
-                            }
-                            break;
-                        case ("MESSAGE_CREATE"):
-                            MessageCreateEvents(message);
-                            break;
-                        case ("CHANNEL_CREATE"):
-                            ChannelCreateEvents(message);
-                            break;
-                        case ("VOICE_STATE_UPDATE"):
-                            VoiceStateUpdateEvents(message);
-                            break;
-                        case ("VOICE_SERVER_UPDATE"):
-                            VoiceServerUpdateEvents(message);
-                            break;
-                        case ("MESSAGE_DELETE"):
-                            MessageDeletedEvents(message);
-                            break;
-                        case ("USER_UPDATE"):
-                            UserUpdateEvents(message);
-                            break;
-                        case ("CHANNEL_UPDATE"):
-                            ChannelUpdateEvents(message);
-                            break;
-                        case ("CHANNEL_DELETE"):
-                            ChannelDeleteEvents(message);
-                            break;
-                        case ("GUILD_BAN_ADD"):
-                            GuildMemberBannedEvents(message);
-                            break;
-                        case ("GUILD_BAN_REMOVE"):
-                            GuildMemberBanRemovedEvents(message);
-                            break;
-                        case("MESSAGE_ACK"): //ignore this message, it's irrelevant
-                            break;
-                        default:
-                            if (UnknownMessageTypeReceived != null)
-                                UnknownMessageTypeReceived(this, new UnknownMessageEventArgs { RawJson = message });
-                            break;
-                    }
+                    ClientPacketReceived(message);
                 };
                 ws.OnOpen += (sender, e) =>
                 {
-                    string initJson = JsonConvert.SerializeObject(new
-                    {
-                        op = 2,
-                        v = 4,
-                        d = new
-                        {
-                            token = token,
-                            large_threshold = true,
-                            properties = DiscordProperties
-                        }
-                    });
-
-                    DebugLogger.Log("Sending initJson ( " + initJson + " )");
-                    
-                    ws.Send(initJson);
+                    SendIdentifyPacket();
                     if (SocketOpened != null)
                         SocketOpened(this, null);
-
-                    KeepAliveTaskToken = KeepAliveTaskTokenSource.Token;
-                    KeepAliveTask = new Task(async () => 
-                    {
-                        while (ws.IsAlive)
-                        {
-                            DebugLogger.Log("Hello from inside KeepAliveTask! Sending..");
-                            KeepAlive();
-#if NETFX4_5
-                            await Task.Delay(HeartbeatInterval).ConfigureAwait(false);
-#else
-                            Thread.Sleep(HeartbeatInterval);
-#endif
-                            if (KeepAliveTaskToken.IsCancellationRequested)
-                                break;
-                        }
-                    }, KeepAliveTaskToken, TaskCreationOptions.LongRunning);
-                    KeepAliveTask.Start();
-                    DebugLogger.Log("Began keepalive task..");
                 };
                 ws.OnClose += (sender, e) =>
                 {
@@ -1966,15 +1817,167 @@ namespace DiscordSharp
             DebugLogger.Log("Connecting..");
         }
 
-        //private bool GuildHasMemberWithID(DiscordServer guild, string id)
-        //{
-        //    bool has = false;
-        //    foreach (var x in guild.Members)
-        //        if (x.ID == id)
-        //            has = true;
+        private void ClientPacketReceived(JObject message)
+        {
+            switch (message["t"].ToString())
+            {
+                case ("READY"):
+                    if (WriteLatestReady)
+                        using (var sw = new StreamWriter("READY_LATEST.txt"))
+                            sw.Write(message);
+                    Me = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
+                    Me.parentclient = this;
+                    IsBotAccount = message["d"]["user"]["bot"].IsNullOrEmpty() ? false : message["d"]["user"]["bot"].ToObject<bool>();
+                    ClientPrivateInformation.Avatar = Me.Avatar;
+                    ClientPrivateInformation.Username = Me.Username;
+                    HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
+                    GetChannelsList(message);
 
-        //    return has;
-        //}
+                    //TESTING
+                    string[] guildID = new string[ServersList.Count];
+                    for (int i = 0; i < guildID.Length; i++)
+                        guildID[i] = ServersList[i].ID;
+
+                    if (RequestAllUsersOnStartup)
+                    {
+                        string wsChunkTest = JsonConvert.SerializeObject(new
+                        {
+                            op = 8,
+                            d = new
+                            {
+                                guild_id = guildID,
+                                query = "",
+                                limit = 0
+                            }
+                        });
+                        ws.Send(wsChunkTest);
+                    }
+
+                    if (Connected != null)
+                        Connected(this, new DiscordConnectEventArgs { User = Me });
+                    break;
+                case ("GUILD_MEMBERS_CHUNK"):
+                    GuildMemberChunkEvents(message);
+                    break;
+                case ("GUILD_MEMBER_REMOVE"):
+                    GuildMemberRemoveEvents(message);
+                    break;
+                case ("GUILD_MEMBER_ADD"):
+                    GuildMemberAddEvents(message);
+                    break;
+                case ("GUILD_DELETE"):
+                    GuildDeleteEvents(message);
+                    break;
+                case ("GUILD_CREATE"):
+                    GuildCreateEvents(message);
+                    break;
+                case ("GUILD_MEMBER_UPDATE"):
+                    GuildMemberUpdateEvents(message);
+                    break;
+                case ("GUILD_UPDATE"):
+                    GuildUpdateEvents(message);
+                    break;
+                case ("GUILD_ROLE_DELETE"):
+                    GuildRoleDeleteEvents(message);
+                    break;
+                case ("GUILD_ROLE_UPDATE"):
+                    GuildRoleUpdateEvents(message);
+                    break;
+                case ("PRESENCE_UPDATE"):
+                    PresenceUpdateEvents(message);
+                    break;
+                case ("MESSAGE_UPDATE"):
+                    MessageUpdateEvents(message);
+                    break;
+                case ("TYPING_START"):
+                    DiscordServer server = ServersList.Find(x => x.Channels.Find(y => y.ID == message["d"]["channel_id"].ToString()) != null);
+                    if (server != null)
+                    {
+                        DiscordChannel channel = server.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
+                        DiscordMember uuser = server.GetMemberByKey(message["d"]["user_id"].ToString());
+                        if (UserTypingStart != null)
+                            UserTypingStart(this, new DiscordTypingStartEventArgs { user = uuser, Channel = channel, Timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
+                    }
+                    break;
+                case ("MESSAGE_CREATE"):
+                    MessageCreateEvents(message);
+                    break;
+                case ("CHANNEL_CREATE"):
+                    ChannelCreateEvents(message);
+                    break;
+                case ("VOICE_STATE_UPDATE"):
+                    VoiceStateUpdateEvents(message);
+                    break;
+                case ("VOICE_SERVER_UPDATE"):
+                    VoiceServerUpdateEvents(message);
+                    break;
+                case ("MESSAGE_DELETE"):
+                    MessageDeletedEvents(message);
+                    break;
+                case ("USER_UPDATE"):
+                    UserUpdateEvents(message);
+                    break;
+                case ("CHANNEL_UPDATE"):
+                    ChannelUpdateEvents(message);
+                    break;
+                case ("CHANNEL_DELETE"):
+                    ChannelDeleteEvents(message);
+                    break;
+                case ("GUILD_BAN_ADD"):
+                    GuildMemberBannedEvents(message);
+                    break;
+                case ("GUILD_BAN_REMOVE"):
+                    GuildMemberBanRemovedEvents(message);
+                    break;
+                case ("MESSAGE_ACK"): //ignore this message, it's irrelevant
+                    break;
+                default:
+                    if (UnknownMessageTypeReceived != null)
+                        UnknownMessageTypeReceived(this, new UnknownMessageEventArgs { RawJson = message });
+                    break;
+            }
+        }
+
+        private void SendIdentifyPacket()
+        {
+            string initJson = JsonConvert.SerializeObject(new
+            {
+                op = 2,
+                v = 4,
+                d = new
+                {
+                    token = token,
+                    large_threshold = true,
+                    properties = DiscordProperties
+                }
+            });
+
+            DebugLogger.Log("Sending initJson ( " + initJson + " )");
+
+            ws.Send(initJson);
+        }
+
+        private void BeginHeartbeatTask()
+        {
+            KeepAliveTaskToken = KeepAliveTaskTokenSource.Token;
+            KeepAliveTask = new Task(async () =>
+            {
+                while (ws.IsAlive)
+                {
+                    DebugLogger.Log("Hello from inside KeepAliveTask! Sending..");
+                    KeepAlive();
+#if NETFX4_5
+                    await Task.Delay(HeartbeatInterval).ConfigureAwait(false);
+#else
+                            Thread.Sleep(HeartbeatInterval);
+#endif
+                    if (KeepAliveTaskToken.IsCancellationRequested)
+                        break;
+                }
+            }, KeepAliveTaskToken, TaskCreationOptions.LongRunning);
+            KeepAliveTask.Start();
+            DebugLogger.Log("Began keepalive task..");
+        }
 
         private void GuildMemberChunkEvents(JObject message)
         {
