@@ -376,7 +376,7 @@ namespace Luigibot
                         CommandsManager.OverrideModulesDictionary(config.ModulesDictionary);
                     }
 
-                    client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
+                    //client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
                 };
                 if(client.SendLoginRequest() != null)
                 {

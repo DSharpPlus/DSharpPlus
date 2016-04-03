@@ -1814,18 +1814,17 @@ namespace DiscordSharp
                     if(EnableVerboseLogging)
                         if(message["t"].ToString() != "READY")
                             DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
+                    
+                    ClientPacketReceived(message);
 
-                    // TODO: sequence
                     if (!message["s"].IsNullOrEmpty())
                         Sequence = message["s"].ToObject<int>();
 
-                    ClientPacketReceived(message);
                 };
                 ws.OnOpen += (sender, e) =>
                 {
                     SendIdentifyPacket();
-                    if (SocketOpened != null)
-                        SocketOpened(this, null);
+                    SocketOpened?.Invoke(this, null);
                 };
                 ws.OnClose += (sender, e) =>
                 {
@@ -1833,9 +1832,7 @@ namespace DiscordSharp
                     scev.Code = e.Code;
                     scev.Reason = e.Reason;
                     scev.WasClean = e.WasClean;
-                    if (SocketClosed != null)
-                        SocketClosed(this, scev);
-
+                    SocketClosed?.Invoke(this, scev);
                 };
                 ws.Connect();
             DebugLogger.Log("Connecting..");
@@ -1989,13 +1986,11 @@ namespace DiscordSharp
         {
             KeepAliveTask = new Thread(() =>
             {
-                while (ws.IsAlive)
+                while (true)
                 {
-                    DebugLogger.Log("Hello from inside KeepAliveTask! Sending..");
-                    KeepAlive();
+                    DebugLogger.Log("Hello from inside KeepAliveTask!");
                     Thread.Sleep(HeartbeatInterval);
-                    if (KeepAliveTaskToken.IsCancellationRequested)
-                        break;
+                    KeepAlive();
                 }
             });
             KeepAliveTask.Start();
@@ -3066,14 +3061,17 @@ namespace DiscordSharp
         private static DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private void KeepAlive()
         {
-            string keepAliveJson = "{\"op\":" + Opcodes.HEARTBEAT + ", \"d\":" + Sequence + "}";
-                if (ws != null)
-                if (ws.IsAlive && Sequence > 0)
-                {
-                    ws.Send(keepAliveJson);
-                    if (KeepAliveSent != null)
-                        KeepAliveSent(this, new DiscordKeepAliveSentEventArgs { SentAt = DateTime.Now, JsonSent = keepAliveJson } );
-                }
+            //string keepAliveJson = "{\"op\":" + Opcodes.HEARTBEAT + ", \"d\":" + Sequence + "}";
+            string keepAliveJson = JsonConvert.SerializeObject(new
+            {
+                op = Opcodes.HEARTBEAT,
+                d = Sequence
+            });
+            if (ws != null)
+            {
+                ws.Send(keepAliveJson);
+                KeepAliveSent?.Invoke(this, new DiscordKeepAliveSentEventArgs { SentAt = DateTime.Now, JsonSent = keepAliveJson } );
+            }
         }
 
         /// <summary>
