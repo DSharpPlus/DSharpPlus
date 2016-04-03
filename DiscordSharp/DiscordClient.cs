@@ -24,29 +24,31 @@ namespace DiscordSharp
         /// <summary>
         /// The OS you're on
         /// </summary>
-        [JsonProperty("os")]
+        [JsonProperty("$os")]
         public string OS { get; set; }
 
         /// <summary>
         /// The "browser" you're using.
         /// </summary>
-        [JsonProperty("browser")]
+        [JsonProperty("$browser")]
         public string Browser { get; set; }
 
         /// <summary>
         /// Whatever device you want to be on. (Default: DiscordSharp Bot)
         /// </summary>
-        [JsonProperty("device")]
+        [JsonProperty("$device")]
         public string Device
         { get; set; } = "DiscordSharp Bot";
 
         /// <summary>
         /// 
         /// </summary>
+        [JsonProperty("$referrer")]
         public string referrer { get; set; }
         /// <summary>
         /// 
         /// </summary>
+        [JsonProperty("$referring_domain")]
         public string referring_domain { get; set; }
         
         /// <summary>
@@ -146,7 +148,7 @@ namespace DiscordSharp
         /// <summary>
         /// The last sequence we received used for v4 heartbeat.
         /// </summary>
-        private int Sequence;
+        private int Sequence = 0;
 
 
         private WebSocket ws;
@@ -158,7 +160,7 @@ namespace DiscordSharp
         private Logger DebugLogger = new Logger();
         private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
         private CancellationToken KeepAliveTaskToken;
-        private Task KeepAliveTask;
+        private Thread KeepAliveTask;
         private Thread VoiceThread; //yuck
         private static string StrippedEmail = "";
 
@@ -1844,6 +1846,9 @@ namespace DiscordSharp
             switch (message["t"].ToString())
             {
                 case ("READY"):
+                    Sequence = message["s"].ToObject<int>();
+                    HeartbeatInterval = message["d"]["heartbeat_interval"].ToObject<int>();
+                    BeginHeartbeatTask();
                     if (WriteLatestReady)
                         using (var sw = new StreamWriter("READY_LATEST.txt"))
                             sw.Write(message);
@@ -1852,7 +1857,6 @@ namespace DiscordSharp
                     IsBotAccount = message["d"]["user"]["bot"].IsNullOrEmpty() ? false : message["d"]["user"]["bot"].ToObject<bool>();
                     ClientPrivateInformation.Avatar = Me.Avatar;
                     ClientPrivateInformation.Username = Me.Username;
-                    HeartbeatInterval = int.Parse(message["d"]["heartbeat_interval"].ToString());
                     GetChannelsList(message);
                     SessionID = message["d"]["session_id"].ToString();
 
@@ -1967,38 +1971,33 @@ namespace DiscordSharp
             string initJson = JsonConvert.SerializeObject(new
             {
                 op = 2,
-                v = 4,
                 d = new
                 {
+                    v = 4,
                     token = token,
-                    large_threshold = true,
+                    /*large_threshold = 50,*/
                     properties = DiscordProperties
                 }
             });
 
-            DebugLogger.Log("Sending initJson ( " + initJson + " )");
+            DebugLogger.Log("Sending initJson ( " + initJson + " )", MessageLevel.Critical);
 
             ws.Send(initJson);
         }
 
         private void BeginHeartbeatTask()
         {
-            KeepAliveTaskToken = KeepAliveTaskTokenSource.Token;
-            KeepAliveTask = new Task(async () =>
+            KeepAliveTask = new Thread(() =>
             {
                 while (ws.IsAlive)
                 {
                     DebugLogger.Log("Hello from inside KeepAliveTask! Sending..");
                     KeepAlive();
-#if NETFX4_5
-                    await Task.Delay(HeartbeatInterval).ConfigureAwait(false);
-#else
-                            Thread.Sleep(HeartbeatInterval);
-#endif
+                    Thread.Sleep(HeartbeatInterval);
                     if (KeepAliveTaskToken.IsCancellationRequested)
                         break;
                 }
-            }, KeepAliveTaskToken, TaskCreationOptions.LongRunning);
+            });
             KeepAliveTask.Start();
             DebugLogger.Log("Began keepalive task..");
         }
@@ -3067,12 +3066,10 @@ namespace DiscordSharp
         private static DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private void KeepAlive()
         {
-            string keepAliveJson = "{\"op\":1, \"d\":" + Sequence + "}";
+            string keepAliveJson = "{\"op\":" + Opcodes.HEARTBEAT + ", \"d\":" + Sequence + "}";
                 if (ws != null)
-                if (ws.IsAlive)
+                if (ws.IsAlive && Sequence > 0)
                 {
-                    int unixTime = (int)(DateTime.UtcNow - epoch).TotalMilliseconds;
-                    keepAliveJson = "{\"op\":1, \"d\":\"" + unixTime + "\"}";
                     ws.Send(keepAliveJson);
                     if (KeepAliveSent != null)
                         KeepAliveSent(this, new DiscordKeepAliveSentEventArgs { SentAt = DateTime.Now, JsonSent = keepAliveJson } );
