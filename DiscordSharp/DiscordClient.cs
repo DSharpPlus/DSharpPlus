@@ -160,7 +160,7 @@ namespace DiscordSharp
         private Logger DebugLogger = new Logger();
         private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
         private CancellationToken KeepAliveTaskToken;
-        private Thread KeepAliveTask;
+        private Task KeepAliveTask;
         private Thread VoiceThread; //yuck
         private static string StrippedEmail = "";
 
@@ -1977,14 +1977,16 @@ namespace DiscordSharp
                 }
             });
 
-            DebugLogger.Log("Sending initJson ( " + initJson + " )", MessageLevel.Critical);
+            DebugLogger.Log("Sending initJson ( " + initJson + " )");
 
             ws.Send(initJson);
         }
 
         private void BeginHeartbeatTask()
         {
-            KeepAliveTask = new Thread(() =>
+            KeepAliveTaskTokenSource = new CancellationTokenSource();
+            KeepAliveTaskToken = KeepAliveTaskTokenSource.Token;
+            KeepAliveTask = new Task(() =>
             {
                 while (true)
                 {
@@ -1992,7 +1994,7 @@ namespace DiscordSharp
                     Thread.Sleep(HeartbeatInterval);
                     KeepAlive();
                 }
-            });
+            }, KeepAliveTaskToken);
             KeepAliveTask.Start();
             DebugLogger.Log("Began keepalive task..");
         }
