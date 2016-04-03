@@ -1806,13 +1806,14 @@ namespace DiscordSharp
         public void Connect()
         {
             CurrentGatewayURL = GetGatewayUrl();
-            if (String.IsNullOrEmpty(CurrentGatewayURL))
+            if (string.IsNullOrEmpty(CurrentGatewayURL))
             {
                 DebugLogger.Log("Gateway URL was null or empty?!", MessageLevel.Critical);
                 return;
             }
             DebugLogger.Log("Gateway retrieved: " + CurrentGatewayURL);
             ws = new WebSocketSharpSocket(CurrentGatewayURL);
+            //ws = new NetWebSocket(CurrentGatewayURL);
 
             ws.MessageReceived += (sender, e) =>
             {

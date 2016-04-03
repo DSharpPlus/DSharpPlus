@@ -115,7 +115,9 @@
     <Compile Include="Objects\DiscordServer.cs" />
     <Compile Include="Objects\RateLimitException.cs" />
     <Compile Include="Opcodes.cs" />
+    <Compile Include="Sockets\BuiltIn\NetWebSocketWrapper.cs" />
     <Compile Include="Sockets\IDiscordWebSocket.cs" />
+    <Compile Include="Sockets\NetWebSocket.cs" />
     <Compile Include="Sockets\WebSocketSharpSocket.cs" />
     <Compile Include="Voice\DiscordAudioPacket.cs" />
     <Compile Include="Voice\DiscordVoiceClient.cs" />
