@@ -1816,10 +1816,12 @@ namespace DiscordSharp
             try
             {
                 ws = new NetWebSocket(CurrentGatewayURL);
+                DebugLogger.Log("Using .Net's built in WebSocket..");
             }
             catch(PlatformNotSupportedException) //Win7 doesn't support this.
             {
                 ws = new WebSocketSharpSocket(CurrentGatewayURL);
+                DebugLogger.Log("Using WebSocketSharp websocket..");
             }
             ws.MessageReceived += (sender, e) =>
             {

@@ -196,8 +196,8 @@ namespace DiscordSharp.Sockets.BuiltIn
 
         private void CallOnDisconnected()
         {
-            if (_onDisconnected != null)
-                _onDisconnected((int)_ws.CloseStatus.Value, _ws.CloseStatusDescription, this);
+           
+                _onDisconnected?.Invoke(_ws.CloseStatus != null ? (int)_ws.CloseStatus.Value : 0, _ws.CloseStatusDescription, this);
                 //RunInTask(() => _onDisconnected((int)_ws.CloseStatus.Value, _ws.CloseStatusDescription, this));
         }
 
