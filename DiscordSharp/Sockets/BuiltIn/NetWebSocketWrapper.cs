@@ -106,7 +106,7 @@ namespace DiscordSharp.Sockets.BuiltIn
             _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "User requested to exit.", _cancellationToken);
         }
 
-        private async void SendMessageAsync(string message)
+        private void SendMessageAsync(string message)
         {
             if (_ws.State != WebSocketState.Open)
             {
@@ -127,18 +127,19 @@ namespace DiscordSharp.Sockets.BuiltIn
                     count = messageBuffer.Length - offset;
                 }
 
-                await _ws.SendAsync(new ArraySegment<byte>(messageBuffer, offset, count), WebSocketMessageType.Text, lastMessage, _cancellationToken);
+                /*await*/ _ws.SendAsync(new ArraySegment<byte>(messageBuffer, offset, count), WebSocketMessageType.Text, lastMessage, _cancellationToken).Wait();
             }
         }
 
-        private async void ConnectAsync()
+        private void ConnectAsync()
         {
-            await _ws.ConnectAsync(_uri, _cancellationToken);
+            //await _ws.ConnectAsync(_uri, _cancellationToken);
+            _ws.ConnectAsync(_uri, _cancellationToken).Wait();
             CallOnConnected();
             StartListen();
         }
 
-        private async void StartListen()
+        private void StartListen()
         {
             var buffer = new byte[ReceiveChunkSize];
 
@@ -152,12 +153,16 @@ namespace DiscordSharp.Sockets.BuiltIn
                     WebSocketReceiveResult result;
                     do
                     {
-                        result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationToken);
+                        result = _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationToken).Result;
+                            //await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationToken);
 
                         if (result.MessageType == WebSocketMessageType.Close)
                         {
+                            /*
                             await
                                 _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                                */
+                            _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None).Wait();
                             CallOnDisconnected();
                         }
                         else
@@ -185,24 +190,27 @@ namespace DiscordSharp.Sockets.BuiltIn
         private void CallOnMessage(StringBuilder stringResult)
         {
             if (_onMessage != null)
-                RunInTask(() => _onMessage(stringResult.ToString(), this));
+                _onMessage(stringResult.ToString(), this);
+                //RunInTask(() => _onMessage(stringResult.ToString(), this));
         }
 
         private void CallOnDisconnected()
         {
             if (_onDisconnected != null)
-                RunInTask(() => _onDisconnected((int)_ws.CloseStatus.Value, _ws.CloseStatusDescription, this));
+                _onDisconnected((int)_ws.CloseStatus.Value, _ws.CloseStatusDescription, this);
+                //RunInTask(() => _onDisconnected((int)_ws.CloseStatus.Value, _ws.CloseStatusDescription, this));
         }
 
         private void CallOnConnected()
         {
             if (_onConnected != null)
-                RunInTask(() => _onConnected(this));
+                _onConnected(this);
+                //RunInTask(() => _onConnected(this));
         }
 
-        private static void RunInTask(Action action)
-        {
-            Task.Factory.StartNew(action);
-        }
+        //private static void RunInTask(Action action)
+        //{
+        //    Task.Factory.StartNew(action);
+        //}
     }
 }

@@ -139,7 +139,8 @@ namespace DiscordSharp
         /// </summary>
         public bool EnableVerboseLogging { get; set; } = false;
 
-        public bool V4Testing { get; set; } = true;
+        [Obsolete]
+        internal bool V4Testing { get; set; } = false;
 
         /// <summary>
         /// V4 related things. Getting this means our session has been successfully initiated.
@@ -1812,9 +1813,14 @@ namespace DiscordSharp
                 return;
             }
             DebugLogger.Log("Gateway retrieved: " + CurrentGatewayURL);
-            ws = new WebSocketSharpSocket(CurrentGatewayURL);
-            //ws = new NetWebSocket(CurrentGatewayURL);
-
+            try
+            {
+                ws = new NetWebSocket(CurrentGatewayURL);
+            }
+            catch(PlatformNotSupportedException) //Win7 doesn't support this.
+            {
+                ws = new WebSocketSharpSocket(CurrentGatewayURL);
+            }
             ws.MessageReceived += (sender, e) =>
             {
                 var message = JObject.Parse(e.Message);
