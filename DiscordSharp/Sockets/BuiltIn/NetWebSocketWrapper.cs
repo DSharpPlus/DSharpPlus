@@ -163,7 +163,7 @@ namespace DiscordSharp.Sockets.BuiltIn
                                 _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                                 */
                             _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None).Wait();
-                            CallOnDisconnected();
+                            CallOnDisconnected(null);
                         }
                         else
                         {
@@ -177,9 +177,10 @@ namespace DiscordSharp.Sockets.BuiltIn
 
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                CallOnDisconnected();
+                Console.WriteLine(ex.StackTrace);
+                CallOnDisconnected(ex.Message);
             }
             finally
             {
@@ -194,10 +195,11 @@ namespace DiscordSharp.Sockets.BuiltIn
                 //RunInTask(() => _onMessage(stringResult.ToString(), this));
         }
 
-        private void CallOnDisconnected()
+        private void CallOnDisconnected(string messageOverride)
         {
-           
-                _onDisconnected?.Invoke(_ws.CloseStatus != null ? (int)_ws.CloseStatus.Value : 0, _ws.CloseStatusDescription, this);
+                _onDisconnected?.Invoke(_ws.CloseStatus != null ? (int)_ws.CloseStatus.Value : -1, 
+                    messageOverride != null ? messageOverride : _ws.CloseStatusDescription, 
+                this);
                 //RunInTask(() => _onDisconnected((int)_ws.CloseStatus.Value, _ws.CloseStatusDescription, this));
         }
 
