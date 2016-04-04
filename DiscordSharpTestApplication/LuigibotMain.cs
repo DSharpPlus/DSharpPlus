@@ -286,6 +286,9 @@ namespace Luigibot
                 };
                 client.GuildCreated += (sender, e) =>
                 {
+                    if(owner == null)
+                        owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID);
+                    Console.WriteLine($"Joined server {e.Server.Name} ({e.Server.ID})");
                     try
                     {
                         owner.SlideIntoDMs($"Joined server {e.Server.Name} ({e.Server.ID})");
@@ -344,8 +347,9 @@ namespace Luigibot
                     Console.Title = "Luigibot - Discord - Logged in as " + e.User.Username;
                     Console.WriteLine("Connected as " + e.User.Username);
 
-                    if(!String.IsNullOrEmpty(config.OwnerID))
-                        owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID);
+                    Console.WriteLine(client.GetServersList().Count);
+                    if (!String.IsNullOrEmpty(config.OwnerID))
+                    { }
                     else
                     {
                         doingInitialRun = true;

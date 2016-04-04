@@ -1831,7 +1831,6 @@ namespace DiscordSharp
                     if (message["t"].ToString() != "READY")
                         DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
 
-                        Console.WriteLine(message);
                 if (!message["t"].IsNullOrEmpty()) //contains a t parameter used for client events.
                         ClientPacketReceived(message);
                 else
