@@ -217,6 +217,10 @@ namespace DiscordSharp
         public event EventHandler<DiscordGuildMemberAddEventArgs> UserAddedToServer;
         public event EventHandler<DiscordGuildMemberRemovedEventArgs> UserRemovedFromServer;
         public event EventHandler<DiscordGuildCreateEventArgs> GuildCreated;
+        /// <summary>
+        /// Occurs when a guild becomes available after being unavailable.
+        /// </summary>
+        public event EventHandler<DiscordGuildCreateEventArgs> GuildAvailable;
         public event EventHandler<DiscordGuildDeleteEventArgs> GuildDeleted;
         public event EventHandler<DiscordChannelUpdateEventArgs> ChannelUpdated;
         public event EventHandler<LoggerMessageReceivedArgs> TextClientDebugMessageReceived;
@@ -1818,7 +1822,7 @@ namespace DiscordSharp
                 ws = new NetWebSocket(CurrentGatewayURL);
                 DebugLogger.Log("Using .Net's built in WebSocket..");
             }
-            catch(PlatformNotSupportedException) //Win7 doesn't support this.
+            catch (PlatformNotSupportedException) //Win7 doesn't support this.
             {
                 ws = new WebSocketSharpSocket(CurrentGatewayURL);
                 DebugLogger.Log("Using WebSocketSharp websocket..");
@@ -2893,11 +2897,23 @@ namespace DiscordSharp
                 server.AddMember(member);
             }
             server.Owner = server.GetMemberByKey(message["d"]["owner_id"].ToString());
+            e.Server = server;
+
+            if (!message["d"]["unavailable"].IsNullOrEmpty() && message["d"]["unavailable"].ToObject<bool>() == false)
+            {
+                var oldServer = ServersList.Find(x => x.ID == server.ID);
+                if (oldServer != null && oldServer.Unavailable)
+                    ServersList.Remove(oldServer);
+
+                ServersList.Add(server);
+
+                DebugLogger.Log($"Guild with ID {server.ID} ({server.Name}) became available.");
+                GuildAvailable?.Invoke(this, e);
+                return;
+            }
 
             ServersList.Add(server);
-            e.Server = server;
-            if (GuildCreated != null)
-                GuildCreated(this, e);
+            GuildCreated?.Invoke(this, e);
         }
 
         private void GuildMemberAddEvents(JObject message)
@@ -3181,7 +3197,6 @@ namespace DiscordSharp
                             DebugLogger.Log("Loading token from cache.");
                         }
                         token = token.Trim(); //trim any excess whitespace
-                        Console.Write("");
                     }
                 }
                 else
