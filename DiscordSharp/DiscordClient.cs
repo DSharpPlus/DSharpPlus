@@ -139,6 +139,11 @@ namespace DiscordSharp
         /// </summary>
         public bool EnableVerboseLogging { get; set; } = false;
 
+        /// <summary>
+        /// The version of the gateway.
+        /// </summary>
+        public int DiscordGatewayVersion { get; set; } = 0;
+
         [Obsolete]
         internal bool V4Testing { get; set; } = false;
 
@@ -1817,16 +1822,14 @@ namespace DiscordSharp
                 return;
             }
             DebugLogger.Log("Gateway retrieved: " + CurrentGatewayURL);
-            try
-            {
-                ws = new NetWebSocket(CurrentGatewayURL);
-                DebugLogger.Log("Using .Net's built in WebSocket..");
-            }
-            catch (PlatformNotSupportedException) //Win7 doesn't support this.
-            {
-                ws = new WebSocketSharpSocket(CurrentGatewayURL);
-                DebugLogger.Log("Using WebSocketSharp websocket..");
-            }
+            
+            ws = new WebSocketSharpSocket(CurrentGatewayURL);
+            DebugLogger.Log("Using WebSocketSharp websocket..");
+            //catch (PlatformNotSupportedException) //Win7 doesn't support this.
+            //{
+            //    ws = new NetWebSocket(CurrentGatewayURL);
+            //    DebugLogger.Log("Using .Net's built in WebSocket..");
+            //}
             ws.MessageReceived += (sender, e) =>
             {
                 var message = JObject.Parse(e.Message);
@@ -1897,6 +1900,7 @@ namespace DiscordSharp
             {
                 case ("READY"):
                     Sequence = message["s"].ToObject<int>();
+                    DiscordGatewayVersion = message["d"]["v"].ToObject<int>();
                     HeartbeatInterval = message["d"]["heartbeat_interval"].ToObject<int>();
                     BeginHeartbeatTask();
                     if (WriteLatestReady)

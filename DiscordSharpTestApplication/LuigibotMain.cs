@@ -295,6 +295,10 @@ namespace Luigibot
                     }
                     catch { }
                 };
+                client.GuildAvailable += (sender, e) =>
+                {
+                    Console.WriteLine($"Guild {e.Server.Name} became available.");
+                };
                 client.SocketClosed += (sender, e) =>
                 {
                     Console.Title = "Luigibot - Discord - Socket Closed..";
@@ -346,8 +350,7 @@ namespace Luigibot
                 {
                     Console.Title = "Luigibot - Discord - Logged in as " + e.User.Username;
                     Console.WriteLine("Connected as " + e.User.Username);
-
-                    Console.WriteLine(client.GetServersList().Count);
+                    
                     if (!String.IsNullOrEmpty(config.OwnerID))
                     { }
                     else
@@ -571,6 +574,7 @@ namespace Luigibot
                 string message = "**About Luigibot**\n";
                 message += $"Owner: {owner.Username}#{owner.Discriminator}\n";
                 message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
+                message += $"Gateway Version: {client.DiscordGatewayVersion}\n";
                 var uptime = (DateTime.Now - loginDate);
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
                 message += "Runtime: ";
