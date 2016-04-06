@@ -160,6 +160,10 @@ namespace Luigibot
             {
                 client.MessageReceived += (sender, e) =>
                 {
+                    if(owner == null)
+                        owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID); //prays
+
+
                     if (e.Author == null)
                     {
                         string msg = $"Author had null id in message received!\nRaw JSON:\n```\n{e.RawJson}\n```\n";
@@ -350,9 +354,8 @@ namespace Luigibot
                 {
                     Console.Title = "Luigibot - Discord - Logged in as " + e.User.Username;
                     Console.WriteLine("Connected as " + e.User.Username);
-                    
                     if (!String.IsNullOrEmpty(config.OwnerID))
-                    { }
+                    {                    }
                     else
                     {
                         doingInitialRun = true;
