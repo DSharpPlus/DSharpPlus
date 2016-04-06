@@ -1939,8 +1939,7 @@ namespace DiscordSharp
                     Task.Run(() =>
                     {
                         Task.Delay(3000);
-                        if (Connected != null)
-                            Connected(this, new DiscordConnectEventArgs { User = Me });
+                        Connected?.Invoke(this, new DiscordConnectEventArgs { User = Me });
                     }); //fire and forget waiting of up to 3 seconds for guilds to become available.
                     break;
                 case ("GUILD_MEMBERS_CHUNK"):
