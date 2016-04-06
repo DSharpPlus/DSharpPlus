@@ -1839,7 +1839,7 @@ namespace DiscordSharp
                         DebugLogger.Log(message.ToString(), MessageLevel.Unecessary);
 
                 if (!message["t"].IsNullOrEmpty()) //contains a t parameter used for client events.
-                        ClientPacketReceived(message);
+                    ClientPacketReceived(message);
                 else
                     MiscellaneousOpcodes(message);
 
@@ -1935,8 +1935,13 @@ namespace DiscordSharp
                     }
 
                     ReadyComplete = true;
-                    if (Connected != null)
-                        Connected(this, new DiscordConnectEventArgs { User = Me });
+
+                    Task.Run(() =>
+                    {
+                        Task.Delay(3000);
+                        if (Connected != null)
+                            Connected(this, new DiscordConnectEventArgs { User = Me });
+                    }); //fire and forget waiting of up to 3 seconds for guilds to become available.
                     break;
                 case ("GUILD_MEMBERS_CHUNK"):
                     GuildMemberChunkEvents(message);
