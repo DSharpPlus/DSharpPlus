@@ -9,7 +9,7 @@ namespace DiscordSharp.Events
 {
     public class DiscordGuildCreateEventArgs : EventArgs
     {
-        public DiscordServer server { get; internal set; }
+        public DiscordServer Server { get; internal set; }
         public JObject RawJson { get; internal set; }
     }
 }

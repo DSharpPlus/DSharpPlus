@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DiscordSharpTestApplication.Modules
+namespace Luigibot.Modules
 {
     /// <summary>
     /// Defines a set of base owner modules that cannot be disabled.
@@ -145,7 +145,7 @@ namespace DiscordSharpTestApplication.Modules
                 if (int.TryParse(cmdArgs.Args[0], out messageCount))
                 {
                     var messagesToPrune = manager.Client.GetMessageHistory(cmdArgs.Channel, messageCount);
-                    DiscordMember selfInServer = cmdArgs.Channel.parent.Members.Find(x => x.ID == manager.Client.Me.ID);
+                    DiscordMember selfInServer = cmdArgs.Channel.Parent.GetMemberByKey(manager.Client.Me.ID);
                     bool pruneAll = false;
                     if (selfInServer != null)
                     {
@@ -195,8 +195,8 @@ namespace DiscordSharpTestApplication.Modules
                 {
                     if(cmdArgs.Args[0].ToLower().Trim() == "offline")
                     {
-                        int flushedCount = manager.Client.ClearOfflineUsersFromServer(cmdArgs.Channel.parent);
-                        cmdArgs.Channel.SendMessage($"Flushed {flushedCount} offliners from {cmdArgs.Channel.parent.Name}.");
+                        int flushedCount = manager.Client.ClearOfflineUsersFromServer(cmdArgs.Channel.Parent);
+                        cmdArgs.Channel.SendMessage($"Flushed {flushedCount} offliners from {cmdArgs.Channel.Parent.Name}.");
                     }
                     else if(cmdArgs.Args[0].ToLower().Trim() == "messages")
                     {

@@ -7,7 +7,7 @@
     <ProjectGuid>{02AA3864-7A3D-45E4-92DE-C6DAE8972ABF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DiscordSharpTestApplication</RootNamespace>
+    <RootNamespace>Luigibot</RootNamespace>
     <AssemblyName>Luigibot</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -40,6 +40,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Luigibot32.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="KopiLua">
@@ -81,9 +84,17 @@
     <Reference Include="System.Net.Http.Primitives, Version=4.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.29\lib\net45\System.Net.Http.Primitives.dll</HintPath>
     </Reference>
-    <Reference Include="YugiohPrices, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\YugiohPrices\YugiohPrices\bin\Debug\YugiohPrices.dll</HintPath>
+    <Reference Include="libvideo, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\VideoLibrary.1.3.3\lib\portable-net45+win+wpa81+MonoAndroid10+xamarinios10+MonoTouch10\libvideo.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.Vorbis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\NAudio.Vorbis.1.0.0.0\lib\net35\NAudio.Vorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis, Version=0.8.4.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\NVorbis.0.8.4.0\lib\NVorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="YugiohPrices">
+      <HintPath>..\packages\YugiohPrices.1.0.0\lib\YugiohPrices.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -91,9 +102,12 @@
     <Compile Include="LuigibotMain.cs" />
     <Compile Include="Modules\BaseOwnerModules.cs" />
     <Compile Include="Modules\EvalModules.cs" />
+    <Compile Include="Modules\Holup.cs" />
     <Compile Include="Modules\NoFunAllowedModule.cs" />
     <Compile Include="Modules\ServerAdminModules.cs" />
+    <Compile Include="Modules\TestingModule.cs" />
     <Compile Include="Modules\TestServerLog.cs" />
+    <Compile Include="Modules\Voice.cs" />
     <Compile Include="Modules\YugiohModules.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,6 +143,7 @@
     <Content Include="ascii.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Luigibot32.ico" />
   </ItemGroup>
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -9,11 +9,11 @@ namespace DiscordSharp.Events
 {
     public class DiscordMessageEventArgs : EventArgs
     {
-        public string message_text { get; internal set; }
+        public string MessageText { get; internal set; }
 
-        public DiscordMember author { get; internal set; }
+        public DiscordMember Author { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
-        public DiscordMessage message { get; internal set; }
+        public DiscordMessage Message { get; internal set; }
         public DiscordMessageType MessageType { get; internal set; }
 
         public JObject RawJson { get; internal set; }
@@ -23,9 +23,9 @@ namespace DiscordSharp.Events
     {
         public DiscordMessage MessageEdited { get; internal set; }
 
-        public DiscordMember author { get; internal set; }
+        public DiscordMember Author { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
-        public string message { get; internal set; }
+        public string MessageText { get; internal set; }
         public DiscordMessageType MessageType { get; internal set; }
         public DateTime EditedTimestamp { get; internal set; }
 

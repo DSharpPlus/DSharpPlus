@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Discord.Audio.Opus
+namespace DiscordSharp.Voice
 {
     internal class OpusEncoder : OpusConverter
     {

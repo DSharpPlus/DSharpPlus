@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YugiohPrices;
 
-namespace DiscordSharpTestApplication.Modules
+namespace Luigibot.Modules
 {
     public class YugiohModules : IModule
     {
@@ -25,7 +25,7 @@ namespace DiscordSharpTestApplication.Modules
                         YugiohPricesSearcher searcher = new YugiohPricesSearcher();
                         try
                         {
-                            manager.Client.SimulateTyping(cmdArgs.Channel);
+                            cmdArgs.Channel.SimulateTyping();
                             var card = searcher.GetCardByName(cmdArgs.Args[0]).Result;
                             if (card.Name != "<NULL CARD>")
                             {

@@ -4,7 +4,10 @@ using System.Runtime.InteropServices;
 using System.Security;
 #endif
 
-namespace Discord.Audio.Opus
+/// <summary>
+/// ty Voltana
+/// </summary>
+namespace DiscordSharp.Voice
 {
     public enum OpusApplication : int
     {

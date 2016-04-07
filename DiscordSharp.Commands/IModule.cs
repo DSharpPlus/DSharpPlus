@@ -11,17 +11,17 @@ namespace DiscordSharp.Commands
         /// <summary>
         /// The name of the module.
         /// </summary>
-        public virtual string Name { get; set; }
+        public virtual string Name { get; set; } = "module";
 
         /// <summary>
         /// A description talking about what the module contains
         /// </summary>
-        public virtual string Description { get; set; }
+        public virtual string Description { get; set; } = "Please set this in the constructor of your IModule derivative.";
 
         /// <summary>
         /// A list of the commands this module contains
         /// </summary>
-        public virtual List<ICommand> Commands { get; set; } = new List<ICommand>();
+        public virtual List<ICommand> Commands { get; internal set; } = new List<ICommand>();
 
         /// <summary>
         /// Installs the module's commands into the commands manager

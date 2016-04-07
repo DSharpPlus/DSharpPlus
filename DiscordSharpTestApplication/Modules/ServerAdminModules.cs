@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscordSharpTestApplication.Modules
+namespace Luigibot.Modules
 {
     public class ServerAdminModules : IModule
     {
@@ -31,12 +31,12 @@ namespace DiscordSharpTestApplication.Modules
 
                 if (canExecute)
                 {
-                    if (cmdArgs.Channel.parent.Owner.Equals(manager.Client.Me))
+                    if (cmdArgs.Channel.Parent.Owner.Equals(manager.Client.Me))
                     {
-                        manager.Client.DeleteServer(cmdArgs.Channel.parent);
+                        manager.Client.DeleteServer(cmdArgs.Channel.Parent);
                     }
                     else
-                        manager.Client.LeaveServer(cmdArgs.Channel.parent);
+                        manager.Client.LeaveServer(cmdArgs.Channel.Parent);
                 }
                 else
                     cmdArgs.Channel.SendMessage("You don't have the proper permissions to do this! You need the ManagerServer permission.");

@@ -15,10 +15,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using YugiohPrices;
-using DiscordSharpTestApplication.Modules;
+using Luigibot.Modules;
 using System.Linq;
 
-namespace DiscordSharpTestApplication
+namespace Luigibot
 {
     public class Config
     {
@@ -46,7 +46,7 @@ namespace DiscordSharpTestApplication
         DiscordClient client;
         CommandsManager CommandsManager;
         CancellationToken cancelToken;
-        DateTime loginDate;
+        DateTime loginDate = DateTime.Now;
         #region Audio playback
         WaveFormat waveFormat;
         BufferedWaveProvider bufferedWaveProvider;
@@ -55,10 +55,11 @@ namespace DiscordSharpTestApplication
         VolumeWaveProvider16 volumeProvider;
         System.Timers.Timer stutterReducingTimer;
         #endregion
-        bool runningOnMono = false;
+        private bool runningOnMono = false;
+        private const int voiceMsBuffer = 20;
+        private string osString;
         public bool actuallyExit = false;
-		string osString;
-        
+		
         string[] NaughtyWords = new string[]
         {
             "bitch", "fucking", "fuck", "cunt", "shit", "reest", "reested", "asswipe"
@@ -97,6 +98,7 @@ namespace DiscordSharpTestApplication
         {
             string asciiArt = System.IO.File.ReadAllText("ascii.txt");
             Console.WriteLine(asciiArt);
+            Console.Title = "Luigibot - Discord";
             DoLogin();
         }
         
@@ -120,6 +122,7 @@ namespace DiscordSharpTestApplication
         {
             string botToken = File.ReadAllText("bot_token_important.txt");
             client = new DiscordClient(botToken.Trim(), true);
+            client.WriteLatestReady = true;
             SetupEvents(cancelToken);
         }
 
@@ -157,42 +160,50 @@ namespace DiscordSharpTestApplication
             {
                 client.MessageReceived += (sender, e) =>
                 {
-                    if (e.author == null)
+                    if(owner == null)
+                        owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID); //prays
+
+
+                    if (e.Author == null)
                     {
                         string msg = $"Author had null id in message received!\nRaw JSON:\n```\n{e.RawJson}\n```\n";
-                        msg += $"Args\nChannel: {e.Channel.Name}/{e.Channel.ID}\nMessage: {e.message}";
-                        owner.SlideIntoDMs(msg);
+                        msg += $"Args\nChannel: {e.Channel.Name}/{e.Channel.ID}\nMessage: {e.Message}";
+                        try
+                        {
+                            owner.SlideIntoDMs(msg);
+                        }
+                        catch { }
                     }
                     else
                     {
-                        Console.WriteLine($"[-- Message from {e.author.Username} in #{e.Channel.Name} on {e.Channel.parent.Name}: {e.message.Content}");
+                        Console.WriteLine($"[-- Message from {e.Author.Username} in #{e.Channel.Name} on {e.Channel.Parent.Name}: {e.Message.Content}");
 
                         if (doingInitialRun)
                         {
-                            if (e.message.Content.StartsWith("?authenticate"))
+                            if (e.Message.Content.StartsWith("?authenticate"))
                             {
-                                string[] split = e.message.Content.Split(new char[] { ' ' }, 2);
+                                string[] split = e.Message.Content.Split(new char[] { ' ' }, 2);
                                 if (split.Length > 1)
                                 {
                                     if (codeToEnter.Trim() == split[1].Trim())
                                     {
-                                        config.OwnerID = e.author.ID;
+                                        config.OwnerID = e.Author.ID;
                                         doingInitialRun = false;
-                                        e.Channel.SendMessage("Authentication successful! **You are now my owner, " + e.author.Username + ".**");
-                                        CommandsManager.AddPermission(e.author, PermissionType.Owner);
-                                        owner = e.author;
+                                        e.Channel.SendMessage("Authentication successful! **You are now my owner, " + e.Author.Username + ".**");
+                                        CommandsManager.AddPermission(e.Author, PermissionType.Owner);
+                                        owner = e.Author;
                                     }
                                 }
                             }
                         }
                         else
                         {
-                            if (e.message.Content.Length > 0 && (e.message.Content[0] == config.CommandPrefix))
+                            if (e.Message.Content.Length > 0 && (e.Message.Content[0] == config.CommandPrefix))
                             {
-                                string rawCommand = e.message.Content.Substring(1);
+                                string rawCommand = e.Message.Content.Substring(1);
                                 try
                                 {
-                                    CommandsManager.ExecuteOnMessageCommand(rawCommand, e.Channel, e.author);
+                                    CommandsManager.ExecuteOnMessageCommand(rawCommand, e.Channel, e.Author);
                                 }
                                 catch (UnauthorizedAccessException ex)
                                 {
@@ -232,11 +243,11 @@ namespace DiscordSharpTestApplication
 
                         if(e.Channel.ID == "91265608326324224") //discord-sharp on discordapi
                         {
-                            if(e.author != owner)
+                            if(e.Author != owner)
                             {
-                                if(e.message.Content != null && e.message.Content.ToLower().Contains("how"))
+                                if(e.Message.Content != null && e.Message.Content.ToLower().Contains("how"))
                                 {
-                                    if(e.message.Content.ToLower().Contains("bot") && e.message.Content.ToLower().Contains("tag"))
+                                    if(e.Message.Content.ToLower().Contains("bot") && e.Message.Content.ToLower().Contains("tag"))
                                     {
                                         e.Channel.SendMessage($"<#124294271900712960>");//#api-changes
                                     }
@@ -252,7 +263,11 @@ namespace DiscordSharpTestApplication
                 };
                 client.VoiceClientConnected += (sender, e) =>
                 {
-                    owner.SlideIntoDMs($"Voice connection complete.");
+                    try
+                    {
+                        owner.SlideIntoDMs($"Voice connection complete.");
+                    }
+                    catch { }
                     //player = new AudioPlayer(client.GetVoiceClient().VoiceConfig);
                     //bufferedWaveProvider = new BufferedWaveProvider(waveFormat);
                     //bufferedWaveProvider.BufferDuration = new TimeSpan(0, 0, 50);
@@ -275,10 +290,22 @@ namespace DiscordSharpTestApplication
                 };
                 client.GuildCreated += (sender, e) =>
                 {
-                    owner.SlideIntoDMs($"Joined server {e.server.Name} ({e.server.ID})");
+                    if(owner == null)
+                        owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID);
+                    Console.WriteLine($"Joined server {e.Server.Name} ({e.Server.ID})");
+                    try
+                    {
+                        owner.SlideIntoDMs($"Joined server {e.Server.Name} ({e.Server.ID})");
+                    }
+                    catch { }
+                };
+                client.GuildAvailable += (sender, e) =>
+                {
+                    Console.WriteLine($"Guild {e.Server.Name} became available.");
                 };
                 client.SocketClosed += (sender, e) =>
                 {
+                    Console.Title = "Luigibot - Discord - Socket Closed..";
                     if(!actuallyExit)
                     { 
                         WriteError($"\n\nSocket Closed Unexpectedly! Code: {e.Code}. Reason: {e.Reason}. Clear: {e.WasClean}.\n\n");
@@ -298,11 +325,15 @@ namespace DiscordSharpTestApplication
                     string message = $"Ahoy! An unknown message type `{e.RawJson["t"].ToString()}` was discovered with the contents: \n\n";
                     message += $"```\n{e.RawJson.ToString()}\n```\nIt's been dumped to `dumps/{e.RawJson["t"].ToString()}.json` for your viewing pleasure.";
 
-                    string filename = $"dumps{Path.DirectorySeparatorChar}{e.RawJson["t"].ToString()}.json";
+                    string filename = $"{Environment.CurrentDirectory}{Path.DirectorySeparatorChar}dumps{Path.DirectorySeparatorChar}{e.RawJson["t"].ToString()}.json";
                     if(!File.Exists(filename))
                     {
                         File.WriteAllText(e.RawJson.ToString(), filename);
-                        owner.SlideIntoDMs(message);
+                        try
+                        {
+                            owner.SlideIntoDMs(message);
+                        }
+                        catch { }
                     }
                 };
                 client.TextClientDebugMessageReceived += (sender, e) =>
@@ -321,11 +352,10 @@ namespace DiscordSharpTestApplication
                 };
                 client.Connected += (sender, e) => 
                 {
-                    Console.WriteLine("Connected as " + e.user.Username);
-                    loginDate = DateTime.Now;
-
-                    if(!String.IsNullOrEmpty(config.OwnerID))
-                        owner = client.GetServersList().Find(x => x.Members.Find(y => y.ID == config.OwnerID) != null).Members.Find(x => x.ID == config.OwnerID);
+                    Console.Title = "Luigibot - Discord - Logged in as " + e.User.Username;
+                    Console.WriteLine("Connected as " + e.User.Username);
+                    if (!String.IsNullOrEmpty(config.OwnerID))
+                    {                    }
                     else
                     {
                         doingInitialRun = true;
@@ -356,7 +386,7 @@ namespace DiscordSharpTestApplication
                         CommandsManager.OverrideModulesDictionary(config.ModulesDictionary);
                     }
 
-					client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
+                    //client.UpdateCurrentGame($"DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}");
                 };
                 if(client.SendLoginRequest() != null)
                 {
@@ -416,32 +446,6 @@ namespace DiscordSharpTestApplication
         private void SetupCommands()
         {
             #region Old Commands
-            CommandsManager.AddCommand(new CommandStub("joinvoice", "Joins a specified voice channel", "Arg is case insensitive voice channel name to join.", PermissionType.Owner, 1, cmdArgs =>
-            {
-                DiscordChannel channelToJoin = cmdArgs.Channel.parent.Channels.Find(x => x.Name.ToLower() == cmdArgs.Args[0].ToLower() && x.Type == ChannelType.Voice);
-                if (channelToJoin != null)
-                {
-                    DiscordVoiceConfig config = new DiscordVoiceConfig
-                    {
-                        FrameLengthMs = 60,
-                        Channels = 1,
-                        OpusMode = Discord.Audio.Opus.OpusApplication.LowLatency,
-                        SendOnly = true
-                    };
-
-                    waveFormat = new WaveFormat(48000, 16, config.Channels);
-
-                    if (!config.SendOnly)
-                    {
-                        waveCallbackInfo = WaveCallbackInfo.FunctionCallback();
-                        outputDevice = new WaveOut();
-                    }
-
-                    client.ConnectToVoiceChannel(channelToJoin, config);
-                }
-                else
-                    cmdArgs.Channel.SendMessage("Couldn't find the specified channel as a voice channel!");
-            }));
             CommandsManager.AddCommand(new CommandStub("invite", "Makes an invite to specified server given its ID", "Pass ID douchebag.", PermissionType.Owner, 1, cmdArgs =>
             {
                 if (cmdArgs.Args.Count > 0)
@@ -460,32 +464,13 @@ namespace DiscordSharpTestApplication
                     cmdArgs.Channel.SendMessage("kek");
                 }
             }));
-            CommandsManager.AddCommand(new CommandStub("disconnect", "Disconnects from voice", "", PermissionType.Owner, 1, cmdArgs =>
-            {
-                    client.DisconnectFromVoice();
-            }));
-            CommandsManager.AddCommand(new CommandStub("testvoice", "Broadcasts specified file over voice.", "", PermissionType.Owner, 1, cmdArgs =>
-            {
-                if (File.Exists(cmdArgs.Args[0]))
-                {
-                    if (client.ConnectedToVoice())
-                        SendVoice(cmdArgs.Args[0]);
-                    else
-                        cmdArgs.Channel.SendMessage("Not connected to voice!");
-                }
-                else
-                    cmdArgs.Channel.SendMessage("Couldn't broadcast specified file! It doesn't exist!");
-            }));
-            CommandsManager.AddCommand(new CommandStub("testvoice2", "Broadcasts specified file over voice.", "", PermissionType.Owner, 1, cmdArgs =>
-            {
-                TestRheaStream();
-            }));
+            
             CommandsManager.AddCommand(new CommandStub("statusof", "`Status` test", "", PermissionType.Owner, 1, cmdArgs=>
             {
                 string id = cmdArgs.Args[0].Trim(new char[] { '<', '@', '>' });
                 if(!string.IsNullOrEmpty(id))
                 {
-                    DiscordMember member = cmdArgs.Channel.parent.Members.Find(x => x.ID == id);
+                    DiscordMember member = cmdArgs.Channel.Parent.GetMemberByKey(id);
                     if (member != null)
                     {
                         string msg = $"Status of `{member.Username}`\n{member.Status}";
@@ -519,9 +504,9 @@ namespace DiscordSharpTestApplication
             }));
             CommandsManager.AddCommand(new CommandStub("serverstats", "Server stats", "help me", PermissionType.Owner, cmdArgs =>
             {
-                if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
+                if(cmdArgs.Channel != null && cmdArgs.Channel.Parent != null)
                 {
-                    DiscordServer guild = cmdArgs.Channel.parent;
+                    DiscordServer guild = cmdArgs.Channel.Parent;
                     string msg = $"Stats for **{guild.Name}**\n```\n";
                     msg += $"{guild.Members.Count} members\n";
                     msg += $"{guild.Roles.Count} roles\n";
@@ -532,16 +517,20 @@ namespace DiscordSharpTestApplication
             }));
             CommandsManager.AddCommand(new CommandStub("listroles", "Lists rolls", "help me", PermissionType.Owner, cmdArgs =>
             {
-                if(cmdArgs.Channel != null && cmdArgs.Channel.parent != null)
+                if(cmdArgs.Channel != null && cmdArgs.Channel.Parent != null)
                 {
-                    DiscordServer guild = cmdArgs.Channel.parent;
+                    DiscordServer guild = cmdArgs.Channel.Parent;
                     string msg = $"Roles for **{guild.Name}**, per your request.\n```\n";
                     foreach(var role in guild.Roles)
                     {
                         msg += $"{role.Position} - {role.Name} - {role.ID} - {role.Permissions.GetRawPermissions()}\n";
                     }
                     msg += "\n```";
-                    owner.SlideIntoDMs(msg);
+                    try
+                    {
+                        owner.SlideIntoDMs(msg);
+                    }
+                    catch { }
                     cmdArgs.Channel.SendMessage($"DMed to you ;)");
                 }
             }));
@@ -588,6 +577,7 @@ namespace DiscordSharpTestApplication
                 string message = "**About Luigibot**\n";
                 message += $"Owner: {owner.Username}#{owner.Discriminator}\n";
                 message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
+                message += $"Gateway Version: {client.DiscordGatewayVersion}\n";
                 var uptime = (DateTime.Now - loginDate);
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
                 message += "Runtime: ";
@@ -600,7 +590,7 @@ namespace DiscordSharpTestApplication
                 message += $"OS: {osString}\n";
                 long memUsage = GetMemoryUsage();
                 if (memUsage > 0)
-                    message += "Memory Usage: " + (memUsage / 1024) /* / 2*/ + "mb\n";
+                    message += "Memory Usage: " + (memUsage / 1024) + "mb\n";
                 message += "Commands: " + CommandsManager.Commands.Count + "\n";
                 message += "Command Prefix: " + config.CommandPrefix + "\n";
                 message += "Total Servers: " + client.GetServersList().Count + "\n";
@@ -645,6 +635,15 @@ namespace DiscordSharpTestApplication
 
             var serverLogs = new TestServerLog(client);
             serverLogs.Install(CommandsManager);
+
+            var voice = new Voice(this);
+            voice.Install(CommandsManager);
+
+            var holupholup = new Holup();
+            holupholup.Install(CommandsManager);
+
+            var testingModule = new TestingModule();
+            testingModule.Install(CommandsManager);
         }
 
         private Task PlayAudioAsync(CancellationToken cancelToken)
@@ -686,7 +685,7 @@ namespace DiscordSharpTestApplication
             DiscordVoiceClient vc = client.GetVoiceClient();
             try
             {
-                int ms = 60;
+                int ms = voiceMsBuffer;
                 int channels = 1;
                 int sampleRate = 48000;
 
@@ -698,7 +697,6 @@ namespace DiscordSharpTestApplication
                 {
                     using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
                     {
-                        //resampler.ResamplerQuality = 60;
                         int byteCount;
                         while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
                         {
@@ -718,66 +716,6 @@ namespace DiscordSharpTestApplication
                 }
             }
             catch(Exception ex)
-            {
-                owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
-            }
-        }
-
-        private void SendVoice(string file)
-        {
-            DiscordVoiceClient vc = client.GetVoiceClient();
-            try
-            {
-                int ms = 60;
-                int channels = 1;
-                int sampleRate = 48000;
-
-                int blockSize = 48 * 2 * channels * ms; //sample rate * 2 * channels * milliseconds
-                byte[] buffer = new byte[blockSize];
-                var outFormat = new WaveFormat(sampleRate, 16, channels);
-
-                vc.SetSpeaking(true);
-                if (file.EndsWith(".wav"))
-                {
-                    using (var waveReader = new WaveFileReader(file))
-                    {
-                        int byteCount;
-                        while ((byteCount = waveReader.Read(buffer, 0, blockSize)) > 0)
-                        {
-                            if (vc.Connected)
-                                vc.SendVoice(buffer);
-                            else
-                                break;
-                        }
-                    }
-                }
-                else if (file.EndsWith(".mp3"))
-                {
-                    using (var mp3Reader = new MediaFoundationReader(file))
-                    {
-                        using (var resampler = new MediaFoundationResampler(mp3Reader, outFormat) { ResamplerQuality = 60 })
-                        {
-                            //resampler.ResamplerQuality = 60;
-                            int byteCount;
-                            while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
-                            {
-                                if (vc.Connected)
-                                {
-                                    vc.SendVoice(buffer);
-                                }
-                                else
-                                    break;
-                            }
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine("Voice finished enqueuing");
-                            Console.ForegroundColor = ConsoleColor.White;
-                            resampler.Dispose();
-                            mp3Reader.Close();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
             {
                 owner.SendMessage("Exception during voice: `" + ex.Message + "`\n\n```" + ex.StackTrace + "\n```");
             }

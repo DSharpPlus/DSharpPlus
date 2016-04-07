@@ -4,6 +4,6 @@ namespace DiscordSharp
 {
     public class DiscordDebugMessagesEventArgs : EventArgs
     {
-        public string message { get; internal set; }
+        public string Message { get; internal set; }
     }
 }

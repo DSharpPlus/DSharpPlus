@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DiscordSharpTestApplication.Modules
+namespace Luigibot.Modules
 {
     class TestServerLog : IModule
     {
@@ -50,8 +50,8 @@ namespace DiscordSharpTestApplication.Modules
                         msg += $"\n**Users Online: **";
                         foreach (var user in DiscordSharpTestServer.Members)
                         {
-                            if (user != null && user.Status == Status.Online)
-                                msg += $"{user.Username}, ";
+                            if (user.Value != null && user.Value.Status == Status.Online)
+                                msg += $"{user.Value.Username}, ";
                         }
                         msg += "\n------------------------------";
                         LogChannel.SendMessage(msg);
@@ -64,7 +64,7 @@ namespace DiscordSharpTestApplication.Modules
             {
                 if (LogChannel != null && DiscordSharpTestServer != null)
                 {
-                    if (e.NewChannel.parent.ID == DiscordSharpTestServer.ID)
+                    if (e.NewChannel.Parent.ID == DiscordSharpTestServer.ID)
                     {
                         string msg = $"**Channel Update**\n";
                         msg += $"\n**Name: ** {e.OldChannel.Name} -> {e.NewChannel.Name}";
@@ -73,8 +73,8 @@ namespace DiscordSharpTestApplication.Modules
                         msg += $"\n**Users Online: **";
                         foreach (var user in DiscordSharpTestServer.Members)
                         {
-                            if (user != null && user.Status == Status.Online)
-                                msg += $"{user.Username}, ";
+                            if (user.Value != null && user.Value.Status == Status.Online)
+                                msg += $"{user.Value.Username}, ";
                         }
                         msg += "\n------------------------------";
                         LogChannel.SendMessage(msg);

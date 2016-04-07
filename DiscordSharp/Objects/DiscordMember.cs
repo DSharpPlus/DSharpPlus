@@ -180,6 +180,10 @@ namespace DiscordSharp.Objects
             }
             catch (Exception ex)
             {
+#if DEBUG
+                if (ex.Message.Contains("400"))
+                    return;
+#endif
                 parentclient.GetTextClientLogger.Log($"Error ocurred while sending message to user, step 1: {ex.Message}", MessageLevel.Error);
             }
         }
@@ -205,6 +209,8 @@ namespace DiscordSharp.Objects
 
         public static bool operator==(DiscordMember x, DiscordMember y)
         {
+            if ((object)x == null && (object)y == null)
+                return true;
             if ((object)x == null || (object)y == null)
                 return false;
 

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DiscordSharpTestApplication.Modules
+namespace Luigibot.Modules
 {
     /// <summary>
     /// Used for evaluating code.

@@ -3,6 +3,8 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using ID = System.String;
 
 namespace DiscordSharp.Objects
 {
@@ -12,12 +14,18 @@ namespace DiscordSharp.Objects
         public DateTime JoinedAt { get; internal set; }
 
         [JsonProperty("id")]
-        public string ID { get; internal set; }
+        public ID ID { get; internal set; }
         [JsonProperty("name")]
         public string Name { get; internal set; }
 
         [JsonProperty("region")]
         public string Region { get; internal set; }
+
+        /// <summary>
+        /// If true, then the server is currently unavailable and normal events cannot occur.
+        /// </summary>
+        [JsonProperty("unavailable")]
+        public bool Unavailable { get; internal set; } = false;
 
         [JsonProperty("icon")]
         internal string icon { get; set; }
@@ -48,7 +56,17 @@ namespace DiscordSharp.Objects
         public List<DiscordChannel> Channels { get; internal set; }
 
         [JsonProperty("members")]
-        public List<DiscordMember> Members { get; internal set; }
+        private List<DiscordMember> membersAsList
+        {
+            get
+            {
+                return Members.Values.ToList();
+            }
+        }
+
+        public Dictionary<ID, DiscordMember> Members { get; internal set; }
+
+        //public List<DiscordMember> Members { get; internal set; }
 
         [JsonProperty("roles")]
         public List<DiscordRole> Roles { get; internal set; }
@@ -58,11 +76,69 @@ namespace DiscordSharp.Objects
         internal DiscordServer()
         {
             Channels = new List<DiscordChannel>();
-            Members = new List<DiscordMember>();
+            Members = new Dictionary<ID, DiscordMember>();
+        }
+
+        
+        internal void AddMember(DiscordMember member)
+        {
+            if (member == null)
+                return;
+            if(Members.ContainsKey(member.ID)) //then replace
+            {
+                Members.Remove(member.ID);
+            }
+            Members.Add(member.ID, member);
+        }
+
+        internal int ClearOfflineMembers()
+        {
+            int count = 0;
+            foreach(var member in Members)
+            {
+                if (member.Value.Status == Status.Offline)
+                    return count;
+            }
+            return count;
+        }
+        internal bool RemoveMember(ID key)
+        {
+            if(Members.ContainsKey(key))
+            {
+                Members.Remove(key);
+            }
+            return false;
+        }
+        public DiscordMember GetMemberByKey(ID key)
+        {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
+            try
+            {
+                return Members.First(x => x.Key == key).Value;
+            }
+            catch
+            {
+                return null; //because instead of just returning null by default, it has to do this shit.
+            }
+        }
+        public DiscordMember GetMemberByUsername(string username, bool caseSensitive = false)
+        {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
+            if (!caseSensitive)
+                return Members.First(x => x.Value.Username.ToLower() == username.ToLower()).Value;
+            else
+                return Members.First(x => x.Value.Username == username).Value;
         }
 
         public void ChangeIcon(Bitmap image)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             Bitmap resized = new Bitmap((Image)image, 200, 200);
 
             string base64 = Convert.ToBase64String(Utils.ImageToByteArray(resized));
@@ -75,6 +151,9 @@ namespace DiscordSharp.Objects
 
         public void ChangeName(string NewGuildName)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string editGuildUrl = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}";
             var newNameJson = JsonConvert.SerializeObject(new { name = NewGuildName });
             var result = JObject.Parse(WebWrapper.Patch(editGuildUrl, DiscordClient.token, newNameJson));
@@ -82,12 +161,18 @@ namespace DiscordSharp.Objects
 
         public void AssignRoleToMember(DiscordRole role, DiscordMember member)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Members + $"/{member.ID}";
             string message = JsonConvert.SerializeObject(new { roles = new string[] { role.ID } });
             Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
         }
         public void AssignRoleToMember(List<DiscordRole> roles, DiscordMember member)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Members + $"/{member.ID}";
             List<string> rolesAsIds = new List<string>();
             roles.ForEach(x => rolesAsIds.Add(x.ID));
@@ -97,6 +182,9 @@ namespace DiscordSharp.Objects
 
         public DiscordRole CreateRole()
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Roles;
             var result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, ""));
 
@@ -121,6 +209,9 @@ namespace DiscordSharp.Objects
 
         public DiscordRole EditRole(DiscordRole role)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Roles + $"/{role.ID}";
             string request = JsonConvert.SerializeObject(
                 new
@@ -156,18 +247,27 @@ namespace DiscordSharp.Objects
 
         public void DeleteRole(DiscordRole role)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Roles + $"/{role.ID}";
             WebWrapper.Delete(url, DiscordClient.token);
         }
 
         public void DeleteChannel(DiscordChannel channel)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}";
             WebWrapper.Delete(url, DiscordClient.token);
         }
 
         public DiscordChannel CreateChannel(string ChannelName, bool voice)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Channels;
             var reqJson = JsonConvert.SerializeObject(new { name = ChannelName, type = voice ? "voice" : "text" });
             var result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, reqJson));
@@ -187,6 +287,9 @@ namespace DiscordSharp.Objects
         /// <returns></returns>
         public List<DiscordMember> GetBans()
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             List<DiscordMember> returnVal = new List<DiscordMember>();
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ID}" + Endpoints.Bans;
             try
@@ -218,6 +321,9 @@ namespace DiscordSharp.Objects
 
         public void RemoveBan(string userID)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ID}" + Endpoints.Bans + $"/{userID}";
             try
             {
@@ -230,6 +336,9 @@ namespace DiscordSharp.Objects
         }
         public void RemoveBan(DiscordMember member)
         {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
             string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ID}" + Endpoints.Bans + $"/{member.ID}";
             try
             {
