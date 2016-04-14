@@ -67,6 +67,24 @@ namespace Luigibot.Modules
                     cmdArgs.Channel.SendMessage(msg);
                 }
             }), this);
+
+            manager.AddCommand(new CommandStub("rename", "Renames the bot.", "", PermissionType.Owner, 1, cmdArgs =>
+            {
+                if(cmdArgs.Args.Count > 0)
+                {
+                    var userInfo = manager.Client.ClientPrivateInformation;
+                    userInfo.Username = cmdArgs.Args[0];
+
+                    try
+                    {
+                        manager.Client.ChangeClientInformation(userInfo);
+                    }
+                    catch(Exception ex)
+                    {
+                        cmdArgs.Channel.SendMessage($"Error occured while renaming: {ex.Message}");
+                    }
+                }
+            }), this);
         }
     }
 }

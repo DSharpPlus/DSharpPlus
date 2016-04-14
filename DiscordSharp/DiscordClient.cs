@@ -3024,6 +3024,7 @@ namespace DiscordSharp
                     {
                         oldMember = member.Value;
                         server.AddMember(newMember);
+                        break;
                     }
                 }
             }
