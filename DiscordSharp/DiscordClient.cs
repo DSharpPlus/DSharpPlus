@@ -651,7 +651,7 @@ namespace DiscordSharp
         /// <param name="idBefore">Messages before this message ID.</param>
         /// <param name="idAfter">Messages after this message ID.</param>
         /// <returns>A List of DiscordMessages that you can iterate through.</returns>
-        public List<DiscordMessage> GetMessageHistory(DiscordChannel channel, int count, string idBefore = "", string idAfter = "")
+        public List<DiscordMessage> GetMessageHistory(DiscordChannelBase channel, int count, string idBefore = "", string idAfter = "")
         {
             string request = "https://discordapp.com/api/channels/" + channel.ID + $"/messages?&limit={count}";
             if (!string.IsNullOrEmpty(idBefore))
@@ -668,7 +668,7 @@ namespace DiscordSharp
             }
             catch (Exception ex)
             {
-                DebugLogger.Log($"Error ocurred while getting message history for channel {channel.Name}: {ex.Message}", MessageLevel.Error);
+                DebugLogger.Log($"Error ocurred while getting message history for channel {channel.ID}: {ex.Message}", MessageLevel.Error);
             }
 
             if (result != null)
@@ -1108,20 +1108,27 @@ namespace DiscordSharp
         /// <param name="username"></param>
         /// <param name="caseSensitive"></param>
         /// <returns></returns>
-        public DiscordMember GetMemberFromChannel(DiscordChannel channel, string username, bool caseSensitive)
+        public DiscordMember GetMemberFromChannel(DiscordChannelBase channel, string username, bool caseSensitive)
         {
             if (string.IsNullOrEmpty(username))
                 throw new ArgumentException("Argument given for username was null/empty.");
             if (channel != null)
             {
-                DiscordMember foundMember = channel.Parent.GetMemberByUsername(username, caseSensitive);
-                if (foundMember != null)
+                if (channel.GetType() == typeof(DiscordChannel)) //regular channel
                 {
-                    return foundMember;
+                    DiscordMember foundMember = ((DiscordChannel)channel).Parent.GetMemberByUsername(username, caseSensitive);
+                    if (foundMember != null)
+                    {
+                        return foundMember;
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Error in GetMemberFromChannel: foundMember was null!", MessageLevel.Error);
+                    }
                 }
-                else
+                else if(channel.GetType() == typeof(DiscordPrivateChannel))
                 {
-                    DebugLogger.Log("Error in GetMemberFromChannel: foundMember was null!", MessageLevel.Error);
+                    return ((DiscordPrivateChannel)channel).Recipient;
                 }
             }
             else
@@ -1137,16 +1144,24 @@ namespace DiscordSharp
         /// <param name="channel"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public DiscordMember GetMemberFromChannel(DiscordChannel channel, string id)
+        public DiscordMember GetMemberFromChannel(DiscordChannelBase channel, string id)
         {
             if (channel != null)
             {
-                DiscordMember foundMember = channel.Parent.GetMemberByKey(id);
-                if (foundMember != null)
-                    return foundMember;
-                else
+                if (channel.GetType() == typeof(DiscordChannel)) //regular
                 {
-                    DebugLogger.Log($"Error in GetMemberFromChannel: foundMember was null! ID: {id}", MessageLevel.Error);
+
+                    DiscordMember foundMember = ((DiscordChannel)channel).Parent.GetMemberByKey(id);
+                    if (foundMember != null)
+                        return foundMember;
+                    else
+                    {
+                        DebugLogger.Log($"Error in GetMemberFromChannel: foundMember was null! ID: {id}", MessageLevel.Error);
+                    }
+                }
+                else if(channel.GetType() == typeof(DiscordPrivateChannel))
+                {
+                    return ((DiscordPrivateChannel)channel).Recipient;
                 }
             }
             else
@@ -3009,6 +3024,7 @@ namespace DiscordSharp
                     {
                         oldMember = member.Value;
                         server.AddMember(newMember);
+                        break;
                     }
                 }
             }
