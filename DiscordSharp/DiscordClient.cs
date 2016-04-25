@@ -1828,7 +1828,9 @@ namespace DiscordSharp
         /// <summary>
         /// Runs the websocket connection for the client hooking up the appropriate events.
         /// </summary>
-        public void Connect()
+        /// <param name="useDotNetWebsocket">If true, DiscordSharp will connect using the .Net Framework's built-in WebSocketClasses.
+        /// Please do not use this on Mono or versions of Windows below 8/8.1</param>
+        public void Connect(bool useDotNetWebsocket = false)
         {
             CurrentGatewayURL = GetGatewayUrl();
             if (string.IsNullOrEmpty(CurrentGatewayURL))
@@ -1837,14 +1839,18 @@ namespace DiscordSharp
                 return;
             }
             DebugLogger.Log("Gateway retrieved: " + CurrentGatewayURL);
-            
-            ws = new WebSocketSharpSocket(CurrentGatewayURL);
-            DebugLogger.Log("Using WebSocketSharp websocket..");
-            //catch (PlatformNotSupportedException) //Win7 doesn't support this.
-            //{
-            //    ws = new NetWebSocket(CurrentGatewayURL);
-            //    DebugLogger.Log("Using .Net's built in WebSocket..");
-            //}
+
+            if (useDotNetWebsocket)
+            {
+                ws = new NetWebSocket(CurrentGatewayURL);
+                DebugLogger.Log("Using the built-in .Net websocket..");
+            }
+            else
+            {
+                ws = new WebSocketSharpSocket(CurrentGatewayURL);
+                DebugLogger.Log("Using WebSocketSharp websocket..");
+            }
+
             ws.MessageReceived += (sender, e) =>
             {
                 var message = JObject.Parse(e.Message);

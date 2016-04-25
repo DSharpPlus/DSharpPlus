@@ -40,13 +40,15 @@ namespace Luigibot
 
     public class LuigibotMain
     {
+        private const bool UseBuiltInWebsocket = true;
+
         public DiscordMember owner;
         public Config config;
 
-        DiscordClient client;
-        CommandsManager CommandsManager;
-        CancellationToken cancelToken;
-        DateTime loginDate = DateTime.Now;
+        private DiscordClient client;
+        private CommandsManager CommandsManager;
+        private CancellationToken cancelToken;
+        private DateTime loginDate = DateTime.Now;
         #region Audio playback
         WaveFormat waveFormat;
         BufferedWaveProvider bufferedWaveProvider;
@@ -85,13 +87,8 @@ namespace Luigibot
                 config.CommandPrefix = '?';
 
 			runningOnMono = Type.GetType ("Mono.Runtime") != null;
-
-			if (OSDetermination.IsOnUnix ()) 
-			{
-				osString = OSDetermination.GetUnixName ();
-			}
-			else
-				osString = Environment.OSVersion.ToString ();
+            
+			osString = OSDetermination.GetUnixName();
         }
 
         public void RunLuigibot()
@@ -160,8 +157,13 @@ namespace Luigibot
             {
                 client.MessageReceived += (sender, e) =>
                 {
-                    if(owner == null)
-                        owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID); //prays
+                    if (!doingInitialRun)
+                    {
+                        if (owner == null)
+                        {
+                            owner = client.GetServersList().Find(x => x.GetMemberByKey(config.OwnerID) != null).GetMemberByKey(config.OwnerID); //prays
+                        }
+                    }
 
 
                     if (e.Author == null)
@@ -390,7 +392,7 @@ namespace Luigibot
                 };
                 if(client.SendLoginRequest() != null)
                 {
-                    client.Connect();
+                    client.Connect(UseBuiltInWebsocket);
                 }
             }, token);
         }
@@ -577,6 +579,7 @@ namespace Luigibot
                 string message = "**About Luigibot**\n";
                 message += $"Owner: {owner.Username}#{owner.Discriminator}\n";
                 message += $"Library: DiscordSharp {typeof(DiscordClient).Assembly.GetName().Version.ToString()}\n";
+                message += $"WebSocket: " + (UseBuiltInWebsocket ? "`System.Net.WebSockets`" : "`WebSocketSharp`") + "\n";
                 message += $"Gateway Version: {client.DiscordGatewayVersion}\n";
                 var uptime = (DateTime.Now - loginDate);
                 message += $"Uptime: {uptime.Days} days, {uptime.Hours} hours, {uptime.Minutes} minutes.\n";
