@@ -1853,7 +1853,15 @@ namespace DiscordSharp
 
             ws.MessageReceived += (sender, e) =>
             {
-                var message = JObject.Parse(e.Message);
+                var message = new JObject();
+                try
+                {
+                    message = JObject.Parse(e.Message);
+                }
+                catch(Exception ex)
+                {
+                    DebugLogger.Log($"MessageReceived Error: {ex.Message}\n\n```{e.Message}\n```\n", MessageLevel.Error);
+                }
 
                 if (EnableVerboseLogging)
                     if (message["t"].ToString() != "READY")
@@ -2497,26 +2505,30 @@ namespace DiscordSharp
             if (memberUpdated != null)
             {
                 memberUpdated.Username = message["d"]["user"]["username"].ToString();
+                if(message["d"]["user"]["nick"] != null)
+                {
+                    if (message["d"]["user"]["nick"].ToString() == null)
+                        memberUpdated.Nickname = ""; //No nickname
+                    else
+                        memberUpdated.Nickname = message["d"]["user"]["nick"].ToString();
+                }
+
                 if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
                     memberUpdated.Avatar = message["d"]["user"]["avatar"].ToString();
                 memberUpdated.Discriminator = message["d"]["user"]["discriminator"].ToString();
                 memberUpdated.ID = message["d"]["user"]["id"].ToString();
-
-
+                
                 foreach (var roles in message["d"]["roles"])
                 {
                     memberUpdated.Roles.Add(server.Roles.Find(x => x.ID == roles.ToString()));
                 }
 
-                //server.Members.Remove(server.GetMemberByKey(x => x.ID == message["d"]["user"]["id"].ToString()));
                 server.AddMember(memberUpdated);
-
-                if (GuildMemberUpdated != null)
-                    GuildMemberUpdated(this, new DiscordGuildMemberUpdateEventArgs { MemberUpdate = memberUpdated, RawJson = message, ServerUpdated = server });
+                GuildMemberUpdated?.Invoke(this, new DiscordGuildMemberUpdateEventArgs { MemberUpdate = memberUpdated, RawJson = message, ServerUpdated = server });
             }
             else
             {
-                DebugLogger.Log("memberUpdated was null?!?!?!", MessageLevel.Critical);
+                DebugLogger.Log("memberUpdated was null?!?!?!", MessageLevel.Debug);
             }
         }
 
@@ -2555,8 +2567,7 @@ namespace DiscordSharp
                 DebugLogger.Log($"Couldn't delete role with ID {message["d"]["role_id"].ToString()}! ({ex.Message})", MessageLevel.Critical);
             }
 
-            if (RoleDeleted != null)
-                RoleDeleted(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });
+            RoleDeleted?.Invoke(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });
         }
 
         /// <summary>
@@ -2768,8 +2779,7 @@ namespace DiscordSharp
             ServersList.Remove(oldServer);
             ServersList.Add(newServer);
             DiscordServerUpdateEventArgs dsuea = new DiscordServerUpdateEventArgs { NewServer = newServer, OldServer = oldServer };
-            if (GuildUpdated != null)
-                GuildUpdated(this, dsuea);
+            GuildUpdated?.Invoke(this, dsuea);
         }
 
         private void ChannelDeleteEvents(JObject message)
@@ -2914,6 +2924,9 @@ namespace DiscordSharp
             foreach (var mbr in message["d"]["members"])
             {
                 DiscordMember member = JsonConvert.DeserializeObject<DiscordMember>(mbr["user"].ToString());
+                if(mbr["nick"] != null)
+                    member.Nickname = mbr["nick"].ToString();
+
                 member.parentclient = this;
                 member.Parent = server;
 

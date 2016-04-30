@@ -8,8 +8,9 @@ namespace DiscordSharp.Objects
 {
     public enum DiscordSpecialPermissions : byte
     {
-        //Me
+        //Me, donut use
         None = 255,
+
         //General
         CreateInstanceInvite = 0,
         KickMembers = 1,
@@ -34,7 +35,9 @@ namespace DiscordSharp.Objects
         VoiceMuteMembers = 22,
         VoiceDeafenMembers = 23,
         VoiceMoveMembers = 24,
-        VoiceUseActivationDetection = 25
+        VoiceUseActivationDetection = 25,
+        ChangeNickname = 26,
+        ManageNicknames = 27
     }
     public class DiscordPermission
     {

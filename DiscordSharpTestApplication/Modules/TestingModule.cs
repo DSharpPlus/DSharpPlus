@@ -85,6 +85,39 @@ namespace Luigibot.Modules
                     }
                 }
             }), this);
+
+            manager.AddCommand(new CommandStub("info", "Displays info for a user.", "", PermissionType.Owner, 1, cmdArgs =>
+            {
+                if(cmdArgs.Args.Count > 0)
+                {
+                    var user = cmdArgs.Channel.Parent.GetMemberByKey(cmdArgs.Args[0].Trim(new char[] { '<', '@', '!', '>' }));
+                    if (user != null)
+                    {
+                        string msg = $"Info for {user.Username}\n```\n";
+                        msg += $"Username: {user.Username}\nID: {user.ID}";
+                        if (user.Nickname != null || user.Nickname.Trim() != "")
+                            msg += $"\nNickname: {user.Nickname}";
+                        msg += $"\nDiscrim: {user.Discriminator}\n";
+                        msg += $"```";
+                        cmdArgs.Channel.SendMessage(msg);
+                    }
+                }
+            }));
+
+            manager.AddCommand(new CommandStub("changemynick", "Changes your nickname.", "Needs appropriate permissions.", PermissionType.Owner, 1, cmdArgs =>
+            {
+                if(cmdArgs.Args.Count > 0)
+                {
+                    var meInServer = cmdArgs.Channel.Parent.GetMemberByKey(manager.Client.Me.ID);
+                    if(meInServer != null)
+                    {
+                        if(meInServer.HasPermission(DiscordSpecialPermissions.ManageNicknames))
+                        {
+                            cmdArgs.Author.ChangeNickname(cmdArgs.Args[0]);
+                        }
+                    }
+                }
+            }));
         }
     }
 }
