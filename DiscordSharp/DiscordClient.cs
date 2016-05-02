@@ -2413,8 +2413,7 @@ namespace DiscordSharp
             };
             VoiceClient.QueueEmpty += (sender, e) =>
             {
-                if (VoiceQueueEmpty != null)
-                    VoiceQueueEmpty(this, e);
+                VoiceQueueEmpty?.Invoke(this, e);
             };
 
             string joinVoicePayload = JsonConvert.SerializeObject(new
