@@ -957,6 +957,11 @@ namespace DiscordSharp
                         if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
                             user.Avatar = message["d"]["user"]["avatar"].ToString();
 
+                        if (message["d"]["nick"].ToString() == null)
+                            user.Nickname = null;
+                        else
+                            user.Nickname = message["d"]["nick"].ToString();
+
                         //Actual presence update
                         user.SetPresence(message["d"]["status"].ToString());
 
@@ -2505,12 +2510,12 @@ namespace DiscordSharp
             if (memberUpdated != null)
             {
                 memberUpdated.Username = message["d"]["user"]["username"].ToString();
-                if(message["d"]["user"]["nick"] != null)
+                if(message["d"]["nick"] != null)
                 {
-                    if (message["d"]["user"]["nick"].ToString() == null)
+                    if (message["d"]["nick"].ToString() == null)
                         memberUpdated.Nickname = ""; //No nickname
                     else
-                        memberUpdated.Nickname = message["d"]["user"]["nick"].ToString();
+                        memberUpdated.Nickname = message["d"]["nick"].ToString();
                 }
 
                 if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
@@ -2549,8 +2554,7 @@ namespace DiscordSharp
             ServersList.Find(x => x.ID == inServer.ID).Roles.Remove(ServersList.Find(x => x.ID == inServer.ID).Roles.Find(y => y.ID == roleUpdated.ID));
             ServersList.Find(x => x.ID == inServer.ID).Roles.Add(roleUpdated);
 
-            if (RoleUpdated != null)
-                RoleUpdated(this, new DiscordGuildRoleUpdateEventArgs { RawJson = message, RoleUpdated = roleUpdated, InServer = inServer });
+            RoleUpdated?.Invoke(this, new DiscordGuildRoleUpdateEventArgs { RawJson = message, RoleUpdated = roleUpdated, InServer = inServer });
         }
 
         private void GuildRoleDeleteEvents(JObject message)
@@ -3068,8 +3072,7 @@ namespace DiscordSharp
 
             e.NewMember = newMember;
             e.OriginalMember = oldMember;
-            if (UserUpdate != null)
-                UserUpdate(this, e);
+            UserUpdate?.Invoke(this, e);
         }
 
         private void MessageDeletedEvents(JObject message)

@@ -120,13 +120,18 @@ namespace DiscordSharpTestApplication
         [STAThread]
         public static void Main(string[] args)
         {            
-                LuigibotMain luigibot = new LuigibotMain();
-                luigibot.RunLuigibot();
-                if (Console.ReadLine() == Environment.NewLine)
+            LuigibotMain luigibot = new LuigibotMain();
+            luigibot.RunLuigibot();
+
+            string output = "";
+            while((output = Console.ReadLine()) != null)
+            {
+                if (output == "")
                 {
                     luigibot.actuallyExit = true;
                     luigibot.Exit();
                 }
+            }
         }
 
     }
