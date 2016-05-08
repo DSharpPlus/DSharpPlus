@@ -542,7 +542,7 @@ namespace Luigibot
             }));
             CommandsManager.AddCommand(new CommandStub("setplaying", "Sets the current game the bot is playing.", "", PermissionType.Owner, 1, cmdArgs =>
             {
-                client.UpdateCurrentGame(cmdArgs.Args[0]);
+                client.UpdateCurrentGame(cmdArgs.Args[0], true, "http://www.google.com/");
             }));
             CommandsManager.AddCommand(new CommandStub("join", "Joins a specified server", "", PermissionType.Owner, 1, cmdArgs =>
             {

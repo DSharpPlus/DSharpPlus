@@ -97,8 +97,16 @@ namespace Luigibot.Modules
                         msg += $"Username: {user.Username}\nID: {user.ID}";
                         if (user.Nickname != null || user.Nickname.Trim() != "")
                             msg += $"\nNickname: {user.Nickname}";
-                        msg += $"\nDiscrim: {user.Discriminator}\n";
-                        msg += $"```";
+                        msg += $"\nDiscrim: {user.Discriminator}";
+                        if(user.CurrentGame != null)
+                        {
+                            msg += $"\nCurrent Game: {user.CurrentGame}";
+                            if(user.Streaming)
+                            {
+                                msg += $"\nStreaming at: {user.StreamURL}";
+                            }
+                        }
+                        msg += $"\n```";
                         cmdArgs.Channel.SendMessage(msg);
                     }
                 }

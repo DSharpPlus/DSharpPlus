@@ -36,6 +36,8 @@ namespace DiscordSharp.Objects
 
         public Status Status { get; internal set; } = Status.Offline;
         public string CurrentGame { get; internal set; } = null;
+        public bool Streaming { get; internal set; } = false;
+        public string StreamURL { get; internal set; } = null;
 
         /**
         Voice only

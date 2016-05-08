@@ -415,7 +415,15 @@ namespace DiscordSharp
                         {
                             member.SetPresence(presence["status"].ToString());
                             if (!presence["game"].IsNullOrEmpty())
+                            {
                                 member.CurrentGame = presence["game"]["name"].ToString();
+                                if (presence["d"]["game"]["type"].ToObject<int>() == 1)
+                                {
+                                    member.Streaming = true;
+                                    if (presence["d"]["game"]["url"].ToString() != null)
+                                        member.StreamURL = presence["d"]["game"]["url"].ToString();
+                                }
+                            }
                         }
                     }
                 }
@@ -881,7 +889,9 @@ namespace DiscordSharp
         /// Updates the bot's 'Currently playing' status to the following text. Pass in null if you want to remove this.
         /// </summary>
         /// <param name="gameName">The game's name. Old gameid lookup can be seen at: http://hastebin.com/azijiyaboc.json/ </param>
-        public void UpdateCurrentGame(string gameName)
+        /// <param name="streaming">Whether or not you want your bot to appear as if it is streaming. True means it will show it's streaming.</param>
+        /// <param name="url">The 'url' for the stream, if your bot is streaming.</param>
+        public void UpdateCurrentGame(string gameName, bool streaming, string url = null)
         {
             string msg;
             if (gameName.ToLower().Trim() != "")
@@ -893,7 +903,12 @@ namespace DiscordSharp
                         d = new
                         {
                             idle_since = IdleSinceUnixTime == null ? (object)null : IdleSinceUnixTime,
-                            game = new { name = gameName }
+                            game = new
+                            {
+                                name = gameName,
+                                type = streaming ? 1 : 0,
+                                url = (url != null) ? url : (object)null
+                            }
                         }
                     });
                 CurrentGameName = gameName;
@@ -982,6 +997,13 @@ namespace DiscordSharp
                             else
                                 dpuea.Game = message["d"]["game"]["name"].ToString();
                             user.CurrentGame = dpuea.Game;
+
+                            if (message["d"]["game"]["type"] != null && message["d"]["game"]["type"].ToObject<int>() == 1)
+                            {
+                                user.Streaming = true;
+                                if (message["d"]["game"]["url"].ToString() != null)
+                                    user.StreamURL = message["d"]["game"]["url"].ToString();
+                            }
                         }
                         dpuea.User = user;
 
@@ -1015,6 +1037,12 @@ namespace DiscordSharp
                                 {
                                     dpuea.Game = message["d"]["game"]["name"].ToString();
                                     memeber.CurrentGame = dpuea.Game;
+                                    if (message["d"]["game"]["type"].ToObject<int>() == 1)
+                                    {
+                                        user.Streaming = true;
+                                        if (message["d"]["game"]["url"].ToString() != null)
+                                            user.StreamURL = message["d"]["game"]["url"].ToString();
+                                    }
                                 }
 
                                 if (message["d"]["status"].ToString() == "online")
