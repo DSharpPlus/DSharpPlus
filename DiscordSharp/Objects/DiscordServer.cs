@@ -273,7 +273,20 @@ namespace DiscordSharp.Objects
             var result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, reqJson));
             if (result != null)
             {
-                DiscordChannel dc = new DiscordChannel { Name = result["name"].ToString(), ID = result["id"].ToString(), Type = result["type"].ToObject<ChannelType>(), Private = result["is_private"].ToObject<bool>(), Topic = result["topic"].ToString() };
+                DiscordChannel dc = new DiscordChannel {
+                    Name = result["name"].ToString(),
+                    ID = result["id"].ToString(),
+                    Type = result["type"].ToObject<ChannelType>(),
+                    Private = result["is_private"].ToObject<bool>()
+                };
+                if (!result["topic"].IsNullOrEmpty())
+                {
+                    dc.Topic = result["topic"].ToString();
+                }
+                if (dc.Type == ChannelType.Voice && !result["bitrate"].IsNullOrEmpty())
+                {
+                    dc.Bitrate = result["bitrate"].ToObject<int>();
+                }
                 this.Channels.Add(dc);
                 return dc;
             }
