@@ -15,12 +15,12 @@ Discord is what I like to call, an *event based* client. In other words, you get
 
 ```
 DiscordClient client = new DiscordClient();
-client.ClientPrivateInformation.email = "email";
-client.ClientPrivateInformation.password = "pass";
+client.ClientPrivateInformation.Email = "email";
+client.ClientPrivateInformation.Password = "pass";
 
 client.Connected += (sender, e) =>
 {
-  Console.WriteLine($"Connected! User: {e.user.user.username}");
+  Console.WriteLine($"Connected! User: {e.User.Username}");
 };
 client.SendLoginRequest();
 Thread t = new Thread(client.Connect);
