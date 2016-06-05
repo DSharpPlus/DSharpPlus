@@ -2161,6 +2161,10 @@ namespace DiscordSharp
 
         private void VoiceServerUpdateEvents(JObject message)
         {
+            // TODO VoiceClient is null when disconnecting from voice
+            if (VoiceClient == null) {
+                return;
+            }
             VoiceClient.VoiceEndpoint = message["d"]["endpoint"].ToString();
             VoiceClient.Token = message["d"]["token"].ToString();
 
@@ -2918,6 +2922,13 @@ namespace DiscordSharp
                 if (member.Roles.Count == 0)
                     member.Roles.Add(server.Roles.Find(x => x.Name == "@everyone"));
                 server.AddMember(member);
+            }
+            foreach (var voiceStateJSON in message["d"]["voice_states"]) {
+                DiscordVoiceState voiceState = JsonConvert.DeserializeObject<DiscordVoiceState>(voiceStateJSON.ToString());
+                DiscordMember member = server.GetMemberByKey(voiceState.UserID);
+
+                member.CurrentVoiceChannel = server.Channels.Find(x => x.ID == voiceState.ChannelID);
+                member.VoiceState = voiceState;
             }
             server.Owner = server.GetMemberByKey(message["d"]["owner_id"].ToString());
             e.Server = server;

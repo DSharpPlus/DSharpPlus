@@ -43,6 +43,7 @@ namespace DiscordSharp.Objects
         [JsonProperty("deaf")]
         public bool Deaf { get; internal set; } = false;
         public DiscordChannel CurrentVoiceChannel { get; internal set; }
+        public DiscordVoiceState VoiceState { get; internal set; }
 
         internal void SetPresence(string status)
         {
