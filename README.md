@@ -9,9 +9,9 @@ A C# API for Discord.
 DiscordSharp is now available on NuGet! It is marked as pre-release package at the moment. At your package manager console, type
 `Install-Package DiscordSharp -Pre` and it will install the additional dependencies (Newtonsoft.Json & websocket-sharp)
 
-#how do use
+#How to use
 
-Discord is what I like to call, an *event based* client. In other words, you get your instance of your client and hook up to its various events: either by lambda or by delegating to external voids. A simple example is as follows..
+Discord is what I like to call an *"event-based"* client. In other words, you get your instance of your client and hook up to its various events: either by lambda or by delegating to external voids. A simple example is as follows..
 
 ```
 DiscordClient client = new DiscordClient();
@@ -26,15 +26,15 @@ client.SendLoginRequest();
 Thread t = new Thread(client.Connect);
 t.Start();
 ```
-This will get you logged in, and print out a login notification to the console with the username you've logged in as.
+This will get you logged in and print out a login notification to the console with the username you've logged in as.
 
-##Getting Started bot
+##Example Bot
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
  * Kindly donated by NaamloosDT :)
 
 #Notes
-* This is in such beta it's not even funny.
-* All of the internal classes are meant to model Discord's internal Json. This is why DiscordMember has a subset, user with the actual information.
+* This is such a beta it's not even funny.
+* All of the internal classes are meant to model Discord's internal Json. This is why DiscordMember has a subset ("user") with the actual information.
 
 #Cousins
 We're all one big happy related family. 
