@@ -220,6 +220,10 @@ namespace Luigibot.Modules
                     //}
 
                     manager.Client.ConnectToVoiceChannel(channelToJoin, config);
+                    manager.Client.VoiceQueueEmpty += (sender, e) =>
+                    {
+                        Console.WriteLine("Queue empty.");
+                    };
                 }
                 else
                     cmdArgs.Channel.SendMessage("Couldn't find the specified channel as a voice channel!");

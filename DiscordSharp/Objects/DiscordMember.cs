@@ -31,9 +31,13 @@ namespace DiscordSharp.Objects
         public bool IsBot { get; internal set; } = false;
         [JsonProperty("joined_at")]
         public DateTime JoinedAt { get; internal set; }
+        [JsonProperty("nick")]
+        public string Nickname { get; internal set; } = "";
 
         public Status Status { get; internal set; } = Status.Offline;
         public string CurrentGame { get; internal set; } = null;
+        public bool Streaming { get; internal set; } = false;
+        public string StreamURL { get; internal set; } = null;
 
         /**
         Voice only
@@ -119,6 +123,40 @@ namespace DiscordSharp.Objects
             {
                 parentclient.GetTextClientLogger.Log($"Error during Kick\n\t{ex.Message}\n\t{ex.StackTrace}", MessageLevel.Error);
             }
+        }
+
+        /// <summary>
+        /// Changes the nickname for this user, if you have permission to do so.
+        /// </summary>
+        /// <param name="nickname">null for no nickname.</param>
+        public void ChangeNickname(string nickname)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.ID}" + Endpoints.Members + $"/{ID}";
+            string payload = JsonConvert.SerializeObject
+            (
+                new
+                {
+                    nick = (nickname == null ? "" : nickname)
+                }
+            );
+            var strResult = WebWrapper.Patch(url, DiscordClient.token, payload);
+        }
+
+        /// <summary>
+        /// Iterates all the roles the user has checking if any of the present have the permission you pass.
+        /// </summary>
+        /// <param name="permission">The permission to check.</param>
+        /// <returns>True if the permission is present.</returns>
+        public bool HasPermission(DiscordSpecialPermissions permission)
+        {
+            var result = false;
+            Roles.ForEach(x =>
+            {
+                if (x.Permissions.HasPermission(permission))
+                { result = true; return; }
+            });
+
+            return result;
         }
 
         /// <summary>

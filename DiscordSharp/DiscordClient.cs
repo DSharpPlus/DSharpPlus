@@ -415,7 +415,15 @@ namespace DiscordSharp
                         {
                             member.SetPresence(presence["status"].ToString());
                             if (!presence["game"].IsNullOrEmpty())
+                            {
                                 member.CurrentGame = presence["game"]["name"].ToString();
+                                if (presence["d"]["game"]["type"].ToObject<int>() == 1)
+                                {
+                                    member.Streaming = true;
+                                    if (presence["d"]["game"]["url"].ToString() != null)
+                                        member.StreamURL = presence["d"]["game"]["url"].ToString();
+                                }
+                            }
                         }
                     }
                 }
@@ -881,7 +889,9 @@ namespace DiscordSharp
         /// Updates the bot's 'Currently playing' status to the following text. Pass in null if you want to remove this.
         /// </summary>
         /// <param name="gameName">The game's name. Old gameid lookup can be seen at: http://hastebin.com/azijiyaboc.json/ </param>
-        public void UpdateCurrentGame(string gameName)
+        /// <param name="streaming">Whether or not you want your bot to appear as if it is streaming. True means it will show it's streaming.</param>
+        /// <param name="url">The 'url' for the stream, if your bot is streaming.</param>
+        public void UpdateCurrentGame(string gameName, bool streaming, string url = null)
         {
             string msg;
             if (gameName.ToLower().Trim() != "")
@@ -893,7 +903,12 @@ namespace DiscordSharp
                         d = new
                         {
                             idle_since = IdleSinceUnixTime == null ? (object)null : IdleSinceUnixTime,
-                            game = new { name = gameName }
+                            game = new
+                            {
+                                name = gameName,
+                                type = streaming ? 1 : 0,
+                                url = (url != null) ? url : (object)null
+                            }
                         }
                     });
                 CurrentGameName = gameName;
@@ -957,6 +972,11 @@ namespace DiscordSharp
                         if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
                             user.Avatar = message["d"]["user"]["avatar"].ToString();
 
+                        if (message["d"]["nick"].ToString() == null)
+                            user.Nickname = null;
+                        else
+                            user.Nickname = message["d"]["nick"].ToString();
+
                         //Actual presence update
                         user.SetPresence(message["d"]["status"].ToString());
 
@@ -977,6 +997,13 @@ namespace DiscordSharp
                             else
                                 dpuea.Game = message["d"]["game"]["name"].ToString();
                             user.CurrentGame = dpuea.Game;
+
+                            if (message["d"]["game"]["type"] != null && message["d"]["game"]["type"].ToObject<int>() == 1)
+                            {
+                                user.Streaming = true;
+                                if (message["d"]["game"]["url"].ToString() != null)
+                                    user.StreamURL = message["d"]["game"]["url"].ToString();
+                            }
                         }
                         dpuea.User = user;
 
@@ -1010,6 +1037,12 @@ namespace DiscordSharp
                                 {
                                     dpuea.Game = message["d"]["game"]["name"].ToString();
                                     memeber.CurrentGame = dpuea.Game;
+                                    if (message["d"]["game"]["type"].ToObject<int>() == 1)
+                                    {
+                                        user.Streaming = true;
+                                        if (message["d"]["game"]["url"].ToString() != null)
+                                            user.StreamURL = message["d"]["game"]["url"].ToString();
+                                    }
                                 }
 
                                 if (message["d"]["status"].ToString() == "online")
@@ -1828,7 +1861,9 @@ namespace DiscordSharp
         /// <summary>
         /// Runs the websocket connection for the client hooking up the appropriate events.
         /// </summary>
-        public void Connect()
+        /// <param name="useDotNetWebsocket">If true, DiscordSharp will connect using the .Net Framework's built-in WebSocketClasses.
+        /// Please do not use this on Mono or versions of Windows below 8/8.1</param>
+        public void Connect(bool useDotNetWebsocket = false)
         {
             CurrentGatewayURL = GetGatewayUrl();
             if (string.IsNullOrEmpty(CurrentGatewayURL))
@@ -1837,17 +1872,29 @@ namespace DiscordSharp
                 return;
             }
             DebugLogger.Log("Gateway retrieved: " + CurrentGatewayURL);
-            
-            ws = new WebSocketSharpSocket(CurrentGatewayURL);
-            DebugLogger.Log("Using WebSocketSharp websocket..");
-            //catch (PlatformNotSupportedException) //Win7 doesn't support this.
-            //{
-            //    ws = new NetWebSocket(CurrentGatewayURL);
-            //    DebugLogger.Log("Using .Net's built in WebSocket..");
-            //}
+
+            if (useDotNetWebsocket)
+            {
+                ws = new NetWebSocket(CurrentGatewayURL);
+                DebugLogger.Log("Using the built-in .Net websocket..");
+            }
+            else
+            {
+                ws = new WebSocketSharpSocket(CurrentGatewayURL);
+                DebugLogger.Log("Using WebSocketSharp websocket..");
+            }
+
             ws.MessageReceived += (sender, e) =>
             {
-                var message = JObject.Parse(e.Message);
+                var message = new JObject();
+                try
+                {
+                    message = JObject.Parse(e.Message);
+                }
+                catch(Exception ex)
+                {
+                    DebugLogger.Log($"MessageReceived Error: {ex.Message}\n\n```{e.Message}\n```\n", MessageLevel.Error);
+                }
 
                 if (EnableVerboseLogging)
                     if (message["t"].ToString() != "READY")
@@ -2394,8 +2441,7 @@ namespace DiscordSharp
             };
             VoiceClient.QueueEmpty += (sender, e) =>
             {
-                if (VoiceQueueEmpty != null)
-                    VoiceQueueEmpty(this, e);
+                VoiceQueueEmpty?.Invoke(this, e);
             };
 
             string joinVoicePayload = JsonConvert.SerializeObject(new
@@ -2491,26 +2537,30 @@ namespace DiscordSharp
             if (memberUpdated != null)
             {
                 memberUpdated.Username = message["d"]["user"]["username"].ToString();
+                if(message["d"]["nick"] != null)
+                {
+                    if (message["d"]["nick"].ToString() == null)
+                        memberUpdated.Nickname = ""; //No nickname
+                    else
+                        memberUpdated.Nickname = message["d"]["nick"].ToString();
+                }
+
                 if (!message["d"]["user"]["avatar"].IsNullOrEmpty())
                     memberUpdated.Avatar = message["d"]["user"]["avatar"].ToString();
                 memberUpdated.Discriminator = message["d"]["user"]["discriminator"].ToString();
                 memberUpdated.ID = message["d"]["user"]["id"].ToString();
-
-
+                
                 foreach (var roles in message["d"]["roles"])
                 {
                     memberUpdated.Roles.Add(server.Roles.Find(x => x.ID == roles.ToString()));
                 }
 
-                //server.Members.Remove(server.GetMemberByKey(x => x.ID == message["d"]["user"]["id"].ToString()));
                 server.AddMember(memberUpdated);
-
-                if (GuildMemberUpdated != null)
-                    GuildMemberUpdated(this, new DiscordGuildMemberUpdateEventArgs { MemberUpdate = memberUpdated, RawJson = message, ServerUpdated = server });
+                GuildMemberUpdated?.Invoke(this, new DiscordGuildMemberUpdateEventArgs { MemberUpdate = memberUpdated, RawJson = message, ServerUpdated = server });
             }
             else
             {
-                DebugLogger.Log("memberUpdated was null?!?!?!", MessageLevel.Critical);
+                DebugLogger.Log("memberUpdated was null?!?!?!", MessageLevel.Debug);
             }
         }
 
@@ -2531,8 +2581,7 @@ namespace DiscordSharp
             ServersList.Find(x => x.ID == inServer.ID).Roles.Remove(ServersList.Find(x => x.ID == inServer.ID).Roles.Find(y => y.ID == roleUpdated.ID));
             ServersList.Find(x => x.ID == inServer.ID).Roles.Add(roleUpdated);
 
-            if (RoleUpdated != null)
-                RoleUpdated(this, new DiscordGuildRoleUpdateEventArgs { RawJson = message, RoleUpdated = roleUpdated, InServer = inServer });
+            RoleUpdated?.Invoke(this, new DiscordGuildRoleUpdateEventArgs { RawJson = message, RoleUpdated = roleUpdated, InServer = inServer });
         }
 
         private void GuildRoleDeleteEvents(JObject message)
@@ -2549,8 +2598,7 @@ namespace DiscordSharp
                 DebugLogger.Log($"Couldn't delete role with ID {message["d"]["role_id"].ToString()}! ({ex.Message})", MessageLevel.Critical);
             }
 
-            if (RoleDeleted != null)
-                RoleDeleted(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });
+            RoleDeleted?.Invoke(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });
         }
 
         /// <summary>
@@ -2762,8 +2810,7 @@ namespace DiscordSharp
             ServersList.Remove(oldServer);
             ServersList.Add(newServer);
             DiscordServerUpdateEventArgs dsuea = new DiscordServerUpdateEventArgs { NewServer = newServer, OldServer = oldServer };
-            if (GuildUpdated != null)
-                GuildUpdated(this, dsuea);
+            GuildUpdated?.Invoke(this, dsuea);
         }
 
         private void ChannelDeleteEvents(JObject message)
@@ -2908,6 +2955,9 @@ namespace DiscordSharp
             foreach (var mbr in message["d"]["members"])
             {
                 DiscordMember member = JsonConvert.DeserializeObject<DiscordMember>(mbr["user"].ToString());
+                if(mbr["nick"] != null)
+                    member.Nickname = mbr["nick"].ToString();
+
                 member.parentclient = this;
                 member.Parent = server;
 
@@ -3049,8 +3099,7 @@ namespace DiscordSharp
 
             e.NewMember = newMember;
             e.OriginalMember = oldMember;
-            if (UserUpdate != null)
-                UserUpdate(this, e);
+            UserUpdate?.Invoke(this, e);
         }
 
         private void MessageDeletedEvents(JObject message)

@@ -473,7 +473,7 @@ namespace DiscordSharp
                         Thread.Sleep(1000);
 #endif
                     }
-                    if (___sequence > 0 && ___timestamp > 0)
+                    if (___sequence > 0 || ___timestamp > 0)
                     {
                         if (voiceToSend.IsEmpty)
                         {
@@ -482,11 +482,8 @@ namespace DiscordSharp
                             ___timestamp = 0;
                             if (!QueueEmptyEventTriggered)
                             {
-                                if (QueueEmpty != null)
-                                {
-                                    QueueEmpty(this, new EventArgs());
-                                    QueueEmptyEventTriggered = true;
-                                }
+                                QueueEmpty?.Invoke(this, new EventArgs());
+                                QueueEmptyEventTriggered = true;
                             }
                         }
                     }
