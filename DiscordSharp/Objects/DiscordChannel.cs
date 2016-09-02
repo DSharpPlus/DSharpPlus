@@ -120,7 +120,7 @@ namespace DiscordSharp.Objects
             WebWrapper.Put(url, DiscordClient.token);
         }
 
-        public void RemovePinnedMessage(string messageID)
+        public void UnpinMessage(string messageID)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins + "/" + messageID;
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
