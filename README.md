@@ -1,8 +1,6 @@
-# DiscordSharp
+# SharpCord
 
-Welcome to the DiscordSharp dev branch!
-
-A C# API for Discord.
+A C# API for Discord based off DiscordSharp :3
 
 #How to use
 
