@@ -39,7 +39,7 @@ namespace DiscordSharp
         /// </summary>
         [JsonProperty("$device")]
         public string Device
-        { get; set; } = "DiscordSharp Bot";
+        { get; set; } = "SharpCord";
 
         /// <summary>
         /// 
@@ -530,12 +530,12 @@ namespace DiscordSharp
         /// <param name="message">The text to send</param>
         /// <param name="channel">DiscordChannel object to send the message to.</param>
         /// <returns>A DiscordMessage object of the message sent to Discord.</returns>
-        public DiscordMessage SendMessageToChannel(string message, DiscordChannel channel)
+        public DiscordMessage SendMessageToChannel(string message, DiscordChannel channel, bool isTTS)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages;
             try
             {
-                JObject result = JObject.Parse(WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
+                JObject result = JObject.Parse(WebWrapper.Post(url, token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, isTTS))));
                 if (result["content"].IsNullOrEmpty())
                     throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
 
@@ -858,7 +858,7 @@ namespace DiscordSharp
         private DiscordMessage SendActualMessage(string id, string message, DiscordMember recipient)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages;
-            DiscordMessage toSend = Utils.GenerateMessage(message);
+            DiscordMessage toSend = Utils.GenerateMessage(message, false);
 
             try
             {

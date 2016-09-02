@@ -21,7 +21,7 @@ namespace DiscordSharp
             return byteArray;
         }
 
-        internal static DiscordMessage GenerateMessage(string message)
+        internal static DiscordMessage GenerateMessage(string message, bool isTTS)
         {
             //DiscordMessage dm = new DiscordMessage();
             ///Temporarily disabling this
@@ -47,7 +47,7 @@ namespace DiscordSharp
             //dm.content = message;
             //dm.mentions = foundIDS.ToArray();
             //dm.mentions = new string[] { "" };
-            return new DiscordMessage { Content = message };
+            return new DiscordMessage { Content = message, TTS = isTTS};
         }
     }
 }

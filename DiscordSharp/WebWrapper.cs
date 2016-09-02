@@ -17,7 +17,7 @@ namespace DiscordSharp
     /// </summary>
     internal class WebWrapper
     {
-        static string UserAgentString = $"DiscordBot (http://github.com/Luigifan/DiscordSharp, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
+        static string UserAgentString = $"DiscordBot (https://github.com/naamloosdt/sharpcord, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
 
         /// <summary>
         /// Sends a DELETE HTTP request to the specified URL using the specified token.

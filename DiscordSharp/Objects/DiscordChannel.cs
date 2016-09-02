@@ -56,6 +56,9 @@ namespace DiscordSharp.Objects
         [JsonProperty("icon")]
         public string Icon { get; set; }
 
+        [JsonProperty("guild_id")]
+        public string ServerID { get; }
+
         private int __bitrate;
 
         /// <summary>
@@ -83,10 +86,10 @@ namespace DiscordSharp.Objects
 
         public DiscordServer Parent { get; internal set; }
 
-        public DiscordMessage SendMessage(string message)
+        public DiscordMessage SendMessage(string message, bool isTTS)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
-            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message))));
+            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, isTTS))));
 
             if (result["content"].IsNullOrEmpty())
                 throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
@@ -99,7 +102,8 @@ namespace DiscordSharp.Objects
                 channel = this,
                 Content = result["content"].ToString(),
                 RawJson = result,
-                timestamp = result["timestamp"].ToObject<DateTime>()
+                timestamp = result["timestamp"].ToObject<DateTime>(),
+                TTS = isTTS
             };
             return m;
         }

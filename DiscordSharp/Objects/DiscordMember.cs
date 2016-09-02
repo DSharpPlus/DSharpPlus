@@ -230,7 +230,7 @@ namespace DiscordSharp.Objects
         private void SendActualMessage(string id, string message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{id}" + Endpoints.Messages;
-            DiscordMessage toSend = Utils.GenerateMessage(message);
+            DiscordMessage toSend = Utils.GenerateMessage(message, false);
 
             try
             {

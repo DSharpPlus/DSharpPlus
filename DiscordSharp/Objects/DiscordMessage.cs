@@ -33,6 +33,8 @@ namespace DiscordSharp.Objects
         public string Content { get; set; }
         [JsonProperty("id")]
         public string ID { get; internal set; }
+        [JsonProperty("tts")]
+        public bool TTS { get; set; }
 
         [JsonProperty("attachments")]
         public DiscordAttachment[] Attachments { get; internal set; }
