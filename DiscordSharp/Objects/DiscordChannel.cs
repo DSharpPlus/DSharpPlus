@@ -126,6 +126,18 @@ namespace DiscordSharp.Objects
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
         }
 
+        public List<DiscordMessage> GetPinnedMessages()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins;
+            var result = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+            List<DiscordMessage> pinnedlist = new List<DiscordMessage>();
+            foreach(var child in result)
+            {
+                pinnedlist.Add(JsonConvert.DeserializeObject<DiscordMessage>(child.ToString()));
+            }
+            return pinnedlist;
+        }
+
         public DiscordChannel ShallowCopy()
         {
             DiscordChannel channel = (DiscordChannel)this.MemberwiseClone();
