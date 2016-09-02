@@ -56,7 +56,7 @@ namespace DiscordSharp.Objects
         public List<DiscordChannel> Channels { get; internal set; }
 
         [JsonProperty("members")]
-        private List<DiscordMember> membersAsList
+        public List<DiscordMember> membersAsList
         {
             get
             {

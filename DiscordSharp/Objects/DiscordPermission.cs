@@ -15,10 +15,10 @@ namespace DiscordSharp.Objects
         CreateInstanceInvite = 0,
         KickMembers = 1,
         BanMembers = 2,
-        ManageRoles = 3,
-        //ManagePermissions = 3,
-        ManageChannels = 4,
-        //ManageChannel = 4,
+        //Administrator
+        Administrator = 3,
+
+        ManageChannel = 4,
         ManageServer = 5,
         //Chat
         ReadMessages = 10,
@@ -36,8 +36,10 @@ namespace DiscordSharp.Objects
         VoiceDeafenMembers = 23,
         VoiceMoveMembers = 24,
         VoiceUseActivationDetection = 25,
+
         ChangeNickname = 26,
-        ManageNicknames = 27
+        ManageNicknames = 27,
+        ManageRolesOrPermissions = 28,
     }
     public class DiscordPermission
     {
