@@ -100,12 +100,18 @@ namespace DiscordSharp
         public static bool IsBotAccount { get; internal set; } = false;
 
         /// <summary>
+        /// The developers of this bot.
+        /// Used with DiscordMember.IsDeveloper.
+        /// </summary>
+        public static List<string> developers = new List<string>();
+
+        /// <summary>
         /// The URL that the client websocket is currently connected to.
         /// </summary>
         public string CurrentGatewayURL { get; internal set; }
 
         /// <summary>
-        /// Any private information assosciated with the account (regular clients only)
+        /// Any private information associated with the account (regular clients only)
         /// </summary>
         public DiscordUserInformation ClientPrivateInformation { get; set; }
 

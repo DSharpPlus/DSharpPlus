@@ -38,6 +38,7 @@ namespace DiscordSharp.Objects
         public string CurrentGame { get; internal set; } = null;
         public bool Streaming { get; internal set; } = false;
         public string StreamURL { get; internal set; } = null;
+        public bool IsDeveloper { get { return DiscordClient.developers.Contains(this.ID); } }
 
         /**
         Voice only
