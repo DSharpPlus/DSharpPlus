@@ -162,6 +162,16 @@ namespace DiscordSharp.Objects
         }
 
         /// <summary>
+        /// If the user has the specified role.
+        /// </summary>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        public bool HasRole(string role)
+        {
+            return Roles.Select(t => t.Name).Contains(role);
+        }
+
+        /// <summary>
         /// Testing copy method.
         /// </summary>
         /// <returns>A copied member, idk what more you expected</returns>
