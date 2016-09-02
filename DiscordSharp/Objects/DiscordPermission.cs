@@ -20,7 +20,7 @@ namespace DiscordSharp.Objects
         ManageChannels = 4,
         //ManageChannel = 4,
         ManageServer = 5,
-        //Administrator / Everything
+        //Administrator / Everything (FIX ME)
         Administrator = 8,
         //Chat
         ReadMessages = 10,
