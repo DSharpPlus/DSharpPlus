@@ -86,10 +86,10 @@ namespace DiscordSharp.Objects
 
         public DiscordServer Parent { get; internal set; }
 
-        public DiscordMessage SendMessage(string message, bool isTTS)
+        public DiscordMessage SendMessage(string message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
-            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, isTTS))));
+            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, false))));
 
             if (result["content"].IsNullOrEmpty())
                 throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
@@ -103,7 +103,29 @@ namespace DiscordSharp.Objects
                 Content = result["content"].ToString(),
                 RawJson = result,
                 timestamp = result["timestamp"].ToObject<DateTime>(),
-                TTS = isTTS
+                TTS = false
+            };
+            return m;
+        }
+
+        public DiscordMessage SendMessageTTS(string message)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
+            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, true))));
+
+            if (result["content"].IsNullOrEmpty())
+                throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
+
+            DiscordMessage m = new DiscordMessage
+            {
+                ID = result["id"].ToString(),
+                Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
+                Author = this.Parent.GetMemberByKey(result["author"]["id"].ToString()),
+                channel = this,
+                Content = result["content"].ToString(),
+                RawJson = result,
+                timestamp = result["timestamp"].ToObject<DateTime>(),
+                TTS = true
             };
             return m;
         }

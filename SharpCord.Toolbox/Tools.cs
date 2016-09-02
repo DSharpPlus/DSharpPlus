@@ -11,16 +11,10 @@ namespace SharpCord.Toolbox
     public static class Tools
     {
         /// <summary>
-        /// Takes a String containing path and converts it in to a Stream.
+        /// Takes a DiscordServer and provides a list of DiscordMembers with admin permissions.
         /// </summary>
-        /// <param name="uri"></param>
+        /// <param name="server"></param>
         /// <returns></returns>
-        public static Stream ToStream(string uri)
-        {
-            Stream fs = File.OpenRead(uri);
-            return fs;
-        }
-
         public static List<DiscordMember> AdminList(DiscordServer server)
         {
             List<DiscordMember> admins = new List<DiscordMember>();
