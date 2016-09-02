@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharp", "DiscordShar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordSharp.Commands", "DiscordSharp.Commands\DiscordSharp.Commands.csproj", "{2E99D97F-3480-43E2-AC9D-7DAE521CB610}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCord.ToolBox", "SharpCord.Utility\SharpCord.ToolBox.csproj", "{C33BF68D-0756-43BA-BA45-EBAFC4E73050}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCord.Toolbox", "SharpCord.Utility\SharpCord.Toolbox.csproj", "{C33BF68D-0756-43BA-BA45-EBAFC4E73050}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
