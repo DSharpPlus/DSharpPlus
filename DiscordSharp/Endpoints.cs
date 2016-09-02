@@ -22,6 +22,7 @@ namespace DiscordSharp
         public static string Login = "/login";
         public static string Channels = "/channels";
         public static string Messages = "/messages";
+        public static string Pins = "/pins";
         public static string Users = "/users";
         public static string Guilds = "/guilds";
         public static string Invites = "/invites";
