@@ -1,6 +1,6 @@
 # SharpCord
 
-A C# API for Discord based off (DiscordSharp)[https://github.com/suicvne/DiscordSharp] :3 
+A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp) :3 
 
 #How to use
 
