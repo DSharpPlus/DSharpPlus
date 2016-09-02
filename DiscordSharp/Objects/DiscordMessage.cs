@@ -35,6 +35,8 @@ namespace DiscordSharp.Objects
         public string ID { get; internal set; }
         [JsonProperty("tts")]
         public bool TTS { get; set; }
+        [JsonProperty("pinned")]
+        public bool pinned { get; }
 
         [JsonProperty("attachments")]
         public DiscordAttachment[] Attachments { get; internal set; }
@@ -60,6 +62,18 @@ namespace DiscordSharp.Objects
 
         public JObject RawJson { get; internal set; }
 
+
+        public void Pin()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID    }" + Endpoints.Pins + $"/{ID    }";
+            WebWrapper.Put(url, DiscordClient.token);
+        }
+
+        public void Unpin()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID    }" + Endpoints.Pins + $"/{ID    }";
+            var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
+        }
 
         internal DiscordMessage() { }
     }
