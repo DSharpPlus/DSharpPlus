@@ -634,6 +634,35 @@ namespace DiscordSharp
         }
 
         /// <summary>
+        /// Changes the current client's avatar from a file.
+        /// Any high resolution pictures are automatically downscaled and Discord will perform jpeg compression on them.
+        /// </summary>
+        /// <param name="path">The path to your image file.</param>
+        public void ChangeClientAvatarFromFile(string path)
+        {
+            Bitmap image = new Bitmap(path);
+            string base64 = Convert.ToBase64String(Utils.ImageToByteArray(image));
+            string type = "image/jpeg;base64";
+            string req = $"data:{type},{base64}";
+            string usernameRequestJson = JsonConvert.SerializeObject(new
+            {
+                avatar = req,
+                email = ClientPrivateInformation.Email,
+                password = ClientPrivateInformation.Password,
+                username = ClientPrivateInformation.Username
+            });
+            string url = Endpoints.BaseAPI + Endpoints.Users + "/@me";
+            try
+            {
+                WebWrapper.Patch(url, token, usernameRequestJson);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log($"Error ocurred while changing client's avatar: {ex.Message}", MessageLevel.Error);
+            }
+        }
+
+        /// <summary>
         /// Changes the icon assosciated with the guild. Discord will perform jpeg compression and this image is automatically downscaled.
         /// </summary>
         /// <param name="image">The bitmap object associated </param>
