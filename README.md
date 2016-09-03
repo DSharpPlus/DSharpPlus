@@ -1,4 +1,4 @@
-![Logo of SharpCord](https://github.com/NaamloosDT/SharpCord/blob/master/logo.png)
+![Logo of SharpCord](https://github.com/NaamloosDT/SharpCord/blob/master/logo_smaller.png)
 
 # SharpCord
 
