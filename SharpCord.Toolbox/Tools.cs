@@ -13,22 +13,11 @@ namespace SharpCord.Toolbox
         /// <summary>
         /// Takes a DiscordServer and provides a list of DiscordMembers with admin permissions.
         /// </summary>
-        /// <param name="server"></param>
+        /// <param name="server">The discord server to sample from</param>
         /// <returns></returns>
         public static List<DiscordMember> AdminList(DiscordServer server)
         {
-            List<DiscordMember> admins = new List<DiscordMember>();
-            foreach (var member in server.membersAsList)
-            {
-                if (member.HasPermission(DiscordSpecialPermissions.Administrator))
-                {
-                    admins.Add(member);
-                }
-            }
-            if (admins != null)
-                return admins;
-
-            return null;
+            return server.membersAsList.Where(t => t.HasPermission(DiscordSpecialPermissions.Administrator)).ToList();
         }
     }
 }
