@@ -160,6 +160,13 @@ namespace SharpCord.Objects
             return pinnedlist;
         }
 
+        public DiscordMessage GetMessage(string MessageID)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages + $"/{MessageID}";
+            var result = JObject.Parse(WebWrapper.Get(url, DiscordClient.token));
+            return JsonConvert.DeserializeObject<DiscordMessage>(result.ToString());
+        }
+
         public DiscordChannel ShallowCopy()
         {
             DiscordChannel channel = (DiscordChannel)this.MemberwiseClone();

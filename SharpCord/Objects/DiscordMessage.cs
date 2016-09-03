@@ -75,6 +75,37 @@ namespace SharpCord.Objects
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
         }
 
+        public void Edit(string message)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages + $"/{ID}";
+            try
+            {
+                string replacement = JsonConvert.SerializeObject(
+                    new
+                    {
+                        content = message,
+                        mentions = new string[0]
+                    }
+                );
+                JObject result = JObject.Parse(WebWrapper.Patch(url, DiscordClient.token, replacement));
+
+                DiscordMessage m = new DiscordMessage
+                {
+                    RawJson = result,
+                    Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
+                    Author = Author,
+                    TypeOfChannelObject = TypeOfChannelObject,
+                    channel = channel,
+                    Content = result["content"].ToString(),
+                    ID = result["id"].ToString(),
+                    timestamp = result["timestamp"].ToObject<DateTime>()
+                };
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
         internal DiscordMessage() { }
     }
 }
