@@ -1,3 +1,5 @@
+![Logo of SharpCord](https://github.com/NaamloosDT/SharpCord/blob/master/logo.png)
+
 # SharpCord
 
 A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp) :3 
