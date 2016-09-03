@@ -24,3 +24,6 @@ Change your `using DiscordSharp` to `using SharpCord`
 
 ##Example Bot (might be a bit outdated)
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
+
+##Questions?
+Come talk to us [here](http://www.discord.gg/h7mJ5x)!
