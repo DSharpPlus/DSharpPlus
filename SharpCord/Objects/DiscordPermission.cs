@@ -15,11 +15,10 @@ namespace SharpCord.Objects
         CreateInstanceInvite = 0,
         KickMembers = 1,
         BanMembers = 2,
-        //Administrator
         Administrator = 3,
-
         ManageChannel = 4,
         ManageServer = 5,
+
         //Chat
         ReadMessages = 10,
         SendMessages = 11,
@@ -29,6 +28,7 @@ namespace SharpCord.Objects
         AttachFiles = 15,
         ReadMessageHistory = 16,
         MentionEveryone = 17,
+
         //Voice
         VoiceConnect = 20,
         VoiceSpeak = 21,
