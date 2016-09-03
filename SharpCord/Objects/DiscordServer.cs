@@ -179,6 +179,17 @@ namespace SharpCord.Objects
             string message = JsonConvert.SerializeObject(new { roles = rolesAsIds.ToArray() });
             Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
         }
+        public void AssignRolesToMember(DiscordMember member, params DiscordRole[] roles)
+        {
+            if (Unavailable)
+                throw new Exception("Server is currently unavailable!");
+
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{this.ID}" + Endpoints.Members + $"/{member.ID}";
+            List<string> rolesAsIds = new List<string>();
+            roles.ToList().ForEach(x => rolesAsIds.Add(x.ID));
+            string message = JsonConvert.SerializeObject(new { roles = rolesAsIds.ToArray() });
+            Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
+        }
 
         public DiscordRole CreateRole()
         {
