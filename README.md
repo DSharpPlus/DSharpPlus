@@ -18,7 +18,9 @@ Thread t = new Thread(client.Connect);
 t.Start();
 ```
 
-This will get you logged in and print out a login notification to the console with the username you've logged in as.
+#Update from Discordsharp
+
+Change your `using Discordsharp` to `using Shar
 
 ##Example Bot (might be a bit outdated)
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
