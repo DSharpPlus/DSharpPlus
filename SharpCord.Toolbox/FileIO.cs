@@ -12,6 +12,7 @@ namespace SharpCord.Utility
         public static Bitmap DownloadImage(string url)
         {
 
+            return null;
         }
     }
 }
