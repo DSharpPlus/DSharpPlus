@@ -20,7 +20,7 @@ t.Start();
 
 #Update from Discordsharp
 
-Change your `using Discordsharp` to `using Shar
+Change your `using Discordsharp` to `using Sharpcord`
 
 ##Example Bot (might be a bit outdated)
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
