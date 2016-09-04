@@ -173,7 +173,7 @@ namespace SharpCord
         private List<DiscordServer> ServersList { get; set; }
         private string CurrentGameName = "";
         private int? IdleSinceUnixTime = null;
-        static string UserAgentString = $" (http://github.com/Luigifan/SharpCord, {typeof(DiscordClient).Assembly.GetName().Version.ToString()})";
+        static string UserAgentString = $" (http://github.com/NaamloosDT/SharpCord)";
         private DiscordVoiceClient VoiceClient;
         private Logger DebugLogger = new Logger();
         private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
@@ -208,42 +208,138 @@ namespace SharpCord
         private List<DiscordPrivateChannel> PrivateChannels = new List<DiscordPrivateChannel>();
 
         #region Event declaration
+        /// <summary>
+        /// Occurs when a message has been received
+        /// </summary>
         public event EventHandler<DiscordMessageEventArgs> MessageReceived;
+        /// <summary>
+        /// Occurs when a the local user has connected
+        /// </summary>
         public event EventHandler<DiscordConnectEventArgs> Connected;
+        /// <summary>
+        /// Occurs when the socket opened
+        /// </summary>
         public event EventHandler<EventArgs> SocketOpened;
+        /// <summary>
+        /// Occurs when the socket closed
+        /// </summary>
         public event EventHandler<DiscordSocketClosedEventArgs> SocketClosed;
+        /// <summary>
+        /// Occurs when a channel gets created
+        /// </summary>
         public event EventHandler<DiscordChannelCreateEventArgs> ChannelCreated;
+        /// <summary>
+        /// Occurs when a private channel gets created
+        /// </summary>
         public event EventHandler<DiscordPrivateChannelEventArgs> PrivateChannelCreated;
+        /// <summary>
+        /// Occurs when a private message has been received
+        /// </summary>
         public event EventHandler<DiscordPrivateMessageEventArgs> PrivateMessageReceived;
+        /// <summary>
+        /// Occurs when a KeepAlive has been sent
+        /// </summary>
         public event EventHandler<DiscordKeepAliveSentEventArgs> KeepAliveSent;
+        /// <summary>
+        /// Occurs when a mention gets received
+        /// </summary>
         public event EventHandler<DiscordMessageEventArgs> MentionReceived;
+        /// <summary>
+        /// Occurs when a user starts typing
+        /// </summary>
         public event EventHandler<DiscordTypingStartEventArgs> UserTypingStart;
+        /// <summary>
+        /// Occurs when a message gets edited
+        /// </summary>
         public event EventHandler<DiscordMessageEditedEventArgs> MessageEdited;
+        /// <summary>
+        /// Occurs when a user changes its presence (online, offline, idle)
+        /// </summary>
         public event EventHandler<DiscordPresenceUpdateEventArgs> PresenceUpdated;
         public event EventHandler<DiscordURLUpdateEventArgs> URLMessageAutoUpdate;
+        /// <summary>
+        /// Occurs when someone joins/leaves/moves voice channels
+        /// </summary>
         public event EventHandler<DiscordVoiceStateUpdateEventArgs> VoiceStateUpdate;
+        /// <summary>
+        /// Occurs when an unknown message type has been received
+        /// </summary>
         public event EventHandler<UnknownMessageEventArgs> UnknownMessageTypeReceived;
+        /// <summary>
+        /// Occurs when a message gets deleted
+        /// </summary>
         public event EventHandler<DiscordMessageDeletedEventArgs> MessageDeleted;
+        /// <summary>
+        /// Occurs when a user gets updated
+        /// </summary>
         public event EventHandler<DiscordUserUpdateEventArgs> UserUpdate;
+        /// <summary>
+        /// Occurs when a user joins the server
+        /// </summary>
         public event EventHandler<DiscordGuildMemberAddEventArgs> UserAddedToServer;
+        /// <summary>
+        /// Occurs when a user gets removed from the server (leaving/kicked etc)
+        /// </summary>
         public event EventHandler<DiscordGuildMemberRemovedEventArgs> UserRemovedFromServer;
+        /// <summary>
+        /// Occurs when a server gets created
+        /// </summary>
         public event EventHandler<DiscordGuildCreateEventArgs> GuildCreated;
         /// <summary>
-        /// Occurs when a guild becomes available after being unavailable.
+        /// Occurs when a server becomes available after being unavailable.
         /// </summary>
         public event EventHandler<DiscordGuildCreateEventArgs> GuildAvailable;
+        /// <summary>
+        /// Occurs when a server gets deleted
+        /// </summary>
         public event EventHandler<DiscordGuildDeleteEventArgs> GuildDeleted;
+        /// <summary>
+        /// Occurs when a channel gets updated
+        /// </summary>
         public event EventHandler<DiscordChannelUpdateEventArgs> ChannelUpdated;
+        /// <summary>
+        /// Occurs when a text client debug message has been received
+        /// </summary>
         public event EventHandler<LoggerMessageReceivedArgs> TextClientDebugMessageReceived;
+        /// <summary>
+        /// Occurs when a voice client debug message has been received
+        /// </summary>
         public event EventHandler<LoggerMessageReceivedArgs> VoiceClientDebugMessageReceived;
+        /// <summary>
+        /// Occurs when a channel gets deleted
+        /// </summary>
         public event EventHandler<DiscordChannelDeleteEventArgs> ChannelDeleted;
+        /// <summary>
+        /// Occurs when a server gets updated
+        /// </summary>
         public event EventHandler<DiscordServerUpdateEventArgs> GuildUpdated;
+        /// <summary>
+        /// Occurs when a role gets deleted
+        /// </summary>
         public event EventHandler<DiscordGuildRoleDeleteEventArgs> RoleDeleted;
+        /// <summary>
+        /// Occurs when a role has been updated
+        /// </summary>
         public event EventHandler<DiscordGuildRoleUpdateEventArgs> RoleUpdated;
+        /// <summary>
+        /// Occurs when a server member has been updated
+        /// </summary>
         public event EventHandler<DiscordGuildMemberUpdateEventArgs> GuildMemberUpdated;
+        /// <summary>
+        /// Occurs when a server member gets banned
+        /// </summary>
         public event EventHandler<DiscordGuildBanEventArgs> GuildMemberBanned;
+        /// <summary>
+        /// Occurs when a private channel gets deleted
+        /// </summary>
         public event EventHandler<DiscordPrivateChannelDeleteEventArgs> PrivateChannelDeleted;
+        /// <summary>
+        /// Occurs when someone gets unbanned
+        /// </summary>
         public event EventHandler<DiscordBanRemovedEventArgs> BanRemoved;
+        /// <summary>
+        /// Occurs when a private message gets deleted
+        /// </summary>
         public event EventHandler<DiscordPrivateMessageDeletedEventArgs> PrivateMessageDeleted;
 
         #region Voice
@@ -325,7 +421,6 @@ namespace SharpCord
         /// <returns>True if connected to voice.</returns>
         public bool ConnectedToVoice() => VoiceClient != null ? VoiceClient.Connected : false;
 
-        //eh
         private void GetChannelsList(JObject m)
         {
             if (ServersList == null)
@@ -764,6 +859,7 @@ namespace SharpCord
             }
         }
 
+        //TODO: Fix GetRoles
         /*
         public List<DiscordRole> GetRoles(DiscordServer server)
         {
@@ -1293,7 +1389,7 @@ namespace SharpCord
         }
 
         /// <summary>
-        /// 
+        /// Gets last message sent
         /// </summary>
         /// <returns>The last DiscordMessage sent</returns>
         public DiscordMessage GetLastMessageSent()
@@ -1309,7 +1405,7 @@ namespace SharpCord
         }
 
         /// <summary>
-        /// 
+        /// Gets last message sent in a channel
         /// </summary>
         /// <param name="inChannel"></param>
         /// <returns>The last DiscordMessage sent in the given channel</returns>
@@ -1663,9 +1759,9 @@ namespace SharpCord
         }
 
         /// <summary>
-        /// 
+        /// Get the server a channel is in
         /// </summary>
-        /// <param name="channel"></param>
+        /// <param name="channel">Channel you want to check</param>
         /// <returns></returns>
         public DiscordServer GetServerChannelIsIn(DiscordChannel channel)
         {
@@ -3258,6 +3354,17 @@ namespace SharpCord
                 ws.Send(keepAliveJson);
                 KeepAliveSent?.Invoke(this, new DiscordKeepAliveSentEventArgs { SentAt = DateTime.Now, JsonSent = keepAliveJson });
             }
+        }
+
+        /// <summary>
+        /// Get data for an invite
+        /// </summary>
+        /// <param name="code">The code of the invite.</param>
+        public DiscordInvite GetInviteData(string code)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Invites + $"/{code    }";
+            var result = JObject.Parse(WebWrapper.Get(url, token));
+            return JsonConvert.DeserializeObject<DiscordInvite>(result.ToString());
         }
 
         /// <summary>

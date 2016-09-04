@@ -30,11 +30,17 @@ namespace SharpCord
             raw = asActualHex;
         }
 
+        /// <summary>
+        /// Converts color to decimal
+        /// </summary>
         public int ToDecimal()
         {
             return (int)raw;
         }
 
+        /// <summary>
+        /// Converts color to string
+        /// </summary>
         public override string ToString()
         {
             return string.Format("{0:X}", raw);

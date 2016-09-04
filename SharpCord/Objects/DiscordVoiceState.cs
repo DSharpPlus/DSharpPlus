@@ -2,39 +2,57 @@
 
 namespace SharpCord.Objects {
     public class DiscordVoiceState {
-        // guild_id		snowflake?	the guild id this voice state is for
+        /// <summary>
+        /// Server ID
+        /// </summary>
         [JsonProperty("guild_id")]
         public string GuildID { get; internal set; }
 
-        // channel_id	snowflake	the channel id this user is connected to
+        /// <summary>
+        /// Channel ID
+        /// </summary>
         [JsonProperty("channel_id")]
         public string ChannelID { get; internal set; }
 
-        // user_id		snowflake	the user id this voice state is for
+        /// <summary>
+        /// User ID
+        /// </summary>
         [JsonProperty("user_id")]
         public string UserID { get; internal set; }
 
-        // session_id	string		the session id for this voice state
+        /// <summary>
+        /// Session ID
+        /// </summary>
         [JsonProperty("session_id")]
         public string SessionID { get; internal set; }
 
-        // deaf			bool		whether this user is deafened by the server
+        /// <summary>
+        /// Wether this user has been deafened
+        /// </summary>
         [JsonProperty("deaf")]
         public bool Deaf { get; internal set; }
 
-        // mute			bool		whether this user is muted by the server
+        /// <summary>
+        /// Wether this user has been muted
+        /// </summary>
         [JsonProperty("mute")]
         public bool Mute { get; internal set; }
 
-        // self_deaf	bool		whether this user is locally deafened
+        /// <summary>
+        /// Wether this user has deafened itself
+        /// </summary>
         [JsonProperty("self_deaf")]
         public bool SelfDeaf { get; internal set; }
 
-        // self_mute	bool		whether this user is locally muted
+        /// <summary>
+        /// Wether this user has muted itself
+        /// </summary>
         [JsonProperty("self_mute")]
         public bool SelfMute { get; internal set; }
 
-        // suppress		bool		whether this user is muted by the current user
+        /// <summary>
+        /// Wether this user has been muted by you
+        /// </summary>
         [JsonProperty("suppress")]
         public bool Suppress { get; internal set; }
     }

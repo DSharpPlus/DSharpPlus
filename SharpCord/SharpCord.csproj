@@ -107,6 +107,7 @@
     <Compile Include="EpochTime.cs" />
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
+    <Compile Include="Objects\DiscordInvite.cs" />
     <Compile Include="Objects\DiscordVoiceState.cs" />
     <Compile Include="Objects\DiscordServer.cs" />
     <Compile Include="Objects\RateLimitException.cs" />

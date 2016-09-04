@@ -62,19 +62,28 @@ namespace SharpCord.Objects
 
         public JObject RawJson { get; internal set; }
 
-
+        /// <summary>
+        /// Pins this message to its channel
+        /// </summary>
         public void Pin()
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID    }" + Endpoints.Pins + $"/{ID    }";
             WebWrapper.Put(url, DiscordClient.token);
         }
 
+        /// <summary>
+        /// Unpins this message from its channel
+        /// </summary>
         public void Unpin()
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID    }" + Endpoints.Pins + $"/{ID    }";
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
         }
 
+        /// <summary>
+        /// Edits this message. only works for own messages.
+        /// </summary>
+        /// <param name="message">New content</param>
         public void Edit(string message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages + $"/{ID}";

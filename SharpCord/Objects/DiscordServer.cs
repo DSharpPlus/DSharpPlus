@@ -10,14 +10,27 @@ namespace SharpCord.Objects
 {
     public class DiscordServer
     {
+        /// <summary>
+        /// Bot's join date
+        /// </summary>
         [JsonProperty("joined_at")]
         public DateTime JoinedAt { get; internal set; }
 
+        /// <summary>
+        /// Server ID
+        /// </summary>
         [JsonProperty("id")]
         public ID ID { get; internal set; }
+
+        /// <summary>
+        /// Server Name
+        /// </summary>
         [JsonProperty("name")]
         public string Name { get; internal set; }
 
+        /// <summary>
+        /// Server Region
+        /// </summary>
         [JsonProperty("region")]
         public string Region { get; internal set; }
 
@@ -27,6 +40,9 @@ namespace SharpCord.Objects
         [JsonProperty("unavailable")]
         public bool Unavailable { get; internal set; } = false;
 
+        /// <summary>
+        /// Server Icon
+        /// </summary>
         [JsonProperty("icon")]
         internal string icon { get; set; }
         public string IconURL
@@ -41,6 +57,10 @@ namespace SharpCord.Objects
 
 #pragma warning disable 0612
         private DiscordMember _owner;
+
+        /// <summary>
+        /// Server owner
+        /// </summary>
         [JsonProperty("owner")]
         public DiscordMember Owner
         {
@@ -52,9 +72,15 @@ namespace SharpCord.Objects
         }
 #pragma warning restore 0612
 
+        /// <summary>
+        /// Server Channels
+        /// </summary>
         [JsonProperty("channels")]
         public List<DiscordChannel> Channels { get; internal set; }
 
+        /// <summary>
+        /// Server Members in a list
+        /// </summary>
         [JsonProperty("members")]
         public List<DiscordMember> membersAsList
         {
@@ -64,10 +90,16 @@ namespace SharpCord.Objects
             }
         }
 
+        /// <summary>
+        /// Server Members
+        /// </summary>
         public Dictionary<ID, DiscordMember> Members { get; internal set; }
 
         //public List<DiscordMember> Members { get; internal set; }
 
+        /// <summary>
+        /// Server's roles
+        /// </summary>
         [JsonProperty("roles")]
         public List<DiscordRole> Roles { get; internal set; }
 
@@ -109,6 +141,8 @@ namespace SharpCord.Objects
             }
             return false;
         }
+
+
         public DiscordMember GetMemberByKey(ID key)
         {
             if (Unavailable)
@@ -123,6 +157,12 @@ namespace SharpCord.Objects
                 return null; //because instead of just returning null by default, it has to do this shit.
             }
         }
+
+        /// <summary>
+        /// Get a user by its username
+        /// </summary>
+        /// <param name="username">Users's username.</param>
+        /// <param name="caseSensitive">Is the username case sensitive?</param>
         public DiscordMember GetMemberByUsername(string username, bool caseSensitive = false)
         {
             if (Unavailable)
@@ -134,6 +174,10 @@ namespace SharpCord.Objects
                 return Members.First(x => x.Value.Username == username).Value;
         }
 
+        /// <summary>
+        /// Changes a servers icon
+        /// </summary>
+        /// <param name="image">New icon.</param>
         public void ChangeIcon(Bitmap image)
         {
             if (Unavailable)
@@ -149,6 +193,10 @@ namespace SharpCord.Objects
             var result = JObject.Parse(WebWrapper.Patch(url, DiscordClient.token, guildjson));
         }
 
+        /// <summary>
+        /// Changes this servers name
+        /// </summary>
+        /// <param name="NewGuildName">New name for this server.</param>
         public void ChangeName(string NewGuildName)
         {
             if (Unavailable)
@@ -159,6 +207,11 @@ namespace SharpCord.Objects
             var result = JObject.Parse(WebWrapper.Patch(editGuildUrl, DiscordClient.token, newNameJson));
         }
 
+        /// <summary>
+        /// Assigns a role to a member of this current server
+        /// </summary>
+        /// <param name="role">The role you wish to grant.</param>
+        /// <param name="member">The member you wish to grant a role</param>
         public void AssignRoleToMember(DiscordRole role, DiscordMember member)
         {
             if (Unavailable)
@@ -168,6 +221,12 @@ namespace SharpCord.Objects
             string message = JsonConvert.SerializeObject(new { roles = new string[] { role.ID } });
             Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
         }
+
+        /// <summary>
+        /// Assigns multiple roles to a member of this current server
+        /// </summary>
+        /// <param name="roles">The roles you wish to grant.</param>
+        /// <param name="member">The member you wish to grant a role</param>
         public void AssignRoleToMember(List<DiscordRole> roles, DiscordMember member)
         {
             if (Unavailable)
@@ -179,6 +238,11 @@ namespace SharpCord.Objects
             string message = JsonConvert.SerializeObject(new { roles = rolesAsIds.ToArray() });
             Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
         }
+        /// <summary>
+        /// Assigns multiple roles to a member of this current server
+        /// </summary>
+        /// <param name="roles">The roles you wish to grant.</param>
+        /// <param name="member">The member you wish to grant a role</param>
         public void AssignRolesToMember(DiscordMember member, params DiscordRole[] roles)
         {
             if (Unavailable)
@@ -191,6 +255,9 @@ namespace SharpCord.Objects
             Console.WriteLine(WebWrapper.Patch(url, DiscordClient.token, message));
         }
 
+        /// <summary>
+        /// Creates an empty role
+        /// </summary>
         public DiscordRole CreateRole()
         {
             if (Unavailable)
@@ -218,6 +285,10 @@ namespace SharpCord.Objects
             return null;
         }
 
+        /// <summary>
+        /// Edits a role.
+        /// </summary>
+        /// <param name="role">Role you wish to edit.</param>
         public DiscordRole EditRole(DiscordRole role)
         {
             if (Unavailable)
@@ -256,6 +327,10 @@ namespace SharpCord.Objects
             return null;
         }
 
+        /// <summary>
+        /// Deletes a role.
+        /// </summary>
+        /// <param name="role">Role you wish to delete.</param>
         public void DeleteRole(DiscordRole role)
         {
             if (Unavailable)
@@ -265,6 +340,10 @@ namespace SharpCord.Objects
             WebWrapper.Delete(url, DiscordClient.token);
         }
 
+        /// <summary>
+        /// Deletes a channel.
+        /// </summary>
+        /// <param name="channel">Channel you wish to edit.</param>
         public void DeleteChannel(DiscordChannel channel)
         {
             if (Unavailable)
@@ -274,6 +353,11 @@ namespace SharpCord.Objects
             WebWrapper.Delete(url, DiscordClient.token);
         }
 
+        /// <summary>
+        /// Creates a channel.
+        /// </summary>
+        /// <param name="ChannelName">New channel's name.</param>
+        /// <param name="voice">Wether this channel is a voice channel</param>
         public DiscordChannel CreateChannel(string ChannelName, bool voice)
         {
             if (Unavailable)
@@ -343,6 +427,10 @@ namespace SharpCord.Objects
             return returnVal;
         }
 
+        /// <summary>
+        /// Removes a ban.
+        /// </summary>
+        /// <param name="userID">User ID you wish to unban</param>
         public void RemoveBan(string userID)
         {
             if (Unavailable)
@@ -358,6 +446,10 @@ namespace SharpCord.Objects
                 parentclient.GetTextClientLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
             }
         }
+        /// <summary>
+        /// Removes a ban.
+        /// </summary>
+        /// <param name="member">member you wish to unban</param>
         public void RemoveBan(DiscordMember member)
         {
             if (Unavailable)
@@ -372,6 +464,21 @@ namespace SharpCord.Objects
             {
                 parentclient.GetTextClientLogger.Log($"Error during RemoveBan\n\tMessage: {ex.Message}\n\tStack: {ex.StackTrace}", MessageLevel.Error);
             }
+        }
+
+        /// <summary>
+        /// Gets a list of invites.
+        /// </summary>
+        public List<DiscordInvite> GetInvites()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ID    }" + Endpoints.Invites;
+            var result = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+            List<DiscordInvite> invitelist = new List<DiscordInvite>();
+            foreach (var child in result)
+            {
+                invitelist.Add(JsonConvert.DeserializeObject<DiscordInvite>(child.ToString()));
+            }
+            return invitelist;
         }
 
         public DiscordServer ShallowCopy()

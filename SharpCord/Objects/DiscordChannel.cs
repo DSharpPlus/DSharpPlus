@@ -86,6 +86,10 @@ namespace SharpCord.Objects
 
         public DiscordServer Parent { get; internal set; }
 
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="message">Your message's text.</param>
         public DiscordMessage SendMessage(string message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
@@ -108,6 +112,10 @@ namespace SharpCord.Objects
             return m;
         }
 
+        /// <summary>
+        /// Sends a Text-To-Speech message
+        /// </summary>
+        /// <param name="message">Your message's text.</param>
         public DiscordMessage SendMessageTTS(string message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
@@ -130,24 +138,39 @@ namespace SharpCord.Objects
             return m;
         }
 
+        /// <summary>
+        /// Deletes a message
+        /// </summary>
+        /// <param name="message">The message you wish to delete.</param>
         public void DeleteMessage(DiscordMessage message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Messages + $"/{message.ID}";
             WebWrapper.Delete(url, DiscordClient.token);
         }
 
-        public void PinMessage(string messageID)
+        /// <summary>
+        /// Pins a message to its channel
+        /// </summary>
+        /// <param name="message">The message you wish to pin.</param>
+        public void PinMessage(DiscordMessage message)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins + "/" + messageID;
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins + "/" + message.ID;
             WebWrapper.Put(url, DiscordClient.token);
         }
 
-        public void UnpinMessage(string messageID)
+        /// <summary>
+        /// Unpins a message from its channel
+        /// </summary>
+        /// <param name="message">The message you wish to unpin</param>
+        public void UnpinMessage(DiscordMessage message)
         {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins + "/" + messageID;
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins + "/" + message.ID;
             var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
         }
 
+        /// <summary>
+        /// Gets a list of Pinned messages
+        /// </summary>
         public List<DiscordMessage> GetPinnedMessages()
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins;
@@ -160,6 +183,10 @@ namespace SharpCord.Objects
             return pinnedlist;
         }
 
+        /// <summary>
+        /// Gets a message by ID
+        /// </summary>
+        /// <param name="MessageID">The ID of the message you wish to get.</param>
         public DiscordMessage GetMessage(string MessageID)
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages + $"/{MessageID}";
@@ -167,6 +194,9 @@ namespace SharpCord.Objects
             return JsonConvert.DeserializeObject<DiscordMessage>(result.ToString());
         }
 
+        /// <summary>
+        /// Returns a list of recent messages
+        /// </summary>
         public List<DiscordMessage> GetMessages()
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Messages;
@@ -179,6 +209,9 @@ namespace SharpCord.Objects
             return messagelist;
         }
 
+        /// <summary>
+        /// Deletes this channel
+        /// </summary>
         public void Delete()
         {
             string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}";

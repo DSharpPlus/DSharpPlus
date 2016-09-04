@@ -17,37 +17,88 @@ namespace SharpCord.Objects
     }
     public class DiscordMember
     {
+        /// <summary>
+        /// User's username
+        /// </summary>
         [JsonProperty("username")]
         public string Username { get; internal set; }
+        /// <summary>
+        /// User's ID
+        /// </summary>
         [JsonProperty("id")]
         public string ID { get; internal set; }
+        /// <summary>
+        /// User's Discriminator (e.g. John#1234, 1234 is discriminator)
+        /// </summary>
         [JsonProperty("discriminator")]
         public string Discriminator { get; internal set; }
+        /// <summary>
+        /// User's Avatar
+        /// </summary>
         [JsonProperty("avatar")]
         public string Avatar { get; internal set; }
+        /// <summary>
+        /// Wether this user has verified its email or not
+        /// </summary>
         [JsonProperty("verified")]
         public bool Verified { get; internal set; }
+        /// <summary>
+        /// Wether this user is a bot or not
+        /// </summary>
         [JsonProperty("bot")]
         public bool IsBot { get; internal set; } = false;
+        /// <summary>
+        /// User's join date
+        /// </summary>
         [JsonProperty("joined_at")]
         public DateTime JoinedAt { get; internal set; }
+        /// <summary>
+        /// User's Nickname
+        /// </summary>
         [JsonProperty("nick")]
         public string Nickname { get; internal set; } = "";
 
+        /// <summary>
+        /// Is user online?
+        /// </summary>
         public Status Status { get; internal set; } = Status.Offline;
+        /// <summary>
+        /// What game this user is playing
+        /// </summary>
         public string CurrentGame { get; internal set; } = null;
+        /// <summary>
+        /// Is this user streaming?
+        /// </summary>
         public bool Streaming { get; internal set; } = false;
+        /// <summary>
+        /// This user's stream URL
+        /// </summary>
         public string StreamURL { get; internal set; } = null;
+        /// <summary>
+        /// Is this user a bot developer? (manually set ID's in DiscordClient.developers)
+        /// </summary>
         public bool IsDeveloper { get { return DiscordClient.developers.Contains(this.ID); } }
 
         /**
         Voice only
         */
+        /// <summary>
+        /// Is this user muted?
+        /// </summary>
         [JsonProperty("mute")]
         public bool Muted { get; internal set; } = false;
+        /// <summary>
+        /// Is this user deafened?
+        /// </summary>
         [JsonProperty("deaf")]
         public bool Deaf { get; internal set; } = false;
+        /// <summary>
+        /// User's current voice channel
+        /// </summary>
         public DiscordChannel CurrentVoiceChannel { get; internal set; }
+        /// <summary>
+        /// User's voice state
+        /// </summary>
         public DiscordVoiceState VoiceState { get; internal set; }
 
         internal void SetPresence(string status)
@@ -67,7 +118,9 @@ namespace SharpCord.Objects
         /// </summary>
         public string Email { get; internal set; }
 
-
+        /// <summary>
+        /// List of user's roles
+        /// </summary>
         public List<DiscordRole> Roles { get; set; }
 
         /// <summary>
@@ -213,8 +266,16 @@ namespace SharpCord.Objects
             }
         }
 
+        /// <summary>
+        /// basically SendMessage. prbably intended as a joke by original dev.
+        /// </summary>
+        /// <param name="message">Message to send</param>
         public void SlideIntoDMs(string message) => SendMessage(message);
 
+        /// <summary>
+        /// Sends a message to this user
+        /// </summary>
+        /// <param name="message">Message to send</param>
         public void SendMessage(string message)
         {
             string url = Endpoints.BaseAPI + Endpoints.Users + $"/{parentclient.Me.ID}" + Endpoints.Channels;
