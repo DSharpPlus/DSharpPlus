@@ -7,8 +7,8 @@
     <ProjectGuid>{2E99D97F-3480-43E2-AC9D-7DAE521CB610}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DiscordSharp.Commands</RootNamespace>
-    <AssemblyName>DiscordSharp.Commands</AssemblyName>
+    <RootNamespace>SharpCord.Commands</RootNamespace>
+    <AssemblyName>SharpCord.Commands</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
