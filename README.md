@@ -42,8 +42,11 @@ class Program {
 ```
 In a nutshell, the code 
 
-## Old Example Bot (might be a bit outdated)
+# Documentation
+* https://naamloosdt.github.io/SharpCord/
+
+# Old Example Bot (might be a bit outdated)
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
 
-## Questions?
+# Questions?
 Come talk to us [here](http://www.discord.gg/h7mJ5x)! <3
