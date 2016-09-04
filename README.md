@@ -7,9 +7,7 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 #How to use
 
 ```
-DiscordClient client = new DiscordClient();
-client.ClientPrivateInformation.Email = "email";
-client.ClientPrivateInformation.Password = "pass";
+DiscordClient client = new DiscordClient("MjIxMzM3NTM2MTgwNTE4OTEy.CqtYJw.3F-e1o0Tjrqvv7Mawz_shOd89Kc", true);
 
 client.Connected += (sender, e) =>
 {
