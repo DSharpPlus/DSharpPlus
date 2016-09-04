@@ -167,6 +167,24 @@ namespace SharpCord.Objects
             return JsonConvert.DeserializeObject<DiscordMessage>(result.ToString());
         }
 
+        public List<DiscordMessage> GetMessages()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Messages;
+            var result = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+            List<DiscordMessage> messagelist = new List<DiscordMessage>();
+            foreach (var child in result)
+            {
+                messagelist.Add(JsonConvert.DeserializeObject<DiscordMessage>(child.ToString()));
+            }
+            return messagelist;
+        }
+
+        public void Delete()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}";
+            WebWrapper.Delete(url, DiscordClient.token);
+        }
+
         public DiscordChannel ShallowCopy()
         {
             DiscordChannel channel = (DiscordChannel)this.MemberwiseClone();
