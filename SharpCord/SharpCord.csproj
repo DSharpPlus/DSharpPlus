@@ -7,8 +7,8 @@
     <ProjectGuid>{A96FFE9E-3650-4976-872E-5BB336CC1589}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DiscordSharp</RootNamespace>
-    <AssemblyName>DiscordSharp</AssemblyName>
+    <RootNamespace>SharpCord</RootNamespace>
+    <AssemblyName>SharpCord</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <UseMSBuildEngine>False</UseMSBuildEngine>
@@ -45,7 +45,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\DiscordSharp.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\SharpCord.XML</DocumentationFile>
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(TargetFrameworkVersion' == 'v3.5' ">
