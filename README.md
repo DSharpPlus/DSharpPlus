@@ -49,4 +49,4 @@ In a nutshell, the code
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
 
 # Questions?
-Come talk to us [here](http://www.discord.gg/h7mJ5x)! <3
+Come talk to us [here](http://www.discord.gg/h7mJ5x)! :heart:
