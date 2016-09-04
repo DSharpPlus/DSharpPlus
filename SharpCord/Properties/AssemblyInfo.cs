@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SharpCord")]
 [assembly: AssemblyDescription("An unofficial Discord API wrapper written in C# for .Net platforms.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Mike Santiago")]
+[assembly: AssemblyCompany("Naamloos' Chat")]
 [assembly: AssemblyProduct("SharpCord")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
