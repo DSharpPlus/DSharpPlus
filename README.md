@@ -4,6 +4,10 @@
 
 A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp) :3 
 
+# Build Status 
+
+[![Build Status](https://travis-ci.org/afroraydude/SharpCord.svg?branch=master)](https://travis-ci.org/afroraydude/SharpCord)
+
 # Getting Started
 
 ## 1. Installation and setup
