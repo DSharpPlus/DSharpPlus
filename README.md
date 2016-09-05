@@ -44,7 +44,7 @@ class Program {
   t.Start();
 }
 ```
-In a nutshell, the code 
+In a nutshell, the code will allow your bot to connect to the server. Head to the Example Bot on how to get started with commands and othere portions of the bot.
 
 # Documentation
 * https://naamloosdt.github.io/SharpCord/
