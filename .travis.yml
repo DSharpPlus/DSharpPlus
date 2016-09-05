@@ -1,12 +1,10 @@
 #Testing
 language: csharp
 solution: SharpCord.sln
-language: csharp
-solution: solution-name.sln
 mono:
   - latest
 install:
-  - nuget restore solution-name.sln
+  - nuget restore SharpCord.sln
   - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Release solution-name.sln
