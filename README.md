@@ -33,7 +33,7 @@ using SharpCord;
 
 class Program {
   void Main() {
-    DiscordClient client = new DiscordClient();
+    DiscordClient client = new DiscordClient("token", isbot);
     client.ClientPrivateInformation.Email = "email";
     client.ClientPrivateInformation.Password = "pass";
 
