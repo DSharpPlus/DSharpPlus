@@ -32,20 +32,24 @@ Start your bot off with this code.
 using SharpCord;
 
 class Program {
-  void Main() {
-    DiscordClient client = new DiscordClient("token", isbot);
-    client.ClientPrivateInformation.Email = "email";
-    client.ClientPrivateInformation.Password = "pass";
+  static void Main(string[] args)
+        {
 
-    client.Connected += (sender, e) =>
-    {
-      Console.WriteLine($"Connected! User: {e.User.Username}");
-    };
+            Console.WriteLine("Attempting to connect!");
+            try
+            {
+                client.SendLoginRequest();
+                client.Connect();
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            client.Connected += (sender, e) =>
+            {
+                Console.WriteLine("CLIENT CONNECTED");
+            };
   }
-
-  client.SendLoginRequest();
-  Thread t = new Thread(client.Connect);
-  t.Start();
 }
 ```
 In a nutshell, the code will allow your bot to connect to the server. Head to the Example Bot on how to get started with commands and othere portions of the bot.
