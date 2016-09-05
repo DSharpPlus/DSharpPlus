@@ -6,7 +6,7 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 
 # Build Status 
 
-[![Build Status](https://travis-ci.org/afroraydude/SharpCord.svg?branch=master)](https://travis-ci.org/afroraydude/SharpCord)
+[![Build Status](https://travis-ci.org/NaamloosDT/SharpCord.svg?branch=master)](https://travis-ci.org/NaamloosDT/SharpCord)
 
 # Getting Started
 
