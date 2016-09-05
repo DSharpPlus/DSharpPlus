@@ -32,3 +32,4 @@ If you connect to the wrong endpoint, or in the extremely rare case that new gat
 
 After connecting to the new one, you send a resume opcode (6) with the properties session_id and seq, where seq is the last s value you've seen
 Then server responds with opcode 0, t RESUMED and gives you a new heartbeat interval
+--------------------------------------------------------------------------------------
