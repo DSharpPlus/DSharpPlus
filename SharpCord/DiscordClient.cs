@@ -14,6 +14,7 @@ using SharpCord.Objects;
 
 using ID = System.String;
 using SharpCord.Sockets;
+using SharpCord.Commands;
 
 namespace SharpCord
 {
@@ -181,6 +182,7 @@ namespace SharpCord
         private Task KeepAliveTask;
         private Thread VoiceThread; //yuck
         private static string StrippedEmail = "";
+        private List<DiscordCommand> Commands;
 
         /// <summary>
         /// Testing.
@@ -616,6 +618,25 @@ namespace SharpCord
             {
                 DebugLogger.Log($"Error ocurred while deleting server ({ServerID}): {ex.Message}", MessageLevel.Error);
             }
+        }
+
+
+        /// <summary>
+        /// Adds a command to this DiscordClient
+        /// </summary>
+        /// <param name="builder"></param>
+        public void AddCommand(DiscordCommandBuilder builder)
+        {
+            this.Commands.Add(builder.Command);
+        }
+
+        /// <summary>
+        /// Adds a command to this DiscordClient
+        /// </summary>
+        /// <param name="command"></param>
+        public void AddCommand(DiscordCommand command)
+        {
+            this.Commands.Add(command);
         }
 
 
