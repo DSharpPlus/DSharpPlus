@@ -43,14 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileIO.cs" />
+    <Compile Include="TaskHelper.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SharpCord\SharpCord.csproj">
-      <Project>{a96ffe9e-3650-4976-872e-5bb336cc1589}</Project>
-      <Name>SharpCord</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

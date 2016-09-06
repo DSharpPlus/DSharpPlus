@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A96FFE9E-3650-4976-872E-5BB336CC1589}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SharpCord</RootNamespace>
     <AssemblyName>SharpCord</AssemblyName>
@@ -47,6 +47,9 @@
     <Prefer32Bit>false</Prefer32Bit>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\SharpCord.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>SharpCord.Testing.TestBot</StartupObject>
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(TargetFrameworkVersion' == 'v3.5' ">
@@ -104,6 +107,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color.cs" />
+    <Compile Include="Commands\DiscordCommand.cs" />
+    <Compile Include="Commands\DiscordCommandBuilder.cs" />
+    <Compile Include="Commands\DiscordCommandEventArgs.cs" />
+    <Compile Include="Commands\DiscordCommandParameter.cs" />
     <Compile Include="Events\DiscordBanRemovedEventArgs.cs" />
     <Compile Include="EpochTime.cs" />
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
@@ -117,6 +124,7 @@
     <Compile Include="Sockets\IDiscordWebSocket.cs" />
     <Compile Include="Sockets\NetWebSocket.cs" />
     <Compile Include="Sockets\WebSocketSharpSocket.cs" />
+    <Compile Include="Testing\TestBot.cs" />
     <Compile Include="Voice\DiscordAudioPacket.cs" />
     <Compile Include="Voice\DiscordVoiceClient.cs" />
     <Compile Include="Events\DiscordGuildMemberUpdateEventArgs.cs" />
@@ -177,6 +185,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpCord.Toolbox\SharpCord.Toolbox.csproj">
+      <Project>{c33bf68d-0756-43ba-ba45-ebafc4e73050}</Project>
+      <Name>SharpCord.Toolbox</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

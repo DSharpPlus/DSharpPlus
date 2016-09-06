@@ -40,19 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandsManager.cs" />
-    <Compile Include="CommandStub.cs" />
-    <Compile Include="ICommand.cs" />
-    <Compile Include="IDGenerator.cs" />
-    <Compile Include="IModule.cs" />
-    <Compile Include="Permission.cs" />
+    <Compile Include="DiscordCommand.cs" />
+    <Compile Include="DiscordCommandBuilder.cs" />
+    <Compile Include="DiscordCommandEventArgs.cs" />
+    <Compile Include="DiscordCommandParameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SharpCord\SharpCord.csproj">
-      <Project>{A96FFE9E-3650-4976-872E-5BB336CC1589}</Project>
-      <Name>SharpCord</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

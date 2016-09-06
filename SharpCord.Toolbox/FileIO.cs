@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Net;
+using System.IO;
 
 namespace SharpCord.Utility
 {
@@ -11,7 +13,17 @@ namespace SharpCord.Utility
     {
         public static Bitmap DownloadImage(string url)
         {
-            return null;
+            return new Bitmap(WebRequest.Create(url).GetResponse().GetResponseStream());
+        }
+
+        public static string DownloadString(string url)
+        {
+            return new WebClient().DownloadString(url);
+        }
+
+        public static string LoadString(string path)
+        {
+            return File.ReadAllText(path);
         }
     }
 }
