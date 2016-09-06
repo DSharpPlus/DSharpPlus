@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A96FFE9E-3650-4976-872E-5BB336CC1589}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SharpCord</RootNamespace>
     <AssemblyName>SharpCord</AssemblyName>
@@ -49,7 +49,8 @@
     <DocumentationFile>bin\Release\SharpCord.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>SharpCord.Testing.TestBot</StartupObject>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(TargetFrameworkVersion' == 'v3.5' ">
