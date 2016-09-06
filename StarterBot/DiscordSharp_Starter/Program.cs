@@ -50,7 +50,7 @@ namespace SharpCord_Starter
 
                 //if the bots username is not the same as the name set in the Bot_Settings.ini
                 // this sets the bot name to be the updated name in the Bot_Settings.ini
-                if (client.Me.Username != BotSettings.botName)
+               /* if (client.Me.Username != BotSettings.botName)
                 {
                     DiscordUserInformation info = new DiscordUserInformation();
                     info.Username = BotSettings.botName;
@@ -58,7 +58,7 @@ namespace SharpCord_Starter
                 }
                 //checks to see if a avatar image exists and updates it.
                 if (File.Exists("avatar.jpg"))
-                    client.ChangeClientAvatarFromFile("avatar.jpg");
+                    client.ChangeClientAvatarFromFile("avatar.jpg");*/
             };
 
 
@@ -140,7 +140,7 @@ namespace SharpCord_Starter
             //  When a user joins the server, send a message to them.
             client.UserAddedToServer += (sender, e) =>
                 {
-                    e.AddedMember.SendMessage("Welcome " + e.Guild.Name + ", please read the rules.\nEnjoy you're time here!");
+                    e.AddedMember.SendMessage("Welcome " + e.Server.Name + ", please read the rules.\nEnjoy you're time here!");
                 };
 
             //  Don't want messages to be removed? this piece of code will
