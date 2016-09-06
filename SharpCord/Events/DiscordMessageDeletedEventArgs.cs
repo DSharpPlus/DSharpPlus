@@ -5,11 +5,9 @@ namespace SharpCord.Events
 {
     public class DiscordMessageDeletedEventArgs : EventArgs
     {
-        public DiscordServer Server { get; internal set; }
         public DiscordMessage DeletedMessage { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
         public JObject RawJson { get; internal set; }
-
     }
 
     public class DiscordPrivateMessageDeletedEventArgs : DiscordMessageDeletedEventArgs

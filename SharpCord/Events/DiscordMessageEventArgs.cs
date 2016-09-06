@@ -11,7 +11,6 @@ namespace SharpCord.Events
     {
         public string MessageText { get; internal set; }
 
-        public DiscordServer Server { get; internal set; }
         public DiscordMember Author { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
         public DiscordMessage Message { get; internal set; }
@@ -23,8 +22,7 @@ namespace SharpCord.Events
     public class DiscordMessageEditedEventArgs : EventArgs
     {
         public DiscordMessage MessageEdited { get; internal set; }
-        
-        public DiscordServer Server { get; internal set; }
+
         public DiscordMember Author { get; internal set; }
         public DiscordChannel Channel { get; internal set; }
         public string MessageText { get; internal set; }

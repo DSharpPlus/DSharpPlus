@@ -2317,7 +2317,7 @@ namespace SharpCord
         {
             DiscordBanRemovedEventArgs e = new DiscordBanRemovedEventArgs();
 
-            e.Server = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
+            e.Guild = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
             e.MemberStub = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
 
             if (BanRemoved != null)
@@ -2754,7 +2754,7 @@ namespace SharpCord
                 DebugLogger.Log($"Couldn't delete role with ID {message["d"]["role_id"].ToString()}! ({ex.Message})", MessageLevel.Critical);
             }
 
-            RoleDeleted?.Invoke(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Server = inServer, RawJson = message });
+            RoleDeleted?.Invoke(this, new DiscordGuildRoleDeleteEventArgs { DeletedRole = deletedRole, Guild = inServer, RawJson = message });
         }
 
         /// <summary>
@@ -3156,20 +3156,20 @@ namespace SharpCord
         {
             DiscordGuildMemberAddEventArgs e = new DiscordGuildMemberAddEventArgs();
             e.RawJson = message;
-            e.Server = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
+            e.Guild = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
 
-            DiscordMember existingMember = e.Server.GetMemberByKey(message["d"]["user"]["id"].ToString());
+            DiscordMember existingMember = e.Guild.GetMemberByKey(message["d"]["user"]["id"].ToString());
             if (existingMember != null)
             {
 
                 DiscordMember newMember = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
                 newMember.parentclient = this;
                 e.AddedMember = newMember;
-                newMember.Parent = e.Server;
+                newMember.Parent = e.Guild;
                 e.Roles = message["d"]["roles"].ToObject<string[]>();
                 e.JoinedAt = DateTime.Parse(message["d"]["joined_at"].ToString());
 
-                ServersList.Find(x => x == e.Server).AddMember(newMember);
+                ServersList.Find(x => x == e.Guild).AddMember(newMember);
                 if (UserAddedToServer != null)
                     UserAddedToServer(this, e);
             }
@@ -3299,7 +3299,7 @@ namespace SharpCord
                 DiscordLeftVoiceChannelEventArgs le = new DiscordLeftVoiceChannelEventArgs();
                 DiscordServer inServer = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
                 le.User = inServer.GetMemberByKey(message["d"]["user_id"].ToString());
-                le.Server = inServer;
+                le.Guild = inServer;
                 le.RawJson = message;
 
                 if (VoiceClient != null && VoiceClient.Connected)
@@ -3309,11 +3309,11 @@ namespace SharpCord
                 return;
             }
             DiscordVoiceStateUpdateEventArgs e = new DiscordVoiceStateUpdateEventArgs();
-            e.Server = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
-            DiscordMember memberToUpdate = e.Server.GetMemberByKey(message["d"]["user_id"].ToString());
+            e.Guild = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
+            DiscordMember memberToUpdate = e.Guild.GetMemberByKey(message["d"]["user_id"].ToString());
             if (memberToUpdate != null)
             {
-                e.Channel = e.Server.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
+                e.Channel = e.Guild.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
                 memberToUpdate.CurrentVoiceChannel = e.Channel;
                 if (!message["d"]["self_deaf"].IsNullOrEmpty())
                     e.SelfDeaf = message["d"]["self_deaf"].ToObject<bool>();

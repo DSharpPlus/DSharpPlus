@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharpCord;
 using SharpCord.Objects;
 
 namespace SharpCord.Toolbox
