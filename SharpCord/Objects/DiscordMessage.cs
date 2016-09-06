@@ -61,6 +61,7 @@ namespace SharpCord.Objects
         public DateTime timestamp { get; internal set; }
 
         public JObject RawJson { get; internal set; }
+        public DiscordServer Server { get; internal set; }
 
         /// <summary>
         /// Pins this message to its channel
