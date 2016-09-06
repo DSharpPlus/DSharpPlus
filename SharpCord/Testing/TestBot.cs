@@ -12,14 +12,22 @@ namespace SharpCord.Testing
 {
     class TestBot
     {
-        public static bool isBot = true;
+        //public static bool isBot = true;
 
         static void Main(string[] args)
         {
             string botToken = FileIO.LoadString(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName
                 + "bot_token.txt");
-            DiscordClient client = new SharpCord.DiscordClient(botToken);
+            DiscordClient client = new SharpCord.DiscordClient(botToken, true);
+
+            Console.WriteLine("Connecting...");
+            client.Connected += (sender, e) =>
+            {
+                Console.WriteLine("Connected.");
+                client.UpdateCurrentGame("Testing", true);
+            };
+            Console.ReadLine();
         }
     }
 }

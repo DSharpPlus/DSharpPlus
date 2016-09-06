@@ -126,6 +126,9 @@
     <Compile Include="Sockets\NetWebSocket.cs" />
     <Compile Include="Sockets\WebSocketSharpSocket.cs" />
     <Compile Include="Testing\TestBot.cs" />
+    <Compile Include="Utility\FileIO.cs" />
+    <Compile Include="Utility\TaskHelper.cs" />
+    <Compile Include="Utility\Tools.cs" />
     <Compile Include="Voice\DiscordAudioPacket.cs" />
     <Compile Include="Voice\DiscordVoiceClient.cs" />
     <Compile Include="Events\DiscordGuildMemberUpdateEventArgs.cs" />
@@ -189,12 +192,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SharpCord.Toolbox\SharpCord.Toolbox.csproj">
-      <Project>{c33bf68d-0756-43ba-ba45-ebafc4e73050}</Project>
-      <Name>SharpCord.Toolbox</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
