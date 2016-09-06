@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace SharpCord.Objects {
+namespace DSharpPlus.Objects {
     public class DiscordVoiceState {
         /// <summary>
         /// Server ID

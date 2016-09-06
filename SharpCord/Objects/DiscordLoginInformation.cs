@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord.Objects
+namespace DSharpPlus.Objects
 {
     [Obsolete]
     public class DiscordLoginInformation

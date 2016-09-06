@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace SharpCord.Objects
+namespace DSharpPlus.Objects
 {
     public class DiscordRole
     {
@@ -8,7 +8,7 @@ namespace SharpCord.Objects
         /// Role's color.
         /// </summary>
         [JsonProperty("color")]
-        public SharpCord.Color Color { get; internal set; }
+        public DSharpPlus.Color Color { get; internal set; }
 
         /// <summary>
         /// Whether or not to display all members seperate of others.

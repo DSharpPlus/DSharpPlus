@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord.Utility
+namespace DSharpPlus.Utility
 {
     public static class TaskHelper
     {

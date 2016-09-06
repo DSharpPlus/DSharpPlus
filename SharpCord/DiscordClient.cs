@@ -7,19 +7,19 @@ using WebSocketSharp;
 using System.Threading;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using SharpCord.Events;
+using DSharpPlus.Events;
 using System.Text.RegularExpressions;
 using System.Drawing;
-using SharpCord.Objects;
-using SharpCord.Utility;
+using DSharpPlus.Objects;
+using DSharpPlus.Utility;
 using System.Linq;
 
 using ID = System.String;
-using SharpCord.Sockets;
-using SharpCord.Commands;
-using SharpCord.Toolbox;
+using DSharpPlus.Sockets;
+using DSharpPlus.Commands;
+using DSharpPlus.Toolbox;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     /// <summary>
     /// Properties that Discord uses upon connection to the websocket. Mostly used for analytics internally.
@@ -39,11 +39,11 @@ namespace SharpCord
         public string Browser { get; set; }
 
         /// <summary>
-        /// Whatever device you want to be on. (Default: SharpCord Bot)
+        /// Whatever device you want to be on. (Default: DSharpPlus Bot)
         /// </summary>
         [JsonProperty("$device")]
         public string Device
-        { get; set; } = "SharpCord";
+        { get; set; } = "DSharpPlus";
 
         /// <summary>
         /// 
@@ -177,7 +177,7 @@ namespace SharpCord
         private List<DiscordServer> ServersList { get; set; }
         private string CurrentGameName = "";
         private int? IdleSinceUnixTime = null;
-        static string UserAgentString = $" (http://github.com/NaamloosDT/SharpCord)";
+        static string UserAgentString = $" (http://github.com/NaamloosDT/DSharpPlus)";
         private DiscordVoiceClient VoiceClient;
         private Logger DebugLogger = new Logger();
         private CancellationTokenSource KeepAliveTaskTokenSource = new CancellationTokenSource();
@@ -454,7 +454,7 @@ namespace SharpCord
                 {
                     DiscordRole t = new DiscordRole
                     {
-                        Color = new SharpCord.Color(u["color"].ToObject<int>().ToString("x")),
+                        Color = new DSharpPlus.Color(u["color"].ToObject<int>().ToString("x")),
                         Name = u["name"].ToString(),
                         Permissions = new DiscordPermission(u["permissions"].ToObject<uint>()),
                         Position = u["position"].ToObject<int>(),
@@ -2096,7 +2096,7 @@ namespace SharpCord
         /// <summary>
         /// Runs the websocket connection for the client hooking up the appropriate events.
         /// </summary>
-        /// <param name="useDotNetWebsocket">If true, SharpCord will connect using the .Net Framework's built-in WebSocketClasses.
+        /// <param name="useDotNetWebsocket">If true, DSharpPlus will connect using the .Net Framework's built-in WebSocketClasses.
         /// Please do not use this on Mono or versions of Windows below 8/8.1</param>
         public void Connect(bool useDotNetWebsocket = false)
         {
@@ -2963,7 +2963,7 @@ namespace SharpCord
                 {
                     DiscordRole t = new DiscordRole
                     {
-                        Color = new SharpCord.Color(roll["color"].ToObject<int>().ToString("x")),
+                        Color = new DSharpPlus.Color(roll["color"].ToObject<int>().ToString("x")),
                         Name = roll["name"].ToString(),
                         Permissions = new DiscordPermission(roll["permissions"].ToObject<uint>()),
                         Position = roll["position"].ToObject<int>(),
@@ -3149,7 +3149,7 @@ namespace SharpCord
             {
                 DiscordRole t = new DiscordRole
                 {
-                    Color = new SharpCord.Color(roll["color"].ToObject<int>().ToString("x")),
+                    Color = new DSharpPlus.Color(roll["color"].ToObject<int>().ToString("x")),
                     Name = roll["name"].ToString(),
                     Permissions = new DiscordPermission(roll["permissions"].ToObject<uint>()),
                     Position = roll["position"].ToObject<int>(),

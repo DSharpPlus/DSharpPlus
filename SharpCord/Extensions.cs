@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using SharpCord.Objects;
+using DSharpPlus.Objects;
 
 #if !V45
 using System.IO;

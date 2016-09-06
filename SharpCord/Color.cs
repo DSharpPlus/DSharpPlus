@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     /// <summary>
     /// Custom color class just because.

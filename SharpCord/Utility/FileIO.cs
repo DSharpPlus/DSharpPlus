@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Net;
 using System.IO;
 
-namespace SharpCord.Utility
+namespace DSharpPlus.Utility
 {
     public static class FileIO
     {

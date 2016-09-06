@@ -1,8 +1,8 @@
 ﻿using System;
-using SharpCord.Objects;
+using DSharpPlus.Objects;
 using Newtonsoft.Json.Linq;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     public class DiscordPrivateMessageEventArgs : EventArgs
     {

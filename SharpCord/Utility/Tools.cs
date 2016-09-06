@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharpCord.Objects;
+using DSharpPlus.Objects;
 
-namespace SharpCord.Toolbox
+namespace DSharpPlus.Toolbox
 {
     public static class Tools
     {

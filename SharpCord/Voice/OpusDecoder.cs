@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SharpCord.Voice
+namespace DSharpPlus.Voice
 {
     public class OpusDecoder : OpusConverter
     {

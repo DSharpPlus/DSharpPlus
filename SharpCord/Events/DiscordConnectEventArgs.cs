@@ -1,6 +1,6 @@
 ﻿using System;
-using SharpCord.Objects;
-namespace SharpCord
+using DSharpPlus.Objects;
+namespace DSharpPlus
 {
     public class DiscordConnectEventArgs : EventArgs
     {

@@ -1,4 +1,4 @@
-﻿using SharpCord.Objects;
+﻿using DSharpPlus.Objects;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     /// <summary>
     /// Convienent wrapper for doing anything web related.

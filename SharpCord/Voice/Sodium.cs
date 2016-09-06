@@ -3,7 +3,7 @@
 using System.Security;
 #endif
 
-namespace SharpCord.Voice
+namespace DSharpPlus.Voice
 {
     internal unsafe static class SecretBox
     {

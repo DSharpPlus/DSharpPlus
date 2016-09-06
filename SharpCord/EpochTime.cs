@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     /// <summary>
     /// This is Voltana's class for Unix time that I've borrowed for testing.

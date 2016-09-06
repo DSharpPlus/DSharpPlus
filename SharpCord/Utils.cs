@@ -1,10 +1,10 @@
-﻿using SharpCord.Objects;
+﻿using DSharpPlus.Objects;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     internal class Utils
     {

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SharpCord.Sockets.BuiltIn
+namespace DSharpPlus.Sockets.BuiltIn
 {
     public class NetWebSocketWrapper
     {

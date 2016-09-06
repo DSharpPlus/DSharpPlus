@@ -7,7 +7,7 @@ using System.Security;
 /// <summary>
 /// ty Voltana
 /// </summary>
-namespace SharpCord.Voice
+namespace DSharpPlus.Voice
 {
     public enum OpusApplication : int
     {

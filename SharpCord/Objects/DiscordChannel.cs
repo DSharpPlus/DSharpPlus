@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 
-namespace SharpCord.Objects
+namespace DSharpPlus.Objects
 {
     public abstract class DiscordChannelBase
     {

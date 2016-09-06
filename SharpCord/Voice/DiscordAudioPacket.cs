@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     public class DiscordAudioPacket
     {

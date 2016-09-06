@@ -1,7 +1,7 @@
-﻿using SharpCord.Objects;
+﻿using DSharpPlus.Objects;
 using System;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     public enum DiscordChannelCreateType
     {

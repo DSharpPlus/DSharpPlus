@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using SharpCord.Objects;
-namespace SharpCord
+using DSharpPlus.Objects;
+namespace DSharpPlus
 {
     public class DiscordEmbeds
     {

@@ -9,7 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord.Objects
+namespace DSharpPlus.Objects
 {
     public enum Status
     {

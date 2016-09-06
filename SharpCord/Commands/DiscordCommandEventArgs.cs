@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharpCord;
-using SharpCord.Objects;
+using DSharpPlus;
+using DSharpPlus.Objects;
 
-namespace SharpCord.Commands
+namespace DSharpPlus.Commands
 {
     public class DiscordCommandEventArgs
     {

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     /// <summary>
-    /// The class that contains the end points needed by SharpCord.
+    /// The class that contains the end points needed by DSharpPlus.
     /// </summary>
     public static class Endpoints
     {

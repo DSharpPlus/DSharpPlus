@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace SharpCord
+namespace DSharpPlus
 {
 	public class LoggerMessageReceivedArgs : EventArgs
     {

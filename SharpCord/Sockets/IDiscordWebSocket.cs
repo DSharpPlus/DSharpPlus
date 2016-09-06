@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord.Sockets
+namespace DSharpPlus.Sockets
 {
     public class SocketMessageEventArgs : EventArgs
     {
@@ -26,7 +26,7 @@ namespace SharpCord.Sockets
 
 
     /// <summary>
-    /// Provides an interface for all SharpCord websockets to implement for multiple backends without heavy editing.
+    /// Provides an interface for all DSharpPlus websockets to implement for multiple backends without heavy editing.
     /// </summary>
     public interface IDiscordWebSocket
     {

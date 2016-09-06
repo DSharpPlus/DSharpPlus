@@ -1,4 +1,4 @@
-﻿namespace SharpCord
+﻿namespace DSharpPlus
 {
     public static class Opcodes
     {

@@ -1,7 +1,7 @@
 ﻿using System;
-using SharpCord.Objects;
+using DSharpPlus.Objects;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     public class DiscordBanRemovedEventArgs : EventArgs
     {

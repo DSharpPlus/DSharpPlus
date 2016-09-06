@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace SharpCord.Objects
+namespace DSharpPlus.Objects
 {
     public class DiscordInvite
     {

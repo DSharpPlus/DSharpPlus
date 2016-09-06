@@ -1,11 +1,11 @@
-﻿using SharpCord.Objects;
+﻿using DSharpPlus.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord.Events
+namespace DSharpPlus.Events
 {
     public class DiscordChannelDeleteEventArgs : EventArgs
     {

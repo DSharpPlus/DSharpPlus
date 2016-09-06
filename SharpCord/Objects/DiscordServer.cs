@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using ID = System.String;
 
-namespace SharpCord.Objects
+namespace DSharpPlus.Objects
 {
     public class DiscordServer
     {

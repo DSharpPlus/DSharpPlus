@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharpCord.Objects;
-namespace SharpCord.Events
+using DSharpPlus.Objects;
+namespace DSharpPlus.Events
 {
     public class DiscordGuildMemberAddEventArgs : EventArgs
     {

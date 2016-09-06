@@ -1,11 +1,11 @@
-﻿using SharpCord.Sockets.BuiltIn;
+﻿using DSharpPlus.Sockets.BuiltIn;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord.Sockets
+namespace DSharpPlus.Sockets
 {
     class NetWebSocket : IDiscordWebSocket
     {

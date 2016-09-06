@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord.Objects
+namespace DSharpPlus.Objects
 {
     public class DiscordLoginException : Exception
     {

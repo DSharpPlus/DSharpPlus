@@ -1,7 +1,7 @@
 ﻿extern alias ws4n;
-using SharpCord.Events;
-using SharpCord.Objects;
-using SharpCord.Voice;
+using DSharpPlus.Events;
+using DSharpPlus.Objects;
+using DSharpPlus.Voice;
 using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -54,7 +54,7 @@ using CONCURRENT = System.Collections.Concurrent;
         10. Finally, once you receive opcode 4, you may send the "speaking" json (opcode 5, speaking = true/false, delay = 0). At this point, you are fully connected and you may begin any other threads/keepalives.
 */
 
-namespace SharpCord
+namespace DSharpPlus
 {
     internal class VoiceConnectionParameters
     {
@@ -116,7 +116,7 @@ namespace SharpCord
         public bool SendOnly { get; set; } = true;
 
         /// <summary>
-        /// The blocksize of PCM data you should be reading and piping into SharpCord.
+        /// The blocksize of PCM data you should be reading and piping into DSharpPlus.
         /// </summary>
         public int PCMBlockSize
         {
@@ -174,7 +174,7 @@ namespace SharpCord
 
 #region voice sending stuff
         /// <summary>
-        /// The length, in ms, of audio for SharpCord to send. By default, 20.
+        /// The length, in ms, of audio for DSharpPlus to send. By default, 20.
         /// </summary>
         static int msToSend = 20;
 

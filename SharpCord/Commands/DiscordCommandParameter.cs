@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord.Commands
+namespace DSharpPlus.Commands
 {
     public class DiscordCommandParameter
     {

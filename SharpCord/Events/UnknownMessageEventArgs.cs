@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using SharpCord.Objects;
-namespace SharpCord.Events
+using DSharpPlus.Objects;
+namespace DSharpPlus.Events
 {
     public class UnknownMessageEventArgs : EventArgs
     {

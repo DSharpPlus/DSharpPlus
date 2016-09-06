@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebSocketSharp;
 
-namespace SharpCord.Sockets
+namespace DSharpPlus.Sockets
 {
     class WebSocketSharpSocket : IDiscordWebSocket
     {

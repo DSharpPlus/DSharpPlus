@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using SharpCord.Objects;
+using DSharpPlus.Objects;
 
-namespace SharpCord
+namespace DSharpPlus
 {
     public class DiscordTypingStartEventArgs : EventArgs
     {

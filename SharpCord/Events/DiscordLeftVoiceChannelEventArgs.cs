@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using SharpCord.Objects;
-namespace SharpCord
+using DSharpPlus.Objects;
+namespace DSharpPlus
 {
     public class DiscordLeftVoiceChannelEventArgs : EventArgs
     {

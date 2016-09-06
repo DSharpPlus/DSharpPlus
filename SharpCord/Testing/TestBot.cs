@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SharpCord;
-using SharpCord.Utility;
-using SharpCord.Commands;
+using DSharpPlus;
+using DSharpPlus.Utility;
+using DSharpPlus.Commands;
 using System.IO;
 
-namespace SharpCord.Testing
+namespace DSharpPlus.Testing
 {
     class TestBot
     {
@@ -19,7 +19,7 @@ namespace SharpCord.Testing
             string botToken = FileIO.LoadString(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName
                 + "\\bot_token.txt");
-            DiscordClient client = new SharpCord.DiscordClient(botToken, true);
+            DiscordClient client = new DSharpPlus.DiscordClient(botToken, true);
 
             Console.WriteLine("Connecting...");
             client.Connected += (sender, e) =>
