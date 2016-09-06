@@ -1,6 +1,6 @@
 ![Logo of SharpCord](https://github.com/NaamloosDT/SharpCord/blob/master/logo_smaller.png)
 
-# SharpCord
+# DSharp+
 
 A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp) :3 
 
@@ -14,7 +14,9 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 
 ### 1.1 NuGet
 
-Start off by creating a new C# console application project. Then open up the NuGet Console (Project -> Manage Nuget Packages...). Enter `Install-Package SharpCord.dll -Pre`. Then move to Step 2.
+Start off by creating a new C# console application project. Then open up the NuGet Console (Project -> Manage Nuget Packages...). Enter `Install-Package DSharpPlus -Pre`. 
+
+Then move to Step 2.
 
 ### 1.2 Git
 
@@ -62,7 +64,7 @@ In a nutshell, the code will allow your bot to connect to the server. Head to th
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
 
 # Questions?
-Come talk to us [here](http://www.discord.gg/h7mJ5x)! :heart:
+Come talk to us [here](https://discord.gg/xQUbM8m)! :heart:
 
 # Changelog
 The changelog can be found in the Changelog.md file
