@@ -63,3 +63,6 @@ In a nutshell, the code will allow your bot to connect to the server. Head to th
 
 # Questions?
 Come talk to us [here](http://www.discord.gg/h7mJ5x)! :heart:
+
+# Changelog
+The changelog can be found in the Changelog.md file
