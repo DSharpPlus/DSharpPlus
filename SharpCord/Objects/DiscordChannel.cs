@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace SharpCord.Objects
 {
@@ -110,6 +111,11 @@ namespace SharpCord.Objects
                 TTS = false
             };
             return m;
+        }
+
+        public Task<DiscordMessage> SendMessageAsync(string message)
+        {
+            return Task.FromResult(this.SendMessage(message));
         }
 
         /// <summary>

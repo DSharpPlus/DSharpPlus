@@ -10,7 +10,7 @@ namespace SharpCord.Commands
 {
     public class DiscordCommandEventArgs
     {
-        public readonly string[] args;
+        public string[] args;
 
         public DiscordCommand Command;
         public DiscordMessage Message;

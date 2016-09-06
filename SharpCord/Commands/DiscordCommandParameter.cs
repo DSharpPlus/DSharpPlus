@@ -23,6 +23,12 @@ namespace SharpCord.Commands
         {
             return new DiscordCommandParameter(s);
         }
+
+        public DiscordCommandParameter Type(DiscordCommandParameterType type)
+        {
+            this.parameterType = type;
+            return this;
+        }
     }
 
     public enum DiscordCommandParameterType

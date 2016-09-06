@@ -33,6 +33,12 @@ namespace SharpCord.Commands
             return this;
         }
 
+        public DiscordCommandBuilder AddParameter(string name, DiscordCommandParameterType type, string desc="")
+        {
+            Command.Parameters.Add(new DiscordCommandParameter(name, desc, type));
+            return this;
+        }
+
         public DiscordCommandBuilder LockToDevelopers()
         {
             Command.OnlyForDevelopers = true;

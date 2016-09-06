@@ -28,5 +28,25 @@ namespace SharpCord.Toolbox
         {
             return client.GetServersList().Select(t => t.Owner).ToList();
         }
+
+        public static string GetWord(this string s, int i)
+        {
+            return s.Split(' ')[i];
+        }
+
+        public static string[] GetWordsPastFirst(this string s)
+        {
+            List<string> words = new List<string>();
+            for(int i = 1; i < s.WordCount(); i++)
+            {
+                words.Add(s.GetWord(i));
+            }
+            return words.ToArray();
+        }
+
+        public static int WordCount(this string s)
+        {
+            return s.Split(' ').Count();
+        }
     }
 }

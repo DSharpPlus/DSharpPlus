@@ -11,10 +11,13 @@ using SharpCord.Events;
 using System.Text.RegularExpressions;
 using System.Drawing;
 using SharpCord.Objects;
+using SharpCord.Utility;
+using System.Linq;
 
 using ID = System.String;
 using SharpCord.Sockets;
 using SharpCord.Commands;
+using SharpCord.Toolbox;
 
 namespace SharpCord
 {
@@ -397,6 +400,8 @@ namespace SharpCord
                 if (TextClientDebugMessageReceived != null)
                     TextClientDebugMessageReceived(this, e);
             };
+
+            this.Commands = new List<DiscordCommand>();
         }
 
         /// <summary>
@@ -621,6 +626,8 @@ namespace SharpCord
         }
 
 
+        public string CommandPrefix = "!";
+
         /// <summary>
         /// Adds a command to this DiscordClient
         /// </summary>
@@ -639,6 +646,80 @@ namespace SharpCord
             this.Commands.Add(command);
         }
 
+        private async void ParseCommandFromMessage(DiscordMessageEventArgs e)
+        {
+            //Really need to test if it's not the bot user.
+            if (!e.MessageText.StartsWith(CommandPrefix))
+                return;
+
+            //Fix for Naam's chat to make sure the bot doesn't mess up the chat.
+            if (e.Channel.ServerID == "146044397861994496")
+                if (e.Channel.ID != "221338268682158081")
+                    return;
+
+            //Building the event args
+            DiscordCommandEventArgs args = new DiscordCommandEventArgs();
+
+            args.Message = e.Message;
+
+            //Getting the command keyword
+            string keyword = e.MessageText.GetWord(0);
+            //Removing the prefix.
+            int prefixCharCount = CommandPrefix.Length;
+            keyword = keyword.Remove(0, prefixCharCount);
+
+            foreach(var command in Commands)
+            {
+                if (command.Keyword == keyword || command.Aliases.Contains(keyword))
+                {
+                    args.Command = command;
+
+                    //Setting the arguments
+                    int i = 1;  //word
+                    List<string> arguments = new List<string>();
+                    foreach (DiscordCommandParameter param in command.Parameters)
+                    {
+                        if (param.parameterType == DiscordCommandParameterType.Multiple)
+                        {
+                            string s = "";
+                            //Add the rest.
+                            while(i < e.MessageText.WordCount())
+                            {
+                                s += e.MessageText.GetWord(i) + ((i != e.MessageText.WordCount() - 1) ? " " : "");
+                                i++;
+                            }
+                            arguments.Add(s);
+                            break;
+                        } else
+                        {
+                            if (param.parameterType == DiscordCommandParameterType.NotRequired)
+                            {
+                                //If it isn't required, check if it exists.
+                                if (e.MessageText.WordCount() >= i)
+                                {
+                                    arguments.Add(e.MessageText.GetWord(i));
+                                    i++;
+                                }else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                arguments.Add(e.MessageText.GetWord(i));
+                                i++;
+                            }
+                        }
+                    }
+                    args.args = arguments.ToArray();
+
+                    await command.Run(args);
+                }else
+                {
+                    Console.WriteLine($"{keyword} didn't equal {command.Keyword}");
+                }
+            }
+        }
 
         /// <summary>
         /// Sends a message to a channel, what else did you expect?
@@ -1693,6 +1774,8 @@ namespace SharpCord
 
                 KeyValuePair<string, DiscordMessage> toAdd = new KeyValuePair<string, DiscordMessage>(message["d"]["id"].ToString(), m);
                 MessageLog.Add(message["d"]["id"].ToString(), m);
+
+                ParseCommandFromMessage(dmea);
 
                 if (MessageReceived != null)
                     MessageReceived(this, dmea);

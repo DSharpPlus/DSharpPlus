@@ -19,11 +19,13 @@ namespace SharpCord.Commands
         public DiscordCommand(string keyword, string[] aliases = null)
         {
             this.Keyword = keyword;
+            this.Parameters = new List<DiscordCommandParameter>();
+            this.Aliases = new List<string>();
             if (aliases != null)
                 this.Aliases = Aliases;
         }
 
-        public static DiscordCommandBuilder CreateNew(string keyword)
+        public static DiscordCommandBuilder Create(string keyword)
         {
             DiscordCommandBuilder b = new DiscordCommandBuilder();
             b.Command = new Commands.DiscordCommand(keyword);
@@ -48,7 +50,14 @@ namespace SharpCord.Commands
 
         public bool ContainsParameterOfType(DiscordCommandParameterType type)
         {
-            return Parameters.Where(t => t.parameterType == type).Count() > 0;
+            if (Parameters == null)
+                return false;
+            foreach(var param in Parameters)
+            {
+                if (param.parameterType == type)
+                    return true;
+            }
+            return false;
         }
     }
 }
