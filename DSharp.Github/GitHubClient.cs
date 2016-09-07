@@ -46,22 +46,18 @@ namespace DSharpPlus.GitHub
         public async Task<string> GetActiveIssuesOfRepo(string user, string repo)
         {
             // var issuesForRepo = await ghclient.Issue.GetAllForRepository(owner, repo);
+            var repositoryVar = await ghclient.Repository.Get(user, repo);
 
-            var repoActive = new RepositoryIssueRequest
-            {
-                Filter = IssueFilter.All,
-                State = ItemStateFilter.Open
-            };
-
-            var issuesForRepo = await ghclient.Issue.GetAllForRepository(user, repo, repoActive);
-            string returnString = $"There are {issuesForRepo.Count} active issues for repository {user}/{repo}";
+            string returnString = $"There are {repositoryVar.OpenIssuesCount.ToString()} active issues for repository {user}/{repo}";
             return returnString;
 
         }
 
-        public async void GetLastCommitOfRepo(string owner, string repo)
+        public async void GetLastCommitOfRepo(string user, string repo)
         {
-            var repositoryVar = await ghclient.Repository.Get(owner, repo);
+            var repositoryVar = await ghclient.Repository.Get(user, repo);
+
+
         }
 
     }

@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus", "SharpCord\DSharpPlus.csproj", "{A96FFE9E-3650-4976-872E-5BB336CC1589}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Github", "DSharp.Github\DSharpPlus.Github.csproj", "{467DD8EB-BFC4-4E88-AF38-73A4201E038A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,30 @@ Global
 		{A96FFE9E-3650-4976-872E-5BB336CC1589}.ReleaseDLL|x64.Build.0 = Release|Any CPU
 		{A96FFE9E-3650-4976-872E-5BB336CC1589}.ReleaseDLL|x86.ActiveCfg = Release|Any CPU
 		{A96FFE9E-3650-4976-872E-5BB336CC1589}.ReleaseDLL|x86.Build.0 = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Debug|x64.Build.0 = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Debug|x86.Build.0 = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.DebugDLL|Any CPU.ActiveCfg = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.DebugDLL|Any CPU.Build.0 = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.DebugDLL|x64.ActiveCfg = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.DebugDLL|x64.Build.0 = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.DebugDLL|x86.ActiveCfg = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.DebugDLL|x86.Build.0 = Debug|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Release|x64.ActiveCfg = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Release|x64.Build.0 = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Release|x86.ActiveCfg = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.Release|x86.Build.0 = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.ReleaseDLL|Any CPU.ActiveCfg = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.ReleaseDLL|Any CPU.Build.0 = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.ReleaseDLL|x64.ActiveCfg = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.ReleaseDLL|x64.Build.0 = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.ReleaseDLL|x86.ActiveCfg = Release|Any CPU
+		{467DD8EB-BFC4-4E88-AF38-73A4201E038A}.ReleaseDLL|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
