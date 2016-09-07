@@ -200,3 +200,4 @@ FakesAssemblies/
 *.opt
 
 bot_token.txt
+SharpCord/TestBot/TestBot.cs
