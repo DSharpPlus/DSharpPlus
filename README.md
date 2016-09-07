@@ -6,7 +6,12 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 
 # Build Status 
 
+Travis CI:
+
 [![Build Status](https://travis-ci.org/NaamloosDT/SharpCord.svg?branch=master)](https://travis-ci.org/NaamloosDT/SharpCord)
+
+Coveralls:
+[![Coverage Status](https://coveralls.io/repos/github/NaamloosDT/DSharpPlus/badge.svg?branch=master)](https://coveralls.io/github/NaamloosDT/DSharpPlus?branch=master)
 
 # Getting Started
 
