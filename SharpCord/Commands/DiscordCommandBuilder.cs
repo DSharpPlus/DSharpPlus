@@ -11,7 +11,7 @@ namespace DSharpPlus.Commands
     {
         public DiscordCommand Command;
 
-        public DiscordCommandBuilder AddAlias(params string[] aliases)
+        public DiscordCommandBuilder Alias(params string[] aliases)
         {
             Command.Aliases.AddRange(aliases);
             return this;

@@ -37,7 +37,7 @@ namespace DSharpPlus.Testing
             .AddParameter("param1")
             .AddParameter("param2")
             .AddParameter("param3", DiscordCommandParameterType.Multiple)
-            .AddAlias("alsotest")
+            .Alias("alsotest")
             );
 
             client.MessageReceived += (a, b) =>
