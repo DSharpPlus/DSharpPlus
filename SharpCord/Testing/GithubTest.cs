@@ -7,7 +7,7 @@ using DSharpPlus.GitHub;
 
 namespace SharpCord.TestBot
 {
-    class TestBot
+    class GithubTest
     {
         DSharpPlusGithubClient client;
 
