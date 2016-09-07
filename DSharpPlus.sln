@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpCord", "SharpCord\SharpCord.csproj", "{A96FFE9E-3650-4976-872E-5BB336CC1589}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus", "SharpCord\DSharpPlus.csproj", "{A96FFE9E-3650-4976-872E-5BB336CC1589}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

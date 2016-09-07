@@ -7,8 +7,8 @@
     <ProjectGuid>{A96FFE9E-3650-4976-872E-5BB336CC1589}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SharpCord</RootNamespace>
-    <AssemblyName>SharpCord</AssemblyName>
+    <RootNamespace>DSharpPlus</RootNamespace>
+    <AssemblyName>DSharpPlus</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <UseMSBuildEngine>False</UseMSBuildEngine>
@@ -29,7 +29,7 @@
     <LangVersion>6</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>bin\Debug\SharpCord.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\DSharpPlus.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -46,7 +46,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\SharpCord.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\DSharpPlus.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -79,6 +79,10 @@
     </When>
   </Choose>
   <ItemGroup>
+    <Reference Include="Octokit, Version=0.22.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Octokit.0.22.0\lib\net45\Octokit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
@@ -116,6 +120,8 @@
     <Compile Include="EpochTime.cs" />
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
+    <Compile Include="GitHub\GitHubClient.cs" />
+    <Compile Include="GitHub\Issues.cs" />
     <Compile Include="Objects\DiscordInvite.cs" />
     <Compile Include="Objects\DiscordVoiceState.cs" />
     <Compile Include="Objects\DiscordServer.cs" />
@@ -125,6 +131,7 @@
     <Compile Include="Sockets\IDiscordWebSocket.cs" />
     <Compile Include="Sockets\NetWebSocket.cs" />
     <Compile Include="Sockets\WebSocketSharpSocket.cs" />
+    <Compile Include="TestBot\TestBot.cs" />
     <Compile Include="Testing\TestBot.cs" />
     <Compile Include="Utility\FileIO.cs" />
     <Compile Include="Utility\TaskHelper.cs" />
@@ -193,6 +200,7 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
