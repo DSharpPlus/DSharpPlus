@@ -121,7 +121,6 @@
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
     <Compile Include="GitHub\GitHubClient.cs" />
-    <Compile Include="GitHub\Issues.cs" />
     <Compile Include="Objects\DiscordInvite.cs" />
     <Compile Include="Objects\DiscordVoiceState.cs" />
     <Compile Include="Objects\DiscordServer.cs" />

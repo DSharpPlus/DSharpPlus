@@ -21,7 +21,21 @@ namespace DSharpPlus.GitHub
             ghclient = new GitHubClient(new ProductHeaderValue(client));
         }
 
-        
+        /// <summary>
+        /// Lists all active issues of a repo
+        /// </summary>
+        /// <param name="owner">The owner of the repo</param>
+        /// <param name="repo">The name of the repo</param>
+        public async void GetActiveIssuesOfRepo(string owner, string repo)
+        {
+            var issuesForRepo = await ghclient.Issue.GetAllForRepository(owner, repo);
+            var active = new IssueRequest
+            {
+                Filter = IssueFilter.All,
+                State = ItemStateFilter.Open
+            };
+        }
+
     }
     
 }
