@@ -24,6 +24,12 @@ namespace DSharpPlus.Commands
             if (aliases != null)
                 this.Aliases = Aliases;
         }
+        //This is horrible practice, but I'm trying to get this done so ;-;
+        public DiscordCommand()
+        {
+            this.Parameters = new List<DiscordCommandParameter>();
+            this.Aliases = new List<string>();
+        }
 
         public static DiscordCommandBuilder Create(string keyword)
         {
