@@ -11,6 +11,7 @@ Travis CI:
 [![Build Status](https://travis-ci.org/NaamloosDT/DSharpPlus.svg?branch=master)](https://travis-ci.org/NaamloosDT/DSharpPlus)
 
 Coveralls:
+
 [![Coverage Status](https://coveralls.io/repos/github/NaamloosDT/DSharpPlus/badge.svg?branch=master)](https://coveralls.io/github/NaamloosDT/DSharpPlus?branch=master)
 
 # Getting Started
