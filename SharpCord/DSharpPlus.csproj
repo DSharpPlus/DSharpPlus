@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A96FFE9E-3650-4976-872E-5BB336CC1589}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DSharpPlus</RootNamespace>
     <AssemblyName>DSharpPlus</AssemblyName>
@@ -130,7 +130,7 @@
     <Compile Include="Sockets\IDiscordWebSocket.cs" />
     <Compile Include="Sockets\NetWebSocket.cs" />
     <Compile Include="Sockets\WebSocketSharpSocket.cs" />
-    <Compile Include="TestBot\TestBot.cs" />
+    <Compile Include="Testing\GithubTest.cs" />
     <Compile Include="Testing\TestBot.cs" />
     <Compile Include="Utility\FileIO.cs" />
     <Compile Include="Utility\TaskHelper.cs" />

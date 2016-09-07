@@ -12,13 +12,12 @@ namespace DSharpPlus.Testing
 {
     class TestBot
     {
-        //public static bool isBot = true;
-
         static void Main(string[] args)
         {
             string botToken = FileIO.LoadString(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName
                 + "\\bot_token.txt");
+            Console.WriteLine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName);
             DiscordClient client = new DSharpPlus.DiscordClient(botToken, true);
 
             Console.WriteLine("Connecting...");
@@ -47,6 +46,7 @@ namespace DSharpPlus.Testing
                     b.Channel.DeleteMessage(b.Message);
             };
             Console.ReadLine();
+
         }
     }
 }

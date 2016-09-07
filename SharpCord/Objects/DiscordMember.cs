@@ -78,6 +78,10 @@ namespace DSharpPlus.Objects
         /// Is this user a bot developer? (manually set ID's in DiscordClient.developers)
         /// </summary>
         public bool IsDeveloper { get { return DiscordClient.developers.Contains(this.ID); } }
+        /// <summary>
+        /// Automatically builds the text to mention this user.
+        /// </summary>
+        public string Mention { get { return "<@" + this.ID + ">"; } }
 
         /**
         Voice only
