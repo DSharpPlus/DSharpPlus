@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A96FFE9E-3650-4976-872E-5BB336CC1589}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DSharpPlus</RootNamespace>
     <AssemblyName>DSharpPlus</AssemblyName>
@@ -120,7 +120,6 @@
     <Compile Include="EpochTime.cs" />
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
-    <Compile Include="GitHub\GitHubClient.cs" />
     <Compile Include="Objects\DiscordInvite.cs" />
     <Compile Include="Objects\DiscordVoiceState.cs" />
     <Compile Include="Objects\DiscordServer.cs" />
@@ -131,7 +130,6 @@
     <Compile Include="Sockets\NetWebSocket.cs" />
     <Compile Include="Sockets\WebSocketSharpSocket.cs" />
     <Compile Include="Testing\Command_Greet.cs" />
-    <Compile Include="Testing\GithubTest.cs" />
     <Compile Include="Testing\TestBot.cs" />
     <Compile Include="Utility\FileIO.cs" />
     <Compile Include="Utility\TaskHelper.cs" />
@@ -200,7 +198,9 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="GitHub\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

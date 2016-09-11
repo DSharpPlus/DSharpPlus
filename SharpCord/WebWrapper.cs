@@ -38,25 +38,26 @@ namespace DSharpPlus
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
-                    if (!string.IsNullOrEmpty(result))
-                    {
-                        JObject jsonTest = JObject.Parse(result);
-                        if (jsonTest != null)
-                        {
-                            if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
-                            {
-                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
-                            }
-                        }
-                    }
                     if (result != "")
                         return result;
                 }
             }
             catch (WebException e)
             {
-                Console.WriteLine(e.Message);
-                throw e;
+                if (e.Response != null)
+                {
+                    using (var errorResponse = (HttpWebResponse)e.Response)
+                    {
+                        if (errorResponse.StatusCode == (HttpStatusCode)429)
+                        {
+                            throw new RateLimitException("You got rate limited kiddo!");
+                        }
+                    }
+                }
+                else
+                {
+                    throw e;
+                }
             }
             return "";
         }
@@ -85,14 +86,6 @@ namespace DSharpPlus
                     {
                         if (result != "")
                         {
-                            JObject jsonTest = JObject.Parse(result);
-                            if (jsonTest != null)
-                            {
-                                if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
-                                {
-                                    throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
-                                }
-                            }
                             return result;
                         }
                     }
@@ -100,7 +93,20 @@ namespace DSharpPlus
             }
             catch (WebException e)
             {
-                throw e;
+                if (e.Response != null)
+                {
+                    using (var errorResponse = (HttpWebResponse)e.Response)
+                    {
+                        if (errorResponse.StatusCode == (HttpStatusCode)429)
+                        {
+                            throw new RateLimitException("You got rate limited kiddo!");
+                        }
+                    }
+                }
+                else
+                {
+                    throw e;
+                }
             }
             return "";
         }
@@ -148,24 +154,25 @@ namespace DSharpPlus
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
-                    if (!string.IsNullOrEmpty(result))
-                    {
-                        JObject jsonTest = JObject.Parse(result);
-                        if (jsonTest != null)
-                        {
-                            if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
-                            {
-                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
-                            }
-                        }
-                    }
                     if (result != "")
                         return result;
                 }
             }
             catch (WebException e)
             {
-                throw e;
+                if (e.Response != null)
+                {
+                    using (var errorResponse = (HttpWebResponse)e.Response)
+                    {
+                        if(errorResponse.StatusCode == (HttpStatusCode)429)
+                        {
+                            throw new RateLimitException("You got rate limited kiddo!");
+                        }
+                    }
+                }else
+                {
+                    throw e;
+                }
             }
             return "";
         }
@@ -302,14 +309,6 @@ namespace DSharpPlus
                     var result = sr.ReadToEnd();
                     if (!string.IsNullOrEmpty(result))
                     {
-                        JObject jsonTest = JObject.Parse(result);
-                        if (jsonTest != null)
-                        {
-                            if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
-                            {
-                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
-                            }
-                        }
                         if (result != "")
                             return result;
                     }
@@ -317,10 +316,19 @@ namespace DSharpPlus
             }
             catch (WebException e)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                if (e.Response != null)
                 {
-                    var result = s.ReadToEnd();
-                    return result;
+                    using (var errorResponse = (HttpWebResponse)e.Response)
+                    {
+                        if (errorResponse.StatusCode == (HttpStatusCode)429)
+                        {
+                            throw new RateLimitException("You got rate limited kiddo!");
+                        }
+                    }
+                }
+                else
+                {
+                    throw e;
                 }
             }
             return "";
@@ -367,6 +375,7 @@ namespace DSharpPlus
                         {
                             if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
                             {
+                                //obsolete anyway, no need to fix?
                                 throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
                             }
                         }
@@ -413,27 +422,25 @@ namespace DSharpPlus
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
-                    if (!string.IsNullOrEmpty(result))
-                    {
-                        JObject jsonTest = JObject.Parse(result);
-                        if (jsonTest != null)
-                        {
-                            if (!jsonTest["bucket"].IsNullOrEmpty()) //you got rate limited punk
-                            {
-                                throw new RateLimitException(jsonTest["message"].ToString(), jsonTest["retry_after"].ToObject<int>());
-                            }
-                        }
-                    }
                     if (result != "")
                         return result;
                 }
             }
             catch (WebException e)
             {
-                using (StreamReader s = new StreamReader(e.Response.GetResponseStream()))
+                if (e.Response != null)
                 {
-                    var result = s.ReadToEnd();
-                    return result;
+                    using (var errorResponse = (HttpWebResponse)e.Response)
+                    {
+                        if (errorResponse.StatusCode == (HttpStatusCode)429)
+                        {
+                            throw new RateLimitException("You got rate limited kiddo!");
+                        }
+                    }
+                }
+                else
+                {
+                    throw e;
                 }
             }
             return "";
