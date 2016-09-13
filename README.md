@@ -42,7 +42,7 @@ using SharpCord;
 class Program {
   static void Main(string[] args)
         {
-            DiscordClient client = new DiscordClient("INSERT YOUR TOKEN HERE", true, true);
+            DiscordClient client = new DiscordClient("INSERT YOUR TOKEN HERE", true);
 
             Console.WriteLine("Attempting to connect!");
             try
