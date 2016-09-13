@@ -7,6 +7,7 @@ using DSharpPlus;
 using DSharpPlus.Utility;
 using DSharpPlus.Commands;
 using System.IO;
+using DSharpPlus.Events;
 
 namespace DSharpPlus.Testing
 {
@@ -30,6 +31,8 @@ namespace DSharpPlus.Testing
 
             client.CommandPrefix = ".";
 
+            client.AddCommand(new Command_Greet());
+
             client.AddCommand(DiscordCommand.Create("test").Do(async e =>
             {
                 await e.Channel.SendMessageAsync($"Test received. param1={e.GetArg(0)}  param2={e.GetArg(1)}  multiWordParam3={e.GetArg(2)}");
@@ -40,11 +43,26 @@ namespace DSharpPlus.Testing
             .Alias("alsotest")
             );
 
-            client.MessageReceived += (a, b) =>
+            //Mayuri
+            client.AddAuthorListener("183777969221795841", new EventHandler<DiscordMessageEventArgs>((sender, e) =>
             {
-                if(b.Author.ID == "183777969221795841" && b.Channel.ID == "221338268682158081")
-                    b.Channel.DeleteMessage(b.Message);
-            };
+                if (e.Channel.ID == "221338268682158081")
+                    e.Channel.DeleteMessage(e.Message);
+            }));
+
+            //Death
+            client.AddAuthorListener("92838401044140032", new EventHandler<DiscordMessageEventArgs>((sender, e) =>
+            {
+                if (e.Channel.ID == "221338268682158081")
+                    e.Channel.DeleteMessage(e.Message);
+            }));
+
+            //Also Death
+            client.AddAuthorListener("92838401044140032", new EventHandler<DiscordMessageEventArgs>((sender, e) =>
+            {
+                e.Channel.SendMessage("Hey Death");
+            }));
+
             Console.ReadLine();
 
         }

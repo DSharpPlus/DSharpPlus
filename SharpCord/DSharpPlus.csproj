@@ -120,7 +120,6 @@
     <Compile Include="EpochTime.cs" />
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
-    <Compile Include="GitHub\GitHubClient.cs" />
     <Compile Include="Objects\DiscordInvite.cs" />
     <Compile Include="Objects\DiscordVoiceState.cs" />
     <Compile Include="Objects\DiscordServer.cs" />
@@ -131,7 +130,6 @@
     <Compile Include="Sockets\NetWebSocket.cs" />
     <Compile Include="Sockets\WebSocketSharpSocket.cs" />
     <Compile Include="Testing\Command_Greet.cs" />
-    <Compile Include="Testing\GithubTest.cs" />
     <Compile Include="Testing\TestBot.cs" />
     <Compile Include="Utility\FileIO.cs" />
     <Compile Include="Utility\TaskHelper.cs" />

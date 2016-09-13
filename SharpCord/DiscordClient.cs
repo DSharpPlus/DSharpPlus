@@ -625,7 +625,58 @@ namespace DSharpPlus
             }
         }
 
+        Dictionary<string, EventHandler<DiscordMessageEventArgs>> AuthorListeners = new Dictionary<ID, EventHandler<DiscordMessageEventArgs>>();
+        /// <summary>
+        /// Adds a listener for when this member sends a message.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="func"></param>
+        public void AddAuthorListener(string id, EventHandler<DiscordMessageEventArgs> func)
+        {
+            if (AuthorListeners.ContainsKey(id))
+                AuthorListeners[id] += func;
+            else
+                AuthorListeners.Add(id, func);
+        }
+        /// <summary>
+        /// Clears all listeners for this member.
+        /// </summary>
+        /// <param name="id"></param>
+        public void ClearAuthorListeners(string id)
+        {
+            if (AuthorListeners.ContainsKey(id))
+                AuthorListeners.Remove(id);
+        }
 
+        Dictionary<string, EventHandler<DiscordMessageEventArgs>> ChannelListeners = new Dictionary<ID, EventHandler<DiscordMessageEventArgs>>();
+        /// <summary>
+        /// Adds a listener for when a message is sent in this channel.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="func"></param>
+        public void AddChannelListener(string id, EventHandler<DiscordMessageEventArgs> func)
+        {
+            if (ChannelListeners.ContainsKey(id))
+                AuthorListeners[id] += func;
+            else
+                AuthorListeners.Add(id, func);
+        }
+
+        /// <summary>
+        /// Clears all listeners for this channel.
+        /// </summary>
+        /// <param name="id"></param>
+        public void ClearChannelListeners(string id)
+        {
+            if(ChannelListeners.ContainsKey(id))
+                ChannelListeners.Remove(id);
+        }
+
+
+        /// <summary>
+        /// The prefix for all commands sent to this bot.
+        /// Example: !help
+        /// </summary>
         public string CommandPrefix = "!";
 
         /// <summary>
@@ -1777,6 +1828,9 @@ namespace DSharpPlus
 
                 ParseCommandFromMessage(dmea);
 
+                if (AuthorListeners.ContainsKey(dmea.Author.ID))
+                    AuthorListeners[dmea.Author.ID](this, dmea);
+
                 if (MessageReceived != null)
                     MessageReceived(this, dmea);
             }
@@ -2091,7 +2145,7 @@ namespace DSharpPlus
         /// <param name="id"></param>
         /// <returns>A full invite URL.</returns>
         public string MakeInviteURLFromCode(string id) => "https://discord.gg/" + id;
-
+        
 
         /// <summary>
         /// Runs the websocket connection for the client hooking up the appropriate events.
