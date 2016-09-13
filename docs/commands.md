@@ -1,7 +1,8 @@
 # Creating Commands #
 First, you'll need to initialize your bot. This is a rather simple process:
 
-    DiscordClient client = new DiscordClient("bot_token", true);
+`DiscordClient client = new DiscordClient("bot_token", true);`
+
 Once you've done this, you can begin adding commands.
 This can be done in one of two ways:
 
@@ -9,23 +10,24 @@ This can be done in one of two ways:
 ----
 Commands can be declared simply by running AddCommand with the Create function. This is generally for commands that have simple functionality, and don't require many extra tidbits to perform their logic.
 
-    client.AddCommand(DiscordCommand.Create("greet"));
+`client.AddCommand(DiscordCommand.Create("greet"));`
 So now we have our command, however it doesn't seem to have any logic. _Let's add some._
 
-    client.AddCommand(DiscordCommand.Create("greet")
-    .Do(async e =>
-    {
-	    await e.Channel.SendMessageAsync("Hello!");
+```client.AddCommand(DiscordCommand.Create("greet")
+	.Do(async e =>
+	{
+	await e.Channel.SendMessageAsync("Hello!");
 	})
-	);
+);```
+```
 Alright, so now we have a command that will send the message "Hello!" to whoever runs the command. But what if we'd like for it to mention the user as well?
-
+```
     client.AddCommand(DiscordCommand.Create("greet")
     .Do(async e =>
     {
-	    await e.Channel.SendMessageAsync("Hello, " + e.Mention + "!");
-	})
-	);
+    await e.Channel.SendMessageAsync("Hello, " + e.Mention + "!");
+})
+);```
 So, we've made a simple ``!greet`` command, which will make our bot greet whoever sends the command. But what if we'd like ``!hello`` to have the same functionality? Well that's simple, just add .Alias("hello") to the command, like so:
 
     client.AddCommand(DiscordCommand.Create("greet")
