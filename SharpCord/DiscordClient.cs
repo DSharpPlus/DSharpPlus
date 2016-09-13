@@ -702,6 +702,38 @@ namespace DSharpPlus
         /// </summary>
         public List<string> CommandPrefixes = new List<string>() { "!" };
 
+        public string CommandPrefix
+        {
+            set
+            {
+                CommandPrefixes = new List<string>() { value };
+            }
+        }
+
+        /// <summary>
+        /// Adds a prefix for commands.
+        /// </summary>
+        /// <param name="prefix"></param>
+        public void AddPrefix(string prefix)
+        {
+            if (!CommandPrefixes.Contains(prefix))
+                CommandPrefixes.Add(prefix);
+            else
+                throw new System.Exception("A prefix with that name has already been added to this client!");
+        }
+
+        /// <summary>
+        /// Removes a prefix. 
+        /// </summary>
+        /// <param name="prefix"></param>
+        public void RemovePrefix(string prefix)
+        {
+            if (CommandPrefixes.Contains(prefix))
+                CommandPrefixes.Remove(prefix);
+            else
+                throw new System.ArgumentNullException("A prefix with that name could not be removed, as it didn't exist!");
+        }
+
         /// <summary>
         /// Adds a command to this DiscordClient
         /// </summary>
