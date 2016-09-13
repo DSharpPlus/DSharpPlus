@@ -661,7 +661,6 @@ namespace DSharpPlus
             else
                 AuthorListeners.Add(id, func);
         }
-
         /// <summary>
         /// Clears all listeners for this channel.
         /// </summary>
@@ -672,12 +671,36 @@ namespace DSharpPlus
                 ChannelListeners.Remove(id);
         }
 
+        Dictionary<string, EventHandler<DiscordMessageEventArgs>> KeywordListeners = new Dictionary<ID, EventHandler<DiscordMessageEventArgs>>();
+        /// <summary>
+        /// Adds a listener for when a message with a specific keyword is sent.
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <param name="func"></param>
+        public void AddKeywordListener(string keyword, EventHandler<DiscordMessageEventArgs> func)
+        {
+            keyword = keyword.ToLower();
+            if (KeywordListeners.ContainsKey(keyword))
+                KeywordListeners[keyword] += func;
+            else
+                KeywordListeners.Add(keyword, func);
+        }
+        /// <summary>
+        /// Clears all listeners for this keyword.
+        /// </summary>
+        /// <param name="keyword"></param>
+        public void ClearKeywordListeners(string keyword)
+        {
+            if (KeywordListeners.ContainsKey(keyword))
+                KeywordListeners.Remove(keyword);
+        }
+
 
         /// <summary>
         /// The prefix for all commands sent to this bot.
         /// Example: !help
         /// </summary>
-        public string CommandPrefix = "!";
+        public List<string> CommandPrefixes = new List<string>() { "!" };
 
         /// <summary>
         /// Adds a command to this DiscordClient
@@ -700,7 +723,7 @@ namespace DSharpPlus
         private async void ParseCommandFromMessage(DiscordMessageEventArgs e)
         {
             //Really need to test if it's not the bot user.
-            if (!e.MessageText.StartsWith(CommandPrefix))
+            if(CommandPrefixes.Where(t => e.MessageText.StartsWith(t)).Count() == 0)
                 return;
 
             //Fix for Naam's chat to make sure the bot doesn't mess up the chat.
@@ -716,8 +739,13 @@ namespace DSharpPlus
             //Getting the command keyword
             string keyword = e.MessageText.GetWord(0);
             //Removing the prefix.
-            int prefixCharCount = CommandPrefix.Length;
-            keyword = keyword.Remove(0, prefixCharCount);
+            //Let's see what prefix they used.
+            foreach(string prefix in CommandPrefixes)
+                if (keyword.StartsWith(prefix))
+                {
+                    keyword = keyword.Remove(0, prefix.Length);
+                    break;
+                }
 
             foreach(var command in Commands)
             {
@@ -1830,6 +1858,13 @@ namespace DSharpPlus
 
                 if (AuthorListeners.ContainsKey(dmea.Author.ID))
                     AuthorListeners[dmea.Author.ID](this, dmea);
+
+                if (ChannelListeners.ContainsKey(dmea.Channel.ID))
+                    ChannelListeners[dmea.Channel.ID](this, dmea);
+
+                foreach (string word in dmea.Message.Content.Split(' '))
+                    if (KeywordListeners.ContainsKey(word.ToLower()))
+                        KeywordListeners[word.ToLower()](this, dmea);
 
                 if (MessageReceived != null)
                     MessageReceived(this, dmea);
