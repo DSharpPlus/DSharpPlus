@@ -95,7 +95,7 @@ The `e` in `(sender, e)` is the individual event.
 
 `e.MessageText` is the text of the message that was recieved.
 
-Your `Main` method should now look like this: 
+Your program should now look like this: 
 
 ```
 class Program {
