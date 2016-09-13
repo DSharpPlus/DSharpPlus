@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus", "SharpCord\DSharpPlus.csproj", "{A96FFE9E-3650-4976-872E-5BB336CC1589}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Github", "DSharp.Github\DSharpPlus.Github.csproj", "{467DD8EB-BFC4-4E88-AF38-73A4201E038A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Github", "DSharpPlus.Github\DSharpPlus.Github.csproj", "{467DD8EB-BFC4-4E88-AF38-73A4201E038A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
