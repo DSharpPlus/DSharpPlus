@@ -1,4 +1,4 @@
-![Logo of SharpCord](https://github.com/NaamloosDT/SharpCord/blob/master/logo_smaller.png)
+![Logo of DSharpPlus](https://github.com/NaamloosDT/DSharpPlus/raw/master/logo_smaller.png)
 
 # DSharp+
 
@@ -64,13 +64,13 @@ class Program {
 In a nutshell, the code will allow your bot to connect to the server. Head to the Example Bot on how to get started with commands and othere portions of the bot.
 
 # Documentation
-* http://dsharpplus.readthedocs.io/en/latest/
+* https://naamloosdt.github.io/SharpCord/
 
 # Old Example Bot (might be a bit outdated)
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
 
 # Questions?
-Come talk to us [here](https://discord.gg/xQUbM8m) (Naamloos' chat) or [here](https://discord.gg/fXUfnz5) (Discord API chat)! :heart:
+Come talk to us [here](https://discord.gg/xQUbM8m)! :heart:
 
 # Changelog
 The changelog can be found in the Changelog.md file

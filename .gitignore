@@ -201,3 +201,4 @@ FakesAssemblies/
 
 bot_token.txt
 SharpCord/TestBot/TestBot.cs
+SharpCord.dll.nuspec
