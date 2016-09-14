@@ -21,6 +21,7 @@
 [Ll]ibs/
 x64/
 x86/
+nuget/
 build/
 bld/
 [Bb]in/

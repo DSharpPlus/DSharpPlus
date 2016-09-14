@@ -29,7 +29,7 @@ namespace DSharpPlus.Testing
             };
             client.Connect();
 
-            client.CommandPrefixes = ".";
+            client.CommandPrefixes.Add(".");
 
             client.AddCommand(new Command_Greet());
 
