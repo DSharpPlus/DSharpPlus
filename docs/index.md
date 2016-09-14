@@ -4,6 +4,9 @@
 
 A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp) :3 
 
+# Our official server
+[![Discord Server ](https://discordapp.com/api/guilds/146044397861994496/widget.png)](https://discord.gg/xQUbM8m)
+
 # Getting Started
 
 ## 1. Installation and setup
