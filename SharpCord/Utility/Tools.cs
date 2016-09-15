@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Objects;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Toolbox
 {
@@ -42,6 +43,21 @@ namespace DSharpPlus.Toolbox
                 words.Add(s.GetWord(i));
             }
             return words.ToArray();
+        }
+
+        public static string getUserToken(string Email, string Password)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Auth + Endpoints.Login;
+            string content = $"{{\"email\":\"{Email}\", \"password\":\"{Password}\"}}";
+            try
+            {
+                JObject result = JObject.Parse(WebWrapper.Post(url, content));
+                return result["token"].ToString().Trim();
+            }
+            catch
+            {
+                throw new Exception("Either your Email or Password is wrong, or something else fcked up!");
+            }
         }
 
         public static int WordCount(this string s)
