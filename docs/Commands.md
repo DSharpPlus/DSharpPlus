@@ -3,6 +3,12 @@ First, you'll need to initialize your bot. This is a rather simple process:
 
 `DiscordClient client = new DiscordClient("bot_token", true);`
 
+You will also need to add a prefix. As of 0.1.6 this has changed, you now create new prefixes by doing this:
+
+`client.CommandPrefixes.Add(prefixString);`
+
+An example would be ``client.CommandPrefixes.Add(".");` or `client.CommandPrefixes.Add(".testbot");`
+
 Once you've done this, you can begin adding commands.
 This can be done in one of two ways:
 
