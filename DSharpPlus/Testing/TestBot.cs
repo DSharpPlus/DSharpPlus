@@ -15,11 +15,12 @@ namespace DSharpPlus.Testing
     {
         static void Main(string[] args)
         {
-            string botToken = FileIO.LoadString(
-                Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName
-                + "\\bot_token.txt");
+            string botToken = "MTk3MDcyNjMwMjY2ODU1NDI1.Cr3eLw.x260SZUx1voLgcq8vKq-lM1aLp0";
             Console.WriteLine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName);
             DiscordClient client = new DSharpPlus.DiscordClient(botToken, true);
+
+            // voice testing
+            DiscordVoiceClient voiceClient = new DiscordVoiceClient(client);
 
             Console.WriteLine("Connecting...");
             client.Connected += (sender, e) =>
@@ -31,17 +32,12 @@ namespace DSharpPlus.Testing
 
             client.CommandPrefixes.Add(".");
 
-            client.AddCommand(new Command_Greet());
-
-            client.AddCommand(DiscordCommand.Create("test").Do(async e =>
+            client.AddCommand(DiscordCommand.Create("summon").Do(async e =>
             {
-                await e.Channel.SendMessageAsync($"Test received. param1={e.GetArg(0)}  param2={e.GetArg(1)}  multiWordParam3={e.GetArg(2)}");
-            })
-            .AddParameter("param1")
-            .AddParameter("param2")
-            .AddParameter("param3", DiscordCommandParameterType.Multiple)
-            .Alias("alsotest")
-            );
+                await e.Channel.SendMessageAsync("Going to channel " + e.Member.CurrentVoiceChannel.Name);
+                DiscordVoiceConfig config = new DiscordVoiceConfig();
+                voiceClient = new DiscordVoiceClient(client, config, e.Member.CurrentVoiceChannel);
+            }));
 
             //Mayuri
             client.AddAuthorListener("183777969221795841", new EventHandler<DiscordMessageEventArgs>((sender, e) =>

@@ -53,6 +53,11 @@ namespace DSharpPlus.GitHub
 
         }
 
+        /// <summary>
+        /// INDEV: Gets last commit of a repo
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="repo"></param>
         public async void GetLastCommitOfRepo(string user, string repo)
         {
             var repositoryVar = await ghclient.Repository.Get(user, repo);
