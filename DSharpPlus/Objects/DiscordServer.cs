@@ -44,14 +44,13 @@ namespace DSharpPlus.Objects
         /// Server Icon
         /// </summary>
         [JsonProperty("icon")]
-        internal string icon { get; set; }
+        public string icon { get; set; }
+
         public string IconURL
         {
             get
             {
-                if (icon != null)
-                    return Endpoints.ContentDeliveryNode + Endpoints.Icons + $"/{ID}/{icon}.jpg";
-                return null;
+                return $"{Endpoints.BaseAPI}{Endpoints.Guilds}{ID}{Endpoints.Icons}/{icon}.jpg";
             }
         }
 
