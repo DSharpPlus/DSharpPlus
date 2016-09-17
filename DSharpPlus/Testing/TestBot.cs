@@ -15,12 +15,12 @@ namespace DSharpPlus.Testing
     {
         static void Main(string[] args)
         {
-            string botToken = "MTk3MDcyNjMwMjY2ODU1NDI1.Cr3eLw.x260SZUx1voLgcq8vKq-lM1aLp0";
+            string botToken = "no";
             Console.WriteLine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName);
             DiscordClient client = new DSharpPlus.DiscordClient(botToken, true);
 
             // voice testing
-            DiscordVoiceClient voiceClient = new DiscordVoiceClient(client);
+            DiscordVoiceClient voiceClient;
 
             Console.WriteLine("Connecting...");
             client.Connected += (sender, e) =>
@@ -36,7 +36,14 @@ namespace DSharpPlus.Testing
             {
                 await e.Channel.SendMessageAsync("Going to channel " + e.Member.CurrentVoiceChannel.Name);
                 DiscordVoiceConfig config = new DiscordVoiceConfig();
-                voiceClient = new DiscordVoiceClient(client, config, e.Member.CurrentVoiceChannel);
+                Console.WriteLine(e.Member.CurrentVoiceChannel.Name);
+                try
+                {
+                    voiceClient = new DiscordVoiceClient(client, config, e.Member.CurrentVoiceChannel);
+                } catch
+                {
+                    e.Channel.SendMessage("Failed");
+                }
             }));
 
             //Mayuri

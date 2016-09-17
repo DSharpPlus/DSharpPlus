@@ -43,6 +43,9 @@ namespace DSharpPlus.Objects
         Text, Voice
     }
 
+    /// <summary>
+    /// A channel that is on Discord
+    /// </summary>
     public class DiscordChannel : DiscordChannelBase
     {
         [JsonProperty("type")]
@@ -85,6 +88,9 @@ namespace DSharpPlus.Objects
 
         public List<DiscordPermissionOverride> PermissionOverrides { get; set; }
 
+        /// <summary>
+        /// The parent discord server of a channel
+        /// </summary>
         public DiscordServer Parent { get; internal set; }
 
         /// <summary>
@@ -233,6 +239,9 @@ namespace DSharpPlus.Objects
         internal DiscordChannel() { }
     }
 
+    /// <summary>
+    /// A private discord channel
+    /// </summary>
     public class DiscordPrivateChannel : DiscordChannelBase
     {
         internal string user_id { get; set; }
