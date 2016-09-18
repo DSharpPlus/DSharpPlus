@@ -378,12 +378,16 @@ namespace DSharpPlus
         /// <param name="isBotAccount">Set this to true if your bot is going to be a bot account</param>
         public DiscordClient(string tokenOverride = null, bool isBotAccount = false, bool enableLogging = true)
         {
+
             if (isBotAccount && tokenOverride == null)
                 throw new Exception("Token override cannot be null if using a bot account!");
             DebugLogger.EnableLogging = enableLogging;
-
-            token = tokenOverride;
             IsBotAccount = isBotAccount;
+
+            if(isBotAccount)
+            token = "Bot " + tokenOverride;
+            else
+            token = tokenOverride;
 
             if (IsBotAccount)
                 UserAgentString = "DiscordBot " + UserAgentString;
@@ -525,11 +529,18 @@ namespace DSharpPlus
                             if (!presence["game"].IsNullOrEmpty())
                             {
                                 member.CurrentGame = presence["game"]["name"].ToString();
-                                if (presence["d"]["game"]["type"].ToObject<int>() == 1)
+                                try
                                 {
-                                    member.Streaming = true;
-                                    if (presence["d"]["game"]["url"].ToString() != null)
-                                        member.StreamURL = presence["d"]["game"]["url"].ToString();
+                                    if (presence["d"]["game"]["type"].ToObject<int>() == 1)
+                                    {
+                                        member.Streaming = true;
+                                        if (presence["d"]["game"]["url"].ToString() != null)
+                                            member.StreamURL = presence["d"]["game"]["url"].ToString();
+                                    }
+                                }
+                                catch (Exception)
+                                {
+
                                 }
                             }
                         }
