@@ -18,6 +18,15 @@ namespace DSharpPlus.Github.Modules
         }
 
 
+        public string GetActiveIssuesOfRepo(string user, string repo)
+        {
+            // var issuesForRepo = await ghclient.Issue.GetAllForRepository(owner, repo);
+            var repositoryVar = ghClient.Repository.Get(user, repo);
 
+
+            string returnString = $"There are {repositoryVar.Result.OpenIssuesCount.ToString()} active issues for repository {user}/{repo}";
+            return returnString;
+
+        }
     }
 }

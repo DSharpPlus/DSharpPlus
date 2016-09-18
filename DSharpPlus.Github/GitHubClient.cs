@@ -23,7 +23,7 @@ namespace DSharpPlus.GitHub
         /// </summary>
         /// <param name="unauthenticated">If true, use unauthClientName instead of user/pass</param>
         /// <param name="unauthClientName">The name of the unauthenticated client</param>
-        /// <param name="user">The authenticated user's name, leave null if unauthenticated</param>
+        /// <param name="user">The authenticated user's username, leave null if unauthenticated</param>
         /// <param name="pass">The authenticated user's password, leave null if unauthenticated</param>
 
         public DSharpPlusGithubClient (bool unauthenticated = true, string unauthClientName = "default-dsharp-client", string user = null, string pass = null)
