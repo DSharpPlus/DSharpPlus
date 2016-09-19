@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 
 namespace DSharpPlus.Objects {
+    /// <summary>
+    /// The voice state of a user
+    /// </summary>
     public class DiscordVoiceState {
         /// <summary>
         /// Server ID

@@ -122,8 +122,15 @@ namespace DSharpPlus.Objects
             return allowed;
         }
 
-
+        /// <summary>
+        /// Get the allowed permissions
+        /// </summary>
+        /// <returns>The return value is the raw value of allowed permissions</returns>
         public uint GetAllowedRawPermissions() => allow_raw;
+        /// <summary>
+        /// Get the denied permissions
+        /// </summary>
+        /// <returns>The return value is the raw value of denied permissions</returns>
         public uint GetDeniedRawPermissions() => deny_raw;
     }
 }

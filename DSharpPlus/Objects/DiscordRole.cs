@@ -51,7 +51,10 @@ namespace DSharpPlus.Objects
         /// </summary>
         [JsonProperty("mentionable")]
         public bool CanBeMentioned { get; internal set; }
-
+        /// <summary>
+        /// Copies a role
+        /// </summary>
+        /// <returns>A new role with the same values as the one it copied</returns>
         public DiscordRole Copy()
         {
             return new DiscordRole

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Objects
 {
+    /// <summary>
+    /// Values for Permissions
+    /// </summary>
     public enum DiscordSpecialPermissions : byte
     {
         //Me, donut use
@@ -41,6 +44,9 @@ namespace DSharpPlus.Objects
         ManageNicknames = 27,
         ManageRolesOrPermissions = 28,
     }
+    /// <summary>
+    /// Class that holds all bot permission information
+    /// </summary>
     public class DiscordPermission
     {
         private uint raw = 0;

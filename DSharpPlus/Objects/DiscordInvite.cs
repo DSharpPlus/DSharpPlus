@@ -35,7 +35,9 @@ namespace DSharpPlus.Objects
             WebWrapper.Delete(url, DiscordClient.token);
         }
     }
-
+    /// <summary>
+    /// The server the invite is coming from
+    /// </summary>
     public class DiscordInviteServer
     {
         /// <summary>
@@ -50,7 +52,9 @@ namespace DSharpPlus.Objects
         [JsonProperty("name")]
         public string name { get; internal set; }
     }
-
+    /// <summary>
+    /// The channel the invite is coming from
+    /// </summary>
     public class DiscordInviteChannel
     {
         /// <summary>

@@ -253,8 +253,10 @@ namespace DSharpPlus.Objects
         internal DiscordPrivateChannel() { }
     }
 
-    //kinda like the author
-    [Obsolete]
+    /// <summary>
+    /// [Deprecated] The reciepient
+    /// </summary>
+    [Obsolete] //kinda like the author
     public class DiscordRecipient
     {
         public string username { get; set; }

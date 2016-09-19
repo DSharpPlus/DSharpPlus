@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Objects
 {
+    /// <summary>
+    /// Login information for user accounts
+    /// </summary>
     [Obsolete]
     public class DiscordLoginInformation
     {

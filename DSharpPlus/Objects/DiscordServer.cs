@@ -479,7 +479,10 @@ namespace DSharpPlus.Objects
             }
             return invitelist;
         }
-
+        /// <summary>
+        /// Copies a server's information
+        /// </summary>
+        /// <returns></returns>
         public DiscordServer ShallowCopy()
         {
             return (DiscordServer)this.MemberwiseClone();
