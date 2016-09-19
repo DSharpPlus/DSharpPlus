@@ -5,4 +5,6 @@ if ! [ command -v nuget ] then
 else
 	nuget restore
 	xbuild
+	cd /home/travis/build/NaamloosDT/DSharpPlus/DSharpPlus/bin
+	zip -r build.zip /home/travis/build/NaamloosDT/DSharpPlus/DSharpPlus/bin/*
 fi
