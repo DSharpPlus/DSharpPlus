@@ -202,6 +202,41 @@ namespace DSharpPlus.Objects
         }
 
         /// <summary>
+        /// (Un)Mute this user, if you have permission to do so.
+        /// </summary>
+        /// <param name="ismuted">Wether this user is muted or not</param>
+        public void UpdateMute(bool ismuted)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.ID}" + Endpoints.Members + $"/{ID}";
+            string payload = JsonConvert.SerializeObject
+            (
+                new
+                {
+                    Muted = ismuted
+                }
+            );
+            var strResult = WebWrapper.Patch(url, DiscordClient.token, payload);
+        }
+
+        /// <summary>
+        /// (Un)Deafen this user, if you have permission to do so.
+        /// </summary>
+        /// <param name="isdeafened">Wether this user is deafened or not</param>
+        public void UpdateDeaf(bool isdeafened)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{Parent.ID}" + Endpoints.Members + $"/{ID}";
+            string payload = JsonConvert.SerializeObject
+            (
+                new
+                {
+                    Deaf = isdeafened
+                }
+            );
+            var strResult = WebWrapper.Patch(url, DiscordClient.token, payload);
+        }
+
+
+        /// <summary>
         /// Iterates all the roles the user has checking if any of the present have the permission you pass.
         /// </summary>
         /// <param name="permission">The permission to check.</param>
