@@ -63,7 +63,7 @@ In a nutshell, the code will allow your bot to connect to the server. Head to th
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
 
 # Questions?
-Come talk to us [here](https://discord.gg/xQUbM8m)! &#2764
+Come talk to us [here](https://discord.gg/xQUbM8m)! <p>&#2764</p>
 
 # Changelog
 The changelog can be found in the Changelog.md file
