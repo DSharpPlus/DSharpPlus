@@ -1,8 +1,8 @@
 ﻿//  If you have any questions or just want to talk, join my server!
 //  https://discord.gg/0oZpaYcAjfvkDuE4
 using Newtonsoft.Json.Linq;
-using SharpCord;
-using SharpCord.Objects;
+using DSharpPlus;
+using DSharpPlus.Objects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
