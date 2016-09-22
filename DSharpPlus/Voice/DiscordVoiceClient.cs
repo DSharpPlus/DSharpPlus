@@ -894,6 +894,7 @@ namespace DSharpPlus
                 VoiceDebugLogger.Log("Sent packet through SendPacket task.", MessageLevel.Unecessary);
             }
         }
+
         /// <summary>
         /// Whether or not the current client is set to be speaking.
         /// </summary>
