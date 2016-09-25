@@ -45,7 +45,7 @@ namespace TestBot
                 int sampleRate = 48000;
 
                 var outFormat = new WaveFormat(sampleRate, 16, channels);
-              //int blockSize = 48 * 2 * channels * ms;
+                //int blockSize = 48 * 2 * channels * ms;
                 int blockSize = 48 * 2 * channels * ms;
                 byte[] buffer = new byte[blockSize];
 
@@ -93,7 +93,7 @@ namespace TestBot
                 else
                     throw new NotSupportedException($"File format \"{fileFormat}\" is not supported.");
             }
-            catch(Exception ex) { client.GetTextClientLogger.Log(ex.Message, MessageLevel.Critical); }
+            catch (Exception ex) { client.GetTextClientLogger.Log(ex.Message, MessageLevel.Critical); }
         }
 
         public void SendBytes(byte[] voiceBytes)
