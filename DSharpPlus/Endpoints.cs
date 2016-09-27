@@ -1,4 +1,10 @@
-﻿namespace DSharpPlus
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DSharpPlus
 {
     /// <summary>
     /// The class that contains the end points needed by DSharpPlus.

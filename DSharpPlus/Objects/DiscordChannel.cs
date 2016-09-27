@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Objects
@@ -262,4 +263,6 @@ namespace DSharpPlus.Objects
         public string id { get; set; }
         internal DiscordRecipient() { }
     }
+
+    
 }
