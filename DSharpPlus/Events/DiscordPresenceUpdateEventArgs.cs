@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using DSharpPlus.Objects;
+
 namespace DSharpPlus
 {
     public enum DiscordUserStatus { ONLINE, IDLE, OFFLINE }

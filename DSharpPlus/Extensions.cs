@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using DSharpPlus.Objects;
 
 #if !V45
-using System.IO;
 public static class Net35Extensions
 {
     /// <summary>

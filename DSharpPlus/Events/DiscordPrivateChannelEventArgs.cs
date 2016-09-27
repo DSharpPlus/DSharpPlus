@@ -1,5 +1,6 @@
 ﻿using System;
 using DSharpPlus.Objects;
+
 namespace DSharpPlus
 {
     public class DiscordPrivateChannelEventArgs : EventArgs
