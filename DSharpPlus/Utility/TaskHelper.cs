@@ -2,9 +2,6 @@
 //https://github.com/RogueException/Discord.Net/blob/a357a06d33c5631f5fb7181e7e231d960bf7a3f3/src/Discord.Net.Shared/TaskHelper.cs
 //https://github.com/RogueException/Discord.Net/
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Utility
