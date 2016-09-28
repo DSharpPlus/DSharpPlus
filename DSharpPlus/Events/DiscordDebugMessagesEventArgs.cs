@@ -1,5 +1,5 @@
 ﻿using System;
-using DSharpPlus.Objects;
+
 namespace DSharpPlus
 {
     public class DiscordDebugMessagesEventArgs : EventArgs
