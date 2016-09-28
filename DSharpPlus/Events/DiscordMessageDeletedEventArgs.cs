@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using DSharpPlus.Objects;
-
 namespace DSharpPlus.Events
 {
     public class DiscordMessageDeletedEventArgs : EventArgs

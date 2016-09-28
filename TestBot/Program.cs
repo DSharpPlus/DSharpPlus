@@ -1,6 +1,10 @@
 ﻿using DSharpPlus;
+using NAudio.Wave;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace TestBot
 {
@@ -20,8 +24,10 @@ namespace TestBot
             {
                 input = Console.ReadLine();
 
-				if (input == "")
-				{}
+                if (input == "")
+                {
+
+                }
             }
         }
 
