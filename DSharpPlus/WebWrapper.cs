@@ -1,14 +1,10 @@
 ﻿using DSharpPlus.Objects;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
@@ -177,6 +173,9 @@ namespace DSharpPlus
             return "";
         }
 
+        /// <summary>
+        /// Uploads file through the HTTP protocol
+        /// </summary>
         public static string HttpUploadFile(string url, string token, string file, string paramName, string contentType, NameValueCollection nvc)
         {
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
@@ -229,7 +228,9 @@ namespace DSharpPlus
             fileStream.Close();
             return returnVal;
         }
-
+        /// <summary>
+        /// Uploads file through the HTTP protocol
+        /// </summary>
         public static string HttpUploadFile(string url, string token, System.IO.Stream file, string paramName, string contentType, NameValueCollection nvc)
         {
             string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
@@ -333,6 +334,9 @@ namespace DSharpPlus
             }
             return "";
         }
+        /// <summary>
+        /// OBSOLETE PLEASE DO NOT user
+        /// </summary>
         [Obsolete]
         public static string PostWithAttachment(string url, string message, string fileToAttach)
         {
@@ -483,7 +487,7 @@ namespace DSharpPlus
                         {
                             return result;
                         }
-                        
+
                     }
                     return result;
                 }

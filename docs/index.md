@@ -29,7 +29,7 @@ After you have done that, make a new C# console application project. Set the cla
 
 ## 2. Connecting
 Start your bot off with this code.
-```
+```cs
 using DSharpPlus;
 
 class Program {

@@ -2,7 +2,7 @@
 
 We will start with the code from the [homepage](http://dsharpplus.readthedocs.io/):
 
-```
+```cs
 using DSharpPlus;
 
 class Program {
@@ -35,14 +35,14 @@ As we stated before, the code only connects the bot to the Discord API servers. 
 
 You want to add the following code to the end of your `Main` method
 
-```
+```cs
 		Console.ReadLine();
 		Environment.Exit(0);
 ```
 
 The code above makes it so that the program only closes if you press the `Enter` button. The program should look like this now: 
 
-```
+```cs
 using DSharpPlus;
 
 class Program {
@@ -80,7 +80,7 @@ Now we will get the bot to repeat any message it recieves on any channel its on.
 
 To start that off, put in the below code under the `Console.WriteLine("Attempting to connect!");` line.
 
-```
+```cs
 		client.MessageReceived += (sender, e) => // Channel message has been received
         {
 			e.Channel.SendMessage(e.MessageText);
@@ -99,7 +99,7 @@ The `e` in `(sender, e)` is the individual event.
 
 Your program should now look like this: 
 
-```
+```cs
 class Program {
   static void Main(string[] args)
 	{
@@ -107,7 +107,9 @@ class Program {
 
 		client.MessageReceived += (sender, e) => // Channel message has been received
         {
-			e.Channel.SendMessage(e.MessageText);
+			if(!e.Message.Author.IsBot) {
+				e.Channel.SendMessage(e.MessageText);
+			}
 		}
 		
         Console.WriteLine("Attempting to connect!");
@@ -137,7 +139,7 @@ Now anytime you send a message, the bot should repeat what you said.
 ## Response
 
 So now we will take the code from before we added the echoing.
-```
+```cs
 class Program {
   static void Main(string[] args)
 	{

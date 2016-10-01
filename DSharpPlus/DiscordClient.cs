@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Net;
 using System.IO;
-using WebSocketSharp;
 using System.Threading;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using DSharpPlus.Events;
-using System.Text.RegularExpressions;
 using System.Drawing;
 using DSharpPlus.Objects;
-using DSharpPlus.Utility;
 using System.Linq;
 
 using ID = System.String;

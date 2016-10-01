@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DSharpPlus.Objects;
+
 namespace DSharpPlus
 {
     public class DiscordEmbeds
