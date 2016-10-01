@@ -13,6 +13,9 @@ namespace DSharpPlus
 
         private uint raw;
 
+        /// <summary>
+        /// Get color of something in RGB from hexidecimal value
+        /// </summary>
         public Color(string hex)
         {
             uint asActualHex = Convert.ToUInt32(hex, 16);
