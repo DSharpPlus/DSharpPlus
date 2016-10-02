@@ -26,5 +26,7 @@
         public static string Typing = "/typing";
         public static string Avatars = "/avatars";
         public static string Bans = "/bans";
+        public static string Webhooks = "/webhooks";
+        public static string Slack = "/slack";
     }
 }

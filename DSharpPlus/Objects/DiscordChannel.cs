@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DSharpPlus.Webhooks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -218,6 +219,27 @@ namespace DSharpPlus.Objects
                 messagelist.Add(JsonConvert.DeserializeObject<DiscordMessage>(child.ToString()));
             }
             return messagelist;
+        }
+
+        public Webhook CreateWebhook(string Name, string Avatar = "")
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Webhooks;
+            JObject content = new JObject() { { "name", Name }, { "avatar", Avatar } };
+            var result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, content.ToString()));
+            return JsonConvert.DeserializeObject<Webhook>(result.ToString());
+        }
+
+        public List<Webhook> GetWebhooks()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Webhooks;
+            var result = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+            List<Webhook> webhooks = new List<Webhook>();
+            foreach (var child in result)
+            {
+                Console.WriteLine(child.ToString());
+                webhooks.Add(JsonConvert.DeserializeObject<Webhook>(child.ToString()));
+            }
+            return webhooks;
         }
 
         /// <summary>

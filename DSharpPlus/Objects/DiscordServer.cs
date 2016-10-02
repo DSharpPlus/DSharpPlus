@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DSharpPlus.Webhooks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace DSharpPlus.Objects
         {
             get
             {
-                return $"{Endpoints.BaseAPI}{Endpoints.Guilds}{ID}{Endpoints.Icons}/{icon}.jpg";
+                return $"{Endpoints.BaseAPI}{Endpoints.Guilds}/{ID}{Endpoints.Icons}/{icon}.jpg";
             }
         }
 
@@ -486,6 +487,27 @@ namespace DSharpPlus.Objects
         public DiscordServer ShallowCopy()
         {
             return (DiscordServer)this.MemberwiseClone();
+        }
+
+        public List<Webhook> GetWebhooks()
+        {
+            try
+            {
+                string url = Endpoints.BaseAPI + Endpoints.Guilds + $"/{ID}" + Endpoints.Webhooks;
+                var result = WebWrapper.Get(url, DiscordClient.token);
+                if (result == null) return new List<Webhook>();
+                var json = JArray.Parse(result);
+                List<Webhook> webhooks = new List<Webhook>();
+                foreach (var child in result)
+                {
+                    webhooks.Add(JsonConvert.DeserializeObject<Webhook>(child.ToString()));
+                }
+                return webhooks;
+            }
+            catch
+            {
+                return new List<Webhook>();
+            }
         }
     }
 }

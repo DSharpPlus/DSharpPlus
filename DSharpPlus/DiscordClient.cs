@@ -14,6 +14,7 @@ using ID = System.String;
 using DSharpPlus.Sockets;
 using DSharpPlus.Commands;
 using DSharpPlus.Toolbox;
+using DSharpPlus.Webhooks;
 
 namespace DSharpPlus
 {
@@ -1844,11 +1845,14 @@ namespace DSharpPlus
 
                 dmea.MessageText = message["d"]["content"].ToString();
 
+                bool IsWebhook = (message["d"]["webhook_id"] != null ? true : false);
+
+
                 DiscordMember tempMember = null;
                 tempMember = potentialChannel.Parent.GetMemberByKey(message["d"]["author"]["id"].ToString());
                 if (tempMember == null)
                 {
-                    tempMember = JsonConvert.DeserializeObject<DiscordMember>(message["author"].ToString());
+                    tempMember = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["author"].ToString());
                     tempMember.parentclient = this;
                     tempMember.Parent = potentialChannel.Parent;
 
@@ -3691,6 +3695,20 @@ namespace DSharpPlus
                 }
             }
             return token;
+        }
+
+        public Webhook GetWebhook(long ID, string Token)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Webhooks + $"/{ID}/{Token}";
+            var result = JObject.Parse(WebWrapper.Get(url, ""));
+            return JsonConvert.DeserializeObject<Webhook>(result.ToString());
+        }
+
+        public Webhook GetWebhookByID(long ID)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Webhooks + $"/{ID}";
+            var result = JObject.Parse(WebWrapper.Get(url, token));
+            return JsonConvert.DeserializeObject<Webhook>(result.ToString());
         }
     }
 }
