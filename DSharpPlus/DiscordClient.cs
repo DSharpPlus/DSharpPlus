@@ -14,7 +14,7 @@ using ID = System.String;
 using DSharpPlus.Sockets;
 using DSharpPlus.Commands;
 using DSharpPlus.Toolbox;
-using DSharpPlus.Webhooks;
+using DSharpPlus.Hook;
 
 namespace DSharpPlus
 {
@@ -1760,13 +1760,16 @@ namespace DSharpPlus
                             asdf.Channel = ServersList.Find(x => x.Channels.Find(y => y.ID == message["d"]["channel_id"].ToString()) != null).Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
                             foreach (var embed in message["d"]["embeds"])
                             {
-                                DiscordEmbeds temp = new DiscordEmbeds();
-                                temp.URL = embed["url"].ToString();
+                                DiscordEmbed temp = new DiscordEmbed();
+                                temp.Url = embed["url"].ToString();
                                 temp.Description = embed["description"].ToString();
                                 try
                                 {
-                                    temp.ProviderName = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString();
-                                    temp.ProviderURL = embed["provider"]["url"].ToString();
+                                    temp.Provider = new DiscordEmbedProvider()
+                                    {
+                                        Name = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString(),
+                                        Url = embed["provider"]["url"].ToString()
+                                    };
                                 }
                                 catch { }//noprovider
                                 temp.Title = embed["title"].ToString();

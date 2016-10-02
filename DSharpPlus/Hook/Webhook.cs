@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.Webhooks
+namespace DSharpPlus.Hook
 {
     public class Webhook
     {
@@ -54,7 +54,7 @@ namespace DSharpPlus.Webhooks
             Execute(content[0], wait);
         }
 
-        public void SendEmbeds(List<DiscordEmbeds> embeds, bool wait = false)
+        public void SendEmbeds(List<DiscordEmbed> embeds, bool wait = false)
         {
             JObject content = new JObject() { { "embeds", JsonConvert.SerializeObject(embeds) } };
             Execute(content[0], wait);
