@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DSharpPlus.Hook;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -113,6 +114,7 @@ namespace DSharpPlus.Objects
                 Content = result["content"].ToString(),
                 RawJson = result,
                 timestamp = result["timestamp"].ToObject<DateTime>(),
+                Embeds = result["embeds"].ToObject<DiscordEmbed[]>(),
                 TTS = false
             };
             return m;
@@ -144,6 +146,36 @@ namespace DSharpPlus.Objects
                 Content = result["content"].ToString(),
                 RawJson = result,
                 timestamp = result["timestamp"].ToObject<DateTime>(),
+                Embeds = result["embeds"].ToObject<DiscordEmbed[]>(),
+                TTS = true
+            };
+            return m;
+        }
+
+        /// <summary>
+        /// Sends a message with embeds
+        /// </summary>
+        /// <param name="message">Your message's text.</param>
+        /// <param name="embeds">Your message's embeds.</param>
+        public DiscordMessage SendMessageWithEmbeds(string message, DiscordEmbed[] embeds)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
+            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, false, embeds))));
+            System.IO.File.WriteAllText("tMessage.json", result.ToString());
+
+            if (result["content"].IsNullOrEmpty())
+                throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
+
+            DiscordMessage m = new DiscordMessage
+            {
+                ID = result["id"].ToString(),
+                Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
+                Author = this.Parent.GetMemberByKey(result["author"]["id"].ToString()),
+                channel = this,
+                Content = result["content"].ToString(),
+                RawJson = result,
+                timestamp = result["timestamp"].ToObject<DateTime>(),
+                Embeds = result["embeds"].ToObject<DiscordEmbed[]>(),
                 TTS = true
             };
             return m;
@@ -218,6 +250,27 @@ namespace DSharpPlus.Objects
                 messagelist.Add(JsonConvert.DeserializeObject<DiscordMessage>(child.ToString()));
             }
             return messagelist;
+        }
+
+        public Webhook CreateWebhook(string Name, string Avatar = "")
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Webhooks;
+            JObject content = new JObject() { { "name", Name }, { "avatar", Avatar } };
+            var result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, content.ToString()));
+            return JsonConvert.DeserializeObject<Webhook>(result.ToString());
+        }
+
+        public List<Webhook> GetWebhooks()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Webhooks;
+            var result = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+            List<Webhook> webhooks = new List<Webhook>();
+            foreach (var child in result)
+            {
+                Console.WriteLine(child.ToString());
+                webhooks.Add(JsonConvert.DeserializeObject<Webhook>(child.ToString()));
+            }
+            return webhooks;
         }
 
         /// <summary>

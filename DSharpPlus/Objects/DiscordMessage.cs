@@ -37,6 +37,9 @@ namespace DSharpPlus.Objects
         [JsonProperty("attachments")]
         public DiscordAttachment[] Attachments { get; internal set; }
 
+        [JsonProperty("embeds")]
+        public DiscordEmbed[] Embeds { get; internal set; }
+
 
         //public string recipient_id { get; set; }
         public DiscordMember Recipient { get; internal set; }
