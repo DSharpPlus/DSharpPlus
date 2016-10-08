@@ -10,7 +10,7 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 # Documentation
 * http://dsharpplus.readthedocs.io/en/latest/
 
-# Old Example Bot (might be a bit outdated)
+# Example Bot (might be a bit outdated)
 * https://github.com/NaamloosDT/DiscordSharp_Starter 
 
 # Questions?
