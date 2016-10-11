@@ -493,6 +493,5 @@ namespace DSharpPlus
                 }
             }
         }
-
     }
 }

@@ -7,6 +7,7 @@ namespace DSharpPlus
     {
         PRIVATE, CHANNEL
     }
+
     public class DiscordChannelCreateEventArgs : EventArgs
     {
         public DiscordChannelCreateType ChannelType { get; set; }

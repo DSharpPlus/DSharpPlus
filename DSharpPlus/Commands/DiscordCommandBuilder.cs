@@ -22,7 +22,7 @@ namespace DSharpPlus.Commands
         public DiscordCommandBuilder AddParameter(DiscordCommandParameter param)
         {
             if (Command.ContainsParameterOfType(DiscordCommandParameterType.Multiple))
-                throw new System.Exception("No parameters may be added after a parameter with a type of 'Multiple'.");
+                throw new Exception("No parameters may be added after a parameter with a type of 'Multiple'.");
 
             Command.Parameters.Add(param);
 
