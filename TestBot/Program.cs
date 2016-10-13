@@ -8,6 +8,8 @@ using DSharpPlus.Commands;
 using Newtonsoft.Json.Linq;
 using DSharpPlus.Objects;
 using Newtonsoft.Json;
+using SlackMessageBuilder;
+using SlackMessageBuilder.Objects;
 
 namespace DSharpPlus
 {
@@ -22,63 +24,26 @@ namespace DSharpPlus
 
             Console.WriteLine("Attempting to connect!");
             client.CommandPrefixes.Add("testbot.");
-            client.AddCommand(DiscordCommand.Create("embed")
-                .AddParameter("text")
-                .Do(e =>
-                {
-                    DiscordEmbed embed = new DiscordEmbed()
-                    {
-                        Author = new DiscordEmbedAuthor()
-                        {
-                            Name = "Tiaqo",
-                            Url = "http://platoon.pet"
-                        },
-                        Color = 333,
-                        Description = "Description",
-                        Fields = new List<DiscordEmbedField>()
-                        {
-                            new DiscordEmbedField()
-                            {
-                                Inline = false,
-                                Name = "Name",
-                                Value = "Value"
-                            }
-                        },
-                        Footer = new DiscordEmbedFooter()
-                        {
-                            Text = "Footer"
-                        },
-                        Image = new DiscordEmbedImage()
-                        {
-                            Height = 218,
-                            Width = 371,
-                            Url = "https://cdn.discordapp.com/attachments/146044397861994496/232093592582094848/unknown.png"
-                        },
-                        Provider = new DiscordEmbedProvider()
-                        {
-                            Name = "Provider"
-                        },
-                        Timestamp = DateTime.Now,
-                        Title = "Title",
-                        Type = "rich",
-                        Url = "https://google.com"
-                    };
-
-                    System.IO.File.WriteAllText("embed.json", JsonConvert.SerializeObject(embed));
-
-                    System.IO.File.WriteAllText("message.json", JsonConvert.SerializeObject(e.Channel.SendMessageWithEmbeds(e.args[0], new DiscordEmbed[] { embed }), Formatting.Indented, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore } ) );
-                }
-                ));
             client.AddCommand(DiscordCommand.Create("create")
                 .AddParameter("name")
                 .Do(e =>
                 {
                     Hook.Webhook hook = e.Channel.CreateWebhook(e.args[0]);
-                    hook.SendSlack(new JObject()
-                    {
-                        { "text", "New webhook created" },
-                        { "attachments", new JArray() { new JObject() { { "color", "#36a64f" }, { "pretext", hook.Token }, { "author_name", $"{hook.Name} [{hook.ID}]" }, { "author_icon", hook.User.GetAvatarURL() }, { "title", hook.Name }, { "text", hook.Token }, { "image_url", hook.Avatar } } } }
-                    }, false);
+                    SlackMessage message = new SlackMessage();
+                    message.Add(new SlackText("text", "List of Webhooks"));
+
+                    SlackContainer attachment = new SlackContainer();
+                    attachment.Add(new SlackText("color", "#36a64f"));
+                    attachment.Add(new SlackText("pretext", hook.Token));
+                    attachment.Add(new SlackText("author_name", $"{hook.Name} [{hook.ID}]"));
+                    attachment.Add(new SlackText("author_icon", hook.User.GetAvatarURL().ToString()));
+                    attachment.Add(new SlackText("title", hook.Name));
+                    attachment.Add(new SlackText("text", hook.Token));
+                    attachment.Add(new SlackText("image_url", hook.Avatar));
+
+                    message.Add(new SlackContainerList("attachments", new List<SlackContainer>() { attachment }));
+                    
+                    hook.SendSlack(message.ToJObject());
                 }
                 ));
 
@@ -87,26 +52,26 @@ namespace DSharpPlus
                 {
                     Hook.Webhook fHook = null;
 
-                    JObject message = new JObject();
-                    message.Add("text", "List of Webhooks");
-                    JArray attachments = new JArray();
+                    SlackMessage message = new SlackMessage();
+                    message.Add(new SlackText("text", $"New {Formatter.Bold(Formatter.Bold("webhook"))} {Formatter.InlineCode("created")}"));
+                    List<SlackContainer> attachments = new List<SlackContainer>();
                     foreach (Hook.Webhook hook in e.Channel.GetWebhooks())
                     {
                         if (fHook == null) fHook = hook;
 
-                        attachments.Add(new JObject()
-                        {
-                            { "color", "#36a64f" },
-                            { "pretext", hook.Token },
-                            { "author_name", $"{hook.Name} [{hook.ID}]" },
-                            { "author_icon", hook.User.GetAvatarURL() },
-                            { "title", hook.Name },
-                            { "text", hook.Token },
-                            { "image_url", hook.Avatar }
-                        });
+                        SlackContainer attachment = new SlackContainer();
+                        attachment.Add(new SlackText("color", "#36a64f"));
+                        attachment.Add(new SlackText("pretext", hook.Token));
+                        attachment.Add(new SlackText("author_name", $"{hook.Name} [{hook.ID}]"));
+                        attachment.Add(new SlackText("author_icon", hook.User.GetAvatarURL().ToString()));
+                        attachment.Add(new SlackText("title", hook.Name));
+                        attachment.Add(new SlackText("text", hook.Token));
+                        attachment.Add(new SlackText("image_url", hook.Avatar));
+
+                        attachments.Add(attachment);
                     }
-                    message.Add("attachments", attachments);
-                    fHook.SendSlack(message, false);
+                    message.Add(new SlackContainerList("attachments", attachments));
+                    fHook.SendSlack(message.ToJObject(), false);
                 }
                 ));
             client.AddCommand(DiscordCommand.Create("removeall")
