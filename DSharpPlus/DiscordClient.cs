@@ -411,6 +411,22 @@ namespace DSharpPlus
         /// <returns>DiscordServer list of servers you're currently connected to.</returns>
         public List<DiscordServer> GetServersList() => ServersList;
 
+        /*
+         * FOR WHEN GUILD SHARDING GETS IMPLEMENTED.
+        public List<DiscordServer> GetServersList(bool before, int range, int limit)
+        {
+            List<DiscordServer> servers = new List<DiscordServer>();
+            string url = Endpoints.BaseAPI + Endpoints.Users + Endpoints.Me + Endpoints.Guilds + $"{(before ? "?before=" : "?after=")}{range}&limit={limit}";
+            foreach (JObject server in JArray.Parse(WebWrapper.Get(url, token)))
+            {
+                servers.Add(JsonConvert.DeserializeObject<DiscordServer>(server.ToString()));
+            }
+            return servers;
+        }
+         *
+         * -NAAMLOOS
+        */
+
         /// <summary>
         /// Any messages logged since connection to the websocket.
         /// </summary>
@@ -1995,6 +2011,14 @@ namespace DSharpPlus
                 DebugLogger.Log("Exception ocurred while retrieving Gateway URL: " + ex.Message, MessageLevel.Error);
                 return null;
             }
+        }
+
+        public int GetShardCount()
+        {
+            int shards = 0;
+            string url = Endpoints.BaseAPI + Endpoints.Gateway + Endpoints.Bot;
+            shards = int.Parse(JObject.Parse(WebWrapper.Get(url, token))["shards"].ToString());
+            return shards;
         }
 
         /// <summary>
