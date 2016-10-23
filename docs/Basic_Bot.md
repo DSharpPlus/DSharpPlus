@@ -107,7 +107,9 @@ class Program {
 
 		client.MessageReceived += (sender, e) => // Channel message has been received
         {
-			e.Channel.SendMessage(e.MessageText);
+			if(!e.Message.Author.IsBot) {
+				e.Channel.SendMessage(e.MessageText);
+			}
 		}
 		
         Console.WriteLine("Attempting to connect!");

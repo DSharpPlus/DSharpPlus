@@ -15,7 +15,7 @@ namespace DSharpPlus
         public string Message;
         public DateTime TimeStamp;
     }
-    
+
 
     [Flags]
     public enum MessageLevel : int
@@ -29,12 +29,15 @@ namespace DSharpPlus
 
     public delegate void OnLogMessageReceived(object sender, LoggerMessageReceivedArgs e);
 
+		/// <summary>
+		/// The logger used when EnableLogging is set to true, see Log()
+		/// </summary>
     public class Logger
     {
         List<LogMessage> __log;
 
         public event OnLogMessageReceived LogMessageReceived;
-        public bool EnableLogging { get; set; } = true;
+        public bool EnableLogging { get; set; } = false;
 
         public Logger()
         {
@@ -66,6 +69,9 @@ namespace DSharpPlus
             }
         }
 
+				/// <summary>
+				/// Save teh logging to somewhere
+				/// </summary>
         public void Save(string file, MessageLevel levels)
         {
             using (var sw = new StreamWriter(file))
@@ -94,7 +100,9 @@ namespace DSharpPlus
                 pushLog(m);
             }
         }
-
+				/// <summary>
+				/// Logs the message at a certain level of logging
+				/// </summary>
         public void Log(string message, MessageLevel level)
         {
             if (EnableLogging)
@@ -108,6 +116,9 @@ namespace DSharpPlus
             }
         }
 
+				/// <summary>
+				/// Log() but asynchronous
+				/// </summary>
         public async void LogAsync(string message, MessageLevel level)
         {
             if (EnableLogging)
@@ -131,12 +142,12 @@ namespace DSharpPlus
         /// <summary>
         /// Returns a list of the logs with the given level
         /// </summary>
-        /// <param name="level"></param>
-        /// <returns></returns>
+        /// <param name="level">The level of logging (verbose, info, debug, etc)</param>
+        /// <returns>The logs</returns>
         public List<LogMessage> GetLogs(MessageLevel level)
         {
             List<LogMessage> logs = new List<LogMessage>();
-            __log.ForEach((obj) => 
+            __log.ForEach((obj) =>
             {
                 if (obj.Level == level)
                     logs.Add(obj);

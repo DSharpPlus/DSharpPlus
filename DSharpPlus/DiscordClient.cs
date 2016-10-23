@@ -14,6 +14,7 @@ using ID = System.String;
 using DSharpPlus.Sockets;
 using DSharpPlus.Commands;
 using DSharpPlus.Toolbox;
+using DSharpPlus.Hook;
 
 namespace DSharpPlus
 {
@@ -409,6 +410,22 @@ namespace DSharpPlus
         /// </summary>
         /// <returns>DiscordServer list of servers you're currently connected to.</returns>
         public List<DiscordServer> GetServersList() => ServersList;
+
+        /*
+         * FOR WHEN GUILD SHARDING GETS IMPLEMENTED.
+        public List<DiscordServer> GetServersList(bool before, int range, int limit)
+        {
+            List<DiscordServer> servers = new List<DiscordServer>();
+            string url = Endpoints.BaseAPI + Endpoints.Users + Endpoints.Me + Endpoints.Guilds + $"{(before ? "?before=" : "?after=")}{range}&limit={limit}";
+            foreach (JObject server in JArray.Parse(WebWrapper.Get(url, token)))
+            {
+                servers.Add(JsonConvert.DeserializeObject<DiscordServer>(server.ToString()));
+            }
+            return servers;
+        }
+         *
+         * -NAAMLOOS
+        */
 
         /// <summary>
         /// Any messages logged since connection to the websocket.
@@ -1759,13 +1776,16 @@ namespace DSharpPlus
                             asdf.Channel = ServersList.Find(x => x.Channels.Find(y => y.ID == message["d"]["channel_id"].ToString()) != null).Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
                             foreach (var embed in message["d"]["embeds"])
                             {
-                                DiscordEmbeds temp = new DiscordEmbeds();
-                                temp.URL = embed["url"].ToString();
+                                DiscordEmbed temp = new DiscordEmbed();
+                                temp.Url = embed["url"].ToString();
                                 temp.Description = embed["description"].ToString();
                                 try
                                 {
-                                    temp.ProviderName = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString();
-                                    temp.ProviderURL = embed["provider"]["url"].ToString();
+                                    temp.Provider = new DiscordEmbedProvider()
+                                    {
+                                        Name = embed["provider"]["name"] == null ? null : embed["provider"]["name"].ToString(),
+                                        Url = embed["provider"]["url"].ToString()
+                                    };
                                 }
                                 catch { }//noprovider
                                 temp.Title = embed["title"].ToString();
@@ -1844,11 +1864,14 @@ namespace DSharpPlus
 
                 dmea.MessageText = message["d"]["content"].ToString();
 
+                bool IsWebhook = (message["d"]["webhook_id"] != null ? true : false);
+
+
                 DiscordMember tempMember = null;
                 tempMember = potentialChannel.Parent.GetMemberByKey(message["d"]["author"]["id"].ToString());
                 if (tempMember == null)
                 {
-                    tempMember = JsonConvert.DeserializeObject<DiscordMember>(message["author"].ToString());
+                    tempMember = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["author"].ToString());
                     tempMember.parentclient = this;
                     tempMember.Parent = potentialChannel.Parent;
 
@@ -1988,6 +2011,14 @@ namespace DSharpPlus
                 DebugLogger.Log("Exception ocurred while retrieving Gateway URL: " + ex.Message, MessageLevel.Error);
                 return null;
             }
+        }
+
+        public int GetShardCount()
+        {
+            int shards = 0;
+            string url = Endpoints.BaseAPI + Endpoints.Gateway + Endpoints.Bot;
+            shards = int.Parse(JObject.Parse(WebWrapper.Get(url, token))["shards"].ToString());
+            return shards;
         }
 
         /// <summary>
@@ -3691,6 +3722,20 @@ namespace DSharpPlus
                 }
             }
             return token;
+        }
+
+        public Webhook GetWebhook(long ID, string Token)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Webhooks + $"/{ID}/{Token}";
+            var result = JObject.Parse(WebWrapper.Get(url, ""));
+            return JsonConvert.DeserializeObject<Webhook>(result.ToString());
+        }
+
+        public Webhook GetWebhookByID(long ID)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Webhooks + $"/{ID}";
+            var result = JObject.Parse(WebWrapper.Get(url, token));
+            return JsonConvert.DeserializeObject<Webhook>(result.ToString());
         }
     }
 }

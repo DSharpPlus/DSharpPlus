@@ -80,6 +80,10 @@
   </Choose>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -108,6 +112,7 @@
     <Compile Include="EpochTime.cs" />
     <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
     <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
+    <Compile Include="Objects\DiscordEmbed.cs" />
     <Compile Include="Objects\DiscordInvite.cs" />
     <Compile Include="Objects\DiscordVoiceState.cs" />
     <Compile Include="Objects\DiscordServer.cs" />
@@ -170,9 +175,11 @@
     <Compile Include="Voice\OpusDecoder.cs" />
     <Compile Include="Voice\OpusEncoder.cs" />
     <Compile Include="Voice\Sodium.cs" />
+    <Compile Include="Hook\Webhook.cs" />
     <Compile Include="WebWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GitHub\" />
+    <Folder Include="Messages\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="libsodium.dll">

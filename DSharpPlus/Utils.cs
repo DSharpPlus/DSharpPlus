@@ -47,5 +47,10 @@ namespace DSharpPlus
             //dm.mentions = new string[] { "" };
             return new DiscordMessage { Content = message, TTS = isTTS};
         }
+
+        internal static DiscordMessage GenerateMessage(string message, bool isTTS, DiscordEmbed[] embeds)
+        {
+            return new DiscordMessage { Content = message, TTS = isTTS, Embeds = embeds };
+        }
     }
 }

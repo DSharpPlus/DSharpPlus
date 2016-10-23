@@ -42,6 +42,9 @@ namespace DSharpPlus.Toolbox
             return words.ToArray();
         }
 
+        /// <summary>
+        /// Get the token of a user, given the email and password
+        /// </summary>
         public static string getUserToken(string Email, string Password)
         {
             string url = Endpoints.BaseAPI + Endpoints.Auth + Endpoints.Login;
@@ -57,6 +60,9 @@ namespace DSharpPlus.Toolbox
             }
         }
 
+        /// <summary>
+        /// Get the amount of words in a string
+        /// </summary>
         public static int WordCount(this string s)
         {
             return s.Split(' ').Count();

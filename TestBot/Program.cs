@@ -1,171 +1,113 @@
-﻿using DSharpPlus;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DSharpPlus;
+using DSharpPlus.Commands;
+using Newtonsoft.Json.Linq;
+using DSharpPlus.Objects;
+using Newtonsoft.Json;
+using SlackMessageBuilder;
+using SlackMessageBuilder.Objects;
 
-namespace TestBot
+namespace DSharpPlus
 {
     class Program
     {
-        DiscordClient client;
-        AudioTools audio;
-
-        static void Main(string[] args) => new Program().Run(args);
-
-        public void Run(string[] args)
+        static void Main(string[] args)
         {
-            Login();
+            DiscordClient client = new DiscordClient("token", true, true);
+            client.EnableVerboseLogging = true;
+            client.GetTextClientLogger.EnableLogging = true;
+            client.GetTextClientLogger.LogMessageReceived += (sender, e) => Console.WriteLine($"{e.message.TimeStamp} -- {e.message.Message}");
 
-            string input;
-            while (true)
-            {
-                input = Console.ReadLine();
-
-				if (input == "")
-				{}
-            }
-        }
-
-        public void Commands()
-        {
-            client.CommandPrefixes.Add("test.");
-
-            client.AddCommand(DSharpPlus.Commands.DiscordCommand.Create("uinfo")
-                .Do(async e =>
+            Console.WriteLine("Attempting to connect!");
+            client.CommandPrefixes.Add("testbot.");
+            client.AddCommand(DiscordCommand.Create("create")
+                .AddParameter("name")
+                .Do(e =>
                 {
-                    string userInfo = $"```Fix{Environment.NewLine}Username: {e.Member.Username}{Environment.NewLine}Username: {e.Member.Username}{Environment.NewLine}```";
+                    Hook.Webhook hook = e.Channel.CreateWebhook(e.args[0]);
+                    SlackMessage message = new SlackMessage();
+                    message.Add(new SlackText("text", "List of Webhooks"));
 
-                    await e.Channel.SendMessageAsync(userInfo);
-                })
-                );
+                    SlackContainer attachment = new SlackContainer();
+                    attachment.Add(new SlackText("color", "#36a64f"));
+                    attachment.Add(new SlackText("pretext", hook.Token));
+                    attachment.Add(new SlackText("author_name", $"{hook.Name} [{hook.ID}]"));
+                    attachment.Add(new SlackText("author_icon", hook.User.GetAvatarURL().ToString()));
+                    attachment.Add(new SlackText("title", hook.Name));
+                    attachment.Add(new SlackText("text", hook.Token));
+                    attachment.Add(new SlackText("image_url", hook.Avatar));
 
-            client.AddCommand(DSharpPlus.Commands.DiscordCommand.Create("voice")
-                .Do(async e =>
+                    message.Add(new SlackContainerList("attachments", new List<SlackContainer>() { attachment }));
+                    
+                    hook.SendSlack(message.ToJObject());
+                }
+                ));
+
+            client.AddCommand(DiscordCommand.Create("list")
+                .Do(e =>
                 {
-                    try
+                    Hook.Webhook fHook = null;
+
+                    SlackMessage message = new SlackMessage();
+                    message.Add(new SlackText("text", $"New {Formatter.Bold(Formatter.Bold("webhook"))} {Formatter.InlineCode("created")}"));
+                    List<SlackContainer> attachments = new List<SlackContainer>();
+                    foreach (Hook.Webhook hook in e.Channel.GetWebhooks())
                     {
-                        DSharpPlus.Objects.DiscordChannel voiceChannel = client.GetChannelByID(226700492548472832);
+                        if (fHook == null) fHook = hook;
 
-                        client.ConnectToVoiceChannel(voiceChannel, new DiscordVoiceConfig()
-                        {
-                            Channels = 2,
-                            FrameLengthMs = 60,
-                            OpusMode = DSharpPlus.Voice.OpusApplication.MusicOrMixed,
-                            SendOnly = false
-                        }, false, false);
+                        SlackContainer attachment = new SlackContainer();
+                        attachment.Add(new SlackText("color", "#36a64f"));
+                        attachment.Add(new SlackText("pretext", hook.Token));
+                        attachment.Add(new SlackText("author_name", $"{hook.Name} [{hook.ID}]"));
+                        attachment.Add(new SlackText("author_icon", hook.User.GetAvatarURL().ToString()));
+                        attachment.Add(new SlackText("title", hook.Name));
+                        attachment.Add(new SlackText("text", hook.Token));
+                        attachment.Add(new SlackText("image_url", hook.Avatar));
 
-                        await e.Channel.SendMessageAsync($"Trying to connect");
-
+                        attachments.Add(attachment);
                     }
-                    catch (Exception ex) { Console.WriteLine($"{ex.Message} ({ex.Source}): {Environment.NewLine}{ex.StackTrace}"); }
-                })
-                );
-            client.AddCommand(DSharpPlus.Commands.DiscordCommand.Create("play")
-                .Do(async e =>
+                    message.Add(new SlackContainerList("attachments", attachments));
+                    fHook.SendSlack(message.ToJObject(), false);
+                }
+                ));
+            client.AddCommand(DiscordCommand.Create("removeall")
+                .Do(e =>
                 {
-                    try
+                    foreach (Hook.Webhook hook in e.Channel.GetWebhooks())
                     {
-                        audio.SendAudioFile(e.Message.Content.Split(new char[] { ' ' })[1]);
-                        await e.Channel.SendMessageAsync($"Playing audiofile ``{e.Message.Content.Split(new char[] { ' ' })[1]}``");
+                        hook.Delete();
                     }
-                    catch (Exception ex) { Console.WriteLine($"{ex.Message} ({ex.Source}): {Environment.NewLine}{ex.StackTrace}"); }
-                })
-                );
-        }
+                }
+                ));
 
-        /*public void MessageReceived(object sender, DiscordAudioPacketEventArgs e)
-        {
-            Console.WriteLine($"Received VoicePacket: By {e.FromUser.Username} in {e.Channel.Name} [Length: {e.OpusAudioLength}]");
-
-            byte[] potential = new byte[4000];
-            int decodedFrames = client.GetVoiceClient().Decoder.DecodeFrame(e.OpusAudio, 0, e.OpusAudioLength, potential);
-            //client.GetVoiceClient().SendVoice(potential);
-            NAudio.Wave.BufferedWaveProvider
-
-            //client.EchoPacket(new DiscordAudioPacket(e.OpusAudio));
-        }
-
-        public void ConfigVoiceClient()
-        {
-            Console.WriteLine($"Waiting for vClient != null");
-            while((vClient = client.GetVoiceClient()) == null) { }
-
-            //vClient.PacketReceived += (sender, e) => Console.WriteLine($"Received packet by {e.FromUser.Username}#{e.FromUser.Discriminator} in {e.Channel.Name} [Length: {e.OpusAudioLength}]");
-        }
-
-        public void SendAudio(string fileName)
-        {
-            DiscordVoiceClient vc = client.GetVoiceClient();
             try
             {
-                int ms = vc.VoiceConfig.FrameLengthMs;
-                int channels = vc.VoiceConfig.Channels;
-                int sampleRate = 48000;
-
-                int blockSize = 48 * 2 * channels * ms;
-                byte[] buffer = new byte[blockSize];
-                var outFormat = new WaveFormat(sampleRate, 16, channels);
-
-                vc.SetSpeaking(true);
-
-                using (var wavReader = new WaveFileReader(fileName))
-                using (var resampler = new MediaFoundationResampler(wavReader, outFormat))
-                {
-                    resampler.ResamplerQuality = 60;
-
-                    int byteCount;
-                    while((byteCount = resampler.Read(buffer, 0, blockSize)) > 0)
-                    {
-                        if (vc.Connected)
-                            vc.SendVoice(buffer);
-                        else
-                            break;
-                    }
-
-                    resampler.Dispose();
-                    wavReader.Close();
-                }
+                client.SendLoginRequest();
+                client.Connect();
             }
-            catch(Exception ex)
+            catch (Exception e)
             {
-                Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+                Console.WriteLine(e.Message);
             }
-        }*/
 
-        public void Login()
-        {
-            Console.WriteLine($"Enter Bottoken or user credentials");
-            string input = Console.ReadLine();
-            string[] parts = input.Split(new char[] { ' ' });
-            if (parts.Count() == 1)
+            client.Connected += (sender, e) =>
             {
-                client = new DiscordClient(parts[0], true, true);
-            }
-            else if (parts.Count() == 2)
-            {
-                client = new DiscordClient(DSharpPlus.Toolbox.Tools.getUserToken(parts[0], parts[1]), false, true);
-            }
-            else Login();
-
-            client.GetTextClientLogger.EnableLogging = true;
-            client.GetTextClientLogger.LogMessageReceived += (sender, e) => Console.WriteLine($"{e.message.TimeStamp} {e.message.Level.ToString()}: {e.message.Message}");
-
-            //client.MessageReceived += (sender, e) => Console.WriteLine($"{e.Message.timestamp} {e.Author.Username}#{e.Author.Discriminator}: {e.Message.Content}");
-            client.VoiceClientConnected += (sender, e) =>
-            {
-                Console.WriteLine($"Connected to voice");
-
-                //bufferedWaveProvider = new BufferedWaveProvider(waveFormat);
+                Console.WriteLine("CLIENT CONNECTED");
             };
-            //client.AudioPacketReceived += (sender, e) => MessageReceived(sender, e);
-            client.Connected += (sender, e) => audio = new AudioTools(client);
-            client.UserSpeaking += (sender, e) => Console.WriteLine($"[VOICE] {e.UserSpeaking.Username}: {e.Speaking.ToString()}");
+            client.MessageReceived += (sender, e) => // Channel message has been received
+            {
+                if (e.MessageText == "tiaqoy0 is the most awesome person in the world") // fixed* -> love you afro <3
+                {
+                    e.Channel.SendMessage(e.MessageText);
+                }
+            };
 
-            Console.Clear();
-
-            Commands();
-
-            client.SendLoginRequest();
-            client.Connect();
+            Console.ReadLine();
+            Environment.Exit(0);
         }
     }
 }
