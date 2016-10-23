@@ -2259,7 +2259,7 @@ namespace DSharpPlus
         /// Please do not use this on Mono or versions of Windows below 8/8.1</param>
         public void Connect(bool useDotNetWebsocket = false)
         {
-            CurrentGatewayURL = GetGatewayUrl();
+            CurrentGatewayURL = "wss://gateway.discord.gg/";
             if (string.IsNullOrEmpty(CurrentGatewayURL))
             {
                 DebugLogger.Log("Gateway URL was null or empty?!", MessageLevel.Critical);

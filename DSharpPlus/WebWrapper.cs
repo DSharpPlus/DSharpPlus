@@ -40,7 +40,8 @@ namespace DSharpPlus
                     {
                         long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
                         long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
-                        long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                        DateTime dt = Utility.RFCToDateTime.Convert(httpResponse.Headers.Get("Date"));
+                        long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
                         if (rateremain < 1)
                         {
                             Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
@@ -96,7 +97,8 @@ namespace DSharpPlus
                         {
                             long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
                             long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
-                            long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                            DateTime dt = Utility.RFCToDateTime.Convert(httpResponse.Headers.Get("Date"));
+                            long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
                             if (rateremain < 1)
                             {
                                 Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
@@ -170,7 +172,8 @@ namespace DSharpPlus
                     {
                         long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
                         long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
-                        long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                        DateTime dt = Utility.RFCToDateTime.Convert(httpResponse.Headers.Get("Date"));
+                        long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
                         if (rateremain < 1)
                         {
                             Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
@@ -252,7 +255,8 @@ namespace DSharpPlus
             wresp = wr.GetResponse();
             long rateremain = long.Parse(wr.Headers.Get("X-RateLimit-Remaining"));
             long epochreset = long.Parse(wr.Headers.Get("X-RateLimit-Reset"));
-            long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(wr.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+            DateTime dt = Utility.RFCToDateTime.Convert(wresp.Headers.Get("Date"));
+            long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
             if (rateremain < 1)
             {
                 Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
@@ -315,7 +319,8 @@ namespace DSharpPlus
             wresp = wr.GetResponse();
             long rateremain = long.Parse(wr.Headers.Get("X-RateLimit-Remaining"));
             long epochreset = long.Parse(wr.Headers.Get("X-RateLimit-Reset"));
-            long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(wr.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+            DateTime dt = Utility.RFCToDateTime.Convert(wresp.Headers.Get("Date"));
+            long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
             if (rateremain < 1)
             {
                 Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
@@ -363,7 +368,8 @@ namespace DSharpPlus
                         {
                             long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
                             long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
-                            long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                            DateTime dt = Utility.RFCToDateTime.Convert(httpResponse.Headers.Get("Date"));
+                            long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
                             if (rateremain < 1)
                             {
                                 Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
@@ -447,7 +453,8 @@ namespace DSharpPlus
                     {
                         long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
                         long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
-                        long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                        DateTime dt = Utility.RFCToDateTime.Convert(httpResponse.Headers.Get("Date"));
+                        long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
                         if (rateremain < 1)
                         {
                             Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
@@ -499,7 +506,8 @@ namespace DSharpPlus
                     {
                         long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
                         long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
-                        long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                        DateTime dt = Utility.RFCToDateTime.Convert(httpResponse.Headers.Get("Date"));
+                        long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
                         if (rateremain < 1)
                         {
                             Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
@@ -548,7 +556,8 @@ namespace DSharpPlus
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
                 long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
                 long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
-                long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                DateTime dt = Utility.RFCToDateTime.Convert(httpResponse.Headers.Get("Date"));
+                long epochnow = Utility.EpochConvert.GetEpochSeconds(dt);
                 if (rateremain < 1)
                 {
                     Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");

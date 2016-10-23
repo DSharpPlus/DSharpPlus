@@ -94,6 +94,7 @@
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
     <Reference Include="websocket-sharp, Version=1.0.2.36589, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
       <HintPath>..\packages\WebSocketSharp.1.0.3-rc9\lib\websocket-sharp.dll</HintPath>
     </Reference>
@@ -126,6 +127,7 @@
     <Compile Include="Testing\TestBot.cs" />
     <Compile Include="Utility\EpochConverter.cs" />
     <Compile Include="Utility\FileIO.cs" />
+    <Compile Include="Utility\RFCToDateTime.cs" />
     <Compile Include="Utility\TaskHelper.cs" />
     <Compile Include="Utility\Tools.cs" />
     <Compile Include="Voice\DiscordAudioPacket.cs" />
