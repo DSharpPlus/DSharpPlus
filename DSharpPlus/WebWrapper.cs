@@ -2,9 +2,11 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 
 namespace DSharpPlus
 {
@@ -35,7 +37,17 @@ namespace DSharpPlus
                 {
                     var result = sr.ReadToEnd();
                     if (result != "")
+                    {
+                        long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
+                        long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
+                        long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                        if (rateremain < 1)
+                        {
+                            Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                            Thread.Sleep((int)(epochreset - epochnow) * 1000);
+                        }
                         return result;
+                    }
                 }
             }
             catch (WebException e)
@@ -82,6 +94,14 @@ namespace DSharpPlus
                     {
                         if (result != "")
                         {
+                            long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
+                            long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
+                            long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                            if (rateremain < 1)
+                            {
+                                Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                                Thread.Sleep((int)(epochreset - epochnow) * 1000);
+                            }
                             return result;
                         }
                     }
@@ -147,7 +167,17 @@ namespace DSharpPlus
                 {
                     var result = sr.ReadToEnd();
                     if (result != "")
+                    {
+                        long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
+                        long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
+                        long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                        if (rateremain < 1)
+                        {
+                            Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                            Thread.Sleep((int)(epochreset - epochnow) * 1000);
+                        }
                         return result;
+                    }
                 }
             }
             catch (WebException e)
@@ -156,16 +186,17 @@ namespace DSharpPlus
                 {
                     using (var errorResponse = (HttpWebResponse)e.Response)
                     {
-                        if(errorResponse.StatusCode == (HttpStatusCode)429)
+                        if (errorResponse.StatusCode == (HttpStatusCode)429)
                         {
                             throw new RateLimitException("You got rate limited kiddo!");
                         }
-                        else if(errorResponse.StatusCode == (HttpStatusCode)401)
+                        else if (errorResponse.StatusCode == (HttpStatusCode)401)
                         {
                             throw new UnauthorizedAccessException("You are not authorized");
                         }
                     }
-                }else
+                }
+                else
                 {
                     throw e;
                 }
@@ -219,6 +250,15 @@ namespace DSharpPlus
 
             WebResponse wresp = null;
             wresp = wr.GetResponse();
+            long rateremain = long.Parse(wr.Headers.Get("X-RateLimit-Remaining"));
+            long epochreset = long.Parse(wr.Headers.Get("X-RateLimit-Reset"));
+            long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(wr.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+            if (rateremain < 1)
+            {
+                Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                Thread.Sleep((int)(epochreset - epochnow) * 1000);
+            }
+
             System.IO.Stream stream2 = wresp.GetResponseStream();
             StreamReader reader2 = new StreamReader(stream2);
             string returnVal = reader2.ReadToEnd();
@@ -273,6 +313,14 @@ namespace DSharpPlus
 
             WebResponse wresp = null;
             wresp = wr.GetResponse();
+            long rateremain = long.Parse(wr.Headers.Get("X-RateLimit-Remaining"));
+            long epochreset = long.Parse(wr.Headers.Get("X-RateLimit-Reset"));
+            long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(wr.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+            if (rateremain < 1)
+            {
+                Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                Thread.Sleep((int)(epochreset - epochnow) * 1000);
+            }
             System.IO.Stream stream2 = wresp.GetResponseStream();
             StreamReader reader2 = new StreamReader(stream2);
             string returnVal = reader2.ReadToEnd();
@@ -305,13 +353,24 @@ namespace DSharpPlus
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
                     if (!string.IsNullOrEmpty(result))
                     {
                         if (result != "")
+                        {
+                            long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
+                            long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
+                            long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                            if (rateremain < 1)
+                            {
+                                Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                                Thread.Sleep((int)(epochreset - epochnow) * 1000);
+                            }
                             return result;
+                        }
                     }
                 }
             }
@@ -385,7 +444,17 @@ namespace DSharpPlus
                         }
                     }
                     if (result != "")
+                    {
+                        long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
+                        long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
+                        long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                        if (rateremain < 1)
+                        {
+                            Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                            Thread.Sleep((int)(epochreset - epochnow) * 1000);
+                        }
                         return result;
+                    }
                 }
             }
             catch (WebException e)
@@ -427,7 +496,17 @@ namespace DSharpPlus
                 {
                     var result = sr.ReadToEnd();
                     if (result != "")
+                    {
+                        long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
+                        long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
+                        long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                        if (rateremain < 1)
+                        {
+                            Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                            Thread.Sleep((int)(epochreset - epochnow) * 1000);
+                        }
                         return result;
+                    }
                 }
             }
             catch (WebException e)
@@ -467,6 +546,14 @@ namespace DSharpPlus
             try
             {
                 var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                long rateremain = long.Parse(httpResponse.Headers.Get("X-RateLimit-Remaining"));
+                long epochreset = long.Parse(httpResponse.Headers.Get("X-RateLimit-Reset"));
+                long epochnow = Utility.EpochConvert.GetEpochSeconds(DateTime.ParseExact(httpResponse.Headers.Get("Date"), CultureInfo.CurrentCulture.DateTimeFormat.RFC1123Pattern, null));
+                if (rateremain < 1)
+                {
+                    Console.WriteLine($"Almost hit rate limit. Cooldown: { (int)(epochreset - epochnow) * 1000 } Ms.");
+                    Thread.Sleep((int)(epochreset - epochnow) * 1000);
+                }
                 using (var sr = new StreamReader(httpResponse.GetResponseStream()))
                 {
                     var result = sr.ReadToEnd();
@@ -483,7 +570,7 @@ namespace DSharpPlus
                                 }
                             }
                         }
-                        catch(Exception ) //must be a jarray
+                        catch (Exception) //must be a jarray
                         {
                             return result;
                         }
