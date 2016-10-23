@@ -128,6 +128,7 @@
     <Compile Include="Sockets\WebSocketSharpSocket.cs" />
     <Compile Include="Testing\Command_Greet.cs" />
     <Compile Include="Testing\TestBot.cs" />
+    <Compile Include="Utility\EpochConverter.cs" />
     <Compile Include="Utility\FileIO.cs" />
     <Compile Include="Utility\TaskHelper.cs" />
     <Compile Include="Utility\Tools.cs" />
