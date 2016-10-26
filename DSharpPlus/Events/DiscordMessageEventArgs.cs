@@ -31,8 +31,8 @@ namespace DSharpPlus.Events
         public JObject RawJson { get; internal set; }
 
         public DiscordMessageEditedEventArgs(JObject message)
-        {
-        }
+        {}
+
         public DiscordMessageEditedEventArgs() { }
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharpCord_Starter
+﻿namespace SharpCord_Starter
 {
     public static class BotSettings
     {
@@ -44,6 +38,5 @@ namespace SharpCord_Starter
                 return BotPrefix;
             }
         }
-
     }
 }
