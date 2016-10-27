@@ -13,6 +13,7 @@ namespace DSharpPlus.Objects
     {
         Online, Idle, Offline
     }
+
     public class DiscordMember
     {
         /// <summary>

@@ -49,8 +49,7 @@ namespace DSharpPlus
         void pushLog(LogMessage m)
         {
             __log.Add(m);
-            if (LogMessageReceived != null)
-                LogMessageReceived(this, new LoggerMessageReceivedArgs { message = m });
+			LogMessageReceived?.Invoke(this, new LoggerMessageReceivedArgs { message = m });
         }
 
         public void Dispose()
@@ -69,9 +68,9 @@ namespace DSharpPlus
             }
         }
 
-				/// <summary>
-				/// Save teh logging to somewhere
-				/// </summary>
+		/// <summary>
+		/// Save the logging to somewhere
+		/// </summary>
         public void Save(string file, MessageLevel levels)
         {
             using (var sw = new StreamWriter(file))
@@ -100,9 +99,10 @@ namespace DSharpPlus
                 pushLog(m);
             }
         }
-				/// <summary>
-				/// Logs the message at a certain level of logging
-				/// </summary>
+
+		/// <summary>
+		/// Logs the message at a certain level of logging
+		/// </summary>
         public void Log(string message, MessageLevel level)
         {
             if (EnableLogging)
@@ -116,9 +116,9 @@ namespace DSharpPlus
             }
         }
 
-				/// <summary>
-				/// Log() but asynchronous
-				/// </summary>
+		/// <summary>
+		/// Log() but asynchronous
+		/// </summary>
         public async void LogAsync(string message, MessageLevel level)
         {
             if (EnableLogging)
@@ -155,6 +155,5 @@ namespace DSharpPlus
 
             return logs;
         }
-
     }
 }

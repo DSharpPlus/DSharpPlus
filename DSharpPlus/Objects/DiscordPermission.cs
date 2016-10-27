@@ -41,6 +41,7 @@ namespace DSharpPlus.Objects
         ManageNicknames = 27,
         ManageRolesOrPermissions = 28,
     }
+
     /// <summary>
     /// Class that holds all bot permission information
     /// </summary>

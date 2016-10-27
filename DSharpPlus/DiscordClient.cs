@@ -382,9 +382,9 @@ namespace DSharpPlus
             IsBotAccount = isBotAccount;
 
             if(isBotAccount)
-            token = "Bot " + tokenOverride;
+			    token = "Bot " + tokenOverride;
             else
-            token = tokenOverride;
+			    token = tokenOverride;
 
             if (IsBotAccount)
                 UserAgentString = "DiscordBot " + UserAgentString;
@@ -398,9 +398,8 @@ namespace DSharpPlus
             {
                 if (e.message.Level == MessageLevel.Error)
                     DisconnectFromVoice();
-                if (TextClientDebugMessageReceived != null)
-                    TextClientDebugMessageReceived(this, e);
-            };
+				TextClientDebugMessageReceived?.Invoke(this, e);
+			};
 
             this.Commands = new List<DiscordCommand>();
         }
@@ -471,7 +470,7 @@ namespace DSharpPlus
                 {
                     DiscordRole t = new DiscordRole
                     {
-                        Color = new DSharpPlus.Color(u["color"].ToObject<int>().ToString("x")),
+                        Color = new Color(u["color"].ToObject<int>().ToString("x")),
                         Name = u["name"].ToString(),
                         Permissions = new DiscordPermission(u["permissions"].ToObject<uint>()),
                         Position = u["position"].ToObject<int>(),
@@ -743,7 +742,7 @@ namespace DSharpPlus
             if (!CommandPrefixes.Contains(prefix))
                 CommandPrefixes.Add(prefix);
             else
-                throw new System.Exception("A prefix with that name has already been added to this client!");
+                throw new Exception("A prefix with that name has already been added to this client!");
         }
 
         /// <summary>
@@ -755,7 +754,7 @@ namespace DSharpPlus
             if (CommandPrefixes.Contains(prefix))
                 CommandPrefixes.Remove(prefix);
             else
-                throw new System.ArgumentNullException("A prefix with that name could not be removed, as it didn't exist!");
+                throw new ArgumentNullException("A prefix with that name could not be removed, as it didn't exist!");
         }
 
         /// <summary>
@@ -1381,9 +1380,8 @@ namespace DSharpPlus
                             dpuea.Status = DiscordUserStatus.IDLE;
                         else if (message["d"]["status"].ToString() == null || message["d"]["status"].ToString() == "offline")
                             dpuea.Status = DiscordUserStatus.OFFLINE;
-                        if (PresenceUpdated != null)
-                            PresenceUpdated(this, dpuea);
-                    }
+						PresenceUpdated?.Invoke(this, dpuea);
+					}
                     else
                     {
                         if (!message["d"]["guild_id"].IsNullOrEmpty()) //if this is null or empty, that means this pertains to friends list
@@ -1741,26 +1739,26 @@ namespace DSharpPlus
                             return; //No message exists
                         var jsonToEdit = toRemove.RawJson;
                         jsonToEdit["d"]["content"].Replace(JToken.FromObject(message["d"]["content"].ToString()));
-                        if (MessageEdited != null)
-                            MessageEdited(this, new DiscordMessageEditedEventArgs
-                            {
-                                Author = pserver.GetMemberByKey(message["d"]["author"]["id"].ToString()),
-                                Channel = pchannel,
-                                MessageText = message["d"]["content"].ToString(),
-                                MessageType = DiscordMessageType.CHANNEL,
-                                MessageEdited = new DiscordMessage
-                                {
-                                    Author = pserver.GetMemberByKey(message["d"]["author"]["id"].ToString()),
-                                    Content = toRemove.Content,
-                                    Attachments = message["d"]["attachments"].ToObject<DiscordAttachment[]>(),
-                                    channel = pserver.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString()),
-                                    RawJson = message,
-                                    ID = message["d"]["id"].ToString(),
-                                    timestamp = message["d"]["timestamp"].ToObject<DateTime>(),
-                                },
-                                EditedTimestamp = message["d"]["edited_timestamp"].ToObject<DateTime>()
-                            });
-                        MessageLog.Remove(message["d"]["id"].ToString());
+
+						MessageEdited?.Invoke(this, new DiscordMessageEditedEventArgs
+						{
+							Author = pserver.GetMemberByKey(message["d"]["author"]["id"].ToString()),
+							Channel = pchannel,
+							MessageText = message["d"]["content"].ToString(),
+							MessageType = DiscordMessageType.CHANNEL,
+							MessageEdited = new DiscordMessage
+							{
+								Author = pserver.GetMemberByKey(message["d"]["author"]["id"].ToString()),
+								Content = toRemove.Content,
+								Attachments = message["d"]["attachments"].ToObject<DiscordAttachment[]>(),
+								channel = pserver.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString()),
+								RawJson = message,
+								ID = message["d"]["id"].ToString(),
+								timestamp = message["d"]["timestamp"].ToObject<DateTime>(),
+							},
+							EditedTimestamp = message["d"]["edited_timestamp"].ToObject<DateTime>()
+						});
+						MessageLog.Remove(message["d"]["id"].ToString());
 
                         DiscordMessage newMessage = toRemove;
                         newMessage.Content = jsonToEdit["d"]["content"].ToString();
@@ -1847,9 +1845,8 @@ namespace DSharpPlus
                     tempMember.parentclient = this;
                     dpmea.RawJson = message;
 
-                    if (PrivateMessageReceived != null)
-                        PrivateMessageReceived(this, dpmea);
-                }
+					PrivateMessageReceived?.Invoke(this, dpmea);
+				}
                 else
                 {
                     //if (DebugMessageReceived != null)
@@ -1907,9 +1904,8 @@ namespace DSharpPlus
                         string id = mention["id"].ToString();
                         if (id.Equals(Me.ID))
                         {
-                            if (MentionReceived != null)
-                                MentionReceived(this, dmea);
-                        }
+							MentionReceived?.Invoke(this, dmea);
+						}
                     }
                 }
 
@@ -1928,9 +1924,8 @@ namespace DSharpPlus
                     if (KeywordListeners.ContainsKey(word.ToLower()))
                         KeywordListeners[word.ToLower()](this, dmea);
 
-                if (MessageReceived != null)
-                    MessageReceived(this, dmea);
-            }
+				MessageReceived?.Invoke(this, dmea);
+			}
             //}
             //catch (Exception ex)
             //{
@@ -1958,9 +1953,8 @@ namespace DSharpPlus
                     DiscordChannelCreateEventArgs fae = new DiscordChannelCreateEventArgs();
                     fae.ChannelCreated = tempChannel;
                     fae.ChannelType = DiscordChannelCreateType.CHANNEL;
-                    if (ChannelCreated != null)
-                        ChannelCreated(this, fae);
-                }
+					ChannelCreated?.Invoke(this, fae);
+				}
             }
             else
             {
@@ -1971,9 +1965,8 @@ namespace DSharpPlus
                 tempPrivate.Recipient = recipient;
                 PrivateChannels.Add(tempPrivate);
                 DiscordPrivateChannelEventArgs fak = new DiscordPrivateChannelEventArgs { ChannelType = DiscordChannelCreateType.PRIVATE, ChannelCreated = tempPrivate };
-                if (PrivateChannelCreated != null)
-                    PrivateChannelCreated(this, fak);
-            }
+				PrivateChannelCreated?.Invoke(this, fak);
+			}
         }
         #endregion
         private string GetGatewayUrl()
@@ -2437,9 +2430,8 @@ namespace DSharpPlus
                     {
                         DiscordChannel channel = server.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
                         DiscordMember uuser = server.GetMemberByKey(message["d"]["user_id"].ToString());
-                        if (UserTypingStart != null)
-                            UserTypingStart(this, new DiscordTypingStartEventArgs { user = uuser, Channel = channel, Timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
-                    }
+						UserTypingStart?.Invoke(this, new DiscordTypingStartEventArgs { user = uuser, Channel = channel, Timestamp = int.Parse(message["d"]["timestamp"].ToString()) });
+					}
                     break;
                 case ("MESSAGE_CREATE"):
                     MessageCreateEvents(message);
@@ -2474,9 +2466,8 @@ namespace DSharpPlus
                 case ("MESSAGE_ACK"): //ignore this message, it's irrelevant
                     break;
                 default:
-                    if (UnknownMessageTypeReceived != null)
-                        UnknownMessageTypeReceived(this, new UnknownMessageEventArgs { RawJson = message });
-                    break;
+					UnknownMessageTypeReceived?.Invoke(this, new UnknownMessageEventArgs { RawJson = message });
+					break;
             }
         }
 
@@ -2562,9 +2553,8 @@ namespace DSharpPlus
             e.Guild = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
             e.MemberStub = JsonConvert.DeserializeObject<DiscordMember>(message["d"]["user"].ToString());
 
-            if (BanRemoved != null)
-                BanRemoved(this, e);
-        }
+			BanRemoved?.Invoke(this, e);
+		}
 
         private void GuildMemberBannedEvents(JObject message)
         {
@@ -2575,9 +2565,8 @@ namespace DSharpPlus
                 e.MemberBanned = e.Server.GetMemberByKey(message["d"]["user"]["id"].ToString());
                 if (e.MemberBanned != null)
                 {
-                    if (GuildMemberBanned != null)
-                        GuildMemberBanned(this, e);
-                    ServersList.Find(x => x.ID == e.Server.ID).RemoveMember(e.MemberBanned.ID);
+					GuildMemberBanned?.Invoke(this, e);
+					ServersList.Find(x => x.ID == e.Server.ID).RemoveMember(e.MemberBanned.ID);
                 }
                 else
                 {
@@ -2585,9 +2574,8 @@ namespace DSharpPlus
                     e.MemberBanned = RemovedMembers.Find(x => x.ID == message["d"]["user"]["id"].ToString());
                     if (e.MemberBanned != null)
                     {
-                        if (GuildMemberBanned != null)
-                            GuildMemberBanned(this, e);
-                    }
+						GuildMemberBanned?.Invoke(this, e);
+					}
                     else
                     {
                         DebugLogger.Log("Error in GuildMemberBannedEvents: MemberBanned is null, not even found in internal index!", MessageLevel.Error);
@@ -2614,15 +2602,13 @@ namespace DSharpPlus
 
             VoiceClient.PacketReceived += (sender, e) =>
             {
-                if (AudioPacketReceived != null)
-                    AudioPacketReceived(sender, e);
-            };
+				AudioPacketReceived?.Invoke(sender, e);
+			};
 
             VoiceClient.DebugMessageReceived += (sender, e) =>
             {
-                if (VoiceClientDebugMessageReceived != null)
-                    VoiceClientDebugMessageReceived(this, e);
-            };
+				VoiceClientDebugMessageReceived?.Invoke(this, e);
+			};
 
             ConnectToVoiceAsync();
         }
@@ -2829,14 +2815,12 @@ namespace DSharpPlus
             };
             VoiceClient.UserSpeaking += (sender, e) =>
             {
-                if (UserSpeaking != null)
-                    UserSpeaking(this, e);
-            };
+				UserSpeaking?.Invoke(this, e);
+			};
             VoiceClient.VoiceConnectionComplete += (sender, e) =>
             {
-                if (VoiceClientConnected != null)
-                    VoiceClientConnected(this, e);
-            };
+				VoiceClientConnected?.Invoke(this, e);
+			};
             VoiceClient.QueueEmpty += (sender, e) =>
             {
                 VoiceQueueEmpty?.Invoke(this, e);
@@ -2900,7 +2884,6 @@ namespace DSharpPlus
                 {
                     VoiceClient.Dispose();
                     VoiceClient = null;
-
 
                     ws.Send(disconnectMessage);
                 }
@@ -3122,7 +3105,7 @@ namespace DSharpPlus
                 {
                     DiscordRole t = new DiscordRole
                     {
-                        Color = new DSharpPlus.Color(roll["color"].ToObject<int>().ToString("x")),
+                        Color = new Color(roll["color"].ToObject<int>().ToString("x")),
                         Name = roll["name"].ToString(),
                         Permissions = new DiscordPermission(roll["permissions"].ToObject<uint>()),
                         Position = roll["position"].ToObject<int>(),
@@ -3220,9 +3203,8 @@ namespace DSharpPlus
                 e.PrivateChannelDeleted = PrivateChannels.Find(x => x.ID == message["d"]["id"].ToString());
                 if (e.PrivateChannelDeleted != null)
                 {
-                    if (PrivateChannelDeleted != null)
-                        PrivateChannelDeleted(this, e);
-                    PrivateChannels.Remove(e.PrivateChannelDeleted);
+					PrivateChannelDeleted?.Invoke(this, e);
+					PrivateChannels.Remove(e.PrivateChannelDeleted);
                 }
                 else
                 {
@@ -3236,9 +3218,8 @@ namespace DSharpPlus
                 server = e.ChannelDeleted.Parent;
                 server.Channels.Remove(server.Channels.Find(x => x.ID == e.ChannelDeleted.ID));
 
-                if (ChannelDeleted != null)
-                    ChannelDeleted(this, e);
-            }
+				ChannelDeleted?.Invoke(this, e);
+			}
         }
 
         private void ChannelUpdateEvents(JObject message)
@@ -3278,9 +3259,8 @@ namespace DSharpPlus
             ServersList.RemoveAt(indexOfServer);
             ServersList.Insert(indexOfServer, serverToRemoveFrom);
 
-            if (ChannelUpdated != null)
-                ChannelUpdated(this, e);
-        }
+			ChannelUpdated?.Invoke(this, e);
+		}
 
         private void GuildDeleteEvents(JObject message)
         {
@@ -3288,9 +3268,8 @@ namespace DSharpPlus
             e.Server = ServersList.Find(x => x.ID == message["d"]["id"].ToString());
             e.RawJson = message;
             ServersList.Remove(e.Server);
-            if (GuildDeleted != null)
-                GuildDeleted(this, e);
-        }
+			GuildDeleted?.Invoke(this, e);
+		}
 
         private void GuildCreateEvents(JObject message)
         {
@@ -3412,9 +3391,8 @@ namespace DSharpPlus
                 e.JoinedAt = DateTime.Parse(message["d"]["joined_at"].ToString());
 
                 ServersList.Find(x => x == e.Guild).AddMember(newMember);
-                if (UserAddedToServer != null)
-                    UserAddedToServer(this, e);
-            }
+				UserAddedToServer?.Invoke(this, e);
+			}
             else
             {
                 DebugLogger.Log($"Skipping guild member add because user already exists in server.", MessageLevel.Debug);
@@ -3457,9 +3435,8 @@ namespace DSharpPlus
             e.Server = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
             e.RawJson = message;
 
-            if (UserRemovedFromServer != null)
-                UserRemovedFromServer(this, e);
-        }
+			UserRemovedFromServer?.Invoke(this, e);
+		}
 
         private void UserUpdateEvents(JObject message)
         {
@@ -3520,18 +3497,16 @@ namespace DSharpPlus
                 dm.DeletedMessage = e.DeletedMessage;
                 dm.RawJson = message;
                 dm.Channel = PrivateChannels.Find(x => x.ID == message["d"]["channel_id"].ToString());
-                if (PrivateMessageDeleted != null)
-                    PrivateMessageDeleted(this, dm);
-            }
+				PrivateMessageDeleted?.Invoke(this, dm);
+			}
             else
             {
                 e.Channel = inServer.Channels.Find(x => x.ID == message["d"]["channel_id"].ToString());
                 e.RawJson = message;
             }
 
-            if (MessageDeleted != null)
-                MessageDeleted(this, e);
-        }
+			MessageDeleted?.Invoke(this, e);
+		}
 
         private void VoiceStateUpdateEvents(JObject message)
         {
@@ -3546,9 +3521,8 @@ namespace DSharpPlus
 
                 if (VoiceClient != null && VoiceClient.Connected)
                     VoiceClient.MemberRemoved(le.User);
-                if (UserLeftVoiceChannel != null)
-                    UserLeftVoiceChannel(this, le);
-                return;
+				UserLeftVoiceChannel?.Invoke(this, le);
+				return;
             }
             DiscordVoiceStateUpdateEventArgs e = new DiscordVoiceStateUpdateEventArgs();
             e.Guild = ServersList.Find(x => x.ID == message["d"]["guild_id"].ToString());
@@ -3584,9 +3558,8 @@ namespace DSharpPlus
                     }
                 }
 
-                if (VoiceStateUpdate != null)
-                    VoiceStateUpdate(this, e);
-            }
+				VoiceStateUpdate?.Invoke(this, e);
+			}
         }
         private JObject ServerInfo(string channelOrServerId)
         {
@@ -3668,7 +3641,7 @@ namespace DSharpPlus
         {
             if (token == null) //no token override provided, need to read token
             {
-                if (String.IsNullOrEmpty(ClientPrivateInformation.Email))
+                if (string.IsNullOrEmpty(ClientPrivateInformation.Email))
                 {
                     throw new ArgumentNullException("Email was null/invalid!");
                 }
