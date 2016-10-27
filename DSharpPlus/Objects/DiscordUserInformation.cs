@@ -21,7 +21,11 @@
         public DiscordUserInformation()
         {}
 
-        public DiscordUserInformation Copy()
+		/// <summary>
+		/// Copies the DiscordUserInformation
+		/// </summary>
+		/// <returns>DiscordUserInformation</returns>
+		public DiscordUserInformation Copy()
         {
             return new DiscordUserInformation
             {
@@ -32,5 +36,4 @@
             };
         }
     }
-
 }

@@ -55,7 +55,7 @@ public static class JsonExtensions
         return (token == null) ||
                (token.Type == JTokenType.Array && !token.HasValues) ||
                (token.Type == JTokenType.Object && !token.HasValues) ||
-               (token.Type == JTokenType.String && token.ToString() == String.Empty) ||
+               (token.Type == JTokenType.String && token.ToString() == string.Empty) ||
                (token.Type == JTokenType.Null);
     }
 }

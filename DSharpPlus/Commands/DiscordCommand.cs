@@ -32,7 +32,7 @@ namespace DSharpPlus.Commands
         public static DiscordCommandBuilder Create(string keyword)
         {
             DiscordCommandBuilder b = new DiscordCommandBuilder();
-            b.Command = new Commands.DiscordCommand(keyword);
+            b.Command = new DiscordCommand(keyword);
             return b;
         }
 
