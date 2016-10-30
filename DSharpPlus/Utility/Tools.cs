@@ -45,6 +45,7 @@ namespace DSharpPlus.Toolbox
         /// <summary>
         /// Get the token of a user, given the email and password
         /// </summary>
+        [Obsolete]
         public static string getUserToken(string Email, string Password)
         {
             string url = Endpoints.BaseAPI + Endpoints.Auth + Endpoints.Login;
