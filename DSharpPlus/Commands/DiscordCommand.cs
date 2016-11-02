@@ -18,10 +18,11 @@ namespace DSharpPlus.Commands
         {
             this.Keyword = keyword;
             this.Parameters = new List<DiscordCommandParameter>();
-            this.Aliases = new List<string>();
-            if (aliases != null)
-                this.Aliases = Aliases;
-        }
+			if (aliases != null)
+				this.Aliases = new List<string>(aliases);
+			else
+				this.Aliases = new List<string>();
+		}
         //This is horrible practice, but I'm trying to get this done so ;-;
         public DiscordCommand()
         {
