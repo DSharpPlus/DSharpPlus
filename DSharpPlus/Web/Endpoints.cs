@@ -15,5 +15,13 @@
         public static string Bot => "/bot";
         public static string Messages => "/messages";
         public static string Bans => "/bans";
+        public static string BulkDelete => "/bulk-delete";
+        public static string Invites => "/invites";
+        public static string Permissions => "/permissions";
+        public static string Typing => "/typing";
+        public static string Pins => "/pins";
+        public static string Recipients => "/recipients";
+        public static string Roles => "/roles";
+        public static string Prune => "/prune";
     }
 }
