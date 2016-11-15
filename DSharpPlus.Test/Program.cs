@@ -15,9 +15,16 @@ namespace DSharpPlus.Test
 
         public async Task Run(string[] args)
         {
+            if (!File.Exists("token.txt"))
+            {
+                Console.WriteLine("Please create a \"token.txt\" file with your bot's token inside.");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+            string token = File.ReadAllLines("token.txt")[0];
             DiscordClient client = new DiscordClient(new DiscordConfig()
             {
-                Token = "",
+                Token = token,
                 TokenType = TokenType.Bot,
                 DiscordBranch = Branch.Canary,
                 LogLevel = LogLevel.Unnecessary,
