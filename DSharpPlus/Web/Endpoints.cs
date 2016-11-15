@@ -7,8 +7,6 @@
         public static string PTBBaseUri => string.Format(InternalBaseUri, "ptb.");
         public static string StableBaseUri => string.Format(InternalBaseUri, "");
 
-        public static string Voice { get; internal set; }
-
         public const string Permissions = "/permissions";
         public const string Recipients = "/recipients";
         public const string BulkDelete = "/bulk-delete";
@@ -36,6 +34,8 @@
         public const string Bans = "/bans";
         public const string Webhooks = "/webhooks";
         public const string Slack = "/slack";
+        public const string Github = "/github";
         public const string Bot = "/bot";
+        public const string Voice = "/voice";
     }
 }

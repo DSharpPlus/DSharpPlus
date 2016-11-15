@@ -278,20 +278,6 @@ namespace DSharpPlus
             return new List<DiscordRole>();
         }
 
-        internal async static Task<List<DiscordVoiceRegion>> InternalListVoiceRegions()
-        {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Voice + Endpoints.Regions;
-            WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
-            WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            List<DiscordVoiceRegion> regions = new List<DiscordVoiceRegion>();
-            JArray j = JArray.Parse(response.Response);
-            foreach(JObject obj in j)
-            {
-                regions.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordVoiceRegion>(obj.ToString()));
-            }
-            return regions;
-        }
         #endregion
 
         #region Websocket
@@ -1405,6 +1391,164 @@ namespace DSharpPlus
             }
             return connections;
         }
+        #endregion
+        #region Voice
+        internal async static Task<List<DiscordVoiceRegion>> InternalListVoiceRegions()
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Voice + Endpoints.Regions;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            List<DiscordVoiceRegion> regions = new List<DiscordVoiceRegion>();
+            JArray j = JArray.Parse(response.Response);
+            foreach (JObject obj in j)
+            {
+                regions.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordVoiceRegion>(obj.ToString()));
+            }
+            return regions;
+        }
+        #endregion
+        #region Webhooks
+        internal static async Task<DiscordWebhook> InternalCreateWebhook(ulong ChannelID, string name, string base64avatar)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Webhooks;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JObject j = new JObject();
+            j.Add("name", name);
+            j.Add("avatar", base64avatar);
+
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+        }
+
+        internal static async Task<List<DiscordWebhook>> InternalGetChannelWebhooks(ulong ChannelID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Webhooks;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
+            foreach(JObject j in JArray.Parse(response.Response))
+            {
+                webhooks.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordWebhook>(j.ToString()));
+            }
+            return webhooks;
+        }
+
+        internal static async Task<List<DiscordWebhook>> InternalGetGuildWebhooks(ulong GuildID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Webhooks;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
+            foreach (JObject j in JArray.Parse(response.Response))
+            {
+                webhooks.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordWebhook>(j.ToString()));
+            }
+            return webhooks;
+        }
+
+        internal static async Task<DiscordWebhook> InternalGetWebhook(ulong WebhookID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+        }
+
+        // Auth header not required
+        internal static async Task<DiscordWebhook> InternalGetWebhookWithToken(ulong WebhookID, string WebhookToken)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+        }
+
+        internal static async Task<DiscordWebhook> InternalModifyWebhook(ulong WebhookID, string name, string base64avatar)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JObject j = new JObject();
+            j.Add("name", name);
+            j.Add("avatar", base64avatar);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, j.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+        }
+
+        internal static async Task<DiscordWebhook> InternalModifyWebhook(ulong WebhookID, string name, string base64avatar, string WebhookToken)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
+            JObject j = new JObject();
+            j.Add("name", name);
+            j.Add("avatar", base64avatar);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, payload: j.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+        }
+
+        internal static async Task InternalDeleteWebhook(ulong WebhookID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal static async Task InternalDeleteWebhook(ulong WebhookID, string WebhookToken)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal static async Task InternalExecuteWebhook(ulong WebhookID, string WebhookToken, string content = "", string username = "", string avatar_url = "",
+            bool tts = false, List<DiscordEmbed> embeds = null)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JObject req = new JObject();
+            if (content != "")
+                req.Add("content", content);
+            if (username != "")
+                req.Add("username", username);
+            if (avatar_url != "")
+                req.Add("avatar_url", avatar_url);
+            if (tts)
+                req.Add("tts", tts);
+            if(embeds != null)
+            {
+                JArray arr = new JArray();
+                foreach(DiscordEmbed e in embeds)
+                {
+                    arr.Add(Newtonsoft.Json.JsonConvert.SerializeObject(e));
+                }
+            }
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, payload: req.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal static async Task InternalExecuteWebhookSlack(ulong WebhookID, string WebhookToken, string jsonpayload)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken + Endpoints.Slack;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, payload: jsonpayload);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal static async Task InternalExecuteWebhookGithub(ulong WebhookID, string WebhookToken, string jsonpayload)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken + Endpoints.Github;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, payload: jsonpayload);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
         #endregion
         #endregion
     }

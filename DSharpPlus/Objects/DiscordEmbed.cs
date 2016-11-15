@@ -7,30 +7,30 @@ namespace DSharpPlus
     public class DiscordEmbed
     {
         [JsonProperty("title")]
-        public string Title { get; internal set; }
+        public string Title { get; set; }
         [JsonProperty("type")]
-        public string Type { get; internal set; }
+        public string Type { get; set; }
         [JsonProperty("description")]
-        public string Description { get; internal set; }
+        public string Description { get; set; }
         [JsonProperty("url")]
-        public string Url { get; internal set; }
+        public string Url { get; set; }
         [JsonProperty("timestamp")]
-        public DateTime Timestamp { get; internal set; }
+        public DateTime Timestamp { get; set; }
         [JsonProperty("color")]
-        public int Color { get; internal set; }
+        public int Color { get; set; }
         [JsonProperty("footer")]
-        public DiscordEmbedFooter Footer { get; internal set; }
+        public DiscordEmbedFooter Footer { get; set; }
         [JsonProperty("image")]
-        public DiscordEmbedImage Image { get; internal set; }
+        public DiscordEmbedImage Image { get; set; }
         [JsonProperty("thumbnail")]
-        public DiscordEmbedThumbnail Thumbnail { get; internal set; }
+        public DiscordEmbedThumbnail Thumbnail { get; set; }
         [JsonProperty("video")]
-        public DiscordEmbedVideo Video { get; internal set; }
+        public DiscordEmbedVideo Video { get; set; }
         [JsonProperty("provider")]
-        public DiscordEmbedProvider Provider { get; internal set; }
+        public DiscordEmbedProvider Provider { get; set; }
         [JsonProperty("author")]
-        public DiscordEmbedAuthor Author { get; internal set; }
+        public DiscordEmbedAuthor Author { get; set; }
         [JsonProperty("fields")]
-        public List<DiscordEmbedField> Fields { get; internal set; }
+        public List<DiscordEmbedField> Fields { get; set; }
     }
 }
