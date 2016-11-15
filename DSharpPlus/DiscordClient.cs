@@ -277,6 +277,21 @@ namespace DSharpPlus
             // I have no idea how to implement this with our current configuration.
             return new List<DiscordRole>();
         }
+
+        internal async static Task<List<DiscordVoiceRegion>> InternalListVoiceRegions()
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Voice + Endpoints.Regions;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            List<DiscordVoiceRegion> regions = new List<DiscordVoiceRegion>();
+            JArray j = JArray.Parse(response.Response);
+            foreach(JObject obj in j)
+            {
+                regions.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordVoiceRegion>(obj.ToString()));
+            }
+            return regions;
+        }
         #endregion
 
         #region Websocket
