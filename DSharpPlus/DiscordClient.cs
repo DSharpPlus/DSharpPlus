@@ -157,7 +157,7 @@ namespace DSharpPlus
         }
 
         // NOTE TO SELF:
-        // Continue from: User > Get User
+        // Continue with Voice (api) and Webhooks
         // -Naam
 
         #region Public Functions
@@ -277,7 +277,6 @@ namespace DSharpPlus
             // I have no idea how to implement this with our current configuration.
             return new List<DiscordRole>();
         }
-
         #endregion
 
         #region Websocket
@@ -689,6 +688,14 @@ namespace DSharpPlus
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
+        internal async static Task InternalLeaveGuild(ulong GuildID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Guilds + "/" + GuildID;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
         #endregion
         #region Channel
 
@@ -990,6 +997,30 @@ namespace DSharpPlus
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
+        internal async static Task<DiscordDMChannel> InternalCreateDM(ulong RecipientID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Channels;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JObject j = new JObject();
+            j.Add("recipient_id", RecipientID);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
+        }
+
+        internal async static Task<DiscordDMChannel> InternalCreateGroupDM(List<string> access_tokens)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Channels;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JArray tokens = new JArray();
+            foreach (string token in access_tokens)
+            {
+                tokens.Add(token);
+            }
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, tokens.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
+        }
         #endregion
         #region Member
         // TODO
@@ -1032,6 +1063,52 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal async static Task<DiscordUser> InternalGetCurrentUser()
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+        }
+
+        internal async static Task<DiscordUser> InternalGetUser(ulong UserID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/" + UserID;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+        }
+
+        internal async static Task<DiscordUser> InternalModifyCurrentUser(string username = "", string base64avatar = "")
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JObject j = new JObject();
+            if (username != "")
+                j.Add("", username);
+            if (base64avatar != "")
+                j.Add("avatar", base64avatar);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+        }
+
+        internal async static Task<List<DiscordGuild>> InternalGetCurrentUserGuilds()
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Guilds;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            List<DiscordGuild> guilds = new List<DiscordGuild>();
+            foreach (JObject j in JArray.Parse(response.Response))
+            {
+                guilds.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordGuild>(j.ToString()));
+            }
+            return guilds;
         }
 
         #endregion
@@ -1297,6 +1374,21 @@ namespace DSharpPlus
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+        }
+        #endregion
+        #region Connections
+        internal async static Task<List<DiscordConnection>> InternalGetUsersConnections()
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Connections;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            List<DiscordConnection> connections = new List<DiscordConnection>();
+            foreach (JObject j in JArray.Parse(response.Response))
+            {
+                connections.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordConnection>(j.ToString()));
+            }
+            return connections;
         }
         #endregion
         #endregion
