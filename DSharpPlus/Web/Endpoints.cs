@@ -23,5 +23,9 @@
         public static string Recipients => "/recipients";
         public static string Roles => "/roles";
         public static string Prune => "/prune";
+        public static string Regions => "regions";
+        public static string Sync => "sync";
+        public static string Embed => "embed";
+        public static string Integrations => "integrations";
     }
 }

@@ -5,8 +5,8 @@ namespace DSharpPlus
     public class DiscordGuildEmbed
     {
         [JsonProperty("enabled")]
-        public bool Enabled { get; internal set; }
+        public bool Enabled { get; set; }
         [JsonProperty("channel_id")]
-        public ulong ChannelID { get; internal set; }
+        public ulong ChannelID { get; set; }
     }
 }
