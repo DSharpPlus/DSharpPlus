@@ -175,6 +175,7 @@ namespace DSharpPlus
         public async Task<List<DiscordVoiceRegion>> ListRegions() => await InternalListVoiceRegions();
         public async Task<DiscordWebhook> GetWebhook(ulong ID) => await InternalGetWebhook(ID);
         public async Task<DiscordWebhook> GetWebhookWithToken(ulong ID, string token) => await InternalGetWebhookWithToken(ID, token);
+        public async Task<DiscordDMChannel> CreateDM(ulong UserID) => await InternalCreateDM(UserID);
         #endregion
 
         #region Unsorted / Testing / Not working
