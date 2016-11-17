@@ -4,7 +4,7 @@
 
 A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards
 
-[![dsharpplus MyGet Build Status](https://www.myget.org/BuildSource/Badge/dsharpplus?identifier=3890da60-1aa7-47dd-8087-034abc840908)](https://www.myget.org/) [![MyGet Pre Release](https://img.shields.io/myget/dsharpplus/vpre/dsharpplus.svg?style=flat-square)](https://www.myget.org/feed/dsharpplus/package/nuget/DSharpPlus)
+[![travis-ci Build Status](https://travis-ci.org/NaamloosDT/DSharpPlus.svg?branch=rewrite)](https://travis-ci.org/NaamloosDT/DSharpPlus) [![dsharpplus MyGet Build Status](https://www.myget.org/BuildSource/Badge/dsharpplus?identifier=3890da60-1aa7-47dd-8087-034abc840908)](https://www.myget.org/) [![MyGet Pre Release](https://img.shields.io/myget/dsharpplus/vpre/dsharpplus.svg?style=flat-square)](https://www.myget.org/feed/dsharpplus/package/nuget/DSharpPlus)
 [![Discord Server ](https://discordapp.com/api/guilds/146044397861994496/widget.png)](https://discord.gg/0oZpaYcAjfvkDuE4)
 
 # Use the lib (not recommend):
