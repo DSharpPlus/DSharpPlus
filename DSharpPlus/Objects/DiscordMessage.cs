@@ -48,5 +48,8 @@ namespace DSharpPlus
         public async Task Delete() => await DiscordClient.InternalDeleteMessage(ChannelID, ID);
         public async Task Pin() => await DiscordClient.InternalAddPinnedChannelMessage(ChannelID, ID);
         public async Task Unpin() => await DiscordClient.InternalDeletePinnedChannelMessage(ChannelID, ID);
+        public async Task<DiscordMessage> Respond(string content, bool tts = false) => await DiscordClient.InternalCreateMessage(ChannelID, content, tts);
+        public async Task<DiscordMessage> Respond(string content, string filepath, string filename, bool tts = false) 
+            => await DiscordClient.InternalUploadFile(ChannelID, filepath, filename, content, tts);
     }
 }
