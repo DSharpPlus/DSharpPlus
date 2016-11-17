@@ -419,7 +419,11 @@ namespace DSharpPlus
         internal void OnMessageCreateEvent(JObject obj)
         {
             DiscordMessage message = obj["d"].ToObject<DiscordMessage>();
+            /*
             _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == message.ChannelID).LastMessageID = message.ID;
+
+            use DiscordChannel.GetMessages instead?
+            */
 
             List<DiscordMember> MentionedUsers = new List<DiscordMember>();
             foreach (ulong user in Utils.GetUserMentions(message))
