@@ -418,7 +418,17 @@ namespace DSharpPlus
 
         internal void OnMessageCreateEvent(JObject obj)
         {
-            DiscordMessage message = obj["d"].ToObject<DiscordMessage>();
+            DiscordMessage message;
+            try
+            {
+                message = obj["d"].ToObject<DiscordMessage>();
+            }
+            catch (Exception)
+            {
+                JObject msg = (JObject)obj["d"];
+                msg["nonce"] = 0;
+                message = msg.ToObject<DiscordMessage>();
+            }
             /*
             _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == message.ChannelID).LastMessageID = message.ID;
 
