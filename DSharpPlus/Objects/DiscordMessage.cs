@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
@@ -42,5 +43,10 @@ namespace DSharpPlus
         public bool Pinned { get; internal set; }
         [JsonProperty("webhook_id")]
         public ulong? WebhookID { get; internal set; }
+
+        public async Task<DiscordMessage> Edit(string content) => await DiscordClient.InternalEditMessage(ChannelID, ID, content);
+        public async Task Delete() => await DiscordClient.InternalDeleteMessage(ChannelID, ID);
+        public async Task Pin() => await DiscordClient.InternalAddPinnedChannelMessage(ChannelID, ID);
+        public async Task Unpin() => await DiscordClient.InternalDeletePinnedChannelMessage(ChannelID, ID);
     }
 }
