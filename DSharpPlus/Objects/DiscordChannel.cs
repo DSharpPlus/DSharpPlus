@@ -36,11 +36,7 @@ namespace DSharpPlus
         [JsonProperty("user_limit")]
         public int UserLimit { get; internal set; }
 
-        #region Channel Modification
-        public async Task DeleteChannel() => await DiscordClient.InternalDeleteChannel(ID);
-        #endregion
-
-        #region Messages
+        #region Functions
         public async Task<DiscordMessage> SendMessage(string content, bool tts = false) => await DiscordClient.InternalCreateMessage(ID, content, tts);
         public async Task<DiscordMessage> SendFile(string filepath, string filename, string content = "", bool tts = false) => await DiscordClient.InternalUploadFile(ID, filepath, filename, content, tts);
         public async Task Delete() => await DiscordClient.InternalDeleteChannel(ID);

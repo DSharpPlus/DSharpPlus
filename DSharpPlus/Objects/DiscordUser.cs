@@ -21,20 +21,5 @@ namespace DSharpPlus
         public bool? Verified { get; internal set; }
         [JsonProperty("email")]
         public string Email { get; internal set; }
-
-        internal static DiscordUser FromJson(JObject UserObject)
-        {
-            DiscordUser user = new DiscordUser();
-
-            user.ID = UserObject.Value<ulong>("id");
-            user.Username = UserObject.Value<string>("username");
-            user.Discriminator = UserObject.Value<int>("discriminator");
-            user.AvatarHash = UserObject.Value<string>("avatar");
-            user.MFAEnabled = UserObject.Value<bool>("mfa_enabled");
-            user.Verified = UserObject.Value<bool>("verified");
-            user.Email = UserObject.Value<string>("email");
-
-            return user;
-        }
     }
 }

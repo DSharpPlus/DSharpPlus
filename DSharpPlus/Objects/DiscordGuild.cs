@@ -61,13 +61,6 @@ namespace DSharpPlus
         [JsonProperty("permissions")]
         public ulong Permissions { get; internal set; }
 
-        internal static DiscordGuild FromJson(JObject GuildObject)
-        {
-            return new DiscordGuild();
-        }
-
-        internal static DiscordGuild FromJson(string GuildObject) => DiscordGuild.FromJson(JObject.Parse(GuildObject));
-
         #region Guild Functions
         public async Task<DiscordGuild> Delete() => await DiscordClient.InternalDeleteGuild(ID);
         public async Task<DiscordGuild> Modify(string name = "", string region = "", int verification_level = -1, int default_message_notifications = -1,
