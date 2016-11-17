@@ -557,7 +557,7 @@ namespace DSharpPlus
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
-            DiscordGuild guild = DiscordGuild.FromJson(response.Response);
+            DiscordGuild guild = Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
             return guild;
         }
 
@@ -571,7 +571,7 @@ namespace DSharpPlus
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
-            DiscordGuild guild = DiscordGuild.FromJson(response.Response);
+            DiscordGuild guild = Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
             return guild;
         }
 
