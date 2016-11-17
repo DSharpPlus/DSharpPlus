@@ -423,7 +423,7 @@ namespace DSharpPlus
             {
                 message = obj["d"].ToObject<DiscordMessage>();
             }
-            catch (Exception)
+            catch (Newtonsoft.Json.JsonSerializationException)
             {
                 JObject msg = (JObject)obj["d"];
                 msg["nonce"] = 0;
