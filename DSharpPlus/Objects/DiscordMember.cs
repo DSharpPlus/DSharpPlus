@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
@@ -18,5 +19,7 @@ namespace DSharpPlus
         public bool IsDeafened { get; internal set; }
         [JsonProperty("is_muted")]
         public bool IsMuted { get; internal set; }
+
+        public async Task<DiscordDMChannel> SendDM() => await DiscordClient.InternalCreateDM(User.ID);
     }
 }
