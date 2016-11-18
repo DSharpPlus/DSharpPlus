@@ -109,7 +109,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\WebWrapper.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

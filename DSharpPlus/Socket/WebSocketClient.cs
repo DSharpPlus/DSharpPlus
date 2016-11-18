@@ -6,7 +6,7 @@ using WebSocketSharp;
 
 namespace DSharpPlus
 {
-    public class WebSocketClient
+    internal class WebSocketClient
     {
         internal event EventHandler SocketOpened;
         internal event EventHandler<CloseEventArgs> SocketClosed;
@@ -15,7 +15,7 @@ namespace DSharpPlus
 
         internal WebSocket _socket;
         internal static int _sequence = 0;
-        public static string _sessionToken = "";
+        internal static string _sessionToken = "";
         internal static string _sessionID = "";
         internal static int _heartbeatInterval = 0;
 
@@ -30,12 +30,12 @@ namespace DSharpPlus
             _socket.OnError += _socket_OnError;
         }
 
-        public void Connect()
+        internal void Connect()
         {
             _socket.Connect();
         }
 
-        public void Disconnect()
+        internal void Disconnect()
         {
             if (_socket.IsAlive)
                 _socket.Close();
