@@ -63,6 +63,7 @@
     <Compile Include="EventArgs\GuildDeleteEventArgs.cs" />
     <Compile Include="EventArgs\GuildUpdateEventArgs.cs" />
     <Compile Include="EventArgs\MessageCreateEventArgs.cs" />
+    <Compile Include="EventArgs\PresenceUpdateEventArgs.cs" />
     <Compile Include="Formatter.cs" />
     <Compile Include="Interfaces\IModule.cs" />
     <Compile Include="Objects\DiscordConnection.cs" />

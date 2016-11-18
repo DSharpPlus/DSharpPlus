@@ -71,6 +71,11 @@ namespace DSharpPlus
         /// Sent when a message is created.
         /// </summary>
         public event EventHandler<MessageCreateEventArgs> MessageCreated;
+
+        /// <summary>
+        /// Sent when a presence has been updated.
+        /// </summary>
+        public event EventHandler<PresenceUpdateEventArgs> PresenceUpdate;
         #endregion
         
         #region Internal Variables
@@ -500,7 +505,7 @@ namespace DSharpPlus
                 //case "message_update": break;
                 //case "message_delete": break;
                 //case "message_bulk_delete": break;
-                //case "presence_update": break;
+                case "presence_update": await OnPresenceUpdateEvent(obj); break;
                 //case "typing_start": break;
                 //case "user_settings_update": break;
                 //case "user_update": break;
@@ -692,6 +697,32 @@ namespace DSharpPlus
 
                 MessageCreateEventArgs args = new MessageCreateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
                 MessageCreated?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnPresenceUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
+
+                List<ulong> Roles = new List<ulong>();
+                foreach (JToken role in (JArray)obj["d"]["roles"])
+                {
+                    Roles.Add(ulong.Parse(role.ToString()));
+                }
+
+                string Game = "";
+                if(obj["d"]["game"] != null)
+                {
+                    Game = obj["d"]["game"]["name"].ToString();
+                }
+
+                ulong GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                string status = obj["d"]["status"].ToString();
+
+                PresenceUpdateEventArgs args = new PresenceUpdateEventArgs() { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status};
+                PresenceUpdate?.Invoke(this, args);
             });
         }
 
