@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>DSharpPlus</id>
+    <id>DSharpPlus.Commands</id>
     <version>$version$</version>
-    <title>A Discord API wrapper</title>
+    <title>A command extension</title>
     <authors>DSharpPlus Devs</authors>
     <owners>Naamloos, afroraydude, DrCreo, Death, Tiaqoy0</owners>
     <licenseUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/rewrite/LICENSE</licenseUrl>
