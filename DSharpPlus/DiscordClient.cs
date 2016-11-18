@@ -1819,6 +1819,73 @@ namespace DSharpPlus
         }
 
         #endregion
+        #region Reactions
+        internal async static Task InternalCreateReaction(ulong ChannelID, ulong MessageID, DiscordEmoji Emoji)
+        {
+            string EmojiName = Emoji.ID.ToString();
+            if(Emoji.ID == 0)
+            {
+                EmojiName = Emoji.Name;
+            }
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + EmojiName + "/@me";
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal async static Task InternalDeleteOwnReaction(ulong ChannelID, ulong MessageID, DiscordEmoji Emoji)
+        {
+            string EmojiName = Emoji.ID.ToString();
+            if (Emoji.ID == 0)
+            {
+                EmojiName = Emoji.Name;
+            }
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + EmojiName + "/@me";
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal async static Task InternalDeleteUserReaction(ulong ChannelID, ulong MessageID, ulong UserID, DiscordEmoji Emoji)
+        {
+            string EmojiName = Emoji.ID.ToString();
+            if (Emoji.ID == 0)
+            {
+                EmojiName = Emoji.Name;
+            }
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + EmojiName + "/" + UserID;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal async static Task<List<DiscordUser>> InternalGetReactions(ulong ChannelID, ulong MessageID, DiscordEmoji Emoji)
+        {
+            string EmojiName = Emoji.ID.ToString();
+            if (Emoji.ID == 0)
+            {
+                EmojiName = Emoji.Name;
+            }
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + EmojiName;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            List<DiscordUser> reacters = new List<DiscordUser>();
+            foreach (JObject obj in JArray.Parse(response.Response))
+            {
+                reacters.Add(obj.ToObject<DiscordUser>());
+            }
+            return reacters;
+        }
+
+        internal async static Task InternalDeleteAllReactions(ulong ChannelID, ulong MessageID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+        #endregion
         #endregion
     }
 }

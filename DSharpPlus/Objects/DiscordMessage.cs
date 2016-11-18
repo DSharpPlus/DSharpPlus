@@ -139,5 +139,43 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordMessage> Respond(string content, string filepath, string filename, bool tts = false) 
             => await DiscordClient.InternalUploadFile(ChannelID, filepath, filename, content, tts);
+
+        /// <summary>
+        /// Creates a reaction to this message
+        /// </summary>
+        /// <param name="emoji">The emoji you want to react with</param>
+        /// <returns></returns>
+        public async Task CreateReaction(DiscordEmoji emoji) => await DiscordClient.InternalCreateReaction(ChannelID, ID, emoji);
+        /// <summary>
+        /// Deletes your own reaction
+        /// </summary>
+        /// <param name="emoji">Emoji for the reaction you want to remove</param>
+        /// <returns></returns>
+        public async Task DeleteOwnReaction(DiscordEmoji emoji) => await DiscordClient.InternalDeleteOwnReaction(ChannelID, ID, emoji);
+        /// <summary>
+        /// Deletes another user's reaction.
+        /// </summary>
+        /// <param name="emoji">Emoji for the reaction you want to remove</param>
+        /// <param name="Member">Member you want to remove the reaction for</param>
+        /// <returns></returns>
+        public async Task DeleteReaction(DiscordEmoji emoji, DiscordMember Member) => await DiscordClient.InternalDeleteUserReaction(ChannelID, ID, Member.User.ID, emoji);
+        /// <summary>
+        /// Deletes another user's reaction.
+        /// </summary>
+        /// <param name="emoji">Emoji for the reaction you want to remove</param>
+        /// <param name="UserID">User ID of the member you want to remove the reaction for</param>
+        /// <returns></returns>
+        public async Task DeleteReaction(DiscordEmoji emoji, ulong UserID) => await DiscordClient.InternalDeleteUserReaction(ChannelID, ID, UserID, emoji);
+        /// <summary>
+        /// Gets users that reacted with this emoji
+        /// </summary>
+        /// <param name="emoji"></param>
+        /// <returns></returns>
+        public async Task<List<DiscordUser>> GetReactions(DiscordEmoji emoji) => await DiscordClient.InternalGetReactions(ChannelID, ID, emoji);
+        /// <summary>
+        /// Deletes all reactions for this emoji
+        /// </summary>
+        /// <returns></returns>
+        public async Task DeleteAllReactions() => await DiscordClient.InternalDeleteAllReactions(ChannelID, ID);
     }
 }

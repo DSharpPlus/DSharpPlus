@@ -7,6 +7,9 @@
         public static string PTBBaseUri => string.Format(InternalBaseUri, "ptb.");
         public static string StableBaseUri => string.Format(InternalBaseUri, "");
 
+        public static string Reactions { get; internal set; }
+        public static string me { get; internal set; }
+
         public const string Permissions = "/permissions";
         public const string Recipients = "/recipients";
         public const string BulkDelete = "/bulk-delete";
