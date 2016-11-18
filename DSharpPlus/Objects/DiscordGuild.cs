@@ -39,7 +39,7 @@ namespace DSharpPlus
         /// 
         /// </summary>
         [JsonProperty("region")]
-        public DiscordVoiceRegion Region { get; internal set; }
+        public string RegionID { get; internal set; }
         /// <summary>
         /// ID of the afk channel
         /// </summary>

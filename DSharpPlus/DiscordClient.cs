@@ -82,6 +82,7 @@ namespace DSharpPlus
         internal static List<IModule> _modules = new List<IModule>();
 
         internal static WebSocketClient WebSocketClient;
+        internal static DateTime LastHeartbeat;
         #endregion
 
         #region Public Variables
@@ -722,6 +723,7 @@ namespace DSharpPlus
             await Task.Run(() =>
             {
                 _debugLogger.LogMessage(LogLevel.Unnecessary, "Received WebSocket Heartbeat Ack", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Debug, $"Ping {(DateTime.Now - LastHeartbeat).Milliseconds}ms", DateTime.Now);
             });
         }
 
@@ -737,12 +739,13 @@ namespace DSharpPlus
 
         internal void SendHeartbeat()
         {
-            DiscordClient._debugLogger.LogMessage(LogLevel.Unnecessary, "Sending WebSocket Heartbeat", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Unnecessary, "Sending WebSocket Heartbeat", DateTime.Now);
             JObject obj = new JObject() {
                 { "op", 1 },
                 { "d", WebSocketClient._sequence }
             };
             WebSocketClient._socket.Send(obj.ToString());
+            LastHeartbeat = DateTime.Now;
         }
 
         internal async Task SendIdentify()
