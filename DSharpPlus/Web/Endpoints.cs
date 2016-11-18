@@ -7,8 +7,8 @@
         public static string PTBBaseUri => string.Format(InternalBaseUri, "ptb.");
         public static string StableBaseUri => string.Format(InternalBaseUri, "");
 
-        public static string Reactions { get; internal set; }
-        public static string me { get; internal set; }
+        public static string Reactions = "/reactions";
+        public static string me = "/@me";
 
         public const string Permissions = "/permissions";
         public const string Recipients = "/recipients";
