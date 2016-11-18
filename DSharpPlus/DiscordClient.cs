@@ -1854,15 +1854,15 @@ namespace DSharpPlus
         #region Reactions
         internal async static Task InternalCreateReaction(ulong ChannelID, ulong MessageID, string Emoji)
         {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
         internal async static Task InternalDeleteOwnReaction(ulong ChannelID, ulong MessageID, string Emoji)
         {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
@@ -1870,7 +1870,7 @@ namespace DSharpPlus
 
         internal async static Task InternalDeleteUserReaction(ulong ChannelID, ulong MessageID, ulong UserID, string Emoji)
         {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/" + UserID;
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
@@ -1878,7 +1878,7 @@ namespace DSharpPlus
 
         internal async static Task<List<DiscordUser>> InternalGetReactions(ulong ChannelID, ulong MessageID, string Emoji)
         {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji;
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
@@ -1892,7 +1892,7 @@ namespace DSharpPlus
 
         internal async static Task InternalDeleteAllReactions(ulong ChannelID, ulong MessageID)
         {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions;
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
