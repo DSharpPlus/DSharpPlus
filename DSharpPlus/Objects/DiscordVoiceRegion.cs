@@ -5,8 +5,13 @@ namespace DSharpPlus
     /// <summary>
     /// 
     /// </summary>
-    public class DiscordVoiceRegion : SnowflakeObject
+    public class DiscordVoiceRegion
     {
+        /// <summary>
+        /// Unique ID for the region
+        /// </summary>
+        [JsonProperty("id")]
+        public string ID { get; internal set; }
         /// <summary>
         /// Name of the region
         /// </summary>
