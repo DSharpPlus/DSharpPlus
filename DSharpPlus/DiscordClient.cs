@@ -77,7 +77,7 @@ namespace DSharpPlus
         /// </summary>
         public event EventHandler<PresenceUpdateEventArgs> PresenceUpdate;
         #endregion
-        
+
         #region Internal Variables
         internal static CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
         internal static CancellationToken _cancelToken = _cancelTokenSource.Token;
@@ -419,7 +419,7 @@ namespace DSharpPlus
             JArray ja = JArray.Parse(response.Response);
             List<DiscordMember> members = new List<DiscordMember>();
             Console.WriteLine(response.Response);
-            foreach(JObject m in ja)
+            foreach (JObject m in ja)
             {
                 members.Add(m.ToObject<DiscordMember>());
             }
@@ -713,15 +713,16 @@ namespace DSharpPlus
                 }
 
                 string Game = "";
-                if(obj["d"]["game"] != null)
+                /*if (obj["d"]["game"]["name"] != null)
                 {
                     Game = obj["d"]["game"]["name"].ToString();
                 }
+                FIX ME PLS */
 
                 ulong GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 string status = obj["d"]["status"].ToString();
 
-                PresenceUpdateEventArgs args = new PresenceUpdateEventArgs() { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status};
+                PresenceUpdateEventArgs args = new PresenceUpdateEventArgs() { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
                 PresenceUpdate?.Invoke(this, args);
             });
         }
@@ -828,7 +829,7 @@ namespace DSharpPlus
 
         internal static ulong GetGuildIdFromChannelID(ulong channelid)
         {
-            foreach(DiscordGuild guild in _guilds.Values)
+            foreach (DiscordGuild guild in _guilds.Values)
             {
                 if (guild.Channels.Find(x => x.ID == channelid) != null) return guild.ID;
             }
@@ -1046,13 +1047,13 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages;
             JObject j = new JObject();
-            j.Add("content",content);
+            j.Add("content", content);
             j.Add("tts", tts);
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            
+
             return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 
@@ -1078,7 +1079,7 @@ namespace DSharpPlus
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray j = JArray.Parse(response.Response);
             List<DiscordChannel> channels = new List<DiscordChannel>();
-            foreach(JObject jj in j)
+            foreach (JObject jj in j)
             {
                 channels.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordChannel>(jj.ToString()));
             }
@@ -1730,7 +1731,7 @@ namespace DSharpPlus
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
-            foreach(JObject j in JArray.Parse(response.Response))
+            foreach (JObject j in JArray.Parse(response.Response))
             {
                 webhooks.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordWebhook>(j.ToString()));
             }
@@ -1821,10 +1822,10 @@ namespace DSharpPlus
                 req.Add("avatar_url", avatar_url);
             if (tts)
                 req.Add("tts", tts);
-            if(embeds != null)
+            if (embeds != null)
             {
                 JArray arr = new JArray();
-                foreach(DiscordEmbed e in embeds)
+                foreach (DiscordEmbed e in embeds)
                 {
                     arr.Add(Newtonsoft.Json.JsonConvert.SerializeObject(e));
                 }
@@ -1851,53 +1852,33 @@ namespace DSharpPlus
 
         #endregion
         #region Reactions
-        internal async static Task InternalCreateReaction(ulong ChannelID, ulong MessageID, DiscordEmoji Emoji)
+        internal async static Task InternalCreateReaction(ulong ChannelID, ulong MessageID, string Emoji)
         {
-            string EmojiName = Emoji.ID.ToString();
-            if(Emoji.ID == 0)
-            {
-                EmojiName = Emoji.Name;
-            }
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + EmojiName + "/@me";
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalDeleteOwnReaction(ulong ChannelID, ulong MessageID, DiscordEmoji Emoji)
+        internal async static Task InternalDeleteOwnReaction(ulong ChannelID, ulong MessageID, string Emoji)
         {
-            string EmojiName = Emoji.ID.ToString();
-            if (Emoji.ID == 0)
-            {
-                EmojiName = Emoji.Name;
-            }
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + EmojiName + "/@me";
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalDeleteUserReaction(ulong ChannelID, ulong MessageID, ulong UserID, DiscordEmoji Emoji)
+        internal async static Task InternalDeleteUserReaction(ulong ChannelID, ulong MessageID, ulong UserID, string Emoji)
         {
-            string EmojiName = Emoji.ID.ToString();
-            if (Emoji.ID == 0)
-            {
-                EmojiName = Emoji.Name;
-            }
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + EmojiName + "/" + UserID;
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task<List<DiscordUser>> InternalGetReactions(ulong ChannelID, ulong MessageID, DiscordEmoji Emoji)
+        internal async static Task<List<DiscordUser>> InternalGetReactions(ulong ChannelID, ulong MessageID, string Emoji)
         {
-            string EmojiName = Emoji.ID.ToString();
-            if (Emoji.ID == 0)
-            {
-                EmojiName = Emoji.Name;
-            }
-            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + EmojiName;
+            string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
