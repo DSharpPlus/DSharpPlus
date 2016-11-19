@@ -1450,7 +1450,7 @@ namespace DSharpPlus
                 }
                 else
                 {
-                    jembed["timestamp"] = embed.Timestamp.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
+                    jembed["timestamp"] = embed.Timestamp.ToUniversalTime().ToString("s", System.Globalization.CultureInfo.InvariantCulture);
                 }
                 j.Add("embed", jembed);
             }
