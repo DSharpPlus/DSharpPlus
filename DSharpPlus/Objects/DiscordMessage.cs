@@ -127,8 +127,9 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="content"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> Respond(string content, bool tts = false) => await DiscordClient.InternalCreateMessage(ChannelID, content, tts);
+        public async Task<DiscordMessage> Respond(string content, bool tts = false, DiscordEmbed embed = null) => await DiscordClient.InternalCreateMessage(ChannelID, content, tts, embed);
         /// <summary>
         /// Respond to the message
         /// </summary>

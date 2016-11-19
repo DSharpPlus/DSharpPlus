@@ -1043,17 +1043,20 @@ namespace DSharpPlus
             return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 
-        internal async static Task<DiscordMessage> InternalCreateMessage(ulong ChannelID, string content, bool tts)
+        internal async static Task<DiscordMessage> InternalCreateMessage(ulong ChannelID, string content, bool tts, DiscordEmbed embed = null)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages;
             JObject j = new JObject();
             j.Add("content", content);
             j.Add("tts", tts);
+            if (embed != null)
+                j.Add("embed", JObject.FromObject(embed));
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
+            Console.WriteLine(j.ToString());
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
-
+            Console.WriteLine(response.Response);
             return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 

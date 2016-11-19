@@ -10,17 +10,17 @@ namespace DSharpPlus
         /// <summary>
         /// Source url of the video
         /// </summary>
-        [JsonProperty("url")]
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
         /// <summary>
         /// Height of video
         /// </summary>
-        [JsonProperty("height")]
+        [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
         public int Height { get; set; }
         /// <summary>
         /// Width of video
         /// </summary>
-        [JsonProperty("width")]
+        [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
         public int Width { get; set; }
     }
 }

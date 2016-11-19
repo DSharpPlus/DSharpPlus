@@ -10,17 +10,17 @@ namespace DSharpPlus
         /// <summary>
         /// Footer text
         /// </summary>
-        [JsonProperty("text")]
+        [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
         public string Text { get; set; }
         /// <summary>
         /// Url of the footer icon (https only)
         /// </summary>
-        [JsonProperty("icon_url")]
+        [JsonProperty("icon_url", NullValueHandling = NullValueHandling.Ignore)]
         public string IconUrl { get; set; }
         /// <summary>
         /// A proxied url of the footer icon
         /// </summary>
-        [JsonProperty("proxy_icon_url")]
+        [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
         public string ProxyIconUrl { get; set; }
     }
 }

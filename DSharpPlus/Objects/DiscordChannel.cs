@@ -72,8 +72,9 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="content"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(string content, bool tts = false) => await DiscordClient.InternalCreateMessage(ID, content, tts);
+        public async Task<DiscordMessage> SendMessage(string content, bool tts = false, DiscordEmbed embed = null) => await DiscordClient.InternalCreateMessage(ID, content, tts, embed);
         /// <summary>
         /// Posts a file
         /// </summary>
