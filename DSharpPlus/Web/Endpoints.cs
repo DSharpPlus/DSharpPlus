@@ -1,15 +1,14 @@
 ﻿namespace DSharpPlus
 {
-    public static class Endpoints
+    internal static class Endpoints
     {
         private const string InternalBaseUri = "https://{0}discordapp.com/api";
         public static string CanaryBaseUri => string.Format(InternalBaseUri, "canary.");
         public static string PTBBaseUri => string.Format(InternalBaseUri, "ptb.");
         public static string StableBaseUri => string.Format(InternalBaseUri, "");
 
-        public static string Reactions = "/reactions";
-        public static string me = "/@me";
-
+        public const string Reactions = "/reactions";
+        public const string me = "/@me";
         public const string Permissions = "/permissions";
         public const string Recipients = "/recipients";
         public const string BulkDelete = "/bulk-delete";

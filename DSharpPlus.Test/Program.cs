@@ -69,9 +69,53 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
 
             client.MessageCreated += async (sender, e) =>
             {
-                if (e.Message.Content == "!!test")
+                if (e.Message.Content == "!!embed")
                 {
-                    //await client.InternalUploadFile(206863986690359296, "eh.txt", "sexy file name.txt", "here's ya sexy text file!", true);
+                    List<DiscordEmbedField> fields = new List<DiscordEmbedField>();
+                    fields.Add(new DiscordEmbedField()
+                    {
+                        Name = "This is a field",
+                        Value = "it works :p",
+                        Inline = false
+                    });
+                    fields.Add(new DiscordEmbedField()
+                    {
+                        Name = "Multiple fields",
+                        Value = "cool",
+                        Inline = false
+                    });
+                    DiscordEmbed embed = new DiscordEmbed
+                    {
+                        Title = "Testing embed",
+                        Description = "It works!",
+                        Type = "rich",
+                        Url = "https://github.com/NaamloosDT/DSharpPlus",
+                        Color = 8257469,
+                        Fields = fields,
+                        Author = new DiscordEmbedAuthor()
+                        {
+                            Name = "DSharpPlus team",
+                            IconUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                            Url = "https://github.com/NaamloosDT/DSharpPlus"
+                        },
+                        Footer = new DiscordEmbedFooter()
+                        {
+                            Text = "I am a footer"
+                        },
+                        Image = new DiscordEmbedImage()
+                        {
+                            Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                            Height = 50,
+                            Width = 50,
+                        },
+                        Thumbnail = new DiscordEmbedThumbnail()
+                        {
+                            Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                            Height = 10,
+                            Width = 10
+                        }
+                    };
+                    await e.Message.Respond("testing embed:", false, embed);
                 }
 
                 if (e.Message.Content.StartsWith("!!testerino"))
