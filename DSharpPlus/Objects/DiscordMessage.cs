@@ -28,7 +28,7 @@ namespace DSharpPlus
         /// <summary>
         /// Contents of the message
         /// </summary>
-        [JsonProperty("content")]
+        [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
         public string Content { get; internal set; }
         /// <summary>
         /// When this message was sent
@@ -43,7 +43,7 @@ namespace DSharpPlus
         /// <summary>
         /// When this message was edited
         /// </summary>
-        [JsonProperty("edited_timestamp")]
+        [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public string EditedTimestampRaw { get; internal set; }
         /// <summary>
         /// When this message was edited
