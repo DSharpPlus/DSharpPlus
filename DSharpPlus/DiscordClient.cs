@@ -928,21 +928,24 @@ namespace DSharpPlus
                 */
 
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
-                foreach (ulong user in Utils.GetUserMentions(message))
-                {
-                    MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
-                }
-
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
-                foreach (ulong role in Utils.GetRoleMentions(message))
-                {
-                    MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
-                }
-
                 List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-                foreach (ulong channel in Utils.GetChannelMentions(message))
+                if (message.Content != null)
                 {
-                    MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                    foreach (ulong user in Utils.GetUserMentions(message))
+                    {
+                        MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
+                    }
+
+                    foreach (ulong role in Utils.GetRoleMentions(message))
+                    {
+                        MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
+                    }
+
+                    foreach (ulong channel in Utils.GetChannelMentions(message))
+                    {
+                        MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                    }
                 }
 
                 MessageCreateEventArgs args = new MessageCreateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
@@ -972,21 +975,24 @@ namespace DSharpPlus
                 */
 
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
-                foreach (ulong user in Utils.GetUserMentions(message))
-                {
-                    MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
-                }
-
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
-                foreach (ulong role in Utils.GetRoleMentions(message))
-                {
-                    MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
-                }
-
                 List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-                foreach (ulong channel in Utils.GetChannelMentions(message))
+                if (message.Content != null)
                 {
-                    MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                    foreach (ulong user in Utils.GetUserMentions(message))
+                    {
+                        MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
+                    }
+
+                    foreach (ulong role in Utils.GetRoleMentions(message))
+                    {
+                        MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
+                    }
+
+                    foreach (ulong channel in Utils.GetChannelMentions(message))
+                    {
+                        MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                    }
                 }
 
                 MessageUpdateEventArgs args = new MessageUpdateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
@@ -1436,7 +1442,18 @@ namespace DSharpPlus
             j.Add("content", content);
             j.Add("tts", tts);
             if (embed != null)
-                j.Add("embed", JObject.FromObject(embed));
+            {
+                JObject jembed = JObject.FromObject(embed);
+                if (embed.Timestamp == new DateTime())
+                {
+                    jembed.Remove("timestamp");
+                }
+                else
+                {
+                    jembed["timestamp"] = embed.Timestamp.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
+                }
+                j.Add("embed", jembed);
+            }
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
