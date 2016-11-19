@@ -934,22 +934,30 @@ namespace DSharpPlus
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
                 List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-                if (message.Content != null)
+                // This is lazy sorry
+                try
                 {
-                    foreach (ulong user in Utils.GetUserMentions(message))
+                    if (message.Content != null)
                     {
-                        MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
-                    }
+                        foreach (ulong user in Utils.GetUserMentions(message))
+                        {
+                            MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
+                        }
 
-                    foreach (ulong role in Utils.GetRoleMentions(message))
-                    {
-                        MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
-                    }
+                        foreach (ulong role in Utils.GetRoleMentions(message))
+                        {
+                            MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
+                        }
 
-                    foreach (ulong channel in Utils.GetChannelMentions(message))
-                    {
-                        MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                        foreach (ulong channel in Utils.GetChannelMentions(message))
+                        {
+                            MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                        }
                     }
+                }
+                catch
+                {
+
                 }
 
                 MessageCreateEventArgs args = new MessageCreateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
