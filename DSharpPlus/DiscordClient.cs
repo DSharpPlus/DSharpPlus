@@ -400,6 +400,13 @@ namespace DSharpPlus
         /// <param name="UserID"></param>
         /// <returns></returns>
         public async Task<DiscordDMChannel> CreateDM(ulong UserID) => await InternalCreateDM(UserID);
+        /// <summary>
+        /// Updates current user's status
+        /// </summary>
+        /// <param name="game">Game you're playing</param>
+        /// <param name="idle_since"></param>
+        /// <returns></returns>
+        public async Task UpdateStatus(string game = "", int idle_since = -1) => InternalUpdateStatus(game, idle_since);
         #endregion
 
         #region Unsorted / Testing / Not working
@@ -767,6 +774,29 @@ namespace DSharpPlus
                 SendHeartbeat();
                 Thread.Sleep(WebSocketClient._heartbeatInterval);
             }
+        }
+
+        internal static void InternalUpdateStatus(string game = "", int idle_since = -1)
+        {
+            _debugLogger.LogMessage(LogLevel.Unnecessary, "Updating user status", DateTime.Now);
+            JObject update = new JObject();
+            if (idle_since > -1)
+                update.Add("idle_since", idle_since);
+            else
+                update.Add("idle_since", null);
+
+            if (game != "")
+                update.Add("game", new JObject() { { "name", game } });
+            else
+                update.Add("game", null);
+
+            JObject obj = new JObject()
+            {
+                { "op", 3 },
+                { "d", update }
+            };
+
+            WebSocketClient._socket.Send(obj.ToString());
         }
 
         internal void SendHeartbeat()
