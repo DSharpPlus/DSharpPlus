@@ -10,7 +10,7 @@ namespace DSharpPlus
     {
         internal ulong GuildID;
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
-        public List<DiscordRole> Roles;
+        public List<ulong> Roles;
         public string NickName;
         public DiscordUser User;
     }

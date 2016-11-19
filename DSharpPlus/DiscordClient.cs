@@ -861,12 +861,16 @@ namespace DSharpPlus
             {
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                string nick = obj["d"]["nick"].ToString();
-                JArray rolesjson = (JArray)obj["d"]["roles"];
-                List<DiscordRole> roles = new List<DiscordRole>();
-                foreach(JObject role in rolesjson)
+                string nick = "";
+                nick = obj["d"]["nick"].ToString();
+                List<ulong> roles = new List<ulong>();
+                if (obj["d"]["roles"] != null)
                 {
-                    roles.Add(role.ToObject<DiscordRole>());
+                    JArray rolesjson = (JArray)obj["d"]["roles"];
+                    foreach (var role in rolesjson)
+                    {
+                        roles.Add(ulong.Parse(role.ToString()));
+                    }
                 }
                 GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs() { User = user, GuildID = guildID, Roles = roles, NickName = nick };
                 GuildMemberUpdate?.Invoke(this, args);
