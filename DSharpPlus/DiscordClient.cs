@@ -76,6 +76,101 @@ namespace DSharpPlus
         /// Sent when a presence has been updated.
         /// </summary>
         public event EventHandler<PresenceUpdateEventArgs> PresenceUpdate;
+
+        /// <summary>
+        /// Sent when a guild ban gets added
+        /// </summary>
+        public event EventHandler<GuildBanAddEventArgs> GuildBanAdd;
+
+        /// <summary>
+        /// Sent when a guild ban gets removed
+        /// </summary>
+        public event EventHandler<GuildBanRemoveEventArgs> GuildBanRemove;
+
+        /// <summary>
+        /// Sent when a guilds emojis get updated
+        /// </summary>
+        public event EventHandler<GuildEmojisUpdateEventArgs> GuildEmojisUpdate;
+
+        /// <summary>
+        /// Sent when a guild integration is updated.
+        /// </summary>
+        public event EventHandler<GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdate;
+
+        /// <summary>
+        /// Sent when a new user joins a guild.
+        /// </summary>
+        public event EventHandler<GuildMemberAddEventArgs> GuildMemberAdd;
+
+        /// <summary>
+        /// Sent when a user is removed from a guild (leave/kick/ban).
+        /// </summary>
+        public event EventHandler<GuildMemberRemoveEventArgs> GuildMemberRemove;
+
+        /// <summary>
+        /// Sent when a guild member is updated.
+        /// </summary>
+        public event EventHandler<GuildMemberUpdateEventArgs> GuildMemberUpdate;
+
+        /// <summary>
+        /// Sent when a guild role is created.
+        /// </summary>
+        public event EventHandler<GuildRoleCreateEventArgs> GuildRoleCreate;
+
+        /// <summary>
+        /// Sent when a guild role is updated.
+        /// </summary>
+        public event EventHandler<GuildRoleUpdateEventArgs> GuildRoleUpdate;
+
+        /// <summary>
+        /// Sent when a guild role is updated.
+        /// </summary>
+        public event EventHandler<GuildRoleDeleteEventArgs> GuildRoleDelete;
+
+        /// <summary>
+        /// Sent when a message is updated.
+        /// </summary>
+        public event EventHandler<MessageUpdateEventArgs> MessageUpdate;
+
+        /// <summary>
+        /// Sent when a message is deleted.
+        /// </summary>
+        public event EventHandler<MessageDeleteEventArgs> MessageDelete;
+
+        /// <summary>
+        /// Sent when multiple messages are deleted at once.
+        /// </summary>
+        public event EventHandler<MessageBulkDeleteEventArgs> MessageBulkDelete;
+
+        /// <summary>
+        /// Sent when a user starts typing in a channel.
+        /// </summary>
+        public event EventHandler<TypingStartEventArgs> TypingStart;
+
+        /// <summary>
+        /// Sent when the current user updates their settings.
+        /// </summary>
+        public event EventHandler<UserSettingsUpdateEventArgs> UserSettingsUpdate;
+
+        /// <summary>
+        /// Sent when properties about the user change.
+        /// </summary>
+        public event EventHandler<UserUpdateEventArgs> UserUpdate;
+
+        /// <summary>
+        /// Sent when someone joins/leaves/moves voice channels.
+        /// </summary>
+        public event EventHandler<VoiceStateUpdateEventArgs> VoiceStateUpdate;
+
+        /// <summary>
+        /// Sent when a guild's voice server is updated.
+        /// </summary>
+        public event EventHandler<VoiceServerUpdateEventArgs> VoiceServerUpdate;
+
+        /// <summary>
+        /// Sent in response to Gateway Request Guild Members.
+        /// </summary>
+        public event EventHandler<GuildMembersChunkEventArgs> GuildMembersChunk;
         #endregion
 
         #region Internal Variables
@@ -497,27 +592,27 @@ namespace DSharpPlus
                 case "guild_create": await OnGuildCreateEvent(obj); break;
                 case "guild_update": await OnGuildUpdateEvent(obj); break;
                 case "guild_delete": await OnGuildDeleteEvent(obj); break;
-                //case "guild_ban_add": break;
-                //case "guild_ban_remove": break;
-                //case "guild_emojis_update": break;
-                //case "guild_integrations_update": break;
-                //case "guild_member_add": break;
-                //case "guild_member_remove": break;
-                //case "guild_member_update": break;
-                //case "guild_member_chunk": break;
-                //case "guild_role_create": break;
-                //case "guild_role_update": break;
-                //case "guild_role_delete": break;
+                case "guild_ban_add": await OnGuildBanAddEvent(obj); break;
+                case "guild_ban_remove": await OnGuildBanRemoveEvent(obj); break;
+                case "guild_emojis_update": await OnGuildEmojisUpdateEvent(obj); break;
+                case "guild_integrations_update": await OnGuildIntegrationsUpdateEvent(obj); break;
+                case "guild_member_add": await OnGuildMemberAddEvent(obj); break;
+                case "guild_member_remove": await OnGuildMemberRemoveEvent(obj); break;
+                case "guild_member_update": await OnGuildMemberUpdateEvent(obj); break;
+                case "guild_member_chunk": await OnGuildMembersChunkEvent(obj); break;
+                case "guild_role_create": await OnGuildRoleCreateEvent(obj); break;
+                case "guild_role_update": await OnGuildRoleUpdateEvent(obj); break;
+                case "guild_role_delete": await OnGuildRoleDeleteEvent(obj); break;
                 case "message_create": await OnMessageCreateEvent(obj); break;
-                //case "message_update": break;
-                //case "message_delete": break;
-                //case "message_bulk_delete": break;
+                case "message_update": await OnMessageUpdateEvent(obj); break;
+                case "message_delete": await OnMessageDeleteEvent(obj); break;
+                case "message_bulk_delete": await OnMessageBulkDeleteEvent(obj); break;
                 case "presence_update": await OnPresenceUpdateEvent(obj); break;
-                //case "typing_start": break;
-                //case "user_settings_update": break;
-                //case "user_update": break;
-                //case "voice_state_update": break;
-                //case "voice_server_update": break;
+                case "typing_start": await OnTypingStartEvent(obj); break;
+                case "user_settings_update": await OnUserSettingsUpdateEvent(obj); break;
+                case "user_update": await OnUserUpdateEvent(obj); break;
+                case "voice_state_update": await OnVoiceStateUpdateEvent(obj); break;
+                case "voice_server_update": await OnVoiceServerUpdateEvent(obj); break;
                 default:
                     DebugLogger.LogMessage(LogLevel.Warning, $"Unknown event: {obj.Value<string>("t")}\n{obj["d"].ToString()}", DateTime.Now);
                     break;
@@ -663,6 +758,154 @@ namespace DSharpPlus
                 }
             });
         }
+
+        internal async Task OnPresenceUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
+
+                List<ulong> Roles = new List<ulong>();
+                foreach (JToken role in (JArray)obj["d"]["roles"])
+                {
+                    Roles.Add(ulong.Parse(role.ToString()));
+                }
+
+                string Game = "";
+                /*if (obj["d"]["game"]["name"] != null)
+                {
+                    Game = obj["d"]["game"]["name"].ToString();
+                }
+                FIX ME PLS */
+
+                ulong GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                string status = obj["d"]["status"].ToString();
+
+                PresenceUpdateEventArgs args = new PresenceUpdateEventArgs() { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
+                PresenceUpdate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildBanAddEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordUser user = obj["d"].ToObject<DiscordUser>();
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                GuildBanAddEventArgs args = new GuildBanAddEventArgs() { User = user, GuildID = guildID };
+                GuildBanAdd?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildBanRemoveEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordUser user = obj["d"].ToObject<DiscordUser>();
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                GuildBanRemoveEventArgs args = new GuildBanRemoveEventArgs() { User = user, GuildID = guildID };
+                GuildBanRemove?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildEmojisUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                List<DiscordEmoji> emojis = new List<DiscordEmoji>();
+                foreach(JObject em in (JArray)obj["d"]["emojis"])
+                {
+                    emojis.Add(em.ToObject<DiscordEmoji>());
+                }
+                GuildEmojisUpdateEventArgs arga = new GuildEmojisUpdateEventArgs() { GuildID = guildID, Emojis = emojis };
+                GuildEmojisUpdate?.Invoke(this, arga);
+            });
+        }
+
+        internal async Task OnGuildIntegrationsUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                GuildIntegrationsUpdateEventArgs args = new GuildIntegrationsUpdateEventArgs() { GuildID = guildID };
+                GuildIntegrationsUpdate.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildMemberAddEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordMember user = obj["d"].ToObject<DiscordMember>();
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                GuildMemberAddEventArgs args = new GuildMemberAddEventArgs() { Member = user, GuildID = guildID };
+                GuildMemberAdd?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildMemberRemoveEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs() { User = user, GuildID = guildID };
+                GuildMemberRemove?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildMemberUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                string nick = obj["d"]["nick"].ToString();
+                JArray rolesjson = (JArray)obj["d"]["roles"];
+                List<DiscordRole> roles = new List<DiscordRole>();
+                foreach(JObject role in rolesjson)
+                {
+                    roles.Add(role.ToObject<DiscordRole>());
+                }
+                GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs() { User = user, GuildID = guildID, Roles = roles, NickName = nick };
+                GuildMemberUpdate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildRoleCreateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+                GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs() { GuildID = guildID, Role = role };
+                GuildRoleCreate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildRoleUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+                GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs() { GuildID = guildID, Role = role };
+                GuildRoleUpdate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildRoleDeleteEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+                GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs() { GuildID = guildID, Role = role };
+                GuildRoleDelete?.Invoke(this, args);
+            });
+        }
+
         internal async Task OnMessageCreateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -707,30 +950,143 @@ namespace DSharpPlus
             });
         }
 
-        internal async Task OnPresenceUpdateEvent(JObject obj)
+        internal async Task OnMessageUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
             {
-                DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
-
-                List<ulong> Roles = new List<ulong>();
-                foreach (JToken role in (JArray)obj["d"]["roles"])
+                DiscordMessage message;
+                try
                 {
-                    Roles.Add(ulong.Parse(role.ToString()));
+                    message = obj["d"].ToObject<DiscordMessage>();
+                }
+                catch (Newtonsoft.Json.JsonSerializationException)
+                {
+                    JObject msg = (JObject)obj["d"];
+                    msg["nonce"] = 0;
+                    message = msg.ToObject<DiscordMessage>();
+                }
+                /*
+                _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == message.ChannelID).LastMessageID = message.ID;
+
+                use DiscordChannel.GetMessages instead?
+                */
+
+                List<DiscordMember> MentionedUsers = new List<DiscordMember>();
+                foreach (ulong user in Utils.GetUserMentions(message))
+                {
+                    MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
                 }
 
-                string Game = "";
-                /*if (obj["d"]["game"]["name"] != null)
+                List<DiscordRole> MentionedRoles = new List<DiscordRole>();
+                foreach (ulong role in Utils.GetRoleMentions(message))
                 {
-                    Game = obj["d"]["game"]["name"].ToString();
+                    MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
                 }
-                FIX ME PLS */
 
-                ulong GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                string status = obj["d"]["status"].ToString();
+                List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
+                foreach (ulong channel in Utils.GetChannelMentions(message))
+                {
+                    MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                }
 
-                PresenceUpdateEventArgs args = new PresenceUpdateEventArgs() { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
-                PresenceUpdate?.Invoke(this, args);
+                MessageUpdateEventArgs args = new MessageUpdateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
+                MessageUpdate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnMessageDeleteEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong ID = ulong.Parse(obj["d"]["id"].ToString());
+                ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
+                MessageDeleteEventArgs args = new MessageDeleteEventArgs() { ChannelID = channelID, MessageID = ID };
+                MessageDelete?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnMessageBulkDeleteEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                JArray IDsJson = (JArray)obj["d"]["ids"];
+                List<ulong> ids = new List<ulong>();
+                foreach(JToken t in IDsJson)
+                {
+                    ids.Add(ulong.Parse(t.ToString()));
+                }
+                ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
+                MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs() { MessageIDs = ids, ChannelID = channelID };
+                MessageBulkDelete?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnTypingStartEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
+                ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
+                TypingStartEventArgs args = new TypingStartEventArgs() { ChannelID = channelID, UserID = userID };
+                TypingStart?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnUserSettingsUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordUser user = obj["d"].ToObject<DiscordUser>();
+                UserSettingsUpdateEventArgs args = new UserSettingsUpdateEventArgs() { User = user };
+                UserSettingsUpdate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnUserUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                DiscordUser user = obj["d"].ToObject<DiscordUser>();
+                UserUpdateEventArgs args = new UserUpdateEventArgs() { User = user };
+                UserUpdate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnVoiceStateUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
+                string session_id = obj["d"]["session_id"].ToString();
+                VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs() { UserID = userID, SessionID = session_id };
+                VoiceStateUpdate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnVoiceServerUpdateEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                string endpoint = obj["d"]["endpoint"].ToString();
+                string token = obj["d"]["token"].ToString();
+                VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs() { GuildID = guildID, Endpoint = endpoint, VoiceToken = token};
+                VoiceServerUpdate?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnGuildMembersChunkEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                List<DiscordMember> members = new List<DiscordMember>();
+                foreach (JObject mem in (JArray)obj["d"]["members"])
+                {
+                    members.Add(mem.ToObject<DiscordMember>());
+                }
+                GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs() { GuildID = guildID, Members = members };
+                GuildMembersChunk?.Invoke(this, args);
             });
         }
 
