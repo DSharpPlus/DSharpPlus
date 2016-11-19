@@ -1053,10 +1053,8 @@ namespace DSharpPlus
                 j.Add("embed", JObject.FromObject(embed));
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
-            Console.WriteLine(j.ToString());
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            Console.WriteLine(response.Response);
             return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 
