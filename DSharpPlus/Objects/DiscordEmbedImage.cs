@@ -10,22 +10,22 @@ namespace DSharpPlus
         /// <summary>
         /// Source url of the image (https only)
         /// </summary>
-        [JsonProperty("url")]
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
         /// <summary>
         /// A proxied url of the image
         /// </summary>
-        [JsonProperty("proxy_url")]
+        [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
         public string ProxyUrl { get; set; }
         /// <summary>
         /// Height of the image
         /// </summary>
-        [JsonProperty("height")]
+        [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
         public int Height { get; set; }
         /// <summary>
         /// Width of the image
         /// </summary>
-        [JsonProperty("width")]
+        [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
         public int Width { get; set; }
     }
 }
