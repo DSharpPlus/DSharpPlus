@@ -627,7 +627,7 @@ namespace DSharpPlus
                 _gatewayVersion = obj["d"]["v"].ToObject<int>();
                 _me = obj["d"]["user"].ToObject<DiscordUser>();
                 _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDMChannel>>();
-                if (config.TokenType == TokenType.Bot)
+                if (config.TokenType != TokenType.User)
                 {
                     foreach (JObject guild in obj["d"]["guilds"])
                     {
@@ -769,7 +769,7 @@ namespace DSharpPlus
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
 
                 List<ulong> Roles = new List<ulong>();
-                if (config.TokenType == TokenType.Bot)
+                if (config.TokenType != TokenType.User)
                 {
                     foreach (JToken role in (JArray)obj["d"]["roles"])
                     {
@@ -784,7 +784,9 @@ namespace DSharpPlus
                 }
                 FIX ME PLS */
 
-                ulong GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                ulong GuildID = 0;
+                if(config.TokenType != TokenType.User)
+                    GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 string status = obj["d"]["status"].ToString();
 
                 PresenceUpdateEventArgs args = new PresenceUpdateEventArgs() { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
