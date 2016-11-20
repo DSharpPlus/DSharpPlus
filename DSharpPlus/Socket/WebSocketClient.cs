@@ -6,7 +6,7 @@ using WebSocketSharp;
 
 namespace DSharpPlus
 {
-    internal class WebSocketClient
+    internal class WebSocketClient : IDisposable
     {
         internal event EventHandler SocketOpened;
         internal event EventHandler<CloseEventArgs> SocketClosed;
@@ -14,16 +14,10 @@ namespace DSharpPlus
         internal event EventHandler<ErrorEventArgs> SocketError;
 
         internal WebSocket _socket;
-        internal static int _sequence = 0;
-        internal static string _sessionToken = "";
-        internal static string _sessionID = "";
-        internal static int _heartbeatInterval = 0;
 
-        internal Thread _heartbeatThread;
-
-        internal WebSocketClient()
+        internal WebSocketClient(string gatewayurl)
         {
-            _socket = new WebSocket(DiscordClient._gatewayUrl + "?v=6&encoding=json");
+            _socket = new WebSocket(gatewayurl);
             _socket.OnOpen += _socket_OnOpen;
             _socket.OnClose += _socket_OnClose;
             _socket.OnMessage += _socket_OnMessage;
@@ -56,8 +50,6 @@ namespace DSharpPlus
                 DiscordClient._debugLogger.LogMessage(LogLevel.Debug, $"WebSocket connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
             else
                 DiscordClient._debugLogger.LogMessage(LogLevel.Warning, $"WebSocket connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
-
-            _heartbeatThread.Abort();
         }
 
         private void _socket_OnMessage(object sender, MessageEventArgs e)
@@ -68,6 +60,26 @@ namespace DSharpPlus
         private void _socket_OnError(object sender, ErrorEventArgs e)
         {
             SocketError?.Invoke(sender, e);
+        }
+
+        ~WebSocketClient()
+        {
+            Dispose();
+        }
+
+        private bool disposed;
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+
+            GC.SuppressFinalize(this);
+
+            Disconnect();
+            _socket.Close();
+            _socket = null;
+
+            disposed = true;
         }
     }
 }

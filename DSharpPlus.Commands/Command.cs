@@ -19,7 +19,17 @@ namespace DSharpPlus.Commands
 
         public void Execute(CommandEventArgs args)
         {
-            Func(args);
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await Func(args);
+                }
+                catch (NotSupportedException ex)
+                {
+                    await args.Message.Respond($":warning: An error occurred: {ex.Message}");
+                }
+            });
         }
     }
 }

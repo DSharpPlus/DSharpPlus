@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Commands;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,13 @@ namespace DSharpPlus.Test
 
         public async Task Run(string[] args)
         {
+            BufferedWaveProvider _playBuffer = new BufferedWaveProvider(new WaveFormat(48000, 2));
+            _playBuffer.BufferDuration = TimeSpan.Parse("00:00:10");
+            WaveOut _waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
+            _waveOut.DeviceNumber = 0;
+            _waveOut.Init(_playBuffer);
+            _waveOut.Play();
+
             if (!File.Exists("token.txt"))
             {
                 Console.WriteLine("Please create a \"token.txt\" file with your bot's token inside.");
@@ -27,9 +35,11 @@ namespace DSharpPlus.Test
                 Token = token,
                 TokenType = TokenType.Bot,
                 DiscordBranch = Branch.Canary,
-                LogLevel = LogLevel.Unnecessary,
+                LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true,
-                AutoReconnect = true
+                AutoReconnect = true,
+                VoiceApplication = VoiceApplication.Music,
+                VoiceSettings = VoiceSettings.None
             });
 
             client.UseCommands(new CommandConfig()
@@ -49,22 +59,32 @@ Servername: {x.Message.Parent.Parent.Name}
 Serverowner: {x.Message.Parent.Parent.OwnerID}
 ```");
             });
+            client.AddCommand("voice", async (x) =>
+            {
+                DiscordChannel channel = client.Guilds[206863986690359296].Channels.First(y => y.Type == ChannelType.Voice);
+
+                await channel.ConnectToVoice();
+                await x.Message.Respond($"Trying to connect to voice (Check console for missing events). Buffer Duration: {_playBuffer.BufferDuration}");
+
+            });
+            client.AddCommand("kill", async (x) =>
+            {
+                await x.Message.Respond($"Cya o/");
+
+                client.Dispose();
+                await Task.Delay(-1);
+            });
+
+            client.AddCommand("buffer", async (x) =>
+            {
+                _playBuffer.BufferDuration = TimeSpan.Parse(x.Message.Content.Split(new char[] { ' ' }, 2)[1]);
+
+                await x.Message.Respond($"New Buffer Duration: {_playBuffer.BufferDuration}");
+            });
 
             client.Ready += (sender, e) =>
             {
-                Console.WriteLine(client.Me.Username);
-            };
-
-            client.ChannelCreated += (sender, e) =>
-            {
-                Console.WriteLine($"Channel {e.Channel.Name} on {e.Guild.Name} created! [Type: {e.Channel.Type.ToString()}]");
-            };
-
-            client.GuildAvailable += (sender, e) =>
-            {
-                Console.WriteLine($"Guild {e.Guild.Name} by {e.Guild.OwnerID} available");
-
-                //Console.WriteLine(e.Guild.Channels.Find(x => x.ID == 206863986690359296).Parent.Name);
+                Console.WriteLine($"Connected as {client.Me.Username}#{client.Me.Discriminator}\nOn {client.GatewayUrl} (v{client.GatewayVersion})");
             };
 
             client.MessageCreated += async (sender, e) =>
@@ -145,6 +165,27 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                     sb.AppendLine("```");
                     await client.SendMessage(e.Message.ChannelID, sb.ToString());
                 }
+            };
+
+            client.UserSpeaking += async (sender, e) =>
+            {
+                await Task.Run(() =>
+                {
+                    Console.WriteLine($"{e.UserID} [Speaking: {e.Speaking} | SSRC: {e.ssrc}]");
+                });
+            };
+
+            client.VoiceReceived += async (sender, e) =>
+            {
+                await Task.Run(() =>
+                {
+                    if (e.UserID != 0)
+                    {
+                        Console.WriteLine($"Receiving Voice [SSRC: {e.SSRC} | User: {e.UserID} | Length: {e.VoiceLength}]");
+
+                        _playBuffer.AddSamples(e.Voice, 0, e.VoiceLength);
+                    }
+                });
             };
 
             await client.Connect();

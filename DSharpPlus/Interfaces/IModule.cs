@@ -8,7 +8,7 @@ namespace DSharpPlus
 {
     public interface IModule
     {
-        DiscordClient Client { get; set; }
+        DiscordClient Client { get; }
 
         void Setup(DiscordClient client);
     }
