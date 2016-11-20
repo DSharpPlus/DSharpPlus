@@ -627,9 +627,12 @@ namespace DSharpPlus
                 _gatewayVersion = obj["d"]["v"].ToObject<int>();
                 _me = obj["d"]["user"].ToObject<DiscordUser>();
                 _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDMChannel>>();
-                foreach (JObject guild in obj["d"]["guilds"])
+                if (config.TokenType == TokenType.Bot)
                 {
-                    _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
+                    foreach (JObject guild in obj["d"]["guilds"])
+                    {
+                        _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
+                    }
                 }
                 WebSocketClient._sessionID = obj["d"]["session_id"].ToString();
 
@@ -766,9 +769,12 @@ namespace DSharpPlus
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
 
                 List<ulong> Roles = new List<ulong>();
-                foreach (JToken role in (JArray)obj["d"]["roles"])
+                if (config.TokenType == TokenType.Bot)
                 {
-                    Roles.Add(ulong.Parse(role.ToString()));
+                    foreach (JToken role in (JArray)obj["d"]["roles"])
+                    {
+                        Roles.Add(ulong.Parse(role.ToString()));
+                    }
                 }
 
                 string Game = "";
