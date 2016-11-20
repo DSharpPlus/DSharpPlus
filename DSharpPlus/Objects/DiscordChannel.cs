@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using DSharpPlus.Voice;
+using System;
 
 namespace DSharpPlus
 {
@@ -154,6 +156,14 @@ namespace DSharpPlus
         /// </summary>
         /// <returns></returns>
         public async Task<List<DiscordWebhook>> GetWebhooks() => await DiscordClient.InternalGetChannelWebhooks(ID);
+
+        public async Task ConnectToVoice()
+        {
+            if (Type == ChannelType.Text)
+                throw new NotSupportedException();
+
+            await DiscordClient.OpenVoiceConnection(this, false, false);
+        }
         #endregion
 
     }

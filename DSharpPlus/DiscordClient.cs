@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using DSharpPlus.Voice;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -12,7 +13,7 @@ namespace DSharpPlus
     /// <summary>
     /// A Discord api wrapper
     /// </summary>
-    public class DiscordClient
+    public class DiscordClient : IDisposable
     {
         #region Events
         /// <summary>
@@ -171,6 +172,9 @@ namespace DSharpPlus
         /// Sent in response to Gateway Request Guild Members.
         /// </summary>
         public event EventHandler<GuildMembersChunkEventArgs> GuildMembersChunk;
+
+        public event EventHandler<UserSpeakingEventArgs> UserSpeaking;
+        public event EventHandler<VoiceReceivedEventArgs> VoiceReceived;
         #endregion
 
         #region Internal Variables
@@ -181,8 +185,16 @@ namespace DSharpPlus
 
         internal static List<IModule> _modules = new List<IModule>();
 
-        internal static WebSocketClient WebSocketClient;
-        internal static DateTime LastHeartbeat;
+        internal static WebSocketClient _websocketClient;
+        internal static int _sequence = 0;
+        internal static string _sessionToken = "";
+        internal static string _sessionID = "";
+        internal static int _heartbeatInterval = 0;
+        internal Thread _heartbeatThread;
+        internal static DateTime _lastHeartbeat;
+
+        internal static DiscordVoiceClient _voiceClient;
+        internal static Dictionary<uint, ulong> _ssrcDict = new Dictionary<uint, ulong>();
         #endregion
 
         #region Public Variables
@@ -303,8 +315,6 @@ namespace DSharpPlus
         /// <returns></returns>
         public T GetModule<T>() where T : class, IModule
         {
-            Console.WriteLine(typeof(T));
-
             return _modules.Find(x => x.GetType() == typeof(T)) as T;
         }
 
@@ -314,30 +324,51 @@ namespace DSharpPlus
             await InternalUpdateGateway();
             _me = await InternalGetCurrentUser();
 
-            WebSocketClient = new WebSocketClient();
-            WebSocketClient.SocketOpened += async (sender, e) =>
+            _websocketClient = new WebSocketClient(_gatewayUrl + "?v=5&encoding=json");
+            _websocketClient.SocketOpened += async (sender, e) =>
             {
-                if (WebSocketClient._sessionID == "")
+                if (_sessionID == "")
                     await SendIdentify();
                 else
                     await SendResume();
                 SocketOpened?.Invoke(sender, e);
             };
-            WebSocketClient.SocketClosed += async (sender, e) =>
+            _websocketClient.SocketClosed += async (sender, e) =>
             {
                 await Task.Run(() =>
                 {
+                    _heartbeatThread.Abort();
+
                     if (!e.WasClean && config.AutoReconnect)
                     {
-                        WebSocketClient.Disconnect();
-                        WebSocketClient.Connect();
+                        _websocketClient.Disconnect();
+                        _websocketClient.Connect();
                         DebugLogger.LogMessage(LogLevel.Critical, "Bot crashed. Reconnecting", DateTime.Now);
                     }
                     SocketClosed?.Invoke(sender, e);
                 });
             };
-            WebSocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
-            WebSocketClient.Connect();
+            _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
+            _websocketClient.Connect();
+
+            _voiceClient = new DiscordVoiceClient();
+            _voiceClient.UserSpeaking += async (sender, e) =>
+            {
+                await Task.Run(() =>
+                {
+                    UserSpeaking?.Invoke(this, e);
+                });
+            };
+            _voiceClient.VoiceReceived += async (sender, e) =>
+            {
+                await Task.Run(() =>
+                {
+                    if (_ssrcDict.ContainsKey(e.SSRC))
+                        VoiceReceived?.Invoke(this, new VoiceReceivedEventArgs(e.SSRC, _ssrcDict[e.SSRC], e.Voice, e.VoiceLength));
+                    else
+                        VoiceReceived?.Invoke(this, e);
+                });
+            };
         }
 
         internal async Task InternalUpdateGuild(DiscordGuild guild)
@@ -365,6 +396,21 @@ namespace DSharpPlus
             _gatewayUrl = jObj.Value<string>("url");
             if (jObj["shards"] != null)
                 _shardCount = jObj.Value<int>("shards");
+        }
+
+        /// <summary>
+        /// Disconnects from the gateway
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> Disconnect()
+        {
+            return await Task.Run(() =>
+            {
+                _cancelTokenSource.Cancel();
+                _websocketClient.Disconnect();
+
+                return true;
+            });
         }
 
         #region Public Functions
@@ -520,7 +566,6 @@ namespace DSharpPlus
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
             List<DiscordMember> members = new List<DiscordMember>();
-            Console.WriteLine(response.Response);
             foreach (JObject m in ja)
             {
                 members.Add(m.ToObject<DiscordMember>());
@@ -578,6 +623,11 @@ namespace DSharpPlus
                 case 7: await OnReconnect(); break;
                 case 10: await OnHello(obj); break;
                 case 11: await OnHeartbeatAck(obj); break;
+                default:
+                    {
+                        DebugLogger.LogMessage(LogLevel.Warning, $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj.ToString()}", DateTime.Now);
+                        break;
+                    }
             }
         }
 
@@ -631,7 +681,7 @@ namespace DSharpPlus
                 {
                     _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
                 }
-                WebSocketClient._sessionID = obj["d"]["session_id"].ToString();
+                _sessionID = obj["d"]["session_id"].ToString();
 
                 Ready?.Invoke(this, new EventArgs());
             });
@@ -758,7 +808,6 @@ namespace DSharpPlus
                 }
             });
         }
-
         internal async Task OnPresenceUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -785,7 +834,6 @@ namespace DSharpPlus
                 PresenceUpdate?.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildBanAddEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -796,7 +844,6 @@ namespace DSharpPlus
                 GuildBanAdd?.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildBanRemoveEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -807,7 +854,6 @@ namespace DSharpPlus
                 GuildBanRemove?.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildEmojisUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -822,7 +868,6 @@ namespace DSharpPlus
                 GuildEmojisUpdate?.Invoke(this, arga);
             });
         }
-
         internal async Task OnGuildIntegrationsUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -832,7 +877,6 @@ namespace DSharpPlus
                 GuildIntegrationsUpdate.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildMemberAddEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -843,7 +887,6 @@ namespace DSharpPlus
                 GuildMemberAdd?.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildMemberRemoveEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -854,7 +897,6 @@ namespace DSharpPlus
                 GuildMemberRemove?.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildMemberUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -876,7 +918,6 @@ namespace DSharpPlus
                 GuildMemberUpdate?.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildRoleCreateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -887,7 +928,6 @@ namespace DSharpPlus
                 GuildRoleCreate?.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildRoleUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -898,7 +938,6 @@ namespace DSharpPlus
                 GuildRoleUpdate?.Invoke(this, args);
             });
         }
-
         internal async Task OnGuildRoleDeleteEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -909,7 +948,6 @@ namespace DSharpPlus
                 GuildRoleDelete?.Invoke(this, args);
             });
         }
-
         internal async Task OnMessageCreateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -956,7 +994,6 @@ namespace DSharpPlus
                 MessageCreated?.Invoke(this, args);
             });
         }
-
         internal async Task OnMessageUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -1003,7 +1040,6 @@ namespace DSharpPlus
                 MessageUpdate?.Invoke(this, args);
             });
         }
-
         internal async Task OnMessageDeleteEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -1014,7 +1050,6 @@ namespace DSharpPlus
                 MessageDelete?.Invoke(this, args);
             });
         }
-
         internal async Task OnMessageBulkDeleteEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -1030,7 +1065,6 @@ namespace DSharpPlus
                 MessageBulkDelete?.Invoke(this, args);
             });
         }
-
         internal async Task OnTypingStartEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -1041,7 +1075,6 @@ namespace DSharpPlus
                 TypingStart?.Invoke(this, args);
             });
         }
-
         internal async Task OnUserSettingsUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -1051,7 +1084,6 @@ namespace DSharpPlus
                 UserSettingsUpdate?.Invoke(this, args);
             });
         }
-
         internal async Task OnUserUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -1061,7 +1093,6 @@ namespace DSharpPlus
                 UserUpdate?.Invoke(this, args);
             });
         }
-
         internal async Task OnVoiceStateUpdateEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -1072,19 +1103,19 @@ namespace DSharpPlus
                 VoiceStateUpdate?.Invoke(this, args);
             });
         }
-
         internal async Task OnVoiceServerUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 string endpoint = obj["d"]["endpoint"].ToString();
                 string token = obj["d"]["token"].ToString();
-                VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs() { GuildID = guildID, Endpoint = endpoint, VoiceToken = token};
+
+                VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs() { GuildID = guildID, Endpoint = endpoint, VoiceToken = token };
                 VoiceServerUpdate?.Invoke(this, args);
+                await _voiceClient.Init(token, guildID, endpoint);
             });
         }
-
         internal async Task OnGuildMembersChunkEvent(JObject obj)
         {
             await Task.Run(() =>
@@ -1099,7 +1130,6 @@ namespace DSharpPlus
                 GuildMembersChunk?.Invoke(this, args);
             });
         }
-
         #endregion
 
         internal async Task OnReconnect()
@@ -1108,8 +1138,8 @@ namespace DSharpPlus
             {
                 _debugLogger.LogMessage(LogLevel.Info, "Received OP 7 - Reconnect. ", DateTime.Now);
 
-                WebSocketClient.Disconnect();
-                WebSocketClient.Connect();
+                _websocketClient.Disconnect();
+                _websocketClient.Connect();
             });
         }
 
@@ -1117,9 +1147,9 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                WebSocketClient._heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
-                WebSocketClient._heartbeatThread = new Thread(() => { StartHeartbeating(); });
-                WebSocketClient._heartbeatThread.Start();
+                _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
+                _heartbeatThread = new Thread(() => { StartHeartbeating(); });
+                _heartbeatThread.Start();
             });
         }
 
@@ -1128,7 +1158,7 @@ namespace DSharpPlus
             await Task.Run(() =>
             {
                 _debugLogger.LogMessage(LogLevel.Unnecessary, "Received WebSocket Heartbeat Ack", DateTime.Now);
-                _debugLogger.LogMessage(LogLevel.Debug, $"Ping {(DateTime.Now - LastHeartbeat).Milliseconds}ms", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Debug, $"Ping {(DateTime.Now - _lastHeartbeat).Milliseconds}ms", DateTime.Now);
             });
         }
 
@@ -1138,7 +1168,7 @@ namespace DSharpPlus
             while (!_cancelToken.IsCancellationRequested)
             {
                 SendHeartbeat();
-                Thread.Sleep(WebSocketClient._heartbeatInterval);
+                Thread.Sleep(_heartbeatInterval);
             }
         }
 
@@ -1162,7 +1192,7 @@ namespace DSharpPlus
                 { "d", update }
             };
 
-            WebSocketClient._socket.Send(obj.ToString());
+            _websocketClient._socket.Send(obj.ToString());
         }
 
         internal void SendHeartbeat()
@@ -1170,10 +1200,10 @@ namespace DSharpPlus
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Sending WebSocket Heartbeat", DateTime.Now);
             JObject obj = new JObject() {
                 { "op", 1 },
-                { "d", WebSocketClient._sequence }
+                { "d", _sequence }
             };
-            WebSocketClient._socket.Send(obj.ToString());
-            LastHeartbeat = DateTime.Now;
+            _websocketClient._socket.Send(obj.ToString());
+            _lastHeartbeat = DateTime.Now;
         }
 
         internal async Task SendIdentify()
@@ -1199,7 +1229,7 @@ namespace DSharpPlus
                         }
                     }
                 };
-                WebSocketClient._socket.Send(obj.ToString());
+                _websocketClient._socket.Send(obj.ToString());
             });
         }
 
@@ -1212,14 +1242,41 @@ namespace DSharpPlus
                     { "op", 6 },
                     { "d", new JObject()
                         {
-                            { "token", WebSocketClient._sessionToken },
-                            { "session_id", WebSocketClient._sessionID },
-                            { "seq", WebSocketClient._sequence }
+                            { "token", _sessionToken },
+                            { "session_id", _sessionID },
+                            { "seq", _sequence }
                         }
                     }
                 };
-                WebSocketClient._socket.SendAsync(obj.ToString(), (x) => { });
+                _websocketClient._socket.Send(obj.ToString());
             });
+        }
+
+        internal static async Task SendVoiceStateUpdate(DiscordChannel channel, bool mute = false, bool deaf = false)
+        {
+            await Task.Run(() => 
+            {
+                JObject obj = new JObject()
+                {
+                    { "op", 4 },
+                    { "d", new JObject()
+                        {
+                            { "guild_id", channel.Parent.ID },
+                            { "channel_id", channel?.ID },
+                            { "self_mute", mute },
+                            { "self_deaf", deaf }
+                        }
+                    }
+                };
+                _websocketClient._socket.Send(obj.ToString());
+            });
+        }
+        #endregion
+
+        #region Voice
+        internal static async Task OpenVoiceConnection(DiscordChannel channel, bool mute = false, bool deaf = false)
+        {
+            await SendVoiceStateUpdate(channel, mute, deaf);
         }
         #endregion
 
@@ -1512,7 +1569,6 @@ namespace DSharpPlus
             }
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            Console.WriteLine(j.ToString());
             return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordChannel>(j.ToString());
         }
 
@@ -1524,7 +1580,6 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("id", ChannelID);
             j.Add("position", position);
-            Console.WriteLine(j.ToString());
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
@@ -2307,5 +2362,34 @@ namespace DSharpPlus
         }
         #endregion
         #endregion
+
+        ~DiscordClient()
+        {
+            Dispose();
+        }
+
+        private bool disposed;
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+
+            GC.SuppressFinalize(this);
+
+            Disconnect();
+
+            _cancelTokenSource.Cancel();
+            _guilds = null;
+            _heartbeatThread.Abort();
+            _heartbeatThread = null;
+            _me = null;
+            _modules = null;
+            _privateChannels = null;
+            _ssrcDict = null;
+            _voiceClient.Dispose();
+            _websocketClient.Dispose();
+
+            disposed = true;
+        }
     }
 }
