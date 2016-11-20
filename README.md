@@ -1,4 +1,4 @@
-![Logo of DSharpPlus](https://github.com/NaamloosDT/DSharpPlus/blob/master/logo_smaller.png)
+![Logo of DSharpPlus](https://github.com/NaamloosDT/DSharpPlus/raw/rewrite/logo/dsharp+_smaller.png)
 
 # DSharp+ Rewrite
 
