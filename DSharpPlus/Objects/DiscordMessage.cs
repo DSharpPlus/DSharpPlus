@@ -15,11 +15,11 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("channel_id")]
         public ulong ChannelID { get; internal set; }
-        /// <summary>
+        /// <summary> 
         /// The channel the message was sent in
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel Parent => DiscordClient._guilds[DiscordClient.GetGuildIdFromChannelID(ChannelID)].Channels[DiscordClient.GetChannelIndex(ChannelID)];
+        public DiscordChannel Parent => DiscordClient.InternalGetChannel(ChannelID).Result;
         /// <summary>
         /// The author of this message
         /// </summary>

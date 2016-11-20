@@ -677,9 +677,12 @@ namespace DSharpPlus
                 _gatewayVersion = obj["d"]["v"].ToObject<int>();
                 _me = obj["d"]["user"].ToObject<DiscordUser>();
                 _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDMChannel>>();
-                foreach (JObject guild in obj["d"]["guilds"])
+                if (config.TokenType != TokenType.User)
                 {
-                    _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
+                    foreach (JObject guild in obj["d"]["guilds"])
+                    {
+                        _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
+                    }
                 }
                 _sessionID = obj["d"]["session_id"].ToString();
 
@@ -815,9 +818,12 @@ namespace DSharpPlus
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
 
                 List<ulong> Roles = new List<ulong>();
-                foreach (JToken role in (JArray)obj["d"]["roles"])
+                if (config.TokenType != TokenType.User)
                 {
-                    Roles.Add(ulong.Parse(role.ToString()));
+                    foreach (JToken role in (JArray)obj["d"]["roles"])
+                    {
+                        Roles.Add(ulong.Parse(role.ToString()));
+                    }
                 }
 
                 string Game = "";
@@ -827,7 +833,9 @@ namespace DSharpPlus
                 }
                 FIX ME PLS */
 
-                ulong GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                ulong GuildID = 0;
+                if(config.TokenType != TokenType.User)
+                    GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 string status = obj["d"]["status"].ToString();
 
                 PresenceUpdateEventArgs args = new PresenceUpdateEventArgs() { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
@@ -972,22 +980,30 @@ namespace DSharpPlus
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
                 List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-                if (message.Content != null)
+                // This is lazy sorry
+                try
                 {
-                    foreach (ulong user in Utils.GetUserMentions(message))
+                    if (message.Content != null)
                     {
-                        MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
-                    }
+                        foreach (ulong user in Utils.GetUserMentions(message))
+                        {
+                            MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
+                        }
 
-                    foreach (ulong role in Utils.GetRoleMentions(message))
-                    {
-                        MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
-                    }
+                        foreach (ulong role in Utils.GetRoleMentions(message))
+                        {
+                            MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
+                        }
 
-                    foreach (ulong channel in Utils.GetChannelMentions(message))
-                    {
-                        MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                        foreach (ulong channel in Utils.GetChannelMentions(message))
+                        {
+                            MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                        }
                     }
+                }
+                catch
+                {
+
                 }
 
                 MessageCreateEventArgs args = new MessageCreateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
