@@ -106,7 +106,7 @@ namespace DSharpPlus
         /// <summary>  
         /// Returns a list of messages.Only set ONE of the three parameters. They are Message ID's
         /// </summary> 
-        public async Task<List<DiscordMessage>> GetMessages(ulong around = 0, ulong before = 0, ulong after = 0) => await DiscordClient.InternalGetChannelMessages(ID, around, before, after);
+        public async Task<List<DiscordMessage>> GetMessages(ulong around = 0, ulong before = 0, ulong after = 0, int limit = 50) => await DiscordClient.InternalGetChannelMessages(ID, around, before, after, limit);
         /// <summary>
         /// Deletes multiple messages
         /// </summary>
