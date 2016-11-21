@@ -96,6 +96,7 @@
     <Compile Include="EventArgs\VoiceStateUpdateEventArgs.cs" />
     <Compile Include="Formatter.cs" />
     <Compile Include="Interfaces\IModule.cs" />
+    <Compile Include="Objects\DiscordAttachment.cs" />
     <Compile Include="Objects\DiscordConnection.cs" />
     <Compile Include="Objects\DiscordInvite.cs" />
     <Compile Include="Enums\Branch.cs" />
