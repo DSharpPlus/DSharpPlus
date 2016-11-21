@@ -74,7 +74,7 @@ namespace DSharpPlus
         /// Any attached files
         /// </summary>
         [JsonProperty("attachments")]
-        public List<object> Attachments { get; internal set; }
+        public List<DiscordAttachment> Attachments { get; internal set; }
         /// <summary>
         /// Any embedded content
         /// </summary>
