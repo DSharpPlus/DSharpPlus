@@ -17,10 +17,6 @@ namespace DSharpPlus
         [JsonProperty("guild_id")]
         public ulong GuildID { get; internal set; }
         /// <summary>
-        /// The guild
-        /// </summary>
-        public DiscordGuild Parent => DiscordClient._guilds[GuildID];
-        /// <summary>
         /// The name of the channel
         /// </summary>
         [JsonProperty("name")]
@@ -40,6 +36,10 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("is_private")]
         public bool IsPrivate { get; internal set; }
+        /// <summary>
+        /// The guild
+        /// </summary>
+        public DiscordGuild Parent => (IsPrivate) ? new DiscordGuild() : DiscordClient._guilds[GuildID];
         /// <summary>
         /// A list of permission overwrite
         /// </summary>
