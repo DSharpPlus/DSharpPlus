@@ -210,6 +210,8 @@ namespace DSharpPlus
         /// </summary>
         public int GatewayVersion => _gatewayVersion;
 
+        public DiscordVoiceClient VoiceClient => _voiceClient;
+
         internal static string _gatewayUrl = "";
         /// <summary>
         /// Gateway url
@@ -1005,7 +1007,6 @@ namespace DSharpPlus
                 {
 
                 }
-
                 MessageCreateEventArgs args = new MessageCreateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
                 MessageCreated?.Invoke(this, args);
             });
@@ -1342,6 +1343,7 @@ namespace DSharpPlus
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             DiscordGuild guild = Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+
             return guild;
         }
 
@@ -1623,7 +1625,7 @@ namespace DSharpPlus
             List<DiscordMessage> messages = new List<DiscordMessage>();
             foreach (JObject jo in ja)
             {
-                messages.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordMessage>(jo.ToString()));
+                messages.Add(jo.ToObject<DiscordMessage>());
             }
             return messages;
         }
