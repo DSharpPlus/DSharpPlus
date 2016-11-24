@@ -1,0 +1,22 @@
+﻿using System;
+using DSharpPlus.Objects;
+
+namespace DSharpPlus.Events
+{
+    public class DiscordVoiceUserSpeakingEventArgs : EventArgs
+    {
+        public DiscordMember UserSpeaking { get; internal set; }
+
+        public DiscordChannel Channel { get; internal set; }
+
+        //public DiscordServer Guild { get; internal set; }
+
+        /// <summary>
+        /// This is true if the user began speaking or false if they stopped speaking. 
+        /// Eventually, these will be two seperate events.
+        /// </summary>
+        public bool Speaking { get; internal set; }
+
+        public int Ssrc { get; internal set; }
+    }
+}

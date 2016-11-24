@@ -1,38 +1,74 @@
 ﻿using Newtonsoft.Json;
-using System.Threading.Tasks;
 
-namespace DSharpPlus
+namespace DSharpPlus.Objects
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class DiscordInvite
     {
         /// <summary>
-        /// The invite code (unique ID)
+        /// Invite code
         /// </summary>
         [JsonProperty("code")]
         public string Code { get; internal set; }
-        /// <summary>
-        /// The guild this invite is for
-        /// </summary>
-        [JsonProperty("guild")]
-        public DiscordInviteGuild Guild { get; internal set; }
-        /// <summary>
-        /// The channel this invite is for
-        /// </summary>
-        [JsonProperty("channel")]
-        public DiscordInviteChannel Channel { get; internal set; }
 
         /// <summary>
-        /// Delete the invite
+        /// Invites server info
         /// </summary>
-        /// <returns></returns>
-        public async Task<DiscordInvite> Delete() => await DiscordClient.InternalDeleteInvite(Code);
+        [JsonProperty("guild")]
+        public DiscordInviteServer InviteServer { get; internal set; }
+
         /// <summary>
-        /// Accept an invite. Not available to bot accounts. Requires "guilds.join" scope or user token.
+        /// Invites channel info
         /// </summary>
-        /// <returns></returns>
-        public async Task<DiscordInvite> Accept() => await DiscordClient.InternalAcceptInvite(Code);
+        [JsonProperty("channel")]
+        public DiscordInviteChannel InviteChannel { get; internal set; }
+
+        /// <summary>
+        /// Delete this invite (REQUIRES PERMISSION)
+        /// </summary>
+        public void Delete()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Invites + $"/{Code}";
+            WebWrapper.Delete(url, DiscordClient.token);
+        }
+    }
+    /// <summary>
+    /// The server the invite is coming from
+    /// </summary>
+    public class DiscordInviteServer
+    {
+        /// <summary>
+        /// Server ID
+        /// </summary>
+        [JsonProperty("id")]
+        public string ID { get; internal set; }
+
+        /// <summary>
+        /// Server Name
+        /// </summary>
+        [JsonProperty("name")]
+        public string name { get; internal set; }
+    }
+    /// <summary>
+    /// The channel the invite is coming from
+    /// </summary>
+    public class DiscordInviteChannel
+    {
+        /// <summary>
+        /// Channel ID
+        /// </summary>
+        [JsonProperty("id")]
+        public string ID { get; internal set; }
+
+        /// <summary>
+        /// Channel Name
+        /// </summary>
+        [JsonProperty("name")]
+        public string name { get; internal set; }
+
+        /// <summary>
+        /// Channel Type
+        /// </summary>
+        [JsonProperty("type")]
+        public ChannelType Type { get; set; }
     }
 }

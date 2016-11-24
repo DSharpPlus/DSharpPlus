@@ -1,170 +1,318 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using DSharpPlus.Hook;
 using Newtonsoft.Json;
-using DSharpPlus.Voice;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace DSharpPlus
+namespace DSharpPlus.Objects
 {
-    /// <summary>
-    /// Represents a discord channel
-    /// </summary>
-    public class DiscordChannel : SnowflakeObject
+    public abstract class DiscordChannelBase
     {
-        /// <summary>
-        /// The id of the guild
-        /// </summary>
-        [JsonProperty("guild_id")]
-        public ulong GuildID { get; internal set; }
-        /// <summary>
-        /// The name of the channel
-        /// </summary>
-        [JsonProperty("name")]
-        public string Name { get; internal set; }
-        /// <summary>
-        /// The type of the channel
-        /// </summary>
-        [JsonProperty("type")]
-        public ChannelType Type { get; internal set; }
-        /// <summary>
-        /// Sorting position of the channel
-        /// </summary>
-        [JsonProperty("position")]
-        public int Position { get; set; }
-        /// <summary>
-        /// Should always be false for guild channels
-        /// </summary>
+        [JsonProperty("id")]
+        public string ID { get; internal set; }
         [JsonProperty("is_private")]
-        public bool IsPrivate { get; internal set; }
-        /// <summary>
-        /// The guild
-        /// </summary>
-        public DiscordGuild Parent => (IsPrivate) ? new DiscordGuild() : DiscordClient._guilds[GuildID];
-        /// <summary>
-        /// A list of permission overwrite
-        /// </summary>
-        [JsonProperty("permission_overwrites")]
-        public List<DiscordOverwrite> PermissionOverwrites { get; internal set; }
+        public bool Private { get; internal set; }
+
+        internal DiscordClient Client { get; set; }
+
+        internal DiscordChannelBase() { }
 
         /// <summary>
-        /// The channel topic (Text only)
+        /// Simulates typing in the specified channel. Automatically times out/stops after either:
+        /// -10 Seconds
+        /// -A message is sent
         /// </summary>
-        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public string Topic { get; internal set; } = "";
-        /// <summary>
-        /// The id of the last message (Text only)
-        /// </summary>
-        [JsonProperty("last_message_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong LastMessageID { get; internal set; } = 0;
+        /// <param name="channel"></param>
+        public void SimulateTyping()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Typing;
+            try
+            {
+                WebWrapper.Post(url, DiscordClient.token, "", true);
+            }
+            catch (Exception ex)
+            {
+                Client.GetTextClientLogger.Log("Exception ocurred while simulating typing: " + ex.Message, MessageLevel.Error);
+            }
+        }
+    }
+
+    public enum ChannelType
+    {
+        Text, Voice
+    }
+
+    /// <summary>
+    /// A channel that is on Discord
+    /// </summary>
+    public class DiscordChannel : DiscordChannelBase
+    {
+        [JsonProperty("type")]
+        public ChannelType Type { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("topic")]
+        public string Topic { get; set; }
+
+        [JsonProperty("icon")]
+        public string Icon { get; set; }
+
+        [JsonProperty("guild_id")]
+        public string ServerID { get; }
+
+        private int __bitrate;
 
         /// <summary>
-        /// The channel bitrate (Voice only)
+        /// (Voice only) The channel's configured bitrate, in bps (bits per second).
+        /// It's highly recommended you use this as opposed to your own bitrate.
+        /// To retrieve the bitrate in kbps, divide by 1000.
         /// </summary>
         [JsonProperty("bitrate")]
-        public int Bitrate { get; internal set; }
-        /// <summary>
-        /// The channel user limit (Voice only)
-        /// </summary>
-        [JsonProperty("user_limit")]
-        public int UserLimit { get; internal set; }
-
-        #region Functions
-        /// <summary>
-        /// Posts a message
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="tts"></param>
-        /// <param name="embed"></param>
-        /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(string content, bool tts = false, DiscordEmbed embed = null) => await DiscordClient.InternalCreateMessage(ID, content, tts, embed);
-        /// <summary>
-        /// Posts a file
-        /// </summary>
-        /// <param name="filepath"></param>
-        /// <param name="filename"></param>
-        /// <param name="content"></param>
-        /// <param name="tts"></param>
-        /// <returns></returns>
-        public async Task<DiscordMessage> SendFile(string filepath, string filename, string content = "", bool tts = false) => await DiscordClient.InternalUploadFile(ID, filepath, filename, content, tts);
-        /// <summary>
-        /// Deletes a guild channel
-        /// </summary>
-        /// <returns></returns>
-        public async Task Delete() => await DiscordClient.InternalDeleteChannel(ID);
-        /// <summary>
-        /// Returns a specific message
-        /// </summary>
-        /// <param name="ID"></param>
-        /// <returns></returns>
-        public async Task<DiscordMessage> GetMessage(ulong ID) => await DiscordClient.InternalGetMessage(this.ID, ID);
-        /// <summary>
-        /// Updates the channel position
-        /// </summary>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        public async Task ModifyPosition(int position) => await DiscordClient.InternalModifyGuildChannelPosition(GuildID, ID, position);
-        /// <summary>  
-        /// Returns a list of messages.Only set ONE of the three parameters. They are Message ID's
-        /// </summary> 
-        public async Task<List<DiscordMessage>> GetMessages(ulong around = 0, ulong before = 0, ulong after = 0, int limit = 50) => await DiscordClient.InternalGetChannelMessages(ID, around, before, after, limit);
-        /// <summary>
-        /// Deletes multiple messages
-        /// </summary>
-        /// <param name="MessageIDs"></param>
-        /// <returns></returns>
-        public async Task BulkDeleteMessages(List<ulong> MessageIDs) => await DiscordClient.InternalBulkDeleteMessages(ID, MessageIDs);
-        /// <summary>
-        /// Returns a list of invite objects
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<DiscordInvite>> GetInvites() => await DiscordClient.InternalGetChannelInvites(ID);
-        /// <summary>
-        /// Create a new invite object
-        /// </summary>
-        /// <param name="MaxAge"></param>
-        /// <param name="MaxUses"></param>
-        /// <param name="temporary"></param>
-        /// <param name="unique"></param>
-        /// <returns></returns>
-        public async Task<DiscordInvite> CreateInvite(int MaxAge = 86400, int MaxUses = 0, bool temporary = false, bool unique = false)
-            => await DiscordClient.InternalCreateChannelInvite(ID, MaxAge, MaxUses, temporary, unique);
-        /// <summary>
-        /// Deletes a channel permission overwrite
-        /// </summary>
-        /// <param name="OverwriteID"></param>
-        /// <returns></returns>
-        public async Task DeleteChannelPermission(ulong OverwriteID) => await DiscordClient.InternalDeleteChannelPermission(ID, OverwriteID);
-        /// <summary>
-        /// Post a typing indicator
-        /// </summary>
-        /// <returns></returns>
-        public async Task TriggerTyping() => await DiscordClient.InternalTriggerTypingIndicator(ID);
-        /// <summary>
-        /// Returns all pinned messages
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<DiscordMessage>> GetPinnedMessages() => await DiscordClient.InternalGetPinnedMessages(ID);
-        /// <summary>
-        /// Create a new webhook
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="base64avatar"></param>
-        /// <returns></returns>
-        public async Task<DiscordWebhook> CreateWebhook(string name = "", string base64avatar = "") => await DiscordClient.InternalCreateWebhook(ID, name, base64avatar);
-        /// <summary>
-        /// Returns a list of webhooks
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<DiscordWebhook>> GetWebhooks() => await DiscordClient.InternalGetChannelWebhooks(ID);
-
-        public async Task ConnectToVoice()
+        public int Bitrate
         {
-            if (Type == ChannelType.Text)
-                throw new NotSupportedException();
-
-            await DiscordClient.OpenVoiceConnection(this, false, false);
+            get
+            {
+                if (Type != ChannelType.Voice)
+                    return -1;
+                else
+                    return __bitrate;
+            }
+            internal set
+            {
+                __bitrate = value;
+            }
         }
-        #endregion
 
+        public List<DiscordPermissionOverride> PermissionOverrides { get; set; }
+
+        /// <summary>
+        /// The parent discord server of a channel
+        /// </summary>
+        public DiscordServer Parent { get; internal set; }
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="message">Your message's text.</param>
+        public DiscordMessage SendMessage(string message)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
+            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, false))));
+
+            if (result["content"].IsNullOrEmpty())
+                throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
+
+            DiscordMessage m = new DiscordMessage
+            {
+                ID = result["id"].ToString(),
+                Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
+                Author = this.Parent.GetMemberByKey(result["author"]["id"].ToString()),
+                channel = this,
+                Content = result["content"].ToString(),
+                RawJson = result,
+                timestamp = result["timestamp"].ToObject<DateTime>(),
+                Embeds = result["embeds"].ToObject<DiscordEmbed[]>(),
+                TTS = false
+            };
+            return m;
+        }
+
+        public Task<DiscordMessage> SendMessageAsync(string message)
+        {
+            return Task.FromResult(this.SendMessage(message));
+        }
+
+        /// <summary>
+        /// Sends a Text-To-Speech message
+        /// </summary>
+        /// <param name="message">Your message's text.</param>
+        public DiscordMessage SendMessageTTS(string message)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
+            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, true))));
+
+            if (result["content"].IsNullOrEmpty())
+                throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
+
+            DiscordMessage m = new DiscordMessage
+            {
+                ID = result["id"].ToString(),
+                Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
+                Author = this.Parent.GetMemberByKey(result["author"]["id"].ToString()),
+                channel = this,
+                Content = result["content"].ToString(),
+                RawJson = result,
+                timestamp = result["timestamp"].ToObject<DateTime>(),
+                Embeds = result["embeds"].ToObject<DiscordEmbed[]>(),
+                TTS = true
+            };
+            return m;
+        }
+
+        /// <summary>
+        /// Sends a message with embeds
+        /// </summary>
+        /// <param name="message">Your message's text.</param>
+        /// <param name="embeds">Your message's embeds.</param>
+        public DiscordMessage SendMessageWithEmbeds(string message, DiscordEmbed[] embeds)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages;
+            JObject result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, JsonConvert.SerializeObject(Utils.GenerateMessage(message, false, embeds))));
+            System.IO.File.WriteAllText("tMessage.json", result.ToString());
+
+            if (result["content"].IsNullOrEmpty())
+                throw new InvalidOperationException("Request returned a blank message, you may not have permission to send messages yet!");
+
+            DiscordMessage m = new DiscordMessage
+            {
+                ID = result["id"].ToString(),
+                Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
+                Author = this.Parent.GetMemberByKey(result["author"]["id"].ToString()),
+                channel = this,
+                Content = result["content"].ToString(),
+                RawJson = result,
+                timestamp = result["timestamp"].ToObject<DateTime>(),
+                Embeds = result["embeds"].ToObject<DiscordEmbed[]>(),
+                TTS = true
+            };
+            return m;
+        }
+
+        /// <summary>
+        /// Deletes a message
+        /// </summary>
+        /// <param name="message">The message you wish to delete.</param>
+        public void DeleteMessage(DiscordMessage message)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Messages + $"/{message.ID}";
+            WebWrapper.Delete(url, DiscordClient.token);
+        }
+
+        /// <summary>
+        /// Pins a message to its channel
+        /// </summary>
+        /// <param name="message">The message you wish to pin.</param>
+        public void PinMessage(DiscordMessage message)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins + "/" + message.ID;
+            WebWrapper.Put(url, DiscordClient.token);
+        }
+
+        /// <summary>
+        /// Unpins a message from its channel
+        /// </summary>
+        /// <param name="message">The message you wish to unpin</param>
+        public void UnpinMessage(DiscordMessage message)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins + "/" + message.ID;
+            var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
+        }
+
+        /// <summary>
+        /// Gets a list of Pinned messages
+        /// </summary>
+        public List<DiscordMessage> GetPinnedMessages()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Pins;
+            var result = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+            List<DiscordMessage> pinnedlist = new List<DiscordMessage>();
+            foreach(var child in result)
+            {
+                pinnedlist.Add(JsonConvert.DeserializeObject<DiscordMessage>(child.ToString()));
+            }
+            return pinnedlist;
+        }
+
+        /// <summary>
+        /// Gets a message by ID
+        /// </summary>
+        /// <param name="MessageID">The ID of the message you wish to get.</param>
+        public DiscordMessage GetMessage(string MessageID)
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Messages + $"/{MessageID}";
+            var result = JObject.Parse(WebWrapper.Get(url, DiscordClient.token));
+            return JsonConvert.DeserializeObject<DiscordMessage>(result.ToString());
+        }
+
+        /// <summary>
+        /// Returns a list of recent messages
+        /// </summary>
+        public List<DiscordMessage> GetMessages()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID    }" + Endpoints.Messages;
+            var result = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+            List<DiscordMessage> messagelist = new List<DiscordMessage>();
+            foreach (var child in result)
+            {
+                messagelist.Add(JsonConvert.DeserializeObject<DiscordMessage>(child.ToString()));
+            }
+            return messagelist;
+        }
+
+        public Webhook CreateWebhook(string Name, string Avatar = "")
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Webhooks;
+            JObject content = new JObject() { { "name", Name }, { "avatar", Avatar } };
+            var result = JObject.Parse(WebWrapper.Post(url, DiscordClient.token, content.ToString()));
+            return JsonConvert.DeserializeObject<Webhook>(result.ToString());
+        }
+
+        public List<Webhook> GetWebhooks()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}" + Endpoints.Webhooks;
+            var result = JArray.Parse(WebWrapper.Get(url, DiscordClient.token));
+            List<Webhook> webhooks = new List<Webhook>();
+            foreach (var child in result)
+            {
+                Console.WriteLine(child.ToString());
+                webhooks.Add(JsonConvert.DeserializeObject<Webhook>(child.ToString()));
+            }
+            return webhooks;
+        }
+
+        /// <summary>
+        /// Deletes this channel
+        /// </summary>
+        public void Delete()
+        {
+            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{ID}";
+            WebWrapper.Delete(url, DiscordClient.token);
+        }
+
+        public DiscordChannel ShallowCopy()
+        {
+            DiscordChannel channel = (DiscordChannel)this.MemberwiseClone();
+            return channel;
+        }
+
+        internal DiscordChannel() { }
+    }
+
+    /// <summary>
+    /// A private discord channel
+    /// </summary>
+    public class DiscordPrivateChannel : DiscordChannelBase
+    {
+        internal string user_id { get; set; }
+
+        public DiscordMember Recipient { get; set; }
+        [JsonProperty("last_message_id")]
+        private string LastMessageID { get; set; }
+
+        internal DiscordPrivateChannel() { }
+    }
+
+    /// <summary>
+    /// [Deprecated] The reciepient
+    /// </summary>
+    [Obsolete] //kinda like the author
+    public class DiscordRecipient
+    {
+        public string username { get; set; }
+        public string id { get; set; }
+        internal DiscordRecipient() { }
     }
 }

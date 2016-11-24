@@ -1,46 +1,75 @@
 ﻿using Newtonsoft.Json;
 
-namespace DSharpPlus
+namespace DSharpPlus.Objects
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class DiscordRole : SnowflakeObject
+    public class DiscordRole
     {
         /// <summary>
-        /// Role name
-        /// </summary>
-        [JsonProperty("name")]
-        public string Name { get; internal set; }
-        /// <summary>
-        /// Integer representation of a hexadecimal color code
+        /// Role's color.
         /// </summary>
         [JsonProperty("color")]
-        public int Color { get; internal set; }
+        public DSharpPlus.Color Color { get; internal set; }
+
         /// <summary>
-        /// Whether this role is pinned
+        /// Whether or not to display all members seperate of others.
         /// </summary>
         [JsonProperty("hoist")]
         public bool Hoist { get; internal set; }
+
         /// <summary>
-        /// Position of this role
+        /// Role's name.
         /// </summary>
-        [JsonProperty("position")]
-        public int Position { get; internal set; }
+        [JsonProperty("name")]
+        public string Name { get; internal set; }
+
         /// <summary>
-        /// Permission bit set
+        /// Role's permissions.
         /// </summary>
-        [JsonProperty("permissions")]
-        public int Permissions { get; internal set; }
+        [JsonProperty("permission")]
+        public DiscordPermission Permissions { get; internal set; }
+
         /// <summary>
-        /// Whether this role is managed by an integration
+        /// Wether this role is managed by an integration
         /// </summary>
         [JsonProperty("managed")]
         public bool Managed { get; internal set; }
+
         /// <summary>
-        /// Whether this role is mentionable
+        /// Role's position.
+        /// </summary>
+        [JsonProperty("position")]
+        public int Position { get; internal set; }
+
+        /// <summary>
+        /// Role's ID.
+        /// </summary>
+        [JsonProperty("id")]
+        public string ID { get; internal set; }
+
+        /// <summary>
+        /// Wether this role can be mentioned.
         /// </summary>
         [JsonProperty("mentionable")]
-        public bool Mentionable { get; internal set; }
+        public bool CanBeMentioned { get; internal set; }
+        /// <summary>
+        /// Copies a role
+        /// </summary>
+        /// <returns>A new role with the same values as the one it copied</returns>
+        public DiscordRole Copy()
+        {
+            return new DiscordRole
+            {
+                Color = this.Color,
+                Hoist = this.Hoist,
+                Name = this.Name,
+                Permissions = this.Permissions,
+                Managed = this.Managed,
+                Position = this.Position,
+                ID = this.ID,
+                CanBeMentioned = this.CanBeMentioned
+            };
+        }
+
+        internal DiscordRole() { }
     }
 }

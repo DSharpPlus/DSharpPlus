@@ -1,174 +1,210 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EB3D8310-DFAD-4295-97F9-82E253647583}</ProjectGuid>
+    <ProjectGuid>{A96FFE9E-3650-4976-872E-5BB336CC1589}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DSharpPlus</RootNamespace>
     <AssemblyName>DSharpPlus</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+    <UseMSBuildEngine>False</UseMSBuildEngine>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <!--<CustomConstants Condition=" '$(TargetFrameworkVersion' == 'v3.5'">V35</CustomConstants>
+    <CustomConstants Condition=" '$(TargetFrameworkVersion' == 'v4.5'">V45</CustomConstants>
+    <DefineConstants Condition=" '$(DefineConstants)' != '' And '$(CustomConstants)' != '' ">$(DefineConstants);</DefineConstants>-->
+    <DefineConstants>NETFX$(TargetFrameworkVersion.Replace("v", "").Replace(".", "_"));$(DefineConstants)</DefineConstants>
+    <DefineConstants>NETFX4_5;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\DSharpPlus.XML</DocumentationFile>
+    <LangVersion>6</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\DSharpPlus.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <!--<CustomConstants Condition=" '$(TargetFrameworkVersion' == 'v3.5.1'">V35</CustomConstants>
+    <CustomConstants Condition=" '$(TargetFrameworkVersion' == 'v4.5'">V45</CustomConstants>
+    <DefineConstants Condition=" '$(DefineConstants)' != '' And '$(CustomConstants)' != '' ">$(DefineConstants);</DefineConstants>-->
+    <DefineConstants>NETFX$(TargetFrameworkVersion.Replace("v", "").Replace(".", "_"));$(DefineConstants)</DefineConstants>
+    <DefineConstants>$(DefineConstants)$(CustomConstants)</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>6</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Release\DSharpPlus.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <Choose>
+    <When Condition=" '$(TargetFrameworkVersion' == 'v3.5' ">
+      <ItemGroup>
+        <Reference Include="AsyncBridge.Net35, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b3b1c0202c0d6a87, processorArchitecture=MSIL">
+          <HintPath>..\packages\AsyncBridge.Net35.0.2.0\lib\net35-Client\AsyncBridge.Net35.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Threading, Version=1.0.2856.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+          <HintPath>..\packages\TaskParallelLibrary.1.0.2856.0\lib\Net35\System.Threading.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="'$(TargetFrameworkVersion' != 'v3.5'">
+      <ItemGroup>
+        <Reference Include="System.Net.Http">
+          <HintPath>..\packages\Microsoft.Net.Http.2.0.20505.0\lib\net40\System.Net.Http.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Net.Http.WebRequest">
+          <HintPath>..\packages\Microsoft.Net.Http.2.0.20505.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Sodium, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\libsodium-net.0.10.0-beta3\lib\Net40\Sodium.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Octokit, Version=0.23.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Octokit.0.23.0\lib\net45\Octokit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="websocket-sharp, Version=1.0.2.36589, Culture=neutral, PublicKeyToken=5660b08a1845a91e">
+      <HintPath>..\packages\WebSocketSharp.1.0.3-rc9\lib\websocket-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSocket4Net, Version=0.14.1.0, Culture=neutral, PublicKeyToken=eb4e154b696bf72a">
+      <HintPath>..\packages\WebSocket4Net.0.14.1\lib\net45\WebSocket4Net.dll</HintPath>
+      <Aliases>ws4n</Aliases>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DebugLogger.cs" />
-    <Compile Include="DiscordClient.cs" />
-    <Compile Include="DiscordConfig.cs" />
-    <Compile Include="Enums\LogLevel.cs" />
-    <Compile Include="Enums\MentionType.cs" />
-    <Compile Include="Enums\VoiceApplication.cs" />
-    <Compile Include="Enums\VoiceSettings.cs" />
-    <Compile Include="EventArgs\ChannelCreateEventArgs.cs" />
-    <Compile Include="EventArgs\ChannelDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\ChannelUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\DMChannelCreateEventArgs.cs" />
-    <Compile Include="EventArgs\DMChannelDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\GuildBanAddEventArgs.cs" />
-    <Compile Include="EventArgs\GuildBanRemoveEventArgs.cs" />
-    <Compile Include="EventArgs\GuildCreateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\GuildEmojisUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildIntegrationsUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildMemberAddEventArgs.cs" />
-    <Compile Include="EventArgs\GuildMemberRemoveEventArgs.cs" />
-    <Compile Include="EventArgs\GuildMembersChunkEventArgs.cs" />
-    <Compile Include="EventArgs\GuildMemberUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildRoleCreateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildRoleDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\GuildRoleUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\MessageBulkDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\MessageCreateEventArgs.cs" />
-    <Compile Include="EventArgs\MessageDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\MessageUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\PresenceUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\TypingStartEventArgs.cs" />
-    <Compile Include="EventArgs\UserSettingsUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\UserSpeakingEventArgs.cs" />
-    <Compile Include="EventArgs\UserUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\VoiceReceivedEventArgs.cs" />
-    <Compile Include="EventArgs\VoiceServerUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\VoiceStateUpdateEventArgs.cs" />
-    <Compile Include="Formatter.cs" />
-    <Compile Include="Interfaces\IModule.cs" />
-    <Compile Include="Objects\DiscordAttachment.cs" />
-    <Compile Include="Objects\DiscordConnection.cs" />
-    <Compile Include="Objects\DiscordInvite.cs" />
-    <Compile Include="Enums\Branch.cs" />
-    <Compile Include="Enums\ChannelType.cs" />
-    <Compile Include="Enums\Permission.cs" />
-    <Compile Include="Enums\TokenType.cs" />
+    <Compile Include="Color.cs" />
+    <Compile Include="Commands\DiscordCommand.cs" />
+    <Compile Include="Commands\DiscordCommandBuilder.cs" />
+    <Compile Include="Commands\DiscordCommandEventArgs.cs" />
+    <Compile Include="Commands\DiscordCommandParameter.cs" />
+    <Compile Include="Events\DiscordBanRemovedEventArgs.cs" />
+    <Compile Include="EpochTime.cs" />
+    <Compile Include="Events\DiscordGuildBanEventArgs.cs" />
+    <Compile Include="Events\DiscordVoiceUserSpeaking.cs" />
     <Compile Include="Objects\DiscordEmbed.cs" />
-    <Compile Include="Objects\DiscordEmbedAuthor.cs" />
-    <Compile Include="Objects\DiscordEmbedField.cs" />
-    <Compile Include="Objects\DiscordEmbedFooter.cs" />
-    <Compile Include="Objects\DiscordEmbedImage.cs" />
-    <Compile Include="Objects\DiscordEmbedProvider.cs" />
-    <Compile Include="Objects\DiscordEmbedThumbnail.cs" />
-    <Compile Include="Objects\DiscordEmbedVideo.cs" />
-    <Compile Include="Objects\DiscordGuildEmbed.cs" />
-    <Compile Include="Objects\DiscordIntegration.cs" />
-    <Compile Include="Objects\DiscordIntegrationAccount.cs" />
-    <Compile Include="Objects\DiscordInviteChannel.cs" />
-    <Compile Include="Objects\DiscordInviteGuild.cs" />
-    <Compile Include="Objects\DiscordInviteMetadata.cs" />
-    <Compile Include="Objects\DiscordOverwrite.cs" />
-    <Compile Include="Objects\DiscordReaction.cs" />
-    <Compile Include="Objects\DiscordWebhook.cs" />
-    <Compile Include="Socket\WebSocketClient.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Objects\DiscordInvite.cs" />
+    <Compile Include="Objects\DiscordVoiceState.cs" />
+    <Compile Include="Objects\DiscordServer.cs" />
+    <Compile Include="Objects\RateLimitException.cs" />
+    <Compile Include="Opcodes.cs" />
+    <Compile Include="Sockets\BuiltIn\NetWebSocketWrapper.cs" />
+    <Compile Include="Sockets\IDiscordWebSocket.cs" />
+    <Compile Include="Sockets\NetWebSocket.cs" />
+    <Compile Include="Sockets\WebSocketSharpSocket.cs" />
+    <Compile Include="Testing\Command_Greet.cs" />
+    <Compile Include="Testing\TestBot.cs" />
+    <Compile Include="Utility\EpochConverter.cs" />
+    <Compile Include="Utility\FileIO.cs" />
+    <Compile Include="Utility\RFCToDateTime.cs" />
+    <Compile Include="Utility\TaskHelper.cs" />
+    <Compile Include="Utility\Tools.cs" />
+    <Compile Include="Voice\DiscordAudioPacket.cs" />
     <Compile Include="Voice\DiscordVoiceClient.cs" />
-    <Compile Include="Voice\ByteBuffer.cs" />
-    <Compile Include="Voice\Opus\OpusDecoder.cs" />
-    <Compile Include="Voice\Opus\OpusEncoder.cs" />
-    <Compile Include="Voice\Opus\OpusError.cs" />
-    <Compile Include="Voice\VoicePacket.cs" />
-    <Compile Include="Web\Endpoints.cs" />
-    <Compile Include="Web\RateLimit.cs" />
-    <Compile Include="Web\WebRequestMethod.cs" />
+    <Compile Include="Events\DiscordGuildMemberUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordGuildRoleUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordGuildRoleDeleteEventArgs.cs" />
+    <Compile Include="Objects\DiscordPermission.cs" />
+    <Compile Include="Objects\DiscordPermissionOverride.cs" />
+    <Compile Include="Objects\DiscordRole.cs" />
+    <Compile Include="Endpoints.cs" />
+    <Compile Include="Events\DiscordChannelDeleteEventArgs.cs" />
+    <Compile Include="Events\DiscordDebugMessagesEventArgs.cs" />
+    <Compile Include="Events\DiscordChannelUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordGuildCreateEventArgs.cs" />
+    <Compile Include="Events\DiscordGuildDeleteEventArgs.cs" />
+    <Compile Include="Events\DiscordGuildMemberAddEventArgs.cs" />
+    <Compile Include="Events\DiscordGuildMemberRemoved.cs" />
+    <Compile Include="Events\DiscordLeftVoiceChannelEventArgs.cs" />
+    <Compile Include="Events\DiscordMessageDeletedEventArgs.cs" />
+    <Compile Include="Events\DiscordServerUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordUserUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordVoiceStateUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordURLUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordPresenceUpdateEventArgs.cs" />
+    <Compile Include="Events\DiscordTypingStartEventArgs.cs" />
+    <Compile Include="Events\DiscordMentionEventArgs.cs" />
+    <Compile Include="Events\DiscordKeepAliveSentEventArgs.cs" />
+    <Compile Include="Objects\DiscordLoginException.cs" />
+    <Compile Include="Events\DiscordChannelCreateEventArgs.cs" />
+    <Compile Include="DiscordClient.cs" />
     <Compile Include="Objects\DiscordChannel.cs" />
-    <Compile Include="Objects\DiscordDMChannel.cs" />
-    <Compile Include="Objects\DiscordEmoji.cs" />
-    <Compile Include="Objects\DiscordGuild.cs" />
+    <Compile Include="Events\DiscordConnectEventArgs.cs" />
+    <Compile Include="Objects\DiscordLoginInformation.cs" />
     <Compile Include="Objects\DiscordMember.cs" />
     <Compile Include="Objects\DiscordMessage.cs" />
-    <Compile Include="Objects\DiscordRole.cs" />
-    <Compile Include="Objects\DiscordVoiceRegion.cs" />
-    <Compile Include="Objects\DiscordVoiceState.cs" />
-    <Compile Include="Objects\SnowflakeObject.cs" />
-    <Compile Include="Objects\DiscordUser.cs" />
-    <Compile Include="Web\WebRequest.cs" />
-    <Compile Include="Web\WebResponse.cs" />
+    <Compile Include="Events\DiscordPrivateChannelEventArgs.cs" />
+    <Compile Include="Events\DiscordPrivateMessageEventArgs.cs" />
+    <Compile Include="Events\DiscordSocketClosedEventArgs.cs" />
+    <Compile Include="Events\DiscordMessageEventArgs.cs" />
+    <Compile Include="Events\UnknownMessageEventArgs.cs" />
+    <Compile Include="Objects\DiscordUserInformation.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Web\WebWrapper.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="Voice\OpusConverter.cs" />
+    <Compile Include="Voice\OpusDecoder.cs" />
+    <Compile Include="Voice\OpusEncoder.cs" />
+    <Compile Include="Voice\Sodium.cs" />
+    <Compile Include="Hook\Webhook.cs" />
+    <Compile Include="WebWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="libopus.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="libsodium-64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GitHub\" />
+    <Folder Include="Messages\" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="libsodium.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="opus.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\Baseclass.Contrib.Nuget.Output.2.2.0-xbuild02\build\net40\Baseclass.Contrib.Nuget.Output.targets" Condition="Exists('..\packages\Baseclass.Contrib.Nuget.Output.2.2.0-xbuild02\build\net40\Baseclass.Contrib.Nuget.Output.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Baseclass.Contrib.Nuget.Output.2.2.0-xbuild02\build\net40\Baseclass.Contrib.Nuget.Output.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Baseclass.Contrib.Nuget.Output.2.2.0-xbuild02\build\net40\Baseclass.Contrib.Nuget.Output.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

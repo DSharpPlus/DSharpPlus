@@ -1,54 +1,60 @@
 ﻿using Newtonsoft.Json;
 
-namespace DSharpPlus
-{
+namespace DSharpPlus.Objects {
     /// <summary>
-    /// 
+    /// The voice state of a user
     /// </summary>
-    public class DiscordVoiceState
-    {
+    public class DiscordVoiceState {
         /// <summary>
-        /// The guild id this voice state is for
+        /// Server ID
         /// </summary>
         [JsonProperty("guild_id")]
-        public ulong? GuildID { get; internal set; }
+        public string GuildID { get; internal set; }
+
         /// <summary>
-        /// The channel id this user is connected to
+        /// Channel ID
         /// </summary>
         [JsonProperty("channel_id")]
-        public ulong ChannelID { get; internal set; }
+        public string ChannelID { get; internal set; }
+
         /// <summary>
-        /// The user id this voice state is for
+        /// User ID
         /// </summary>
         [JsonProperty("user_id")]
-        public ulong UserID { get; internal set; }
+        public string UserID { get; internal set; }
+
         /// <summary>
-        /// The session id for this voice state
+        /// Session ID
         /// </summary>
         [JsonProperty("session_id")]
         public string SessionID { get; internal set; }
+
         /// <summary>
-        /// Whether this user is deafened by the server
+        /// Wether this user has been deafened
         /// </summary>
         [JsonProperty("deaf")]
         public bool Deaf { get; internal set; }
+
         /// <summary>
-        /// Whether this user is muted by the server
+        /// Wether this user has been muted
         /// </summary>
         [JsonProperty("mute")]
         public bool Mute { get; internal set; }
+
         /// <summary>
-        /// Whether this user is locally deafened
+        /// Wether this user has deafened itself
         /// </summary>
         [JsonProperty("self_deaf")]
         public bool SelfDeaf { get; internal set; }
+
         /// <summary>
-        /// Whether this user is locally muted
+        /// Wether this user has muted itself
         /// </summary>
         [JsonProperty("self_mute")]
         public bool SelfMute { get; internal set; }
+
         /// <summary>
-        /// Whether this user is muted by the current user
+        /// Wether this user has been muted by you
         /// </summary>
         [JsonProperty("suppress")]
         public bool Suppress { get; internal set; }
