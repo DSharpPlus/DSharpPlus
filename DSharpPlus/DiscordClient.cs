@@ -173,6 +173,11 @@ namespace DSharpPlus
         /// </summary>
         public event EventHandler<GuildMembersChunkEventArgs> GuildMembersChunk;
 
+        /// <summary>
+        /// Sent when an unknown event gets received.
+        /// </summary>
+        public event EventHandler<UnknownEventArgs> UnknownEvent;
+
         public event EventHandler<UserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<VoiceReceivedEventArgs> VoiceReceived;
         #endregion
@@ -973,6 +978,7 @@ namespace DSharpPlus
                     msg["nonce"] = 0;
                     message = msg.ToObject<DiscordMessage>();
                 }
+                message.Received = DateTime.Now;
                 /*
                 _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == message.ChannelID).LastMessageID = message.ID;
 
@@ -1145,6 +1151,17 @@ namespace DSharpPlus
                 }
                 GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs() { GuildID = guildID, Members = members };
                 GuildMembersChunk?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnUnknownEvent(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                string name = obj["t"].ToString();
+                string json = obj["d"].ToString();
+                UnknownEventArgs args = new UnknownEventArgs() { EventName = name, Json = json };
+                UnknownEvent?.Invoke(this, args);
             });
         }
         #endregion

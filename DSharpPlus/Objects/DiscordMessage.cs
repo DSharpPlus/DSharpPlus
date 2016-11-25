@@ -100,6 +100,11 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("webhook_id")]
         public ulong? WebhookID { get; internal set; }
+        /// <summary>
+        /// DateTime of when the message was received. based off machine time
+        /// </summary>
+        [JsonIgnore]
+        public DateTime Received { get; internal set; }
 
         /// <summary>
         /// Edit the message
