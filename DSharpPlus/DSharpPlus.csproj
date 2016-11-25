@@ -88,6 +88,7 @@
     <Compile Include="EventArgs\MessageUpdateEventArgs.cs" />
     <Compile Include="EventArgs\PresenceUpdateEventArgs.cs" />
     <Compile Include="EventArgs\TypingStartEventArgs.cs" />
+    <Compile Include="EventArgs\UnknownEventArgs.cs" />
     <Compile Include="EventArgs\UserSettingsUpdateEventArgs.cs" />
     <Compile Include="EventArgs\UserSpeakingEventArgs.cs" />
     <Compile Include="EventArgs\UserUpdateEventArgs.cs" />
