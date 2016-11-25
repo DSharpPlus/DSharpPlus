@@ -978,7 +978,6 @@ namespace DSharpPlus
                     msg["nonce"] = 0;
                     message = msg.ToObject<DiscordMessage>();
                 }
-                message.Received = DateTime.UtcNow;
                 /*
                 _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == message.ChannelID).LastMessageID = message.ID;
 
