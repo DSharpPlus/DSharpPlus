@@ -671,6 +671,7 @@ namespace DSharpPlus
                 case "voice_state_update": await OnVoiceStateUpdateEvent(obj); break;
                 case "voice_server_update": await OnVoiceServerUpdateEvent(obj); break;
                 default:
+                    await OnUnknownEvent(obj);
                     DebugLogger.LogMessage(LogLevel.Warning, $"Unknown event: {obj.Value<string>("t")}\n{obj["d"].ToString()}", DateTime.Now);
                     break;
             }
