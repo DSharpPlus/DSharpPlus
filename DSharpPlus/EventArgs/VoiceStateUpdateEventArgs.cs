@@ -8,7 +8,7 @@ namespace DSharpPlus
 {
     public class VoiceStateUpdateEventArgs : EventArgs
     {
-        internal ulong UserID;
+        public ulong UserID;
         public DiscordUser User => DiscordClient.InternalGetUser(UserID.ToString()).Result;
         internal string SessionID;
     }

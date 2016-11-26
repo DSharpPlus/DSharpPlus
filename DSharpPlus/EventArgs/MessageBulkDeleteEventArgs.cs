@@ -9,7 +9,7 @@ namespace DSharpPlus
     public class MessageBulkDeleteEventArgs : EventArgs
     {
         public List<ulong> MessageIDs;
-        internal ulong ChannelID;
+        public ulong ChannelID;
         public DiscordChannel Channel => DiscordClient.InternalGetChannel(ChannelID).Result;
     }
 }

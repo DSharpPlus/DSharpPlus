@@ -8,7 +8,7 @@ namespace DSharpPlus
 {
     public class GuildRoleCreateEventArgs : EventArgs
     {
-        internal ulong GuildID;
+        public ulong GuildID;
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
         public DiscordRole Role;
     }
