@@ -11,22 +11,22 @@ namespace DSharpPlus
         /// <summary>
         /// Emoji Name
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
         /// <summary>
         /// Roles this emoji is active for
         /// </summary>
-        [JsonProperty("roles")]
+        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordRole> Roles { get; internal set; }
         /// <summary>
         /// Whether this emoji must be wrapped in colons
         /// </summary>
-        [JsonProperty("require_colons")]
+        [JsonProperty("require_colons", NullValueHandling = NullValueHandling.Ignore)]
         public bool RequireColons { get; internal set; }
         /// <summary>
         /// Whether this emoji is managed
         /// </summary>
-        [JsonProperty("managed")]
+        [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
         public bool Managed { get; internal set; }
     }
 }

@@ -178,6 +178,16 @@ namespace DSharpPlus
         /// </summary>
         public event EventHandler<UnknownEventArgs> UnknownEvent;
 
+        /// <summary>
+        /// Sent when a reaction gets added to a message
+        /// </summary>
+        public event EventHandler<MessageReactionAddEventArgs> MessageReactionAdd;
+
+        /// <summary>
+        /// Sent when a reaction gets removed from a message
+        /// </summary>
+        public event EventHandler<MessageReactionRemoveEventArgs> MessageReactionRemove;
+
         public event EventHandler<UserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<VoiceReceivedEventArgs> VoiceReceived;
         #endregion
@@ -670,6 +680,8 @@ namespace DSharpPlus
                 case "user_update": await OnUserUpdateEvent(obj); break;
                 case "voice_state_update": await OnVoiceStateUpdateEvent(obj); break;
                 case "voice_server_update": await OnVoiceServerUpdateEvent(obj); break;
+                case "message_reaction_add": await OnMessageReactionAdd(obj); break;
+                case "message_reaction_remove": await OnMessageReactionRemove(obj); break;
                 default:
                     await OnUnknownEvent(obj);
                     DebugLogger.LogMessage(LogLevel.Warning, $"Unknown event: {obj.Value<string>("t")}\n{obj["d"].ToString()}", DateTime.Now);
@@ -1161,6 +1173,44 @@ namespace DSharpPlus
                 string json = obj["d"].ToString();
                 UnknownEventArgs args = new UnknownEventArgs() { EventName = name, Json = json };
                 UnknownEvent?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnMessageReactionAdd(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
+                ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
+                ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
+                DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
+                MessageReactionAddEventArgs args = new MessageReactionAddEventArgs()
+                {
+                    ChannelID = channelid,
+                    MessageID = messageid,
+                    UserID = userid,
+                    Emoji = emoji
+                };
+                MessageReactionAdd?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnMessageReactionRemove(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
+                ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
+                ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
+                DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
+                MessageReactionRemoveEventArgs args = new MessageReactionRemoveEventArgs()
+                {
+                    ChannelID = channelid,
+                    MessageID = messageid,
+                    UserID = userid,
+                    Emoji = emoji
+                };
+                MessageReactionRemove?.Invoke(this, args);
             });
         }
         #endregion
