@@ -8,7 +8,7 @@ namespace DSharpPlus
 {
     public class GuildMemberUpdateEventArgs : EventArgs
     {
-        internal ulong GuildID;
+        public ulong GuildID;
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
         public List<ulong> Roles;
         public string NickName;

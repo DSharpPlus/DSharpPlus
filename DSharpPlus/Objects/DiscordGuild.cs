@@ -13,12 +13,12 @@ namespace DSharpPlus
         /// <summary>
         /// Guild name
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
         /// <summary>
         /// Icon hash
         /// </summary>
-        [JsonProperty("icon")]
+        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         public string Icon { get; internal set; }
         /// <summary>
         /// Icon Url
@@ -28,17 +28,17 @@ namespace DSharpPlus
         /// <summary>
         /// Splash hash
         /// </summary>
-        [JsonProperty("splash")]
+        [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
         public string Splash { get; internal set; }
         /// <summary>
         /// ID of the owner
         /// </summary>
-        [JsonProperty("owner_id")]
+        [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong OwnerID { get; internal set; }
         /// <summary>
         /// 
         /// </summary>
-        [JsonProperty("region")]
+        [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
         public string RegionID { get; internal set; }
         /// <summary>
         /// ID of the afk channel
@@ -48,92 +48,92 @@ namespace DSharpPlus
         /// <summary>
         /// AFK timeout in seconds
         /// </summary>
-        [JsonProperty("afk_timeout")]
+        [JsonProperty("afk_timeout", NullValueHandling = NullValueHandling.Ignore)]
         public int AFKTimeout { get; internal set; }
         /// <summary>
         /// Is this guild embeddable
         /// </summary>
-        [JsonProperty("embed_enabled")]
+        [JsonProperty("embed_enabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool EmbedEnabled { get; internal set; }
         /// <summary>
         /// ID of embedded channel
         /// </summary>
-        [JsonProperty("embed_channel_id")]
+        [JsonProperty("embed_channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong EmbedChannelID { get; internal set; }
         /// <summary>
         /// Level of verification
         /// </summary>
-        [JsonProperty("verification_level")]
+        [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
         public int VerificationLevel { get; internal set; }
         /// <summary>
         /// Default message notifications level
         /// </summary>
-        [JsonProperty("default_message_notifications")]
+        [JsonProperty("default_message_notifications", NullValueHandling = NullValueHandling.Ignore)]
         public int DefaultMessageNotifications { get; internal set; }
         /// <summary>
         /// List of role objects
         /// </summary>
-        [JsonProperty("roles")]
+        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordRole> Roles { get; internal set; }
         /// <summary>
         /// List of emoji objects
         /// </summary>
-        [JsonProperty("emojis")]
+        [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordEmoji> Emojis { get; internal set; }
         /// <summary>
         /// List of guild features
         /// </summary>
-        [JsonProperty("features")]
+        [JsonProperty("features", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> Features { get; internal set; }
         /// <summary>
         /// Required MFA level for this guild
         /// </summary>
-        [JsonProperty("mfa_level")]
+        [JsonProperty("mfa_level", NullValueHandling = NullValueHandling.Ignore)]
         public int MFALevel { get; internal set; }
         /// <summary>
         /// Date this guild was joined at
         /// </summary>
-        [JsonProperty("joined_at")]
+        [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime JoinedAt { get; internal set; }
         /// <summary>
         /// Whether this is considered a large guild
         /// </summary>
-        [JsonProperty("large")]
+        [JsonProperty("large", NullValueHandling = NullValueHandling.Ignore)]
         public bool Large { get; internal set; }
         /// <summary>
         /// Is this guild unavailable
         /// </summary>
-        [JsonProperty("unavailable")]
+        [JsonProperty("unavailable", NullValueHandling = NullValueHandling.Ignore)]
         public bool Unavailable { get; internal set; }
         /// <summary>
         /// Total number of members in this guild
         /// </summary>
-        [JsonProperty("member_count")]
+        [JsonProperty("member_count", NullValueHandling = NullValueHandling.Ignore)]
         public int MemberCount { get; internal set; }
         /// <summary>
         /// List of voice state objects
         /// </summary>
-        [JsonProperty("voice_states")]
+        [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordVoiceState> VoiceStates { get; internal set; }
         /// <summary>
         /// List of guild member objects
         /// </summary>
-        [JsonProperty("members")]
+        [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordMember> Members { get; internal set; }
         /// <summary>
         /// List of channel objects
         /// </summary>
-        [JsonProperty("channels")]
+        [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordChannel> Channels => DiscordClient.InternalGetGuildChannels(ID).Result;
         /// <summary>
         /// List of simple presence objects
         /// </summary>
-        [JsonProperty("presences")]
+        [JsonProperty("presences", NullValueHandling = NullValueHandling.Ignore)]
         public List<object> Presences { get; internal set; }
         /// <summary>
         /// Is the current user the guild owner
         /// </summary>
-        [JsonProperty("is_owner")]
+        [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsOwner => (OwnerID == DiscordClient._me.ID);
 
         #region Guild Functions
@@ -158,6 +158,8 @@ namespace DSharpPlus
         public async Task<List<DiscordVoiceRegion>> GetVoiceRegions() => await DiscordClient.InternalGetGuildVoiceRegions(ID);
         public async Task<List<DiscordInvite>> GetInvites() => await DiscordClient.InternalGetGuildInvites(ID);
         public async Task<List<DiscordWebhook>> GetWebhooks() => await DiscordClient.InternalGetGuildWebhooks(ID);
+        public async Task RemoveMember(DiscordUser user) => await DiscordClient.InternalRemoveGuildMember(ID, user.ID);
+        public async Task RemoveMember(ulong UserID) => await DiscordClient.InternalRemoveGuildMember(ID, UserID);
         #endregion
 
     }

@@ -8,7 +8,7 @@ namespace DSharpPlus
 {
     public class GuildMembersChunkEventArgs : EventArgs
     {
-        internal ulong GuildID;
+        public ulong GuildID;
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
         public List<DiscordMember> Members;
     }

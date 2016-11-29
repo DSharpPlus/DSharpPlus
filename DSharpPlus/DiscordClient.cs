@@ -663,7 +663,7 @@ namespace DSharpPlus
                 case "message_create": await OnMessageCreateEvent(obj); break;
                 case "message_update": await OnMessageUpdateEvent(obj); break;
                 case "message_delete": await OnMessageDeleteEvent(obj); break;
-                case "message_bulk_delete": await OnMessageBulkDeleteEvent(obj); break;
+                case "message_delete_bulk": await OnMessageBulkDeleteEvent(obj); break;
                 case "presence_update": await OnPresenceUpdateEvent(obj); break;
                 case "typing_start": await OnTypingStartEvent(obj); break;
                 case "user_settings_update": await OnUserSettingsUpdateEvent(obj); break;
@@ -671,6 +671,7 @@ namespace DSharpPlus
                 case "voice_state_update": await OnVoiceStateUpdateEvent(obj); break;
                 case "voice_server_update": await OnVoiceServerUpdateEvent(obj); break;
                 default:
+                    await OnUnknownEvent(obj);
                     DebugLogger.LogMessage(LogLevel.Warning, $"Unknown event: {obj.Value<string>("t")}\n{obj["d"].ToString()}", DateTime.Now);
                     break;
             }
@@ -759,8 +760,8 @@ namespace DSharpPlus
 
                 foreach (DiscordChannel channel in guild.Channels)
                     if (channel.GuildID == 0) channel.GuildID = guild.ID;
-
-                if (_guilds[obj["d"].Value<ulong>("id")] != null)
+                
+                if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
                 {
                     _guilds[guild.ID] = guild;
 
