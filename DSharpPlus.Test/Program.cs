@@ -81,6 +81,12 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
 
                 await x.Message.Respond($"New Buffer Duration: {_playBuffer.BufferDuration}");
             });
+            client.AddCommand("clearChannel", async (x) =>
+            {
+                List<ulong> ids = (await x.Message.Parent.GetMessages(before: x.Message.ID, limit: 50)).Select(y => y.ID).ToList();
+                await x.Message.Parent.BulkDeleteMessages(ids);
+                await x.Message.Respond($"Removed ``{ids.Count}`` messages");
+            });
 
             client.Ready += (sender, e) =>
             {
