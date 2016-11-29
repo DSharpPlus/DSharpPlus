@@ -745,8 +745,7 @@ namespace DSharpPlus
                 else
                 {
                     DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
-                    int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
-                    _guilds[channel.GuildID].Channels.RemoveAt(channelIndex);
+                    _guilds[channel.GuildID].Channels.RemoveAll(x => x.ID == channel.ID);
 
                     ChannelDeleted?.Invoke(this, new ChannelDeleteEventArgs() { Channel = channel, Guild = _guilds[channel.GuildID] });
                 }

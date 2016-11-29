@@ -318,10 +318,14 @@ namespace DSharpPlus.Voice
 
             GC.SuppressFinalize(this);
 
-            __udpClient.Close();
-            _websocketClient.Dispose();
-            _opusDecoder.Dispose();
-            _opusEncoder.Dispose();
+            if (__udpClient != null)
+                __udpClient.Close();
+            if (_websocketClient != null)
+                _websocketClient.Dispose();
+            if (_opusDecoder != null)
+                _opusDecoder.Dispose();
+            if (_opusEncoder != null)
+                _opusEncoder.Dispose();
 
             disposed = true;
         }
