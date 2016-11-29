@@ -173,14 +173,14 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                 }
             };
 
-            client.MessageReactionAdd += (sender, e) =>
+            client.MessageReactionAdd += async (sender, e) =>
             {
-                client.DebugLogger.LogMessage(LogLevel.Debug, "reaction added. Name:" + e.Emoji.Name + ", ID:" + e.Emoji.ID + ", Channel ID:" + e.ChannelID + ", Message ID:" + e.MessageID, DateTime.Now);
+                await e.Message.DeleteAllReactions();
             };
 
-            client.MessageReactionRemove += (sender, e) =>
+            client.MessageReactionRemoveAll += (sender, e) =>
             {
-                client.DebugLogger.LogMessage(LogLevel.Debug, "reaction removed. Name:" + e.Emoji.Name + ", ID:" + e.Emoji.ID + ", Channel ID:" + e.ChannelID + ", Message ID:" + e.MessageID, DateTime.Now);
+                client.DebugLogger.LogMessage(LogLevel.Debug, "All reactions got removed for message id: " + e.MessageID + " in channel: " + e.ChannelID, DateTime.Now);
             };
 
             client.UserSpeaking += async (sender, e) =>

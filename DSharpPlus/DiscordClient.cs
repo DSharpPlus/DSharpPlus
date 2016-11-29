@@ -179,14 +179,19 @@ namespace DSharpPlus
         public event EventHandler<UnknownEventArgs> UnknownEvent;
 
         /// <summary>
-        /// Sent when a reaction gets added to a message
+        /// Sent when a reaction gets added to a message.
         /// </summary>
         public event EventHandler<MessageReactionAddEventArgs> MessageReactionAdd;
 
         /// <summary>
-        /// Sent when a reaction gets removed from a message
+        /// Sent when a reaction gets removed from a message.
         /// </summary>
         public event EventHandler<MessageReactionRemoveEventArgs> MessageReactionRemove;
+
+        /// <summary>
+        /// Sent when all reactions get removed from a message.
+        /// </summary>
+        public event EventHandler<MessageReactionRemoveAllEventArgs> MessageReactionRemoveAll;
 
         public event EventHandler<UserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<VoiceReceivedEventArgs> VoiceReceived;
@@ -682,6 +687,7 @@ namespace DSharpPlus
                 case "voice_server_update": await OnVoiceServerUpdateEvent(obj); break;
                 case "message_reaction_add": await OnMessageReactionAdd(obj); break;
                 case "message_reaction_remove": await OnMessageReactionRemove(obj); break;
+                case "message_reaction_remove_all": await OnMessageReactionRemoveAll(obj); break;
                 default:
                     await OnUnknownEvent(obj);
                     DebugLogger.LogMessage(LogLevel.Warning, $"Unknown event: {obj.Value<string>("t")}\n{obj["d"].ToString()}", DateTime.Now);
@@ -1211,6 +1217,21 @@ namespace DSharpPlus
                     Emoji = emoji
                 };
                 MessageReactionRemove?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnMessageReactionRemoveAll(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
+                ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
+                MessageReactionRemoveAllEventArgs args = new MessageReactionRemoveAllEventArgs()
+                {
+                    ChannelID = channelid,
+                    MessageID = messageid
+                };
+                MessageReactionRemoveAll?.Invoke(this, args);
             });
         }
         #endregion

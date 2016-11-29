@@ -86,6 +86,7 @@
     <Compile Include="EventArgs\MessageCreateEventArgs.cs" />
     <Compile Include="EventArgs\MessageDeleteEventArgs.cs" />
     <Compile Include="EventArgs\MessageReactionAddEventArgs.cs" />
+    <Compile Include="EventArgs\MessageReactionRemoveAllEventArgs.cs" />
     <Compile Include="EventArgs\MessageReactionRemoveEventArgs.cs" />
     <Compile Include="EventArgs\MessageUpdateEventArgs.cs" />
     <Compile Include="EventArgs\PresenceUpdateEventArgs.cs" />
