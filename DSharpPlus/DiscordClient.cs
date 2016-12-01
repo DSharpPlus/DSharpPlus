@@ -509,7 +509,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<DiscordGuild> GetGuild(ulong id) => await InternalGetGuildAsync(id);
+        public async Task<DiscordGuild> GetGuild(ulong id) => await InternalGetGuild(id);
         /// <summary>
         /// Deletes a guild
         /// </summary>
@@ -1419,21 +1419,6 @@ namespace DSharpPlus
             return guild;
         }
 
-        //
-        internal async static Task<DiscordGuild> InternalGetGuildAsync(ulong id)
-        {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + $"/{id}";
-            WebHeaderCollection headers = new WebHeaderCollection();
-            headers.Add("Authorization", Utils.GetFormattedToken());
-
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
-            WebResponse response = await WebWrapper.HandleRequestAsync(request);
-
-            DiscordGuild guild = Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
-
-            return guild;
-        }
-
 
         internal async static void InternalDeleteGuildAsync(ulong id)
         {
@@ -2001,7 +1986,16 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            DiscordGuild guild = Newtonsoft.Json.JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            if (_guilds.ContainsKey(GuildID))
+            {
+                _guilds[GuildID] = guild;
+            }
+            else
+            {
+                _guilds.Add(guild.ID, guild);
+            }
+            return guild;
         }
 
         internal async static Task<DiscordGuild> InternalModifyGuild(string name = "", string region = "", string icon = "", int verification_level = -1,
