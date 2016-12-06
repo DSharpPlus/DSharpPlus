@@ -1039,16 +1039,7 @@ namespace DSharpPlus
             await Task.Run(() =>
             {
                 DiscordMessage message;
-                try
-                {
-                    message = obj["d"].ToObject<DiscordMessage>();
-                }
-                catch (Newtonsoft.Json.JsonSerializationException)
-                {
-                    JObject msg = (JObject)obj["d"];
-                    msg["nonce"] = 0;
-                    message = msg.ToObject<DiscordMessage>();
-                }
+                message = obj["d"].ToObject<DiscordMessage>();
                 /*
                 _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == message.ChannelID).LastMessageID = message.ID;
 
