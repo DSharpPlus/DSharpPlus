@@ -11,7 +11,7 @@ namespace DSharpPlus
         /// <summary>
         /// The recipient of the dm
         /// </summary>
-        [JsonProperty("recipient")]
+        [JsonProperty("recipient", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser Recipient { get; internal set; }
 
 

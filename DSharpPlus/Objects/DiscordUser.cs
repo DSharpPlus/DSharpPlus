@@ -11,17 +11,17 @@ namespace DSharpPlus
         /// <summary>
         /// The user's username
         /// </summary>
-        [JsonProperty("username")]
+        [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
         public string Username { get; internal set; }
         /// <summary>
         /// The user's 4-digit tag
         /// </summary>
-        [JsonProperty("discriminator")]
+        [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
         public int Discriminator { get; internal set; }
         /// <summary>
         /// The user's avatar hash
         /// </summary>
-        [JsonProperty("avatar")]
+        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public string AvatarHash { get; internal set; }
         /// <summary>
         /// The user's avatar url
@@ -31,22 +31,22 @@ namespace DSharpPlus
         /// <summary>
         /// Whether the user belongs to an oauth2 application
         /// </summary>
-        [JsonProperty("is_bot")]
+        [JsonProperty("is_bot", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsBot { get; internal set; }
         /// <summary>
         /// Whether the user has tho factor enabled
         /// </summary>
-        [JsonProperty("mfa_enabled")]
+        [JsonProperty("mfa_enabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool? MFAEnabled { get; internal set; }
         /// <summary>
         /// Whether the email on this account has been verified
         /// </summary>
-        [JsonProperty("verified")]
+        [JsonProperty("verified", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Verified { get; internal set; }
         /// <summary>
         /// The user's email
         /// </summary>
-        [JsonProperty("email")]
+        [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
         public string Email { get; internal set; }
     }
 }

@@ -10,12 +10,12 @@ namespace DSharpPlus
         /// <summary>
         /// If the embed is enabled
         /// </summary>
-        [JsonProperty("enabled")]
+        [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool Enabled { get; set; }
         /// <summary>
         /// The embed channel id
         /// </summary>
-        [JsonProperty("channel_id")]
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ChannelID { get; set; }
     }
 }

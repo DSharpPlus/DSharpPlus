@@ -10,12 +10,12 @@ namespace DSharpPlus
         /// <summary>
         /// Name of the guild
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
         /// <summary>
         /// Hash of the guild splash
         /// </summary>
-        [JsonProperty("splash_name")]
+        [JsonProperty("splash_name", NullValueHandling = NullValueHandling.Ignore)]
         public string SplashName { get; internal set; }
     }
 }

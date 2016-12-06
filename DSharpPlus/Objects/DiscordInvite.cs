@@ -11,17 +11,17 @@ namespace DSharpPlus
         /// <summary>
         /// The invite code (unique ID)
         /// </summary>
-        [JsonProperty("code")]
+        [JsonProperty("code", NullValueHandling = NullValueHandling.Ignore)]
         public string Code { get; internal set; }
         /// <summary>
         /// The guild this invite is for
         /// </summary>
-        [JsonProperty("guild")]
+        [JsonProperty("guild", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordInviteGuild Guild { get; internal set; }
         /// <summary>
         /// The channel this invite is for
         /// </summary>
-        [JsonProperty("channel")]
+        [JsonProperty("channel", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordInviteChannel Channel { get; internal set; }
 
         /// <summary>

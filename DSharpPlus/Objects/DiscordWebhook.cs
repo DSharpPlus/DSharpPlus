@@ -12,32 +12,32 @@ namespace DSharpPlus
         /// <summary>
         /// The guild id this webhook is for
         /// </summary>
-        [JsonProperty("guild_id")]
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong GuildID { get; internal set; }
         /// <summary>
         /// The channel id this webhook is for
         /// </summary>
-        [JsonProperty("channel_id")]
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ChannelID { get; internal set; }
         /// <summary>
         /// The user this webhook was created by
         /// </summary>
-        [JsonProperty("user")]
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser User { get; internal set; }
         /// <summary>
         /// The default name of webhook
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
         /// <summary>
         /// The default avatar of webhook
         /// </summary>
-        [JsonProperty("avatar")]
+        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public string Avatar { get; internal set; }
         /// <summary>
         /// The secure token of the webhook
         /// </summary>
-        [JsonProperty("token")]
+        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
         public string Token { get; internal set; }
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace DSharpPlus
         /// <summary>
         /// Name of the account
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
     }
 }

@@ -14,27 +14,27 @@ namespace DSharpPlus
         /// <summary>
         /// The id of the guild
         /// </summary>
-        [JsonProperty("guild_id")]
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong GuildID { get; internal set; }
         /// <summary>
         /// The name of the channel
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
         /// <summary>
         /// The type of the channel
         /// </summary>
-        [JsonProperty("type")]
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public ChannelType Type { get; internal set; }
         /// <summary>
         /// Sorting position of the channel
         /// </summary>
-        [JsonProperty("position")]
+        [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int Position { get; set; }
         /// <summary>
         /// Should always be false for guild channels
         /// </summary>
-        [JsonProperty("is_private")]
+        [JsonProperty("is_private", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsPrivate { get; internal set; }
         /// <summary>
         /// The guild
@@ -43,7 +43,7 @@ namespace DSharpPlus
         /// <summary>
         /// A list of permission overwrite
         /// </summary>
-        [JsonProperty("permission_overwrites")]
+        [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordOverwrite> PermissionOverwrites { get; internal set; }
 
         /// <summary>
@@ -60,12 +60,12 @@ namespace DSharpPlus
         /// <summary>
         /// The channel bitrate (Voice only)
         /// </summary>
-        [JsonProperty("bitrate")]
+        [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
         public int Bitrate { get; internal set; }
         /// <summary>
         /// The channel user limit (Voice only)
         /// </summary>
-        [JsonProperty("user_limit")]
+        [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
         public int UserLimit { get; internal set; }
 
         #region Functions
