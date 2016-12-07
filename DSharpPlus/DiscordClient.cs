@@ -1005,10 +1005,11 @@ namespace DSharpPlus
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
                 List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
+                List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
                 // This is lazy sorry
                 try
                 {
-                    if (message.Content != null)
+                    if (message.Content != null && message.Content != "")
                     {
                         foreach (ulong user in Utils.GetUserMentions(message))
                         {
@@ -1024,13 +1025,18 @@ namespace DSharpPlus
                         {
                             MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
                         }
+
+                        foreach (ulong emoji in Utils.GetEmojis(message))
+                        {
+                            UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
+                        }
                     }
                 }
                 catch
                 {
 
                 }
-                MessageCreateEventArgs args = new MessageCreateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
+                MessageCreateEventArgs args = new MessageCreateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
                 MessageCreated?.Invoke(this, args);
             });
         }
@@ -1049,7 +1055,8 @@ namespace DSharpPlus
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
                 List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-                if (message.Content != null)
+                List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
+                if (message.Content != null && message.Content != "")
                 {
                     foreach (ulong user in Utils.GetUserMentions(message))
                     {
@@ -1065,9 +1072,14 @@ namespace DSharpPlus
                     {
                         MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
                     }
+
+                    foreach (ulong emoji in Utils.GetEmojis(message))
+                    {
+                        UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
+                    }
                 }
 
-                MessageUpdateEventArgs args = new MessageUpdateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels };
+                MessageUpdateEventArgs args = new MessageUpdateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
                 MessageUpdate?.Invoke(this, args);
             });
         }

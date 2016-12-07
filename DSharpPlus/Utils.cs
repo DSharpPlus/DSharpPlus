@@ -148,5 +148,21 @@ namespace DSharpPlus
 
             return result;
         }
+
+        public static List<ulong> GetEmojis(DiscordMessage message)
+        {
+            List<ulong> result = new List<ulong>();
+
+            string pattern = @"<:(.*):(\d+)>";
+            Regex regex = new Regex(pattern);
+
+            var matches = regex.Matches(message.Content);
+            foreach (var match in matches)
+            {
+                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
+            }
+
+            return result;
+        }
     }
 }
