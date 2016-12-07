@@ -17,7 +17,7 @@ namespace DSharpPlus
         /// Roles this emoji is active for
         /// </summary>
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public List<DiscordRole> Roles { get; internal set; }
+        public List<ulong> Roles { get; internal set; }
         /// <summary>
         /// Whether this emoji must be wrapped in colons
         /// </summary>
