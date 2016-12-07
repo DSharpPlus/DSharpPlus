@@ -1010,25 +1010,33 @@ namespace DSharpPlus
                 {
                     foreach (ulong user in Utils.GetUserMentions(message))
                     {
-                        if (_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
+                        if(message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null 
+                        && _guilds[message.Parent.Parent.ID].Members != null 
+                        && _guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
                             MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
                     }
 
                     foreach (ulong role in Utils.GetRoleMentions(message))
                     {
-                        if (_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role) != null)
+                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                        && _guilds[message.Parent.Parent.ID].Roles != null
+                        && _guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role) != null)
                             MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
                     }
 
                     foreach (ulong channel in Utils.GetChannelMentions(message))
                     {
-                        if (_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
+                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                        && _guilds[message.Parent.Parent.ID].Channels != null
+                        && _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
                             MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
                     }
 
                     foreach (ulong emoji in Utils.GetEmojis(message))
                     {
-                        if (_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
+                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                        && _guilds[message.Parent.Parent.ID].Emojis != null
+                        && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
                             UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
                     }
                 }
@@ -1056,25 +1064,33 @@ namespace DSharpPlus
                 {
                     foreach (ulong user in Utils.GetUserMentions(message))
                     {
-                        if(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
+                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                        && _guilds[message.Parent.Parent.ID].Members != null
+                        && _guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
                             MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
                     }
 
                     foreach (ulong role in Utils.GetRoleMentions(message))
                     {
-                        if (_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role) != null)
+                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                        && _guilds[message.Parent.Parent.ID].Roles != null
+                        && _guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role) != null)
                             MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
                     }
 
                     foreach (ulong channel in Utils.GetChannelMentions(message))
                     {
-                        if (_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
+                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                        && _guilds[message.Parent.Parent.ID].Channels != null
+                        && _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
                             MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
                     }
 
                     foreach (ulong emoji in Utils.GetEmojis(message))
                     {
-                        if (_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
+                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                        && _guilds[message.Parent.Parent.ID].Emojis != null
+                        && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
                             UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
                     }
                 }
