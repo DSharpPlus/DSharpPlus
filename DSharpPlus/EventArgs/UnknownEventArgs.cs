@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCord_Starter.Classes
+namespace DSharpPlus
 {
-    class AudioPlayer
+    public class UnknownEventArgs : EventArgs
     {
+        public string EventName;
+        public string Json;
     }
 }

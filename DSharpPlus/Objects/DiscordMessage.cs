@@ -1,120 +1,182 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace DSharpPlus.Objects
+namespace DSharpPlus
 {
-    public struct DiscordAttachment
-    {
-        [JsonProperty("width")]
-        public int Width { get; internal set; }
-        [JsonProperty("height")]
-        public int Height { get; internal set; }
-        [JsonProperty("size")]
-        public int Size { get; internal set; }
-        [JsonProperty("filename")]
-        public string Filename { get; internal set; }
-        [JsonProperty("proxy_url")]
-        public string ProxyURL { get; internal set; }
-        [JsonProperty("url")]
-        public string URL { get; internal set; }
-    }
-
     /// <summary>
-    /// Message to be sent
+    /// 
     /// </summary>
-    public class DiscordMessage
+    public class DiscordMessage : SnowflakeObject
     {
-        [JsonProperty("content")]
-        public string Content { get; set; }
-        [JsonProperty("id")]
-        public string ID { get; internal set; }
-        [JsonProperty("tts")]
-        public bool TTS { get; set; }
-        [JsonProperty("pinned")]
-        public bool pinned { get; }
-
-        [JsonProperty("attachments")]
-        public DiscordAttachment[] Attachments { get; internal set; }
-
-        [JsonProperty("embeds")]
-        public DiscordEmbed[] Embeds { get; internal set; }
-
-
-        //public string recipient_id { get; set; }
-        public DiscordMember Recipient { get; internal set; }
-
-        public DiscordMember Author { get; internal set; }
-        internal DiscordChannelBase channel { get; set; }
-        public Type TypeOfChannelObject { get; internal set; }
-
-#if NETFX4_5
-        public dynamic Channel() =>
-            Convert.ChangeType(this.channel, TypeOfChannelObject);
-#else
-        public DiscordChannel Channel() => (DiscordChannel)channel;
-        public DiscordPrivateChannel ChannelAsPrivate() => (DiscordPrivateChannel)channel;
-#endif
-
-        [JsonProperty("timestamp")]
-        public DateTime timestamp { get; internal set; }
-
-        public JObject RawJson { get; internal set; }
-        public DiscordServer Server { get; internal set; }
+        /// <summary>
+        /// ID of the channel the message was sent in
+        /// </summary>
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong ChannelID { get; internal set; }
+        /// <summary> 
+        /// The channel the message was sent in
+        /// </summary>
+        [JsonIgnore]
+        public DiscordChannel Parent => DiscordClient.InternalGetChannel(ChannelID).Result;
+        /// <summary>
+        /// The author of this message
+        /// </summary>
+        [JsonProperty("author", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordUser Author { get; internal set; }
+        /// <summary>
+        /// Contents of the message
+        /// </summary>
+        [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
+        public string Content { get; internal set; }
+        /// <summary>
+        /// When this message was sent
+        /// </summary>
+        [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        public string TimestampRaw { get; internal set; }
+        /// <summary>
+        /// When this message was sent
+        /// </summary>
+        [JsonIgnore]
+        public DateTime Timestamp => DateTime.Parse(this.TimestampRaw);
+        /// <summary>
+        /// When this message was edited
+        /// </summary>
+        [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        public string EditedTimestampRaw { get; internal set; }
+        /// <summary>
+        /// When this message was edited
+        /// </summary>
+        [JsonIgnore]
+        public DateTime EditedTimestamp => DateTime.Parse(this.EditedTimestampRaw);
+        /// <summary>
+        /// Whether this was a tts message
+        /// </summary>
+        [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
+        public bool TTS { get; internal set; }
+        /// <summary>
+        /// Whether this message mentions everyone
+        /// </summary>
+        [JsonProperty("mention_everyone", NullValueHandling = NullValueHandling.Ignore)]
+        public bool MentionEveryone { get; internal set; }
+        /// <summary>
+        /// Users specifically mentioned in the message
+        /// </summary>
+        [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
+        public List<DiscordUser> Mentions { get; internal set; }
+        /// <summary>
+        /// Roles specifically mention in the message
+        /// </summary>
+        [JsonProperty("mentioned_roles", NullValueHandling = NullValueHandling.Ignore)]
+        public List<DiscordRole> MentionedRoles { get; internal set; }
+        /// <summary>
+        /// Any attached files
+        /// </summary>
+        [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
+        public List<DiscordAttachment> Attachments { get; internal set; }
+        /// <summary>
+        /// Any embedded content
+        /// </summary>
+        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
+        public List<DiscordEmbed> Embeds { get; internal set; }
+        /// <summary>
+        /// Reactions of the message
+        /// </summary>
+        [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
+        public List<DiscordReaction> Reactions { get; internal set; }
+        /// <summary>
+        /// Used for validating a message was sent
+        /// </summary>
+        [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? Nonce { get; internal set; }
+        /// <summary>
+        /// Whether this message is pinned
+        /// </summary>
+        [JsonProperty("pinned", NullValueHandling = NullValueHandling.Ignore)]
+        public bool Pinned { get; internal set; }
+        /// <summary>
+        /// If generated by webhook, this is the webhook's id
+        /// </summary>
+        [JsonProperty("webhook_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? WebhookID { get; internal set; }
 
         /// <summary>
-        /// Pins this message to its channel
+        /// Edit the message
         /// </summary>
-        public void Pin()
-        {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID    }" + Endpoints.Pins + $"/{ID    }";
-            WebWrapper.Put(url, DiscordClient.token);
-        }
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public async Task<DiscordMessage> Edit(string content) => await DiscordClient.InternalEditMessage(ChannelID, ID, content);
+        /// <summary>
+        /// Deletes the message
+        /// </summary>
+        /// <returns></returns>
+        public async Task Delete() => await DiscordClient.InternalDeleteMessage(ChannelID, ID);
+        /// <summary>
+        /// Pin the message
+        /// </summary>
+        /// <returns></returns>
+        public async Task Pin() => await DiscordClient.InternalAddPinnedChannelMessage(ChannelID, ID);
+        /// <summary>
+        /// Unpin the message
+        /// </summary>
+        /// <returns></returns>
+        public async Task Unpin() => await DiscordClient.InternalDeletePinnedChannelMessage(ChannelID, ID);
+        /// <summary>
+        /// Respond to the message
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="tts"></param>
+        /// <param name="embed"></param>
+        /// <returns></returns>
+        public async Task<DiscordMessage> Respond(string content, bool tts = false, DiscordEmbed embed = null) => await DiscordClient.InternalCreateMessage(ChannelID, content, tts, embed);
+        /// <summary>
+        /// Respond to the message
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="filepath"></param>
+        /// <param name="filename"></param>
+        /// <param name="tts"></param>
+        /// <returns></returns>
+        public async Task<DiscordMessage> Respond(string content, string filepath, string filename, bool tts = false) 
+            => await DiscordClient.InternalUploadFile(ChannelID, filepath, filename, content, tts);
 
         /// <summary>
-        /// Unpins this message from its channel
+        /// Creates a reaction to this message
         /// </summary>
-        public void Unpin()
-        {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID    }" + Endpoints.Pins + $"/{ID    }";
-            var result = JObject.Parse(WebWrapper.Delete(url, DiscordClient.token));
-        }
-
+        /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
+        /// <returns></returns>
+        public async Task CreateReaction(string emoji) => await DiscordClient.InternalCreateReaction(ChannelID, ID, emoji);
         /// <summary>
-        /// Edits this message. only works for own messages.
+        /// Deletes your own reaction
         /// </summary>
-        /// <param name="message">New content</param>
-        public void Edit(string message)
-        {
-            string url = Endpoints.BaseAPI + Endpoints.Channels + $"/{channel.ID}" + Endpoints.Messages + $"/{ID}";
-            try
-            {
-                string replacement = JsonConvert.SerializeObject(
-                    new
-                    {
-                        content = message,
-                        mentions = new string[0]
-                    }
-                );
-                JObject result = JObject.Parse(WebWrapper.Patch(url, DiscordClient.token, replacement));
-
-                DiscordMessage m = new DiscordMessage
-                {
-                    RawJson = result,
-                    Attachments = result["attachments"].ToObject<DiscordAttachment[]>(),
-                    Author = Author,
-                    TypeOfChannelObject = TypeOfChannelObject,
-                    channel = channel,
-                    Content = result["content"].ToString(),
-                    ID = result["id"].ToString(),
-                    timestamp = result["timestamp"].ToObject<DateTime>()
-                };
-            }
-            catch (Exception ex)
-            {
-            }
-        }
-
-        internal DiscordMessage() { }
+        /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
+        /// <returns></returns>
+        public async Task DeleteOwnReaction(string emoji) => await DiscordClient.InternalDeleteOwnReaction(ChannelID, ID, emoji);
+        /// <summary>
+        /// Deletes another user's reaction.
+        /// </summary>
+        /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
+        /// <param name="Member">Member you want to remove the reaction for</param>
+        /// <returns></returns>
+        public async Task DeleteReaction(string emoji, DiscordMember Member) => await DiscordClient.InternalDeleteUserReaction(ChannelID, ID, Member.User.ID, emoji);
+        /// <summary>
+        /// Deletes another user's reaction.
+        /// </summary>
+        /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
+        /// <param name="UserID">User ID of the member you want to remove the reaction for</param>
+        /// <returns></returns>
+        public async Task DeleteReaction(string emoji, ulong UserID) => await DiscordClient.InternalDeleteUserReaction(ChannelID, ID, UserID, emoji);
+        /// <summary>
+        /// Gets users that reacted with this emoji
+        /// </summary>
+        /// <param name="emoji">Either an emoji or a name:id</param>
+        /// <returns></returns>
+        public async Task<List<DiscordUser>> GetReactions(string emoji) => await DiscordClient.InternalGetReactions(ChannelID, ID, emoji);
+        /// <summary>
+        /// Deletes all reactions for this message
+        /// </summary>
+        /// <returns></returns>
+        public async Task DeleteAllReactions() => await DiscordClient.InternalDeleteAllReactions(ChannelID, ID);
     }
 }

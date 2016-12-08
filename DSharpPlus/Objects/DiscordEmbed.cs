@@ -2,97 +2,77 @@
 using System;
 using System.Collections.Generic;
 
-namespace DSharpPlus.Objects
+namespace DSharpPlus
 {
-    public struct DiscordEmbed
+    /// <summary>
+    /// 
+    /// </summary>
+    public class DiscordEmbed
     {
-        [JsonProperty("title")]
+        /// <summary>
+        /// Title of the embed
+        /// </summary>
+        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
         public string Title { get; set; }
-        [JsonProperty("type")]
+        /// <summary>
+        /// Type of the embed ("rich" for webhook embeds)
+        /// </summary>
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public string Type { get; set; }
-        [JsonProperty("description")]
+        /// <summary>
+        /// Description of the embed
+        /// </summary>
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }
-        [JsonProperty("url")]
+        /// <summary>
+        /// Url of the embed
+        /// </summary>
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
-        [JsonProperty("timestamp")]
+        /// <summary>
+        /// Timestamp of the embed content
+        /// </summary>
+        [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime Timestamp { get; set; }
-        [JsonProperty("color")]
+        /// <summary>
+        /// Color code of the embed
+        /// </summary>
+        [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
         public int Color { get; set; }
-        [JsonProperty("footer")]
+        /// <summary>
+        /// Footer information
+        /// </summary>
+        [JsonProperty("footer", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbedFooter Footer { get; set; }
-        [JsonProperty("image")]
+        /// <summary>
+        /// Image information
+        /// </summary>
+        [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbedImage Image { get; set; }
-        [JsonProperty("thumbnail")]
+        /// <summary>
+        /// Thumbnail information
+        /// </summary>
+        [JsonProperty("thumbnail", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbedThumbnail Thumbnail { get; set; }
-        [JsonProperty("provider")]
+        /// <summary>
+        /// Video information
+        /// </summary>
+        [JsonProperty("video", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordEmbedVideo Video { get; set; }
+        /// <summary>
+        /// Provider information
+        /// </summary>
+        [JsonProperty("provider", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbedProvider Provider { get; set; }
-        [JsonProperty("author")]
+        /// <summary>
+        /// Author information
+        /// </summary>
+        [JsonProperty("author", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbedAuthor Author { get; set; }
-        [JsonProperty("fields")]
+        /// <summary>
+        /// Fields information
+        /// </summary>
+        [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordEmbedField> Fields { get; set; }
-    }
-
-    public struct DiscordEmbedThumbnail
-    {
-        [JsonProperty("url")]
-        public string Url { get; set; }
-        [JsonProperty("proxy_url")]
-        public string ProxyUrl { get; set; }
-        [JsonProperty("height")]
-        public int Height { get; set; }
-        [JsonProperty("width")]
-        public int Width { get; set; }
-    }
-
-    public struct DiscordEmbedImage
-    {
-        [JsonProperty("url")]
-        public string Url { get; set; }
-        [JsonProperty("proxy_url")]
-        public string ProxyUrl { get; set; }
-        [JsonProperty("height")]
-        public int Height { get; set; }
-        [JsonProperty("width")]
-        public int Width { get; set; }
-    }
-
-    public struct DiscordEmbedProvider
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("url")]
-        public string Url { get; set; }
-    }
-
-    public struct DiscordEmbedAuthor
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("url")]
-        public string Url { get; set; }
-        [JsonProperty("icon_url")]
-        public string IconUrl { get; set; }
-        [JsonProperty("proxy_icon_url")]
-        public string ProxyIconUrl { get; set; }
-    }
-
-    public struct DiscordEmbedFooter
-    {
-        [JsonProperty("text")]
-        public string Text { get; set; }
-        [JsonProperty("icon_url")]
-        public string IconUrl { get; set; }
-        [JsonProperty("proxy_icon_url")]
-        public string ProxyIconUrl { get; set; }
-    }
-
-    public struct DiscordEmbedField
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("value")]
-        public string Value { get; set; }
-        [JsonProperty("inline")]
-        public bool Inline { get; set; }
     }
 }

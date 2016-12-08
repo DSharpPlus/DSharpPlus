@@ -12,32 +12,56 @@ namespace DSharpPlus
         /// <summary>
         /// The guild id this webhook is for
         /// </summary>
+<<<<<<< HEAD
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+=======
         [JsonProperty("guild_id")]
+>>>>>>> master
         public ulong GuildID { get; internal set; }
         /// <summary>
         /// The channel id this webhook is for
         /// </summary>
+<<<<<<< HEAD
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+=======
         [JsonProperty("channel_id")]
+>>>>>>> master
         public ulong ChannelID { get; internal set; }
         /// <summary>
         /// The user this webhook was created by
         /// </summary>
+<<<<<<< HEAD
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+=======
         [JsonProperty("user")]
+>>>>>>> master
         public DiscordUser User { get; internal set; }
         /// <summary>
         /// The default name of webhook
         /// </summary>
+<<<<<<< HEAD
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+=======
         [JsonProperty("name")]
+>>>>>>> master
         public string Name { get; internal set; }
         /// <summary>
         /// The default avatar of webhook
         /// </summary>
+<<<<<<< HEAD
+        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
+=======
         [JsonProperty("avatar")]
+>>>>>>> master
         public string Avatar { get; internal set; }
         /// <summary>
         /// The secure token of the webhook
         /// </summary>
+<<<<<<< HEAD
+        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
+=======
         [JsonProperty("token")]
+>>>>>>> master
         public string Token { get; internal set; }
 
         /// <summary>

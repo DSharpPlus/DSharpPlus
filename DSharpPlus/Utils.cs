@@ -1,56 +1,168 @@
-﻿using DSharpPlus.Objects;
-using System.Drawing;
-using System.IO;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace DSharpPlus
 {
-    internal class Utils
+    public static class Utils
     {
-        internal static byte[] ImageToByteArray(Image img)
+
+        internal static string GetAPIBaseUri()
         {
-            byte[] byteArray = new byte[0];
-            using (MemoryStream stream = new MemoryStream())
+            switch(DiscordClient.config.DiscordBranch)
             {
-                img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                stream.Close();
-
-                byteArray = stream.ToArray();
+                case Branch.Canary:
+                    return Endpoints.CanaryBaseUri;
+                case Branch.PTB:
+                    return Endpoints.PTBBaseUri;
+                case Branch.Stable:
+                    return Endpoints.StableBaseUri;
+                default:
+                    throw new NotSupportedException("");
             }
-            return byteArray;
         }
 
-        internal static DiscordMessage GenerateMessage(string message, bool isTTS)
+        internal static string GetFormattedToken()
         {
-            //DiscordMessage dm = new DiscordMessage();
-            ///Temporarily disabling this
-            //if (parse)
-            //{
-            //    List<string> foundIDS = new List<string>();
-            //    Regex r = new Regex("\\@\\w+\\s\\w+");
-            //    List<KeyValuePair<string, string>> toReplace = new List<KeyValuePair<string, string>>();
-            //    foreach (Match m in r.Matches(message))
-            //    {
-            //        if (m.Index > 0 && message[m.Index - 1] == '<')
-            //            continue;
-            //        DiscordMember user = ServersList.Find(x => x.members.Find(y => y.user.username == m.Value.Trim('@')) != null).members.Find(y => y.user.username == m.Value.Trim('@'));
-            //        foundIDS.Add(user.user.id);
-            //        toReplace.Add(new KeyValuePair<string, string>(m.Value, user.user.id));
-            //    }
-            //    foreach (var k in toReplace)
-            //    {
-            //        message = message.Replace(k.Key, "<@" + k.Value + ">");
-            //    }
-            //}
-
-            //dm.content = message;
-            //dm.mentions = foundIDS.ToArray();
-            //dm.mentions = new string[] { "" };
-            return new DiscordMessage { Content = message, TTS = isTTS};
+            switch (DiscordClient.config.TokenType)
+            {
+                case TokenType.Bearer:
+                    {
+                        return $"Bearer {DiscordClient.config.Token}";
+                    }
+                case TokenType.Bot:
+                    {
+                        return $"Bot {DiscordClient.config.Token}";
+                    }
+                case TokenType.User:
+                default:
+                    {
+                        return DiscordClient.config.Token;
+                    }
+            }
         }
 
-        internal static DiscordMessage GenerateMessage(string message, bool isTTS, DiscordEmbed[] embeds)
+        public static WebHeaderCollection GetBaseHeaders()
         {
-            return new DiscordMessage { Content = message, TTS = isTTS, Embeds = embeds };
+            return new WebHeaderCollection() {
+                { "Authorization", GetFormattedToken() }
+            };
+        }
+
+        public static string GetUserAgent()
+        {
+            return $"DiscordBot (https://github.com/NaamloosDT/DSharpPlus, 1.0)";
+        }
+
+        public static bool ContainsUserMentions(string message)
+        {
+            string pattern = @"<@(\d+)>";
+            Regex regex = new Regex(pattern);
+            return regex.IsMatch(message);
+        }
+
+        public static bool ContainsNicknameMentions(string message)
+        {
+            string pattern = @"<@!(\d+)>";
+            Regex regex = new Regex(pattern);
+            return regex.IsMatch(message);
+        }
+
+        public static bool ContainsChannelMentions(string message)
+        {
+            string pattern = @"<#(\d+)>";
+            Regex regex = new Regex(pattern);
+            return regex.IsMatch(message);
+        }
+
+        public static bool ContainsRoleMentions(string message)
+        {
+            string pattern = @"<@&(\d+)>";
+            Regex regex = new Regex(pattern);
+            return regex.IsMatch(message);
+        }
+
+        public static bool ContainsEmojis(string message)
+        {
+            string pattern = @"<:(.*):(\d+)>";
+            Regex regex = new Regex(pattern);
+            return regex.IsMatch(message);
+        }
+
+        public static List<ulong> GetUserMentions(DiscordMessage message)
+        {
+            List<ulong> result = new List<ulong>();
+
+            string pattern = @"<@(\d+)>";
+            Regex regex = new Regex(pattern);
+
+            var matches = regex.Matches(message.Content);
+            foreach (var match in matches)
+            {
+                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
+            }
+
+            pattern = @"<@!(\d+)>";
+            regex = new Regex(pattern);
+
+            matches = regex.Matches(message.Content);
+            foreach (var match in matches)
+            {
+                result.Add(ulong.Parse(match.ToString().Substring(3, match.ToString().Length - 4)));
+            }
+
+            return result;
+        }
+
+        public static List<ulong> GetRoleMentions(DiscordMessage message)
+        {
+            List<ulong> result = new List<ulong>();
+
+            string pattern = @"<@&(\d+)>";
+            Regex regex = new Regex(pattern);
+
+            var matches = regex.Matches(message.Content);
+            foreach (var match in matches)
+            {
+                result.Add(ulong.Parse(match.ToString().Substring(3, match.ToString().Length - 4)));
+            }
+
+            return result;
+        }
+
+        public static List<ulong> GetChannelMentions(DiscordMessage message)
+        {
+            List<ulong> result = new List<ulong>();
+
+            string pattern = @"<#(\d+)>";
+            Regex regex = new Regex(pattern);
+
+            var matches = regex.Matches(message.Content);
+            foreach (var match in matches)
+            {
+                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
+            }
+
+            return result;
+        }
+
+        public static List<ulong> GetEmojis(DiscordMessage message)
+        {
+            List<ulong> result = new List<ulong>();
+
+            string pattern = @"<:(.*):(\d+)>";
+            Regex regex = new Regex(pattern);
+
+            var matches = regex.Matches(message.Content);
+            foreach (var match in matches)
+            {
+                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
+            }
+
+            return result;
         }
     }
 }

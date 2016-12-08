@@ -1,27 +1,32 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DSharpPlus.Objects
+namespace DSharpPlus
 {
-    class DiscordEmoji
+    /// <summary>
+    /// 
+    /// </summary>
+    public class DiscordEmoji : SnowflakeObject
     {
-        [JsonProperty("id")]
-        public string ID { get; internal set; }
-
-        [JsonProperty("name")]
+        /// <summary>
+        /// Emoji Name
+        /// </summary>
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
-
-        [JsonProperty("roles")]
-        public List<DiscordRole> Roles { get; internal set; }
-
-        [JsonProperty("require_colons")]
+        /// <summary>
+        /// Roles this emoji is active for
+        /// </summary>
+        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
+        public List<ulong> Roles { get; internal set; }
+        /// <summary>
+        /// Whether this emoji must be wrapped in colons
+        /// </summary>
+        [JsonProperty("require_colons", NullValueHandling = NullValueHandling.Ignore)]
         public bool RequireColons { get; internal set; }
-
-        [JsonProperty("managed")]
-        public bool IsManaged { get; internal set; }
+        /// <summary>
+        /// Whether this emoji is managed
+        /// </summary>
+        [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
+        public bool Managed { get; internal set; }
     }
 }

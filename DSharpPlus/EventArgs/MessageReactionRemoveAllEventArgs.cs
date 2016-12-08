@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
-    public class MessageBulkDeleteEventArgs : EventArgs
+    public class MessageReactionRemoveAllEventArgs : EventArgs
     {
-        public List<ulong> MessageIDs;
-<<<<<<< HEAD
         public ulong ChannelID;
-=======
-        internal ulong ChannelID;
->>>>>>> master
+        public ulong MessageID;
+        public DiscordMessage Message => DiscordClient.InternalGetMessage(ChannelID, MessageID).Result;
         public DiscordChannel Channel => DiscordClient.InternalGetChannel(ChannelID).Result;
     }
 }
