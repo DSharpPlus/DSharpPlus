@@ -81,15 +81,13 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
 
                 await x.Message.Respond($"New Buffer Duration: {_playBuffer.BufferDuration}");
             });
-<<<<<<< HEAD
+
             client.AddCommand("clearChannel", async (x) =>
             {
                 List<ulong> ids = (await x.Message.Parent.GetMessages(before: x.Message.ID, limit: 50)).Select(y => y.ID).ToList();
                 await x.Message.Parent.BulkDeleteMessages(ids);
                 await x.Message.Respond($"Removed ``{ids.Count}`` messages");
             });
-=======
->>>>>>> master
 
             client.Ready += (sender, e) =>
             {
@@ -176,7 +174,6 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                 }
             };
 
-<<<<<<< HEAD
             client.MessageReactionAdd += async (sender, e) =>
             {
                 await e.Message.DeleteAllReactions();
@@ -187,8 +184,6 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                 client.DebugLogger.LogMessage(LogLevel.Debug, "All reactions got removed for message id: " + e.MessageID + " in channel: " + e.ChannelID, DateTime.Now);
             };
 
-=======
->>>>>>> master
             client.UserSpeaking += async (sender, e) =>
             {
                 await Task.Run(() =>
