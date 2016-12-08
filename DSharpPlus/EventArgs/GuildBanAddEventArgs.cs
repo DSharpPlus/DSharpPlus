@@ -9,7 +9,11 @@ namespace DSharpPlus
     public class GuildBanAddEventArgs : EventArgs
     {
         public DiscordUser User;
+<<<<<<< HEAD
         public ulong GuildID;
+=======
+        internal ulong GuildID;
+>>>>>>> master
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
     }
 }

@@ -11,7 +11,11 @@ namespace DSharpPlus
         /// <summary>
         /// The ID of the current object
         /// </summary>
+<<<<<<< HEAD
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+=======
+        [JsonProperty("id")]
+>>>>>>> master
         public ulong ID { get; internal set; }
         /// <summary>
         /// The create date of the current object
