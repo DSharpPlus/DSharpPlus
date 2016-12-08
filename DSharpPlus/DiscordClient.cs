@@ -1031,7 +1031,7 @@ namespace DSharpPlus
                         && _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
                             MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
                     }
-
+                    /*
                     foreach (ulong emoji in Utils.GetEmojis(message))
                     {
                         if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
@@ -1039,6 +1039,7 @@ namespace DSharpPlus
                         && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
                             UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
                     }
+                    */
                 }
                 MessageCreateEventArgs args = new MessageCreateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
                 MessageCreated?.Invoke(this, args);
@@ -1085,7 +1086,7 @@ namespace DSharpPlus
                         && _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
                             MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
                     }
-
+                    /*
                     foreach (ulong emoji in Utils.GetEmojis(message))
                     {
                         if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
@@ -1093,6 +1094,7 @@ namespace DSharpPlus
                         && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
                             UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
                     }
+                    */
                 }
 
                 MessageUpdateEventArgs args = new MessageUpdateEventArgs() { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
