@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus.EventArgs
 {
-    public class UserSpeakingEventArgs : EventArgs
+    public class UserSpeakingEventArgs : System.EventArgs
     {
         public ulong UserID { get; internal set; }
         public uint ssrc { get; internal set; }

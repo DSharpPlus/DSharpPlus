@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace DSharpPlus
+namespace DSharpPlus.Objects
 {
     /// <summary>
     /// 

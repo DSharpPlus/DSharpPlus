@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using DSharpPlus.Enums;
 using Newtonsoft.Json;
-using DSharpPlus.Voice;
-using System;
 
-namespace DSharpPlus
+namespace DSharpPlus.Objects
 {
     /// <summary>
     /// Represents a discord channel

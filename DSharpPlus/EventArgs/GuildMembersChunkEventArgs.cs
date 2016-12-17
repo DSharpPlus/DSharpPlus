@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using DSharpPlus.Objects;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
-    public class GuildMembersChunkEventArgs : EventArgs
+    public class GuildMembersChunkEventArgs : System.EventArgs
     {
         public ulong GuildID;
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;

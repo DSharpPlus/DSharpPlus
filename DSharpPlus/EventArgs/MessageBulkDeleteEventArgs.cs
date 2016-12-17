@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using DSharpPlus.Objects;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
-    public class MessageBulkDeleteEventArgs : EventArgs
+    public class MessageBulkDeleteEventArgs : System.EventArgs
     {
         public List<ulong> MessageIDs;
         public ulong ChannelID;

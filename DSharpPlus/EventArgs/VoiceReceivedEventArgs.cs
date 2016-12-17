@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus.EventArgs
 {
-    public class VoiceReceivedEventArgs : EventArgs
+    public class VoiceReceivedEventArgs : System.EventArgs
     {
         public uint SSRC { get; internal set; }
         public ulong UserID { get; internal set; }

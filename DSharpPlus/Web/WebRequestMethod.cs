@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+﻿namespace DSharpPlus.Web
 {
     public enum WebRequestMethod
     {

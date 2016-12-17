@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus.EventArgs
 {
-    public class GuildDeleteEventArgs : EventArgs
+    public class GuildDeleteEventArgs : System.EventArgs
     {
         public ulong ID;
         public bool Unavailable;

@@ -8,6 +8,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Enums;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Socket;
+using DSharpPlus.Voice.Opus;
 
 namespace DSharpPlus.Voice
 {

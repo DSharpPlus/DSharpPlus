@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace DSharpPlus
+namespace DSharpPlus.Voice.Opus
 {
     internal class OpusDecoder : IDisposable
     {

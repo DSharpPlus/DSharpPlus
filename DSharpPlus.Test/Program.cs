@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Enums;
+using DSharpPlus.Objects;
 
 namespace DSharpPlus.Test
 {

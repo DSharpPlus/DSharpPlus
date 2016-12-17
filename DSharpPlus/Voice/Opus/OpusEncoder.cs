@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using DSharpPlus.Enums;
 
-namespace DSharpPlus
+namespace DSharpPlus.Voice.Opus
 {
     internal class OpusEncoder : IDisposable
     {

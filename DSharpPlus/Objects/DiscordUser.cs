@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus
+namespace DSharpPlus.Objects
 {
     /// <summary>
     /// 

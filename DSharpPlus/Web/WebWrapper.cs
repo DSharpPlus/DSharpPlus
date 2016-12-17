@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Enums;
 
-namespace DSharpPlus
+namespace DSharpPlus.Web
 {
     public static class WebWrapper
     {

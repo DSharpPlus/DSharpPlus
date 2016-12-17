@@ -1,8 +1,8 @@
-﻿using System;
+﻿using DSharpPlus.Objects;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
-    public class GuildCreateEventArgs : EventArgs
+    public class GuildCreateEventArgs : System.EventArgs
     {
         public DiscordGuild Guild;
     }

@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+﻿namespace DSharpPlus.Enums
 {
     /// <summary>
     /// Bitwise permission flags

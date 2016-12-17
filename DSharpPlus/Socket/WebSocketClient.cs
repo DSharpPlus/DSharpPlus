@@ -1,10 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
 using WebSocketSharp;
+using LogLevel = DSharpPlus.Enums.LogLevel;
 
-namespace DSharpPlus
+namespace DSharpPlus.Socket
 {
     internal class WebSocketClient : IDisposable
     {
@@ -35,7 +33,7 @@ namespace DSharpPlus
                 _socket.Close();
         }
 
-        private void _socket_OnOpen(object sender, EventArgs e)
+        private void _socket_OnOpen(object sender, System.EventArgs e)
         {
             SocketOpened?.Invoke(sender, e);
 

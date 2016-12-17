@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 
-namespace DSharpPlus
+namespace DSharpPlus.Web
 {
     public enum ContentType
     {
