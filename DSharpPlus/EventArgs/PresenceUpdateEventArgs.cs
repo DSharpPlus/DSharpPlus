@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using DSharpPlus.Objects;
+﻿using System;
+using System.Collections.Generic;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus
 {
-    public class PresenceUpdateEventArgs : System.EventArgs
+    public class PresenceUpdateEventArgs : EventArgs
     {
         public DiscordUser User;
         public List<ulong> RoleIDs;

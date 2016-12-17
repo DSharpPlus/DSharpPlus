@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DSharpPlus.Enums;
-using Newtonsoft.Json;
 
-namespace DSharpPlus.Objects
+namespace DSharpPlus
 {
     /// <summary>
     /// 

@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Threading.Tasks;
 
-namespace DSharpPlus.Objects
+namespace DSharpPlus
 {
     /// <summary>
     /// 

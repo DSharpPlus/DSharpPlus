@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace DSharpPlus.Web
+namespace DSharpPlus
 {
     public class WebResponse
     {

@@ -6,16 +6,7 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Enums;
-using DSharpPlus.EventArgs;
-using DSharpPlus.Interfaces;
-using DSharpPlus.Objects;
-using DSharpPlus.Socket;
-using DSharpPlus.Web;
 using WebSocketSharp;
-using LogLevel = DSharpPlus.Enums.LogLevel;
-using WebRequest = DSharpPlus.Web.WebRequest;
-using WebResponse = DSharpPlus.Web.WebResponse;
 
 namespace DSharpPlus
 {

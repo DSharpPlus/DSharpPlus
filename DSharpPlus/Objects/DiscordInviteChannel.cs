@@ -1,7 +1,6 @@
-﻿using DSharpPlus.Enums;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace DSharpPlus.Objects
+namespace DSharpPlus
 {
     /// <summary>
     /// 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DSharpPlus.Web
+namespace DSharpPlus
 {
     public class RateLimit
     {

@@ -1,8 +1,12 @@
-﻿using DSharpPlus.Objects;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus
 {
-    public class GuildMemberAddEventArgs : System.EventArgs
+    public class GuildMemberAddEventArgs : EventArgs
     {
         public DiscordMember Member;
         public ulong GuildID;

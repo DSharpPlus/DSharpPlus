@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Enums
+﻿namespace DSharpPlus
 {
     /// <summary>
     /// 

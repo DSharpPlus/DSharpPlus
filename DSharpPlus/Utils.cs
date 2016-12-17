@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using DSharpPlus.Enums;
-using DSharpPlus.Objects;
-using DSharpPlus.Web;
 
 namespace DSharpPlus
 {

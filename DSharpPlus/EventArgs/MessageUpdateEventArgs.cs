@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using DSharpPlus.Objects;
+﻿using System;
+using System.Collections.Generic;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus
 {
-    public class MessageUpdateEventArgs : System.EventArgs
+    public class MessageUpdateEventArgs : EventArgs
     {
         public DiscordMessage Message;
         public List<DiscordMember> MentionedUsers;

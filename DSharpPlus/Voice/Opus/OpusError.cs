@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Voice.Opus
+﻿namespace DSharpPlus
 {
     internal enum OpusError : int
     {

@@ -1,7 +1,7 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 
-namespace DSharpPlus.Objects
+namespace DSharpPlus
 {
     /// <summary>
     /// 

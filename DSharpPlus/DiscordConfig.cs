@@ -1,6 +1,4 @@
-﻿using DSharpPlus.Enums;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
     public class DiscordConfig
     {
