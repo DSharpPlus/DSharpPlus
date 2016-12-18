@@ -360,12 +360,14 @@ namespace DSharpPlus
                 await Task.Run(() =>
                 {
                     _heartbeatThread.Abort();
+                    
+                    _debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Websocket", $"Connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
 
                     if (!e.WasClean && config.AutoReconnect)
                     {
                         _websocketClient.Disconnect();
                         _websocketClient.Connect();
-                        DebugLogger.LogMessage(LogLevel.Critical, "Bot crashed. Reconnecting", DateTime.Now);
+                        DebugLogger.LogMessage(LogLevel.Critical, "Internal", "Bot crashed. Reconnecting", DateTime.Now);
                     }
                     SocketClosed?.Invoke(sender, e);
                 });
@@ -647,7 +649,7 @@ namespace DSharpPlus
                 case 11: await OnHeartbeatAck(obj); break;
                 default:
                     {
-                        DebugLogger.LogMessage(LogLevel.Warning, $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj.ToString()}", DateTime.Now);
+                        DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj.ToString()}", DateTime.Now);
                         break;
                     }
             }
@@ -690,7 +692,7 @@ namespace DSharpPlus
                 case "message_reaction_remove_all": await OnMessageReactionRemoveAll(obj); break;
                 default:
                     await OnUnknownEvent(obj);
-                    DebugLogger.LogMessage(LogLevel.Warning, $"Unknown event: {obj.Value<string>("t")}\n{obj["d"].ToString()}", DateTime.Now);
+                    DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown event: {obj.Value<string>("t")}\n{obj["d"].ToString()}", DateTime.Now);
                     break;
             }
         }
@@ -1261,7 +1263,7 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                _debugLogger.LogMessage(LogLevel.Info, "Received OP 7 - Reconnect. ", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect. ", DateTime.Now);
 
                 _websocketClient.Disconnect();
                 _websocketClient.Connect();
@@ -1282,14 +1284,14 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                _debugLogger.LogMessage(LogLevel.Unnecessary, "Received WebSocket Heartbeat Ack", DateTime.Now);
-                _debugLogger.LogMessage(LogLevel.Debug, $"Ping {(DateTime.Now - _lastHeartbeat).Milliseconds}ms", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {(DateTime.Now - _lastHeartbeat).Milliseconds}ms", DateTime.Now);
             });
         }
 
         internal void StartHeartbeating()
         {
-            _debugLogger.LogMessage(LogLevel.Unnecessary, "Starting WebSocket Heartbeating", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Starting Heartbeat", DateTime.Now);
             while (!_cancelToken.IsCancellationRequested)
             {
                 SendHeartbeat();
@@ -1299,7 +1301,6 @@ namespace DSharpPlus
 
         internal static void InternalUpdateStatus(string game = "", int idle_since = -1)
         {
-            _debugLogger.LogMessage(LogLevel.Unnecessary, "Updating user status", DateTime.Now);
             JObject update = new JObject();
             if (idle_since > -1)
                 update.Add("idle_since", idle_since);
@@ -1322,7 +1323,7 @@ namespace DSharpPlus
 
         internal void SendHeartbeat()
         {
-            _debugLogger.LogMessage(LogLevel.Unnecessary, "Sending WebSocket Heartbeat", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Sending Heartbeat", DateTime.Now);
             JObject obj = new JObject() {
                 { "op", 1 },
                 { "d", _sequence }
@@ -1899,18 +1900,26 @@ namespace DSharpPlus
         }
         #endregion
         #region Member
-        // TODO
-        internal async static Task<DiscordMember> InternalGetGuildMemberAsync(ulong guild_id, ulong id)
+        internal async static Task<List<DiscordMember>> InternalGetGuildMembers(ulong guild_id, int member_count)
         {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + $"/{guild_id}" + Endpoints.Members + $"/{id}";
+            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + guild_id + Endpoints.Members;
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
-            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            List<DiscordMember> result = new List<DiscordMember>();
+            int pages = (int)Math.Ceiling((double)member_count / 1000);
+            ulong lastId = 0;
 
-            //return DiscordMember.FromJson(response.Response);
-            return new DiscordMember();
+            for(int i = 0; i < pages; i++)
+            {
+                WebRequest request = await WebRequest.CreateRequestAsync($"{url}?limit=1000&after={lastId}", WebRequestMethod.GET, headers);
+                WebResponse response = await WebWrapper.HandleRequestAsync(request);
+
+                List<DiscordMember> items = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DiscordMember>>(response.Response);
+                result.AddRange(items);
+                lastId = items[items.Count - 1].User.ID;
+            }
+            return result;
         }
 
         internal async static Task<DiscordUser> InternalGetUser(string user)

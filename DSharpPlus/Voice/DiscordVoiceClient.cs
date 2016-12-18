@@ -82,7 +82,7 @@ namespace DSharpPlus.Voice
                 {
                     await Task.Run(() =>
                     {
-                        DiscordClient._debugLogger.LogMessage(LogLevel.Critical, $"Voiceconnection closed [WasClean: {e.WasClean.ToString()}]", DateTime.Now);
+                        DiscordClient._debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Voice-Websocket", $"Connection closed [WasClean: {e.WasClean.ToString()}]", DateTime.Now);
                     });
                 };
                 _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
@@ -103,7 +103,7 @@ namespace DSharpPlus.Voice
                     {
                         await Task.Run(() =>
                         {
-                            DiscordClient._debugLogger.LogMessage(LogLevel.Warning, $"Unknown Voice-OP-Code: {obj.Value<int>("op")}\n{obj.ToString()}", DateTime.Now);
+                            DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Voice-Websocket", $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj.ToString()}", DateTime.Now);
                         });
                         break;
                     }
@@ -139,8 +139,8 @@ namespace DSharpPlus.Voice
             {
                 _heartbeatInterval = obj["d"].ToObject<int>();
 
-                DiscordClient._debugLogger.LogMessage(LogLevel.Unnecessary, "Received Voice-Gateway Heartbeat Ack", DateTime.Now);
-                DiscordClient._debugLogger.LogMessage(LogLevel.Debug, $"Voice-Ping {(DateTime.Now - _lastHeartbeat).Milliseconds}ms", DateTime.Now);
+                DiscordClient._debugLogger.LogMessage(LogLevel.Unnecessary, "Voice-Websocket", "Received Heartbeat Ack", DateTime.Now);
+                DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "Voice-Websocket", $"Ping {(DateTime.Now - _lastHeartbeat).Milliseconds}ms", DateTime.Now);
             });
         }
         internal async Task OnSessionDescriptionEvent(JObject obj)
@@ -170,7 +170,7 @@ namespace DSharpPlus.Voice
 
         internal async Task StartHeartbeating()
         {
-            DiscordClient._debugLogger.LogMessage(LogLevel.Unnecessary, "Starting Voice-Gateway Heartbeating", DateTime.Now);
+            DiscordClient._debugLogger.LogMessage(LogLevel.Unnecessary, "Voice-Wbsocket", "Starting Heartbeat", DateTime.Now);
             while (!DiscordClient._cancelToken.IsCancellationRequested)
             {
                 await SendHeartbeat();
@@ -182,7 +182,7 @@ namespace DSharpPlus.Voice
         {
             await Task.Run(() =>
             {
-                DiscordClient._debugLogger.LogMessage(LogLevel.Unnecessary, "Sending Voice-Gateway Heartbeat", DateTime.Now);
+                DiscordClient._debugLogger.LogMessage(LogLevel.Unnecessary, "Voice-Websocket", "Sending Heartbeat", DateTime.Now);
                 JObject obj = new JObject()
                 {
                     { "op", 3 },

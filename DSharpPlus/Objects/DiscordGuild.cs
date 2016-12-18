@@ -160,6 +160,8 @@ namespace DSharpPlus
         public async Task<List<DiscordWebhook>> GetWebhooks() => await DiscordClient.InternalGetGuildWebhooks(ID);
         public async Task RemoveMember(DiscordUser user) => await DiscordClient.InternalRemoveGuildMember(ID, user.ID);
         public async Task RemoveMember(ulong UserID) => await DiscordClient.InternalRemoveGuildMember(ID, UserID);
+        public async Task<DiscordMember> GetMember(ulong UserID) => await DiscordClient.InternalGetGuildMember(ID, UserID);
+        public async Task<List<DiscordMember>> GetAllMembers() => await DiscordClient.InternalGetGuildMembers(ID, MemberCount);
         #endregion
 
     }

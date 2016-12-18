@@ -8,7 +8,9 @@ namespace DSharpPlus.Commands
 {
     public class CommandModule : IModule
     {
-        private CommandConfig config { get; set; }
+        internal static CommandModule instance;
+
+        internal CommandConfig config { get; set; }
 
         public DiscordClient Client { get; set; }
 
@@ -17,11 +19,15 @@ namespace DSharpPlus.Commands
         public CommandModule()
         {
             config = new CommandConfig();
+
+            instance = this;
         }
 
         public CommandModule(CommandConfig config)
         {
             this.config = config;
+
+            instance = this;
         }
 
         public void Setup(DiscordClient client)
@@ -31,10 +37,10 @@ namespace DSharpPlus.Commands
             Client.MessageCreated += (sender, e) =>
             {
                 if (((e.Message.Author.ID != Client.Me.ID && !config.SelfBot) || (e.Message.Author.ID == Client.Me.ID && config.SelfBot))
-                        && e.Message.Content.StartsWith(new string(new char[] { config.Prefix })))
+                        && e.Message.Content.StartsWith(config.Prefix))
                 {
                     string[] split = e.Message.Content.Split(new char[] { ' ' });
-                    string cmdName = split[0].Substring(1);
+                    string cmdName = split[0].Substring(config.Prefix.Length);
 
                     foreach (Command command in _commands)
                     {
@@ -52,7 +58,7 @@ namespace DSharpPlus.Commands
             Command cmd = new Command(command, Do);
             _commands.Add(cmd);
 
-            Client.DebugLogger.LogMessage(LogLevel.Debug, $"Command added {command}", DateTime.Now);
+            Client.DebugLogger.LogMessage(LogLevel.Debug, "Command", $"Command added {command}", DateTime.Now);
 
             return cmd;
         }

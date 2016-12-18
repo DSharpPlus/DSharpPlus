@@ -9,6 +9,6 @@ namespace DSharpPlus.Commands
     public class CommandConfig
     {
         public bool SelfBot { get; set; } = false;
-        public char Prefix { get; set; } = '.';
+        public string Prefix { get; set; } = ".";
     }
 }

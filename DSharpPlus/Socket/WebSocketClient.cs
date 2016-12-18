@@ -38,18 +38,11 @@ namespace DSharpPlus
         private void _socket_OnOpen(object sender, EventArgs e)
         {
             SocketOpened?.Invoke(sender, e);
-
-            DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "WebSocket connection opened", DateTime.Now);
         }
 
         private void _socket_OnClose(object sender, CloseEventArgs e)
         {
             SocketClosed?.Invoke(sender, e);
-
-            if (e.WasClean)
-                DiscordClient._debugLogger.LogMessage(LogLevel.Debug, $"WebSocket connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
-            else
-                DiscordClient._debugLogger.LogMessage(LogLevel.Warning, $"WebSocket connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
         }
 
         private void _socket_OnMessage(object sender, MessageEventArgs e)

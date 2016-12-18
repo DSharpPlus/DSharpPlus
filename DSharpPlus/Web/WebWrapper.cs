@@ -209,7 +209,7 @@ namespace DSharpPlus
             {
                 if (rateLimit.UsesLeft == 0 && rateLimit.Reset > time)
                 {
-                    DiscordClient._debugLogger.LogMessage(LogLevel.Warning, $"Rate-limitted. Waiting till {rateLimit.Reset.ToString()}", DateTime.Now);
+                    DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Internal", $"Rate-limitted. Waiting till {rateLimit.Reset.ToString()}", DateTime.Now);
                     await Task.Delay((rateLimit.Reset - time));
                 }
                 else if(rateLimit.UsesLeft == 0 && rateLimit.Reset < time)
