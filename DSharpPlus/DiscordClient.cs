@@ -913,7 +913,7 @@ namespace DSharpPlus
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 GuildIntegrationsUpdateEventArgs args = new GuildIntegrationsUpdateEventArgs() { GuildID = guildID };
-                GuildIntegrationsUpdate.Invoke(this, args);
+                GuildIntegrationsUpdate?.Invoke(this, args);
             });
         }
         internal async Task OnGuildMemberAddEvent(JObject obj)
