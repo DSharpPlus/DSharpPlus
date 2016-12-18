@@ -572,6 +572,10 @@ namespace DSharpPlus
         /// <param name="idle_since"></param>
         /// <returns></returns>
         public async Task UpdateStatus(string game = "", int idle_since = -1) => InternalUpdateStatus(game, idle_since);
+
+        public async static Task ModifyMember(ulong GuildID, ulong MemberID, string Nickname, List<DiscordRole> Roles, bool Muted, bool Deaf, ulong VoiceChannelID) =>
+            await InternalModifyGuildMember(GuildID, MemberID, Nickname, Roles, Muted, Deaf, VoiceChannelID);
+
         #endregion
 
         #region Unsorted / Testing / Not working

@@ -164,6 +164,15 @@ namespace DSharpPlus
 
             await DiscordClient.OpenVoiceConnection(this, false, false);
         }
+
+        public async Task PlaceMember(ulong MemberID)
+        {
+            if (Type == ChannelType.Voice)
+            {
+                await DiscordClient.InternalModifyGuildMember(Parent.ID, MemberID, VoiceChannelID: ID);
+            }
+        }
+
         #endregion
 
     }
