@@ -69,7 +69,7 @@ namespace DSharpPlus
         /// <summary>
         /// Mentions the channel similar to how a client would
         /// </summary>
-        public string Mention => $"<#{ID}>";
+        public string Mention => Formatter.Mention(this);
 
         #region Functions
         /// <summary>

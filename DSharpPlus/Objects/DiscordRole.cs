@@ -45,6 +45,6 @@ namespace DSharpPlus
         /// <summary>
         /// Mentions the role similar to how a client would, if the role is mentionable
         /// </summary>
-        public string Mention => $"<@&ID}>";
+        public string Mention => Formatter.Mention(this);
     }
 }
