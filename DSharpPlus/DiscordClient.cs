@@ -1709,7 +1709,7 @@ await Connect(tokenOverride, tokenType);
         }
 
         // TODO
-        internal async static Task InternalModifyGuildChannelPosition(ulong GuildID, ulong ChannelID, int position)
+        internal static async Task InternalModifyGuildChannelPosition(ulong GuildID, ulong ChannelID, int position)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Channels;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1720,7 +1720,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task<List<DiscordMessage>> InternalGetChannelMessages(ulong ChannelID, ulong around = 0, ulong before = 0, ulong after = 0, int limit = -1)
+        internal static async Task<List<DiscordMessage>> InternalGetChannelMessages(ulong ChannelID, ulong around = 0, ulong before = 0, ulong after = 0, int limit = -1)
         {
             // ONLY ONE OUT OF around, before or after MAY BE USED.
             // THESE ARE MESSAGE ID's
@@ -1748,7 +1748,7 @@ await Connect(tokenOverride, tokenType);
             return messages;
         }
 
-        internal async static Task<DiscordMessage> InternalGetChannelMessage(ulong ChannelID, ulong MessageID)
+        internal static async Task<DiscordMessage> InternalGetChannelMessage(ulong ChannelID, ulong MessageID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1757,7 +1757,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 
-        internal async static Task<DiscordMessage> InternalEditMessage(ulong ChannelID, ulong MessageID, string content)
+        internal static async Task<DiscordMessage> InternalEditMessage(ulong ChannelID, ulong MessageID, string content)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1768,7 +1768,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 
-        internal async static Task InternalDeleteMessage(ulong ChannelID, ulong MessageID)
+        internal static async Task InternalDeleteMessage(ulong ChannelID, ulong MessageID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1776,7 +1776,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalBulkDeleteMessages(ulong ChannelID, List<ulong> MessageIDs)
+        internal static async Task InternalBulkDeleteMessages(ulong ChannelID, List<ulong> MessageIDs)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + Endpoints.BulkDelete;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1791,7 +1791,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task<List<DiscordInvite>> InternalGetChannelInvites(ulong ChannelID)
+        internal static async Task<List<DiscordInvite>> InternalGetChannelInvites(ulong ChannelID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Invites;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1806,7 +1806,7 @@ await Connect(tokenOverride, tokenType);
             return invites;
         }
 
-        internal async static Task<DiscordInvite> InternalCreateChannelInvite(ulong ChannelID, int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false)
+        internal static async Task<DiscordInvite> InternalCreateChannelInvite(ulong ChannelID, int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Invites;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1820,7 +1820,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
 
-        internal async static Task InternalDeleteChannelPermission(ulong ChannelID, ulong OverwriteID)
+        internal static async Task InternalDeleteChannelPermission(ulong ChannelID, ulong OverwriteID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Permissions + "/" + OverwriteID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1828,7 +1828,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalTriggerTypingIndicator(ulong ChannelID)
+        internal static async Task InternalTriggerTypingIndicator(ulong ChannelID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Typing;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1836,7 +1836,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task<List<DiscordMessage>> InternalGetPinnedMessages(ulong ChannelID)
+        internal static async Task<List<DiscordMessage>> InternalGetPinnedMessages(ulong ChannelID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1851,7 +1851,7 @@ await Connect(tokenOverride, tokenType);
             return messages;
         }
 
-        internal async static Task InternalAddPinnedChannelMessage(ulong ChannelID, ulong MessageID)
+        internal static async Task InternalAddPinnedChannelMessage(ulong ChannelID, ulong MessageID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1859,7 +1859,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalDeletePinnedChannelMessage(ulong ChannelID, ulong MessageID)
+        internal static async Task InternalDeletePinnedChannelMessage(ulong ChannelID, ulong MessageID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1867,7 +1867,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalGroupDMAddRecipient(ulong ChannelID, ulong UserID, string AccessToken)
+        internal static async Task InternalGroupDMAddRecipient(ulong ChannelID, ulong UserID, string AccessToken)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Recipients + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1877,7 +1877,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalGroupDMRemoveRecipient(ulong ChannelID, ulong UserID)
+        internal static async Task InternalGroupDMRemoveRecipient(ulong ChannelID, ulong UserID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Recipients + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1886,7 +1886,7 @@ await Connect(tokenOverride, tokenType);
         }
 
 
-        internal async static Task InternalEditChannelPermissions(ulong ChannelID, ulong OverwriteID, int allow, int deny, string type)
+        internal static async Task InternalEditChannelPermissions(ulong ChannelID, ulong OverwriteID, int allow, int deny, string type)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Permissions + "/" + OverwriteID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1898,7 +1898,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task<DiscordDMChannel> InternalCreateDM(ulong RecipientID)
+        internal static async Task<DiscordDMChannel> InternalCreateDM(ulong RecipientID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Channels;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1909,7 +1909,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
         }
 
-        internal async static Task<DiscordDMChannel> InternalCreateGroupDM(List<string> access_tokens)
+        internal static async Task<DiscordDMChannel> InternalCreateGroupDM(List<string> access_tokens)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Channels;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1924,7 +1924,7 @@ await Connect(tokenOverride, tokenType);
         }
         #endregion
         #region Member
-        internal async static Task<List<DiscordMember>> InternalGetGuildMembers(ulong guild_id, int member_count)
+        internal static async Task<List<DiscordMember>> InternalGetGuildMembers(ulong guild_id, int member_count)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + guild_id + Endpoints.Members;
             WebHeaderCollection headers = new WebHeaderCollection();
@@ -1946,7 +1946,7 @@ await Connect(tokenOverride, tokenType);
             return result;
         }
 
-        internal async static Task<DiscordUser> InternalGetUser(string user)
+        internal static async Task<DiscordUser> InternalGetUser(string user)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + $"/{user}";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1957,7 +1957,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
 
-        internal async static Task<DiscordMember> InternalGetGuildMember(ulong GuildID, ulong MemberID)
+        internal static async Task<DiscordMember> InternalGetGuildMember(ulong GuildID, ulong MemberID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + "/" + MemberID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1966,7 +1966,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
         }
 
-        internal async static Task InternalRemoveGuildMember(ulong GuildID, ulong UserID)
+        internal static async Task InternalRemoveGuildMember(ulong GuildID, ulong UserID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1974,7 +1974,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task<DiscordUser> InternalGetCurrentUser()
+        internal static async Task<DiscordUser> InternalGetCurrentUser()
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1983,7 +1983,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
 
-        internal async static Task<DiscordUser> InternalGetUser(ulong UserID)
+        internal static async Task<DiscordUser> InternalGetUser(ulong UserID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1992,7 +1992,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
 
-        internal async static Task<DiscordUser> InternalModifyCurrentUser(string username = "", string base64avatar = "")
+        internal static async Task<DiscordUser> InternalModifyCurrentUser(string username = "", string base64avatar = "")
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2006,7 +2006,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
 
-        internal async static Task<List<DiscordGuild>> InternalGetCurrentUserGuilds()
+        internal static async Task<List<DiscordGuild>> InternalGetCurrentUserGuilds()
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Guilds;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2034,7 +2034,7 @@ await Connect(tokenOverride, tokenType);
             return new List<DiscordRole>();
         }
 
-        internal async static Task<DiscordGuild> InternalGetGuild(ulong GuildID)
+        internal static async Task<DiscordGuild> InternalGetGuild(ulong GuildID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2052,7 +2052,7 @@ await Connect(tokenOverride, tokenType);
             return guild;
         }
 
-        internal async static Task<DiscordGuild> InternalModifyGuild(string name = "", string region = "", string icon = "", int verification_level = -1,
+        internal static async Task<DiscordGuild> InternalModifyGuild(string name = "", string region = "", string icon = "", int verification_level = -1,
             int default_message_notifications = -1, ulong afk_channel_id = 0, int afk_timeout = -1, ulong owner_id = 0, string splash = "")
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds;
@@ -2082,7 +2082,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
 
-        internal async static Task<DiscordGuild> InternalDeleteGuild(ulong GuildID)
+        internal static async Task<DiscordGuild> InternalDeleteGuild(ulong GuildID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2091,7 +2091,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
 
-        internal async static Task<DiscordRole> InternalModifyGuildRole(ulong GuildID, ulong RoleID, string name, int permissions, int position, int color, bool separate, bool mentionable)
+        internal static async Task<DiscordRole> InternalModifyGuildRole(ulong GuildID, ulong RoleID, string name, int permissions, int position, int color, bool separate, bool mentionable)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Roles + RoleID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2107,7 +2107,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
         }
 
-        internal async static Task<DiscordRole> InternalDeleteRole(ulong GuildID, ulong RoleID)
+        internal static async Task<DiscordRole> InternalDeleteRole(ulong GuildID, ulong RoleID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Roles + "/" + RoleID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2116,7 +2116,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
         }
 
-        internal async static Task<DiscordRole> InternalCreateGuildRole(ulong GuildID)
+        internal static async Task<DiscordRole> InternalCreateGuildRole(ulong GuildID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2128,7 +2128,7 @@ await Connect(tokenOverride, tokenType);
         #endregion
         #region Prune
         // TODO
-        internal async static Task<int> InternalGetGuildPruneCount(ulong GuildID, int days)
+        internal static async Task<int> InternalGetGuildPruneCount(ulong GuildID, int days)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Prune;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2141,7 +2141,7 @@ await Connect(tokenOverride, tokenType);
         }
 
         // TODO
-        internal async static Task<int> InternalBeginGuildPrune(ulong GuildID, int days)
+        internal static async Task<int> InternalBeginGuildPrune(ulong GuildID, int days)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Prune;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2155,7 +2155,7 @@ await Connect(tokenOverride, tokenType);
         #endregion
         #region GuildVarious
 
-        internal async static Task<List<DiscordIntegration>> InternalGetGuildIntegrations(ulong GuildID)
+        internal static async Task<List<DiscordIntegration>> InternalGetGuildIntegrations(ulong GuildID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2170,7 +2170,7 @@ await Connect(tokenOverride, tokenType);
             return integrations;
         }
 
-        internal async static Task<DiscordIntegration> InternalCreateGuildIntegration(ulong GuildID, string type, ulong ID)
+        internal static async Task<DiscordIntegration> InternalCreateGuildIntegration(ulong GuildID, string type, ulong ID)
         {
             // Attach from user
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations;
@@ -2183,7 +2183,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
         }
 
-        internal async static Task<DiscordIntegration> InternalModifyGuildIntegration(ulong GuildID, ulong IntegrationID, int expire_behaviour,
+        internal static async Task<DiscordIntegration> InternalModifyGuildIntegration(ulong GuildID, ulong IntegrationID, int expire_behaviour,
             int expire_grace_period, bool enable_emoticons)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations + "/" + IntegrationID;
@@ -2197,7 +2197,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
         }
 
-        internal async static Task InternalDeleteGuildIntegration(ulong GuildID, DiscordIntegration integration)
+        internal static async Task InternalDeleteGuildIntegration(ulong GuildID, DiscordIntegration integration)
         {
             ulong IntegrationID = integration.ID;
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations + "/" + IntegrationID;
@@ -2207,7 +2207,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await request.HandleRequestAsync();
         }
 
-        internal async static Task InternalSyncGuildIntegration(ulong GuildID, ulong IntegrationID)
+        internal static async Task InternalSyncGuildIntegration(ulong GuildID, ulong IntegrationID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations + "/" + IntegrationID + Endpoints.Sync;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2215,7 +2215,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await request.HandleRequestAsync();
         }
 
-        internal async static Task<DiscordGuildEmbed> InternalGetGuildEmbed(ulong GuildID)
+        internal static async Task<DiscordGuildEmbed> InternalGetGuildEmbed(ulong GuildID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Embed;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2224,7 +2224,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordGuildEmbed>(response.Response);
         }
 
-        internal async static Task<DiscordGuildEmbed> InternalModifyGuildEmbed(ulong GuildID, DiscordGuildEmbed embed)
+        internal static async Task<DiscordGuildEmbed> InternalModifyGuildEmbed(ulong GuildID, DiscordGuildEmbed embed)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Embed;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2234,7 +2234,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordGuildEmbed>(response.Response);
         }
 
-        internal async static Task<List<DiscordVoiceRegion>> InternalGetGuildVoiceRegions(ulong GuildID)
+        internal static async Task<List<DiscordVoiceRegion>> InternalGetGuildVoiceRegions(ulong GuildID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Regions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2249,7 +2249,7 @@ await Connect(tokenOverride, tokenType);
             return regions;
         }
 
-        internal async static Task<List<DiscordInvite>> InternalGetGuildInvites(ulong GuildID)
+        internal static async Task<List<DiscordInvite>> InternalGetGuildInvites(ulong GuildID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Invites;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2266,7 +2266,7 @@ await Connect(tokenOverride, tokenType);
 
         #endregion
         #region Invite
-        internal async static Task<DiscordInvite> InternalGetInvite(string InviteCode)
+        internal static async Task<DiscordInvite> InternalGetInvite(string InviteCode)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2275,7 +2275,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
 
-        internal async static Task<DiscordInvite> InternalDeleteInvite(string InviteCode)
+        internal static async Task<DiscordInvite> InternalDeleteInvite(string InviteCode)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2284,7 +2284,7 @@ await Connect(tokenOverride, tokenType);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
 
-        internal async static Task<DiscordInvite> InternalAcceptInvite(string InviteCode)
+        internal static async Task<DiscordInvite> InternalAcceptInvite(string InviteCode)
         {
             // USER ONLY
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
@@ -2295,7 +2295,7 @@ await Connect(tokenOverride, tokenType);
         }
         #endregion
         #region Connections
-        internal async static Task<List<DiscordConnection>> InternalGetUsersConnections()
+        internal static async Task<List<DiscordConnection>> InternalGetUsersConnections()
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Connections;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2310,7 +2310,7 @@ await Connect(tokenOverride, tokenType);
         }
         #endregion
         #region Voice
-        internal async static Task<List<DiscordVoiceRegion>> InternalListVoiceRegions()
+        internal static async Task<List<DiscordVoiceRegion>> InternalListVoiceRegions()
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Voice + Endpoints.Regions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2468,7 +2468,7 @@ await Connect(tokenOverride, tokenType);
 
         #endregion
         #region Reactions
-        internal async static Task InternalCreateReaction(ulong ChannelID, ulong MessageID, string Emoji)
+        internal static async Task InternalCreateReaction(ulong ChannelID, ulong MessageID, string Emoji)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2476,7 +2476,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalDeleteOwnReaction(ulong ChannelID, ulong MessageID, string Emoji)
+        internal static async Task InternalDeleteOwnReaction(ulong ChannelID, ulong MessageID, string Emoji)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2484,7 +2484,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task InternalDeleteUserReaction(ulong ChannelID, ulong MessageID, ulong UserID, string Emoji)
+        internal static async Task InternalDeleteUserReaction(ulong ChannelID, ulong MessageID, ulong UserID, string Emoji)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2492,7 +2492,7 @@ await Connect(tokenOverride, tokenType);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
-        internal async static Task<List<DiscordUser>> InternalGetReactions(ulong ChannelID, ulong MessageID, string Emoji)
+        internal static async Task<List<DiscordUser>> InternalGetReactions(ulong ChannelID, ulong MessageID, string Emoji)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -2506,7 +2506,7 @@ await Connect(tokenOverride, tokenType);
             return reacters;
         }
 
-        internal async static Task InternalDeleteAllReactions(ulong ChannelID, ulong MessageID)
+        internal static async Task InternalDeleteAllReactions(ulong ChannelID, ulong MessageID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();

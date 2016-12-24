@@ -30,7 +30,7 @@ namespace DSharpPlus
         /// <summary>
         /// Whether the user belongs to an oauth2 application
         /// </summary>
-        [JsonProperty("is_bot", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsBot { get; internal set; }
         /// <summary>
         /// Whether the user has tho factor enabled
