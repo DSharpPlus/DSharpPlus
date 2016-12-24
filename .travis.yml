@@ -9,3 +9,9 @@ install:
 script:
   - xbuild /p:Configuration=Release /p:AllowUnsafeBlocks=true DSharpPlus.sln
 #  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./MyPoject.Tests/bin/Release/MyProject.Tests.dll
+notifications:
+  webhooks:
+    urls:
+      - https://discordapp.com/api/webhooks/262279541878161408/rwpyCAaVO6lvX2D1B3NlY5lf4-QMeDpIdc1KHg94asWxAFmf_KXbj_Z2eFsS6Qb1OAn4
+    on_success: always
+    on_failure: always
