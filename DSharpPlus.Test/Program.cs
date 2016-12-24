@@ -44,7 +44,7 @@ namespace DSharpPlus.Test
 
             client.UseCommands(new CommandConfig()
             {
-                Prefix = '!',
+                Prefix = '!'.ToString(),
                 SelfBot = false
             });
             client.AddCommand("test", async (x) =>
@@ -186,7 +186,7 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
 
             client.MessageReactionRemoveAll += (sender, e) =>
             {
-                client.DebugLogger.LogMessage(LogLevel.Debug, "All reactions got removed for message id: " + e.MessageID + " in channel: " + e.ChannelID, DateTime.Now);
+                client.DebugLogger.LogMessage(LogLevel.Debug, $"All reactions got removed for message id: {e.MessageID} in channel: {e.ChannelID}", DateTime.Now);
             };
 
             client.UserSpeaking += async (sender, e) =>
