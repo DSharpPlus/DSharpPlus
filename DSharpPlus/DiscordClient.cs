@@ -959,7 +959,7 @@ await Connect(tokenOverride, tokenType);
             await Task.Run(() =>
             {
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());\
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 string nick = "";
                 nick = obj["d"]["nick"].ToString();
                 List<ulong> roles = new List<ulong>();
