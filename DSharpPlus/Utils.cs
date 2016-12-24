@@ -35,7 +35,6 @@ namespace DSharpPlus
                     {
                         return $"Bot {DiscordClient.config.Token}";
                     }
-                case TokenType.User:
                 default:
                     {
                         return DiscordClient.config.Token;
@@ -53,7 +52,7 @@ namespace DSharpPlus
 
         public static string GetUserAgent()
         {
-            return $"DiscordBot (https://github.com/NaamloosDT/DSharpPlus, 1.0)";
+            return "DiscordBot (https://github.com/NaamloosDT/DSharpPlus, 1.1)";
         }
 
         public static bool ContainsUserMentions(string message)

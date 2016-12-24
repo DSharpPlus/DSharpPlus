@@ -959,7 +959,7 @@ await Connect(tokenOverride, tokenType);
             await Task.Run(() =>
             {
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());\
                 string nick = "";
                 nick = obj["d"]["nick"].ToString();
                 List<ulong> roles = new List<ulong>();
@@ -2381,7 +2381,7 @@ await Connect(tokenOverride, tokenType);
         internal static async Task<DiscordWebhook> InternalGetWebhookWithToken(ulong WebhookID, string WebhookToken)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET);
+            WebRequest request = await WebRequest.CreateRequestAsync(url);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2420,7 +2420,7 @@ await Connect(tokenOverride, tokenType);
         internal static async Task InternalDeleteWebhook(ulong WebhookID, string WebhookToken)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET);
+            WebRequest request = await WebRequest.CreateRequestAsync(url);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 

@@ -130,7 +130,7 @@ namespace DSharpPlus.Voice
 
         public void WriteByteToBuffer(byte value, int offset, bool reverse = false)
         {
-            byte[] bValue = new byte[1] { value };
+            byte[] bValue = new byte[] { value };
             if (reverse) bValue = bValue.Reverse().ToArray();
             ResizeBuffer(offset, bValue.Length);
             Buffer.BlockCopy(bValue, 0, buff, offset, bValue.Length);

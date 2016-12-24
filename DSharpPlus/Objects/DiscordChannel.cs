@@ -165,7 +165,7 @@ namespace DSharpPlus
             if (Type == ChannelType.Text)
                 throw new NotSupportedException();
 
-            await DiscordClient.OpenVoiceConnection(this, false, false);
+            await DiscordClient.OpenVoiceConnection(this);
         }
 
         public async Task PlaceMember(ulong MemberID)

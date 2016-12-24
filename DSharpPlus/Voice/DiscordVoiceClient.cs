@@ -256,7 +256,7 @@ namespace DSharpPlus.Voice
 
             VoicePacket packet = VoicePacket.Create(buffer);
             ByteBuffer nonce = new ByteBuffer(24);
-            nonce.WriteByteArrayToBuffer(packet.GetHeader(), 0, false);
+            nonce.WriteByteArrayToBuffer(packet.GetHeader(), 0);
 
             buffer = SecretBox.Open(packet.GetData(), nonce.GetBuffer(), __secretKey);
 
