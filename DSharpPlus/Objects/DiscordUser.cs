@@ -54,5 +54,4 @@ namespace DSharpPlus
         /// </summary>
         public string Mention => $"<@{ID}>"; 
     }
-    }
 }
