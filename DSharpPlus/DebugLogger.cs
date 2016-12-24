@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,6 +60,45 @@ namespace DSharpPlus
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine($" {e.Message}");
+        }
+
+        public void LogMessage(LogLevel level, string messageToLog, DateTime timeToLog)
+        {
+            switch (level)
+            {
+                case LogLevel.Unnecessary:
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        break;
+                    }
+                case LogLevel.Debug:
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        break;
+                    }
+                case LogLevel.Info:
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        break;
+                    }
+                case LogLevel.Warning:
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        break;
+                    }
+                case LogLevel.Error:
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        break;
+                    }
+                case LogLevel.Critical:
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkRed;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        break;
+                    }
+            }
+            Console.WriteLine($"[{timeToLog}] | {messageToLog}");
         }
     }
 
