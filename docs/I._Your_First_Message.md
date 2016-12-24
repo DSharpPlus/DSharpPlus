@@ -63,4 +63,4 @@ Inside that if statement, we will ahve the bot send a message. This line of code
 Now, compile and run the bot. In a channel that both you and the bot can post in, type "!hello" and you should receive a message back.
 
 ## Where to from here
-Wait for more docs!
+Proceed to "Commands Module" page.
