@@ -10,7 +10,7 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 4. Search for "DSharpPlus" and install the latest version
 5. Done!
 
-## Compiling by yourself
+### Compiling by yourself
 1. Download the Git repository
 2. Open the project in Visual Studio
 3. Build

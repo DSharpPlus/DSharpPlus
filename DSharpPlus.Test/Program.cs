@@ -51,14 +51,13 @@ namespace DSharpPlus.Test
             {
                 await x.Message.Parent.SendMessage("boi");
             });
+
             client.AddCommand("testerino", async (x) =>
             {
                 await client.SendMessage(x.Message.ChannelID, "ye works");
-                await client.SendMessage(x.Message.ChannelID, $@"```
-Servername: {x.Message.Parent.Parent.Name}
-Serverowner: {x.Message.Parent.Parent.OwnerID}
-```");
+                await client.SendMessage(x.Message.ChannelID, $@"```Servername: {x.Message.Parent.Parent.Name}\nServerowner: {x.Message.Parent.Parent.OwnerID}```");
             });
+
             client.AddCommand("voice", async (x) =>
             {
                 DiscordChannel channel = client.Guilds[206863986690359296].Channels.First(y => y.Type == ChannelType.Voice);
