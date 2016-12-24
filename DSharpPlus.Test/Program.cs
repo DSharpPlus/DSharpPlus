@@ -1,6 +1,5 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Commands;
-using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,13 +15,6 @@ namespace DSharpPlus.Test
 
         public async Task Run(string[] args)
         {
-            BufferedWaveProvider _playBuffer = new BufferedWaveProvider(new WaveFormat(48000, 2));
-            _playBuffer.BufferDuration = TimeSpan.Parse("00:00:10");
-            WaveOut _waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback());
-            _waveOut.DeviceNumber = 0;
-            _waveOut.Init(_playBuffer);
-            _waveOut.Play();
-
             if (!File.Exists("token.txt"))
             {
                 Console.WriteLine("Please create a \"token.txt\" file with your bot's token inside.");
@@ -38,13 +30,12 @@ namespace DSharpPlus.Test
                 LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true,
                 AutoReconnect = true,
-                VoiceApplication = VoiceApplication.Music,
                 VoiceSettings = VoiceSettings.None
             });
 
             client.UseCommands(new CommandConfig()
             {
-                Prefix = '!'.ToString(),
+                Prefix = "!",
                 SelfBot = false
             });
             client.AddCommand("test", async (x) =>
@@ -55,17 +46,12 @@ namespace DSharpPlus.Test
             client.AddCommand("testerino", async (x) =>
             {
                 await client.SendMessage(x.Message.ChannelID, "ye works");
-                await client.SendMessage(x.Message.ChannelID, $@"```Servername: {x.Message.Parent.Parent.Name}\nServerowner: {x.Message.Parent.Parent.OwnerID}```");
+                await client.SendMessage(x.Message.ChannelID, $@"```
+Servername: {x.Message.Parent.Parent.Name}
+Serverowner: {x.Message.Parent.Parent.OwnerID}
+```");
             });
 
-            client.AddCommand("voice", async (x) =>
-            {
-                DiscordChannel channel = client.Guilds[206863986690359296].Channels.First(y => y.Type == ChannelType.Voice);
-
-                await channel.ConnectToVoice();
-                await x.Message.Respond($"Trying to connect to voice (Check console for missing events). Buffer Duration: {_playBuffer.BufferDuration}");
-
-            });
             client.AddCommand("kill", async (x) =>
             {
                 await x.Message.Respond($"Cya o/");
@@ -74,12 +60,6 @@ namespace DSharpPlus.Test
                 await Task.Delay(-1);
             });
 
-            client.AddCommand("buffer", async (x) =>
-            {
-                _playBuffer.BufferDuration = TimeSpan.Parse(x.Message.Content.Split(new char[] { ' ' }, 2)[1]);
-
-                await x.Message.Respond($"New Buffer Duration: {_playBuffer.BufferDuration}");
-            });
 
             client.AddCommand("clearChannel", async (x) =>
             {
@@ -179,7 +159,7 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
 
                 if (e.Message.Content.StartsWith("!!restart"))
                 {
-                    client.Reconnect();
+                    await client.Reconnect();
                 }
             };
 
@@ -190,28 +170,7 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
 
             client.MessageReactionRemoveAll += (sender, e) =>
             {
-                client.DebugLogger.LogMessage(LogLevel.Debug, $"All reactions got removed for message id: {e.MessageID} in channel: {e.ChannelID}", DateTime.Now);
-            };
-
-            client.UserSpeaking += async (sender, e) =>
-            {
-                await Task.Run(() =>
-                {
-                    Console.WriteLine($"{e.UserID} [Speaking: {e.Speaking} | SSRC: {e.ssrc}]");
-                });
-            };
-
-            client.VoiceReceived += async (sender, e) =>
-            {
-                await Task.Run(() =>
-                {
-                    if (e.UserID != 0)
-                    {
-                        Console.WriteLine($"Receiving Voice [SSRC: {e.SSRC} | User: {e.UserID} | Length: {e.VoiceLength}]");
-
-                        _playBuffer.AddSamples(e.Voice, 0, e.VoiceLength);
-                    }
-                });
+                client.DebugLogger.LogMessage(LogLevel.Debug, "Client", $"All reactions got removed for message id: {e.MessageID} in channel: {e.ChannelID}", DateTime.Now);
             };
 
             await client.Connect();
