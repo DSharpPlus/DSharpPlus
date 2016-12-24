@@ -42,5 +42,9 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
         public bool Mentionable { get; internal set; }
+        /// <summary>
+        /// Mentions the role similar to how a client would, if the role is mentionable
+        /// </summary>
+        public string Mention => $"<@{ID}>";
     }
 }

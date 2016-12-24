@@ -67,6 +67,10 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
         public int UserLimit { get; internal set; }
+        /// <summary>
+        /// Mentions the channel similar to how a client would
+        /// </summary>
+        public string Mention => $"<#{ID}>";
 
         #region Functions
         /// <summary>
