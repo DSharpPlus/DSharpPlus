@@ -1,5 +1,7 @@
 The Commands Module
 ===================
+Please note: The Commands Module is WIP and very basic.
+
 ## Installation
 Currently, the commands module is separate from the main module. Also, unlike the main module there is no NuGet package for it yet.
 
