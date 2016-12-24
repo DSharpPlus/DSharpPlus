@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
@@ -17,7 +17,7 @@ namespace DSharpPlus
         /// The create date of the current object
         /// </summary>
         [JsonIgnore]
-        public DateTime CreationDate => new DateTime(2015, 1, 1).AddMilliseconds(this.ID >> 22);
+        public DateTime CreationDate => new DateTime(2015, 1, 1).AddMilliseconds(ID >> 22);
 
         internal SnowflakeObject() { }
     }

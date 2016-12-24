@@ -17,8 +17,8 @@ namespace DSharpPlus
         internal static extern void opus_encoder_destroy(IntPtr encoder);
 
         public OpusError Errors;
-        public int sample_rate { get; internal set; } = 0;
-        public int channels { get; internal set; } = 0;
+        public int sample_rate { get; internal set; }
+        public int channels { get; internal set; }
 
         internal OpusEncoder(int sample_rate, int channels, VoiceApplication application)
         {
@@ -56,12 +56,12 @@ namespace DSharpPlus
             int length = 0;
             fixed (byte* benc = encoded)
             {
-                encodedPtr = new IntPtr((void*)benc);
+                encodedPtr = new IntPtr(benc);
                 length = opus_encode(opusEncoder, inputPcmSamples, frames, encodedPtr, sampleLength);
             }
             encodedLength = length;
             if (length < 0)
-                throw new Exception("Encoding failed - " + ((OpusError)length).ToString());
+                throw new Exception("Encoding failed - " + ((OpusError)length));
 
             return encoded;
         }

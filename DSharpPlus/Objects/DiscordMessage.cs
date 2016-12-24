@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
@@ -39,7 +39,7 @@ namespace DSharpPlus
         /// When this message was sent
         /// </summary>
         [JsonIgnore]
-        public DateTime Timestamp => DateTime.Parse(this.TimestampRaw);
+        public DateTime Timestamp => DateTime.Parse(TimestampRaw);
         /// <summary>
         /// When this message was edited
         /// </summary>
@@ -49,7 +49,7 @@ namespace DSharpPlus
         /// When this message was edited
         /// </summary>
         [JsonIgnore]
-        public DateTime EditedTimestamp => DateTime.Parse(this.EditedTimestampRaw);
+        public DateTime EditedTimestamp => DateTime.Parse(EditedTimestampRaw);
         /// <summary>
         /// Whether this was a tts message
         /// </summary>

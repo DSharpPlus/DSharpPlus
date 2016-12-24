@@ -3,7 +3,7 @@
     /// <summary>
     /// Bitwise permission flags
     /// </summary>
-    public enum Permission : int
+    public enum Permission
     {
         /// <summary>
         /// Allow creation of instant invites

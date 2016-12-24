@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 
 namespace DSharpPlus
 {

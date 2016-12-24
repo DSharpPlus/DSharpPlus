@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus
@@ -31,15 +32,13 @@ namespace DSharpPlus
                     default:
                         throw new NotSupportedException("");
                 }
-            }else
-            {
-                return await WithPayloadAsync(request);
             }
+            return await WithPayloadAsync(request);
         }
 
         internal static async Task<WebResponse> WithoutPayloadAsync(WebRequest request)
         {
-            System.Net.HttpWebRequest httpRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(request.URL);
+            HttpWebRequest httpRequest = (HttpWebRequest)System.Net.WebRequest.Create(request.URL);
             httpRequest.Method = request.Method.ToString();
             if (request.Headers != null)
                 httpRequest.Headers = request.Headers;
@@ -50,7 +49,7 @@ namespace DSharpPlus
             WebResponse response = new WebResponse();
             try
             {
-                System.Net.HttpWebResponse httpResponse = (System.Net.HttpWebResponse)await httpRequest.GetResponseAsync();
+                HttpWebResponse httpResponse = (HttpWebResponse)await httpRequest.GetResponseAsync();
                 if (httpResponse.Headers != null)
                     response.Headers = httpResponse.Headers;
                 response.ResponseCode = (int)httpResponse.StatusCode;
@@ -62,12 +61,12 @@ namespace DSharpPlus
                     reader.Dispose();
                 }
             }
-            catch (System.Net.WebException ex)
+            catch (WebException ex)
             {
-                System.Net.HttpWebResponse httpResponse = (System.Net.HttpWebResponse)ex.Response;
+                HttpWebResponse httpResponse = (HttpWebResponse)ex.Response;
 
                 if (httpResponse == null)
-                    return new WebResponse()
+                    return new WebResponse
                     {
                         Headers = null,
                         Response = "",
@@ -93,7 +92,7 @@ namespace DSharpPlus
 
         internal static async Task<WebResponse> WithPayloadAsync(WebRequest request)
         {
-            System.Net.HttpWebRequest httpRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(request.URL);
+            HttpWebRequest httpRequest = (HttpWebRequest)System.Net.WebRequest.Create(request.URL);
             if (request.ContentType == ContentType.Json)
             {
                 httpRequest.Method = request.Method.ToString();
@@ -114,7 +113,7 @@ namespace DSharpPlus
             else if(request.ContentType == ContentType.Multipart)
             {
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-                byte[] boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+                byte[] boundarybytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
 
                 httpRequest.Method = request.Method.ToString();
                 if (request.Headers != null)
@@ -124,7 +123,7 @@ namespace DSharpPlus
                 httpRequest.ContentType = "multipart/form-data; boundary=" + boundary;
                 httpRequest.KeepAlive = true;
 
-                System.IO.Stream rs = await httpRequest.GetRequestStreamAsync();
+                Stream rs = await httpRequest.GetRequestStreamAsync();
 
                 string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
 
@@ -134,7 +133,7 @@ namespace DSharpPlus
                     {
                         await rs.WriteAsync(boundarybytes, 0, boundarybytes.Length);
                         string formitem = string.Format(formdataTemplate, key, request.Values[key]);
-                        byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
+                        byte[] formitembytes = Encoding.UTF8.GetBytes(formitem);
                         await rs.WriteAsync(formitembytes, 0, formitembytes.Length);
                     }
                 }
@@ -142,13 +141,13 @@ namespace DSharpPlus
 
                 string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
                 string header = string.Format(headerTemplate, "file", request.FileName, "image/jpeg");
-                byte[] headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
+                byte[] headerbytes = Encoding.UTF8.GetBytes(header);
                 await rs.WriteAsync(headerbytes, 0, headerbytes.Length);
 
                 FileStream fileStream = new FileStream(request.FilePath, FileMode.Open, FileAccess.Read);
                 await fileStream.CopyToAsync(rs);
 
-                byte[] trailer = System.Text.Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+                byte[] trailer = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
                 await rs.WriteAsync(trailer, 0, trailer.Length);
                 rs.Close();
             }
@@ -160,7 +159,7 @@ namespace DSharpPlus
             WebResponse response = new WebResponse();
             try
             {
-                System.Net.HttpWebResponse httpResponse = (System.Net.HttpWebResponse)await httpRequest.GetResponseAsync();
+                HttpWebResponse httpResponse = (HttpWebResponse)await httpRequest.GetResponseAsync();
                 if (httpResponse.Headers != null)
                     response.Headers = httpResponse.Headers;
                 response.ResponseCode = (int)httpResponse.StatusCode;
@@ -172,12 +171,12 @@ namespace DSharpPlus
                     reader.Dispose();
                 }
             }
-            catch (System.Net.WebException ex)
+            catch (WebException ex)
             {
-                System.Net.HttpWebResponse httpResponse = (System.Net.HttpWebResponse)ex.Response;
+                HttpWebResponse httpResponse = (HttpWebResponse)ex.Response;
 
                 if (httpResponse == null)
-                    return new WebResponse()
+                    return new WebResponse
                     {
                         Headers = null,
                         Response = "",
@@ -209,7 +208,7 @@ namespace DSharpPlus
             {
                 if (rateLimit.UsesLeft == 0 && rateLimit.Reset > time)
                 {
-                    DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Internal", $"Rate-limitted. Waiting till {rateLimit.Reset.ToString()}", DateTime.Now);
+                    DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Internal", $"Rate-limitted. Waiting till {rateLimit.Reset}", DateTime.Now);
                     await Task.Delay((rateLimit.Reset - time));
                 }
                 else if(rateLimit.UsesLeft == 0 && rateLimit.Reset < time)
@@ -234,7 +233,7 @@ namespace DSharpPlus
             }
             else
             {
-                _rateLimits.Add(new RateLimit()
+                _rateLimits.Add(new RateLimit
                 {
                     Reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(double.Parse(response.Headers.Get("X-RateLimit-Reset"))),
                     Url = request.URL,

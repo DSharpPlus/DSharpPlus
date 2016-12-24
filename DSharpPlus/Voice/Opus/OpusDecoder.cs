@@ -17,8 +17,8 @@ namespace DSharpPlus
         public static extern void opus_decoder_destroy(IntPtr st);
 
         public OpusError Errors;
-        public int sample_rate { get; internal set; } = 0;
-        public int channels { get; internal set; } = 0;
+        public int sample_rate { get; internal set; }
+        public int channels { get; internal set; }
 
         internal OpusDecoder(int sample_rate, int channels)
         {
@@ -56,14 +56,14 @@ namespace DSharpPlus
             int length = 0;
             fixed (byte* bdec = decoded)
             {
-                decodedPtr = new IntPtr((void*)bdec);
+                decodedPtr = new IntPtr(bdec);
 
                 if (inputOpusData != null)
                     length = opus_decode(opusDecoder, inputOpusData, dataLength, decodedPtr, frameCount, 0);
             }
             decodedLength = length * 2;
             if (length < 0)
-                throw new Exception("Decoding failed - " + ((OpusError)length).ToString());
+                throw new Exception("Decoding failed - " + ((OpusError)length));
 
             return decoded;
         }

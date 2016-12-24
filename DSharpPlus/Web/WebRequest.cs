@@ -7,7 +7,7 @@ namespace DSharpPlus
     public enum ContentType
     {
         Json = 0,
-        Multipart = 1,
+        Multipart = 1
     }
 
     public class WebRequest
@@ -29,7 +29,7 @@ namespace DSharpPlus
 
         public static async Task<WebRequest> CreateRequestAsync(string url, WebRequestMethod method = WebRequestMethod.GET, WebHeaderCollection headers = null, string payload = "")
         {
-            return new WebRequest()
+            return new WebRequest
             {
                 URL = url,
                 Method = method,
@@ -42,7 +42,7 @@ namespace DSharpPlus
         public static async Task<WebRequest> CreateMultipartRequestAsync(string url, WebRequestMethod method = WebRequestMethod.GET, WebHeaderCollection headers = null,
             NameValueCollection values = null, string filepath = "", string filename = "")
         {
-            return new WebRequest()
+            return new WebRequest
             {
                 URL = url,
                 Method = method,

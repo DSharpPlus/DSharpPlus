@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using DSharpPlus.Voice;
-using System;
 
 namespace DSharpPlus
 {
