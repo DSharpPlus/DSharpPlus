@@ -177,6 +177,11 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                 {
                     await e.Channel.SendMessage($"{e.Message.Author.Mention} and {e.Channel.Mention}");
                 }
+
+                if (e.Message.Content.StartsWith("!!restart"))
+                {
+                    client.Reconnect();
+                }
             };
 
             client.MessageReactionAdd += async (sender, e) =>

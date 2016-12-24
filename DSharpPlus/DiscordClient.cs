@@ -340,6 +340,25 @@ namespace DSharpPlus
             return _modules.Find(x => x.GetType() == typeof(T)) as T;
         }
 
+        public Task Reconnect() => Task.Run(() => InternalReconnect());
+
+        public Task Reconnect(string tokenOverride, TokenType tokenType) => Task.Run(() => InternalReconnect(tokenOverride, tokenType));
+
+        internal async void InternalReconnect()
+        {
+            this.Disconnect();
+            await InternalConnect();
+        }
+
+        internal async void InternalReconnect(string tokenOverride, TokenType tokenType)
+        {
+            this.Disconnect();
+
+            config.Token = tokenOverride;
+            config.TokenType = tokenType;
+            await InternalConnect();
+        }
+
         // TODO
         internal async Task InternalConnect()
         {
