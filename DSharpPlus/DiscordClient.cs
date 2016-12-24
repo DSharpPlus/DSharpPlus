@@ -405,10 +405,10 @@ await Connect(tokenOverride, tokenType);
             {
                 await Task.Run(() =>
                 {
-                    if (_ssrcDict.ContainsKey(e.SSRC))
-                        VoiceReceived?.Invoke(this, new VoiceReceivedEventArgs(e.SSRC, _ssrcDict[e.SSRC], e.Voice, e.VoiceLength));
-                    else
-                        VoiceReceived?.Invoke(this, e);
+                    VoiceReceived?.Invoke(this,
+                        _ssrcDict.ContainsKey(e.SSRC)
+                            ? new VoiceReceivedEventArgs(e.SSRC, _ssrcDict[e.SSRC], e.Voice, e.VoiceLength)
+                            : e);
                 });
             };
         }
@@ -651,10 +651,7 @@ await Connect(tokenOverride, tokenType);
         internal static async Task<List<DiscordRole>> InternalBatchModifyGuildRole(ulong GuildID)
         {
             // I have no idea how to implement this with our current configuration.
-            return await Task.Run(() =>
-            {
-                return new List<DiscordRole>();
-            });
+            return await Task.Run(() => new List<DiscordRole>());
         }
 
         #endregion
@@ -1297,7 +1294,7 @@ await Connect(tokenOverride, tokenType);
             await Task.Run(() =>
             {
                 _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
-                _heartbeatThread = new Thread(() => { StartHeartbeating(); });
+                _heartbeatThread = new Thread(StartHeartbeating);
                 _heartbeatThread.Start();
             });
         }
@@ -1329,10 +1326,7 @@ await Connect(tokenOverride, tokenType);
             else
                 update.Add("idle_since", null);
 
-            if (game != "")
-                update.Add("game", new JObject { { "name", game } });
-            else
-                update.Add("game", null);
+            update.Add("game", game != "" ? new JObject {{"name", game}} : null);
 
             JObject obj = new JObject
             {
@@ -1693,10 +1687,7 @@ await Connect(tokenOverride, tokenType);
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
             j.Add("name", name);
-            if (type == ChannelType.Text)
-                j.Add("type", "text");
-            else
-                j.Add("type", "voice");
+            j.Add("type", type == ChannelType.Text ? "text" : "voice");
 
             if (type == ChannelType.Voice)
             {

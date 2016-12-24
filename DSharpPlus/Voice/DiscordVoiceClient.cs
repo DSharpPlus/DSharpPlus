@@ -247,7 +247,7 @@ namespace DSharpPlus.Voice
             });
         }
 
-        private async void ReceiveAudio(IAsyncResult res)
+        private void ReceiveAudio(IAsyncResult res)
         {
             byte[] buffer;
 
@@ -316,14 +316,10 @@ namespace DSharpPlus.Voice
 
             GC.SuppressFinalize(this);
 
-            if (__udpClient != null)
-                __udpClient.Close();
-            if (_websocketClient != null)
-                _websocketClient.Dispose();
-            if (_opusDecoder != null)
-                _opusDecoder.Dispose();
-            if (_opusEncoder != null)
-                _opusEncoder.Dispose();
+            __udpClient?.Close();
+            _websocketClient?.Dispose();
+            _opusDecoder?.Dispose();
+            _opusEncoder?.Dispose();
 
             disposed = true;
         }

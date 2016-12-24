@@ -15,6 +15,7 @@ namespace DSharpPlus
         public DiscordUser Inviter { get; internal set; }
         /// <summary>
         /// Number of times this invite has been used
+        /// </summary>
         [JsonProperty("uses", NullValueHandling = NullValueHandling.Ignore)]
         public int Uses { get; internal set; }
         /// <summary>
