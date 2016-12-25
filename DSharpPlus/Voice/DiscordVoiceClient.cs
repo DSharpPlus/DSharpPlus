@@ -1,13 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-using Sodium;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Sodium;
 
 namespace DSharpPlus.Voice
 {
@@ -34,18 +32,18 @@ namespace DSharpPlus.Voice
         internal static string _endpoint;
 
         internal static WebSocketClient _websocketClient;
-        internal static int _heartbeatInterval = 0;
+        internal static int _heartbeatInterval;
         internal Thread _heartbeatThread;
         internal static DateTime _lastHeartbeat;
 
         internal static UdpClient __udpClient;
         internal static ushort __sequence = 0;
-        internal static uint __ssrc = 0;
+        internal static uint __ssrc;
         internal static string __ip = "";
-        internal static int __port = 0;
+        internal static int __port;
 
         internal static string __localIp = "";
-        internal static int __localPort = 0;
+        internal static int __localPort;
 
         internal static byte[] __secretKey;
         internal static string __mode;
@@ -82,7 +80,7 @@ namespace DSharpPlus.Voice
                 {
                     await Task.Run(() =>
                     {
-                        DiscordClient._debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Voice-Websocket", $"Connection closed [WasClean: {e.WasClean.ToString()}]", DateTime.Now);
+                        DiscordClient._debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Voice-Websocket", $"Connection closed [WasClean: {e.WasClean}]", DateTime.Now);
                     });
                 };
                 _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
@@ -103,7 +101,7 @@ namespace DSharpPlus.Voice
                     {
                         await Task.Run(() =>
                         {
-                            DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Voice-Websocket", $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj.ToString()}", DateTime.Now);
+                            DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Voice-Websocket", $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj}", DateTime.Now);
                         });
                         break;
                     }
@@ -131,7 +129,7 @@ namespace DSharpPlus.Voice
             await IPDiscovery();
             await SendSelectProtocol();
             if (DiscordClient.config.VoiceSettings == VoiceSettings.Receiving || DiscordClient.config.VoiceSettings == VoiceSettings.Both)
-                __udpClient.BeginReceive(new AsyncCallback(ReceiveAudio), null);
+                __udpClient.BeginReceive(ReceiveAudio, null);
         }
         internal async Task OnHeartbeatAckEvent(JObject obj)
         {
@@ -158,7 +156,7 @@ namespace DSharpPlus.Voice
                 if (!DiscordClient._ssrcDict.ContainsKey(obj["d"]["ssrc"].ToObject<uint>()))
                     DiscordClient._ssrcDict.Add(obj["d"]["ssrc"].ToObject<uint>(), obj["d"]["user_id"].ToObject<ulong>());
 
-                UserSpeaking?.Invoke(this, new UserSpeakingEventArgs()
+                UserSpeaking?.Invoke(this, new UserSpeakingEventArgs
                 {
                     Speaking = obj["d"]["speaking"].ToObject<bool>(),
                     ssrc = obj["d"]["ssrc"].ToObject<uint>(),
@@ -183,7 +181,7 @@ namespace DSharpPlus.Voice
             await Task.Run(() =>
             {
                 DiscordClient._debugLogger.LogMessage(LogLevel.Unnecessary, "Voice-Websocket", "Sending Heartbeat", DateTime.Now);
-                JObject obj = new JObject()
+                JObject obj = new JObject
                 {
                     { "op", 3 },
                     { "d", _heartbeatInterval }
@@ -197,10 +195,10 @@ namespace DSharpPlus.Voice
         {
             await Task.Run(() =>
             {
-                JObject obj = new JObject()
+                JObject obj = new JObject
                 {
                     { "op", 0 },
-                    { "d", new JObject()
+                    { "d", new JObject
                         {
                             { "server_id", _guildId },
                             { "user_id", DiscordClient._me.ID },
@@ -229,13 +227,13 @@ namespace DSharpPlus.Voice
         {
             await Task.Run(() =>
             {
-                JObject obj = new JObject()
+                JObject obj = new JObject
                 {
                     { "op", 1 },
-                    { "d", new JObject()
+                    { "d", new JObject
                         {
                             {"protocol", "udp" },
-                            {"data", new JObject()
+                            {"data", new JObject
                                 {
                                     { "address", __localIp },
                                     { "port", __localPort },
@@ -249,7 +247,7 @@ namespace DSharpPlus.Voice
             });
         }
 
-        private async void ReceiveAudio(IAsyncResult res)
+        private void ReceiveAudio(IAsyncResult res)
         {
             byte[] buffer;
 
@@ -258,7 +256,7 @@ namespace DSharpPlus.Voice
 
             VoicePacket packet = VoicePacket.Create(buffer);
             ByteBuffer nonce = new ByteBuffer(24);
-            nonce.WriteByteArrayToBuffer(packet.GetHeader(), 0, false);
+            nonce.WriteByteArrayToBuffer(packet.GetHeader(), 0);
 
             buffer = SecretBox.Open(packet.GetData(), nonce.GetBuffer(), __secretKey);
 
@@ -274,7 +272,7 @@ namespace DSharpPlus.Voice
 
             VoiceReceived?.Invoke(this, new VoiceReceivedEventArgs(ssrc, userId, output, outputLength));
 
-            __udpClient.BeginReceive(new AsyncCallback(ReceiveAudio), null);
+            __udpClient.BeginReceive(ReceiveAudio, null);
         }
 
         public async Task SendAsync(byte[] data)
@@ -318,14 +316,10 @@ namespace DSharpPlus.Voice
 
             GC.SuppressFinalize(this);
 
-            if (__udpClient != null)
-                __udpClient.Close();
-            if (_websocketClient != null)
-                _websocketClient.Dispose();
-            if (_opusDecoder != null)
-                _opusDecoder.Dispose();
-            if (_opusEncoder != null)
-                _opusEncoder.Dispose();
+            __udpClient?.Close();
+            _websocketClient?.Dispose();
+            _opusDecoder?.Dispose();
+            _opusEncoder?.Dispose();
 
             disposed = true;
         }

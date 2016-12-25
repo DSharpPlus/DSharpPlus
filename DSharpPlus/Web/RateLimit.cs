@@ -11,7 +11,7 @@ namespace DSharpPlus
 
         public override string ToString()
         {
-            return $"{Url} [{UsesLeft}/{UsesMax}]: {Reset.ToString()}";
+            return $"{Url} [{UsesLeft}/{UsesMax}]: {Reset}";
         }
     }
 }

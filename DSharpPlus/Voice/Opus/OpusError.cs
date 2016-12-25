@@ -1,6 +1,6 @@
 ﻿namespace DSharpPlus
 {
-    internal enum OpusError : int
+    internal enum OpusError
     {
         OPUS_OK = 0,
         OPUS_BAD_ARG,

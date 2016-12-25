@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
@@ -140,7 +140,7 @@ namespace DSharpPlus
         public async Task<DiscordGuild> Delete() => await DiscordClient.InternalDeleteGuild(ID);
         public async Task<DiscordGuild> Modify(string name = "", string region = "", int verification_level = -1, int default_message_notifications = -1,
             ulong afkchannelid = 0, int afktimeout = -1, ulong ownerID = 0, string splash = "") 
-            => await DiscordClient.InternalModifyGuild(ID, name, region, verification_level, DefaultMessageNotifications, afkchannelid, afktimeout, "", ownerID, "");
+            => await DiscordClient.InternalModifyGuild(ID, name, region, verification_level, DefaultMessageNotifications, afkchannelid, afktimeout, "", ownerID);
         public async Task BanMember(DiscordMember Member) => await DiscordClient.InternalCreateGuildBan(ID, Member.User.ID);
         public async Task UnbanMember(DiscordMember Member) => await DiscordClient.InternalRemoveGuildBan(ID, Member.User.ID);
         public async Task Leave() => await DiscordClient.InternalLeaveGuild(ID);

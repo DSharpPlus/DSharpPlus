@@ -42,6 +42,7 @@ namespace DSharpPlus.Test
             {
                 await x.Message.Parent.SendMessage("boi");
             });
+
             client.AddCommand("testerino", async (x) =>
             {
                 await client.SendMessage(x.Message.ChannelID, "ye works");
@@ -50,6 +51,7 @@ Servername: {x.Message.Parent.Parent.Name}
 Serverowner: {x.Message.Parent.Parent.OwnerID}
 ```");
             });
+
             client.AddCommand("kill", async (x) =>
             {
                 await x.Message.Respond($"Cya o/");
@@ -57,6 +59,7 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
                 client.Dispose();
                 await Task.Delay(-1);
             });
+
 
             client.AddCommand("clearChannel", async (x) =>
             {
@@ -148,6 +151,16 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                     sb.AppendLine("```");
                     await client.SendMessage(e.Message.ChannelID, sb.ToString());
                 }
+
+                if (e.Message.Content.StartsWith("!!mention"))
+                {
+                    await e.Channel.SendMessage($"{e.Message.Author.Mention} and {e.Channel.Mention}");
+                }
+
+                if (e.Message.Content.StartsWith("!!restart"))
+                {
+                    await client.Reconnect();
+                }
             };
 
             client.MessageReactionAdd += async (sender, e) =>
@@ -157,15 +170,7 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
 
             client.MessageReactionRemoveAll += (sender, e) =>
             {
-                client.DebugLogger.LogMessage(LogLevel.Debug, "Client", "All reactions got removed for message id: " + e.MessageID + " in channel: " + e.ChannelID, DateTime.Now);
-            };
-
-            client.UserSpeaking += async (sender, e) =>
-            {
-                await Task.Run(() =>
-                {
-                    Console.WriteLine($"{e.UserID} [Speaking: {e.Speaking} | SSRC: {e.ssrc}]");
-                });
+                client.DebugLogger.LogMessage(LogLevel.Debug, "Client", $"All reactions got removed for message id: {e.MessageID} in channel: {e.ChannelID}", DateTime.Now);
             };
 
             await client.Connect();

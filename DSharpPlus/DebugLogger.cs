@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
@@ -15,7 +11,7 @@ namespace DSharpPlus
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
             if (level >= DiscordClient.config.LogLevel)
-                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs() { Level = level, Application = application, Message = message, TimeStamp = timestamp });
+                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, TimeStamp = timestamp });
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)

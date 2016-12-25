@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace DSharpPlus
@@ -37,7 +35,6 @@ namespace DSharpPlus
                     {
                         return $"Bot {DiscordClient.config.Token}";
                     }
-                case TokenType.User:
                 default:
                     {
                         return DiscordClient.config.Token;
@@ -47,14 +44,15 @@ namespace DSharpPlus
 
         public static WebHeaderCollection GetBaseHeaders()
         {
-            return new WebHeaderCollection() {
+            return new WebHeaderCollection
+            {
                 { "Authorization", GetFormattedToken() }
             };
         }
 
         public static string GetUserAgent()
         {
-            return $"DiscordBot (https://github.com/NaamloosDT/DSharpPlus, 1.0)";
+            return "DiscordBot (https://github.com/NaamloosDT/DSharpPlus, 1.1)";
         }
 
         public static bool ContainsUserMentions(string message)

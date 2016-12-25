@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
@@ -19,6 +15,7 @@ namespace DSharpPlus
         public DiscordUser Inviter { get; internal set; }
         /// <summary>
         /// Number of times this invite has been used
+        /// </summary>
         [JsonProperty("uses", NullValueHandling = NullValueHandling.Ignore)]
         public int Uses { get; internal set; }
         /// <summary>

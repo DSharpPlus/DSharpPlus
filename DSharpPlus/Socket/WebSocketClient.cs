@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
 using WebSocketSharp;
 
 namespace DSharpPlus

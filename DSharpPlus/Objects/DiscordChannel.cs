@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using DSharpPlus.Voice;
-using System;
 
 namespace DSharpPlus
 {
@@ -67,6 +66,10 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
         public int UserLimit { get; internal set; }
+        /// <summary>
+        /// Mentions the channel similar to how a client would
+        /// </summary>
+        public string Mention => Formatter.Mention(this);
 
         #region Functions
         /// <summary>
@@ -162,7 +165,7 @@ namespace DSharpPlus
             if (Type == ChannelType.Text)
                 throw new NotSupportedException();
 
-            await DiscordClient.OpenVoiceConnection(this, false, false);
+            await DiscordClient.OpenVoiceConnection(this);
         }
 
         public async Task PlaceMember(ulong MemberID)

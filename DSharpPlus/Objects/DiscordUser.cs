@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -31,7 +30,7 @@ namespace DSharpPlus
         /// <summary>
         /// Whether the user belongs to an oauth2 application
         /// </summary>
-        [JsonProperty("is_bot", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsBot { get; internal set; }
         /// <summary>
         /// Whether the user has tho factor enabled
@@ -48,5 +47,9 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
         public string Email { get; internal set; }
+        /// <summary>
+        /// Mentions the user similar to how a client would
+        /// </summary>
+        public string Mention => Formatter.Mention(this); 
     }
 }

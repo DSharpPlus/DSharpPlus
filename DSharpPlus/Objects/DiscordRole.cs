@@ -3,7 +3,7 @@
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public class DiscordRole : SnowflakeObject
     {
@@ -42,5 +42,9 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
         public bool Mentionable { get; internal set; }
+        /// <summary>
+        /// Mentions the role similar to how a client would, if the role is mentionable
+        /// </summary>
+        public string Mention => Formatter.Mention(this);
     }
 }
