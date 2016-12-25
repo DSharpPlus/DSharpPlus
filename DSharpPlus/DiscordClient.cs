@@ -367,6 +367,9 @@ await Connect(tokenOverride, tokenType);
             _websocketClient = new WebSocketClient(_gatewayUrl + "?v=5&encoding=json");
             _websocketClient.SocketOpened += async (sender, e) =>
             {
+                _privateChannels = new List<DiscordDMChannel>();
+                _guilds = new Dictionary<ulong, DiscordGuild>();
+
                 if (_sessionID == "")
                     await SendIdentify();
                 else
@@ -664,6 +667,7 @@ await Connect(tokenOverride, tokenType);
             {
                 case 0: await OnDispatch(obj); break;
                 case 7: await OnReconnect(); break;
+                case 9: await OnInvalidateSession(obj); break;
                 case 10: await OnHello(obj); break;
                 case 11: await OnHeartbeatAck(obj); break;
                 default:
@@ -1287,6 +1291,22 @@ await Connect(tokenOverride, tokenType);
                 _websocketClient.Disconnect();
                 _websocketClient.Connect();
             });
+        }
+
+        internal async Task OnInvalidateSession(JObject obj)
+        {
+            if (obj.Value<bool>("d"))
+            {
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a second and sending resume again.", DateTime.Now);
+                await Task.Delay(1000);
+                await SendResume();
+            }
+            else
+            {
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Recieved false in OP 9 - Starting a new session", DateTime.Now);
+                _sessionID = "";
+                await SendIdentify();
+            }
         }
 
         internal async Task OnHello(JObject obj)
