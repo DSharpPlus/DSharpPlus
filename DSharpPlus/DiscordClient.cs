@@ -823,7 +823,7 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                if (_guilds[obj["d"].Value<ulong>("id")] != null)
+                if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
                 {
                     if (obj["d"]["unavailable"] != null)
                     {
