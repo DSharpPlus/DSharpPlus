@@ -214,6 +214,7 @@ namespace DSharpPlus
         internal static int _heartbeatInterval;
         internal Thread _heartbeatThread;
         internal static DateTime _lastHeartbeat;
+	internal static bool _waitingForAck = false;
 
         internal static DiscordVoiceClient _voiceClient;
         internal static Dictionary<uint, ulong> _ssrcDict = new Dictionary<uint, ulong>();
@@ -349,13 +350,13 @@ namespace DSharpPlus
         internal async Task InternalReconnect()
         {
             await Disconnect();
-            await InternalConnect();
+            await Connect();
         }
 
         internal async Task InternalReconnect(string tokenOverride, TokenType tokenType)
         {
             await Disconnect();
-await Connect(tokenOverride, tokenType);
+	    await Connect(tokenOverride, tokenType);
         }
 
         // TODO
@@ -666,10 +667,11 @@ await Connect(tokenOverride, tokenType);
             switch (obj.Value<int>("op"))
             {
                 case 0: await OnDispatch(obj); break;
+		case 1: await OnHeartbeat(); break;
                 case 7: await OnReconnect(); break;
                 case 9: await OnInvalidateSession(obj); break;
                 case 10: await OnHello(obj); break;
-                case 11: await OnHeartbeatAck(obj); break;
+                case 11: await OnHeartbeatAck(); break;
                 default:
                     {
                         DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj}", DateTime.Now);
@@ -1282,6 +1284,19 @@ await Connect(tokenOverride, tokenType);
         }
         #endregion
 
+	internal async Task OnHeartbeat()
+	{
+	    await Task.Run(() =>
+	    {
+		_debugLogger.LogMessage(LogMessage.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
+		
+		JObject obj = new JObject()
+		{
+		    { "op", 11 }
+		};
+	    });
+	}
+
         internal async Task OnReconnect()
         {
             await Task.Run(() =>
@@ -1297,8 +1312,8 @@ await Connect(tokenOverride, tokenType);
         {
             if (obj.Value<bool>("d"))
             {
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a second and sending resume again.", DateTime.Now);
-                await Task.Delay(1000);
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a few second and sending resume again.", DateTime.Now);
+                await Task.Delay(5000);
                 await SendResume();
             }
             else
@@ -1313,16 +1328,19 @@ await Connect(tokenOverride, tokenType);
         {
             await Task.Run(() =>
             {
+		_waitingForAck = false;
                 _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
                 _heartbeatThread = new Thread(StartHeartbeating);
                 _heartbeatThread.Start();
             });
         }
 
-        internal async Task OnHeartbeatAck(JObject obj)
+        internal async Task OnHeartbeatAck()
         {
             await Task.Run(() =>
             {
+		_waitingForAck = false;
+
                 _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {(DateTime.Now - _lastHeartbeat).Milliseconds}ms", DateTime.Now);
             });
@@ -1359,6 +1377,12 @@ await Connect(tokenOverride, tokenType);
 
         internal void SendHeartbeat()
         {
+	    if (_waitingForAck)
+	    {
+		_debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
+		Reconnect();
+	    }
+
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Sending Heartbeat", DateTime.Now);
             JObject obj = new JObject
             {
@@ -1367,6 +1391,7 @@ await Connect(tokenOverride, tokenType);
             };
             _websocketClient._socket.Send(obj.ToString());
             _lastHeartbeat = DateTime.Now;
+	    _waitingForAck = true;
         }
 
         internal async Task SendIdentify()
