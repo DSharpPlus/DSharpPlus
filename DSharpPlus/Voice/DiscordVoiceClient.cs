@@ -113,6 +113,7 @@ namespace DSharpPlus.Voice
         {
             await Task.Run(() =>
             {
+                DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "Voice-Websocket", "Received OP 2, Connecting UDP", DateTime.UtcNow);
                 __ssrc = obj["d"]["ssrc"].ToObject<uint>();
                 __port = obj["d"]["port"].ToObject<int>();
                 __ip = obj["d"]["ip"].ToString();
@@ -123,6 +124,7 @@ namespace DSharpPlus.Voice
 
                 __udpClient = new UdpClient();
                 __udpClient.Connect(_endpoint, __port);
+                DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "Voice-UDP", "Connected UDP.", DateTime.UtcNow);
             });
 
 
@@ -145,8 +147,22 @@ namespace DSharpPlus.Voice
         {
             await Task.Run(() =>
             {
+                DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "Voice-Websocket", "Received OP 4, got secret key! Sending OP 5 for speaking", DateTime.UtcNow);
                 __secretKey = obj["d"]["secret_key"].ToObject<byte[]>();
                 __mode = obj["d"]["mode"].ToString();
+
+                JObject j = new JObject
+                {
+                    { "op", 5 },
+                    { "d", new JObject
+                        {
+                            { "speaking", true },
+                            { "delay", 0 }
+                        }
+                    }
+                };
+                DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "Voice-Websocket", "Sent OP 5. We should be live now.", DateTime.UtcNow);
+                _websocketClient._socket.Send(j.ToString());
             });
         }
         internal async Task OnUserSpeakingEvent(JObject obj)
