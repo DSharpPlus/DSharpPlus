@@ -122,7 +122,7 @@ namespace DSharpPlus.Voice
                 _heartbeatThread.Start();
 
                 __udpClient = new UdpClient();
-                __udpClient.Connect(__ip, __port);
+                __udpClient.Connect(_endpoint, __port);
             });
 
 
@@ -277,7 +277,7 @@ namespace DSharpPlus.Voice
 
         public async Task SendAsync(byte[] data)
         {
-            if (DiscordClient.config.VoiceSettings == VoiceSettings.Receiving || DiscordClient.config.VoiceSettings == VoiceSettings.Both)
+            if (DiscordClient.config.VoiceSettings == VoiceSettings.Sending || DiscordClient.config.VoiceSettings == VoiceSettings.Both)
             {
                 ByteBuffer buffer = new ByteBuffer(12 + data.Length);
                 buffer.WriteByteToBuffer(0x80, 0);
