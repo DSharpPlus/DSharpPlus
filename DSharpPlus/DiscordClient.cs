@@ -1033,7 +1033,7 @@ namespace DSharpPlus
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
                 List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
                 List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-                if (message.Content != null && message.Content != "")
+                if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Parent.Parent.ID))
                 {
                     foreach (ulong user in Utils.GetUserMentions(message))
                     {
@@ -1088,7 +1088,7 @@ namespace DSharpPlus
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
                 List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
                 List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-                if (message.Content != null && message.Content != "")
+                if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Parent.Parent.ID))
                 {
                     foreach (ulong user in Utils.GetUserMentions(message))
                     {
