@@ -7,6 +7,8 @@
         public static string PTBBaseUri => string.Format(InternalBaseUri, "ptb.");
         public static string StableBaseUri => string.Format(InternalBaseUri, "");
 
+        public const string OAuth2 = "/oauth2";
+        public const string Applications = "/applications";
         public const string Reactions = "/reactions";
         public const string me = "/@me";
         public const string Permissions = "/permissions";

@@ -595,9 +595,25 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task UpdateStatus(string game = "", int idle_since = -1) => InternalUpdateStatus(game, idle_since);
 
+        /// <summary>
+        /// Modifies a guild member
+        /// </summary>
+        /// <param name="GuildID">Guild's ID</param>
+        /// <param name="MemberID">Member's ID</param>
+        /// <param name="Nickname">Member's (new) Nickname</param>
+        /// <param name="Roles">Member's roles</param>
+        /// <param name="Muted">Wether this member has been muted or not (voice)</param>
+        /// <param name="Deaf">Wether this member has been deafened or not (voice)</param>
+        /// <param name="VoiceChannelID">Voice channel ID for moving this user around</param>
+        /// <returns></returns>
         public async Task ModifyMember(ulong GuildID, ulong MemberID, string Nickname, List<DiscordRole> Roles, bool Muted, bool Deaf, ulong VoiceChannelID) =>
             await InternalModifyGuildMember(GuildID, MemberID, Nickname, Roles, Muted, Deaf, VoiceChannelID);
 
+        /// <summary>
+        /// Gets the current API appication.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<DiscordApplication> GetCurrentApp() => await InternalGetApplicationInfo("@me");
         #endregion
 
         #region Unsorted / Testing / Not working
@@ -2548,6 +2564,16 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
+        }
+        #endregion
+        #region Misc
+        internal static async Task<DiscordApplication> InternalGetApplicationInfo(string ID = "@me")
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.OAuth2 + Endpoints.Applications + "/" + ID;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            return JObject.Parse(response.Response).ToObject<DiscordApplication>();
         }
         #endregion
         #endregion

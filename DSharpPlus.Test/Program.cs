@@ -75,6 +75,23 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
 
             client.MessageCreated += async (sender, e) =>
             {
+                if(e.Message.Content == "!!appinfo")
+                {
+                    DiscordApplication App = await client.GetCurrentApp();
+
+                    string appinfo = "**App info:**\n```";
+                    appinfo += "\nApp Name: " + App.Name;
+                    appinfo += "\nApp Description: " + App.Description;
+                    appinfo += "\nApp ID: " + App.ID;
+                    appinfo += "\nApp Creation Date: " + App.CreationDate.ToString();
+                    appinfo += "\nApp Owner ID: " + App.Owner.ID;
+                    appinfo += "\nApp Owner Username: " + App.Owner.Username + "#" + App.Owner.Discriminator;
+                    appinfo += "\nApp Owner Join Date: " + App.Owner.CreationDate.ToString();
+                    appinfo += "\n```";
+
+                    await e.Message.Respond(appinfo);
+                }
+
                 if (e.Message.Content == "!!embed")
                 {
                     List<DiscordEmbedField> fields = new List<DiscordEmbedField>();
