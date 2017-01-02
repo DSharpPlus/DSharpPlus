@@ -129,7 +129,7 @@ namespace DSharpPlus
         /// List of simple presence objects
         /// </summary>
         [JsonProperty("presences", NullValueHandling = NullValueHandling.Ignore)]
-        public List<object> Presences { get; internal set; }
+        public List<DiscordPresence> Presences { get; internal set; }
         /// <summary>
         /// Is the current user the guild owner
         /// </summary>

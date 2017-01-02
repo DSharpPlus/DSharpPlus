@@ -50,6 +50,10 @@ namespace DSharpPlus
         /// <summary>
         /// Mentions the user similar to how a client would
         /// </summary>
-        public string Mention => Formatter.Mention(this); 
+        public string Mention => Formatter.Mention(this);
+        /// <summary>
+        /// This user's presence.
+        /// </summary>
+        public DiscordPresence Presence => DiscordClient.InternalGetUserPresence(ID);
     }
 }

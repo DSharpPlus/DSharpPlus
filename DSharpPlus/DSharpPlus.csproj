@@ -125,6 +125,7 @@
     <Compile Include="Objects\DiscordInviteGuild.cs" />
     <Compile Include="Objects\DiscordInviteMetadata.cs" />
     <Compile Include="Objects\DiscordOverwrite.cs" />
+    <Compile Include="Objects\DiscordPresence.cs" />
     <Compile Include="Objects\DiscordReaction.cs" />
     <Compile Include="Objects\DiscordWebhook.cs" />
     <Compile Include="Socket\WebSocketClient.cs" />

@@ -214,10 +214,12 @@ namespace DSharpPlus
         internal static int _heartbeatInterval;
         internal Thread _heartbeatThread;
         internal static DateTime _lastHeartbeat;
-	    internal static bool _waitingForAck = false;
+        internal static bool _waitingForAck = false;
 
         internal static DiscordVoiceClient _voiceClient;
         internal static Dictionary<uint, ulong> _ssrcDict = new Dictionary<uint, ulong>();
+
+        internal static Dictionary<ulong, DiscordPresence> _presences = new Dictionary<ulong, DiscordPresence>();
         #endregion
 
         #region Public Variables
@@ -358,7 +360,7 @@ namespace DSharpPlus
         internal async Task InternalReconnect(string tokenOverride, TokenType tokenType, int shard)
         {
             await Disconnect();
-	        await Connect(tokenOverride, tokenType, shard);
+            await Connect(tokenOverride, tokenType, shard);
         }
 
         // TODO
@@ -384,7 +386,7 @@ namespace DSharpPlus
                 await Task.Run(() =>
                 {
                     _heartbeatThread.Abort();
-                    
+
                     _debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Websocket", $"Connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
 
                     if (!e.WasClean && config.AutoReconnect)
@@ -616,6 +618,13 @@ namespace DSharpPlus
         /// </summary>
         /// <returns></returns>
         public async Task<DiscordApplication> GetCurrentApp() => await InternalGetApplicationInfo("@me");
+
+        /// <summary>
+        /// Gets cached presence for a user.
+        /// </summary>
+        /// <param name="UserID">User's ID</param>
+        /// <returns></returns>
+        public DiscordPresence GetUserPresence(ulong UserID) => InternalGetUserPresence(UserID);
         #endregion
 
         #region Unsorted / Testing / Not working
@@ -685,7 +694,7 @@ namespace DSharpPlus
             switch (obj.Value<int>("op"))
             {
                 case 0: await OnDispatch(obj); break;
-		        case 1: await OnHeartbeat(); break;
+                case 1: await OnHeartbeat(); break;
                 case 7: await OnReconnect(); break;
                 case 9: await OnInvalidateSession(obj, shard); break;
                 case 10: await OnHello(obj); break;
@@ -822,7 +831,14 @@ namespace DSharpPlus
 
                 foreach (DiscordChannel channel in guild.Channels)
                     if (channel.GuildID == 0) channel.GuildID = guild.ID;
-                
+
+                foreach (DiscordPresence Presence in guild.Presences)
+                {
+                        if (_presences.ContainsKey(Presence.UserID))
+                            _presences.Remove(Presence.UserID);
+                        _presences.Add(Presence.UserID, Presence);
+                }
+
                 if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
                 {
                     _guilds[guild.ID] = guild;
@@ -903,9 +919,15 @@ namespace DSharpPlus
                 }
 
                 ulong GuildID = 0;
-                if(config.TokenType != TokenType.User)
+                if (config.TokenType != TokenType.User)
                     GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 string status = obj["d"]["status"].ToString();
+
+                ulong userID = (ulong)obj["d"]["user"]["id"];
+                    if (_presences.ContainsKey(userID))
+                        _presences.Remove(userID);
+
+                    _presences.Add(userID, obj["d"].ToObject<DiscordPresence>());
 
                 PresenceUpdateEventArgs args = new PresenceUpdateEventArgs { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
                 PresenceUpdate?.Invoke(this, args);
@@ -937,7 +959,7 @@ namespace DSharpPlus
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 List<DiscordEmoji> emojis = new List<DiscordEmoji>();
-                foreach(JObject em in (JArray)obj["d"]["emojis"])
+                foreach (JObject em in (JArray)obj["d"]["emojis"])
                 {
                     emojis.Add(em.ToObject<DiscordEmoji>());
                 }
@@ -1054,8 +1076,8 @@ namespace DSharpPlus
                 {
                     foreach (ulong user in Utils.GetUserMentions(message))
                     {
-                        if(message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null 
-                        && _guilds[message.Parent.Parent.ID].Members != null 
+                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                        && _guilds[message.Parent.Parent.ID].Members != null
                         && _guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
                             MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
                     }
@@ -1161,7 +1183,7 @@ namespace DSharpPlus
             {
                 JArray IDsJson = (JArray)obj["d"]["ids"];
                 List<ulong> ids = new List<ulong>();
-                foreach(JToken t in IDsJson)
+                foreach (JToken t in IDsJson)
                 {
                     ids.Add(ulong.Parse(t.ToString()));
                 }
@@ -1301,18 +1323,18 @@ namespace DSharpPlus
         }
         #endregion
 
-	    internal async Task OnHeartbeat()
-	    {
-	        await Task.Run(() =>
-	        {
-		        _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
-		
-		        JObject obj = new JObject()
-		        {
-		            { "op", 11 }
-		        };
-	        });
-	    }
+        internal async Task OnHeartbeat()
+        {
+            await Task.Run(() =>
+            {
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
+
+                JObject obj = new JObject()
+                {
+                    { "op", 11 }
+                };
+            });
+        }
 
         internal async Task OnReconnect()
         {
@@ -1345,7 +1367,7 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-		        _waitingForAck = false;
+                _waitingForAck = false;
                 _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
                 _heartbeatThread = new Thread(StartHeartbeating);
                 _heartbeatThread.Start();
@@ -1356,7 +1378,7 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-		        _waitingForAck = false;
+                _waitingForAck = false;
 
                 _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {(DateTime.Now - _lastHeartbeat).Milliseconds}ms", DateTime.Now);
@@ -1381,7 +1403,7 @@ namespace DSharpPlus
             else
                 update.Add("idle_since", null);
 
-            update.Add("game", game != "" ? new JObject {{"name", game}} : null);
+            update.Add("game", game != "" ? new JObject { { "name", game } } : null);
 
             JObject obj = new JObject
             {
@@ -1394,11 +1416,11 @@ namespace DSharpPlus
 
         internal async Task SendHeartbeat()
         {
-	        if (_waitingForAck)
-	        {
-		        _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
-		        await Reconnect();
-	        }
+            if (_waitingForAck)
+            {
+                _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
+                await Reconnect();
+            }
 
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Sending Heartbeat", DateTime.Now);
             JObject obj = new JObject
@@ -1408,7 +1430,7 @@ namespace DSharpPlus
             };
             _websocketClient._socket.Send(obj.ToString());
             _lastHeartbeat = DateTime.Now;
-	        _waitingForAck = true;
+            _waitingForAck = true;
         }
 
         internal async Task SendIdentify(int shard)
@@ -1460,7 +1482,7 @@ namespace DSharpPlus
 
         internal static async Task SendVoiceStateUpdate(DiscordChannel channel, bool mute = false, bool deaf = false)
         {
-            await Task.Run(() => 
+            await Task.Run(() =>
             {
                 JObject obj = new JObject
                 {
@@ -1502,6 +1524,22 @@ namespace DSharpPlus
                 if (guild.Channels.Find(x => x.ID == channelid) != null) return guild.Channels.FindIndex(x => x.ID == channelid);
             }
             return 0;
+        }
+
+        internal static DiscordPresence InternalGetUserPresence(ulong userid)
+        {
+            if (_presences.ContainsKey(userid))
+                return _presences[userid];
+
+            return new DiscordPresence()
+            {
+                InternalUser = new DiscordUser()
+                {
+                    ID = userid
+                },
+                Status = "offline",
+                InternalGame = null
+            };
         }
 
         #region HTTP Actions
@@ -1987,7 +2025,7 @@ namespace DSharpPlus
             int pages = (int)Math.Ceiling((double)member_count / 1000);
             ulong lastId = 0;
 
-            for(int i = 0; i < pages; i++)
+            for (int i = 0; i < pages; i++)
             {
                 WebRequest request = await WebRequest.CreateRequestAsync($"{url}?limit=1000&after={lastId}", WebRequestMethod.GET, headers);
                 WebResponse response = await WebWrapper.HandleRequestAsync(request);
