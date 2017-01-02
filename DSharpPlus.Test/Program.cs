@@ -11,9 +11,9 @@ namespace DSharpPlus.Test
 {
     class Program
     {
-        static void Main(string[] args) => new Program().Run().GetAwaiter().GetResult();
+        static void Main(string[] args) => new Program().Run(args).GetAwaiter().GetResult();
         
-        public Task Run()
+        public Task Run(string[] args)
         {
                 if (!File.Exists("token.txt"))
                 {

@@ -913,7 +913,7 @@ namespace DSharpPlus
                 }
 
                 string Game = "";
-                if (obj["d"]["game"] != null)
+                if (obj["game"] != null && obj["game"].HasValues)
                 {
                     Game = obj["d"]["game"]["name"].ToString();
                 }
