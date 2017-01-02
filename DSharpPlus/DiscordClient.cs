@@ -304,21 +304,23 @@ namespace DSharpPlus
         /// <summary>
         /// Connects to the gateway
         /// </summary>
+        /// <param name="shard">Shard to connect from</param>
         /// <returns></returns>
-        public async Task Connect() => await InternalConnect();
+        public async Task Connect(int shard = 0) => await InternalConnect(shard);
 
         /// <summary>
         /// Connects to the gateway
         /// </summary>
         /// <param name="tokenOverride"></param>
         /// <param name="tokenType"></param>
+        /// <param name="shard">Shard to connect from</param>
         /// <returns></returns>
-        public async Task Connect(string tokenOverride, TokenType tokenType)
+        public async Task Connect(string tokenOverride, TokenType tokenType, int shard)
         {
             config.Token = tokenOverride;
             config.TokenType = tokenType;
 
-            await InternalConnect();
+            await InternalConnect(shard);
         }
 
         /// <summary>
@@ -345,7 +347,7 @@ namespace DSharpPlus
 
         public async Task Reconnect() => await InternalReconnect();
 
-        public async Task Reconnect(string tokenOverride, TokenType tokenType) => await InternalReconnect(tokenOverride, tokenType);
+        public async Task Reconnect(string tokenOverride, TokenType tokenType, int shard = 0) => await InternalReconnect(tokenOverride, tokenType, shard);
 
         internal async Task InternalReconnect()
         {
@@ -353,14 +355,14 @@ namespace DSharpPlus
             await Connect();
         }
 
-        internal async Task InternalReconnect(string tokenOverride, TokenType tokenType)
+        internal async Task InternalReconnect(string tokenOverride, TokenType tokenType, int shard)
         {
             await Disconnect();
-	        await Connect(tokenOverride, tokenType);
+	        await Connect(tokenOverride, tokenType, shard);
         }
 
         // TODO
-        internal async Task InternalConnect()
+        internal async Task InternalConnect(int shard)
         {
             await InternalUpdateGateway();
             _me = await InternalGetCurrentUser();
@@ -372,7 +374,7 @@ namespace DSharpPlus
                 _guilds = new Dictionary<ulong, DiscordGuild>();
 
                 if (_sessionID == "")
-                    await SendIdentify();
+                    await SendIdentify(shard);
                 else
                     await SendResume();
                 SocketOpened?.Invoke(sender, e);
@@ -394,7 +396,7 @@ namespace DSharpPlus
                     SocketClosed?.Invoke(sender, e);
                 });
             };
-            _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
+            _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data, shard);
             _websocketClient.Connect();
 
             _voiceClient = new DiscordVoiceClient();
@@ -677,7 +679,7 @@ namespace DSharpPlus
         #endregion
 
         #region Websocket
-        internal async Task HandleSocketMessage(string data)
+        internal async Task HandleSocketMessage(string data, int shard)
         {
             JObject obj = JObject.Parse(data);
             switch (obj.Value<int>("op"))
@@ -685,7 +687,7 @@ namespace DSharpPlus
                 case 0: await OnDispatch(obj); break;
 		        case 1: await OnHeartbeat(); break;
                 case 7: await OnReconnect(); break;
-                case 9: await OnInvalidateSession(obj); break;
+                case 9: await OnInvalidateSession(obj, shard); break;
                 case 10: await OnHello(obj); break;
                 case 11: await OnHeartbeatAck(); break;
                 default:
@@ -1323,7 +1325,7 @@ namespace DSharpPlus
             });
         }
 
-        internal async Task OnInvalidateSession(JObject obj)
+        internal async Task OnInvalidateSession(JObject obj, int shard)
         {
             if (obj.Value<bool>("d"))
             {
@@ -1335,7 +1337,7 @@ namespace DSharpPlus
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Recieved false in OP 9 - Starting a new session", DateTime.Now);
                 _sessionID = "";
-                await SendIdentify();
+                await SendIdentify(shard);
             }
         }
 
@@ -1409,7 +1411,7 @@ namespace DSharpPlus
 	        _waitingForAck = true;
         }
 
-        internal async Task SendIdentify()
+        internal async Task SendIdentify(int shard)
         {
             await Task.Run(() =>
             {
@@ -1429,7 +1431,7 @@ namespace DSharpPlus
                             } },
                             { "compress", false },
                             { "large_threshold" , config.LargeThreshold },
-                            { "shards", new JArray { 0, _shardCount } }
+                            { "shards", new JArray { shard, _shardCount } }
                         }
                     }
                 };
