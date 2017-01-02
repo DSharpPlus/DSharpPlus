@@ -223,10 +223,16 @@ namespace DSharpPlus
             if (response.Headers == null || response.Headers["X-RateLimit-Reset"] == null || response.Headers["X-RateLimit-Remaining"] == null || response.Headers["X-RateLimit-Limit"] == null)
                 return;
 
+            DateTime clienttime = DateTime.UtcNow;
+            DateTime servertime = DateTime.Parse(response.Headers["date"]).ToUniversalTime();
+            double difference = clienttime.Subtract(servertime).TotalSeconds;
+
+            Console.WriteLine("Server & client time difference: " + clienttime.Subtract(servertime).ToString());
+
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
             if (rateLimit != null)
             {
-                rateLimit.Reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(double.Parse(response.Headers.Get("X-RateLimit-Reset")));
+                rateLimit.Reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(double.Parse(response.Headers.Get("X-RateLimit-Reset")) + difference);
                 rateLimit.UsesLeft = int.Parse(response.Headers.Get("X-RateLimit-Remaining"));
                 rateLimit.UsesMax = int.Parse(response.Headers.Get("X-RateLimit-Limit"));
                 _rateLimits[_rateLimits.FindIndex(x => x.Url == request.URL)] = rateLimit;
@@ -235,7 +241,7 @@ namespace DSharpPlus
             {
                 _rateLimits.Add(new RateLimit
                 {
-                    Reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(double.Parse(response.Headers.Get("X-RateLimit-Reset"))),
+                    Reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(double.Parse(response.Headers.Get("X-RateLimit-Reset")) + difference),
                     Url = request.URL,
                     UsesLeft = int.Parse(response.Headers.Get("X-RateLimit-Remaining")),
                     UsesMax = int.Parse(response.Headers.Get("X-RateLimit-Limit"))
