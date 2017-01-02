@@ -895,11 +895,10 @@ namespace DSharpPlus
                 }
 
                 string Game = "";
-                /*if (obj["d"]["game"]["name"] != null)
+                if (obj["d"]["game"] != null)
                 {
                     Game = obj["d"]["game"]["name"].ToString();
                 }
-                FIX ME PLS */
 
                 ulong GuildID = 0;
                 if(config.TokenType != TokenType.User)
