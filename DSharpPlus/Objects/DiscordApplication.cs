@@ -9,22 +9,22 @@ namespace DSharpPlus
 {
     public class DiscordApplication : SnowflakeObject
     {
-        [JsonProperty("description")]
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description;
 
-        [JsonProperty("icon")]
+        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         public string Icon;
 
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name;
 
-        [JsonProperty("rpc_origins")]
+        [JsonProperty("rpc_origins", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> RpcOrigins;
 
-        [JsonProperty("flags")]
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public int Flags;
 
-        [JsonProperty("owner")]
+        [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordApplicationOwner Owner;
     }
 }

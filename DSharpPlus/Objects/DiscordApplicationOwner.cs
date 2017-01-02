@@ -9,13 +9,13 @@ namespace DSharpPlus
 {
     public class DiscordApplicationOwner : SnowflakeObject
     {
-        [JsonProperty("username")]
+        [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
         public string Username;
 
-        [JsonProperty("discriminator")]
+        [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
         public string Discriminator;
 
-        [JsonProperty("avatar")]
+        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public string Avatar;
     }
 }
