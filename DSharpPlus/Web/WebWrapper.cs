@@ -226,8 +226,7 @@ namespace DSharpPlus
             DateTime clienttime = DateTime.UtcNow;
             DateTime servertime = DateTime.Parse(response.Headers["date"]).ToUniversalTime();
             double difference = clienttime.Subtract(servertime).TotalSeconds;
-
-            Console.WriteLine("Server & client time difference: " + clienttime.Subtract(servertime).ToString());
+            DiscordClient._debugLogger.LogMessage(LogLevel.Info, "Internal", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
 
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
             if (rateLimit != null)
