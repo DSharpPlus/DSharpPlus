@@ -11,8 +11,8 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 # Documentation
 ### Note: There is no documentation available yet.
 
-# Example Bot
-* None yet, as the lib got rewritten
+# Tutorials
+[Making your first bot in C#](https://github.com/NaamloosDT/DSharpPlus/wiki/Making-your-first-bot-in-C%23)
 
 ## Webhooks
 Use this to generate JSON for slack messages: http://www.nickstrohm.de/dsb/,
