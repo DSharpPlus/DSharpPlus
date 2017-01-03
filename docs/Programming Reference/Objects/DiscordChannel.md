@@ -4,29 +4,29 @@ DiscordChannel
 
 ## Members
 
-`ulong` `GuildID`: This channel's Guild's ID
+`ulong GuildID`: This channel's Guild's ID
 
-`string` `Name`: This channel's Name
+`string Name`: This channel's Name
 
-`ChannelType` `Type`: This channel's type (Text or Voice)
+`ChannelType Type`: This channel's type (Text or Voice)
 
-`int` `Position`: this channel's position
+`int Position`: this channel's position
 
-`bool` `IsPrivate`: Wether this is a private channel
+`bool IsPrivate`: Wether this is a private channel
 
-`DiscordGuild` `Parent`: This channel's DiscordGuild (if public)
+`DiscordGuild Parent`: This channel's DiscordGuild (if public)
 
-`List<DiscordOverwrite>` `PermissionOverwrites`: Permissions for this channel
+`List<DiscordOverwrite> PermissionOverwrites`: Permissions for this channel
 
-`string` `Topic`: This channel's topic
+`string Topic`: This channel's topic
 
-`ulong` `LastMessageID`: ID for this channel's last message (if Text)
+`ulong LastMessageID`: ID for this channel's last message (if Text)
 
-`int` `Bitrate`: This channel's bitrate (if Voice)
+`int Bitrate`: This channel's bitrate (if Voice)
 
-`int` `UserLimit`: This channel's user limit (if Voice)
+`int UserLimit`: This channel's user limit (if Voice)
 
-`string` `Mention`: Builds a mention for this channel
+`string Mention`: Builds a mention for this channel
 
 ## Methods
 
