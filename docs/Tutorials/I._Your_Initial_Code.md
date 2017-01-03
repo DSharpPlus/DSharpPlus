@@ -1,24 +1,5 @@
-![Logo](https://github.com/NaamloosDT/DSharpPlus/blob/master/logo/dsharp+_smaller.png?raw=true)
-
-A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards.
-
-## Installation
-### Nuget
-1. Create a new Console Application
-2. In the Projects tab, click "Manage NuGet Packages"
-3. Click Browse
-4. Search for "DSharpPlus" and install the latest version
-5. Done!
-
-### Compiling by yourself
-1. Download the Git repository
-2. Open the project in Visual Studio
-3. Build
-4. Create a new Console Application
-5. Refrence the built DLLs
-6. Done!
-
-## Your initial code
+Your initial code
+==================
 There are 2 ways you can do this, first is the basic way:
 ```cs
 using System;
