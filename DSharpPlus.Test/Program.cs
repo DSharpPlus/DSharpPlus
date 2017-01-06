@@ -209,7 +209,8 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
 
             client.PresenceUpdate += (sender, e) =>
             {
-                Console.WriteLine($"[{e.UserID}]{e.User.Username}#{e.User.Discriminator}: {e.Status} { (e.Game == "" ? "" : "playing " + client.GetUserPresence(e.UserID).Game)}");
+                if(e.User != null)
+                    Console.WriteLine($"[{e.UserID}]{e.User.Username}#{e.User.Discriminator}: {e.Status} playing " + e.Game);
             };
 
             client.Connect().GetAwaiter().GetResult();

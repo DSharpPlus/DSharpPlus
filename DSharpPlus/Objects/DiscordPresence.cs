@@ -13,6 +13,8 @@ namespace DSharpPlus
         [JsonProperty("user")]
         internal DiscordUser InternalUser;
 
+        public DiscordUser User => DiscordClient._guilds[GuildID].Members.Find(x => x.User.ID == UserID)?.User;
+
         public ulong UserID => InternalUser == null ? 0 : InternalUser.ID;
 
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]

@@ -7,7 +7,7 @@ namespace DSharpPlus
 {
     public class PresenceUpdateEventArgs : EventArgs
     {
-        public DiscordUser User => DiscordClient._guilds[GuildID].Members.Find(x => x.User.ID == UserID).User;
+        public DiscordUser User => DiscordClient._guilds[GuildID].Members.Find(x => x.User.ID == UserID)?.User;
 
         [JsonProperty("user")]
         internal DiscordUser InternalUser;
