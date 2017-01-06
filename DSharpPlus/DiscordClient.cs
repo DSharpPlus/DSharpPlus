@@ -834,9 +834,9 @@ namespace DSharpPlus
 
                 foreach (DiscordPresence Presence in guild.Presences)
                 {
-                        if (_presences.ContainsKey(Presence.UserID))
-                            _presences.Remove(Presence.UserID);
-                        _presences.Add(Presence.UserID, Presence);
+                    if (_presences.ContainsKey(Presence.UserID))
+                        _presences.Remove(Presence.UserID);
+                    _presences.Add(Presence.UserID, Presence);
                 }
 
                 if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
@@ -901,33 +901,14 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                List<ulong> Roles = new List<ulong>();
-                if (config.TokenType != TokenType.User)
-                {
-                    foreach (JToken role in (JArray)obj["d"]["roles"])
-                    {
-                        Roles.Add(ulong.Parse(role.ToString()));
-                    }
-                }
-
-                string Game = "";
-                if (obj["game"] != null && obj["game"].HasValues)
-                {
-                    Game = obj["d"]["game"]["name"].ToString();
-                }
-
-                ulong GuildID = 0;
-                if (config.TokenType != TokenType.User)
-                    GuildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                string status = obj["d"]["status"].ToString();
-
                 ulong userID = (ulong)obj["d"]["user"]["id"];
-                    if (_presences[userID] != null)
-                        _presences.Remove(userID);
+                DiscordPresence p = obj["d"].ToObject<DiscordPresence>();
+                if (_presences.ContainsKey(userID))
+                    _presences[userID] = p;
+                else
+                    _presences.Add(userID, p);
 
-                    _presences.Add(userID, obj["d"].ToObject<DiscordPresence>());
-
-                PresenceUpdateEventArgs args = new PresenceUpdateEventArgs { UserID = userID, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
+                PresenceUpdateEventArgs args = obj["d"].ToObject<PresenceUpdateEventArgs>();
                 PresenceUpdate?.Invoke(this, args);
             });
         }
