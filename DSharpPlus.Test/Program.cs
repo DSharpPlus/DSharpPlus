@@ -12,205 +12,210 @@ namespace DSharpPlus.Test
     class Program
     {
         static void Main(string[] args) => new Program().Run(args).GetAwaiter().GetResult();
-        
+
         public Task Run(string[] args)
         {
-                if (!File.Exists("token.txt"))
-                {
-                    Console.WriteLine("Please create a \"token.txt\" file with your bot's token inside.");
-                    Console.ReadKey();
-                    Environment.Exit(0);
-                }
-                string token = File.ReadAllLines("token.txt")[0];
-                DiscordClient client = new DiscordClient(new DiscordConfig()
-                {
-                    Token = token,
-                    TokenType = TokenType.Bot,
-                    DiscordBranch = Branch.Canary,
-                    LogLevel = LogLevel.Debug,
-                    UseInternalLogHandler = true,
-                    AutoReconnect = true,
-                    VoiceSettings = VoiceSettings.None
-                });
+            if (!File.Exists("token.txt"))
+            {
+                Console.WriteLine("Please create a \"token.txt\" file with your bot's token inside.");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+            string token = File.ReadAllLines("token.txt")[0];
+            DiscordClient client = new DiscordClient(new DiscordConfig()
+            {
+                Token = token,
+                TokenType = TokenType.Bot,
+                DiscordBranch = Branch.Canary,
+                LogLevel = LogLevel.Debug,
+                UseInternalLogHandler = true,
+                AutoReconnect = true,
+                VoiceSettings = VoiceSettings.None
+            });
 
-                client.UseCommands(new CommandConfig()
-                {
-                    Prefix = "!",
-                    SelfBot = false
-                });
-                client.AddCommand("test", async (x) =>
-                {
-                    await x.Message.Parent.SendMessage("boi");
-                });
+            client.UseCommands(new CommandConfig()
+            {
+                Prefix = "!",
+                SelfBot = false
+            });
+            client.AddCommand("test", async (x) =>
+            {
+                await x.Message.Parent.SendMessage("boi");
+            });
 
-                client.AddCommand("testerino", async (x) =>
-                {
-                    await client.SendMessage(x.Message.ChannelID, "ye works");
-                    await client.SendMessage(x.Message.ChannelID, $@"```
+            client.AddCommand("testerino", async (x) =>
+            {
+                await client.SendMessage(x.Message.ChannelID, "ye works");
+                await client.SendMessage(x.Message.ChannelID, $@"```
 Servername: {x.Message.Parent.Parent.Name}
 Serverowner: {x.Message.Parent.Parent.OwnerID}
 ```");
-                });
+            });
 
-                client.AddCommand("kill", async (x) =>
+            client.AddCommand("kill", async (x) =>
+            {
+                await x.Message.Respond($"Cya o/");
+
+                client.Dispose();
+                await Task.Delay(-1);
+            });
+
+
+            client.AddCommand("clearChannel", async (x) =>
+            {
+                List<ulong> ids = (await x.Message.Parent.GetMessages(before: x.Message.ID, limit: 50)).Select(y => y.ID).ToList();
+                await x.Message.Parent.BulkDeleteMessages(ids);
+                await x.Message.Respond($"Removed ``{ids.Count}`` messages");
+            });
+
+            client.Ready += (sender, e) =>
+            {
+                Console.WriteLine($"Connected as {client.Me.Username}#{client.Me.Discriminator}\nOn {client.GatewayUrl} (v{client.GatewayVersion})");
+            };
+
+            client.MessageCreated += async (sender, e) =>
+            {
+                if (e.Message.Content == "!!appinfo")
                 {
-                    await x.Message.Respond($"Cya o/");
+                    DiscordApplication App = await client.GetCurrentApp();
 
-                    client.Dispose();
-                    await Task.Delay(-1);
-                });
+                    string appinfo = "**App info:**\n```";
+                    appinfo += "\nApp Name: " + App.Name;
+                    appinfo += "\nApp Description: " + App.Description;
+                    appinfo += "\nApp ID: " + App.ID;
+                    appinfo += "\nApp Creation Date: " + App.CreationDate.ToString();
+                    appinfo += "\nApp Owner ID: " + App.Owner.ID;
+                    appinfo += "\nApp Owner Username: " + App.Owner.Username + "#" + App.Owner.Discriminator;
+                    appinfo += "\nApp Owner Join Date: " + App.Owner.CreationDate.ToString();
+                    appinfo += "\n```";
 
+                    await e.Message.Respond(appinfo);
+                }
 
-                client.AddCommand("clearChannel", async (x) =>
+                if (e.Message.Content == "!!embed")
                 {
-                    List<ulong> ids = (await x.Message.Parent.GetMessages(before: x.Message.ID, limit: 50)).Select(y => y.ID).ToList();
-                    await x.Message.Parent.BulkDeleteMessages(ids);
-                    await x.Message.Respond($"Removed ``{ids.Count}`` messages");
-                });
-
-                client.Ready += (sender, e) =>
-                {
-                    Console.WriteLine($"Connected as {client.Me.Username}#{client.Me.Discriminator}\nOn {client.GatewayUrl} (v{client.GatewayVersion})");
-                };
-
-                client.MessageCreated += async (sender, e) =>
-                {
-                    if (e.Message.Content == "!!appinfo")
+                    List<DiscordEmbedField> fields = new List<DiscordEmbedField>();
+                    fields.Add(new DiscordEmbedField()
                     {
-                        DiscordApplication App = await client.GetCurrentApp();
-
-                        string appinfo = "**App info:**\n```";
-                        appinfo += "\nApp Name: " + App.Name;
-                        appinfo += "\nApp Description: " + App.Description;
-                        appinfo += "\nApp ID: " + App.ID;
-                        appinfo += "\nApp Creation Date: " + App.CreationDate.ToString();
-                        appinfo += "\nApp Owner ID: " + App.Owner.ID;
-                        appinfo += "\nApp Owner Username: " + App.Owner.Username + "#" + App.Owner.Discriminator;
-                        appinfo += "\nApp Owner Join Date: " + App.Owner.CreationDate.ToString();
-                        appinfo += "\n```";
-
-                        await e.Message.Respond(appinfo);
-                    }
-
-                    if (e.Message.Content == "!!embed")
+                        Name = "This is a field",
+                        Value = "it works :p",
+                        Inline = false
+                    });
+                    fields.Add(new DiscordEmbedField()
                     {
-                        List<DiscordEmbedField> fields = new List<DiscordEmbedField>();
-                        fields.Add(new DiscordEmbedField()
-                        {
-                            Name = "This is a field",
-                            Value = "it works :p",
-                            Inline = false
-                        });
-                        fields.Add(new DiscordEmbedField()
-                        {
-                            Name = "Multiple fields",
-                            Value = "cool",
-                            Inline = false
-                        });
-                        DiscordEmbed embed = new DiscordEmbed
-                        {
-                            Title = "Testing embed",
-                            Description = "It works!",
-                            Type = "rich",
-                            Url = "https://github.com/NaamloosDT/DSharpPlus",
-                            Color = 8257469,
-                            Fields = fields,
-                            Author = new DiscordEmbedAuthor()
-                            {
-                                Name = "DSharpPlus team",
-                                IconUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                                Url = "https://github.com/NaamloosDT/DSharpPlus"
-                            },
-                            Footer = new DiscordEmbedFooter()
-                            {
-                                Text = "I am a footer"
-                            },
-                            Image = new DiscordEmbedImage()
-                            {
-                                Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                                Height = 50,
-                                Width = 50,
-                            },
-                            Thumbnail = new DiscordEmbedThumbnail()
-                            {
-                                Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                                Height = 10,
-                                Width = 10
-                            }
-                        };
-                        await e.Message.Respond("testing embed:", false, embed);
-                    }
-
-                    if (e.Message.Content.StartsWith("!!testerino"))
+                        Name = "Multiple fields",
+                        Value = "cool",
+                        Inline = false
+                    });
+                    DiscordEmbed embed = new DiscordEmbed
                     {
-                        await client.SendMessage(e.Message.ChannelID, "ye works");
-                        await client.SendMessage(e.Message.ChannelID, $@"```
+                        Title = "Testing embed",
+                        Description = "It works!",
+                        Type = "rich",
+                        Url = "https://github.com/NaamloosDT/DSharpPlus",
+                        Color = 8257469,
+                        Fields = fields,
+                        Author = new DiscordEmbedAuthor()
+                        {
+                            Name = "DSharpPlus team",
+                            IconUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                            Url = "https://github.com/NaamloosDT/DSharpPlus"
+                        },
+                        Footer = new DiscordEmbedFooter()
+                        {
+                            Text = "I am a footer"
+                        },
+                        Image = new DiscordEmbedImage()
+                        {
+                            Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                            Height = 50,
+                            Width = 50,
+                        },
+                        Thumbnail = new DiscordEmbedThumbnail()
+                        {
+                            Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                            Height = 10,
+                            Width = 10
+                        }
+                    };
+                    await e.Message.Respond("testing embed:", false, embed);
+                }
+
+                if (e.Message.Content.StartsWith("!!testerino"))
+                {
+                    await client.SendMessage(e.Message.ChannelID, "ye works");
+                    await client.SendMessage(e.Message.ChannelID, $@"```
 Servername: {e.Message.Parent.Parent.Name}
 Serverowner: {e.Message.Parent.Parent.OwnerID}
 ```");
 
-                        StringBuilder sb = new StringBuilder();
-                        sb.AppendLine($"Mentions ({e.MentionedUsers.Count}/{e.MentionedRoles.Count}/{e.MentionedChannels.Count}):\n```Users:");
-                        foreach (DiscordMember member in e.MentionedUsers)
-                        {
-                            sb.AppendLine($"{member.User.Username}");
-                        }
-                        sb.AppendLine("\nRoles:");
-                        foreach (DiscordRole role in e.MentionedRoles)
-                        {
-                            sb.AppendLine($"{role.Name}");
-                        }
-                        sb.AppendLine("\nChannels:");
-                        foreach (DiscordChannel channel in e.MentionedChannels)
-                        {
-                            sb.AppendLine($"{channel.Name}");
-                        }
-                        sb.AppendLine("```");
-                        await client.SendMessage(e.Message.ChannelID, sb.ToString());
-                    }
-
-                    if (e.Message.Content.StartsWith("!!mention"))
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine($"Mentions ({e.MentionedUsers.Count}/{e.MentionedRoles.Count}/{e.MentionedChannels.Count}):\n```Users:");
+                    foreach (DiscordMember member in e.MentionedUsers)
                     {
-                        await e.Channel.SendMessage($"{e.Message.Author.Mention} and {e.Channel.Mention}");
+                        sb.AppendLine($"{member.User.Username}");
                     }
-
-                    if (e.Message.Content.StartsWith("!!restart"))
+                    sb.AppendLine("\nRoles:");
+                    foreach (DiscordRole role in e.MentionedRoles)
                     {
-                        await client.Reconnect();
+                        sb.AppendLine($"{role.Name}");
                     }
-
-                    if (e.Message.Content == "!!mypresence")
+                    sb.AppendLine("\nChannels:");
+                    foreach (DiscordChannel channel in e.MentionedChannels)
                     {
-                        DiscordPresence p = client.GetUserPresence(e.Message.Author.ID);
-
-                        string info = "Your presence: ";
-                        info += "\nYour ID: " + p.UserID;
-                        info += "\nGame: " + p.Game;
-                        info += "\nStatus: " + p.Status;
-
-                        await e.Message.Respond(info);
+                        sb.AppendLine($"{channel.Name}");
                     }
-                };
+                    sb.AppendLine("```");
+                    await client.SendMessage(e.Message.ChannelID, sb.ToString());
+                }
 
-                client.GuildAvailable += (sender, e) =>
+                if (e.Message.Content.StartsWith("!!mention"))
                 {
-                    Console.WriteLine(e.Guild.Name);
-                };
+                    await e.Channel.SendMessage($"{e.Message.Author.Mention} and {e.Channel.Mention}");
+                }
 
-                client.MessageReactionAdd += async (sender, e) =>
+                if (e.Message.Content.StartsWith("!!restart"))
                 {
-                    await e.Message.DeleteAllReactions();
-                };
+                    await client.Reconnect();
+                }
 
-                client.MessageReactionRemoveAll += (sender, e) =>
+                if (e.Message.Content == "!!mypresence")
                 {
-                    client.DebugLogger.LogMessage(LogLevel.Debug, "Client", $"All reactions got removed for message id: {e.MessageID} in channel: {e.ChannelID}", DateTime.Now);
-                };
+                    DiscordPresence p = client.GetUserPresence(e.Message.Author.ID);
 
-                client.Connect().GetAwaiter().GetResult();
+                    string info = "Your presence: ";
+                    info += "\nYour ID: " + p.UserID;
+                    info += "\nGame: " + p.Game;
+                    info += "\nStatus: " + p.Status;
 
-                while (true)
-                    Console.ReadLine();
+                    await e.Message.Respond(info);
+                }
+            };
+
+            client.GuildAvailable += (sender, e) =>
+            {
+                Console.WriteLine(e.Guild.Name);
+            };
+
+            client.MessageReactionAdd += async (sender, e) =>
+            {
+                await e.Message.DeleteAllReactions();
+            };
+
+            client.MessageReactionRemoveAll += (sender, e) =>
+            {
+                client.DebugLogger.LogMessage(LogLevel.Debug, "Client", $"All reactions got removed for message id: {e.MessageID} in channel: {e.ChannelID}", DateTime.Now);
+            };
+
+            client.PresenceUpdate += (sender, e) =>
+            {
+                Console.WriteLine($"[{e.UserID}]{e.User.Username}#{e.User.Discriminator}: {e.Status} playing {e.Game}");
+            };
+
+            client.Connect().GetAwaiter().GetResult();
+
+            while (true)
+                Console.ReadLine();
         }
     }
 }

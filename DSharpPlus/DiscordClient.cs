@@ -901,8 +901,6 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
-
                 List<ulong> Roles = new List<ulong>();
                 if (config.TokenType != TokenType.User)
                 {
@@ -924,12 +922,12 @@ namespace DSharpPlus
                 string status = obj["d"]["status"].ToString();
 
                 ulong userID = (ulong)obj["d"]["user"]["id"];
-                    if (_presences.ContainsKey(userID))
+                    if (_presences[userID] != null)
                         _presences.Remove(userID);
 
                     _presences.Add(userID, obj["d"].ToObject<DiscordPresence>());
 
-                PresenceUpdateEventArgs args = new PresenceUpdateEventArgs { User = user, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
+                PresenceUpdateEventArgs args = new PresenceUpdateEventArgs { UserID = userID, RoleIDs = Roles, Game = Game, GuildID = GuildID, Status = status };
                 PresenceUpdate?.Invoke(this, args);
             });
         }
