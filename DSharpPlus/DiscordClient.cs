@@ -861,6 +861,18 @@ namespace DSharpPlus
                 if (guild != null)
                 {
                     guild = obj["d"].ToObject<DiscordGuild>();
+                    DiscordGuild old = _guilds[guild.ID];
+
+                    // These values only get send in GUILD_CREATE event, so we need to carry them over to the new object.
+                    guild.JoinedAt = old.JoinedAt;
+                    guild.Large = old.Large;
+                    guild.Unavailable = old.Unavailable;
+                    guild.MemberCount = old.MemberCount;
+                    guild.VoiceStates = old.VoiceStates;
+                    guild.Members = old.Members;
+                    guild.Channels = old.Channels;
+                    guild.Presences = old.Presences;
+
                     _guilds[guild.ID] = guild;
 
                     GuildUpdated?.Invoke(this, new GuildUpdateEventArgs { Guild = guild });
@@ -961,6 +973,7 @@ namespace DSharpPlus
             {
                 DiscordMember user = obj["d"].ToObject<DiscordMember>();
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                _guilds[guildID].Members.Add(user);
                 GuildMemberAddEventArgs args = new GuildMemberAddEventArgs { Member = user, GuildID = guildID };
                 GuildMemberAdd?.Invoke(this, args);
             });
@@ -971,6 +984,7 @@ namespace DSharpPlus
             {
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                _guilds[guildID].Members.RemoveAll(x => x.User.ID == user.ID);
                 GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs { User = user, GuildID = guildID };
                 GuildMemberRemove?.Invoke(this, args);
             });
@@ -992,6 +1006,15 @@ namespace DSharpPlus
                         roles.Add(ulong.Parse(role.ToString()));
                     }
                 }
+
+                // Guild member has to be updated.
+                DiscordMember m = _guilds[guildID].Members.Find(x => x.User.ID == user.ID);
+                m.Nickname = nick;
+                m.Roles = roles;
+                m.User = user;
+                _guilds[guildID].Members.RemoveAll(x => x.User.ID == user.ID);
+                _guilds[guildID].Members.Add(m);
+
                 GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles, NickName = nick };
                 GuildMemberUpdate?.Invoke(this, args);
             });
@@ -1002,6 +1025,7 @@ namespace DSharpPlus
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+                _guilds[guildID].Roles.Add(role);
                 GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs { GuildID = guildID, Role = role };
                 GuildRoleCreate?.Invoke(this, args);
             });
@@ -1012,6 +1036,8 @@ namespace DSharpPlus
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+                _guilds[guildID].Roles.RemoveAll(x => x.ID == role.ID);
+                _guilds[guildID].Roles.Add(role);
                 GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs { GuildID = guildID, Role = role };
                 GuildRoleUpdate?.Invoke(this, args);
             });
@@ -1022,6 +1048,7 @@ namespace DSharpPlus
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+                _guilds[guildID].Roles.RemoveAll(x => x.ID == role.ID);
                 GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs { GuildID = guildID, Role = role };
                 GuildRoleDelete?.Invoke(this, args);
             });
@@ -1232,6 +1259,7 @@ namespace DSharpPlus
                 {
                     members.Add(mem.ToObject<DiscordMember>());
                 }
+                _guilds[guildID].Members = members;
                 GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { GuildID = guildID, Members = members };
                 GuildMembersChunk?.Invoke(this, args);
             });
