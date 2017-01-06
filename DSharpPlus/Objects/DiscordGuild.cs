@@ -124,7 +124,7 @@ namespace DSharpPlus
         /// List of channel objects
         /// </summary>
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
-        public List<DiscordChannel> Channels => DiscordClient.InternalGetGuildChannels(ID).Result;
+        public List<DiscordChannel> Channels;
         /// <summary>
         /// List of simple presence objects
         /// </summary>
@@ -164,6 +164,7 @@ namespace DSharpPlus
         public async Task<List<DiscordMember>> GetAllMembers() => await DiscordClient.InternalGetGuildMembers(ID, MemberCount);
         public async Task ModifyMember(ulong MemberID, string Nickname, List<DiscordRole> Roles, bool Muted, bool Deaf, ulong VoiceChannelID) =>
             await DiscordClient.InternalModifyGuildMember(ID, MemberID, Nickname, Roles, Muted, Deaf, VoiceChannelID);
+        public async Task<List<DiscordChannel>> GetChannels() => await DiscordClient.InternalGetGuildChannels(ID);
         #endregion
 
     }
