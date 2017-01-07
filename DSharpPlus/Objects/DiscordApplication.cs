@@ -25,6 +25,6 @@ namespace DSharpPlus
         public int Flags;
 
         [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordApplicationOwner Owner;
+        public DiscordUser Owner;
     }
 }
