@@ -190,6 +190,16 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
 
                     await e.Message.Respond(info);
                 }
+                if(e.Message.Content == "!!exception")
+                {
+                    try
+                    {
+                        await e.Message.Respond("");
+                    }catch(BadRequestException ex)
+                    {
+                        Console.WriteLine(ex.WebResponse.ResponseCode + ": " + ex.JsonMessage);
+                    }
+                }
             };
 
             client.GuildAvailable += (sender, e) =>
