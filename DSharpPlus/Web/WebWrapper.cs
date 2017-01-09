@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -86,6 +87,21 @@ namespace DSharpPlus
             }
 
             HandleRateLimit(request, response);
+
+            // Checking for Errors
+            switch (response.ResponseCode)
+            {
+                case 400:
+                case 405:
+                    throw new BadRequestException(request, response);
+                case 401:
+                case 403:
+                    throw new UnauthorizedException(request, response);
+                case 404:
+                    throw new NotFoundException(request, response);
+                case 429:
+                    throw new RateLimitException(request, response);
+            }
 
             return response;
         }
@@ -196,6 +212,21 @@ namespace DSharpPlus
             }
 
             HandleRateLimit(request, response);
+
+            // Checking for Errors
+            switch (response.ResponseCode)
+            {
+                case 400:
+                case 405:
+                    throw new BadRequestException(request, response);
+                case 401:
+                case 403:
+                    throw new UnauthorizedException(request, response);
+                case 404:
+                    throw new NotFoundException(request, response);
+                case 429:
+                    throw new RateLimitException(request, response);
+            }
 
             return response;
         }
