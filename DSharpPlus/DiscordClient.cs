@@ -2453,7 +2453,10 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
             WebRequest request = await WebRequest.CreateRequestAsync(url);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            DiscordWebhook wh = JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            wh.Token = WebhookToken;
+            wh.ID = WebhookID;
+            return wh;
         }
 
         internal static async Task<DiscordWebhook> InternalModifyWebhook(ulong WebhookID, string name, string base64avatar)
@@ -2463,7 +2466,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("name", name);
             j.Add("avatar", base64avatar);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, j.ToString());
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2474,7 +2477,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("name", name);
             j.Add("avatar", base64avatar);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, payload: j.ToString());
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, payload: j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2483,14 +2486,14 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
         internal static async Task InternalDeleteWebhook(ulong WebhookID, string WebhookToken)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
-            WebRequest request = await WebRequest.CreateRequestAsync(url);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2498,7 +2501,6 @@ namespace DSharpPlus
             bool tts = false, List<DiscordEmbed> embeds = null)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
-            WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject req = new JObject();
             if (content != "")
                 req.Add("content", content);
@@ -2515,8 +2517,9 @@ namespace DSharpPlus
                 {
                     arr.Add(JsonConvert.SerializeObject(e));
                 }
+                req.Add(arr);
             }
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, payload: req.ToString());
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: req.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2524,7 +2527,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken + Endpoints.Slack;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, payload: jsonpayload);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: jsonpayload);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2532,7 +2535,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken + Endpoints.Github;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, payload: jsonpayload);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: jsonpayload);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
