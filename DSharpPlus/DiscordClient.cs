@@ -795,9 +795,14 @@ namespace DSharpPlus
             await Task.Run(() =>
             {
                 DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
-                int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
 
-                _guilds[channel.GuildID].Channels[channelIndex] = channel;
+                if (_guilds.ContainsKey(channel.GuildID) && _guilds[channel.GuildID].Channels.FindAll(x => x.ID == channel.ID).Count > 0)
+                {
+                    int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
+                    _guilds[channel.GuildID].Channels[channelIndex] = channel;
+                }
+                else
+                    _guilds[channel.GuildID].Channels.Add(channel);
 
                 ChannelUpdated?.Invoke(this, new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
             });
