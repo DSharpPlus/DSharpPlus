@@ -802,7 +802,11 @@ namespace DSharpPlus
                     _guilds[channel.GuildID].Channels[channelIndex] = channel;
                 }
                 else
+                {
+                    if (_guilds[channel.GuildID].Channels == null)
+                        _guilds[channel.GuildID].Channels = new List<DiscordChannel>();
                     _guilds[channel.GuildID].Channels.Add(channel);
+                }
 
                 ChannelUpdated?.Invoke(this, new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
             });
