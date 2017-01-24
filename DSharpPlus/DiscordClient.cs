@@ -796,6 +796,9 @@ namespace DSharpPlus
             {
                 DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
 
+                /*
+                 * Uncomment if fix found
+                
                 if (_guilds.ContainsKey(channel.GuildID) && _guilds[channel.GuildID].Channels.FindAll(x => x.ID == channel.ID).Count > 0)
                 {
                     int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
@@ -807,6 +810,8 @@ namespace DSharpPlus
                         _guilds[channel.GuildID].Channels = new List<DiscordChannel>();
                     _guilds[channel.GuildID].Channels.Add(channel);
                 }
+
+                */
 
                 ChannelUpdated?.Invoke(this, new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
             });
