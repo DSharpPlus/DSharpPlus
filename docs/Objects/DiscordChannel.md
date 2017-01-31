@@ -4,6 +4,11 @@ DiscordChannel
 
 ## Members
 
+`ulong ID`: ID for this object
+
+`DateTime CreationDate`: When this was created
+
+
 `ulong GuildID`: This channel's Guild's ID
 
 `string Name`: This channel's Name

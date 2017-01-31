@@ -4,6 +4,10 @@ Represents an Emoji
 
 ## Members
 
+`ulong ID`: ID for this object
+
+`DateTime CreationDate`: When this was created
+
 `string Name`: Emoji name
 
 `string Roles`: Roles this Emoji is active for

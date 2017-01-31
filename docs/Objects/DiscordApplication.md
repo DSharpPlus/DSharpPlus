@@ -4,6 +4,10 @@ Represesents an API Application
 
 ## Members
 
+`ulong ID`: ID for this object
+
+`DateTime CreationDate`: When this was created
+
 `string Description`: Description of this API Application
 
 `string Icon`: Icon hash for this API Application
