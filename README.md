@@ -9,7 +9,7 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 1. Download from [NuGet](http://nuget.org/packages/DSharpPlus)
 
 # Documentation
-### Note: There is no documentation available yet.
+The documentation can be found at ReadTheDocs, **[Here.](http://dsharpplus.readthedocs.io/)**
 
 # Tutorials
 [Making your first bot in C#](https://github.com/NaamloosDT/DSharpPlus/wiki/Making-your-first-bot-in-C%23)
