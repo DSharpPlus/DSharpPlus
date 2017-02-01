@@ -12,3 +12,7 @@ Gets sent when a message reaction gets added
 `DiscordEmoji Emoji`: Emoji used to react
 
 `DiscordUser User`: User object for UserID
+
+`DiscordMessage Message`: Message the reaction was added to
+
+`DiscordChannel Channel`: Channel the message belongs to
