@@ -317,7 +317,7 @@ namespace DSharpPlus
         /// <param name="tokenType"></param>
         /// <param name="shard">Shard to connect from</param>
         /// <returns></returns>
-        public async Task Connect(string tokenOverride, TokenType tokenType, int shard)
+        public async Task Connect(string tokenOverride, TokenType tokenType, int shard = 0)
         {
             config.Token = tokenOverride;
             config.TokenType = tokenType;
