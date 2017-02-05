@@ -18,7 +18,7 @@ namespace DSharpPlus
         /// <summary>
         /// This users guild nickname
         /// </summary>
-        [JsonProperty("nickname", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
         public string Nickname { get; internal set; }
         /// <summary>
         /// List of role object id's
