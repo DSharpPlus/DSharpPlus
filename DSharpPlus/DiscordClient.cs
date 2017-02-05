@@ -850,7 +850,17 @@ namespace DSharpPlus
                 {
                     if (_presences.ContainsKey(Presence.UserID))
                         _presences.Remove(Presence.UserID);
-                    _presences.Add(Presence.UserID, Presence);
+                    if (_presences != null && Presence != null)
+                    {
+                        try
+                        {
+                            _presences.Add(Presence.UserID, Presence);
+                        }
+                        catch (NullReferenceException)
+                        {
+
+                        }
+                    }
                 }
 
                 if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))

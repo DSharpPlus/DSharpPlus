@@ -26,7 +26,7 @@ namespace DSharpPlus
         /// The user's avatar url
         /// </summary>
         [JsonIgnore]
-        public string AvatarUrl => $"https://cdn.discordapp.com/avatars/{ID}/{AvatarHash}.jpg";
+        public string AvatarUrl => AvatarHash.StartsWith("a_")? $"https://cdn.discordapp.com/avatars/{ID}/{AvatarHash}.gif" : $"https://cdn.discordapp.com/avatars/{ID}/{AvatarHash}.jpg";
         /// <summary>
         /// Whether the user belongs to an oauth2 application
         /// </summary>
