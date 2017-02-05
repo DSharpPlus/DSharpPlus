@@ -360,6 +360,8 @@ namespace DSharpPlus
         internal async Task InternalReconnect(string tokenOverride, TokenType tokenType, int shard)
         {
             await Disconnect();
+            // delay task by 2 seconds to make sure everything gets closed correctly
+            await Task.Delay(1000);
             await Connect(tokenOverride, tokenType, shard);
         }
 
@@ -761,6 +763,7 @@ namespace DSharpPlus
                 {
                     foreach (JObject guild in obj["d"]["guilds"])
                     {
+                        if(!_guilds.ContainsKey(guild.Value<ulong>("id")))
                         _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
                     }
                 }
