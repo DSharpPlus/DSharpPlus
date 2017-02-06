@@ -1047,8 +1047,8 @@ namespace DSharpPlus
             await Task.Run(() =>
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
-                GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs { GuildID = guildID, Role = role };
+                ulong roleID = obj["d"]["role_id"].ToObject<ulong>();
+                GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs { GuildID = guildID, RoleID = roleID };
                 GuildRoleDelete?.Invoke(this, args);
             });
         }
