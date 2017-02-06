@@ -243,3 +243,12 @@ Returns: Nothing
 Gets guild's Channels
 
 Returns: `List<DiscordChannel>`
+
+#### ListMembers
+Gets guild's Members
+
+`int limit`: Limit of members to return
+
+`int after`: Index to begin from
+
+Returns: `List<DiscordMember>`

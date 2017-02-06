@@ -200,7 +200,16 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                         Console.WriteLine(ex.WebResponse.ResponseCode + ": " + ex.JsonMessage);
                     }
                 }
-
+                if(e.Message.Content == "!!heck")
+                {
+                    List<DiscordMember> mems = await client.InternalListGuildMembers(e.Guild.ID, 1000, 0);
+                    string memes = "";
+                    foreach(DiscordMember m in mems)
+                    {
+                        memes += $"{m.User.Username}#{m.User.Discriminator}: (nick: {m.Nickname})\n";
+                    }
+                    await e.Message.Respond(memes);
+                }
             };
 
             // This was an example I made for someone, but might be nice to keep this in for people who sniff out test code instead of docs :^)

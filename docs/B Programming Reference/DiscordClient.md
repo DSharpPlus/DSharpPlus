@@ -270,6 +270,17 @@ Gets current presence for a user
 
 Returns: `DiscordPresence`
 
+#### ListGuildMembers
+Gets guild's Members
+
+`ulong GuildID`
+
+`int limit`: Limit of members to return
+
+`int after`: Index to begin from
+
+Returns: `List<DiscordMember>`
+
 #### Dispose
 Kills your DiscordClient. Only use if you **don't** plan to do anything else.
 

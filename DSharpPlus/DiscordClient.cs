@@ -629,30 +629,17 @@ namespace DSharpPlus
         /// <param name="UserID">User's ID</param>
         /// <returns></returns>
         public DiscordPresence GetUserPresence(ulong UserID) => InternalGetUserPresence(UserID);
+        /// <summary>
+        /// Lists guild members
+        /// </summary>
+        /// <param name="guildID">Guild's ID</param>
+        /// <param name="limit">limit of members to return</param>
+        /// <param name="after">index to start from</param>
+        /// <returns></returns>
+        public async Task<List<DiscordMember>> ListGuildMembers(ulong guildID, int limit, int after) => await InternalListGuildMembers(guildID, limit, after);
         #endregion
 
         #region Unsorted / Testing / Not working
-        // This needs some work.
-        internal static async Task<List<DiscordMember>> InternalListGuildMembers(ulong GuildID, int limit = 0, int after = 0)
-        {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members;
-            WebHeaderCollection headers = Utils.GetBaseHeaders();
-            JObject j = new JObject();
-            if (limit != 0)
-                j.Add("limit", limit);
-            if (after != 0)
-                j.Add("after", after);
-
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, j.ToString());
-            WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            JArray ja = JArray.Parse(response.Response);
-            List<DiscordMember> members = new List<DiscordMember>();
-            foreach (JObject m in ja)
-            {
-                members.Add(m.ToObject<DiscordMember>());
-            }
-            return members;
-        }
 
         // Not working yet pls fix :^)
         internal static async Task<DiscordMember> InternalModifyGuildMember(ulong GuildID, ulong UserID, string nick = "",
@@ -1700,6 +1687,23 @@ namespace DSharpPlus
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
+        }
+
+        internal static async Task<List<DiscordMember>> InternalListGuildMembers(ulong GuildID, int limit, int after)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + $"?limit={limit}&after={after}";
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JObject j = new JObject();
+
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, j.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
+            JArray ja = JArray.Parse(response.Response);
+            List<DiscordMember> members = new List<DiscordMember>();
+            foreach (JObject m in ja)
+            {
+                members.Add(m.ToObject<DiscordMember>());
+            }
+            return members;
         }
         #endregion
         #region Channel
