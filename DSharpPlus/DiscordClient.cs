@@ -195,6 +195,8 @@ namespace DSharpPlus
         /// </summary>
         public event EventHandler<MessageReactionRemoveAllEventArgs> MessageReactionRemoveAll;
 
+        public event EventHandler<WebhooksUpdateEventArgs> WebhooksUpdate;
+
         public event EventHandler<UserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<VoiceReceivedEventArgs> VoiceReceived;
         #endregion
@@ -744,6 +746,7 @@ namespace DSharpPlus
                 case "message_reaction_add": await OnMessageReactionAdd(obj); break;
                 case "message_reaction_remove": await OnMessageReactionRemove(obj); break;
                 case "message_reaction_remove_all": await OnMessageReactionRemoveAll(obj); break;
+                case "webhooks_update": await OnWebhooksUpdate(obj); break;
                 default:
                     await OnUnknownEvent(obj);
                     DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown event: {obj.Value<string>("t")}\n{obj["d"]}", DateTime.Now);
@@ -799,10 +802,8 @@ namespace DSharpPlus
             {
                 DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
 
-                /*
-                 * Uncomment if fix found
-                
-                if (_guilds.ContainsKey(channel.GuildID) && _guilds[channel.GuildID].Channels.FindAll(x => x.ID == channel.ID).Count > 0)
+                if (_guilds != null && _guilds.ContainsKey(channel.GuildID) 
+                && _guilds[channel.GuildID]?.Channels?.Find(x => x.ID == channel.ID) != null)
                 {
                     int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
                     _guilds[channel.GuildID].Channels[channelIndex] = channel;
@@ -813,8 +814,6 @@ namespace DSharpPlus
                         _guilds[channel.GuildID].Channels = new List<DiscordChannel>();
                     _guilds[channel.GuildID].Channels.Add(channel);
                 }
-
-                */
 
                 ChannelUpdated?.Invoke(this, new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
             });
@@ -1325,6 +1324,21 @@ namespace DSharpPlus
                     MessageID = messageid
                 };
                 MessageReactionRemoveAll?.Invoke(this, args);
+            });
+        }
+
+        internal async Task OnWebhooksUpdate(JObject obj)
+        {
+            await Task.Run(() =>
+            {
+                ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
+                ulong guildid = ulong.Parse(obj["d"]["guild_id"].ToString());
+                WebhooksUpdateEventArgs args = new WebhooksUpdateEventArgs
+                {
+                    ChannelID = channelid,
+                    GuildID = guildid
+                };
+                WebhooksUpdate?.Invoke(this, args);
             });
         }
         #endregion

@@ -200,6 +200,15 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                         Console.WriteLine(ex.WebResponse.ResponseCode + ": " + ex.JsonMessage);
                     }
                 }
+
+            };
+
+            // This was an example I made for someone, but might be nice to keep this in for people who sniff out test code instead of docs :^)
+            client.GuildBanAdd += async (sender, e) =>
+            {
+                List<DiscordChannel> c = e.Guild.Channels.FindAll(x => x.Name.Contains("logs"));
+                if (c.Count > 0)
+                    await c[0].SendMessage($"User Banned: {e.User.Username}#{e.User.Discriminator}");
             };
 
             client.GuildAvailable += (sender, e) =>
