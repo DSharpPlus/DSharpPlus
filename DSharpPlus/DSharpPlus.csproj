@@ -99,6 +99,7 @@
     <Compile Include="EventArgs\VoiceReceivedEventArgs.cs" />
     <Compile Include="EventArgs\VoiceServerUpdateEventArgs.cs" />
     <Compile Include="EventArgs\VoiceStateUpdateEventArgs.cs" />
+    <Compile Include="EventArgs\WebhooksUpdateEventArgs.cs" />
     <Compile Include="Exceptions\BadRequestException.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Exceptions\RateLimitException.cs" />
