@@ -1695,8 +1695,7 @@ namespace DSharpPlus
         internal static async Task<DiscordChannel> InternalGetChannel(ulong ID)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ID;
-            WebHeaderCollection headers = new WebHeaderCollection();
-            headers.Add("Authorization", Utils.GetFormattedToken());
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
