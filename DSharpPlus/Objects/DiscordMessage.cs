@@ -19,7 +19,7 @@ namespace DSharpPlus
         /// The channel the message was sent in
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel Parent => DiscordClient.InternalGetChannel(ChannelID).Result;
+        public DiscordChannel Parent => DiscordClient._guilds[DiscordClient.GetGuildIdFromChannelID(ChannelID)].Channels.Find(x => x.ID == ChannelID);
         /// <summary>
         /// The author of this message
         /// </summary>
