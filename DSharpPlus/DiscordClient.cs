@@ -614,7 +614,7 @@ namespace DSharpPlus
         /// <param name="Deaf">Wether this member has been deafened or not (voice)</param>
         /// <param name="VoiceChannelID">Voice channel ID for moving this user around</param>
         /// <returns></returns>
-        public async Task ModifyMember(ulong GuildID, ulong MemberID, string Nickname, List<DiscordRole> Roles, bool Muted, bool Deaf, ulong VoiceChannelID) =>
+        public async Task ModifyMember(ulong GuildID, ulong MemberID, string Nickname = null, List<ulong> Roles = null, bool Muted = false, bool Deaf = false, ulong VoiceChannelID = 0) =>
             await InternalModifyGuildMember(GuildID, MemberID, Nickname, Roles, Muted, Deaf, VoiceChannelID);
 
         /// <summary>
@@ -639,36 +639,7 @@ namespace DSharpPlus
         public async Task<List<DiscordMember>> ListGuildMembers(ulong guildID, int limit, int after) => await InternalListGuildMembers(guildID, limit, after);
         #endregion
 
-        #region Unsorted / Testing / Not working
-
-        // Not working yet pls fix :^)
-        internal static async Task<DiscordMember> InternalModifyGuildMember(ulong GuildID, ulong UserID, string nick = "",
-            List<DiscordRole> roles = null, bool muted = false, bool deafened = false, ulong VoiceChannelID = 0)
-        {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + "/" + UserID;
-            WebHeaderCollection headers = Utils.GetBaseHeaders();
-            JObject j = new JObject();
-            if (nick != "")
-                j.Add("nick", nick);
-            if (roles != null)
-            {
-                JArray r = new JArray();
-                foreach (DiscordRole role in roles)
-                {
-                    r.Add(JsonConvert.SerializeObject(role));
-                }
-                j.Add("roles", r);
-            }
-            if (muted)
-                j.Add("mute", true);
-            if (deafened)
-                j.Add("deaf", true);
-            if (VoiceChannelID != 0)
-                j.Add("channel_id", VoiceChannelID);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
-            WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
-        }
+        #region WIP <---
 
         internal static async Task<List<DiscordRole>> InternalBatchModifyGuildRole(ulong GuildID)
         {
@@ -2133,6 +2104,33 @@ namespace DSharpPlus
                 guilds.Add(JsonConvert.DeserializeObject<DiscordGuild>(j.ToString()));
             }
             return guilds;
+        }
+
+        internal static async Task InternalModifyGuildMember(ulong GuildID, ulong UserID, string nick = null,
+            List<ulong> roles = null, bool muted = false, bool deafened = false, ulong VoiceChannelID = 0)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + "/" + UserID;
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JObject j = new JObject();
+            if (nick != null)
+                j.Add("nick", nick);
+            if (roles != null)
+            {
+                JArray r = new JArray();
+                foreach (ulong role in roles)
+                {
+                    r.Add(role);
+                }
+                j.Add("roles", r);
+            }
+            if (muted)
+                j.Add("mute", true);
+            if (deafened)
+                j.Add("deaf", true);
+            if (VoiceChannelID != 0)
+                j.Add("channel_id", VoiceChannelID);
+            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            await WebWrapper.HandleRequestAsync(request);
         }
 
         #endregion

@@ -162,7 +162,7 @@ namespace DSharpPlus
         public async Task RemoveMember(ulong UserID) => await DiscordClient.InternalRemoveGuildMember(ID, UserID);
         public async Task<DiscordMember> GetMember(ulong UserID) => await DiscordClient.InternalGetGuildMember(ID, UserID);
         public async Task<List<DiscordMember>> GetAllMembers() => await DiscordClient.InternalGetGuildMembers(ID, MemberCount);
-        public async Task ModifyMember(ulong MemberID, string Nickname, List<DiscordRole> Roles, bool Muted, bool Deaf, ulong VoiceChannelID) =>
+        public async Task ModifyMember(ulong MemberID, string Nickname, List<ulong> Roles, bool Muted, bool Deaf, ulong VoiceChannelID) =>
             await DiscordClient.InternalModifyGuildMember(ID, MemberID, Nickname, Roles, Muted, Deaf, VoiceChannelID);
         public async Task<List<DiscordChannel>> GetChannels() => await DiscordClient.InternalGetGuildChannels(ID);
         public async Task<List<DiscordMember>> ListMembers(int limit, int after) => await DiscordClient.InternalListGuildMembers(ID, limit, after);
