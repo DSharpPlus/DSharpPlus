@@ -2647,14 +2647,17 @@ namespace DSharpPlus
         }
 
         private bool disposed;
-        public void Dispose()
+        /// <summary>
+        /// Disposes your DiscordClient.
+        /// </summary>
+        public async void Dispose()
         {
             if (disposed)
                 return;
 
             GC.SuppressFinalize(this);
 
-            Disconnect();
+            await Disconnect();
 
             _cancelTokenSource.Cancel();
             _guilds = null;
