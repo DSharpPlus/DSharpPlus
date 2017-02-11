@@ -926,6 +926,7 @@ namespace DSharpPlus
                 {
                     emojis.Add(em.ToObject<DiscordEmoji>());
                 }
+                _guilds[guildID].Emojis = emojis;
                 GuildEmojisUpdateEventArgs arga = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis };
                 GuildEmojisUpdate?.Invoke(this, arga);
             });
@@ -945,6 +946,8 @@ namespace DSharpPlus
             {
                 DiscordMember user = obj["d"].ToObject<DiscordMember>();
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                _guilds[guildID].Members.Add(user);
+                _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
                 GuildMemberAddEventArgs args = new GuildMemberAddEventArgs { Member = user, GuildID = guildID };
                 GuildMemberAdd?.Invoke(this, args);
             });
@@ -955,6 +958,9 @@ namespace DSharpPlus
             {
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+                int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
+                _guilds[guildID].Members.RemoveAt(index);
+                _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
                 GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs { User = user, GuildID = guildID };
                 GuildMemberRemove?.Invoke(this, args);
             });
@@ -976,6 +982,11 @@ namespace DSharpPlus
                         roles.Add(ulong.Parse(role.ToString()));
                     }
                 }
+                int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
+                DiscordMember m = _guilds[guildID].Members[index];
+                m.Nickname = nick;
+                m.Roles = roles;
+                _guilds[guildID].Members[index] = m;
                 GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles, NickName = nick };
                 GuildMemberUpdate?.Invoke(this, args);
             });
@@ -986,6 +997,7 @@ namespace DSharpPlus
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+                _guilds[guildID].Roles.Add(role);
                 GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs { GuildID = guildID, Role = role };
                 GuildRoleCreate?.Invoke(this, args);
             });
@@ -996,6 +1008,8 @@ namespace DSharpPlus
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+                int index = _guilds[guildID].Roles.FindIndex(x => x.ID == role.ID);
+                _guilds[guildID].Roles[index] = role;
                 GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs { GuildID = guildID, Role = role };
                 GuildRoleUpdate?.Invoke(this, args);
             });
@@ -1006,6 +1020,8 @@ namespace DSharpPlus
             {
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
                 ulong roleID = obj["d"]["role_id"].ToObject<ulong>();
+                int index = _guilds[guildID].Roles.FindIndex(x => x.ID == roleID);
+                _guilds[guildID].Roles.RemoveAt(index);
                 GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs { GuildID = guildID, RoleID = roleID };
                 GuildRoleDelete?.Invoke(this, args);
             });
@@ -1025,11 +1041,9 @@ namespace DSharpPlus
                     msg["nonce"] = 0;
                     message = msg.ToObject<DiscordMessage>();
                 }
-                /*
-                _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == message.ChannelID).LastMessageID = message.ID;
 
-                use DiscordChannel.GetMessages instead?
-                */
+                int channelindex = _guilds[message.Parent.Parent.ID].Channels.FindIndex(x => x.ID == message.ChannelID);
+                _guilds[message.Parent.Parent.ID].Channels[channelindex].LastMessageID = message.ID;
 
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
@@ -1080,11 +1094,6 @@ namespace DSharpPlus
             {
                 DiscordMessage message;
                 message = obj["d"].ToObject<DiscordMessage>();
-                /*
-                _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == message.ChannelID).LastMessageID = message.ID;
-
-                use DiscordChannel.GetMessages instead?
-                */
 
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
                 List<DiscordRole> MentionedRoles = new List<DiscordRole>();
@@ -1216,6 +1225,8 @@ namespace DSharpPlus
                 {
                     members.Add(mem.ToObject<DiscordMember>());
                 }
+                _guilds[guildID].Members = members;
+                _guilds[guildID].MemberCount = members.Count;
                 GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { GuildID = guildID, Members = members };
                 GuildMembersChunk?.Invoke(this, args);
             });
