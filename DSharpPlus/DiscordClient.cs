@@ -639,16 +639,6 @@ namespace DSharpPlus
         public async Task<List<DiscordMember>> ListGuildMembers(ulong guildID, int limit, int after) => await InternalListGuildMembers(guildID, limit, after);
         #endregion
 
-        #region WIP <---
-
-        internal static async Task<List<DiscordRole>> InternalBatchModifyGuildRole(ulong GuildID)
-        {
-            // I have no idea how to implement this with our current configuration.
-            return await Task.Run(() => new List<DiscordRole>());
-        }
-
-        #endregion
-
         #region Websocket
         internal async Task HandleSocketMessage(string data, int shard)
         {
