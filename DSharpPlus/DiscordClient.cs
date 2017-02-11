@@ -367,7 +367,6 @@ namespace DSharpPlus
             await Connect(tokenOverride, tokenType, shard);
         }
 
-        // TODO
         internal async Task InternalConnect(int shard)
         {
             await InternalUpdateGateway();
