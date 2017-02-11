@@ -291,6 +291,12 @@ namespace DSharpPlus.Voice
             __udpClient.BeginReceive(ReceiveAudio, null);
         }
 
+        /// <summary>
+        /// Sends an audio packet over the UDP connection.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [Obsolete("Not yet working")]
         public async Task SendAsync(byte[] data)
         {
             if (DiscordClient.config.VoiceSettings == VoiceSettings.Sending || DiscordClient.config.VoiceSettings == VoiceSettings.Both)
