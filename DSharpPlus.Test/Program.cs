@@ -202,13 +202,17 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                 }
                 if(e.Message.Content == "!!heck")
                 {
-                    List<DiscordMember> mems = await client.InternalListGuildMembers(e.Guild.ID, 1000, 0);
+                    /*List<DiscordMember> mems = await client.InternalListGuildMembers(e.Guild.ID, 1000, 0);
                     string memes = "";
                     foreach(DiscordMember m in mems)
                     {
                         memes += $"{m.User.Username}#{m.User.Discriminator}: (nick: {m.Nickname})\n";
                     }
-                    await e.Message.Respond(memes);
+                    await e.Message.Respond(memes);*/
+                }
+                if(e.Message.Content == "!!testmodify")
+                {
+                    await client.ModifyMember(e.Guild.ID, e.Message.Author.ID, "yoyoyoy");
                 }
             };
 
