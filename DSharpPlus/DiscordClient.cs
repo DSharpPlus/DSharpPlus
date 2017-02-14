@@ -1513,7 +1513,7 @@ namespace DSharpPlus
         {
             foreach (DiscordGuild guild in _guilds.Values)
             {
-                if (guild.Channels.Find(x => x.ID == channelid) != null) return guild.ID;
+                if (guild.Channels != null && guild.Channels.Find(x => x.ID == channelid) != null) return guild.ID;
             }
             return 0;
         }
