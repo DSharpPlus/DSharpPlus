@@ -68,6 +68,11 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
                 await x.Message.Respond($"Removed ``{ids.Count}`` messages");
             });
 
+            client.AddCommand("pres", async (x) =>
+            {
+                await x.Message.Respond(x.Message.Author.Presence.User.Username);
+            });
+
             client.Ready += (sender, e) =>
             {
                 Console.WriteLine($"Connected as {client.Me.Username}#{client.Me.Discriminator}\nOn {client.GatewayUrl} (v{client.GatewayVersion})");

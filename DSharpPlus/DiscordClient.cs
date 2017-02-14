@@ -1504,6 +1504,18 @@ namespace DSharpPlus
             return 0;
         }
 
+        internal static DiscordUser InternalGetCachedUser(ulong userid)
+        {
+            foreach(DiscordGuild guild in _guilds.Values)
+            {
+                if (guild.Members.Find(x => x.User.ID == userid) != null) return guild.Members.Find(x => x.User.ID == userid).User;
+            }
+            return new DiscordUser()
+            {
+                ID = userid
+            };
+        }
+
         internal static DiscordPresence InternalGetUserPresence(ulong userid)
         {
             if (_presences.ContainsKey(userid))
