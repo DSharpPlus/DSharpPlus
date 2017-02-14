@@ -713,8 +713,8 @@ namespace DSharpPlus
                 {
                     foreach (JObject guild in obj["d"]["guilds"])
                     {
-                        if(!_guilds.ContainsKey(guild.Value<ulong>("id")))
-                        _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
+                        if (!_guilds.ContainsKey(guild.Value<ulong>("id")))
+                            _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
                     }
                 }
                 _sessionID = obj["d"]["session_id"].ToString();
@@ -749,7 +749,7 @@ namespace DSharpPlus
             {
                 DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
 
-                if (_guilds != null && _guilds.ContainsKey(channel.GuildID) 
+                if (_guilds != null && _guilds.ContainsKey(channel.GuildID)
                 && _guilds[channel.GuildID]?.Channels?.Find(x => x.ID == channel.ID) != null)
                 {
                     int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
@@ -947,9 +947,12 @@ namespace DSharpPlus
             {
                 DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
                 ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
-                _guilds[guildID].Members.RemoveAt(index);
-                _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
+                if (_guilds[guildID].Members.Find(x => x.User.ID == user.ID) != null)
+                {
+                    int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
+                    _guilds[guildID].Members.RemoveAt(index);
+                    _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
+                }
                 GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs { User = user, GuildID = guildID };
                 GuildMemberRemove?.Invoke(this, args);
             });
@@ -972,10 +975,22 @@ namespace DSharpPlus
                     }
                 }
                 int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
-                DiscordMember m = _guilds[guildID].Members[index];
-                m.Nickname = nick;
-                m.Roles = roles;
-                _guilds[guildID].Members[index] = m;
+                if (_guilds[guildID].Members.Find(x => x.User.ID == user.ID) != null)
+                {
+                    DiscordMember m = _guilds[guildID].Members[index];
+                    m.Nickname = nick;
+                    m.Roles = roles;
+                    _guilds[guildID].Members[index] = m;
+                }else
+                {
+                    DiscordMember m = new DiscordMember()
+                    {
+                        User = user,
+                        Nickname = nick,
+                        Roles = roles,
+                    };
+                    _guilds[guildID].Members.Add(m);
+                }
                 GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles, NickName = nick };
                 GuildMemberUpdate?.Invoke(this, args);
             });
@@ -1035,7 +1050,8 @@ namespace DSharpPlus
                 {
                     int channelindex = _guilds[message.Parent.Parent.ID].Channels.FindIndex(x => x.ID == message.ChannelID);
                     _guilds[message.Parent.Parent.ID].Channels[channelindex].LastMessageID = message.ID;
-                }else
+                }
+                else
                 {
                     int channelindex = _privateChannels.FindIndex(x => x.ID == message.ChannelID);
                     _privateChannels[channelindex].LastMessageID = message.ID;
@@ -1513,7 +1529,7 @@ namespace DSharpPlus
 
         internal static DiscordUser InternalGetCachedUser(ulong userid)
         {
-            foreach(DiscordGuild guild in _guilds.Values)
+            foreach (DiscordGuild guild in _guilds.Values)
             {
                 if (guild.Members.Find(x => x.User.ID == userid) != null) return guild.Members.Find(x => x.User.ID == userid).User;
             }
