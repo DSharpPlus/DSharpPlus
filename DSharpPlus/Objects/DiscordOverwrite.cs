@@ -7,7 +7,6 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordOverwrite : SnowflakeObject
     {
-        // TODO -> Enum for that?
         /// <summary>
         /// Either "role" or "member"
         /// </summary>
@@ -17,11 +16,25 @@ namespace DSharpPlus
         /// Termission bit set
         /// </summary>
         [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
-        public int Allow { get; internal set; }
+        public int Allow;
         /// <summary>
         /// Permission bit set
         /// </summary>
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
-        public int Deny { get; internal set; }
+        public int Deny;
+
+        public PermissionLevel CheckPermission(Permission permission)
+        {
+            if ((Allow & (int)permission) != 0)
+                return PermissionLevel.Allowed;
+            if ((Deny & (int)permission) != 0)
+                return PermissionLevel.Denied;
+            return PermissionLevel.Unset;
+        }
+
+        public void DenyPermission(Permission p) { Deny = DiscordClient.InternalAddPermission(Deny, p); }
+        public void UndenyPermission(Permission p) { Deny = DiscordClient.InternalRemovePermission(Deny, p); }
+        public void AllowPermission(Permission p) { Allow = DiscordClient.InternalAddPermission(Allow, p); }
+        public void UnallowPermission(Permission p) { Allow = DiscordClient.InternalRemovePermission(Allow, p); }
     }
 }
