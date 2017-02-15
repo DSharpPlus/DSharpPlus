@@ -73,140 +73,170 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
                 await x.Message.Respond(x.Message.Author.Presence.User.Username);
             });
 
+            client.AddCommand("pers", async (x) =>
+            {
+                string roles = "roles: ";
+                string os = "overwrites: ";
+
+                foreach (DiscordRole r in x.Message.Parent.Parent.Roles)
+                {
+                    roles += $"\n{r.Name.Replace("@", "[@]")} : {r.ID}";
+                }
+
+                foreach (DiscordOverwrite o in client.Guilds[x.Message.Parent.GuildID].Channels.Find(a => a.ID == x.Message.ChannelID).PermissionOverwrites)
+                {
+                    os += $"\n{o.Type} : {o.ID}";
+                }
+
+                await x.Message.Respond(roles + "\n\n" + os);
+            });
+
+            client.AddCommand("permission", async (x) =>
+            {
+                DiscordOverwrite o = x.Message.Parent.PermissionOverwrites.Find(a => a.ID == 281521779116343298);
+                foreach(Permission p in Enum.GetValues(typeof(Permission)))
+                {
+                    o.UndenyPermission(p);
+                    o.UnallowPermission(p);
+                }
+                await x.Message.Parent.UpdateOverwrite(o);
+            });
+
             client.Ready += (sender, e) =>
             {
                 Console.WriteLine($"Connected as {client.Me.Username}#{client.Me.Discriminator}\nOn {client.GatewayUrl} (v{client.GatewayVersion})");
             };
 
             client.MessageCreated += async (sender, e) =>
-            {
-                if (e.Message.Content == "!!appinfo")
-                {
-                    DiscordApplication App = await client.GetCurrentApp();
-
-                    string appinfo = "**App info:**\n```";
-                    appinfo += "\nApp Name: " + App.Name;
-                    appinfo += "\nApp Description: " + App.Description;
-                    appinfo += "\nApp ID: " + App.ID;
-                    appinfo += "\nApp Creation Date: " + App.CreationDate.ToString();
-                    appinfo += "\nApp Owner ID: " + App.Owner.ID;
-                    appinfo += "\nApp Owner Username: " + App.Owner.Username + "#" + App.Owner.Discriminator;
-                    appinfo += "\nApp Owner Join Date: " + App.Owner.CreationDate.ToString();
-                    appinfo += "\n```";
-
-                    await e.Message.Respond(appinfo);
-                }
-
-                if (e.Message.Content == "!!embed")
-                {
-                    List<DiscordEmbedField> fields = new List<DiscordEmbedField>();
-                    fields.Add(new DiscordEmbedField()
                     {
-                        Name = "This is a field",
-                        Value = "it works :p",
-                        Inline = false
-                    });
-                    fields.Add(new DiscordEmbedField()
-                    {
-                        Name = "Multiple fields",
-                        Value = "cool",
-                        Inline = false
-                    });
-                    DiscordEmbed embed = new DiscordEmbed
-                    {
-                        Title = "Testing embed",
-                        Description = "It works!",
-                        Type = "rich",
-                        Url = "https://github.com/NaamloosDT/DSharpPlus",
-                        Color = 8257469,
-                        Fields = fields,
-                        Author = new DiscordEmbedAuthor()
+                        if (e.Message.Content == "!!appinfo")
                         {
-                            Name = "DSharpPlus team",
-                            IconUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                            Url = "https://github.com/NaamloosDT/DSharpPlus"
-                        },
-                        Footer = new DiscordEmbedFooter()
-                        {
-                            Text = "I am a footer"
-                        },
-                        Image = new DiscordEmbedImage()
-                        {
-                            Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                            Height = 50,
-                            Width = 50,
-                        },
-                        Thumbnail = new DiscordEmbedThumbnail()
-                        {
-                            Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                            Height = 10,
-                            Width = 10
+                            DiscordApplication App = await client.GetCurrentApp();
+
+                            string appinfo = "**App info:**\n```";
+                            appinfo += "\nApp Name: " + App.Name;
+                            appinfo += "\nApp Description: " + App.Description;
+                            appinfo += "\nApp ID: " + App.ID;
+                            appinfo += "\nApp Creation Date: " + App.CreationDate.ToString();
+                            appinfo += "\nApp Owner ID: " + App.Owner.ID;
+                            appinfo += "\nApp Owner Username: " + App.Owner.Username + "#" + App.Owner.Discriminator;
+                            appinfo += "\nApp Owner Join Date: " + App.Owner.CreationDate.ToString();
+                            appinfo += "\n```";
+
+                            await e.Message.Respond(appinfo);
                         }
-                    };
-                    await e.Message.Respond("testing embed:", false, embed);
-                }
 
-                if (e.Message.Content.StartsWith("!!testerino"))
-                {
-                    await client.SendMessage(e.Message.ChannelID, "ye works");
-                    await client.SendMessage(e.Message.ChannelID, $@"```
+                        if (e.Message.Content == "!!embed")
+                        {
+                            List<DiscordEmbedField> fields = new List<DiscordEmbedField>();
+                            fields.Add(new DiscordEmbedField()
+                            {
+                                Name = "This is a field",
+                                Value = "it works :p",
+                                Inline = false
+                            });
+                            fields.Add(new DiscordEmbedField()
+                            {
+                                Name = "Multiple fields",
+                                Value = "cool",
+                                Inline = false
+                            });
+                            DiscordEmbed embed = new DiscordEmbed
+                            {
+                                Title = "Testing embed",
+                                Description = "It works!",
+                                Type = "rich",
+                                Url = "https://github.com/NaamloosDT/DSharpPlus",
+                                Color = 8257469,
+                                Fields = fields,
+                                Author = new DiscordEmbedAuthor()
+                                {
+                                    Name = "DSharpPlus team",
+                                    IconUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                                    Url = "https://github.com/NaamloosDT/DSharpPlus"
+                                },
+                                Footer = new DiscordEmbedFooter()
+                                {
+                                    Text = "I am a footer"
+                                },
+                                Image = new DiscordEmbedImage()
+                                {
+                                    Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                                    Height = 50,
+                                    Width = 50,
+                                },
+                                Thumbnail = new DiscordEmbedThumbnail()
+                                {
+                                    Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                                    Height = 10,
+                                    Width = 10
+                                }
+                            };
+                            await e.Message.Respond("testing embed:", false, embed);
+                        }
+
+                        if (e.Message.Content.StartsWith("!!testerino"))
+                        {
+                            await client.SendMessage(e.Message.ChannelID, "ye works");
+                            await client.SendMessage(e.Message.ChannelID, $@"```
 Servername: {e.Message.Parent.Parent.Name}
 Serverowner: {e.Message.Parent.Parent.OwnerID}
 ```");
 
-                    StringBuilder sb = new StringBuilder();
-                    sb.AppendLine($"Mentions ({e.MentionedUsers.Count}/{e.MentionedRoles.Count}/{e.MentionedChannels.Count}):\n```Users:");
-                    foreach (DiscordMember member in e.MentionedUsers)
-                    {
-                        sb.AppendLine($"{member.User.Username}");
-                    }
-                    sb.AppendLine("\nRoles:");
-                    foreach (DiscordRole role in e.MentionedRoles)
-                    {
-                        sb.AppendLine($"{role.Name}");
-                    }
-                    sb.AppendLine("\nChannels:");
-                    foreach (DiscordChannel channel in e.MentionedChannels)
-                    {
-                        sb.AppendLine($"{channel.Name}");
-                    }
-                    sb.AppendLine("```");
-                    await client.SendMessage(e.Message.ChannelID, sb.ToString());
-                }
+                            StringBuilder sb = new StringBuilder();
+                            sb.AppendLine($"Mentions ({e.MentionedUsers.Count}/{e.MentionedRoles.Count}/{e.MentionedChannels.Count}):\n```Users:");
+                            foreach (DiscordMember member in e.MentionedUsers)
+                            {
+                                sb.AppendLine($"{member.User.Username}");
+                            }
+                            sb.AppendLine("\nRoles:");
+                            foreach (DiscordRole role in e.MentionedRoles)
+                            {
+                                sb.AppendLine($"{role.Name}");
+                            }
+                            sb.AppendLine("\nChannels:");
+                            foreach (DiscordChannel channel in e.MentionedChannels)
+                            {
+                                sb.AppendLine($"{channel.Name}");
+                            }
+                            sb.AppendLine("```");
+                            await client.SendMessage(e.Message.ChannelID, sb.ToString());
+                        }
 
-                if (e.Message.Content.StartsWith("!!mention"))
-                {
-                    await e.Channel.SendMessage($"{e.Message.Author.Mention} and {e.Channel.Mention}");
-                }
+                        if (e.Message.Content.StartsWith("!!mention"))
+                        {
+                            await e.Channel.SendMessage($"{e.Message.Author.Mention} and {e.Channel.Mention}");
+                        }
 
-                if (e.Message.Content.StartsWith("!!restart"))
-                {
-                    await client.Reconnect();
-                }
+                        if (e.Message.Content.StartsWith("!!restart"))
+                        {
+                            await client.Reconnect();
+                        }
 
-                if (e.Message.Content == "!!mypresence")
-                {
-                    DiscordPresence p = client.GetUserPresence(e.Message.Author.ID);
+                        if (e.Message.Content == "!!mypresence")
+                        {
+                            DiscordPresence p = client.GetUserPresence(e.Message.Author.ID);
 
-                    string info = "Your presence: ";
-                    info += "\nYour ID: " + p.UserID;
-                    info += "\nGame: " + p.Game;
-                    info += "\nStatus: " + p.Status;
+                            string info = "Your presence: ";
+                            info += "\nYour ID: " + p.UserID;
+                            info += "\nGame: " + p.Game;
+                            info += "\nStatus: " + p.Status;
 
-                    await e.Message.Respond(info);
-                }
-                if(e.Message.Content == "!!exception")
-                {
-                    try
-                    {
-                        await e.Message.Respond("");
-                    }catch(BadRequestException ex)
-                    {
-                        Console.WriteLine(ex.WebResponse.ResponseCode + ": " + ex.JsonMessage);
-                    }
-                }
-                if(e.Message.Content == "!!heck")
-                {
+                            await e.Message.Respond(info);
+                        }
+                        if (e.Message.Content == "!!exception")
+                        {
+                            try
+                            {
+                                await e.Message.Respond("");
+                            }
+                            catch (BadRequestException ex)
+                            {
+                                Console.WriteLine(ex.WebResponse.ResponseCode + ": " + ex.JsonMessage);
+                            }
+                        }
+                        if (e.Message.Content == "!!heck")
+                        {
                     /*List<DiscordMember> mems = await client.InternalListGuildMembers(e.Guild.ID, 1000, 0);
                     string memes = "";
                     foreach(DiscordMember m in mems)
@@ -214,12 +244,12 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                         memes += $"{m.User.Username}#{m.User.Discriminator}: (nick: {m.Nickname})\n";
                     }
                     await e.Message.Respond(memes);*/
-                }
-                if(e.Message.Content == "!!testmodify")
-                {
-                    await client.ModifyMember(e.Guild.ID, e.Message.Author.ID, "yoyoyoy");
-                }
-            };
+                        }
+                        if (e.Message.Content == "!!testmodify")
+                        {
+                            await client.ModifyMember(e.Guild.ID, e.Message.Author.ID, "yoyoyoy");
+                        }
+                    };
 
             // This was an example I made for someone, but might be nice to keep this in for people who sniff out test code instead of docs :^)
             client.GuildBanAdd += async (sender, e) =>
@@ -246,7 +276,7 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
 
             client.PresenceUpdate += (sender, e) =>
             {
-                if(e.User != null)
+                if (e.User != null)
                     Console.WriteLine($"[{e.UserID}]{e.User.Username}#{e.User.Discriminator}: {e.Status} playing " + e.Game);
             };
 

@@ -1,6 +1,25 @@
 ﻿namespace DSharpPlus
 {
     /// <summary>
+    /// Wether a permission is allowed, denied or unset
+    /// </summary>
+    public enum PermissionLevel
+    {
+        /// <summary>
+        /// Said permission is Allowed
+        /// </summary>
+        Allowed,
+        /// <summary>
+        /// Said permission is Denied
+        /// </summary>
+        Denied,
+        /// <summary>
+        /// Said permission is Unset
+        /// </summary>
+        Unset
+    }
+
+    /// <summary>
     /// Bitwise permission flags
     /// </summary>
     public enum Permission

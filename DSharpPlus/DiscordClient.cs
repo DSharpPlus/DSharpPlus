@@ -1555,6 +1555,22 @@ namespace DSharpPlus
             };
         }
 
+        internal static int InternalAddPermission(int before, Permission p)
+        {
+            int after = before;
+            after &= (int)p;
+            Console.WriteLine(before + " " + after);
+            return after;
+        }
+
+        internal static int InternalRemovePermission(int before, Permission p)
+        {
+            int after = before;
+            after |= (int)p;
+            Console.WriteLine(before + " " + after);
+            return after;
+        }
+
         #region HTTP Actions
         #region Guild
         //
