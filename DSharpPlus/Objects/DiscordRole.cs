@@ -31,7 +31,7 @@ namespace DSharpPlus
         /// Permission bit set
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-        public int Permissions;
+        public Permission Permissions;
         /// <summary>
         /// Whether this role is managed by an integration
         /// </summary>
@@ -48,7 +48,7 @@ namespace DSharpPlus
         public string Mention => Formatter.Mention(this);
         public PermissionLevel CheckPermission(Permission permission)
         {
-            if ((Permissions & (int)permission) != 0)
+            if ((Permissions & permission) != 0)
                 return PermissionLevel.Allowed;
             return PermissionLevel.Unset;
         }
