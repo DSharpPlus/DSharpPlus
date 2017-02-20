@@ -22,6 +22,7 @@
     /// <summary>
     /// Bitwise permission flags
     /// </summary>
+    [System.Flags]
     public enum Permission : ulong
     {
         /// <summary>
