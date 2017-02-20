@@ -22,7 +22,7 @@
     /// <summary>
     /// Bitwise permission flags
     /// </summary>
-    public enum Permission
+    public enum Permission : ulong
     {
         /// <summary>
         /// Allow creation of instant invites
