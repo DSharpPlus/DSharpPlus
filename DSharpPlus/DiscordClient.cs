@@ -512,7 +512,7 @@ namespace DSharpPlus
         /// <param name="content"></param>
         /// <param name="tts"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(ulong ChannelID, string content, bool tts = false) => await InternalCreateMessage(ChannelID, content, tts);
+        public async Task<DiscordMessage> SendMessage(ulong ChannelID, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(ChannelID, content, tts, embed);
         /// <summary>
         /// Sends a message
         /// </summary>
@@ -520,7 +520,7 @@ namespace DSharpPlus
         /// <param name="content"></param>
         /// <param name="tts"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(DiscordChannel Channel, string content, bool tts = false) => await InternalCreateMessage(Channel.ID, content, tts);
+        public async Task<DiscordMessage> SendMessage(DiscordChannel Channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(Channel.ID, content, tts, embed);
         /// <summary>
         /// Sends a message
         /// </summary>
@@ -528,7 +528,7 @@ namespace DSharpPlus
         /// <param name="content"></param>
         /// <param name="tts"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(DiscordDMChannel Channel, string content, bool tts = false) => await InternalCreateMessage(Channel.ID, content, tts);
+        public async Task<DiscordMessage> SendMessage(DiscordDMChannel Channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(Channel.ID, content, tts, embed);
         /// <summary>
         /// Creates a guild. Only for whitelisted bots
         /// </summary>
