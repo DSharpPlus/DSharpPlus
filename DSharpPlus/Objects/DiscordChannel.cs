@@ -185,7 +185,8 @@ namespace DSharpPlus
             }
         }
 
-        public async Task UpdateOverwrite(DiscordOverwrite overwrite) => await DiscordClient.InternalEditChannelPermissions(ID, overwrite.ID, overwrite.Allow, overwrite.Deny, overwrite.Type);
+        public async Task UpdateOverwrite(DiscordOverwrite overwrite) =>
+            await DiscordClient.InternalEditChannelPermissions(ID, overwrite.ID, overwrite.Allow, overwrite.Deny, overwrite.Type);
         #endregion
 
     }
