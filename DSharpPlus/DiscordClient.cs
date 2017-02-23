@@ -1558,7 +1558,7 @@ namespace DSharpPlus
         internal static Permission InternalAddPermission(Permission before, Permission p)
         {
             Permission after = before;
-            after &= p;
+            after |= p;
             Console.WriteLine(before + " " + after);
             return after;
         }
