@@ -1555,18 +1555,18 @@ namespace DSharpPlus
             };
         }
 
-        internal static int InternalAddPermission(int before, Permission p)
+        internal static Permission InternalAddPermission(Permission before, Permission p)
         {
-            int after = before;
-            after &= (int)p;
+            Permission after = before;
+            after &= p;
             Console.WriteLine(before + " " + after);
             return after;
         }
 
-        internal static int InternalRemovePermission(int before, Permission p)
+        internal static Permission InternalRemovePermission(Permission before, Permission p)
         {
-            int after = before;
-            after |= (int)p;
+            Permission after = before;
+            after &= ~p;
             Console.WriteLine(before + " " + after);
             return after;
         }
@@ -2022,13 +2022,13 @@ namespace DSharpPlus
         }
 
 
-        internal static async Task InternalEditChannelPermissions(ulong ChannelID, ulong OverwriteID, int allow, int deny, string type)
+        internal static async Task InternalEditChannelPermissions(ulong ChannelID, ulong OverwriteID, Permission allow, Permission deny, string type)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Permissions + "/" + OverwriteID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
-            j.Add("allow", allow);
-            j.Add("deny", deny);
+            j.Add("allow", (ulong)allow);
+            j.Add("deny", (ulong)deny);
             j.Add("type", type);
             WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
@@ -2254,13 +2254,13 @@ namespace DSharpPlus
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
 
-        internal static async Task<DiscordRole> InternalModifyGuildRole(ulong GuildID, ulong RoleID, string name, int permissions, int position, int color, bool separate, bool mentionable)
+        internal static async Task<DiscordRole> InternalModifyGuildRole(ulong GuildID, ulong RoleID, string name, Permission permissions, int position, int color, bool separate, bool mentionable)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Roles + RoleID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
             j.Add("name", name);
-            j.Add("permissions", permissions);
+            j.Add("permissions", (ulong)permissions);
             j.Add("position", position);
             j.Add("color", color);
             j.Add("hoist", separate);
