@@ -38,6 +38,7 @@ namespace DSharpPlus.Voice
 
         internal static UdpClient __udpClient;
         internal static ushort __sequence = 0;
+        internal static uint __timestamp = 0;
         internal static uint __ssrc;
         internal static string __ip = "";
         internal static int __port;
@@ -297,7 +298,7 @@ namespace DSharpPlus.Voice
         /// <param name="data"></param>
         /// <returns></returns>
         [Obsolete("Not yet working")]
-        public async Task SendAsync(byte[] data)
+        public async Task SendAsync(byte[] data, uint framelength)
         {
             if (DiscordClient.config.VoiceSettings == VoiceSettings.Sending || DiscordClient.config.VoiceSettings == VoiceSettings.Both)
             {
@@ -305,17 +306,23 @@ namespace DSharpPlus.Voice
                 buffer.WriteByteToBuffer(0x80, 0);
                 buffer.WriteByteToBuffer(0x78, 1);
                 buffer.WriteUShortToBuffer(__sequence, VoiceConstants.SEQUENCE_INDEX);
-                buffer.WriteUIntToBuffer(0, VoiceConstants.TIMESTAMP_INDEX);
+                buffer.WriteUIntToBuffer(__timestamp, VoiceConstants.TIMESTAMP_INDEX);
                 buffer.WriteUIntToBuffer(__ssrc, VoiceConstants.SSRC_INDEX);
 
                 int encodedLength;
                 byte[] encoded = _opusEncoder.Encode(data, data.Length, out encodedLength);
 
-                buffer.WriteByteArrayToBuffer(encoded, 12);
+                ByteBuffer nonce = new ByteBuffer(24);
+                nonce.WriteByteArrayToBuffer(buffer.ReadByteArrayFromBuffer(0, 12), 0);
+                byte[] encrypted = SecretBox.Create(encoded, nonce.GetBuffer(), __secretKey);
+
+                buffer.WriteByteArrayToBuffer(encrypted, 12);
 
                 VoicePacket packet = VoicePacket.Create(buffer.GetBuffer());
 
                 await SendVoicePacket(packet);
+                __sequence++;
+                __timestamp += (uint)(48 * framelength);
             }
             else throw new NotSupportedException(nameof(DiscordClient.config.VoiceSettings));
         }
