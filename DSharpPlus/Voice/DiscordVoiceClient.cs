@@ -151,19 +151,6 @@ namespace DSharpPlus.Voice
                 DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "Voice-Websocket", "Received OP 4, got secret key! Sending OP 5 for speaking", DateTime.UtcNow);
                 __secretKey = obj["d"]["secret_key"].ToObject<byte[]>();
                 __mode = obj["d"]["mode"].ToString();
-
-                JObject j = new JObject
-                {
-                    { "op", 5 },
-                    { "d", new JObject
-                        {
-                            { "speaking", true },
-                            { "delay", 0 }
-                        }
-                    }
-                };
-                DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "Voice-Websocket", "Sent OP 5. We should be live now.", DateTime.UtcNow);
-                _websocketClient._socket.Send(j.ToString());
             });
         }
         internal async Task OnUserSpeakingEvent(JObject obj)
@@ -300,8 +287,11 @@ namespace DSharpPlus.Voice
         [Obsolete("Not yet working")]
         public async Task SendAsync(byte[] data, uint framelength)
         {
+            // PLEEEEEEASE FIX THIS :^)
+            // I'll give you instant noodles
             if (DiscordClient.config.VoiceSettings == VoiceSettings.Sending || DiscordClient.config.VoiceSettings == VoiceSettings.Both)
             {
+                Console.WriteLine("Creating bytebuffer");
                 ByteBuffer buffer = new ByteBuffer(12 + data.Length);
                 buffer.WriteByteToBuffer(0x80, 0);
                 buffer.WriteByteToBuffer(0x78, 1);
@@ -309,18 +299,38 @@ namespace DSharpPlus.Voice
                 buffer.WriteUIntToBuffer(__timestamp, VoiceConstants.TIMESTAMP_INDEX);
                 buffer.WriteUIntToBuffer(__ssrc, VoiceConstants.SSRC_INDEX);
 
+                Console.WriteLine("encoding voice");
                 int encodedLength;
                 byte[] encoded = _opusEncoder.Encode(data, data.Length, out encodedLength);
 
+                Console.WriteLine("encrypting voice");
                 ByteBuffer nonce = new ByteBuffer(24);
                 nonce.WriteByteArrayToBuffer(buffer.ReadByteArrayFromBuffer(0, 12), 0);
                 byte[] encrypted = SecretBox.Create(encoded, nonce.GetBuffer(), __secretKey);
 
+                Console.WriteLine("writing encoded encrypted voice to buffer");
                 buffer.WriteByteArrayToBuffer(encrypted, 12);
 
-                VoicePacket packet = VoicePacket.Create(buffer.GetBuffer());
+                Console.WriteLine("creating packet");
+                VoicePacket packet = VoicePacket.Create(buffer.GetBuffer(), __ssrc, __sequence, __timestamp);
 
+
+                JObject j = new JObject
+                {
+                    { "op", 5 },
+                    { "d", new JObject
+                        {
+                            { "speaking", true },
+                            { "delay", 0 }
+                        }
+                    }
+                };
+                Console.WriteLine("sent op 5");
+                _websocketClient._socket.Send(j.ToString());
+
+                Console.WriteLine("sending packet");
                 await SendVoicePacket(packet);
+                await Task.Delay((int)framelength);
                 __sequence++;
                 __timestamp += (uint)(48 * framelength);
             }
@@ -330,6 +340,7 @@ namespace DSharpPlus.Voice
         internal async Task SendVoicePacket(VoicePacket packet)
         {
             await __udpClient.SendAsync(packet.GetPacket(), packet.GetPacket().Length);
+            Console.WriteLine("sent packet");
         }
 
         ~DiscordVoiceClient()

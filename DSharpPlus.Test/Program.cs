@@ -1,5 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Commands;
+using DSharpPlus.Voice;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,7 +32,7 @@ namespace DSharpPlus.Test
                 LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true,
                 AutoReconnect = true,
-                VoiceSettings = VoiceSettings.None
+                VoiceSettings = VoiceSettings.Both
             });
 
             client.UseCommands(new CommandConfig()
@@ -100,6 +102,35 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
                     o.UnallowPermission(p);
                 }
                 await x.Message.Parent.UpdateOverwrite(o);
+            });
+
+            client.AddCommand("testvoice", async (x) =>
+            {
+                DiscordChannel vc = await client.GetChannel(148524575586648064);
+                await vc.ConnectToVoice();
+                await Task.Delay(2000);
+                var channelCount = 2; // Get the number of AudioChannels our AudioService has been configured to use.
+                var OutFormat = new WaveFormat(48000, 16, channelCount); // Create a new Output Format, using the spec that Discord will accept, and with the number of channels that our client supports.
+                using (var MP3Reader = new Mp3FileReader("song.mp3")) // Create a new Disposable MP3FileReader, to read audio from the filePath parameter
+                using (var resampler = new MediaFoundationResampler(MP3Reader, OutFormat)) // Create a Disposable Resampler, which will convert the read MP3 data to PCM, using our Output Format
+                {
+                    resampler.ResamplerQuality = 60; // Set the quality of the resampler to 60, the highest quality
+                    uint blockSize = (uint)OutFormat.AverageBytesPerSecond / 50; // Establish the size of our AudioBuffer
+                    byte[] buffer = new byte[blockSize];
+                    int byteCount;
+
+                    while ((byteCount = resampler.Read(buffer, 0, (int)blockSize)) > 0) // Read audio into our buffer, and keep a loop open while data is present
+                    {
+                        if (byteCount < blockSize)
+                        {
+                            // Incomplete Frame
+                            for (int i = byteCount; i < blockSize; i++)
+                                buffer[i] = 0;
+                        }
+                        await client.VoiceClient.SendAsync(buffer, blockSize);
+                    }
+                }
+
             });
 
             client.Ready += (sender, e) =>
