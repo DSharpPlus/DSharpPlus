@@ -17,9 +17,9 @@ namespace DSharpPlus.Voice
 
         public byte[] GetPacket() => buffer.GetBuffer();
 
-        public static VoicePacket Create(byte[] data)
+        public static VoicePacket Create(byte[] data, uint ssrc = 0, ushort seq = 0, uint timestamp = 0)
         {
-            var packet = new VoicePacket(data, 0, 0, 0);
+            var packet = new VoicePacket(data, ssrc, seq, timestamp);
             var buff = new ByteBuffer(data);
             packet.SetBuffer(buff);
 
