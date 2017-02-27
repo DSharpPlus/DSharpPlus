@@ -174,3 +174,11 @@ Places a member in this voice channel (if member is connected to voice)
 `ulong MemberID`: Member's ID
 
 Returns: Nothing
+
+#### UpdateOverwrite
+
+Updates an overwrite
+
+`DiscordOverwrite overwrite`: Updated DiscordOverwrite object
+
+Returns: Nothing

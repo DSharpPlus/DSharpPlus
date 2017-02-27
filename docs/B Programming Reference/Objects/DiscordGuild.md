@@ -252,3 +252,15 @@ Gets guild's Members
 `int after`: Index to begin from
 
 Returns: `List<DiscordMember>`
+
+#### UpdateRole
+Updates role
+
+`DiscordRole role`: Updated role object
+
+Returns: Nothing
+
+#### CreateRole
+Creates a new DiscordRole (modify this and run UpdateRole)
+
+Returns: DiscordRole

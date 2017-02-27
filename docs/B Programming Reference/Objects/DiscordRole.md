@@ -16,10 +16,33 @@ Represents a Role
 
 `int Position`: Position for this role
 
-`int Permissions`: Permission bit set
+`Permission Permissions`: Permission bit set
 
 `bool Managed`: Whether this role is managed by an integration
 
 `bool Mentionable`: Whether this role is mentionable
 
 `string Mention`: Mentions the role similar to how a client would, if the role is mentionable
+
+## Methods
+
+#### CheckPermission
+Checks the permission level for a given permission
+
+`Permission permission`: Permission to check
+
+Returns: `PermissionLevel`
+
+#### AddPermission
+Adds a permission
+
+`Permission p`: Permission to add
+
+Returns: Nothing. Update with `DiscordGuild.UpdateRole`
+
+#### RemovePermission
+Removes a permission
+
+`Permission p`: Permission to remove
+
+Returns: Nothing. Update with `DiscordGuild.UpdateRole`
