@@ -1358,7 +1358,7 @@ namespace DSharpPlus
             }
             else
             {
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Recieved false in OP 9 - Starting a new session", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _sessionID = "";
                 await SendIdentify(shard);
             }
