@@ -85,8 +85,6 @@ Connects to Discord's Gateway
 
 `TokenType tokenType`: Type of token used
 
-`int shard = 0`: shard to connect to
-
 Returns: Nothing
 
 #### GetUser
@@ -138,11 +136,26 @@ Returns: `DiscordChannel`
 #### SendMessage
 Sends a message
 
+`ulong ChannelID`: Channel to send message to
+
+`string content`: Contents of message
+
+`bool tts = false`: Whether this message is TTS
+
+`DiscordEmbed embed = null`: Embed to send with message
+
+Returns: `DiscordMessage`
+
+#### SendMessage
+Sends a message
+
 `DiscordChannel Channel`: Channel to send message to
 
 `string content`: Contents of message
 
 `bool tts = false`: Whether this message is TTS
+
+`DiscordEmbed embed = null`: Embed to send with message
 
 Returns: `DiscordMessage`
 
@@ -154,6 +167,8 @@ Sends a message
 `string content`: Contents of message
 
 `bool tts = false`: Whether this message is TTS
+
+`DiscordEmbed embed = null`: Embed to send with message
 
 Returns: `DiscordMessage`
 
@@ -246,15 +261,15 @@ Modifies a guild member
 
 `ulong MemberID`: ID of member to modify
 
-`string Nickname`: New nickname for this member
+`string Nickname = null`: New nickname for this member
 
-`List<DiscordRole> Roles`: New roles for this member
+`List<DiscordRole> Roles = null`: New roles for this member
 
-`bool Muted`: Whether this member has to be muted
+`bool Muted = false`: Whether this member has to be muted
 
-`bool Deaf`: Whether this member has to be deafened
+`bool Deaf = false`: Whether this member has to be deafened
 
-`ulong VoiceChannelID`: New voice channel to move this member to
+`ulong VoiceChannelID = 0`: New voice channel to move this member to
 
 Returns: Nothing
 
