@@ -37,7 +37,7 @@ namespace DSharpPlus.Test
 
             client.UseCommands(new CommandConfig()
             {
-                Prefix = "!",
+                Prefix = "-",
                 SelfBot = false
             });
             client.AddCommand("test", async (x) =>
@@ -155,6 +155,11 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
                             appinfo += "\n```";
 
                             await e.Message.Respond(appinfo);
+                        }
+
+                        if(e.Message.Content == "!!heck")
+                        {
+                            DiscordGuild g = await client.GetGuild(0);
                         }
 
                         if (e.Message.Content == "!!embed")
