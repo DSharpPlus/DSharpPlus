@@ -308,23 +308,21 @@ namespace DSharpPlus
         /// <summary>
         /// Connects to the gateway
         /// </summary>
-        /// <param name="shard">Shard to connect from</param>
         /// <returns></returns>
-        public async Task Connect(int shard = 0) => await InternalConnect(shard);
+        public async Task Connect() => await InternalConnect();
 
         /// <summary>
         /// Connects to the gateway
         /// </summary>
         /// <param name="tokenOverride"></param>
         /// <param name="tokenType"></param>
-        /// <param name="shard">Shard to connect from</param>
         /// <returns></returns>
-        public async Task Connect(string tokenOverride, TokenType tokenType, int shard = 0)
+        public async Task Connect(string tokenOverride, TokenType tokenType)
         {
             config.Token = tokenOverride;
             config.TokenType = tokenType;
 
-            await InternalConnect(shard);
+            await InternalConnect();
         }
 
         /// <summary>
@@ -364,10 +362,10 @@ namespace DSharpPlus
             await Disconnect();
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(1000);
-            await Connect(tokenOverride, tokenType, shard);
+            await Connect(tokenOverride, tokenType);
         }
 
-        internal async Task InternalConnect(int shard)
+        internal async Task InternalConnect()
         {
             await InternalUpdateGateway();
             _me = await InternalGetCurrentUser();
@@ -379,7 +377,7 @@ namespace DSharpPlus
                 _guilds = new Dictionary<ulong, DiscordGuild>();
 
                 if (_sessionID == "")
-                    await SendIdentify(shard);
+                    await SendIdentify();
                 else
                     await SendResume();
                 SocketOpened?.Invoke(sender, e);
@@ -401,7 +399,7 @@ namespace DSharpPlus
                     SocketClosed?.Invoke(sender, e);
                 });
             };
-            _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data, shard);
+            _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
             _websocketClient.Connect();
 
             _voiceClient = new DiscordVoiceClient();
@@ -639,7 +637,7 @@ namespace DSharpPlus
         #endregion
 
         #region Websocket
-        internal async Task HandleSocketMessage(string data, int shard)
+        internal async Task HandleSocketMessage(string data)
         {
             JObject obj = JObject.Parse(data);
             switch (obj.Value<int>("op"))
@@ -647,7 +645,7 @@ namespace DSharpPlus
                 case 0: await OnDispatch(obj); break;
                 case 1: await OnHeartbeat(); break;
                 case 7: await OnReconnect(); break;
-                case 9: await OnInvalidateSession(obj, shard); break;
+                case 9: await OnInvalidateSession(obj); break;
                 case 10: await OnHello(obj); break;
                 case 11: await OnHeartbeatAck(); break;
                 default:
@@ -1348,7 +1346,7 @@ namespace DSharpPlus
             });
         }
 
-        internal async Task OnInvalidateSession(JObject obj, int shard)
+        internal async Task OnInvalidateSession(JObject obj)
         {
             if (obj.Value<bool>("d"))
             {
@@ -1360,7 +1358,7 @@ namespace DSharpPlus
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _sessionID = "";
-                await SendIdentify(shard);
+                await SendIdentify();
             }
         }
 
@@ -1434,7 +1432,7 @@ namespace DSharpPlus
             _waitingForAck = true;
         }
 
-        internal async Task SendIdentify(int shard)
+        internal async Task SendIdentify()
         {
             await Task.Run(() =>
             {
@@ -1454,7 +1452,7 @@ namespace DSharpPlus
                             } },
                             { "compress", false },
                             { "large_threshold" , config.LargeThreshold },
-                            { "shards", new JArray { shard, _shardCount } }
+                            { "shards", new JArray { 0, _shardCount } }
                         }
                     }
                 };
