@@ -1044,15 +1044,21 @@ namespace DSharpPlus
                     message = msg.ToObject<DiscordMessage>();
                 }
 
-                if (_privateChannels.Find(x => x.ID == message.ChannelID) == null)
+                try
                 {
-                    int channelindex = _guilds[message.Parent.Parent.ID].Channels.FindIndex(x => x.ID == message.ChannelID);
-                    _guilds[message.Parent.Parent.ID].Channels[channelindex].LastMessageID = message.ID;
-                }
-                else
+                    if (_privateChannels.Find(x => x.ID == message.ChannelID) == null)
+                    {
+                        int channelindex = _guilds[message.Parent.Parent.ID].Channels.FindIndex(x => x.ID == message.ChannelID);
+                        _guilds[message.Parent.Parent.ID].Channels[channelindex].LastMessageID = message.ID;
+                    }
+                    else
+                    {
+                        int channelindex = _privateChannels.FindIndex(x => x.ID == message.ChannelID);
+                        _privateChannels[channelindex].LastMessageID = message.ID;
+                    }
+                }catch(KeyNotFoundException ex)
                 {
-                    int channelindex = _privateChannels.FindIndex(x => x.ID == message.ChannelID);
-                    _privateChannels[channelindex].LastMessageID = message.ID;
+                    DebugLogger.LogMessage(LogLevel.Error, "Event", "Could not find channel last message belonged to?", DateTime.Now);
                 }
 
                 List<DiscordMember> MentionedUsers = new List<DiscordMember>();
