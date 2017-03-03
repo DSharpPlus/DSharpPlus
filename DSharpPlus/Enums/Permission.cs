@@ -68,7 +68,7 @@
         /// <summary>
         /// Allows for deletion of other users messages
         /// </summary>
-        ManageMessags           = 0x00002000,
+        ManageMessages           = 0x00002000,
         /// <summary>
         /// Links sent by this user will be auto-embedded
         /// </summary>
