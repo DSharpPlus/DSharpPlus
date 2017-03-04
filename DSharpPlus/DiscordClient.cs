@@ -9,6 +9,8 @@ using DSharpPlus.Voice;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
+using System.Drawing;
+using System.IO;
 
 namespace DSharpPlus
 {
@@ -634,6 +636,13 @@ namespace DSharpPlus
         /// <param name="after">index to start from</param>
         /// <returns></returns>
         public async Task<List<DiscordMember>> ListGuildMembers(ulong guildID, int limit, int after) => await InternalListGuildMembers(guildID, limit, after);
+
+        /// <summary>
+        /// Sets bot avatar
+        /// </summary>
+        /// <param name="Path">Path to JPEG file</param>
+        /// <returns></returns>
+        public async Task SetAvatar(string Path) => await InternalSetAvatar(Path);
         #endregion
 
         #region Websocket
@@ -1573,6 +1582,29 @@ namespace DSharpPlus
             after &= ~p;
             Console.WriteLine(before + " " + after);
             return after;
+        }
+
+        internal static async Task InternalSetAvatar(string Path)
+        {
+            using (Image image = Image.FromFile(Path))
+            {
+                using (MemoryStream m = new MemoryStream())
+                {
+                    image.Save(m, image.RawFormat);
+                    byte[] imageBytes = m.ToArray();
+
+                    // Convert byte[] to Base64 String
+                    string base64String = Convert.ToBase64String(imageBytes);
+
+                    string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
+                    WebHeaderCollection headers = Utils.GetBaseHeaders();
+                    JObject j = new JObject();
+                    j.Add("avatar", $"data:image/jpeg;base64,{base64String}");
+
+                    WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+                    WebResponse response = await WebWrapper.HandleRequestAsync(request);
+                }
+            }
         }
 
         #region HTTP Actions
