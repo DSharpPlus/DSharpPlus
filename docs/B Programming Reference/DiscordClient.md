@@ -296,6 +296,13 @@ Gets guild's Members
 
 Returns: `List<DiscordMember>`
 
+#### SetAvatar
+Updates your avatar
+
+`string Path`: path to an image file
+
+Returns: Nothing
+
 #### Dispose
 Kills your DiscordClient. Only use if you **don't** plan to do anything else.
 
