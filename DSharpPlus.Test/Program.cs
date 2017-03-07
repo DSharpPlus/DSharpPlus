@@ -287,6 +287,11 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                         {
                             await client.ModifyMember(e.Guild.ID, e.Message.Author.ID, "yoyoyoy");
                         }
+                        if(e.Message.Content == "!!newchannel")
+                        {
+                            DiscordChannel c = await e.Guild.CreateChannel("heckerino", ChannelType.Text);
+                            await c.SendMessage("works!");
+                        }
                     };
 
             // This was an example I made for someone, but might be nice to keep this in for people who sniff out test code instead of docs :^)
