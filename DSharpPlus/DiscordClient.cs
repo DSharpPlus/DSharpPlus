@@ -1975,7 +1975,7 @@ namespace DSharpPlus
             }
             WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordChannel>(j.ToString());
+            return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
         }
 
         // TODO
