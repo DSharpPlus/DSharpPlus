@@ -127,7 +127,9 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
                             for (int i = byteCount; i < blockSize; i++)
                                 buffer[i] = 0;
                         }
+#pragma warning disable CS0618
                         await client.VoiceClient.SendAsync(buffer, blockSize);
+#pragma warning restore
                     }
                 }
 
