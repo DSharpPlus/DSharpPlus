@@ -34,7 +34,7 @@ namespace DSharpPlus.Commands
         {
             Client = client;
 
-            Client.MessageCreated += (sender, e) =>
+            Client.MessageCreated += e =>
             {
                 if (((e.Message.Author.ID != Client.Me.ID && !config.SelfBot) || (e.Message.Author.ID == Client.Me.ID && config.SelfBot))
                         && e.Message.Content.StartsWith(config.Prefix))
@@ -50,6 +50,8 @@ namespace DSharpPlus.Commands
                         }
                     }
                 }
+
+                return Task.Delay(0);
             };
         }
 
