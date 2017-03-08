@@ -1,6 +1,8 @@
-﻿namespace DSharpPlus
+﻿using System;
+
+namespace DSharpPlus
 {
-    public class GuildMemberRemoveEventArgs
+    public class GuildMemberRemoveEventArgs : EventArgs
     {
         public ulong GuildID;
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;

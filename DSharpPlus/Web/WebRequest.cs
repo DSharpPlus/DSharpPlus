@@ -27,7 +27,7 @@ namespace DSharpPlus
 
         private WebRequest() { }
 
-        public static async Task<WebRequest> CreateRequestAsync(string url, WebRequestMethod method = WebRequestMethod.GET, WebHeaderCollection headers = null, string payload = "")
+        public static WebRequest CreateRequest(string url, WebRequestMethod method = WebRequestMethod.GET, WebHeaderCollection headers = null, string payload = "")
         {
             return new WebRequest
             {
@@ -39,7 +39,7 @@ namespace DSharpPlus
             };
         }
 
-        public static async Task<WebRequest> CreateMultipartRequestAsync(string url, WebRequestMethod method = WebRequestMethod.GET, WebHeaderCollection headers = null,
+        public static WebRequest CreateMultipartRequest(string url, WebRequestMethod method = WebRequestMethod.GET, WebHeaderCollection headers = null,
             NameValueCollection values = null, string filepath = "", string filename = "")
         {
             return new WebRequest

@@ -23,184 +23,389 @@ namespace DSharpPlus
         /// <summary>
         /// 
         /// </summary>
-        public event EventHandler SocketOpened;
+        public event AsyncEventHandler SocketOpened
+        {
+            add => this._socket_opened.Register(value);
+            remove => this._socket_opened.Unregister(value);
+        }
+        private AsyncEvent _socket_opened = new AsyncEvent();
         /// <summary>
         /// 
         /// </summary>
-        public event EventHandler<CloseEventArgs> SocketClosed;
+        public event AsyncEventHandler<CloseEventArgs> SocketClosed
+        {
+            add => this._socket_closed.Register(value);
+            remove => this._socket_closed.Unregister(value);
+        }
+        private AsyncEvent<CloseEventArgs> _socket_closed = new AsyncEvent<CloseEventArgs>();
         /// <summary>
         /// The ready event is dispatched when a client completed the initial handshake.
         /// </summary>
-        public event EventHandler Ready;
+        public event AsyncEventHandler Ready
+        {
+            add => this._ready.Register(value);
+            remove => this._ready.Unregister(value);
+        }
+        private AsyncEvent _ready = new AsyncEvent();
         /// <summary>
         /// Sent when a new channel is created.
         /// </summary>
-        public event EventHandler<ChannelCreateEventArgs> ChannelCreated;
+        public event AsyncEventHandler<ChannelCreateEventArgs> ChannelCreated
+        {
+            add => this._channel_created.Register(value);
+            remove => this._channel_created.Unregister(value);
+        }
+        private AsyncEvent<ChannelCreateEventArgs> _channel_created = new AsyncEvent<ChannelCreateEventArgs>();
         /// <summary>
         /// Sent when a new dm channel is created.
         /// </summary>
-        public event EventHandler<DMChannelCreateEventArgs> DMChannelCreated;
+        public event AsyncEventHandler<DMChannelCreateEventArgs> DMChannelCreated
+        {
+            add => this._dm_channel_created.Register(value);
+            remove => this._dm_channel_created.Unregister(value);
+        }
+        private AsyncEvent<DMChannelCreateEventArgs> _dm_channel_created = new AsyncEvent<DMChannelCreateEventArgs>();
         /// <summary>
         /// Sent when a channel is updated.
         /// </summary>
-        public event EventHandler<ChannelUpdateEventArgs> ChannelUpdated;
+        public event AsyncEventHandler<ChannelUpdateEventArgs> ChannelUpdated
+        {
+            add => this._channel_updated.Register(value);
+            remove => this._channel_updated.Unregister(value);
+        }
+        private AsyncEvent<ChannelUpdateEventArgs> _channel_updated = new AsyncEvent<ChannelUpdateEventArgs>();
         /// <summary>
         /// Sent when a channel is deleted
         /// </summary>
-        public event EventHandler<ChannelDeleteEventArgs> ChannelDeleted;
+        public event AsyncEventHandler<ChannelDeleteEventArgs> ChannelDeleted
+        {
+            add => this._channel_deleted.Register(value);
+            remove => this._channel_deleted.Unregister(value);
+        }
+        private AsyncEvent<ChannelDeleteEventArgs> _channel_deleted = new AsyncEvent<ChannelDeleteEventArgs>();
         /// <summary>
         /// Sent when a dm channel is deleted
         /// </summary>
-        public event EventHandler<DMChannelDeleteEventArgs> DMChannelDeleted;
+        public event AsyncEventHandler<DMChannelDeleteEventArgs> DMChannelDeleted
+        {
+            add => this._dm_channel_deleted.Register(value);
+            remove => this._dm_channel_deleted.Unregister(value);
+        }
+        private AsyncEvent<DMChannelDeleteEventArgs> _dm_channel_deleted = new AsyncEvent<DMChannelDeleteEventArgs>();
         /// <summary>
         /// Sent when the user joins a new guild.
         /// </summary>
-        public event EventHandler<GuildCreateEventArgs> GuildCreated;
+        public event AsyncEventHandler<GuildCreateEventArgs> GuildCreated
+        {
+            add => this._guild_created.Register(value);
+            remove => this._guild_created.Unregister(value);
+        }
+        private AsyncEvent<GuildCreateEventArgs> _guild_created = new AsyncEvent<GuildCreateEventArgs>();
         /// <summary>
         /// Sent when a guild is becoming available.
         /// </summary>
-        public event EventHandler<GuildCreateEventArgs> GuildAvailable;
+        public event AsyncEventHandler<GuildCreateEventArgs> GuildAvailable
+        {
+            add => this._guild_available.Register(value);
+            remove => this._guild_available.Unregister(value);
+        }
+        private AsyncEvent<GuildCreateEventArgs> _guild_available = new AsyncEvent<GuildCreateEventArgs>();
         /// <summary>
         /// Sent when a guild is updated.
         /// </summary>
-        public event EventHandler<GuildUpdateEventArgs> GuildUpdated;
+        public event AsyncEventHandler<GuildUpdateEventArgs> GuildUpdated
+        {
+            add => this._guild_updated.Register(value);
+            remove => this._guild_updated.Unregister(value);
+        }
+        private AsyncEvent<GuildUpdateEventArgs> _guild_updated = new AsyncEvent<GuildUpdateEventArgs>();
         /// <summary>
         /// Sent when the user leaves or is removed from a guild.
         /// </summary>
-        public event EventHandler<GuildDeleteEventArgs> GuildDeleted;
+        public event AsyncEventHandler<GuildDeleteEventArgs> GuildDeleted
+        {
+            add => this._guild_deleted.Register(value);
+            remove => this._guild_deleted.Unregister(value);
+        }
+        private AsyncEvent<GuildDeleteEventArgs> _guild_deleted = new AsyncEvent<GuildDeleteEventArgs>();
         /// <summary>
         /// Sent when a guild becomes unavailable.
         /// </summary>
-        public event EventHandler<GuildDeleteEventArgs> GuildUnavailable;
+        public event AsyncEventHandler<GuildDeleteEventArgs> GuildUnavailable
+        {
+            add => this._guild_unavailable.Register(value);
+            remove => this._guild_unavailable.Unregister(value);
+        }
+        private AsyncEvent<GuildDeleteEventArgs> _guild_unavailable = new AsyncEvent<GuildDeleteEventArgs>();
         /// <summary>
         /// Sent when a message is created.
         /// </summary>
-        public event EventHandler<MessageCreateEventArgs> MessageCreated;
+        public event AsyncEventHandler<MessageCreateEventArgs> MessageCreated
+        {
+            add => this._message_created.Register(value);
+            remove => this._message_created.Unregister(value);
+        }
+        private AsyncEvent<MessageCreateEventArgs> _message_created = new AsyncEvent<MessageCreateEventArgs>();
 
         /// <summary>
         /// Sent when a presence has been updated.
         /// </summary>
-        public event EventHandler<PresenceUpdateEventArgs> PresenceUpdate;
+        public event AsyncEventHandler<PresenceUpdateEventArgs> PresenceUpdate
+        {
+            add => this._presence_update.Register(value);
+            remove => this._presence_update.Unregister(value);
+        }
+        private AsyncEvent<PresenceUpdateEventArgs> _presence_update = new AsyncEvent<PresenceUpdateEventArgs>();
 
         /// <summary>
         /// Sent when a guild ban gets added
         /// </summary>
-        public event EventHandler<GuildBanAddEventArgs> GuildBanAdd;
+        public event AsyncEventHandler<GuildBanAddEventArgs> GuildBanAdd
+        {
+            add => this._guild_ban_add.Register(value);
+            remove => this._guild_ban_add.Unregister(value);
+        }
+        private AsyncEvent<GuildBanAddEventArgs> _guild_ban_add = new AsyncEvent<GuildBanAddEventArgs>();
 
         /// <summary>
         /// Sent when a guild ban gets removed
         /// </summary>
-        public event EventHandler<GuildBanRemoveEventArgs> GuildBanRemove;
+        public event AsyncEventHandler<GuildBanRemoveEventArgs> GuildBanRemove
+        {
+            add => this._guild_ban_remove.Register(value);
+            remove => this._guild_ban_remove.Unregister(value);
+        }
+        private AsyncEvent<GuildBanRemoveEventArgs> _guild_ban_remove = new AsyncEvent<GuildBanRemoveEventArgs>();
 
         /// <summary>
         /// Sent when a guilds emojis get updated
         /// </summary>
-        public event EventHandler<GuildEmojisUpdateEventArgs> GuildEmojisUpdate;
+        public event AsyncEventHandler<GuildEmojisUpdateEventArgs> GuildEmojisUpdate
+        {
+            add => this._guild_emojis_update.Register(value);
+            remove => this._guild_emojis_update.Unregister(value);
+        }
+        private AsyncEvent<GuildEmojisUpdateEventArgs> _guild_emojis_update = new AsyncEvent<GuildEmojisUpdateEventArgs>();
 
         /// <summary>
         /// Sent when a guild integration is updated.
         /// </summary>
-        public event EventHandler<GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdate;
+        public event AsyncEventHandler<GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdate
+        {
+            add => this._guild_integrations_update.Register(value);
+            remove => this._guild_integrations_update.Unregister(value);
+        }
+        private AsyncEvent<GuildIntegrationsUpdateEventArgs> _guild_integrations_update = new AsyncEvent<GuildIntegrationsUpdateEventArgs>();
 
         /// <summary>
         /// Sent when a new user joins a guild.
         /// </summary>
-        public event EventHandler<GuildMemberAddEventArgs> GuildMemberAdd;
-
+        public event AsyncEventHandler<GuildMemberAddEventArgs> GuildMemberAdd
+        {
+            add => this._guild_member_add.Register(value);
+            remove => this._guild_member_add.Unregister(value);
+        }
+        private AsyncEvent<GuildMemberAddEventArgs> _guild_member_add = new AsyncEvent<GuildMemberAddEventArgs>();
         /// <summary>
         /// Sent when a user is removed from a guild (leave/kick/ban).
         /// </summary>
-        public event EventHandler<GuildMemberRemoveEventArgs> GuildMemberRemove;
+        public event AsyncEventHandler<GuildMemberRemoveEventArgs> GuildMemberRemove
+        {
+            add => this._guild_member_remove.Register(value);
+            remove => this._guild_member_remove.Unregister(value);
+        }
+        private AsyncEvent<GuildMemberRemoveEventArgs> _guild_member_remove = new AsyncEvent<GuildMemberRemoveEventArgs>();
 
         /// <summary>
         /// Sent when a guild member is updated.
         /// </summary>
-        public event EventHandler<GuildMemberUpdateEventArgs> GuildMemberUpdate;
+        public event AsyncEventHandler<GuildMemberUpdateEventArgs> GuildMemberUpdate
+        {
+            add => this._guild_member_update.Register(value);
+            remove => this._guild_member_update.Unregister(value);
+        }
+        private AsyncEvent<GuildMemberUpdateEventArgs> _guild_member_update = new AsyncEvent<GuildMemberUpdateEventArgs>();
 
         /// <summary>
         /// Sent when a guild role is created.
         /// </summary>
-        public event EventHandler<GuildRoleCreateEventArgs> GuildRoleCreate;
+        public event AsyncEventHandler<GuildRoleCreateEventArgs> GuildRoleCreate
+        {
+            add => this._guild_role_create.Register(value);
+            remove => this._guild_role_create.Unregister(value);
+        }
+        private AsyncEvent<GuildRoleCreateEventArgs> _guild_role_create = new AsyncEvent<GuildRoleCreateEventArgs>();
 
         /// <summary>
         /// Sent when a guild role is updated.
         /// </summary>
-        public event EventHandler<GuildRoleUpdateEventArgs> GuildRoleUpdate;
+        public event AsyncEventHandler<GuildRoleUpdateEventArgs> GuildRoleUpdate
+        {
+            add => this._guild_role_update.Register(value);
+            remove => this._guild_role_update.Unregister(value);
+        }
+        private AsyncEvent<GuildRoleUpdateEventArgs> _guild_role_update = new AsyncEvent<GuildRoleUpdateEventArgs>();
 
         /// <summary>
         /// Sent when a guild role is updated.
         /// </summary>
-        public event EventHandler<GuildRoleDeleteEventArgs> GuildRoleDelete;
+        public event AsyncEventHandler<GuildRoleDeleteEventArgs> GuildRoleDelete
+        {
+            add => this._guild_role_delete.Register(value);
+            remove => this._guild_role_delete.Unregister(value);
+        }
+        private AsyncEvent<GuildRoleDeleteEventArgs> _guild_role_delete = new AsyncEvent<GuildRoleDeleteEventArgs>();
 
         /// <summary>
         /// Sent when a message is updated.
         /// </summary>
-        public event EventHandler<MessageUpdateEventArgs> MessageUpdate;
+        public event AsyncEventHandler<MessageUpdateEventArgs> MessageUpdate
+        {
+            add => this._message_update.Register(value);
+            remove => this._message_update.Unregister(value);
+        }
+        private AsyncEvent<MessageUpdateEventArgs> _message_update = new AsyncEvent<MessageUpdateEventArgs>();
 
         /// <summary>
         /// Sent when a message is deleted.
         /// </summary>
-        public event EventHandler<MessageDeleteEventArgs> MessageDelete;
+        public event AsyncEventHandler<MessageDeleteEventArgs> MessageDelete
+        {
+            add => this._message_delete.Register(value);
+            remove => this._message_delete.Unregister(value);
+        }
+        private AsyncEvent<MessageDeleteEventArgs> _message_delete = new AsyncEvent<MessageDeleteEventArgs>();
 
         /// <summary>
         /// Sent when multiple messages are deleted at once.
         /// </summary>
-        public event EventHandler<MessageBulkDeleteEventArgs> MessageBulkDelete;
+        public event AsyncEventHandler<MessageBulkDeleteEventArgs> MessageBulkDelete
+        {
+            add => this._message_bulk_delete.Register(value);
+            remove => this._message_bulk_delete.Unregister(value);
+        }
+        private AsyncEvent<MessageBulkDeleteEventArgs> _message_bulk_delete = new AsyncEvent<MessageBulkDeleteEventArgs>();
 
         /// <summary>
         /// Sent when a user starts typing in a channel.
         /// </summary>
-        public event EventHandler<TypingStartEventArgs> TypingStart;
+        public event AsyncEventHandler<TypingStartEventArgs> TypingStart
+        {
+            add => this._typing_start.Register(value);
+            remove => this._typing_start.Unregister(value);
+        }
+        private AsyncEvent<TypingStartEventArgs> _typing_start = new AsyncEvent<TypingStartEventArgs>();
 
         /// <summary>
         /// Sent when the current user updates their settings.
         /// </summary>
-        public event EventHandler<UserSettingsUpdateEventArgs> UserSettingsUpdate;
+        public event AsyncEventHandler<UserSettingsUpdateEventArgs> UserSettingsUpdate
+        {
+            add => this._user_settings_update.Register(value);
+            remove => this._user_settings_update.Unregister(value);
+        }
+        private AsyncEvent<UserSettingsUpdateEventArgs> _user_settings_update = new AsyncEvent<UserSettingsUpdateEventArgs>();
 
         /// <summary>
         /// Sent when properties about the user change.
         /// </summary>
-        public event EventHandler<UserUpdateEventArgs> UserUpdate;
+        public event AsyncEventHandler<UserUpdateEventArgs> UserUpdate
+        {
+            add => this._user_update.Register(value);
+            remove => this._user_update.Unregister(value);
+        }
+        private AsyncEvent<UserUpdateEventArgs> _user_update = new AsyncEvent<UserUpdateEventArgs>();
 
         /// <summary>
         /// Sent when someone joins/leaves/moves voice channels.
         /// </summary>
-        public event EventHandler<VoiceStateUpdateEventArgs> VoiceStateUpdate;
+        public event AsyncEventHandler<VoiceStateUpdateEventArgs> VoiceStateUpdate
+        {
+            add => this._voice_state_update.Register(value);
+            remove => this._voice_state_update.Unregister(value);
+        }
+        private AsyncEvent<VoiceStateUpdateEventArgs> _voice_state_update = new AsyncEvent<VoiceStateUpdateEventArgs>();
 
         /// <summary>
         /// Sent when a guild's voice server is updated.
         /// </summary>
-        public event EventHandler<VoiceServerUpdateEventArgs> VoiceServerUpdate;
+        public event AsyncEventHandler<VoiceServerUpdateEventArgs> VoiceServerUpdate
+        {
+            add => this._voice_server_update.Register(value);
+            remove => this._voice_server_update.Unregister(value);
+        }
+        private AsyncEvent<VoiceServerUpdateEventArgs> _voice_server_update = new AsyncEvent<VoiceServerUpdateEventArgs>();
 
         /// <summary>
         /// Sent in response to Gateway Request Guild Members.
         /// </summary>
-        public event EventHandler<GuildMembersChunkEventArgs> GuildMembersChunk;
+        public event AsyncEventHandler<GuildMembersChunkEventArgs> GuildMembersChunk
+        {
+            add => this._guild_members_chunk.Register(value);
+            remove => this._guild_members_chunk.Unregister(value);
+        }
+        private AsyncEvent<GuildMembersChunkEventArgs> _guild_members_chunk = new AsyncEvent<GuildMembersChunkEventArgs>();
 
         /// <summary>
         /// Sent when an unknown event gets received.
         /// </summary>
-        public event EventHandler<UnknownEventArgs> UnknownEvent;
+        public event AsyncEventHandler<UnknownEventArgs> UnknownEvent
+        {
+            add => this._unknown_event.Register(value);
+            remove => this._unknown_event.Unregister(value);
+        }
+        private AsyncEvent<UnknownEventArgs> _unknown_event = new AsyncEvent<UnknownEventArgs>();
 
         /// <summary>
         /// Sent when a reaction gets added to a message.
         /// </summary>
-        public event EventHandler<MessageReactionAddEventArgs> MessageReactionAdd;
+        public event AsyncEventHandler<MessageReactionAddEventArgs> MessageReactionAdd
+        {
+            add => this._message_reaction_add.Register(value);
+            remove => this._message_reaction_add.Unregister(value);
+        }
+        private AsyncEvent<MessageReactionAddEventArgs> _message_reaction_add = new AsyncEvent<MessageReactionAddEventArgs>();
 
         /// <summary>
         /// Sent when a reaction gets removed from a message.
         /// </summary>
-        public event EventHandler<MessageReactionRemoveEventArgs> MessageReactionRemove;
+        public event AsyncEventHandler<MessageReactionRemoveEventArgs> MessageReactionRemove
+        {
+            add => this._message_reaction_remove.Register(value);
+            remove => this._message_reaction_remove.Unregister(value);
+        }
+        private AsyncEvent<MessageReactionRemoveEventArgs> _message_reaction_remove = new AsyncEvent<MessageReactionRemoveEventArgs>();
 
         /// <summary>
         /// Sent when all reactions get removed from a message.
         /// </summary>
-        public event EventHandler<MessageReactionRemoveAllEventArgs> MessageReactionRemoveAll;
+        public event AsyncEventHandler<MessageReactionRemoveAllEventArgs> MessageReactionRemoveAll
+        {
+            add => this._message_reaction_remove_all.Register(value);
+            remove => this._message_reaction_remove_all.Unregister(value);
+        }
+        private AsyncEvent<MessageReactionRemoveAllEventArgs> _message_reaction_remove_all = new AsyncEvent<MessageReactionRemoveAllEventArgs>();
 
-        public event EventHandler<WebhooksUpdateEventArgs> WebhooksUpdate;
+        public event AsyncEventHandler<WebhooksUpdateEventArgs> WebhooksUpdate
+        {
+            add => this._webhooks_update.Register(value);
+            remove => this._webhooks_update.Unregister(value);
+        }
+        private AsyncEvent<WebhooksUpdateEventArgs> _webhooks_update = new AsyncEvent<WebhooksUpdateEventArgs>();
 
-        public event EventHandler<UserSpeakingEventArgs> UserSpeaking;
-        public event EventHandler<VoiceReceivedEventArgs> VoiceReceived;
+        public event AsyncEventHandler<UserSpeakingEventArgs> UserSpeaking
+        {
+            add => this._user_speaking.Register(value);
+            remove => this._user_speaking.Unregister(value);
+        }
+        private AsyncEvent<UserSpeakingEventArgs> _user_speaking = new AsyncEvent<UserSpeakingEventArgs>();
+
+        public event AsyncEventHandler<VoiceReceivedEventArgs> VoiceReceived
+        {
+            add => this._voice_received.Register(value);
+            remove => this._voice_received.Unregister(value);
+        }
+        private AsyncEvent<VoiceReceivedEventArgs> _voice_received = new AsyncEvent<VoiceReceivedEventArgs>();
         #endregion
 
         #region Internal Variables
@@ -382,45 +587,35 @@ namespace DSharpPlus
                     await SendIdentify();
                 else
                     await SendResume();
-                SocketOpened?.Invoke(sender, e);
+                await this._socket_opened.InvokeAsync();
             };
             _websocketClient.SocketClosed += async (sender, e) =>
             {
-                await Task.Run(() =>
+                _heartbeatThread.Abort();
+
+                _debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Websocket", $"Connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
+
+                if (!e.WasClean && config.AutoReconnect)
                 {
-                    _heartbeatThread.Abort();
-
-                    _debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Websocket", $"Connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
-
-                    if (!e.WasClean && config.AutoReconnect)
-                    {
-                        _websocketClient.Disconnect();
-                        _websocketClient.Connect();
-                        DebugLogger.LogMessage(LogLevel.Critical, "Internal", "Bot crashed. Reconnecting", DateTime.Now);
-                    }
-                    SocketClosed?.Invoke(sender, e);
-                });
+                    _websocketClient.Disconnect();
+                    _websocketClient.Connect();
+                    DebugLogger.LogMessage(LogLevel.Critical, "Internal", "Bot crashed. Reconnecting", DateTime.Now);
+                }
+                await this._socket_closed.InvokeAsync(e);
             };
             _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
             _websocketClient.Connect();
 
             _voiceClient = new DiscordVoiceClient();
-            _voiceClient.UserSpeaking += async (sender, e) =>
+            _voiceClient.UserSpeaking += async e =>
             {
-                await Task.Run(() =>
-                {
-                    UserSpeaking?.Invoke(this, e);
-                });
+                await this._user_speaking.InvokeAsync(e);
             };
-            _voiceClient.VoiceReceived += async (sender, e) =>
+            _voiceClient.VoiceReceived += async e =>
             {
-                await Task.Run(() =>
-                {
-                    VoiceReceived?.Invoke(this,
-                        _ssrcDict.ContainsKey(e.SSRC)
-                            ? new VoiceReceivedEventArgs(e.SSRC, _ssrcDict[e.SSRC], e.Voice, e.VoiceLength)
-                            : e);
-                });
+                await this._voice_received.InvokeAsync(_ssrcDict.ContainsKey(e.SSRC)
+                    ? new VoiceReceivedEventArgs(e.SSRC, _ssrcDict[e.SSRC], e.Voice, e.VoiceLength)
+                    : e);
             };
         }
 
@@ -442,7 +637,7 @@ namespace DSharpPlus
             if (config.TokenType == TokenType.Bot)
                 url += Endpoints.Bot;
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             JObject jObj = JObject.Parse(response.Response);
@@ -508,27 +703,30 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="ChannelID"></param>
+        /// <param name="channelId"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(ulong ChannelID, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(ChannelID, content, tts, embed);
+        public async Task<DiscordMessage> SendMessage(ulong channelId, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(channelId, content, tts, embed);
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="Channel"></param>
+        /// <param name="channel"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(DiscordChannel Channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(Channel.ID, content, tts, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordChannel channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(channel.ID, content, tts, embed);
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="Channel"></param>
+        /// <param name="channel"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(DiscordDMChannel Channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(Channel.ID, content, tts, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordDMChannel channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(channel.ID, content, tts, embed);
         /// <summary>
         /// Creates a guild. Only for whitelisted bots
         /// </summary>
@@ -600,7 +798,7 @@ namespace DSharpPlus
         /// <param name="game">Game you're playing</param>
         /// <param name="idle_since"></param>
         /// <returns></returns>
-        public async Task UpdateStatus(string game = "", int idle_since = -1) => InternalUpdateStatus(game, idle_since);
+        public async Task UpdateStatus(string game = "", int idle_since = -1) => await InternalUpdateStatus(game, idle_since);
 
         /// <summary>
         /// Modifies a guild member
@@ -711,629 +909,529 @@ namespace DSharpPlus
         #region Events
         internal async Task OnReadyEvent(JObject obj)
         {
-            await Task.Run(() =>
+            _gatewayVersion = obj["d"]["v"].ToObject<int>();
+            _me = obj["d"]["user"].ToObject<DiscordUser>();
+            _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDMChannel>>();
+            if (config.TokenType != TokenType.User)
             {
-                _gatewayVersion = obj["d"]["v"].ToObject<int>();
-                _me = obj["d"]["user"].ToObject<DiscordUser>();
-                _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDMChannel>>();
-                if (config.TokenType != TokenType.User)
+                foreach (JObject guild in obj["d"]["guilds"])
                 {
-                    foreach (JObject guild in obj["d"]["guilds"])
-                    {
-                        if (!_guilds.ContainsKey(guild.Value<ulong>("id")))
-                            _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
-                    }
+                    if (!_guilds.ContainsKey(guild.Value<ulong>("id")))
+                        _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
                 }
-                _sessionID = obj["d"]["session_id"].ToString();
+            }
+            _sessionID = obj["d"]["session_id"].ToString();
 
-                Ready?.Invoke(this, new EventArgs());
-            });
+            await this._ready.InvokeAsync();
         }
         internal async Task OnChannelCreateEvent(JObject obj)
         {
-            await Task.Run(() =>
+            if (obj["d"]["is_private"] != null && obj["d"]["is_private"].ToObject<bool>())
             {
-                if (obj["d"]["is_private"] != null && obj["d"]["is_private"].ToObject<bool>())
-                {
-                    DiscordDMChannel channel = obj["d"].ToObject<DiscordDMChannel>();
-                    _privateChannels.Add(channel);
+                DiscordDMChannel channel = obj["d"].ToObject<DiscordDMChannel>();
+                _privateChannels.Add(channel);
 
-                    DMChannelCreated?.Invoke(this, new DMChannelCreateEventArgs { Channel = channel });
-                }
-                else
-                {
-                    DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
-
-                    _guilds[channel.GuildID].Channels.Add(channel);
-
-                    ChannelCreated?.Invoke(this, new ChannelCreateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
-                }
-            });
-        }
-        internal async Task OnChannelUpdateEvent(JObject obj)
-        {
-            await Task.Run(() =>
+                await this._dm_channel_created.InvokeAsync(new DMChannelCreateEventArgs { Channel = channel });
+            }
+            else
             {
                 DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
 
-                if (_guilds != null && _guilds.ContainsKey(channel.GuildID)
-                && _guilds[channel.GuildID]?.Channels?.Find(x => x.ID == channel.ID) != null)
-                {
-                    int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
-                    _guilds[channel.GuildID].Channels[channelIndex] = channel;
-                }
-                else
-                {
-                    if (_guilds[channel.GuildID].Channels == null)
-                        _guilds[channel.GuildID].Channels = new List<DiscordChannel>();
-                    _guilds[channel.GuildID].Channels.Add(channel);
-                }
+                _guilds[channel.GuildID].Channels.Add(channel);
 
-                ChannelUpdated?.Invoke(this, new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
-            });
+                await this._channel_created.InvokeAsync(new ChannelCreateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
+            }
+        }
+        internal async Task OnChannelUpdateEvent(JObject obj)
+        {
+            DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
+
+            if (_guilds != null && _guilds.ContainsKey(channel.GuildID)
+            && _guilds[channel.GuildID]?.Channels?.Find(x => x.ID == channel.ID) != null)
+            {
+                int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
+                _guilds[channel.GuildID].Channels[channelIndex] = channel;
+            }
+            else
+            {
+                if (_guilds[channel.GuildID].Channels == null)
+                    _guilds[channel.GuildID].Channels = new List<DiscordChannel>();
+                _guilds[channel.GuildID].Channels.Add(channel);
+            }
+
+            await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
         }
         internal async Task OnChannelDeleteEvent(JObject obj)
         {
-            await Task.Run(() =>
+            if (obj["d"]["is_private"] != null && obj["d"]["is_private"].ToObject<bool>())
             {
-                if (obj["d"]["is_private"] != null && obj["d"]["is_private"].ToObject<bool>())
-                {
-                    DiscordDMChannel channel = obj["d"].ToObject<DiscordDMChannel>();
-                    int channelIndex = _privateChannels.FindIndex(x => x.ID == channel.ID);
-                    _privateChannels.RemoveAt(channelIndex);
+                DiscordDMChannel channel = obj["d"].ToObject<DiscordDMChannel>();
+                int channelIndex = _privateChannels.FindIndex(x => x.ID == channel.ID);
+                _privateChannels.RemoveAt(channelIndex);
 
-                    DMChannelDeleted?.Invoke(this, new DMChannelDeleteEventArgs { Channel = channel });
-                }
-                else
-                {
-                    DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
-                    _guilds[channel.GuildID].Channels.RemoveAll(x => x.ID == channel.ID);
+                await this._dm_channel_deleted.InvokeAsync(new DMChannelDeleteEventArgs { Channel = channel });
+            }
+            else
+            {
+                DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
+                _guilds[channel.GuildID].Channels.RemoveAll(x => x.ID == channel.ID);
 
-                    ChannelDeleted?.Invoke(this, new ChannelDeleteEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
-                }
-            });
+                await this._channel_deleted.InvokeAsync(new ChannelDeleteEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
+            }
         }
         internal async Task OnGuildCreateEvent(JObject obj)
         {
-            await Task.Run(() =>
+            DiscordGuild guild = obj["d"].ToObject<DiscordGuild>();
+
+            foreach (DiscordChannel channel in guild.Channels)
+                if (channel.GuildID == 0) channel.GuildID = guild.ID;
+
+            foreach (DiscordPresence Presence in guild.Presences)
             {
-                DiscordGuild guild = obj["d"].ToObject<DiscordGuild>();
-
-                foreach (DiscordChannel channel in guild.Channels)
-                    if (channel.GuildID == 0) channel.GuildID = guild.ID;
-
-                foreach (DiscordPresence Presence in guild.Presences)
+                if (_presences.ContainsKey(Presence.UserID))
+                    _presences.Remove(Presence.UserID);
+                if (_presences != null && Presence != null)
                 {
-                    if (_presences.ContainsKey(Presence.UserID))
-                        _presences.Remove(Presence.UserID);
-                    if (_presences != null && Presence != null)
+                    try
                     {
-                        try
-                        {
-                            _presences.Add(Presence.UserID, Presence);
-                        }
-                        catch (NullReferenceException)
-                        {
+                        _presences.Add(Presence.UserID, Presence);
+                    }
+                    catch (NullReferenceException)
+                    {
 
-                        }
                     }
                 }
+            }
 
-                if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
-                {
-                    _guilds[guild.ID] = guild;
+            if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
+            {
+                _guilds[guild.ID] = guild;
 
-                    GuildAvailable?.Invoke(this, new GuildCreateEventArgs { Guild = guild });
-                }
-                else
-                {
-                    _guilds.Add(guild.ID, guild);
+                await this._guild_available.InvokeAsync(new GuildCreateEventArgs { Guild = guild });
+            }
+            else
+            {
+                _guilds.Add(guild.ID, guild);
 
-                    GuildCreated?.Invoke(this, new GuildCreateEventArgs { Guild = guild });
-                }
-            });
+                await this._guild_created.InvokeAsync(new GuildCreateEventArgs { Guild = guild });
+            }
         }
         internal async Task OnGuildUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
+            DiscordGuild guild = _guilds[obj["d"].Value<ulong>("id")];
+            if (guild != null)
             {
-                DiscordGuild guild = _guilds[obj["d"].Value<ulong>("id")];
-                if (guild != null)
-                {
-                    guild = obj["d"].ToObject<DiscordGuild>();
-                    _guilds[guild.ID] = guild;
-
-                    GuildUpdated?.Invoke(this, new GuildUpdateEventArgs { Guild = guild });
-                }
-                else
-                {
-                    guild = obj["d"].ToObject<DiscordGuild>();
-                    _guilds.Add(guild.ID, guild);
-
-                    GuildUpdated?.Invoke(this, new GuildUpdateEventArgs { Guild = guild });
-                }
-            });
+                guild = obj["d"].ToObject<DiscordGuild>();
+                _guilds[guild.ID] = guild;
+            }
+            else
+            {
+                guild = obj["d"].ToObject<DiscordGuild>();
+                _guilds.Add(guild.ID, guild);
+            }
+            await this._guild_updated.InvokeAsync(new GuildUpdateEventArgs { Guild = guild });
         }
         internal async Task OnGuildDeleteEvent(JObject obj)
         {
-            await Task.Run(() =>
+            if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
             {
-                if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
+                if (obj["d"]["unavailable"] != null)
                 {
-                    if (obj["d"]["unavailable"] != null)
-                    {
-                        DiscordGuild guild = obj["d"].ToObject<DiscordGuild>();
+                    DiscordGuild guild = obj["d"].ToObject<DiscordGuild>();
 
-                        _guilds[guild.ID] = guild;
+                    _guilds[guild.ID] = guild;
 
-                        GuildUnavailable?.Invoke(this, new GuildDeleteEventArgs { ID = obj["d"].Value<ulong>("id"), Unavailable = true });
-                    }
-                    else
-                    {
-                        _guilds.Remove(obj["d"].Value<ulong>("id"));
-
-                        GuildDeleted?.Invoke(this, new GuildDeleteEventArgs { ID = obj["d"].Value<ulong>("id") });
-                    }
+                    await this._guild_unavailable.InvokeAsync(new GuildDeleteEventArgs { ID = obj["d"].Value<ulong>("id"), Unavailable = true });
                 }
-            });
+                else
+                {
+                    _guilds.Remove(obj["d"].Value<ulong>("id"));
+
+                    await this._guild_deleted.InvokeAsync(new GuildDeleteEventArgs { ID = obj["d"].Value<ulong>("id") });
+                }
+            }
         }
         internal async Task OnPresenceUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                ulong userID = (ulong)obj["d"]["user"]["id"];
-                DiscordPresence p = obj["d"].ToObject<DiscordPresence>();
-                if (_presences.ContainsKey(userID))
-                    _presences[userID] = p;
-                else
-                    _presences.Add(userID, p);
+            ulong userID = (ulong)obj["d"]["user"]["id"];
+            DiscordPresence p = obj["d"].ToObject<DiscordPresence>();
+            if (_presences.ContainsKey(userID))
+                _presences[userID] = p;
+            else
+                _presences.Add(userID, p);
 
-                PresenceUpdateEventArgs args = obj["d"].ToObject<PresenceUpdateEventArgs>();
-                PresenceUpdate?.Invoke(this, args);
-            });
+            PresenceUpdateEventArgs args = obj["d"].ToObject<PresenceUpdateEventArgs>();
+            await this._presence_update.InvokeAsync(args);
         }
         internal async Task OnGuildBanAddEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                DiscordUser user = obj["d"].ToObject<DiscordUser>();
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                GuildBanAddEventArgs args = new GuildBanAddEventArgs { User = user, GuildID = guildID };
-                GuildBanAdd?.Invoke(this, args);
-            });
+            DiscordUser user = obj["d"].ToObject<DiscordUser>();
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            GuildBanAddEventArgs args = new GuildBanAddEventArgs { User = user, GuildID = guildID };
+            await this._guild_ban_add.InvokeAsync(args);
         }
         internal async Task OnGuildBanRemoveEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                DiscordUser user = obj["d"].ToObject<DiscordUser>();
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                GuildBanRemoveEventArgs args = new GuildBanRemoveEventArgs { User = user, GuildID = guildID };
-                GuildBanRemove?.Invoke(this, args);
-            });
+            DiscordUser user = obj["d"].ToObject<DiscordUser>();
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            GuildBanRemoveEventArgs args = new GuildBanRemoveEventArgs { User = user, GuildID = guildID };
+            await this._guild_ban_remove.InvokeAsync(args);
         }
         internal async Task OnGuildEmojisUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            List<DiscordEmoji> emojis = new List<DiscordEmoji>();
+            foreach (JObject em in (JArray)obj["d"]["emojis"])
             {
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                List<DiscordEmoji> emojis = new List<DiscordEmoji>();
-                foreach (JObject em in (JArray)obj["d"]["emojis"])
-                {
-                    emojis.Add(em.ToObject<DiscordEmoji>());
-                }
-                _guilds[guildID].Emojis = emojis;
-                GuildEmojisUpdateEventArgs arga = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis };
-                GuildEmojisUpdate?.Invoke(this, arga);
-            });
+                emojis.Add(em.ToObject<DiscordEmoji>());
+            }
+            _guilds[guildID].Emojis = emojis;
+            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis };
+            await this._guild_emojis_update.InvokeAsync(args);
         }
         internal async Task OnGuildIntegrationsUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                GuildIntegrationsUpdateEventArgs args = new GuildIntegrationsUpdateEventArgs { GuildID = guildID };
-                GuildIntegrationsUpdate?.Invoke(this, args);
-            });
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            GuildIntegrationsUpdateEventArgs args = new GuildIntegrationsUpdateEventArgs { GuildID = guildID };
+            await this._guild_integrations_update.InvokeAsync(args);
         }
         internal async Task OnGuildMemberAddEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                DiscordMember user = obj["d"].ToObject<DiscordMember>();
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                _guilds[guildID].Members.Add(user);
-                _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
-                GuildMemberAddEventArgs args = new GuildMemberAddEventArgs { Member = user, GuildID = guildID };
-                GuildMemberAdd?.Invoke(this, args);
-            });
+            DiscordMember user = obj["d"].ToObject<DiscordMember>();
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            _guilds[guildID].Members.Add(user);
+            _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
+            GuildMemberAddEventArgs args = new GuildMemberAddEventArgs { Member = user, GuildID = guildID };
+            await this._guild_member_add.InvokeAsync(args);
         }
         internal async Task OnGuildMemberRemoveEvent(JObject obj)
         {
-            await Task.Run(() =>
+            DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            if (_guilds[guildID].Members.Find(x => x.User.ID == user.ID) != null)
             {
-                DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                if (_guilds[guildID].Members.Find(x => x.User.ID == user.ID) != null)
-                {
-                    int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
-                    _guilds[guildID].Members.RemoveAt(index);
-                    _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
-                }
-                GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs { User = user, GuildID = guildID };
-                GuildMemberRemove?.Invoke(this, args);
-            });
+                int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
+                _guilds[guildID].Members.RemoveAt(index);
+                _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
+            }
+            GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs { User = user, GuildID = guildID };
+            await this._guild_member_remove.InvokeAsync(args);
         }
         internal async Task OnGuildMemberUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
+            DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            string nick = "";
+            nick = obj["d"]["nick"].ToString();
+            List<ulong> roles = new List<ulong>();
+            if (obj["d"]["roles"] != null)
             {
-                DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                string nick = "";
-                nick = obj["d"]["nick"].ToString();
-                List<ulong> roles = new List<ulong>();
-                if (obj["d"]["roles"] != null)
+                JArray rolesjson = (JArray)obj["d"]["roles"];
+                foreach (var role in rolesjson)
                 {
-                    JArray rolesjson = (JArray)obj["d"]["roles"];
-                    foreach (var role in rolesjson)
-                    {
-                        roles.Add(ulong.Parse(role.ToString()));
-                    }
+                    roles.Add(ulong.Parse(role.ToString()));
                 }
-                int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
-                if (_guilds[guildID].Members.Find(x => x.User.ID == user.ID) != null)
+            }
+            int index = _guilds[guildID].Members.FindIndex(x => x.User.ID == user.ID);
+            if (_guilds[guildID].Members.Find(x => x.User.ID == user.ID) != null)
+            {
+                DiscordMember m = _guilds[guildID].Members[index];
+                m.Nickname = nick;
+                m.Roles = roles;
+                _guilds[guildID].Members[index] = m;
+            }
+            else
+            {
+                DiscordMember m = new DiscordMember()
                 {
-                    DiscordMember m = _guilds[guildID].Members[index];
-                    m.Nickname = nick;
-                    m.Roles = roles;
-                    _guilds[guildID].Members[index] = m;
-                }else
-                {
-                    DiscordMember m = new DiscordMember()
-                    {
-                        User = user,
-                        Nickname = nick,
-                        Roles = roles,
-                    };
-                    _guilds[guildID].Members.Add(m);
-                }
-                GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles, NickName = nick };
-                GuildMemberUpdate?.Invoke(this, args);
-            });
+                    User = user,
+                    Nickname = nick,
+                    Roles = roles,
+                };
+                _guilds[guildID].Members.Add(m);
+            }
+            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles, NickName = nick };
+            await this._guild_member_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleCreateEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
-                _guilds[guildID].Roles.Add(role);
-                GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs { GuildID = guildID, Role = role };
-                GuildRoleCreate?.Invoke(this, args);
-            });
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+            _guilds[guildID].Roles.Add(role);
+            GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs { GuildID = guildID, Role = role };
+            await this._guild_role_create.InvokeAsync(args);
         }
         internal async Task OnGuildRoleUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
-                int index = _guilds[guildID].Roles.FindIndex(x => x.ID == role.ID);
-                _guilds[guildID].Roles[index] = role;
-                GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs { GuildID = guildID, Role = role };
-                GuildRoleUpdate?.Invoke(this, args);
-            });
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+            int index = _guilds[guildID].Roles.FindIndex(x => x.ID == role.ID);
+            _guilds[guildID].Roles[index] = role;
+            GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs { GuildID = guildID, Role = role };
+            await this._guild_role_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleDeleteEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                ulong roleID = obj["d"]["role_id"].ToObject<ulong>();
-                int index = _guilds[guildID].Roles.FindIndex(x => x.ID == roleID);
-                _guilds[guildID].Roles.RemoveAt(index);
-                GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs { GuildID = guildID, RoleID = roleID };
-                GuildRoleDelete?.Invoke(this, args);
-            });
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            ulong roleID = obj["d"]["role_id"].ToObject<ulong>();
+            int index = _guilds[guildID].Roles.FindIndex(x => x.ID == roleID);
+            _guilds[guildID].Roles.RemoveAt(index);
+            GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs { GuildID = guildID, RoleID = roleID };
+            await this._guild_role_delete.InvokeAsync(args);
         }
         internal async Task OnMessageCreateEvent(JObject obj)
         {
-            await Task.Run(() =>
+            DiscordMessage message;
+            try
             {
-                DiscordMessage message;
-                try
+                message = obj["d"].ToObject<DiscordMessage>();
+            }
+            catch (JsonSerializationException)
+            {
+                JObject msg = (JObject)obj["d"];
+                msg["nonce"] = 0;
+                message = msg.ToObject<DiscordMessage>();
+            }
+
+            try
+            {
+                if (_privateChannels.Find(x => x.ID == message.ChannelID) == null)
                 {
-                    message = obj["d"].ToObject<DiscordMessage>();
+                    int channelindex = _guilds[message.Parent.Parent.ID].Channels.FindIndex(x => x.ID == message.ChannelID);
+                    _guilds[message.Parent.Parent.ID].Channels[channelindex].LastMessageID = message.ID;
                 }
-                catch (JsonSerializationException)
+                else
                 {
-                    JObject msg = (JObject)obj["d"];
-                    msg["nonce"] = 0;
-                    message = msg.ToObject<DiscordMessage>();
+                    int channelindex = _privateChannels.FindIndex(x => x.ID == message.ChannelID);
+                    _privateChannels[channelindex].LastMessageID = message.ID;
+                }
+            }
+            catch (KeyNotFoundException)
+            {
+                DebugLogger.LogMessage(LogLevel.Error, "Event", "Could not find channel last message belonged to?", DateTime.Now);
+            }
+
+            List<DiscordMember> MentionedUsers = new List<DiscordMember>();
+            List<DiscordRole> MentionedRoles = new List<DiscordRole>();
+            List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
+            List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
+            if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Parent.Parent.ID))
+            {
+                foreach (ulong user in Utils.GetUserMentions(message))
+                {
+                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                    && _guilds[message.Parent.Parent.ID].Members != null
+                    && _guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
+                        MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
                 }
 
-                try
+                foreach (ulong role in Utils.GetRoleMentions(message))
                 {
-                    if (_privateChannels.Find(x => x.ID == message.ChannelID) == null)
-                    {
-                        int channelindex = _guilds[message.Parent.Parent.ID].Channels.FindIndex(x => x.ID == message.ChannelID);
-                        _guilds[message.Parent.Parent.ID].Channels[channelindex].LastMessageID = message.ID;
-                    }
-                    else
-                    {
-                        int channelindex = _privateChannels.FindIndex(x => x.ID == message.ChannelID);
-                        _privateChannels[channelindex].LastMessageID = message.ID;
-                    }
-                }catch(KeyNotFoundException ex)
-                {
-                    DebugLogger.LogMessage(LogLevel.Error, "Event", "Could not find channel last message belonged to?", DateTime.Now);
+                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                    && _guilds[message.Parent.Parent.ID].Roles != null
+                    && _guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role) != null)
+                        MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
                 }
 
-                List<DiscordMember> MentionedUsers = new List<DiscordMember>();
-                List<DiscordRole> MentionedRoles = new List<DiscordRole>();
-                List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-                List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-                if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Parent.Parent.ID))
+                foreach (ulong channel in Utils.GetChannelMentions(message))
                 {
-                    foreach (ulong user in Utils.GetUserMentions(message))
-                    {
-                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                        && _guilds[message.Parent.Parent.ID].Members != null
-                        && _guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
-                            MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
-                    }
-
-                    foreach (ulong role in Utils.GetRoleMentions(message))
-                    {
-                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                        && _guilds[message.Parent.Parent.ID].Roles != null
-                        && _guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role) != null)
-                            MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
-                    }
-
-                    foreach (ulong channel in Utils.GetChannelMentions(message))
-                    {
-                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                        && _guilds[message.Parent.Parent.ID].Channels != null
-                        && _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
-                            MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
-                    }
-                    /*
-                    foreach (ulong emoji in Utils.GetEmojis(message))
-                    {
-                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                        && _guilds[message.Parent.Parent.ID].Emojis != null
-                        && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
-                            UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
-                    }
-                    */
+                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                    && _guilds[message.Parent.Parent.ID].Channels != null
+                    && _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
+                        MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
                 }
-                MessageCreateEventArgs args = new MessageCreateEventArgs { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
-                MessageCreated?.Invoke(this, args);
-            });
+                /*
+                foreach (ulong emoji in Utils.GetEmojis(message))
+                {
+                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                    && _guilds[message.Parent.Parent.ID].Emojis != null
+                    && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
+                        UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
+                }
+                */
+            }
+            MessageCreateEventArgs args = new MessageCreateEventArgs { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
+            await this._message_created.InvokeAsync(args);
         }
         internal async Task OnMessageUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
+            DiscordMessage message;
+            message = obj["d"].ToObject<DiscordMessage>();
+
+            List<DiscordMember> MentionedUsers = new List<DiscordMember>();
+            List<DiscordRole> MentionedRoles = new List<DiscordRole>();
+            List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
+            List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
+            if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Parent.Parent.ID))
             {
-                DiscordMessage message;
-                message = obj["d"].ToObject<DiscordMessage>();
-
-                List<DiscordMember> MentionedUsers = new List<DiscordMember>();
-                List<DiscordRole> MentionedRoles = new List<DiscordRole>();
-                List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-                List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-                if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Parent.Parent.ID))
+                foreach (ulong user in Utils.GetUserMentions(message))
                 {
-                    foreach (ulong user in Utils.GetUserMentions(message))
-                    {
-                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                        && _guilds[message.Parent.Parent.ID].Members != null
-                        && _guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
-                            MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
-                    }
-
-                    foreach (ulong role in Utils.GetRoleMentions(message))
-                    {
-                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                        && _guilds[message.Parent.Parent.ID].Roles != null
-                        && _guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role) != null)
-                            MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
-                    }
-
-                    foreach (ulong channel in Utils.GetChannelMentions(message))
-                    {
-                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                        && _guilds[message.Parent.Parent.ID].Channels != null
-                        && _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
-                            MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
-                    }
-                    /*
-                    foreach (ulong emoji in Utils.GetEmojis(message))
-                    {
-                        if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                        && _guilds[message.Parent.Parent.ID].Emojis != null
-                        && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
-                            UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
-                    }
-                    */
+                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                    && _guilds[message.Parent.Parent.ID].Members != null
+                    && _guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user) != null)
+                        MentionedUsers.Add(_guilds[message.Parent.Parent.ID].Members.Find(x => x.User.ID == user));
                 }
 
-                MessageUpdateEventArgs args = new MessageUpdateEventArgs { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
-                MessageUpdate?.Invoke(this, args);
-            });
+                foreach (ulong role in Utils.GetRoleMentions(message))
+                {
+                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                    && _guilds[message.Parent.Parent.ID].Roles != null
+                    && _guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role) != null)
+                        MentionedRoles.Add(_guilds[message.Parent.Parent.ID].Roles.Find(x => x.ID == role));
+                }
+
+                foreach (ulong channel in Utils.GetChannelMentions(message))
+                {
+                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                    && _guilds[message.Parent.Parent.ID].Channels != null
+                    && _guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel) != null)
+                        MentionedChannels.Add(_guilds[message.Parent.Parent.ID].Channels.Find(x => x.ID == channel));
+                }
+                /*
+                foreach (ulong emoji in Utils.GetEmojis(message))
+                {
+                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
+                    && _guilds[message.Parent.Parent.ID].Emojis != null
+                    && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
+                        UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
+                }
+                */
+            }
+
+            MessageUpdateEventArgs args = new MessageUpdateEventArgs { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
+            await this._message_update.InvokeAsync(args);
         }
         internal async Task OnMessageDeleteEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                ulong ID = ulong.Parse(obj["d"]["id"].ToString());
-                ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-                MessageDeleteEventArgs args = new MessageDeleteEventArgs { ChannelID = channelID, MessageID = ID };
-                MessageDelete?.Invoke(this, args);
-            });
+            ulong ID = ulong.Parse(obj["d"]["id"].ToString());
+            ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
+            MessageDeleteEventArgs args = new MessageDeleteEventArgs { ChannelID = channelID, MessageID = ID };
+            await this._message_delete.InvokeAsync(args);
         }
         internal async Task OnMessageBulkDeleteEvent(JObject obj)
         {
-            await Task.Run(() =>
+            JArray IDsJson = (JArray)obj["d"]["ids"];
+            List<ulong> ids = new List<ulong>();
+            foreach (JToken t in IDsJson)
             {
-                JArray IDsJson = (JArray)obj["d"]["ids"];
-                List<ulong> ids = new List<ulong>();
-                foreach (JToken t in IDsJson)
-                {
-                    ids.Add(ulong.Parse(t.ToString()));
-                }
-                ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-                MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs { MessageIDs = ids, ChannelID = channelID };
-                MessageBulkDelete?.Invoke(this, args);
-            });
+                ids.Add(ulong.Parse(t.ToString()));
+            }
+            ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
+            MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs { MessageIDs = ids, ChannelID = channelID };
+            await this._message_bulk_delete.InvokeAsync(args);
         }
         internal async Task OnTypingStartEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-                ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
-                TypingStartEventArgs args = new TypingStartEventArgs { ChannelID = channelID, UserID = userID };
-                TypingStart?.Invoke(this, args);
-            });
+            ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
+            ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
+            TypingStartEventArgs args = new TypingStartEventArgs { ChannelID = channelID, UserID = userID };
+            await this._typing_start.InvokeAsync(args);
         }
         internal async Task OnUserSettingsUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                DiscordUser user = obj["d"].ToObject<DiscordUser>();
-                UserSettingsUpdateEventArgs args = new UserSettingsUpdateEventArgs { User = user };
-                UserSettingsUpdate?.Invoke(this, args);
-            });
+            DiscordUser user = obj["d"].ToObject<DiscordUser>();
+            UserSettingsUpdateEventArgs args = new UserSettingsUpdateEventArgs { User = user };
+            await this._user_settings_update.InvokeAsync(args);
         }
         internal async Task OnUserUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                DiscordUser user = obj["d"].ToObject<DiscordUser>();
-                UserUpdateEventArgs args = new UserUpdateEventArgs { User = user };
-                UserUpdate?.Invoke(this, args);
-            });
+            DiscordUser user = obj["d"].ToObject<DiscordUser>();
+            UserUpdateEventArgs args = new UserUpdateEventArgs { User = user };
+            await this._user_update.InvokeAsync(args);
         }
         internal async Task OnVoiceStateUpdateEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
-                string session_id = obj["d"]["session_id"].ToString();
-                VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs { UserID = userID, SessionID = session_id };
-                VoiceStateUpdate?.Invoke(this, args);
-            });
+            ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
+            string session_id = obj["d"]["session_id"].ToString();
+            VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs { UserID = userID, SessionID = session_id };
+            await this._voice_state_update.InvokeAsync(args);
         }
         internal async Task OnVoiceServerUpdateEvent(JObject obj)
         {
-            await Task.Run(async () =>
-            {
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                string endpoint = obj["d"]["endpoint"].ToString();
-                string token = obj["d"]["token"].ToString();
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            string endpoint = obj["d"]["endpoint"].ToString();
+            string token = obj["d"]["token"].ToString();
 
-                VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs { GuildID = guildID, Endpoint = endpoint, VoiceToken = token };
-                VoiceServerUpdate?.Invoke(this, args);
-                await _voiceClient.Init(token, guildID, endpoint);
-            });
+            VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs { GuildID = guildID, Endpoint = endpoint, VoiceToken = token };
+            await this._voice_server_update.InvokeAsync(args);
+            await _voiceClient.Init(token, guildID, endpoint);
         }
         internal async Task OnGuildMembersChunkEvent(JObject obj)
         {
-            await Task.Run(() =>
+            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
+            List<DiscordMember> members = new List<DiscordMember>();
+            foreach (JObject mem in (JArray)obj["d"]["members"])
             {
-                ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-                List<DiscordMember> members = new List<DiscordMember>();
-                foreach (JObject mem in (JArray)obj["d"]["members"])
-                {
-                    members.Add(mem.ToObject<DiscordMember>());
-                }
-                _guilds[guildID].Members = members;
-                _guilds[guildID].MemberCount = members.Count;
-                GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { GuildID = guildID, Members = members };
-                GuildMembersChunk?.Invoke(this, args);
-            });
+                members.Add(mem.ToObject<DiscordMember>());
+            }
+            _guilds[guildID].Members = members;
+            _guilds[guildID].MemberCount = members.Count;
+            GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { GuildID = guildID, Members = members };
+            await this._guild_members_chunk.InvokeAsync(args);
         }
 
         internal async Task OnUnknownEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                string name = obj["t"].ToString();
-                string json = obj["d"].ToString();
-                UnknownEventArgs args = new UnknownEventArgs { EventName = name, Json = json };
-                UnknownEvent?.Invoke(this, args);
-            });
+            string name = obj["t"].ToString();
+            string json = obj["d"].ToString();
+            UnknownEventArgs args = new UnknownEventArgs { EventName = name, Json = json };
+            await this._unknown_event.InvokeAsync(args);
         }
 
         internal async Task OnMessageReactionAdd(JObject obj)
         {
-            await Task.Run(() =>
+            ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
+            ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
+            ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
+            DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
+            MessageReactionAddEventArgs args = new MessageReactionAddEventArgs
             {
-                ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
-                ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
-                ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
-                DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
-                MessageReactionAddEventArgs args = new MessageReactionAddEventArgs
-                {
-                    ChannelID = channelid,
-                    MessageID = messageid,
-                    UserID = userid,
-                    Emoji = emoji
-                };
-                MessageReactionAdd?.Invoke(this, args);
-            });
+                ChannelID = channelid,
+                MessageID = messageid,
+                UserID = userid,
+                Emoji = emoji
+            };
+            await this._message_reaction_add.InvokeAsync(args);
         }
 
         internal async Task OnMessageReactionRemove(JObject obj)
         {
-            await Task.Run(() =>
+            ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
+            ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
+            ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
+            DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
+            MessageReactionRemoveEventArgs args = new MessageReactionRemoveEventArgs
             {
-                ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
-                ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
-                ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
-                DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
-                MessageReactionRemoveEventArgs args = new MessageReactionRemoveEventArgs
-                {
-                    ChannelID = channelid,
-                    MessageID = messageid,
-                    UserID = userid,
-                    Emoji = emoji
-                };
-                MessageReactionRemove?.Invoke(this, args);
-            });
+                ChannelID = channelid,
+                MessageID = messageid,
+                UserID = userid,
+                Emoji = emoji
+            };
+            await this._message_reaction_remove.InvokeAsync(args);
         }
 
         internal async Task OnMessageReactionRemoveAll(JObject obj)
         {
-            await Task.Run(() =>
+            ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
+            ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
+            MessageReactionRemoveAllEventArgs args = new MessageReactionRemoveAllEventArgs
             {
-                ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
-                ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
-                MessageReactionRemoveAllEventArgs args = new MessageReactionRemoveAllEventArgs
-                {
-                    ChannelID = channelid,
-                    MessageID = messageid
-                };
-                MessageReactionRemoveAll?.Invoke(this, args);
-            });
+                ChannelID = channelid,
+                MessageID = messageid
+            };
+            await this._message_reaction_remove_all.InvokeAsync(args);
         }
 
         internal async Task OnWebhooksUpdate(JObject obj)
         {
-            await Task.Run(() =>
+            ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
+            ulong guildid = ulong.Parse(obj["d"]["guild_id"].ToString());
+            WebhooksUpdateEventArgs args = new WebhooksUpdateEventArgs
             {
-                ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
-                ulong guildid = ulong.Parse(obj["d"]["guild_id"].ToString());
-                WebhooksUpdateEventArgs args = new WebhooksUpdateEventArgs
-                {
-                    ChannelID = channelid,
-                    GuildID = guildid
-                };
-                WebhooksUpdate?.Invoke(this, args);
-            });
+                ChannelID = channelid,
+                GuildID = guildid
+            };
+            await this._webhooks_update.InvokeAsync(args);
         }
         #endregion
 
@@ -1409,7 +1507,7 @@ namespace DSharpPlus
             }
         }
 
-        internal static void InternalUpdateStatus(string game = "", int idle_since = -1)
+        internal static async Task InternalUpdateStatus(string game = "", int idle_since = -1)
         {
             JObject update = new JObject();
             if (idle_since > -1)
@@ -1425,7 +1523,7 @@ namespace DSharpPlus
                 { "d", update }
             };
 
-            _websocketClient._socket.Send(obj.ToString());
+            await Task.Run(() => _websocketClient._socket.Send(obj.ToString()));
         }
 
         internal async Task SendHeartbeat()
@@ -1601,7 +1699,7 @@ namespace DSharpPlus
                     JObject j = new JObject();
                     j.Add("avatar", $"data:image/jpeg;base64,{base64String}");
 
-                    WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+                    WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
                     WebResponse response = await WebWrapper.HandleRequestAsync(request);
                 }
             }
@@ -1617,7 +1715,7 @@ namespace DSharpPlus
             headers.Add("Authorization", Utils.GetFormattedToken());
             JObject payload = new JObject { { "name", name } };
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, payload.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             DiscordGuild guild = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
@@ -1631,7 +1729,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1661,7 +1759,7 @@ namespace DSharpPlus
             if (splash != "")
                 j.Add("splash", splash);
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
@@ -1670,7 +1768,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Bans;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray j = JArray.Parse(response.Response);
             List<DiscordMember> bans = new List<DiscordMember>();
@@ -1685,7 +1783,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Bans + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1693,7 +1791,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Bans + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1701,7 +1799,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1715,7 +1813,7 @@ namespace DSharpPlus
             j.Add("icon", icon);
             j.Add("verification_level", verification_level);
             j.Add("default_message_notifications", default_message_notifications);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
@@ -1742,7 +1840,7 @@ namespace DSharpPlus
                 j.Add("mute", true);
             if (deafened)
                 j.Add("deaf", true);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
         }
@@ -1753,7 +1851,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
             List<DiscordMember> members = new List<DiscordMember>();
@@ -1773,7 +1871,7 @@ namespace DSharpPlus
             headers.Add("Authorization", Utils.GetFormattedToken());
             JObject payload = new JObject { { "name", name }, { "type", type.ToString() }, { "permission_overwrites", null } };
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, payload.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
@@ -1783,7 +1881,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
         }
@@ -1793,7 +1891,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ID;
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1802,7 +1900,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1828,7 +1926,7 @@ namespace DSharpPlus
             }
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1842,7 +1940,7 @@ namespace DSharpPlus
                 values.Add("content", content);
             if (tts)
                 values.Add("tts", tts.ToString());
-            WebRequest request = await WebRequest.CreateMultipartRequestAsync(url, WebRequestMethod.POST, headers, values, path, filename);
+            WebRequest request = WebRequest.CreateMultipartRequest(url, WebRequestMethod.POST, headers, values, path, filename);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1851,7 +1949,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Channels;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray j = JArray.Parse(response.Response);
             List<DiscordChannel> channels = new List<DiscordChannel>();
@@ -1875,7 +1973,7 @@ namespace DSharpPlus
                 j.Add("bitrate", bitrate);
                 j.Add("userlimit", userlimit);
             }
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordChannel>(j.ToString());
         }
@@ -1888,7 +1986,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("id", ChannelID);
             j.Add("position", position);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1909,7 +2007,7 @@ namespace DSharpPlus
             if (limit > -1)
                 j.Add("limit", limit);
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
             List<DiscordMessage> messages = new List<DiscordMessage>();
@@ -1924,7 +2022,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1935,7 +2033,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
             j.Add("content", content);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1944,7 +2042,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1959,7 +2057,7 @@ namespace DSharpPlus
                 msgs.Add(messageID);
             }
             j.Add("messages", msgs);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1967,7 +2065,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Invites;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
             List<DiscordInvite> invites = new List<DiscordInvite>();
@@ -1987,7 +2085,7 @@ namespace DSharpPlus
             j.Add("max_uses", max_uses);
             j.Add("temporary", temporary);
             j.Add("unique", unique);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
@@ -1996,7 +2094,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Permissions + "/" + OverwriteID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2004,7 +2102,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Typing;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2012,7 +2110,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray j = JArray.Parse(response.Response);
             List<DiscordMessage> messages = new List<DiscordMessage>();
@@ -2027,7 +2125,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2035,7 +2133,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2045,7 +2143,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
             j.Add("access_token", AccessToken);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2053,7 +2151,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Recipients + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2066,7 +2164,7 @@ namespace DSharpPlus
             j.Add("allow", (ulong)allow);
             j.Add("deny", (ulong)deny);
             j.Add("type", type);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2076,7 +2174,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
             j.Add("recipient_id", RecipientID);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
         }
@@ -2090,7 +2188,7 @@ namespace DSharpPlus
             {
                 tokens.Add(token);
             }
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, tokens.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, tokens.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
         }
@@ -2108,7 +2206,7 @@ namespace DSharpPlus
 
             for (int i = 0; i < pages; i++)
             {
-                WebRequest request = await WebRequest.CreateRequestAsync($"{url}?limit=1000&after={lastId}", WebRequestMethod.GET, headers);
+                WebRequest request = WebRequest.CreateRequest($"{url}?limit=1000&after={lastId}", WebRequestMethod.GET, headers);
                 WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
                 List<DiscordMember> items = JsonConvert.DeserializeObject<List<DiscordMember>>(response.Response);
@@ -2123,7 +2221,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + $"/{user}";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
@@ -2133,7 +2231,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + "/" + MemberID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
         }
@@ -2142,7 +2240,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2150,7 +2248,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
@@ -2159,7 +2257,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
@@ -2173,7 +2271,7 @@ namespace DSharpPlus
                 j.Add("", username);
             if (base64avatar != "")
                 j.Add("avatar", base64avatar);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
@@ -2182,7 +2280,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Guilds;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordGuild> guilds = new List<DiscordGuild>();
             foreach (JObject j in JArray.Parse(response.Response))
@@ -2215,7 +2313,7 @@ namespace DSharpPlus
                 j.Add("deaf", true);
             if (VoiceChannelID != 0)
                 j.Add("channel_id", VoiceChannelID);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2237,7 +2335,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             DiscordGuild guild = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
             if (_guilds.ContainsKey(GuildID))
@@ -2276,7 +2374,7 @@ namespace DSharpPlus
             if (splash != "")
                 j.Add("splash", splash);
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
@@ -2285,7 +2383,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
@@ -2301,7 +2399,7 @@ namespace DSharpPlus
             j.Add("color", color);
             j.Add("hoist", separate);
             j.Add("mentionable", mentionable);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
         }
@@ -2310,7 +2408,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Roles + "/" + RoleID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
         }
@@ -2319,7 +2417,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
         }
@@ -2333,7 +2431,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject payload = new JObject();
             payload.Add("days", days);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, payload.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JObject j = JObject.Parse(response.Response);
             return int.Parse(j["pruned"].ToString());
@@ -2346,7 +2444,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject payload = new JObject();
             payload.Add("days", days);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, payload.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JObject j = JObject.Parse(response.Response);
             return int.Parse(j["pruned"].ToString());
@@ -2358,7 +2456,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await request.HandleRequestAsync();
             JArray j = JArray.Parse(response.Response);
             List<DiscordIntegration> integrations = new List<DiscordIntegration>();
@@ -2377,7 +2475,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("type", type);
             j.Add("id", ID);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
         }
@@ -2391,7 +2489,7 @@ namespace DSharpPlus
             j.Add("expire_grace_period", expire_grace_period);
             j.Add("enable_emoticons", enable_emoticons);
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
         }
@@ -2402,7 +2500,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations + "/" + IntegrationID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = JObject.FromObject(integration);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
         }
 
@@ -2410,7 +2508,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations + "/" + IntegrationID + Endpoints.Sync;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await request.HandleRequestAsync();
         }
 
@@ -2418,7 +2516,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Embed;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordGuildEmbed>(response.Response);
         }
@@ -2428,7 +2526,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Embed;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = JObject.FromObject(embed);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordGuildEmbed>(response.Response);
         }
@@ -2437,7 +2535,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Regions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await request.HandleRequestAsync();
             JArray j = JArray.Parse(response.Response);
             List<DiscordVoiceRegion> regions = new List<DiscordVoiceRegion>();
@@ -2452,7 +2550,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Invites;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await request.HandleRequestAsync();
             JArray j = JArray.Parse(response.Response);
             List<DiscordInvite> invites = new List<DiscordInvite>();
@@ -2469,7 +2567,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
@@ -2478,7 +2576,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
@@ -2488,7 +2586,7 @@ namespace DSharpPlus
             // USER ONLY
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
@@ -2498,7 +2596,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Connections;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordConnection> connections = new List<DiscordConnection>();
             foreach (JObject j in JArray.Parse(response.Response))
@@ -2513,7 +2611,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Voice + Endpoints.Regions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordVoiceRegion> regions = new List<DiscordVoiceRegion>();
             JArray j = JArray.Parse(response.Response);
@@ -2533,7 +2631,7 @@ namespace DSharpPlus
             j.Add("name", name);
             j.Add("avatar", base64avatar);
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
@@ -2543,7 +2641,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Webhooks;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
             foreach (JObject j in JArray.Parse(response.Response))
@@ -2557,7 +2655,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Webhooks;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
             foreach (JObject j in JArray.Parse(response.Response))
@@ -2571,7 +2669,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2580,7 +2678,7 @@ namespace DSharpPlus
         internal static async Task<DiscordWebhook> InternalGetWebhookWithToken(ulong WebhookID, string WebhookToken)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
-            WebRequest request = await WebRequest.CreateRequestAsync(url);
+            WebRequest request = WebRequest.CreateRequest(url);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             DiscordWebhook wh = JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
             wh.Token = WebhookToken;
@@ -2595,7 +2693,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("name", name);
             j.Add("avatar", base64avatar);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2606,7 +2704,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("name", name);
             j.Add("avatar", base64avatar);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, payload: j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, payload: j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2615,14 +2713,14 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
         internal static async Task InternalDeleteWebhook(ulong WebhookID, string WebhookToken)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2648,7 +2746,7 @@ namespace DSharpPlus
                 }
                 req.Add(arr);
             }
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: req.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, payload: req.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2656,7 +2754,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken + Endpoints.Slack;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: jsonpayload);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, payload: jsonpayload);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2664,7 +2762,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken + Endpoints.Github;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: jsonpayload);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, payload: jsonpayload);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2674,7 +2772,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2682,7 +2780,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2690,7 +2788,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2698,7 +2796,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordUser> reacters = new List<DiscordUser>();
             foreach (JObject obj in JArray.Parse(response.Response))
@@ -2712,7 +2810,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
         #endregion
@@ -2721,7 +2819,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.OAuth2 + Endpoints.Applications + "/" + ID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JObject.Parse(response.Response).ToObject<DiscordApplication>();
         }
