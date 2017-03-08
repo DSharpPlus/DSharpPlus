@@ -135,12 +135,12 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
 
             });
 
-            client.Ready += (sender, e) =>
+            client.Ready += () =>
             {
-                Console.WriteLine($"Connected as {client.Me.Username}#{client.Me.Discriminator}\nOn {client.GatewayUrl} (v{client.GatewayVersion})");
+                return Task.Delay(0);
             };
 
-            client.MessageCreated += async (sender, e) =>
+            client.MessageCreated += async e =>
                     {
                         if (e.Message.Content == "!!appinfo")
                         {
@@ -295,32 +295,35 @@ Serverowner: {e.Message.Parent.Parent.OwnerID}
                     };
 
             // This was an example I made for someone, but might be nice to keep this in for people who sniff out test code instead of docs :^)
-            client.GuildBanAdd += async (sender, e) =>
+            client.GuildBanAdd += async e =>
             {
                 List<DiscordChannel> c = e.Guild.Channels.FindAll(x => x.Name.Contains("logs"));
                 if (c.Count > 0)
                     await c[0].SendMessage($"User Banned: {e.User.Username}#{e.User.Discriminator}");
             };
 
-            client.GuildAvailable += (sender, e) =>
+            client.GuildAvailable += e =>
             {
                 Console.WriteLine(e.Guild.Name);
+                return Task.Delay(0);
             };
 
-            client.MessageReactionAdd += async (sender, e) =>
+            client.MessageReactionAdd += async e =>
             {
                 await e.Message.DeleteAllReactions();
             };
 
-            client.MessageReactionRemoveAll += (sender, e) =>
+            client.MessageReactionRemoveAll += e =>
             {
                 client.DebugLogger.LogMessage(LogLevel.Debug, "Client", $"All reactions got removed for message id: {e.MessageID} in channel: {e.ChannelID}", DateTime.Now);
+                return Task.Delay(0);
             };
 
-            client.PresenceUpdate += (sender, e) =>
+            client.PresenceUpdate += e =>
             {
                 if (e.User != null)
                     Console.WriteLine($"[{e.UserID}]{e.User.Username}#{e.User.Discriminator}: {e.Status} playing " + e.Game);
+                return Task.Delay(0);
             };
 
             client.Connect().GetAwaiter().GetResult();

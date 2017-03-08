@@ -36,10 +36,17 @@ DiscordConfig has the following members:
 ## Events
 All events are located under `Programming Reference/Events`.
 ```cs
-// Example
-client.MessageReceived += (sender, e) =>
+// Example 1:
+client.MessageReceived += async e =>
 {
   // Code to execute on MessageReceived. 'e' are the event args.
+};
+
+// Non-async / Example 2:
+client.MessageReceived += e =>
+{
+  // Code to execute on MessageReceived. 'e' are the event args.
+  return Task.Delay(0);
 };
 ```
 

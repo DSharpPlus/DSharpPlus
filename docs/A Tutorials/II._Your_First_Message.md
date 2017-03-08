@@ -36,7 +36,7 @@ namespace DSharpPlusBot
 ## Sending your first message
 Now, under the definition of your DiscordClient, you should add a MessageCreated event.
 ```cs
-_client.MessageCreated += async (sender, e) =>
+_client.MessageCreated += async e =>
 {
 
 };

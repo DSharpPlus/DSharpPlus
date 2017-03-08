@@ -10,7 +10,7 @@ Currently, the commands module is separate from the main module. Also, unlike th
 2. Open the project in Visual Studio
 3. Build
 4. Open your bot's project
-5. Refrence the built DLLs ("DSharpPlus.Commands.dll")
+5. Reference the built DLLs ("DSharpPlus.Commands.dll")
 6. Done!
 
 ## Using the commands module
