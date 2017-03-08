@@ -442,7 +442,7 @@ namespace DSharpPlus
             if (config.TokenType == TokenType.Bot)
                 url += Endpoints.Bot;
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             JObject jObj = JObject.Parse(response.Response);
@@ -508,27 +508,30 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="ChannelID"></param>
+        /// <param name="channelId"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(ulong ChannelID, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(ChannelID, content, tts, embed);
+        public async Task<DiscordMessage> SendMessage(ulong channelId, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(channelId, content, tts, embed);
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="Channel"></param>
+        /// <param name="channel"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(DiscordChannel Channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(Channel.ID, content, tts, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordChannel channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(channel.ID, content, tts, embed);
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="Channel"></param>
+        /// <param name="channel"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessage(DiscordDMChannel Channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(Channel.ID, content, tts, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordDMChannel channel, string content, bool tts = false, DiscordEmbed embed = null) => await InternalCreateMessage(channel.ID, content, tts, embed);
         /// <summary>
         /// Creates a guild. Only for whitelisted bots
         /// </summary>
@@ -600,7 +603,7 @@ namespace DSharpPlus
         /// <param name="game">Game you're playing</param>
         /// <param name="idle_since"></param>
         /// <returns></returns>
-        public async Task UpdateStatus(string game = "", int idle_since = -1) => InternalUpdateStatus(game, idle_since);
+        public async Task UpdateStatus(string game = "", int idle_since = -1) => await InternalUpdateStatus(game, idle_since);
 
         /// <summary>
         /// Modifies a guild member
@@ -988,7 +991,8 @@ namespace DSharpPlus
                     m.Nickname = nick;
                     m.Roles = roles;
                     _guilds[guildID].Members[index] = m;
-                }else
+                }
+                else
                 {
                     DiscordMember m = new DiscordMember()
                     {
@@ -1065,7 +1069,8 @@ namespace DSharpPlus
                         int channelindex = _privateChannels.FindIndex(x => x.ID == message.ChannelID);
                         _privateChannels[channelindex].LastMessageID = message.ID;
                     }
-                }catch(KeyNotFoundException ex)
+                }
+                catch (KeyNotFoundException)
                 {
                     DebugLogger.LogMessage(LogLevel.Error, "Event", "Could not find channel last message belonged to?", DateTime.Now);
                 }
@@ -1409,7 +1414,7 @@ namespace DSharpPlus
             }
         }
 
-        internal static void InternalUpdateStatus(string game = "", int idle_since = -1)
+        internal static async Task InternalUpdateStatus(string game = "", int idle_since = -1)
         {
             JObject update = new JObject();
             if (idle_since > -1)
@@ -1425,7 +1430,7 @@ namespace DSharpPlus
                 { "d", update }
             };
 
-            _websocketClient._socket.Send(obj.ToString());
+            await Task.Run(() => _websocketClient._socket.Send(obj.ToString()));
         }
 
         internal async Task SendHeartbeat()
@@ -1601,7 +1606,7 @@ namespace DSharpPlus
                     JObject j = new JObject();
                     j.Add("avatar", $"data:image/jpeg;base64,{base64String}");
 
-                    WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+                    WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
                     WebResponse response = await WebWrapper.HandleRequestAsync(request);
                 }
             }
@@ -1617,7 +1622,7 @@ namespace DSharpPlus
             headers.Add("Authorization", Utils.GetFormattedToken());
             JObject payload = new JObject { { "name", name } };
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, payload.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             DiscordGuild guild = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
@@ -1631,7 +1636,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1661,7 +1666,7 @@ namespace DSharpPlus
             if (splash != "")
                 j.Add("splash", splash);
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
@@ -1670,7 +1675,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Bans;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray j = JArray.Parse(response.Response);
             List<DiscordMember> bans = new List<DiscordMember>();
@@ -1685,7 +1690,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Bans + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1693,7 +1698,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Bans + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1701,7 +1706,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1715,7 +1720,7 @@ namespace DSharpPlus
             j.Add("icon", icon);
             j.Add("verification_level", verification_level);
             j.Add("default_message_notifications", default_message_notifications);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
@@ -1742,7 +1747,7 @@ namespace DSharpPlus
                 j.Add("mute", true);
             if (deafened)
                 j.Add("deaf", true);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
         }
@@ -1753,7 +1758,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
             List<DiscordMember> members = new List<DiscordMember>();
@@ -1773,7 +1778,7 @@ namespace DSharpPlus
             headers.Add("Authorization", Utils.GetFormattedToken());
             JObject payload = new JObject { { "name", name }, { "type", type.ToString() }, { "permission_overwrites", null } };
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, payload.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
@@ -1783,7 +1788,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
         }
@@ -1793,7 +1798,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ID;
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1802,7 +1807,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1828,7 +1833,7 @@ namespace DSharpPlus
             }
             WebHeaderCollection headers = new WebHeaderCollection();
             headers.Add("Authorization", Utils.GetFormattedToken());
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1842,7 +1847,7 @@ namespace DSharpPlus
                 values.Add("content", content);
             if (tts)
                 values.Add("tts", tts.ToString());
-            WebRequest request = await WebRequest.CreateMultipartRequestAsync(url, WebRequestMethod.POST, headers, values, path, filename);
+            WebRequest request = WebRequest.CreateMultipartRequest(url, WebRequestMethod.POST, headers, values, path, filename);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1851,7 +1856,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Channels;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray j = JArray.Parse(response.Response);
             List<DiscordChannel> channels = new List<DiscordChannel>();
@@ -1875,7 +1880,7 @@ namespace DSharpPlus
                 j.Add("bitrate", bitrate);
                 j.Add("userlimit", userlimit);
             }
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordChannel>(j.ToString());
         }
@@ -1888,7 +1893,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("id", ChannelID);
             j.Add("position", position);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1909,7 +1914,7 @@ namespace DSharpPlus
             if (limit > -1)
                 j.Add("limit", limit);
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
             List<DiscordMessage> messages = new List<DiscordMessage>();
@@ -1924,7 +1929,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1935,7 +1940,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
             j.Add("content", content);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
@@ -1944,7 +1949,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1959,7 +1964,7 @@ namespace DSharpPlus
                 msgs.Add(messageID);
             }
             j.Add("messages", msgs);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -1967,7 +1972,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Invites;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
             List<DiscordInvite> invites = new List<DiscordInvite>();
@@ -1987,7 +1992,7 @@ namespace DSharpPlus
             j.Add("max_uses", max_uses);
             j.Add("temporary", temporary);
             j.Add("unique", unique);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
@@ -1996,7 +2001,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Permissions + "/" + OverwriteID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2004,7 +2009,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Typing;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2012,7 +2017,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JArray j = JArray.Parse(response.Response);
             List<DiscordMessage> messages = new List<DiscordMessage>();
@@ -2027,7 +2032,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2035,7 +2040,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Pins + "/" + MessageID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2045,7 +2050,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
             j.Add("access_token", AccessToken);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2053,7 +2058,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Recipients + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2066,7 +2071,7 @@ namespace DSharpPlus
             j.Add("allow", (ulong)allow);
             j.Add("deny", (ulong)deny);
             j.Add("type", type);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2076,7 +2081,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
             j.Add("recipient_id", RecipientID);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
         }
@@ -2090,7 +2095,7 @@ namespace DSharpPlus
             {
                 tokens.Add(token);
             }
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, tokens.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, tokens.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
         }
@@ -2108,7 +2113,7 @@ namespace DSharpPlus
 
             for (int i = 0; i < pages; i++)
             {
-                WebRequest request = await WebRequest.CreateRequestAsync($"{url}?limit=1000&after={lastId}", WebRequestMethod.GET, headers);
+                WebRequest request = WebRequest.CreateRequest($"{url}?limit=1000&after={lastId}", WebRequestMethod.GET, headers);
                 WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
                 List<DiscordMember> items = JsonConvert.DeserializeObject<List<DiscordMember>>(response.Response);
@@ -2123,7 +2128,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + $"/{user}";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
@@ -2133,7 +2138,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + "/" + MemberID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
         }
@@ -2142,7 +2147,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2150,7 +2155,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
@@ -2159,7 +2164,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
@@ -2173,7 +2178,7 @@ namespace DSharpPlus
                 j.Add("", username);
             if (base64avatar != "")
                 j.Add("avatar", base64avatar);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
         }
@@ -2182,7 +2187,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Guilds;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordGuild> guilds = new List<DiscordGuild>();
             foreach (JObject j in JArray.Parse(response.Response))
@@ -2215,7 +2220,7 @@ namespace DSharpPlus
                 j.Add("deaf", true);
             if (VoiceChannelID != 0)
                 j.Add("channel_id", VoiceChannelID);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2237,7 +2242,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             DiscordGuild guild = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
             if (_guilds.ContainsKey(GuildID))
@@ -2276,7 +2281,7 @@ namespace DSharpPlus
             if (splash != "")
                 j.Add("splash", splash);
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
@@ -2285,7 +2290,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
         }
@@ -2301,7 +2306,7 @@ namespace DSharpPlus
             j.Add("color", color);
             j.Add("hoist", separate);
             j.Add("mentionable", mentionable);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
         }
@@ -2310,7 +2315,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Roles + "/" + RoleID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
         }
@@ -2319,7 +2324,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
         }
@@ -2333,7 +2338,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject payload = new JObject();
             payload.Add("days", days);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers, payload.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JObject j = JObject.Parse(response.Response);
             return int.Parse(j["pruned"].ToString());
@@ -2346,7 +2351,7 @@ namespace DSharpPlus
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject payload = new JObject();
             payload.Add("days", days);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, payload.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, payload.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             JObject j = JObject.Parse(response.Response);
             return int.Parse(j["pruned"].ToString());
@@ -2358,7 +2363,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await request.HandleRequestAsync();
             JArray j = JArray.Parse(response.Response);
             List<DiscordIntegration> integrations = new List<DiscordIntegration>();
@@ -2377,7 +2382,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("type", type);
             j.Add("id", ID);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
         }
@@ -2391,7 +2396,7 @@ namespace DSharpPlus
             j.Add("expire_grace_period", expire_grace_period);
             j.Add("enable_emoticons", enable_emoticons);
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
         }
@@ -2402,7 +2407,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations + "/" + IntegrationID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = JObject.FromObject(integration);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
         }
 
@@ -2410,7 +2415,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Integrations + "/" + IntegrationID + Endpoints.Sync;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await request.HandleRequestAsync();
         }
 
@@ -2418,7 +2423,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Embed;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordGuildEmbed>(response.Response);
         }
@@ -2428,7 +2433,7 @@ namespace DSharpPlus
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Embed;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = JObject.FromObject(embed);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await request.HandleRequestAsync();
             return JsonConvert.DeserializeObject<DiscordGuildEmbed>(response.Response);
         }
@@ -2437,7 +2442,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Regions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await request.HandleRequestAsync();
             JArray j = JArray.Parse(response.Response);
             List<DiscordVoiceRegion> regions = new List<DiscordVoiceRegion>();
@@ -2452,7 +2457,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Invites;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await request.HandleRequestAsync();
             JArray j = JArray.Parse(response.Response);
             List<DiscordInvite> invites = new List<DiscordInvite>();
@@ -2469,7 +2474,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
@@ -2478,7 +2483,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
@@ -2488,7 +2493,7 @@ namespace DSharpPlus
             // USER ONLY
             string url = Utils.GetAPIBaseUri() + Endpoints.Invites + "/" + InviteCode;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
         }
@@ -2498,7 +2503,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me" + Endpoints.Connections;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordConnection> connections = new List<DiscordConnection>();
             foreach (JObject j in JArray.Parse(response.Response))
@@ -2513,7 +2518,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Voice + Endpoints.Regions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordVoiceRegion> regions = new List<DiscordVoiceRegion>();
             JArray j = JArray.Parse(response.Response);
@@ -2533,7 +2538,7 @@ namespace DSharpPlus
             j.Add("name", name);
             j.Add("avatar", base64avatar);
 
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
 
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
@@ -2543,7 +2548,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Webhooks;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
             foreach (JObject j in JArray.Parse(response.Response))
@@ -2557,7 +2562,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Webhooks;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
             foreach (JObject j in JArray.Parse(response.Response))
@@ -2571,7 +2576,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2580,7 +2585,7 @@ namespace DSharpPlus
         internal static async Task<DiscordWebhook> InternalGetWebhookWithToken(ulong WebhookID, string WebhookToken)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
-            WebRequest request = await WebRequest.CreateRequestAsync(url);
+            WebRequest request = WebRequest.CreateRequest(url);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             DiscordWebhook wh = JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
             wh.Token = WebhookToken;
@@ -2595,7 +2600,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("name", name);
             j.Add("avatar", base64avatar);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2606,7 +2611,7 @@ namespace DSharpPlus
             JObject j = new JObject();
             j.Add("name", name);
             j.Add("avatar", base64avatar);
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PATCH, payload: j.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, payload: j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
         }
@@ -2615,14 +2620,14 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
         internal static async Task InternalDeleteWebhook(ulong WebhookID, string WebhookToken)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken;
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2648,7 +2653,7 @@ namespace DSharpPlus
                 }
                 req.Add(arr);
             }
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: req.ToString());
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, payload: req.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2656,7 +2661,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken + Endpoints.Slack;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: jsonpayload);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, payload: jsonpayload);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2664,7 +2669,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Webhooks + "/" + WebhookID + "/" + WebhookToken + Endpoints.Github;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.POST, payload: jsonpayload);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, payload: jsonpayload);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2674,7 +2679,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.PUT, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2682,7 +2687,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/@me";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2690,7 +2695,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji + "/" + UserID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
@@ -2698,7 +2703,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions + "/" + Emoji;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             List<DiscordUser> reacters = new List<DiscordUser>();
             foreach (JObject obj in JArray.Parse(response.Response))
@@ -2712,7 +2717,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + ChannelID + Endpoints.Messages + "/" + MessageID + Endpoints.Reactions;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.DELETE, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
         #endregion
@@ -2721,7 +2726,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.OAuth2 + Endpoints.Applications + "/" + ID;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            WebRequest request = await WebRequest.CreateRequestAsync(url, WebRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.GET, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JObject.Parse(response.Response).ToObject<DiscordApplication>();
         }

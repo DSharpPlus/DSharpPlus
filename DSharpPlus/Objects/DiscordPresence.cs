@@ -11,7 +11,7 @@ namespace DSharpPlus
     public class DiscordPresence
     {
         [JsonProperty("user")]
-        internal DiscordUser InternalUser;
+        internal DiscordUser InternalUser { get; set; }
 
         public DiscordUser User => DiscordClient.InternalGetCachedUser(UserID);
 
@@ -26,6 +26,6 @@ namespace DSharpPlus
         public string Status;
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        ulong GuildID;
+        private ulong GuildID { get; set; }
     }
 }

@@ -22,8 +22,10 @@ namespace DSharpPlus.Voice
         public event EventHandler<UserSpeakingEventArgs> UserSpeaking;
         public event EventHandler<VoiceReceivedEventArgs> VoiceReceived;
 
+#pragma warning disable CS0649
         internal static List<byte> _sendBuffer;
         internal static List<byte> _receiveBuffer;
+#pragma warning restore
 
         internal static OpusDecoder _opusDecoder;
         internal static OpusEncoder _opusEncoder;
@@ -283,6 +285,7 @@ namespace DSharpPlus.Voice
         /// Sends an audio packet over the UDP connection.
         /// </summary>
         /// <param name="data"></param>
+        /// <param name="framelength"></param>
         /// <returns></returns>
         [Obsolete("Not yet working")]
         public async Task SendAsync(byte[] data, uint framelength)
