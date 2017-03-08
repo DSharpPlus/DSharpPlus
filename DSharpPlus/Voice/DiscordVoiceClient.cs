@@ -11,16 +11,27 @@ namespace DSharpPlus.Voice
 {
     internal class VoiceConstants
     {
-        internal const int RTP_HEADER_LENGTH    = 12;
-        internal const int SEQUENCE_INDEX       = 2;
-        internal const int TIMESTAMP_INDEX      = 4;
-        internal const int SSRC_INDEX           = 8;
+        internal const int RTP_HEADER_LENGTH = 12;
+        internal const int SEQUENCE_INDEX = 2;
+        internal const int TIMESTAMP_INDEX = 4;
+        internal const int SSRC_INDEX = 8;
     }
 
     public class DiscordVoiceClient : IDisposable
     {
-        public event EventHandler<UserSpeakingEventArgs> UserSpeaking;
-        public event EventHandler<VoiceReceivedEventArgs> VoiceReceived;
+        public event AsyncEventHandler<UserSpeakingEventArgs> UserSpeaking
+        {
+            add => this._user_speaking.Register(value);
+            remove => this._user_speaking.Unregister(value);
+        }
+        public event AsyncEventHandler<VoiceReceivedEventArgs> VoiceReceived
+        {
+            add => this._voice_received.Register(value);
+            remove => this._voice_received.Unregister(value);
+        }
+
+        private AsyncEvent<UserSpeakingEventArgs> _user_speaking = new AsyncEvent<UserSpeakingEventArgs>();
+        private AsyncEvent<VoiceReceivedEventArgs> _voice_received = new AsyncEvent<VoiceReceivedEventArgs>();
 
 #pragma warning disable CS0649
         internal static List<byte> _sendBuffer;
@@ -57,7 +68,7 @@ namespace DSharpPlus.Voice
         {
             if (DiscordClient.config.VoiceSettings == VoiceSettings.None)
                 throw new NotSupportedException(nameof(DiscordClient.config.VoiceSettings));
-            
+
             if (DiscordClient.config.VoiceSettings == VoiceSettings.Both || DiscordClient.config.VoiceSettings == VoiceSettings.Receiving)
                 _opusDecoder = OpusDecoder.Create(48000, 2);
             if (DiscordClient.config.VoiceSettings == VoiceSettings.Both || DiscordClient.config.VoiceSettings == VoiceSettings.Sending)
@@ -66,7 +77,7 @@ namespace DSharpPlus.Voice
             DiscordClient._sessionToken = token;
             _guildId = guild_id;
             _endpoint = endpoint.Replace(":80", "");
-            
+
             await Connect();
         }
 
@@ -94,7 +105,7 @@ namespace DSharpPlus.Voice
         private async Task HandleSocketMessage(string data)
         {
             JObject obj = JObject.Parse(data);
-            switch(obj.Value<int>("op"))
+            switch (obj.Value<int>("op"))
             {
                 case 2: await OnReadyEvent(obj); break;
                 case 3: await OnHeartbeatAckEvent(obj); break;
@@ -157,17 +168,14 @@ namespace DSharpPlus.Voice
         }
         internal async Task OnUserSpeakingEvent(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                if (!DiscordClient._ssrcDict.ContainsKey(obj["d"]["ssrc"].ToObject<uint>()))
-                    DiscordClient._ssrcDict.Add(obj["d"]["ssrc"].ToObject<uint>(), obj["d"]["user_id"].ToObject<ulong>());
+            if (!DiscordClient._ssrcDict.ContainsKey(obj["d"]["ssrc"].ToObject<uint>()))
+                DiscordClient._ssrcDict.Add(obj["d"]["ssrc"].ToObject<uint>(), obj["d"]["user_id"].ToObject<ulong>());
 
-                UserSpeaking?.Invoke(this, new UserSpeakingEventArgs
-                {
-                    Speaking = obj["d"]["speaking"].ToObject<bool>(),
-                    ssrc = obj["d"]["ssrc"].ToObject<uint>(),
-                    UserID = obj["d"]["user_id"].ToObject<ulong>()
-                });
+            await this._user_speaking.InvokeAsync(new UserSpeakingEventArgs
+            {
+                Speaking = obj["d"]["speaking"].ToObject<bool>(),
+                ssrc = obj["d"]["ssrc"].ToObject<uint>(),
+                UserID = obj["d"]["user_id"].ToObject<ulong>()
             });
         }
         #endregion
@@ -276,7 +284,7 @@ namespace DSharpPlus.Voice
             if (DiscordClient._ssrcDict.ContainsKey(ssrc))
                 userId = DiscordClient._ssrcDict[ssrc];
 
-            VoiceReceived?.Invoke(this, new VoiceReceivedEventArgs(ssrc, userId, output, outputLength));
+            this._voice_received.InvokeAsync(new VoiceReceivedEventArgs(ssrc, userId, output, outputLength)).GetAwaiter().GetResult();
 
             __udpClient.BeginReceive(ReceiveAudio, null);
         }

@@ -59,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncEvent.cs" />
     <Compile Include="DebugLogger.cs" />
     <Compile Include="DiscordClient.cs" />
     <Compile Include="DiscordConfig.cs" />
