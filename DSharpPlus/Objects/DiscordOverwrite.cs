@@ -16,12 +16,12 @@ namespace DSharpPlus
         /// Termission bit set
         /// </summary>
         [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
-        public Permission Allow;
+        public Permission Allow { get; set; }
         /// <summary>
         /// Permission bit set
         /// </summary>
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
-        public Permission Deny;
+        public Permission Deny { get; set; }
 
         public PermissionLevel CheckPermission(Permission permission)
         {
