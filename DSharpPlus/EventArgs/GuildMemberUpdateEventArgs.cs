@@ -5,10 +5,10 @@ namespace DSharpPlus
 {
     public class GuildMemberUpdateEventArgs : EventArgs
     {
-        public ulong GuildID;
+        public ulong GuildID { get; internal set; }
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
-        public List<ulong> Roles;
-        public string NickName;
-        public DiscordUser User;
+        public IReadOnlyCollection<ulong> Roles { get; internal set; }
+        public string NickName { get; internal set; }
+        public DiscordUser User { get; internal set; }
     }
 }

@@ -4,9 +4,9 @@ namespace DSharpPlus
 {
     public class VoiceServerUpdateEventArgs : EventArgs
     {
-        internal string VoiceToken;
-        public ulong GuildID;
+        internal string VoiceToken { get; set; }
+        public ulong GuildID { get; internal set; }
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
-        public string Endpoint;
+        public string Endpoint { get; internal set; }
     }
 }

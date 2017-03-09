@@ -482,11 +482,7 @@ namespace DSharpPlus
         /// </summary>
         public DiscordClient()
         {
-
-            Task.Run(async () =>
-            {
-                await InternalSetup();
-            });
+            InternalSetup();
         }
 
         /// <summary>
@@ -496,20 +492,13 @@ namespace DSharpPlus
         public DiscordClient(DiscordConfig config)
         {
             DiscordClient.config = config;
-
-            Task.Run(async () =>
-            {
-                await InternalSetup();
-            });
+            InternalSetup();
         }
 
-        internal async Task InternalSetup()
+        internal void InternalSetup()
         {
-            await Task.Run(() =>
-            {
-                if (config.UseInternalLogHandler)
-                    DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
-            });
+            if (config.UseInternalLogHandler)
+                DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
         }
 
         /// <summary>
@@ -568,7 +557,7 @@ namespace DSharpPlus
         {
             await Disconnect();
             // delay task by 2 seconds to make sure everything gets closed correctly
-            await Task.Delay(1000);
+            await Task.Delay(2000);
             await Connect(tokenOverride, tokenType);
         }
 

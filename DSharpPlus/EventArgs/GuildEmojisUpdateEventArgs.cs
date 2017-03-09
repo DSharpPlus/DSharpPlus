@@ -5,8 +5,8 @@ namespace DSharpPlus
 {
     public class GuildEmojisUpdateEventArgs : EventArgs
     {
-        public List<DiscordEmoji> Emojis;
-        internal ulong GuildID;
-        public DiscordGuild Guild;
+        public IReadOnlyCollection<DiscordEmoji> Emojis { get; internal set; }
+        internal ulong GuildID { get; set; }
+        public DiscordGuild Guild { get; internal set; }
     }
 }
