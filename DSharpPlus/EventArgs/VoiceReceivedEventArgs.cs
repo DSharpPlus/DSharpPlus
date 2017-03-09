@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DSharpPlus
 {
@@ -6,10 +7,10 @@ namespace DSharpPlus
     {
         public uint SSRC { get; internal set; }
         public ulong UserID { get; internal set; }
-        public byte[] Voice { get; internal set; }
+        public IReadOnlyCollection<byte> Voice { get; internal set; }
         public int VoiceLength { get; internal set; }
 
-        internal VoiceReceivedEventArgs(uint ssrc, ulong userId, byte[] voice, int voiceLength)
+        internal VoiceReceivedEventArgs(uint ssrc, ulong userId, IReadOnlyCollection<byte> voice, int voiceLength)
         {
             SSRC = ssrc;
             UserID = userId;

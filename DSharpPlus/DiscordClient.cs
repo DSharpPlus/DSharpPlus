@@ -482,11 +482,7 @@ namespace DSharpPlus
         /// </summary>
         public DiscordClient()
         {
-
-            Task.Run(async () =>
-            {
-                await InternalSetup();
-            });
+            InternalSetup();
         }
 
         /// <summary>
@@ -496,20 +492,13 @@ namespace DSharpPlus
         public DiscordClient(DiscordConfig config)
         {
             DiscordClient.config = config;
-
-            Task.Run(async () =>
-            {
-                await InternalSetup();
-            });
+            InternalSetup();
         }
 
-        internal async Task InternalSetup()
+        internal void InternalSetup()
         {
-            await Task.Run(() =>
-            {
-                if (config.UseInternalLogHandler)
-                    DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
-            });
+            if (config.UseInternalLogHandler)
+                DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
         }
 
         /// <summary>
@@ -568,7 +557,7 @@ namespace DSharpPlus
         {
             await Disconnect();
             // delay task by 2 seconds to make sure everything gets closed correctly
-            await Task.Delay(1000);
+            await Task.Delay(2000);
             await Connect(tokenOverride, tokenType);
         }
 
@@ -578,7 +567,7 @@ namespace DSharpPlus
             _me = await InternalGetCurrentUser();
 
             _websocketClient = new WebSocketClient(_gatewayUrl + "?v=5&encoding=json");
-            _websocketClient.SocketOpened += async (sender, e) =>
+            _websocketClient.SocketOpened += async () =>
             {
                 _privateChannels = new List<DiscordDMChannel>();
                 _guilds = new Dictionary<ulong, DiscordGuild>();
@@ -589,7 +578,7 @@ namespace DSharpPlus
                     await SendResume();
                 await this._socket_opened.InvokeAsync();
             };
-            _websocketClient.SocketClosed += async (sender, e) =>
+            _websocketClient.SocketClosed += async e =>
             {
                 _heartbeatThread.Abort();
 
@@ -603,7 +592,7 @@ namespace DSharpPlus
                 }
                 await this._socket_closed.InvokeAsync(e);
             };
-            _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
+            _websocketClient.SocketMessage += async e => await HandleSocketMessage(e.Data);
             _websocketClient.Connect();
 
             _voiceClient = new DiscordVoiceClient();
@@ -1086,7 +1075,7 @@ namespace DSharpPlus
                 emojis.Add(em.ToObject<DiscordEmoji>());
             }
             _guilds[guildID].Emojis = emojis;
-            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis };
+            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis.AsReadOnly() };
             await this._guild_emojis_update.InvokeAsync(args);
         }
         internal async Task OnGuildIntegrationsUpdateEvent(JObject obj)
@@ -1150,7 +1139,7 @@ namespace DSharpPlus
                 };
                 _guilds[guildID].Members.Add(m);
             }
-            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles, NickName = nick };
+            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles.AsReadOnly(), NickName = nick };
             await this._guild_member_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleCreateEvent(JObject obj)
@@ -1250,7 +1239,14 @@ namespace DSharpPlus
                 }
                 */
             }
-            MessageCreateEventArgs args = new MessageCreateEventArgs { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
+            MessageCreateEventArgs args = new MessageCreateEventArgs
+            {
+                Message = message,
+                MentionedUsers = MentionedUsers.AsReadOnly(),
+                MentionedRoles = MentionedRoles.AsReadOnly(),
+                MentionedChannels = MentionedChannels.AsReadOnly(),
+                UsedEmojis = UsedEmojis.AsReadOnly()
+            };
             await this._message_created.InvokeAsync(args);
         }
         internal async Task OnMessageUpdateEvent(JObject obj)
@@ -1298,7 +1294,14 @@ namespace DSharpPlus
                 */
             }
 
-            MessageUpdateEventArgs args = new MessageUpdateEventArgs { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
+            MessageUpdateEventArgs args = new MessageUpdateEventArgs
+            {
+                Message = message,
+                MentionedUsers = MentionedUsers.AsReadOnly(),
+                MentionedRoles = MentionedRoles.AsReadOnly(),
+                MentionedChannels = MentionedChannels.AsReadOnly(),
+                UsedEmojis = UsedEmojis.AsReadOnly()
+            };
             await this._message_update.InvokeAsync(args);
         }
         internal async Task OnMessageDeleteEvent(JObject obj)
@@ -1317,7 +1320,7 @@ namespace DSharpPlus
                 ids.Add(ulong.Parse(t.ToString()));
             }
             ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-            MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs { MessageIDs = ids, ChannelID = channelID };
+            MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs { MessageIDs = ids.AsReadOnly(), ChannelID = channelID };
             await this._message_bulk_delete.InvokeAsync(args);
         }
         internal async Task OnTypingStartEvent(JObject obj)
@@ -1366,7 +1369,7 @@ namespace DSharpPlus
             }
             _guilds[guildID].Members = members;
             _guilds[guildID].MemberCount = members.Count;
-            GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { GuildID = guildID, Members = members };
+            GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { GuildID = guildID, Members = members.AsReadOnly() };
             await this._guild_members_chunk.InvokeAsync(args);
         }
 

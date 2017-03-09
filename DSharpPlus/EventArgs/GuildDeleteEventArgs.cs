@@ -4,7 +4,7 @@ namespace DSharpPlus
 {
     public class GuildDeleteEventArgs : EventArgs
     {
-        public ulong ID;
-        public bool Unavailable;
+        public ulong ID { get; internal set; }
+        public bool Unavailable { get; internal set; }
     }
 }

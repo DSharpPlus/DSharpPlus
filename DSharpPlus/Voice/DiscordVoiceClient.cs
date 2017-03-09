@@ -86,18 +86,16 @@ namespace DSharpPlus.Voice
             await Task.Run(() =>
             {
                 _websocketClient = new WebSocketClient($"wss://{_endpoint}");
-                _websocketClient.SocketOpened += async (sender, e) =>
+                _websocketClient.SocketOpened += async () =>
                 {
                     await SendIndentifyPacket();
                 };
-                _websocketClient.SocketClosed += async (sender, e) =>
+                _websocketClient.SocketClosed += e =>
                 {
-                    await Task.Run(() =>
-                    {
-                        DiscordClient._debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Voice-Websocket", $"Connection closed [WasClean: {e.WasClean}]", DateTime.Now);
-                    });
+                    DiscordClient._debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Voice-Websocket", $"Connection closed [WasClean: {e.WasClean}]", DateTime.Now);
+                    return Task.Delay(0);
                 };
-                _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
+                _websocketClient.SocketMessage += async e => await HandleSocketMessage(e.Data);
                 _websocketClient.Connect();
             });
         }
@@ -174,7 +172,7 @@ namespace DSharpPlus.Voice
             await this._user_speaking.InvokeAsync(new UserSpeakingEventArgs
             {
                 Speaking = obj["d"]["speaking"].ToObject<bool>(),
-                ssrc = obj["d"]["ssrc"].ToObject<uint>(),
+                SSRC = obj["d"]["ssrc"].ToObject<uint>(),
                 UserID = obj["d"]["user_id"].ToObject<ulong>()
             });
         }
