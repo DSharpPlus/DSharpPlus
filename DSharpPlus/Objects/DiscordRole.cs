@@ -11,37 +11,37 @@ namespace DSharpPlus
         /// Role name
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name;
+        public string Name { get; set; }
         /// <summary>
         /// Integer representation of a hexadecimal color code
         /// </summary>
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-        public int Color;
+        public int Color { get; set; }
         /// <summary>
         /// Whether this role is pinned
         /// </summary>
         [JsonProperty("hoist", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Hoist;
+        public bool Hoist { get; set; }
         /// <summary>
         /// Position of this role
         /// </summary>
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
-        public int Position;
+        public int Position { get; set; }
         /// <summary>
         /// Permission bit set
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-        public Permission Permissions;
+        public Permission Permissions { get; set; }
         /// <summary>
         /// Whether this role is managed by an integration
         /// </summary>
         [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Managed;
+        public bool Managed { get; set; }
         /// <summary>
         /// Whether this role is mentionable
         /// </summary>
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Mentionable;
+        public bool Mentionable { get; set; }
         /// <summary>
         /// Mentions the role similar to how a client would, if the role is mentionable
         /// </summary>
