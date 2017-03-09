@@ -1075,7 +1075,7 @@ namespace DSharpPlus
                 emojis.Add(em.ToObject<DiscordEmoji>());
             }
             _guilds[guildID].Emojis = emojis;
-            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis };
+            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis.AsReadOnly() };
             await this._guild_emojis_update.InvokeAsync(args);
         }
         internal async Task OnGuildIntegrationsUpdateEvent(JObject obj)
@@ -1139,7 +1139,7 @@ namespace DSharpPlus
                 };
                 _guilds[guildID].Members.Add(m);
             }
-            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles, NickName = nick };
+            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles.AsReadOnly(), NickName = nick };
             await this._guild_member_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleCreateEvent(JObject obj)
@@ -1239,7 +1239,14 @@ namespace DSharpPlus
                 }
                 */
             }
-            MessageCreateEventArgs args = new MessageCreateEventArgs { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
+            MessageCreateEventArgs args = new MessageCreateEventArgs
+            {
+                Message = message,
+                MentionedUsers = MentionedUsers.AsReadOnly(),
+                MentionedRoles = MentionedRoles.AsReadOnly(),
+                MentionedChannels = MentionedChannels.AsReadOnly(),
+                UsedEmojis = UsedEmojis.AsReadOnly()
+            };
             await this._message_created.InvokeAsync(args);
         }
         internal async Task OnMessageUpdateEvent(JObject obj)
@@ -1287,7 +1294,14 @@ namespace DSharpPlus
                 */
             }
 
-            MessageUpdateEventArgs args = new MessageUpdateEventArgs { Message = message, MentionedUsers = MentionedUsers, MentionedRoles = MentionedRoles, MentionedChannels = MentionedChannels, UsedEmojis = UsedEmojis };
+            MessageUpdateEventArgs args = new MessageUpdateEventArgs
+            {
+                Message = message,
+                MentionedUsers = MentionedUsers.AsReadOnly(),
+                MentionedRoles = MentionedRoles.AsReadOnly(),
+                MentionedChannels = MentionedChannels.AsReadOnly(),
+                UsedEmojis = UsedEmojis.AsReadOnly()
+            };
             await this._message_update.InvokeAsync(args);
         }
         internal async Task OnMessageDeleteEvent(JObject obj)
@@ -1306,7 +1320,7 @@ namespace DSharpPlus
                 ids.Add(ulong.Parse(t.ToString()));
             }
             ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-            MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs { MessageIDs = ids, ChannelID = channelID };
+            MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs { MessageIDs = ids.AsReadOnly(), ChannelID = channelID };
             await this._message_bulk_delete.InvokeAsync(args);
         }
         internal async Task OnTypingStartEvent(JObject obj)
@@ -1355,7 +1369,7 @@ namespace DSharpPlus
             }
             _guilds[guildID].Members = members;
             _guilds[guildID].MemberCount = members.Count;
-            GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { GuildID = guildID, Members = members };
+            GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { GuildID = guildID, Members = members.AsReadOnly() };
             await this._guild_members_chunk.InvokeAsync(args);
         }
 
