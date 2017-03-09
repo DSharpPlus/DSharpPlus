@@ -4,6 +4,6 @@ namespace DSharpPlus
 {
     public class DMChannelDeleteEventArgs : EventArgs
     {
-        public DiscordDMChannel Channel;
+        public DiscordDMChannel Channel { get; internal set; }
     }
 }

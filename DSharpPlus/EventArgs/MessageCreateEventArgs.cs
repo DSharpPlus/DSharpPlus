@@ -5,11 +5,11 @@ namespace DSharpPlus
 {
     public class MessageCreateEventArgs : EventArgs
     {
-        public DiscordMessage Message;
-        public List<DiscordMember> MentionedUsers;
-        public List<DiscordRole> MentionedRoles;
-        public List<DiscordChannel> MentionedChannels;
-        public List<DiscordEmoji> UsedEmojis;
+        public DiscordMessage Message { get; internal set; }
+        public IReadOnlyCollection<DiscordMember> MentionedUsers { get; internal set; }
+        public IReadOnlyCollection<DiscordRole> MentionedRoles { get; internal set; }
+        public IReadOnlyCollection<DiscordChannel> MentionedChannels { get; internal set; }
+        public IReadOnlyCollection<DiscordEmoji> UsedEmojis { get; internal set; }
         public DiscordChannel Channel => Message.Parent;
         public DiscordGuild Guild => Channel.Parent;
     }

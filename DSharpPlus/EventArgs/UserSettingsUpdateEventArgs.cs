@@ -4,6 +4,6 @@ namespace DSharpPlus
 {
     public class UserSettingsUpdateEventArgs : EventArgs
     {
-        public DiscordUser User;
+        public DiscordUser User { get; internal set; }
     }
 }
