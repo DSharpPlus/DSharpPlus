@@ -20,12 +20,12 @@ namespace DSharpPlus
         public string Game => (InternalGame == null) ? "" : InternalGame["name"].ToString();
 
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-        public string Status;
+        public string Status { get; internal set; }
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong GuildID;
+        public ulong GuildID { get; internal set; }
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public List<ulong> RoleIDs;
+        public IReadOnlyCollection<ulong> RoleIDs { get; internal set; }
     }
 }
