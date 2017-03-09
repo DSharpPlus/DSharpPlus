@@ -578,7 +578,7 @@ namespace DSharpPlus
             _me = await InternalGetCurrentUser();
 
             _websocketClient = new WebSocketClient(_gatewayUrl + "?v=5&encoding=json");
-            _websocketClient.SocketOpened += async (sender, e) =>
+            _websocketClient.SocketOpened += async () =>
             {
                 _privateChannels = new List<DiscordDMChannel>();
                 _guilds = new Dictionary<ulong, DiscordGuild>();
@@ -589,7 +589,7 @@ namespace DSharpPlus
                     await SendResume();
                 await this._socket_opened.InvokeAsync();
             };
-            _websocketClient.SocketClosed += async (sender, e) =>
+            _websocketClient.SocketClosed += async e =>
             {
                 _heartbeatThread.Abort();
 
@@ -603,7 +603,7 @@ namespace DSharpPlus
                 }
                 await this._socket_closed.InvokeAsync(e);
             };
-            _websocketClient.SocketMessage += async (sender, e) => await HandleSocketMessage(e.Data);
+            _websocketClient.SocketMessage += async e => await HandleSocketMessage(e.Data);
             _websocketClient.Connect();
 
             _voiceClient = new DiscordVoiceClient();
