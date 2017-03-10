@@ -7,23 +7,23 @@ namespace DSharpPlus
     {
         internal event AsyncEventHandler SocketOpened
         {
-            add => this._socket_opened.Register(value);
-            remove => this._socket_opened.Unregister(value);
+            add { this._socket_opened.Register(value); }
+            remove { this._socket_opened.Unregister(value); }
         }
         internal event AsyncEventHandler<CloseEventArgs> SocketClosed
         {
-            add => this._socket_closed.Register(value);
-            remove => this._socket_closed.Unregister(value);
+            add { this._socket_closed.Register(value); }
+            remove { this._socket_closed.Unregister(value); }
         }
         internal event AsyncEventHandler<MessageEventArgs> SocketMessage
         {
-            add => this._socket_message.Register(value);
-            remove => this._socket_message.Unregister(value);
+            add { this._socket_message.Register(value); }
+            remove { this._socket_message.Unregister(value); }
         }
         internal event AsyncEventHandler<ErrorEventArgs> SocketError
         {
-            add => this._socket_error.Register(value);
-            remove => this._socket_error.Unregister(value);
+            add { this._socket_error.Register(value); }
+            remove { this._socket_error.Unregister(value); }
         }
 
         private AsyncEvent _socket_opened = new AsyncEvent();

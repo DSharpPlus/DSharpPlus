@@ -17,8 +17,10 @@ namespace DSharpPlus
         private readonly object _lock = new object();
         private List<AsyncEventHandler> Handlers { get; set; }
 
-        public AsyncEvent() =>
+        public AsyncEvent()
+        {
             this.Handlers = new List<AsyncEventHandler>();
+        }
 
         public void Register(AsyncEventHandler handler)
         {
@@ -57,8 +59,10 @@ namespace DSharpPlus
         private readonly object _lock = new object();
         private List<AsyncEventHandler<T>> Handlers { get; set; }
 
-        public AsyncEvent() =>
+        public AsyncEvent()
+        {
             this.Handlers = new List<AsyncEventHandler<T>>();
+        }
 
         public void Register(AsyncEventHandler<T> handler)
         {
