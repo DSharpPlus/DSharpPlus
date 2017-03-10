@@ -21,13 +21,13 @@ namespace DSharpPlus.Voice
     {
         public event AsyncEventHandler<UserSpeakingEventArgs> UserSpeaking
         {
-            add => this._user_speaking.Register(value);
-            remove => this._user_speaking.Unregister(value);
+            add { this._user_speaking.Register(value); }
+            remove { this._user_speaking.Unregister(value); }
         }
         public event AsyncEventHandler<VoiceReceivedEventArgs> VoiceReceived
         {
-            add => this._voice_received.Register(value);
-            remove => this._voice_received.Unregister(value);
+            add { this._voice_received.Register(value); }
+            remove { this._voice_received.Unregister(value); }
         }
 
         private AsyncEvent<UserSpeakingEventArgs> _user_speaking = new AsyncEvent<UserSpeakingEventArgs>();
