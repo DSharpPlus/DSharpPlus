@@ -8,7 +8,7 @@ namespace DSharpPlus.Commands
     {
         public DiscordMessage Message { get; }
         public Command Command { get; }
-        public IReadOnlyCollection<string> Arguments { get; }
+        public IReadOnlyList<string> Arguments { get; }
 
         public DiscordChannel Channel => this.Message.Parent;
         public DiscordGuild Guild => this.Channel.Parent;
