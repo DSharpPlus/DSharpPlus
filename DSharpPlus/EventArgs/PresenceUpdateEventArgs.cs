@@ -26,6 +26,6 @@ namespace DSharpPlus
         public ulong GuildID { get; internal set; }
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyCollection<ulong> RoleIDs { get; internal set; }
+        public IReadOnlyList<ulong> RoleIDs { get; internal set; }
     }
 }
