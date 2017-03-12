@@ -112,7 +112,7 @@ Serverowner: {x.Message.Parent.Parent.OwnerID}
                     return;
                 }
 
-                if (x.Arguments.Length < 1)
+                if (x.Arguments.Count < 1)
                 {
                     await x.Message.Parent.SendMessage("boi you need a voice channel id");
                     return;
