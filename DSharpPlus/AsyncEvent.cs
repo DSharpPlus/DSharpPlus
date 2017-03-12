@@ -15,6 +15,7 @@ namespace DSharpPlus
     internal sealed class AsyncEvent
     {
         private readonly object _lock = new object();
+        internal static readonly object _synclock = new object();
         private List<AsyncEventHandler> Handlers { get; set; }
 
         public AsyncEvent() =>
@@ -43,12 +44,17 @@ namespace DSharpPlus
             if (!this.Handlers.Any())
                 return;
 
-            var sc = SynchronizationContext.Current;
-            SynchronizationContext.SetSynchronizationContext(null);
+            var task = (Task)null;
+            lock (_synclock)
+            {
+                var sc = SynchronizationContext.Current;
+                SynchronizationContext.SetSynchronizationContext(null);
 
-            await Task.WhenAll(this.Handlers.Select(xh => xh()));
+                task = Task.WhenAll(this.Handlers.Select(xh => xh()));
 
-            SynchronizationContext.SetSynchronizationContext(sc);
+                SynchronizationContext.SetSynchronizationContext(sc);
+            }
+            await task;
         }
     }
 
@@ -83,12 +89,17 @@ namespace DSharpPlus
             if (!this.Handlers.Any())
                 return;
 
-            var sc = SynchronizationContext.Current;
-            SynchronizationContext.SetSynchronizationContext(null);
+            var task = (Task)null;
+            lock (AsyncEvent._synclock)
+            {
+                var sc = SynchronizationContext.Current;
+                SynchronizationContext.SetSynchronizationContext(null);
 
-            await Task.WhenAll(this.Handlers.Select(xh => xh(e)));
+                task = Task.WhenAll(this.Handlers.Select(xh => xh(e)));
 
-            SynchronizationContext.SetSynchronizationContext(sc);
+                SynchronizationContext.SetSynchronizationContext(sc);
+            }
+            await task;
         }
     }
 }
