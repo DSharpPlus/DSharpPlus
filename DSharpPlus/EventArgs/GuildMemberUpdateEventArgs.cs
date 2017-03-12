@@ -7,7 +7,7 @@ namespace DSharpPlus
     {
         public ulong GuildID { get; internal set; }
         public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
-        public IReadOnlyCollection<ulong> Roles { get; internal set; }
+        public IReadOnlyList<ulong> Roles { get; internal set; }
         public string NickName { get; internal set; }
         public DiscordUser User { get; internal set; }
     }
