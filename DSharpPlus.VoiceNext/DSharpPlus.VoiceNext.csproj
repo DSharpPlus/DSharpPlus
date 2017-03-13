@@ -60,6 +60,10 @@
     <Compile Include="VoiceClient.cs" />
     <Compile Include="VoiceConnection.cs" />
     <Compile Include="VoiceEntities\VoiceDispatch.cs" />
+    <Compile Include="VoiceEntities\VoiceIdentifyPayload.cs" />
+    <Compile Include="VoiceEntities\VoiceServerUpdatePayload.cs" />
+    <Compile Include="VoiceEntities\VoiceSpeakingPayload.cs" />
+    <Compile Include="VoiceEntities\VoiceStateUpdatePayload.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
