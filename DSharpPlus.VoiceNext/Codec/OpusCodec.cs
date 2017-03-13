@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DSharpPlus.VoiceNext.Codec.Extern
+namespace DSharpPlus.VoiceNext.Codec
 {
     public sealed class OpusCodec : IDisposable
     {
