@@ -68,7 +68,7 @@ namespace DSharpPlus.VoiceNext.Codec.Extern
 
             var frame_size = this.FrameCount(frame.Length, bitrate);
             var encdata = IntPtr.Zero;
-            var enc = new byte[pcm_input.Length];
+            var enc = new byte[frame.Length];
             int len = 0;
 
             fixed (byte* encptr = enc)

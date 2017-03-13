@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Resources;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
@@ -36,3 +37,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: NeutralResourcesLanguage("en")]
 
+[assembly: InternalsVisibleTo("DSharpPlus.VoiceNext")]
