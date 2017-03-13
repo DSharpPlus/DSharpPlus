@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands
@@ -46,7 +44,7 @@ namespace DSharpPlus.Commands
                     {
                         if (command.Name == cmdName)
                         {
-                            command.Execute(new CommandEventArgs(e.Message, command));
+                            command.Execute(new CommandEventArgs(e.Message, command, Client));
                         }
                     }
                 }

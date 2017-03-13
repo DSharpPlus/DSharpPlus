@@ -55,6 +55,9 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestBot.cs" />
+    <Compile Include="TestBotCommands.cs" />
+    <Compile Include="TestBotConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

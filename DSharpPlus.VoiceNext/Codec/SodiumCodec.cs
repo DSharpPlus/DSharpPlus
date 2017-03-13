@@ -1,6 +1,6 @@
 ﻿using Sodium;
 
-namespace DSharpPlus.VoiceNext.Codec.Extern
+namespace DSharpPlus.VoiceNext.Codec
 {
     public sealed class SodiumCodec
     {

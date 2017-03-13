@@ -53,10 +53,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Codec\Extern\OpusCodec.cs" />
-    <Compile Include="Codec\Extern\RtpCodec.cs" />
-    <Compile Include="Codec\Extern\SodiumCodec.cs" />
+    <Compile Include="Codec\OpusCodec.cs" />
+    <Compile Include="Codec\RtpCodec.cs" />
+    <Compile Include="Codec\SodiumCodec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VoiceClient.cs" />
+    <Compile Include="VoiceConnection.cs" />
+    <Compile Include="VoiceEntities\VoiceDispatch.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

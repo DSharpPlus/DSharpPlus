@@ -9,15 +9,17 @@ namespace DSharpPlus.Commands
         public DiscordMessage Message { get; }
         public Command Command { get; }
         public IReadOnlyList<string> Arguments { get; }
+        public DiscordClient Discord { get; }
 
         public DiscordChannel Channel => this.Message.Parent;
         public DiscordGuild Guild => this.Channel.Parent;
-        public DiscordUser Auhtor => this.Message.Author;
+        public DiscordUser Author => this.Message.Author;
 
-        public CommandEventArgs(DiscordMessage message, Command command)
+        public CommandEventArgs(DiscordMessage message, Command command, DiscordClient client)
         {
             Message = message;
             Command = command;
+            Discord = client;
             if (message.Content.Length > (CommandModule.instance.config.Prefix.Length + command.Name.Length))
             {
                 string args = message.Content.Substring(CommandModule.instance.config.Prefix.Length + command.Name.Length + 1);
