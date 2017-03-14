@@ -10,7 +10,7 @@ namespace DSharpPlus.VoiceNext
 {
     public sealed class VoiceNextClient : IModule
     {
-        public DiscordClient Client { get; }
+        public DiscordClient Client { get { return this._client; } }
         private DiscordClient _client;
 
         private ConcurrentDictionary<ulong, VoiceNextConnection> ActiveConnections { get; set; }
@@ -88,7 +88,8 @@ namespace DSharpPlus.VoiceNext
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
         {
-            
+#warning IMPLEMENT
+            return Task.Delay(0);
         }
 
         private Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
