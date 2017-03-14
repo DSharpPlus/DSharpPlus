@@ -61,6 +61,9 @@
     <Compile Include="VoiceConnection.cs" />
     <Compile Include="VoiceEntities\VoiceDispatch.cs" />
     <Compile Include="VoiceEntities\VoiceIdentifyPayload.cs" />
+    <Compile Include="VoiceEntities\VoiceReadyPayload.cs" />
+    <Compile Include="VoiceEntities\VoiceSelectProtocolPayload.cs" />
+    <Compile Include="VoiceEntities\VoiceSelectProtocolPayloadData.cs" />
     <Compile Include="VoiceEntities\VoiceServerUpdatePayload.cs" />
     <Compile Include="VoiceEntities\VoiceSpeakingPayload.cs" />
     <Compile Include="VoiceEntities\VoiceStateUpdatePayload.cs" />
