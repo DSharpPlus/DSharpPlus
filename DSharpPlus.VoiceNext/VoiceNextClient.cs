@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.VoiceNext.VoiceEntities;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.VoiceNext
 {
@@ -48,7 +49,16 @@ namespace DSharpPlus.VoiceNext
             this.VoiceStateUpdates[gld.ID] = vstut;
             this.VoiceServerUpdates[gld.ID] = vsrut;
 
-            // send voice state update
+            var vsu = new VoiceStateUpdatePayload
+            {
+                GuildId = gld.ID.ToString(),
+                ChannelId = channel.ID.ToString(),
+                UserId = this.Client.Me.ID.ToString(),
+                Deafened = false,
+                Muted = false
+            };
+            var vsj = JsonConvert.SerializeObject(vsu, Formatting.None);
+            DiscordClient._websocketClient._socket.Send(vsj);
             
             var vstu = await vstut.Task;
             var vstup = new VoiceStateUpdatePayload
@@ -88,7 +98,13 @@ namespace DSharpPlus.VoiceNext
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
         {
-#warning IMPLEMENT
+            var gid = e.GuildID;
+            if (gid == 0)
+                return Task.Delay(0);
+
+            if (this.VoiceStateUpdates.ContainsKey(gid))
+                this.VoiceStateUpdates[gid].SetResult(e);
+
             return Task.Delay(0);
         }
 
