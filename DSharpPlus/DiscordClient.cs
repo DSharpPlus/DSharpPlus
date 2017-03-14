@@ -1381,7 +1381,7 @@ namespace DSharpPlus
 
             VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs { GuildID = guildID, Endpoint = endpoint, VoiceToken = token };
             await this._voice_server_update.InvokeAsync(args);
-            await _voiceClient.Init(token, guildID, endpoint);
+            //await _voiceClient.Init(token, guildID, endpoint);
         }
         internal async Task OnGuildMembersChunkEvent(JObject obj)
         {

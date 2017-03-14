@@ -86,7 +86,9 @@ namespace DSharpPlus.VoiceNext.Codec
             if (this.IsDisposed)
                 return;
             
-            DestroyEncoder(this.Encoder);
+            if (this.Encoder != IntPtr.Zero)
+                DestroyEncoder(this.Encoder);
+
             this.Encoder = IntPtr.Zero;
             this.IsDisposed = true;
         }

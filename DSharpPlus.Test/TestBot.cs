@@ -86,7 +86,7 @@ namespace DSharpPlus.Test
         private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("[{0:yyyy-MM-dd HH:mm:ss zzz}] ", e.TimeStamp);
+            Console.Write("[{0:yyyy-MM-dd HH:mm:ss zzz}] ", e.TimeStamp.ToLocalTime());
 
             switch (e.Level)
             {
@@ -146,7 +146,7 @@ namespace DSharpPlus.Test
         private Task Discord_PresenceUpdate(PresenceUpdateEventArgs e)
         {
             if (e.User != null)
-                this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "DSPlus Test", $"{e.User.Username}#{e.User.Discriminator} ({e.UserID}): {e.Status} playing {e.Game ?? "<nothing>"}", DateTime.Now);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "DSPlus Test", $"{e.User.Username}#{e.User.Discriminator} ({e.UserID}): {e.Status ?? "<unknown>"} playing {e.Game ?? "<nothing>"}", DateTime.Now);
 
             return Task.Delay(0);
         }

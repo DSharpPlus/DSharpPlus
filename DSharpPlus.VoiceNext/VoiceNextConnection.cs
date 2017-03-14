@@ -32,6 +32,8 @@ namespace DSharpPlus.VoiceNext
         internal event VoiceDisconnectedEventHandler VoiceDisconnected;
 
         private const string VOICE_MODE = "xsalsa20_poly1305";
+        private static DateTime UnixEpoch { get { return _unix_epoch.Value; } }
+        private static Lazy<DateTime> _unix_epoch;
 
         private DiscordClient Discord { get; set; }
         private DiscordGuild Guild { get; set; }
@@ -68,23 +70,34 @@ namespace DSharpPlus.VoiceNext
             this.Guild = guild;
             this.Channel = channel;
 
+            this.Opus = new OpusCodec(48000, 2, Codec.VoiceApplication.Music);
+            this.Sodium = new SodiumCodec();
+            this.RTP = new RtpCodec();
+
             this.ServerData = server;
             this.StateData = state;
 
             var eps = this.ServerData.Endpoint;
             var epi = eps.LastIndexOf(':');
             var eph = string.Empty;
+            var epp = 80;
             if (epi != -1)
+            {
                 eph = eps.Substring(0, epi);
+                epp = int.Parse(eps.Substring(epi + 1));
+            }
             else
+            {
                 eph = eps;
-            this.ConnectionEndpoint = new DnsEndPoint(eph, 443);
+            }
+            this.ConnectionEndpoint = new DnsEndPoint(eph, epp);
 
             this.Stage1 = new TaskCompletionSource<bool>();
             this.Stage2 = new TaskCompletionSource<bool>();
             this.IsInitialized = false;
             this.IsDisposed = false;
 
+            //this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}:{this.ConnectionEndpoint.Port}");
             this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}");
             this.VoiceWs.SocketClosed += this.VoiceWS_SocketClosed;
             this.VoiceWs.SocketError += this.VoiceWS_SocketError;
@@ -94,6 +107,11 @@ namespace DSharpPlus.VoiceNext
             this.VoiceWs.Connect();
         }
 
+        static VoiceNextConnection()
+        {
+            _unix_epoch = new Lazy<DateTime>(() => new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        }
+
         ~VoiceNextConnection()
         {
             this.Dispose();
@@ -101,6 +119,8 @@ namespace DSharpPlus.VoiceNext
 
         internal async Task StartAsync()
         {
+            await Task.Delay(100);
+
             // Let's announce our intentions to the server
             var vdp = new VoiceDispatch
             {
@@ -108,13 +128,13 @@ namespace DSharpPlus.VoiceNext
                 Payload = new VoiceIdentifyPayload
                 {
                     ServerId = this.ServerData.GuildId,
-                    UserId = this.StateData.UserId,
+                    UserId = this.StateData.UserId.Value,
                     SessionId = this.StateData.SessionId,
                     Token = this.ServerData.Token
                 }
             };
             var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
-            await Task.Run(() => this.VoiceWs._socket.Send(vdj));
+            this.VoiceWs._socket.Send(vdj);
             await this.Stage1.Task; // wait for response
 
             // Begin heartbeating
@@ -126,12 +146,14 @@ namespace DSharpPlus.VoiceNext
             // IP Discovery
             this.UdpClient.Connect(this.ConnectionEndpoint.Host, this.ConnectionEndpoint.Port);
             this.UdpClient.AllowNatTraversal(true);
-            var pck = this.RTP.Encode(this.RTP.Encode(this.Sequence, this.Timestamp, this.SSRC), new byte[70]);
+            //var pck = this.RTP.Encode(this.RTP.Encode(this.Sequence, this.Timestamp, this.SSRC), new byte[70]);
+            var pck = new byte[70];
+            Array.Copy(BitConverter.GetBytes(this.SSRC), 0, pck, pck.Length - 4, 4);
             await this.UdpClient.SendAsync(pck, pck.Length);
             var ipd = await this.UdpClient.ReceiveAsync();
-            var ipe = Array.IndexOf(ipd.Buffer, 0, 12);
-            var ip = new UTF8Encoding(false).GetString(ipd.Buffer, 12, ipe - 12);
-            var port = BitConverter.ToUInt16(ipd.Buffer, 80);
+            var ipe = Array.IndexOf(ipd.Buffer, 0);
+            var ip = new UTF8Encoding(false).GetString(ipd.Buffer, 0, ipe);
+            var port = BitConverter.ToUInt16(ipd.Buffer, ipd.Buffer.Length - 2);
             this.DiscoveredEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
 
             // Ready
@@ -150,7 +172,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-            await Task.Run(() => this.VoiceWs._socket.Send(vsj));
+            this.VoiceWs._socket.Send(vsj);
             await this.Stage2.Task;
 
             this.IsInitialized = true;
@@ -210,12 +232,13 @@ namespace DSharpPlus.VoiceNext
             catch (Exception)
             { }
 
-            this.Opus.Dispose();
+            this.Opus?.Dispose();
             this.Opus = null;
             this.Sodium = null;
             this.RTP = null;
 
-            this.VoiceDisconnected(this.Guild);
+            if (this.VoiceDisconnected != null)
+                this.VoiceDisconnected(this.Guild);
         }
 
         private void Heartbeat()
@@ -227,7 +250,8 @@ namespace DSharpPlus.VoiceNext
                 var hbd = new VoiceDispatch
                 {
                     OpCode = 3,
-                    Payload = this.HeartbeatInterval
+                    //Payload = this.HeartbeatInterval
+                    Payload = UnixTimestamp(DateTime.Now)
                 };
                 var hbj = JsonConvert.SerializeObject(hbd);
                 this.VoiceWs._socket.Send(hbj);
@@ -252,7 +276,7 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 case 3:
-                    this.HeartbeatInterval = opp.ToObject<int>();
+                    //this.HeartbeatInterval = opp.ToObject<int>();
                     var dt = DateTime.Now;
                     if (this.LastHeartbeat != null)
                         this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat.Value).TotalMilliseconds.ToString("#,###")}ms", dt);
@@ -304,6 +328,14 @@ namespace DSharpPlus.VoiceNext
         private async Task VoiceWS_SocketOpened()
         {
             await this.StartAsync();
+        }
+
+        private static uint UnixTimestamp(DateTime dt)
+        {
+            var ts = dt - UnixEpoch;
+            var sd = ts.TotalSeconds;
+            var si = (uint)sd;
+            return si;
         }
     }
 }

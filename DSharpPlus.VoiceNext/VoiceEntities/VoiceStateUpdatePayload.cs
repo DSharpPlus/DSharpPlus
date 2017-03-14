@@ -5,13 +5,13 @@ namespace DSharpPlus.VoiceNext.VoiceEntities
     internal sealed class VoiceStateUpdatePayload
     {
         [JsonProperty("guild_id")]
-        public string GuildId { get; set; }
+        public ulong GuildId { get; set; }
 
         [JsonProperty("channel_id")]
-        public string ChannelId { get; set; }
+        public ulong ChannelId { get; set; }
 
         [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string UserId { get; set; }
+        public ulong? UserId { get; set; }
 
         [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
         public string SessionId { get; set; }
