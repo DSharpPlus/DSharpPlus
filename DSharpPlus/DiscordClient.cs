@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using DSharpPlus.Voice;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WebSocketSharp;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace DSharpPlus
 {
@@ -33,12 +33,12 @@ namespace DSharpPlus
         /// <summary>
         /// 
         /// </summary>
-        public event AsyncEventHandler<CloseEventArgs> SocketClosed
+        public event AsyncEventHandler SocketClosed
         {
             add { this._socket_closed.Register(value); }
             remove { this._socket_closed.Unregister(value); }
         }
-        private AsyncEvent<CloseEventArgs> _socket_closed = new AsyncEvent<CloseEventArgs>();
+        private AsyncEvent _socket_closed = new AsyncEvent();
         /// <summary>
         /// The ready event is dispatched when a client completed the initial handshake.
         /// </summary>
@@ -425,6 +425,7 @@ namespace DSharpPlus
         internal Thread _heartbeatThread;
         internal static DateTime _lastHeartbeat;
         internal static bool _waitingForAck = false;
+        internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
 
         internal static DiscordVoiceClient _voiceClient;
         internal static Dictionary<uint, ulong> _ssrcDict = new Dictionary<uint, ulong>();
@@ -583,15 +584,15 @@ namespace DSharpPlus
             {
                 _heartbeatThread.Abort();
 
-                _debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Websocket", $"Connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
 
-                if (!e.WasClean && config.AutoReconnect)
+                if (config.AutoReconnect)
                 {
                     _websocketClient.Disconnect();
                     _websocketClient.Connect();
                     DebugLogger.LogMessage(LogLevel.Critical, "Internal", "Bot crashed. Reconnecting", DateTime.Now);
                 }
-                await this._socket_closed.InvokeAsync(e);
+                await this._socket_closed.InvokeAsync();
             };
             _websocketClient.SocketMessage += async e => await HandleSocketMessage(e.Data);
             _websocketClient.Connect();

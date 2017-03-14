@@ -182,6 +182,7 @@ Serverowner: {e.Guild.OwnerID}
                 return;
             }
 
+            await Task.Yield();
             await voice.ConnectAsync(chn);
             await e.Message.Respond($"Tryina join {chn.Name} ({chn.ID})");
         }

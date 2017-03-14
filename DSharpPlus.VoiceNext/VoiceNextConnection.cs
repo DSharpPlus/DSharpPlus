@@ -8,6 +8,7 @@ using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WebSocketSharp;
 
 namespace DSharpPlus.VoiceNext
 {
@@ -308,19 +309,19 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private Task VoiceWS_SocketClosed(WebSocketSharp.CloseEventArgs e)
+        private Task VoiceWS_SocketClosed(CloseEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Voice session closed; clean {e.WasClean}", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Voice session closed: {e.Reason}; clean {e.WasClean}", DateTime.Now);
             this.Dispose();
             return Task.Delay(0);
         }
 
-        private Task VoiceWS_SocketError(WebSocketSharp.ErrorEventArgs e)
+        private Task VoiceWS_SocketError(ErrorEventArgs e)
         {
             return Task.Delay(0);
         }
 
-        private async Task VoiceWS_SocketMessage(WebSocketSharp.MessageEventArgs e)
+        private async Task VoiceWS_SocketMessage(MessageEventArgs e)
         {
             await this.HandleDispatch(JObject.Parse(e.Data));
         }
