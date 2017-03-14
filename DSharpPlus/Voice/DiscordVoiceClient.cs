@@ -92,7 +92,12 @@ namespace DSharpPlus.Voice
                 };
                 _websocketClient.SocketClosed += e =>
                 {
-                    DiscordClient._debugLogger.LogMessage((e.WasClean ? LogLevel.Debug : LogLevel.Critical), "Voice-Websocket", $"Connection closed [WasClean: {e.WasClean}]", DateTime.Now);
+                    DiscordClient._debugLogger.LogMessage(LogLevel.Debug, "Voice-Websocket", $"Connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
+                    return Task.Delay(0);
+                };
+                _websocketClient.SocketError += e =>
+                {
+                    DiscordClient._debugLogger.LogMessage(LogLevel.Critical, "Voice-Websocket", $"Connection closed: {e.Exception.Message} [WasClean: fatal]", DateTime.Now);
                     return Task.Delay(0);
                 };
                 _websocketClient.SocketMessage += async e => await HandleSocketMessage(e.Data);
@@ -110,13 +115,8 @@ namespace DSharpPlus.Voice
                 case 4: await OnSessionDescriptionEvent(obj); break;
                 case 5: await OnUserSpeakingEvent(obj); break;
                 default:
-                    {
-                        await Task.Run(() =>
-                        {
-                            DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Voice-Websocket", $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj}", DateTime.Now);
-                        });
-                        break;
-                    }
+                    await Task.Run(() => DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Voice-Websocket", $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj}", DateTime.Now));
+                    break;
             }
         }
 

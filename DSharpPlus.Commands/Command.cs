@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands
@@ -16,17 +17,7 @@ namespace DSharpPlus.Commands
 
         public void Execute(CommandEventArgs args)
         {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await Func(args);
-                }
-                catch (NotSupportedException ex)
-                {
-                    await args.Message.Respond($":warning: An error occurred: {ex.Message}");
-                }
-            });
+            ThreadPool.QueueUserWorkItem(o => Func(args).GetAwaiter().GetResult());
         }
     }
 }
