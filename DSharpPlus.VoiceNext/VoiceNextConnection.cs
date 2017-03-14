@@ -13,16 +13,37 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.VoiceNext
 {
-    public sealed class VoiceConnection : IDisposable
+    internal delegate void VoiceDisconnectedEventHandler(DiscordGuild guild);
+
+    public sealed class VoiceNextConnection : IDisposable
     {
+        public event AsyncEventHandler<UserSpeakingEventArgs> UserSpeaking
+        {
+            add { this._user_speaking.Register(value); }
+            remove { this._user_speaking.Unregister(value); }
+        }
+        private AsyncEvent<UserSpeakingEventArgs> _user_speaking = new AsyncEvent<UserSpeakingEventArgs>();
+
+        public event AsyncEventHandler<VoiceReceivedEventArgs> VoiceReceived
+        {
+            add { this._voice_received.Register(value); }
+            remove { this._voice_received.Unregister(value); }
+        }
+        private AsyncEvent<VoiceReceivedEventArgs> _voice_received = new AsyncEvent<VoiceReceivedEventArgs>();
+
+        internal event VoiceDisconnectedEventHandler VoiceDisconnected;
+
         private const string VOICE_MODE = "xsalsa20_poly1305";
 
         private DiscordClient Discord { get; set; }
+        private DiscordGuild Guild { get; set; }
+        private DiscordChannel Channel { get; set; }
 
         private UdpClient UdpClient { get; set; }
         private WebSocketClient VoiceWs { get; set; }
         private Thread HeartbeatThread { get; set; }
         private int HeartbeatInterval { get; set; }
+        private DateTime? LastHeartbeat { get; set; }
 
         private VoiceServerUpdatePayload ServerData { get; set; }
         private VoiceStateUpdatePayload StateData { get; set; }
@@ -43,9 +64,11 @@ namespace DSharpPlus.VoiceNext
         private bool IsInitialized { get; set; }
         private bool IsDisposed { get; set; }
 
-        internal VoiceConnection(DiscordClient client, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
+        internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
             this.Discord = client;
+            this.Guild = guild;
+            this.Channel = channel;
 
             this.ServerData = server;
             this.StateData = state;
@@ -73,7 +96,7 @@ namespace DSharpPlus.VoiceNext
             this.VoiceWs.Connect();
         }
 
-        ~VoiceConnection()
+        ~VoiceNextConnection()
         {
             this.Dispose();
         }
@@ -127,7 +150,7 @@ namespace DSharpPlus.VoiceNext
                         Mode = VOICE_MODE
                     }
                 }
-            }
+            };
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
             await Task.Run(() => this.VoiceWs._socket.Send(vsj));
             await this.Stage2.Task;
@@ -187,6 +210,8 @@ namespace DSharpPlus.VoiceNext
             this.Opus = null;
             this.Sodium = null;
             this.RTP = null;
+
+            this.VoiceDisconnected(this.Guild);
         }
 
         private void Heartbeat()
@@ -216,33 +241,63 @@ namespace DSharpPlus.VoiceNext
                     var vrp = opp.ToObject<VoiceReadyPayload>();
                     this.SSRC = vrp.SSRC;
                     this.ConnectionEndpoint = new DnsEndPoint(this.ConnectionEndpoint.Host, vrp.Port);
+                    this.HeartbeatInterval = vrp.HeartbeatInterval;
                     this.Stage1.SetResult(true);
                     break;
 
+                case 3:
+                    this.HeartbeatInterval = opp.ToObject<int>();
+                    var dt = DateTime.Now;
+                    if (this.LastHeartbeat != null)
+                        this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat.Value).TotalMilliseconds.ToString("#,###")}ms", dt);
+                    this.LastHeartbeat = dt;
+                    break;
+
                 case 4:
+                    var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
+                    this.Key = vsd.SecretKey;
                     this.Stage2.SetResult(true);
+                    break;
+
+                case 5:
+                    var spd = opp.ToObject<VoiceSpeakingPayload>();
+                    // Is this even necessary? We're decoupling voice from main client anyway.
+                    //DiscordClient._ssrcDict[spd.SSRC.Value] = spd.UserId.Value;
+                    var spk = new UserSpeakingEventArgs
+                    {
+                        Speaking = spd.Speaking,
+                        SSRC = spd.SSRC.Value,
+                        UserID = spd.UserId.Value
+                    };
+                    await this._user_speaking.InvokeAsync(spk);
+                    break;
+
+                default:
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "VoiceNext", $"Unknown opcode received: {opc}", DateTime.Now);
                     break;
             }
         }
 
         private Task VoiceWS_SocketClosed(WebSocketSharp.CloseEventArgs e)
         {
-            throw new NotImplementedException();
+            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Voice session closed; clean {e.WasClean}", DateTime.Now);
+            this.Dispose();
+            return Task.Delay(0);
         }
 
         private Task VoiceWS_SocketError(WebSocketSharp.ErrorEventArgs e)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
         private async Task VoiceWS_SocketMessage(WebSocketSharp.MessageEventArgs e)
         {
-            await this.HandleDispatch(JObject.Load(e.Data));
+            await this.HandleDispatch(JObject.Parse(e.Data));
         }
 
-        private Task VoiceWS_SocketOpened()
+        private async Task VoiceWS_SocketOpened()
         {
-            throw new NotImplementedException();
+            await this.StartAsync();
         }
     }
 }
