@@ -158,7 +158,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = true;
         }
 
-        public async Task SendAsync(byte[] pcm, int bitrate = 16)
+        public async Task SendAsync(byte[] pcm, int blocksize, int bitrate = 16)
         {
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not yet initialized");
@@ -170,9 +170,12 @@ namespace DSharpPlus.VoiceNext
             dat = this.RTP.Encode(rtp, dat);
 
             await this.UdpClient.SendAsync(dat, dat.Length);
+
+            this.Sequence++;
+            this.Timestamp += (uint)(48 * blocksize);
         }
 
-        public async Task SendSpeaking(bool speaking = true)
+        public async Task SendSpeakingAsync(bool speaking = true)
         {
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not yet initialized");
@@ -190,6 +193,9 @@ namespace DSharpPlus.VoiceNext
             var plj = JsonConvert.SerializeObject(pld, Formatting.None);
             await Task.Run(() => this.VoiceWs._socket.Send(plj));
         }
+
+        public void Disconnect() =>
+            this.Dispose();
 
         public void Dispose()
         {
