@@ -2,7 +2,7 @@
 
 namespace DSharpPlus.VoiceNext.VoiceEntities
 {
-    internal class VoiceServerUpdatePayload
+    internal sealed class VoiceServerUpdatePayload
     {
         [JsonProperty("token")]
         public string Token { get; set; }
@@ -11,6 +11,6 @@ namespace DSharpPlus.VoiceNext.VoiceEntities
         public string GuildId { get; set; }
 
         [JsonProperty("endpoint")]
-        public string EndPoint { get; set; }
+        public string Endpoint { get; set; }
     }
 }

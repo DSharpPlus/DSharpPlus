@@ -2,7 +2,7 @@
 
 namespace DSharpPlus.VoiceNext.VoiceEntities
 {
-    internal class VoiceSpeakingPayload
+    internal sealed class VoiceSpeakingPayload
     {
         [JsonProperty("speaking")]
         public bool Speaking { get; set; }
