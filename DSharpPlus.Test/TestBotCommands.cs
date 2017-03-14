@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
 using DSharpPlus.VoiceNext;
+using NAudio.Wave;
 
 namespace DSharpPlus.Test
 {
@@ -201,7 +204,56 @@ Serverowner: {e.Guild.OwnerID}
             await e.Message.Respond("Disconnected");
         }
 
-        public async Task VoicePlay(CommandEventArgs e) =>
-            await Task.Yield();
+        public async Task VoicePlay(CommandEventArgs e)
+        {
+            var voice = e.Discord.GetVoiceNextClient();
+            if (voice == null)
+            {
+                await e.Message.Respond("Voice is not activated");
+                return;
+            }
+
+            var vnc = voice.GetConnection(e.Guild);
+            if (vnc == null)
+            {
+                await e.Message.Respond("Voice is not connected in this guild");
+                return;
+            }
+
+            var snd = string.Join(" ", e.Arguments);
+            if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
+            {
+                await e.Message.Respond("Invalid file specified");
+                return;
+            }
+
+            await vnc.SendSpeakingAsync(true);
+            try
+            {
+                var fmt = new WaveFormat(48000, 16, 2);
+                using (var wav = new AudioFileReader(snd))
+                using (var pcm = new MediaFoundationResampler(wav, fmt))
+                {
+                    pcm.ResamplerQuality = 60;
+                    var bs = fmt.AverageBytesPerSecond / 50;
+                    var buff = new byte[bs];
+                    int bc = 0;
+
+                    while ((bc = pcm.Read(buff, 0, bs)) > 0)
+                    {
+                        if (bc < bs)
+                            for (var i = 0; i < bs; i++)
+                                buff[i] = 0;
+
+                        await vnc.SendAsync(buff, bs, fmt.BitsPerSample);
+                    }
+                }
+            }
+            catch (Exception) { }
+            finally
+            {
+                await vnc.SendSpeakingAsync(false);
+            }
+        }
     }
 }
