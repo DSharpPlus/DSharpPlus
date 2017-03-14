@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
+using DSharpPlus.VoiceNext;
 
 namespace DSharpPlus.Test
 {
@@ -153,11 +154,52 @@ Serverowner: {e.Guild.OwnerID}
         public async Task ModifyMe(CommandEventArgs e) =>
             await e.Discord.ModifyMember(e.Guild.ID, e.Author.ID, "Tests D#+ instead of going outside");
 
-        public async Task VoiceJoin(CommandEventArgs e) =>
-            await Task.Yield();
+        public async Task VoiceJoin(CommandEventArgs e)
+        {
+            var vs = e.Guild.VoiceStates.FirstOrDefault(xvs => xvs.UserID == e.Author.ID);
+            if (vs == null)
+            {
+                await e.Message.Respond("You are not in a voice channel");
+                return;
+            }
 
-        public async Task VoiceLeave(CommandEventArgs e) =>
-            await Task.Yield();
+            var chn = e.Guild.Channels.FirstOrDefault(xc => xc.ID == vs.ChannelID);
+            if (chn == null)
+            {
+                await e.Message.Respond("Your voice channel was not found");
+                return;
+            }
+
+            var voice = e.Discord.GetVoiceNextClient();
+            if (voice == null)
+            {
+                await e.Message.Respond("Voice is not activated");
+                return;
+            }
+
+            await voice.ConnectAsync(chn);
+            await e.Message.Respond($"Tryina join {chn.Name} ({chn.ID})");
+        }
+
+        public async Task VoiceLeave(CommandEventArgs e)
+        {
+            var voice = e.Discord.GetVoiceNextClient();
+            if (voice == null)
+            {
+                await e.Message.Respond("Voice is not activated");
+                return;
+            }
+
+            var vnc = voice.GetConnection(e.Guild);
+            if (vnc == null)
+            {
+                await e.Message.Respond("Voice is not connected in this guild");
+                return;
+            }
+
+            vnc.Disconnect();
+            await e.Message.Respond("Disconnected");
+        }
 
         public async Task VoicePlay(CommandEventArgs e) =>
             await Task.Yield();

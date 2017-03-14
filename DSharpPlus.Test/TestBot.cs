@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
+using DSharpPlus.VoiceNext;
 
 namespace DSharpPlus.Test
 {
@@ -12,6 +13,7 @@ namespace DSharpPlus.Test
         private TestBotConfig Config { get; }
         private DiscordClient Discord { get; }
         private TestBotCommands Commands { get; }
+        private VoiceNextClient Voice { get; }
 
         public TestBot(TestBotConfig cfg)
         {
@@ -70,6 +72,9 @@ namespace DSharpPlus.Test
                 this.Discord.AddCommand(xm.Name.ToLower(), cmcall);
                 this.Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Command {xm.Name.ToLower()} registered", DateTime.Now);
             }
+
+            // voice
+            this.Voice = this.Discord.UseVoiceNext();
         }
 
         public async Task RunAsync()

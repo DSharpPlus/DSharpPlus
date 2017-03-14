@@ -11,7 +11,7 @@
             return ClientInstance;
         }
 
-        public static VoiceNextClient GetVoiceNext(this DiscordClient client) =>
+        public static VoiceNextClient GetVoiceNextClient(this DiscordClient client) =>
             ClientInstance;
     }
 }
