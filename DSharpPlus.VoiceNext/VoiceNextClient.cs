@@ -49,15 +49,18 @@ namespace DSharpPlus.VoiceNext
             this.VoiceStateUpdates[gld.ID] = vstut;
             this.VoiceServerUpdates[gld.ID] = vsrut;
 
-            var vsu = new VoiceStateUpdatePayload
+            var vsd = new VoiceDispatch
             {
-                GuildId = gld.ID.ToString(),
-                ChannelId = channel.ID.ToString(),
-                UserId = this.Client.Me.ID.ToString(),
-                Deafened = false,
-                Muted = false
+                OpCode = 4,
+                Payload = new VoiceStateUpdatePayload
+                {
+                    GuildId = gld.ID.ToString(),
+                    ChannelId = channel.ID.ToString(),
+                    Deafened = false,
+                    Muted = false
+                }
             };
-            var vsj = JsonConvert.SerializeObject(vsu, Formatting.None);
+            var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
             DiscordClient._websocketClient._socket.Send(vsj);
             
             var vstu = await vstut.Task;
