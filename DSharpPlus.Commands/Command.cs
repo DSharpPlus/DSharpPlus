@@ -17,7 +17,7 @@ namespace DSharpPlus.Commands
 
         public void Execute(CommandEventArgs args)
         {
-            ThreadPool.QueueUserWorkItem(o => Func(args).GetAwaiter().GetResult());
+            ThreadPool.QueueUserWorkItem(o => Func(args).ConfigureAwait(false).GetAwaiter().GetResult());
         }
     }
 }
