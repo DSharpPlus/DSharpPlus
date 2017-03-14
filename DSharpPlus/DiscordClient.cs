@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 
 namespace DSharpPlus
 {
@@ -1345,8 +1346,31 @@ namespace DSharpPlus
         internal async Task OnVoiceStateUpdateEvent(JObject obj)
         {
             ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
+            ulong guildID = 0;
+            if (obj["d"]["guild_id"] != null)
+                ulong.TryParse(obj["d"]["guild_id"].ToString(), out guildID);
+            ulong channelID = 0;
+            if (obj["d"]["channel_id"] != null)
+                ulong.TryParse(obj["d"]["channel_id"].ToString(), out channelID);
             string session_id = obj["d"]["session_id"].ToString();
-            VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs { UserID = userID, SessionID = session_id };
+            VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs { UserID = userID, GuildID = guildID, SessionID = session_id };
+
+            if (this.Guilds.ContainsKey(guildID))
+            {
+                var gld = this.Guilds[guildID];
+
+                var vs = new DiscordVoiceState
+                {
+                    GuildID = guildID,
+                    ChannelID = channelID,
+                    UserID = userID
+                };
+                var vs1 = gld.VoiceStates.FirstOrDefault(xvs => xvs.GuildID == guildID && xvs.ChannelID == channelID && xvs.UserID == userID);
+                if (vs1 != null)
+                    gld.VoiceStates.Remove(vs1);
+                gld.VoiceStates.Add(vs);
+            }
+
             await this._voice_state_update.InvokeAsync(args);
         }
         internal async Task OnVoiceServerUpdateEvent(JObject obj)

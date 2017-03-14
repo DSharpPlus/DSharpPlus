@@ -146,7 +146,7 @@ namespace DSharpPlus.Test
         private Task Discord_PresenceUpdate(PresenceUpdateEventArgs e)
         {
             if (e.User != null)
-                this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "DSPlus Test", $"{e.User.Username}#{e.User.Discriminator} ({e.UserID}): {e.Status} playing {e.Game}", DateTime.Now);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "DSPlus Test", $"{e.User.Username}#{e.User.Discriminator} ({e.UserID}): {e.Status} playing {e.Game ?? "<nothing>"}", DateTime.Now);
 
             return Task.Delay(0);
         }

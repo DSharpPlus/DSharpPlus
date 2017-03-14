@@ -85,7 +85,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = false;
             this.IsDisposed = false;
 
-            this.VoiceWs = new WebSocketClient($"wss://{this.ServerData.Endpoint}");
+            this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}");
             this.VoiceWs.SocketClosed += this.VoiceWS_SocketClosed;
             this.VoiceWs.SocketError += this.VoiceWS_SocketError;
             this.VoiceWs.SocketMessage += this.VoiceWS_SocketMessage;
