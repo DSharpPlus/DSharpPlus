@@ -220,8 +220,10 @@ namespace DSharpPlus.VoiceNext
 
         private void Heartbeat()
         {
-            while(true)
+            while (true)
             {
+                this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "VoiceNext", "Sent heartbeat", DateTime.Now);
+
                 var hbd = new VoiceDispatch
                 {
                     OpCode = 3,
