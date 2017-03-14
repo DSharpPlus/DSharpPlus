@@ -37,7 +37,7 @@ namespace DSharpPlus.VoiceNext
             if (ActiveConnections.ContainsKey(gld.ID))
                 throw new InvalidOperationException("This guild already has a voice connection");
 
-            
+            // wait for both events
 
             var vnc = new VoiceNextConnection(this.Client, gld, channel, null, null);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
