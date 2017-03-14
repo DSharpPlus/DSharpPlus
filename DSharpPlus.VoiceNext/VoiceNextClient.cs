@@ -54,8 +54,8 @@ namespace DSharpPlus.VoiceNext
                 OpCode = 4,
                 Payload = new VoiceStateUpdatePayload
                 {
-                    GuildId = gld.ID.ToString(),
-                    ChannelId = channel.ID.ToString(),
+                    GuildId = gld.ID,
+                    ChannelId = channel.ID,
                     Deafened = false,
                     Muted = false
                 }
@@ -67,13 +67,13 @@ namespace DSharpPlus.VoiceNext
             var vstup = new VoiceStateUpdatePayload
             {
                 SessionId = vstu.SessionID,
-                UserId = vstu.UserID.ToString()
+                UserId = vstu.UserID
             };
             var vsru = await vsrut.Task;
             var vsrup = new VoiceServerUpdatePayload
             {
                 Endpoint = vsru.Endpoint,
-                GuildId = vsru.GuildID.ToString(),
+                GuildId = vsru.GuildID,
                 Token = vsru.VoiceToken
             };
 

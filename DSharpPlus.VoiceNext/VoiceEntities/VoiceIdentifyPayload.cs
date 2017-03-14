@@ -5,10 +5,10 @@ namespace DSharpPlus.VoiceNext.VoiceEntities
     internal sealed class VoiceIdentifyPayload
     {
         [JsonProperty("server_id")]
-        public string ServerId { get; set; }
+        public ulong ServerId { get; set; }
 
         [JsonProperty("user_id")]
-        public string UserId { get; set; }
+        public ulong UserId { get; set; }
 
         [JsonProperty("session_id")]
         public string SessionId { get; set; }
