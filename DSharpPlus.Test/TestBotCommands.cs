@@ -78,19 +78,21 @@ Serverowner: {e.Guild.OwnerID}
 
         public async Task Embed(CommandEventArgs e)
         {
-            List<DiscordEmbedField> fields = new List<DiscordEmbedField>();
-            fields.Add(new DiscordEmbedField()
+            List<DiscordEmbedField> fields = new List<DiscordEmbedField>
             {
-                Name = "This is a field",
-                Value = "it works :p",
-                Inline = false
-            });
-            fields.Add(new DiscordEmbedField()
-            {
-                Name = "Multiple fields",
-                Value = "cool",
-                Inline = false
-            });
+                new DiscordEmbedField()
+                {
+                    Name = "This is a field",
+                    Value = "it works :p",
+                    Inline = false
+                },
+                new DiscordEmbedField()
+                {
+                    Name = "Multiple fields",
+                    Value = "cool",
+                    Inline = false
+                }
+            };
 
             DiscordEmbed embed = new DiscordEmbed
             {

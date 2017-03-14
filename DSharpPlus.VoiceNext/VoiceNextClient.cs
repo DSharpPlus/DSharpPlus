@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.VoiceNext.VoiceEntities;
 
 namespace DSharpPlus.VoiceNext
 {
@@ -11,11 +13,15 @@ namespace DSharpPlus.VoiceNext
         public DiscordClient Client { get; }
         private DiscordClient _client;
 
-        private Dictionary<ulong, VoiceNextConnection> ActiveConnections { get; set; }
+        private ConcurrentDictionary<ulong, VoiceNextConnection> ActiveConnections { get; set; }
+        private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; set; }
+        private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; set; }
 
         internal VoiceNextClient()
         {
-            this.ActiveConnections = new Dictionary<ulong, VoiceNextConnection>();
+            this.ActiveConnections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
+            this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();
+            this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>>();
         }
 
         public void Setup(DiscordClient client)
@@ -37,10 +43,31 @@ namespace DSharpPlus.VoiceNext
             if (ActiveConnections.ContainsKey(gld.ID))
                 throw new InvalidOperationException("This guild already has a voice connection");
 
-            // send voice state update
-            // wait for both events
+            var vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
+            var vsrut = new TaskCompletionSource<VoiceServerUpdateEventArgs>();
+            this.VoiceStateUpdates[gld.ID] = vstut;
+            this.VoiceServerUpdates[gld.ID] = vsrut;
 
-            var vnc = new VoiceNextConnection(this.Client, gld, channel, null, null);
+            // send voice state update
+            
+            var vstu = await vstut.Task;
+            var vstup = new VoiceStateUpdatePayload
+            {
+                SessionId = vstu.SessionID,
+                UserId = vstu.UserID.ToString()
+            };
+            var vsru = await vsrut.Task;
+            var vsrup = new VoiceServerUpdatePayload
+            {
+                Endpoint = vsru.Endpoint,
+                GuildId = vsru.GuildID.ToString(),
+                Token = vsru.VoiceToken
+            };
+
+            this.VoiceStateUpdates.TryRemove(gld.ID, out _);
+            this.VoiceServerUpdates.TryRemove(gld.ID, out _);
+
+            var vnc = new VoiceNextConnection(this.Client, gld, channel, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
             return vnc;
         }
@@ -56,17 +83,21 @@ namespace DSharpPlus.VoiceNext
         private void Vnc_VoiceDisconnected(DiscordGuild guild)
         {
             if (this.ActiveConnections.ContainsKey(guild.ID))
-                this.ActiveConnections.Remove(guild.ID);
+                this.ActiveConnections.TryRemove(guild.ID, out _);
         }
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
         {
-            throw new NotImplementedException();
+            
         }
 
         private Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
         {
-            throw new NotImplementedException();
+            var gid = e.GuildID;
+            if (this.VoiceServerUpdates.ContainsKey(gid))
+                this.VoiceServerUpdates[gid].SetResult(e);
+
+            return Task.Delay(0);
         }
     }
 }
