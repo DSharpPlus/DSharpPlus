@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -59,9 +60,8 @@ namespace DSharpPlus.VoiceNext
         private byte[] Key { get; set; }
         private IPEndPoint DiscoveredEndpoint { get; set; }
         private DnsEndPoint ConnectionEndpoint { get; set; }
-
-        private TaskCompletionSource<bool> Stage1 { get; set; }
-        private TaskCompletionSource<bool> Stage2 { get; set; }
+        
+        private TaskCompletionSource<bool> ReadyWait { get; set; }
         private bool IsInitialized { get; set; }
         private bool IsDisposed { get; set; }
 
@@ -93,19 +93,16 @@ namespace DSharpPlus.VoiceNext
             }
             this.ConnectionEndpoint = new DnsEndPoint(eph, epp);
 
-            this.Stage1 = new TaskCompletionSource<bool>();
-            this.Stage2 = new TaskCompletionSource<bool>();
+            this.ReadyWait = new TaskCompletionSource<bool>();
             this.IsInitialized = false;
             this.IsDisposed = false;
 
-            //this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}:{this.ConnectionEndpoint.Port}");
-            this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}/?v=6&encoding=json");
+            this.UdpClient = new UdpClient();
+            this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}");
             this.VoiceWs.SocketClosed += this.VoiceWS_SocketClosed;
             this.VoiceWs.SocketError += this.VoiceWS_SocketError;
             this.VoiceWs.SocketMessage += this.VoiceWS_SocketMessage;
             this.VoiceWs.SocketOpened += this.VoiceWS_SocketOpened;
-
-            this.VoiceWs.Connect();
         }
 
         static VoiceNextConnection()
@@ -118,10 +115,13 @@ namespace DSharpPlus.VoiceNext
             this.Dispose();
         }
 
-        internal async Task StartAsync()
+        public async Task ConnectAsync()
         {
-            await Task.Delay(100);
+            await Task.Run(() => this.VoiceWs.Connect()).ConfigureAwait(false);
+        }
 
+        internal Task StartAsync()
+        {
             // Let's announce our intentions to the server
             var vdp = new VoiceDispatch
             {
@@ -136,47 +136,13 @@ namespace DSharpPlus.VoiceNext
             };
             var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
             this.VoiceWs._socket.Send(vdj);
-            await this.Stage1.Task; // wait for response
 
-            // Begin heartbeating
-            this.HeartbeatThread = new Thread(this.Heartbeat);
-            this.HeartbeatThread.SetApartmentState(ApartmentState.STA);
-            this.HeartbeatThread.Name = $"Heartbeat for Voice ({this.SSRC})";
-            this.HeartbeatThread.Start();
+            return Task.Delay(0);
+        }
 
-            // IP Discovery
-            this.UdpClient.Connect(this.ConnectionEndpoint.Host, this.ConnectionEndpoint.Port);
-            this.UdpClient.AllowNatTraversal(true);
-            //var pck = this.RTP.Encode(this.RTP.Encode(this.Sequence, this.Timestamp, this.SSRC), new byte[70]);
-            var pck = new byte[70];
-            Array.Copy(BitConverter.GetBytes(this.SSRC), 0, pck, pck.Length - 4, 4);
-            await this.UdpClient.SendAsync(pck, pck.Length);
-            var ipd = await this.UdpClient.ReceiveAsync();
-            var ipe = Array.IndexOf(ipd.Buffer, 0);
-            var ip = new UTF8Encoding(false).GetString(ipd.Buffer, 0, ipe);
-            var port = BitConverter.ToUInt16(ipd.Buffer, ipd.Buffer.Length - 2);
-            this.DiscoveredEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
-
-            // Ready
-            var vsp = new VoiceDispatch
-            {
-                OpCode = 1,
-                Payload = new VoiceSelectProtocolPayload
-                {
-                    Protocol = "udp",
-                    Data = new VoiceSelectProtocolPayloadData
-                    {
-                        Address = this.DiscoveredEndpoint.Address.ToString(),
-                        Port = (ushort)this.DiscoveredEndpoint.Port,
-                        Mode = VOICE_MODE
-                    }
-                }
-            };
-            var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-            this.VoiceWs._socket.Send(vsj);
-            await this.Stage2.Task;
-
-            this.IsInitialized = true;
+        internal async Task WaitForReady()
+        {
+            await this.ReadyWait.Task.ConfigureAwait(false);
         }
 
         public async Task SendAsync(byte[] pcm, int blocksize, int bitrate = 16)
@@ -193,7 +159,9 @@ namespace DSharpPlus.VoiceNext
             await this.UdpClient.SendAsync(dat, dat.Length);
 
             this.Sequence++;
-            this.Timestamp += (uint)(48 * blocksize);
+            this.Timestamp += 48 * (uint)blocksize;
+            
+            await Task.Delay(blocksize / 2);
         }
 
         public async Task SendSpeakingAsync(bool speaking = true)
@@ -223,6 +191,8 @@ namespace DSharpPlus.VoiceNext
             if (this.IsDisposed)
                 return;
 
+            this.HeartbeatThread.Abort();
+
             this.IsDisposed = true;
             this.IsInitialized = false;
             try
@@ -246,19 +216,73 @@ namespace DSharpPlus.VoiceNext
         {
             while (true)
             {
-                this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "VoiceNext", "Sent heartbeat", DateTime.Now);
-
-                var hbd = new VoiceDispatch
+                try
                 {
-                    OpCode = 3,
-                    //Payload = this.HeartbeatInterval
-                    Payload = UnixTimestamp(DateTime.Now)
-                };
-                var hbj = JsonConvert.SerializeObject(hbd);
-                this.VoiceWs._socket.Send(hbj);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "VoiceNext", "Sent heartbeat", DateTime.Now);
 
-                Thread.Sleep(this.HeartbeatInterval);
+                    var hbd = new VoiceDispatch
+                    {
+                        OpCode = 3,
+                        //Payload = this.HeartbeatInterval
+                        Payload = UnixTimestamp(DateTime.Now)
+                    };
+                    var hbj = JsonConvert.SerializeObject(hbd);
+                    this.VoiceWs._socket.Send(hbj);
+
+                    Thread.Sleep(this.HeartbeatInterval);
+                }
+                catch (ThreadAbortException)
+                {
+                    return;
+                }
             }
+        }
+
+        private async Task Stage1()
+        {
+            // Begin heartbeating
+            this.HeartbeatThread = new Thread(this.Heartbeat);
+            this.HeartbeatThread.SetApartmentState(ApartmentState.STA);
+            this.HeartbeatThread.Name = $"Heartbeat for Voice ({this.SSRC})";
+            this.HeartbeatThread.Start();
+
+            // IP Discovery
+            this.UdpClient.Connect(this.ConnectionEndpoint.Host, this.ConnectionEndpoint.Port);
+            this.UdpClient.AllowNatTraversal(true);
+            //var pck = this.RTP.Encode(this.RTP.Encode(this.Sequence, this.Timestamp, this.SSRC), new byte[70]);
+            var pck = new byte[70];
+            Array.Copy(BitConverter.GetBytes(this.SSRC), 0, pck, pck.Length - 4, 4);
+            await this.UdpClient.SendAsync(pck, pck.Length);
+            var ipd = await this.UdpClient.ReceiveAsync();
+            var ipe = Array.IndexOf<byte>(ipd.Buffer, 0, 4);
+            var ip = new UTF8Encoding(false).GetString(ipd.Buffer, 4, ipe - 4);
+            var port = BitConverter.ToUInt16(ipd.Buffer, ipd.Buffer.Length - 2);
+            this.DiscoveredEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
+
+            // Ready
+            var vsp = new VoiceDispatch
+            {
+                OpCode = 1,
+                Payload = new VoiceSelectProtocolPayload
+                {
+                    Protocol = "udp",
+                    Data = new VoiceSelectProtocolPayloadData
+                    {
+                        Address = this.DiscoveredEndpoint.Address.ToString(),
+                        Port = (ushort)this.DiscoveredEndpoint.Port,
+                        Mode = VOICE_MODE
+                    }
+                }
+            };
+            var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
+            this.VoiceWs._socket.Send(vsj);
+        }
+
+        private Task Stage2()
+        {
+            this.IsInitialized = true;
+            this.ReadyWait.SetResult(true);
+            return Task.Delay(0);
         }
 
         private async Task HandleDispatch(JObject jo)
@@ -274,7 +298,7 @@ namespace DSharpPlus.VoiceNext
                     this.SSRC = vrp.SSRC;
                     this.ConnectionEndpoint = new DnsEndPoint(this.ConnectionEndpoint.Host, vrp.Port);
                     this.HeartbeatInterval = vrp.HeartbeatInterval;
-                    this.Stage1.SetResult(true);
+                    await this.Stage1();
                     break;
 
                 case 3:
@@ -290,7 +314,7 @@ namespace DSharpPlus.VoiceNext
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP4 received", DateTime.Now);
                     var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
-                    this.Stage2.SetResult(true);
+                    await this.Stage2();
                     break;
 
                 case 5:
