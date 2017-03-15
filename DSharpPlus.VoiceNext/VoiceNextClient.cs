@@ -107,9 +107,7 @@ namespace DSharpPlus.VoiceNext
                 Payload = new VoiceStateUpdatePayload
                 {
                     GuildId = guild.ID,
-                    ChannelId = 0,
-                    Muted = false,
-                    Deafened = false
+                    ChannelId = null
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
