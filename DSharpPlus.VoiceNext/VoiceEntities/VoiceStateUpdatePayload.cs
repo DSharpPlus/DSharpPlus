@@ -8,7 +8,7 @@ namespace DSharpPlus.VoiceNext.VoiceEntities
         public ulong GuildId { get; set; }
 
         [JsonProperty("channel_id")]
-        public ulong ChannelId { get; set; }
+        public ulong? ChannelId { get; set; }
 
         [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? UserId { get; set; }
