@@ -248,7 +248,7 @@ Serverowner: {e.Guild.OwnerID}
                             for (var i = 0; i < bs; i++)
                                 buff[i] = 0;
 
-                        await vnc.SendAsync(buff, bs, fmt.BitsPerSample);
+                        await vnc.SendAsync(buff, 20, fmt.BitsPerSample);
                     }
                 }
             }
