@@ -230,6 +230,7 @@ Serverowner: {e.Guild.OwnerID}
                 return;
             }
 
+            await e.Message.Respond($"Playing `{snd}`");
             await vnc.SendSpeakingAsync(true);
             try
             {
