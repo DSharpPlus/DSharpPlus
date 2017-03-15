@@ -45,7 +45,7 @@ namespace DSharpPlus.VoiceNext
         private WebSocketClient VoiceWs { get; set; }
         private Thread HeartbeatThread { get; set; }
         private int HeartbeatInterval { get; set; }
-        private DateTime? LastHeartbeat { get; set; }
+        private DateTime LastHeartbeat { get; set; }
 
         private VoiceServerUpdatePayload ServerData { get; set; }
         private VoiceStateUpdatePayload StateData { get; set; }
@@ -161,7 +161,7 @@ namespace DSharpPlus.VoiceNext
             this.Sequence++;
             this.Timestamp += 48 * (uint)blocksize;
             
-            await Task.Delay(blocksize / 2);
+            await Task.Delay(15);
         }
 
         public async Task SendSpeakingAsync(bool speaking = true)
@@ -218,17 +218,18 @@ namespace DSharpPlus.VoiceNext
             {
                 try
                 {
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "VoiceNext", "Sent heartbeat", DateTime.Now);
+                    var dt = DateTime.Now;
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "VoiceNext", "Sent heartbeat", dt);
 
                     var hbd = new VoiceDispatch
                     {
                         OpCode = 3,
-                        //Payload = this.HeartbeatInterval
-                        Payload = UnixTimestamp(DateTime.Now)
+                        Payload = UnixTimestamp(dt)
                     };
                     var hbj = JsonConvert.SerializeObject(hbd);
                     this.VoiceWs._socket.Send(hbj);
 
+                    this.LastHeartbeat = dt;
                     Thread.Sleep(this.HeartbeatInterval);
                 }
                 catch (ThreadAbortException)
@@ -305,8 +306,7 @@ namespace DSharpPlus.VoiceNext
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 received", DateTime.Now);
                     //this.HeartbeatInterval = opp.ToObject<int>();
                     var dt = DateTime.Now;
-                    if (this.LastHeartbeat != null)
-                        this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat.Value).TotalMilliseconds.ToString("#,###")}ms", dt);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat).TotalMilliseconds.ToString("#,###")}ms", dt);
                     this.LastHeartbeat = dt;
                     break;
 

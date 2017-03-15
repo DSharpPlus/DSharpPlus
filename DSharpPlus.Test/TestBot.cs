@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
 using DSharpPlus.VoiceNext;
@@ -14,6 +15,7 @@ namespace DSharpPlus.Test
         private DiscordClient Discord { get; }
         private TestBotCommands Commands { get; }
         private VoiceNextClient Voice { get; }
+        private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg)
         {
@@ -127,6 +129,7 @@ namespace DSharpPlus.Test
 
         private Task Discord_Ready()
         {
+            this.GameGuard = new Timer(TimerCallback, null, TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(15));
             return Task.Delay(0);
         }
 
@@ -152,15 +155,16 @@ namespace DSharpPlus.Test
 
         private Task Discord_PresenceUpdate(PresenceUpdateEventArgs e)
         {
-            if (e.User != null)
-                this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "DSPlus Test", $"{e.User.Username}#{e.User.Discriminator} ({e.UserID}): {e.Status ?? "<unknown>"} playing {e.Game ?? "<nothing>"}", DateTime.Now);
+            //if (e.User != null)
+            //    this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "DSPlus Test", $"{e.User.Username}#{e.User.Discriminator} ({e.UserID}): {e.Status ?? "<unknown>"} playing {e.Game ?? "<nothing>"}", DateTime.Now);
 
             return Task.Delay(0);
         }
 
-        private Task Discord_MessageCreated(MessageCreateEventArgs e)
+        private async Task Discord_MessageCreated(MessageCreateEventArgs e)
         {
-            return Task.Delay(0);
+            if (e.Message.Content.Contains("<@!276042646693216258>") || e.Message.Content.Contains("<@276042646693216258>"))
+                await e.Message.Respond("r u havin' a ggl thr m8");
         }
 
         private /*async*/ Task Discord_MessageReactionAdd(MessageReactionAddEventArgs e)
@@ -175,6 +179,15 @@ namespace DSharpPlus.Test
             return Task.Delay(0);
 
             //await e.Message.DeleteAllReactions();
+        }
+
+        private void TimerCallback(object _)
+        {
+            try
+            {
+                this.Discord.UpdateStatus("testing with Chell").GetAwaiter().GetResult();
+            }
+            catch (Exception) { }
         }
 
         private bool IsCommandMethod(MethodInfo method, Type return_type, params Type[] arg_types)
