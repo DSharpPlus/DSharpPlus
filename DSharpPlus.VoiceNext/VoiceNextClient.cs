@@ -100,6 +100,20 @@ namespace DSharpPlus.VoiceNext
         {
             if (this.ActiveConnections.ContainsKey(guild.ID))
                 this.ActiveConnections.TryRemove(guild.ID, out _);
+
+            var vsd = new VoiceDispatch
+            {
+                OpCode = 4,
+                Payload = new VoiceStateUpdatePayload
+                {
+                    GuildId = guild.ID,
+                    ChannelId = 0,
+                    Muted = false,
+                    Deafened = false
+                }
+            };
+            var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
+            DiscordClient._websocketClient._socket.Send(vsj);
         }
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
