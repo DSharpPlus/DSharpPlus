@@ -88,6 +88,13 @@ namespace DSharpPlus.Test
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("[{0:yyyy-MM-dd HH:mm:ss zzz}] ", e.TimeStamp.ToLocalTime());
 
+            var tag = e.Application;
+            if (tag.Length > 12)
+                tag = tag.Substring(0, 12);
+            if (tag.Length < 12)
+                tag = tag.PadLeft(12, ' ');
+            Console.Write("[{0}] ", tag);
+
             switch (e.Level)
             {
                 case LogLevel.Critical:

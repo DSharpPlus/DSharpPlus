@@ -99,7 +99,7 @@ namespace DSharpPlus.VoiceNext
             this.IsDisposed = false;
 
             //this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}:{this.ConnectionEndpoint.Port}");
-            this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}");
+            this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}/?v=6&encoding=json");
             this.VoiceWs.SocketClosed += this.VoiceWS_SocketClosed;
             this.VoiceWs.SocketError += this.VoiceWS_SocketError;
             this.VoiceWs.SocketMessage += this.VoiceWS_SocketMessage;
@@ -269,6 +269,7 @@ namespace DSharpPlus.VoiceNext
             switch (opc)
             {
                 case 2:
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP2 received", DateTime.Now);
                     var vrp = opp.ToObject<VoiceReadyPayload>();
                     this.SSRC = vrp.SSRC;
                     this.ConnectionEndpoint = new DnsEndPoint(this.ConnectionEndpoint.Host, vrp.Port);
@@ -277,6 +278,7 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 case 3:
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 received", DateTime.Now);
                     //this.HeartbeatInterval = opp.ToObject<int>();
                     var dt = DateTime.Now;
                     if (this.LastHeartbeat != null)
@@ -285,12 +287,14 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 case 4:
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP4 received", DateTime.Now);
                     var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
                     this.Stage2.SetResult(true);
                     break;
 
                 case 5:
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP5 received", DateTime.Now);
                     var spd = opp.ToObject<VoiceSpeakingPayload>();
                     // Is this even necessary? We're decoupling voice from main client anyway.
                     //DiscordClient._ssrcDict[spd.SSRC.Value] = spd.UserId.Value;

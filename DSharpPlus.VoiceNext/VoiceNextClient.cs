@@ -85,7 +85,7 @@ namespace DSharpPlus.VoiceNext
                 var vnc = new VoiceNextConnection(this.Client, gld, channel, vsrup, vstup);
                 vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
                 return vnc;
-            });
+            }).ConfigureAwait(false);
         }
 
         public VoiceNextConnection GetConnection(DiscordGuild guild)
