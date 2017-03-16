@@ -179,7 +179,7 @@ Unfortunately, for this you will need to clone the repository and build the modu
 4. Now let's run our bot. Once it comes online, say ``#hello``. The bot should respond by saying ``Hello, @yourname!``. If it did, good job. From here, you can do other things.
 
 Summary
-=========
+---------
 
 You now have a bot that responds to messages and commands. You can extend it further using what you just learned, and reading the documentation.
 
