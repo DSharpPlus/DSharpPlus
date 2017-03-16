@@ -650,4 +650,226 @@ Methods
 	
 	Disconnects from Discord and stops dispatching events.
 	
+.. function:: GetUser(user)
+
+	.. info:: 
 	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets a user by name.
+	
+	:param name: Name of the user.
+
+.. function:: DeleteChannel(id)
+.. function:: DeleteChannel(channel)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Deletes a channel.
+	
+	:param id: ID of the channel to delete.
+	:param channel: An instance of :doc:`DiscordChannel </reference/DiscordChannel>` to delete.
+
+.. function:: GetMessage(channel, messageID)
+.. function:: GetMessage(channelID, messageID)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets a specified message from the specified channel.
+	
+	:param channel: An instance of :doc:`DiscordChannel </reference/DiscordChannel>` to get the message from.
+	:param channelID: ID of the channel to get the message from.
+	:param messageID: ID of the message to get.
+
+.. function:: GetChannel(id)
+.. function:: GetChannelByID(id)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets a channel.
+	
+	:param id: ID of the channel to get.
+
+.. function:: SendMessage(channel, contents, tts, embed)
+.. function:: SendMessage(dmchannel, contents, tts, embed)
+.. function:: SendMessage(channelid, contents, tts, embed)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Sends a message to specified channel.
+	
+	:param channel: An instance of :doc:`DiscordChannel </reference/DiscordChannel>` to send the message to.
+	:param dmchannel: An instance of An instance of :doc:`DiscordDMChannel </reference/DiscordDMChannel>` to send the 
+	message to.
+	:param channelid: ID of the channel to send the message to.
+	:param contents: Contents of the message to send.
+	:param tts: Whether the message is a TTS message or not. Optional, defaults to ``false``.
+	:param embed: Embed to attach to the message. Optional, defaults to ``null``.
+
+.. function:: CreateGuild(name)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Creates a new guild and returns it.
+	
+	:param name: Name of the guild to create.
+
+.. function:: GetGuild(id)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets a guild by ID.
+	
+	:param id: ID of the guild to get.
+
+.. function:: DeleteGuild(id)
+.. function:: DeleteGuild(guild)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Deletes a guild.
+	
+	:param id: ID of the guild to delete.
+	:param guild: An instance of :doc:`DiscordGuild </reference/DiscordGuild>` to delete.
+
+.. function:: GetInviteByCode(code)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. info::
+	
+		This method is not usable by bot users.
+	
+	.. warning::
+	
+		Using this method on a user account will unverify your account and flag you for raiding.
+	
+	Gets a guild invite by code.
+	
+	:param code: Invite code to get the invite for.
+
+.. function:: GetConnections()
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets connections for the current user.
+
+.. function:: ListRegions()
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets the list of voice regions.
+
+.. function:: GetWebhook(id)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets a webhook by ID.
+	
+	:param id: ID of the webhook to get.
+
+.. function:: GetWebhookWithToken(id, token)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets a webhook with a token by ID.
+	
+	:param id: ID of the webhook to get.
+	:param token: Webhook's token.
+
+.. function:: CreateDM(id)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Creates a DM channel between the bot and the specified user.
+	
+	:param id: ID of the user to create a DM channel with.
+
+.. function:: UpdateStatus(game, idle_since)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Updates current user's status.
+	
+	:param game: Game to set in the status. Optional, defaults to empty string.
+	:param idle_since: How long has the user been idle. Optional, defaults to ``-1`` (not idle).
+
+.. function:: ModifyMember(guildID, memberID, nickname, roles, muted, deaf, voiceChannelID)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Updates a member with specified parameters.
+	
+	:param guildID: ID of the guild to update the member in.
+	:param memberID: ID of the member to update.
+	:param nickname: New nickname for the member. Optional, defaults to ``null``.
+	:param roles: List of role IDs to set for this user. Optional, defaults to ``null``.
+	:param muted: Whether the user should be muted in voice. Optional, defaults to ``false``.
+	:param deaf: Whether the user should be deafened in voice. Optional, defaults to ``false``.
+	:param voiceChannelID: ID of the voice channel to put the user in. Optional, defaults to ``0`` (no channel).
+
+.. function:: GetCurrentApp()
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets the current application.
+
+.. function:: GetUserPresence(id)
+
+	Gets presence for specified user.
+	
+	:param id: ID of the user to get the presence of.
+
+.. function:: ListGuildMembers(guildID, limit, after)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets a page of guild members.
+	
+	:param guildID: ID of the guild to get the members of.
+	:param limit: Maximum number of users to get. Value cannot exceed ``100``.
+	:param after: ID of the user after which to get more users.
+
+.. function:: SetAvatar(path)
+
+	.. info:: 
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Updates the current user's avatar.
+	
+	:param path: Path to the file with the new avatar.
