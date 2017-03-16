@@ -7,13 +7,13 @@ DSharpPlus is a Discord API Wrapper based off DiscordSharp by Luigifan, though i
 
 Here you should be able to get enough information to write your own Discord bot. If not, feel free to ask us any questions in one of these Discord servers:
 
-* `Discord API` <https://discord.gg/fXUfnz5>
-* `Naamloos' Chat <http://www.discord.gg/0oZpaYcAjfvkDuE4>`
+* `Discord API <https://discord.gg/fXUfnz5>`_
+* `Naamloos' Chat <http://www.discord.gg/0oZpaYcAjfvkDuE4>`_
 
 New to programming in C#?
 ---------------------------
 
-Take a look at `this video series <https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners>`, it should help you get started.
+Take a look at `this video series <https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners>`_, it should help you get started.
 
 Don't know where to start?
 ----------------------------
