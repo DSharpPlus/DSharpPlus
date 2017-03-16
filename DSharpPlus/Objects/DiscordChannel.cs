@@ -161,18 +161,6 @@ namespace DSharpPlus
         public async Task<List<DiscordWebhook>> GetWebhooks() => await DiscordClient.InternalGetChannelWebhooks(ID);
 
         /// <summary>
-        /// Connects to this voice
-        /// </summary>
-        /// <returns></returns>
-        public async Task ConnectToVoice()
-        {
-            if (Type == ChannelType.Text)
-                throw new NotSupportedException();
-
-            await DiscordClient.OpenVoiceConnection(this);
-        }
-
-        /// <summary>
         /// Moves a member to this voice channel
         /// </summary>
         /// <param name="MemberID"></param>
