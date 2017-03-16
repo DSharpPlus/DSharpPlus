@@ -283,3 +283,6 @@ __pycache__/
 
 ### VisualStudio Patch ###
 build/
+
+### Built docs
+docs/build/
