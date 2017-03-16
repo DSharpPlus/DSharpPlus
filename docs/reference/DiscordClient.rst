@@ -1,14 +1,17 @@
 Reference for ``DiscordClient``
 =================================
 
-Event usage
--------------
+Events
+--------
 
 Events are the key to making any bot work. All events are asynchronous, meaning that all event handlers must return a 
 ``Task`` instance. For lambda and function handlers marked ``async`` this is automatic. For non-``async`` lambdas and 
 functions, you need to ``return Task.Delay(0)`` at the end of the handler, or make it ``async``, and begin with 
 ``await Task.Yield()``. If an event takes no argument, your handler cannot take any either, otherwise it takes one 
 argument, which is an appropriate ``EventArgs`` instance.
+
+Event usage
+^^^^^^^^^^^^^
 
 Events can be used in 2 ways. Via lambdas or functions. In C#, the handler needs to return ``Task``, and take 
 appropriate arguments.
@@ -167,7 +170,7 @@ Similarly, in Visual Basic: ::
 	End Function
 
 Event reference
------------------
+^^^^^^^^^^^^^^^^^
 
 Below you can find complete event reference.
 
