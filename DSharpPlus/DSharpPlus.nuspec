@@ -5,14 +5,14 @@
     <version>$version$</version>
     <title>A Discord API wrapper</title>
     <authors>DSharpPlus Devs</authors>
-    <owners>Naamloos, afroraydude, DrCreo, Death, Tiaqoy0</owners>
+    <owners>Naamloos, afroraydude, DrCreo, Death, Tiaqoy0, Emzi0767</owners>
     <licenseUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/rewrite/LICENSE</licenseUrl>
     <projectUrl>https://github.com/NaamloosDT/DSharpPlus/tree/rewrite</projectUrl>
     <iconUrl>https://github.com/NaamloosDT/DSharpPlus/raw/master/logo_smaller.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A Discord API wrapper</description>
+    <description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2016</copyright>
+    <copyright>Copyright 2017</copyright>
     <tags></tags>
   </metadata>
 </package>
