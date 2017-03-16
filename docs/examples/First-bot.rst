@@ -3,7 +3,7 @@ Making your first bot
 
 Making your first bot in C# using DSharpPlus library is an easy task, however it does require good knowledge of C#.
 
-If you do not know C# well enough, I recommend checking [this video series](https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners) out.
+If you do not know C# well enough, I recommend checking `this video series <https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners>`_ out.
 
 Step 1: Create the application
 --------------------------------
