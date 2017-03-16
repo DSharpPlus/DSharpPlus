@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Voice;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Drawing;
@@ -427,9 +426,6 @@ namespace DSharpPlus
         internal static bool _waitingForAck = false;
         internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
 
-        internal static DiscordVoiceClient _voiceClient;
-        internal static Dictionary<uint, ulong> _ssrcDict = new Dictionary<uint, ulong>();
-
         internal static Dictionary<ulong, DiscordPresence> _presences = new Dictionary<ulong, DiscordPresence>();
         #endregion
 
@@ -445,8 +441,6 @@ namespace DSharpPlus
         /// Gateway protocol version
         /// </summary>
         public int GatewayVersion => _gatewayVersion;
-
-        public DiscordVoiceClient VoiceClient => _voiceClient;
 
         internal static string _gatewayUrl = "";
         /// <summary>
@@ -596,18 +590,6 @@ namespace DSharpPlus
             };
             _websocketClient.SocketMessage += async e => await HandleSocketMessage(e.Data);
             _websocketClient.Connect();
-
-            _voiceClient = new DiscordVoiceClient();
-            _voiceClient.UserSpeaking += async e =>
-            {
-                await this._user_speaking.InvokeAsync(e);
-            };
-            _voiceClient.VoiceReceived += async e =>
-            {
-                await this._voice_received.InvokeAsync(_ssrcDict.ContainsKey(e.SSRC)
-                    ? new VoiceReceivedEventArgs(e.SSRC, _ssrcDict[e.SSRC], e.Voice, e.VoiceLength)
-                    : e);
-            };
         }
 
         internal async Task InternalUpdateGuild(DiscordGuild guild)
@@ -2880,8 +2862,6 @@ namespace DSharpPlus
             _me = null;
             _modules = null;
             _privateChannels = null;
-            _ssrcDict = null;
-            _voiceClient.Dispose();
             _websocketClient.Dispose();
 
             disposed = true;

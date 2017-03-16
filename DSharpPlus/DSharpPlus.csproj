@@ -39,9 +39,6 @@
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Sodium, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\libsodium-net.0.10.0\lib\Net40\Sodium.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -62,8 +59,6 @@
     <Compile Include="DiscordConfig.cs" />
     <Compile Include="Enums\LogLevel.cs" />
     <Compile Include="Enums\MentionType.cs" />
-    <Compile Include="Enums\VoiceApplication.cs" />
-    <Compile Include="Enums\VoiceSettings.cs" />
     <Compile Include="EventArgs\ChannelCreateEventArgs.cs" />
     <Compile Include="EventArgs\ChannelDeleteEventArgs.cs" />
     <Compile Include="EventArgs\ChannelUpdateEventArgs.cs" />
@@ -134,12 +129,6 @@
     <Compile Include="Objects\DiscordWebhook.cs" />
     <Compile Include="Socket\WebSocketClient.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Voice\DiscordVoiceClient.cs" />
-    <Compile Include="Voice\ByteBuffer.cs" />
-    <Compile Include="Voice\Opus\OpusDecoder.cs" />
-    <Compile Include="Voice\Opus\OpusEncoder.cs" />
-    <Compile Include="Voice\Opus\OpusError.cs" />
-    <Compile Include="Voice\VoicePacket.cs" />
     <Compile Include="Web\Endpoints.cs" />
     <Compile Include="Web\RateLimit.cs" />
     <Compile Include="Web\WebRequestMethod.cs" />
@@ -174,13 +163,6 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\Baseclass.Contrib.Nuget.Output.2.2.0-xbuild02\build\net40\Baseclass.Contrib.Nuget.Output.targets" Condition="Exists('..\packages\Baseclass.Contrib.Nuget.Output.2.2.0-xbuild02\build\net40\Baseclass.Contrib.Nuget.Output.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Baseclass.Contrib.Nuget.Output.2.2.0-xbuild02\build\net40\Baseclass.Contrib.Nuget.Output.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Baseclass.Contrib.Nuget.Output.2.2.0-xbuild02\build\net40\Baseclass.Contrib.Nuget.Output.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
