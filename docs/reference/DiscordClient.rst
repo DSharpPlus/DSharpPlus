@@ -200,3 +200,4 @@ Below you can find complete event reference.
 	
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just created.
 
+.. function:: 

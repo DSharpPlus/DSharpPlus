@@ -392,20 +392,6 @@ namespace DSharpPlus
             remove { this._webhooks_update.Unregister(value); }
         }
         private AsyncEvent<WebhooksUpdateEventArgs> _webhooks_update = new AsyncEvent<WebhooksUpdateEventArgs>();
-
-        public event AsyncEventHandler<UserSpeakingEventArgs> UserSpeaking
-        {
-            add { this._user_speaking.Register(value); }
-            remove { this._user_speaking.Unregister(value); }
-        }
-        private AsyncEvent<UserSpeakingEventArgs> _user_speaking = new AsyncEvent<UserSpeakingEventArgs>();
-
-        public event AsyncEventHandler<VoiceReceivedEventArgs> VoiceReceived
-        {
-            add { this._voice_received.Register(value); }
-            remove { this._voice_received.Unregister(value); }
-        }
-        private AsyncEvent<VoiceReceivedEventArgs> _voice_received = new AsyncEvent<VoiceReceivedEventArgs>();
         #endregion
 
         #region Internal Variables
