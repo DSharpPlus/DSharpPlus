@@ -168,6 +168,8 @@ namespace DSharpPlus
         public async Task<List<DiscordMember>> ListMembers(int limit, int after) => await DiscordClient.InternalListGuildMembers(ID, limit, after);
         public async Task UpdateRole(DiscordRole role) => await DiscordClient.InternalModifyGuildRole(ID, role.ID, role.Name, role.Permissions, role.Position, role.Color, false, role.Mentionable);
         public async Task<DiscordRole> CreateRole() => await DiscordClient.InternalCreateGuildRole(ID);
+        public async Task AddRole(ulong UserID, ulong RoleID) => await DiscordClient.InternalAddGuildMemberRole(ID, UserID, RoleID);
+        public async Task RemoveRole(ulong UserID, ulong RoleID) => await DiscordClient.InternalRemoveGuildMemberRole(ID, UserID, RoleID);
         #endregion
 
     }
