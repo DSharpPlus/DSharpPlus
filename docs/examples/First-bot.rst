@@ -10,13 +10,19 @@ Step 1: Create the application
 
 We begin the adventure by creating an application and bot user for your bot.
 
-1. Go to [my applications](https://discordapp.com/developers/applications/me) page on Discord Developer portal.
-2. Press the [**new app** button](http://i.imgur.com/IVsPyNw.png).
-3. [**New app** page](http://i.imgur.com/3mrEG9x.png) will open. Enter your bot's name in the **app name** field (1), and its description in the **description** field (2).
+1. Go to `my applications <https://discordapp.com/developers/applications/me>`_ page on Discord Developer portal.
+2. Press the **new app** button.
+   * .. image:: http://i.imgur.com/IVsPyNw.png
+3. **New app** page will open. Enter your bot's name in the **app name** field (1), and its description in the **description** field (2).
+   * .. image:: http://i.imgur.com/3mrEG9x.png
    * You can optionally give it an avatar by pressing on the **avatar** button (3).
-4. When you're done, press the [**create app** button](http://i.imgur.com/ur3HFng.png).
-5. When the app is created, press the [**create bot user** button](http://i.imgur.com/b69CHy7.png).
-6. Once this is done, you will need to copy the **bot's token**. Under **app bot user**, there's a **token** field, press [**click to reveal**](http://i.imgur.com/00b4Nt8.png) and copy [**the resulting value**](http://i.imgur.com/Lt2uhcN.png).
+4. When you're done, press the **create app** button.
+   * .. image:: http://i.imgur.com/ur3HFng.png
+5. When the app is created, press the **create bot user** button.
+   * .. image:: http://i.imgur.com/b69CHy7.png
+6. Once this is done, you will need to copy the **bot's token**. Under **app bot user**, there's a **token** field, press **click to reveal** and copy **the resulting value**.
+   * .. image:: http://i.imgur.com/00b4Nt8.png
+   * .. image:: http://i.imgur.com/Lt2uhcN.png
 7. Save the token somewhere safe. You will need it later.
 
 Step 2: Setting up your project
@@ -37,10 +43,13 @@ Ok. So we have a bot application created, but it does nothing. Let's change this
 Step 3: Adding the bot to your server
 ---------------------------------------
 
-1. Go back to your app page, and copy your bot's [**client ID**](http://i.imgur.com/NuAPpoY.png).
+1. Go back to your app page, and copy your bot's **client ID**.
+   * .. image:: http://i.imgur.com/NuAPpoY.png
 2. Go to ``https://discordapp.com/oauth2/authorize?client_id=your_app_id_here&scope=bot&permissions=0``. Replace ``your_app_id_here`` with the **client ID** you copied.
-3. On the [page](http://i.imgur.com/QeH0o5S.png), select **your server** (1), and press **authorize** (2).
-4. [Done](http://i.imgur.com/LF1gpm2.png)! You can now run the bot!
+3. On the page, select **your server** (1), and press **authorize** (2).
+   * .. image:: http://i.imgur.com/QeH0o5S.png
+4. Done! You can now run the bot!
+   * .. image:: http://i.imgur.com/LF1gpm2.png
 
 Step 4: Basic bot, connecting to Discord
 ------------------------------------------
@@ -74,7 +83,7 @@ Here's what we need to do:
 
 5. Replace ``insert your token here`` with the token you saved in Step 1.
 6. Press **Start**.
-   .. image:: http://i.imgur.com/VkclYlr.png
+   * .. image:: http://i.imgur.com/VkclYlr.png
 7. Congratulations. Your bot is now running, although it really does nothing. You should see it come online.
 
 Step 5: Events
