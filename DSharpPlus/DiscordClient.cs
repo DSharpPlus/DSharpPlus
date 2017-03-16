@@ -1858,6 +1858,22 @@ namespace DSharpPlus
             }
             return members;
         }
+
+        internal static async Task InternalAddGuildMemberRole(ulong GuildID, ulong UserID, ulong RoleID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + $"/{UserID}" + Endpoints.Roles + $"/{RoleID}";
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PUT, headers);
+            await WebWrapper.HandleRequestAsync(request);
+        }
+
+        internal static async Task InternalRemoveGuildMemberRole(ulong GuildID, ulong UserID, ulong RoleID)
+        {
+            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + GuildID + Endpoints.Members + $"/{UserID}" + Endpoints.Roles + $"/{RoleID}";
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.DELETE, headers);
+            await WebWrapper.HandleRequestAsync(request);
+        }
         #endregion
         #region Channel
 
