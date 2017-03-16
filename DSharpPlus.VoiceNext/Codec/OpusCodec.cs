@@ -37,8 +37,9 @@ namespace DSharpPlus.VoiceNext.Codec
             this.SampleRate = samplerate;
             this.Channels = channels;
             this.Application = application;
-            
-            this.Encoder = CreateEncoder(this.SampleRate, this.Channels, (int)this.Application, out var err);
+
+            var err = OpusError.OPUS_OK;
+            this.Encoder = CreateEncoder(this.SampleRate, this.Channels, (int)this.Application, out err);
             this.Errors = err;
             if (this.Errors != OpusError.OPUS_OK)
                 throw new Exception(this.Errors.ToString());
