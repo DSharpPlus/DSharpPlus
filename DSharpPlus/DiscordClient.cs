@@ -450,7 +450,7 @@ namespace DSharpPlus
         /// <summary>
         /// List of DM Channels
         /// </summary>
-        public List<DiscordDMChannel> PrivateChannels => _privateChannels;
+        public IReadOnlyList<DiscordDMChannel> PrivateChannels => _privateChannels.AsReadOnly();
 
         internal static Dictionary<ulong, DiscordGuild> _guilds = new Dictionary<ulong, DiscordGuild>();
         /// <summary>
@@ -1607,13 +1607,6 @@ namespace DSharpPlus
                 };
                 _websocketClient._socket.Send(obj.ToString());
             });
-        }
-        #endregion
-
-        #region Voice
-        internal static async Task OpenVoiceConnection(DiscordChannel channel, bool mute = false, bool deaf = false)
-        {
-            await SendVoiceStateUpdate(channel, mute, deaf);
         }
         #endregion
 
