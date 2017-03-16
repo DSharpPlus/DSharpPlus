@@ -12,17 +12,17 @@ We begin the adventure by creating an application and bot user for your bot.
 
 1. Go to `my applications <https://discordapp.com/developers/applications/me>`_ page on Discord Developer portal.
 2. Press the **new app** button.
-   * .. image:: http://i.imgur.com/IVsPyNw.png
+	* .. image:: http://i.imgur.com/IVsPyNw.png
 3. **New app** page will open. Enter your bot's name in the **app name** field (1), and its description in the **description** field (2).
-   * .. image:: http://i.imgur.com/3mrEG9x.png
-   * You can optionally give it an avatar by pressing on the **avatar** button (3).
+	* .. image:: http://i.imgur.com/3mrEG9x.png
+	* You can optionally give it an avatar by pressing on the **avatar** button (3).
 4. When you're done, press the **create app** button.
-   * .. image:: http://i.imgur.com/ur3HFng.png
+	* .. image:: http://i.imgur.com/ur3HFng.png
 5. When the app is created, press the **create bot user** button.
-   * .. image:: http://i.imgur.com/b69CHy7.png
+	* .. image:: http://i.imgur.com/b69CHy7.png
 6. Once this is done, you will need to copy the **bot's token**. Under **app bot user**, there's a **token** field, press **click to reveal** and copy **the resulting value**.
-   * .. image:: http://i.imgur.com/00b4Nt8.png
-   * .. image:: http://i.imgur.com/Lt2uhcN.png
+	* .. image:: http://i.imgur.com/00b4Nt8.png
+	* .. image:: http://i.imgur.com/Lt2uhcN.png
 7. Save the token somewhere safe. You will need it later.
 
 Step 2: Setting up your project
@@ -36,7 +36,7 @@ Ok. So we have a bot application created, but it does nothing. Let's change this
 4. A [new tab](http://i.imgur.com/uIGz4MB.png) will open in your project. If it's not selected, click on **Browser** (1), check **Include prerelase** (2), and search for ``dsharpplus`` (3).
 5. Select the result, and press [**Install**](http://i.imgur.com/bjW4Ant.png).
 6. Now, once this is done, go to [**Installed**](http://i.imgur.com/bWJifiz.png) (1), clear the search box (2), select ``Baseclass.Contrib.Nuget.Output``, and on the right, select ``2.2.0-xbuild02`` version (3), and press **Update** (4).
-   * *Note*: this is optional if these packages are already at these or newer versions.
+	* *Note*: this is optional if these packages are already at these or newer versions.
 7. Repeat this ``libsodium-net``, but install version ``0.10.0``.
 8. Now, our project is ready to begin. Close the NuGet tab, and go back to your project.
 
@@ -44,12 +44,12 @@ Step 3: Adding the bot to your server
 ---------------------------------------
 
 1. Go back to your app page, and copy your bot's **client ID**.
-   * .. image:: http://i.imgur.com/NuAPpoY.png
+	* .. image:: http://i.imgur.com/NuAPpoY.png
 2. Go to ``https://discordapp.com/oauth2/authorize?client_id=your_app_id_here&scope=bot&permissions=0``. Replace ``your_app_id_here`` with the **client ID** you copied.
 3. On the page, select **your server** (1), and press **authorize** (2).
-   * .. image:: http://i.imgur.com/QeH0o5S.png
+	* .. image:: http://i.imgur.com/QeH0o5S.png
 4. Done! You can now run the bot!
-   * .. image:: http://i.imgur.com/LF1gpm2.png
+	* .. image:: http://i.imgur.com/LF1gpm2.png
 
 Step 4: Basic bot, connecting to Discord
 ------------------------------------------
@@ -83,7 +83,7 @@ Here's what we need to do:
 
 5. Replace ``insert your token here`` with the token you saved in Step 1.
 6. Press **Start**.
-   * .. image:: http://i.imgur.com/VkclYlr.png
+	* .. image:: http://i.imgur.com/VkclYlr.png
 7. Congratulations. Your bot is now running, although it really does nothing. You should see it come online.
 
 Step 5: Events
