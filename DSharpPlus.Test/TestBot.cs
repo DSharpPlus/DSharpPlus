@@ -36,8 +36,6 @@ namespace DSharpPlus.Test
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = false,
-                VoiceApplication = VoiceApplication.Music,
-                VoiceSettings = VoiceSettings.Both
             };
             this.Discord = new DiscordClient(dcfg);
 
