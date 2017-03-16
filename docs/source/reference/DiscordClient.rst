@@ -19,7 +19,7 @@ Constructors
 
 	Initializes the client with specified configuration.
 	
-	:param config: An instance of :doc:`</reference/DiscordConfig>`. Used to specify the configuration options for the 
+	:param config: An instance of :doc:`</reference/misc/DiscordConfig>`. Used to specify the configuration options for the 
 	client.
 
 Events
@@ -567,7 +567,7 @@ Members
 
 .. attribute:: DebugLogger
 
-	An instance of :doc:`DebugLogger </reference/DebugLogger>` used to log messages from the library.
+	An instance of :doc:`DebugLogger </reference/misc/DebugLogger>` used to log messages from the library.
 
 .. attribute:: GatewayVersion
 
