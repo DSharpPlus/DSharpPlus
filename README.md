@@ -14,6 +14,10 @@ The documentation can be found at ReadTheDocs, **[Here.](http://dsharpplus.readt
 # Tutorials
 [Making your first bot in C#](https://github.com/NaamloosDT/DSharpPlus/wiki/Making-your-first-bot-in-C%23)
 
+## Example bots
+* [Example by Emzi0767](https://github.com/Emzi0767/DSharpPlus-Example-Bot)
+* [Example by Naamloos](https://github.com/NaamloosDT/DSharpPlus-example)
+
 ## Webhooks
 Use this to generate JSON for slack messages: http://www.nickstrohm.de/dsb/,
 
