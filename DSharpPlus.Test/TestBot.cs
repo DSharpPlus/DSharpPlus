@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,7 +15,8 @@ namespace DSharpPlus.Test
         private TestBotConfig Config { get; }
         private DiscordClient Discord { get; }
         private TestBotCommands Commands { get; }
-        private VoiceNextClient Voice { get; }
+        private CommandModule CommandService { get; }
+        private VoiceNextClient VoiceService { get; }
         private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg)
@@ -56,7 +58,8 @@ namespace DSharpPlus.Test
                 Prefix = this.Config.CommandPrefix,
                 SelfBot = false
             };
-            this.Discord.UseCommands(ccfg);
+            this.CommandService = this.Discord.UseCommands(ccfg);
+            this.CommandService.CommandError += this.CommandService_CommandError;
 
             // register all commands dynamically
             var t = new[] { typeof(TestBotCommands), typeof(Task), typeof(CommandEventArgs) };
@@ -75,8 +78,12 @@ namespace DSharpPlus.Test
                 this.Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Command {xm.Name.ToLower()} registered", DateTime.Now);
             }
 
-            // voice
-            this.Voice = this.Discord.UseVoiceNext();
+            // voice config and the voice service itself
+            var vcfg = new VoiceNextConfiguration
+            {
+                VoiceApplication = VoiceNext.Codec.VoiceApplication.Music
+            };
+            this.VoiceService = this.Discord.UseVoiceNext(vcfg);
         }
 
         public async Task RunAsync()
@@ -179,6 +186,44 @@ namespace DSharpPlus.Test
             return Task.Delay(0);
 
             //await e.Message.DeleteAllReactions();
+        }
+
+        private async Task CommandService_CommandError(CommandErrorEventArgs e)
+        {
+            var ms = e.Exception.Message;
+            var st = e.Exception.StackTrace;
+
+            ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
+            st = st.Length > 1000 ? st.Substring(0, 1000) : st;
+
+            var embed = new DiscordEmbed
+            {
+                Color = 0xFF0000,
+                Title = "An exception occured when executing a command",
+                Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.Name}`.",
+                Footer = new DiscordEmbedFooter
+                {
+                    IconUrl = this.Discord.Me.AvatarUrl,
+                    Text = this.Discord.Me.Username
+                },
+                Timestamp = DateTime.UtcNow,
+                Fields = new List<DiscordEmbedField>()
+                {
+                    new DiscordEmbedField
+                    {
+                        Name = "Message",
+                        Value = ms,
+                        Inline = false
+                    },
+                    new DiscordEmbedField
+                    {
+                        Name = "Stack trace",
+                        Value = $"```cs\n{st}\n```",
+                        Inline = false
+                    }
+                }
+            };
+            await e.Message.Respond("\u200b", embed: embed);
         }
 
         private void TimerCallback(object _)

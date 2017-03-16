@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands
@@ -17,7 +16,7 @@ namespace DSharpPlus.Commands
 
         public void Execute(CommandEventArgs args)
         {
-            ThreadPool.QueueUserWorkItem(o => Func(args).ConfigureAwait(false).GetAwaiter().GetResult());
+            Func(args).ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }

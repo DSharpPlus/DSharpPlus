@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Speech.Synthesis;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
 using DSharpPlus.VoiceNext;
@@ -184,7 +185,7 @@ Serverowner: {e.Guild.OwnerID}
 
             await Task.Yield();
             await voice.ConnectAsync(chn);
-            await e.Message.Respond($"Tryina join {chn.Name} ({chn.ID})");
+            await e.Message.Respond($"Tryina join `{chn.Name}` ({chn.ID})");
         }
 
         public async Task VoiceLeave(CommandEventArgs e)
@@ -230,6 +231,7 @@ Serverowner: {e.Guild.OwnerID}
                 return;
             }
 
+            var exc = (Exception)null;
             await e.Message.Respond($"Playing `{snd}`");
             await vnc.SendSpeakingAsync(true);
             try
@@ -242,7 +244,7 @@ Serverowner: {e.Guild.OwnerID}
                     var bs = fmt.AverageBytesPerSecond / 50;
                     var buff = new byte[bs];
                     int bc = 0;
-
+                    
                     while ((bc = pcm.Read(buff, 0, bs)) > 0)
                     {
                         if (bc < bs)
@@ -250,6 +252,74 @@ Serverowner: {e.Guild.OwnerID}
                                 buff[i] = 0;
 
                         await vnc.SendAsync(buff, 20, fmt.BitsPerSample);
+                    }
+                }
+            }
+            catch (Exception ex) { exc = ex; }
+            finally
+            {
+                await vnc.SendSpeakingAsync(false);
+            }
+
+            if (exc != null)
+                throw exc;
+        }
+
+        public async Task VoiceSpeak(CommandEventArgs e)
+        {
+            var voice = e.Discord.GetVoiceNextClient();
+            if (voice == null)
+            {
+                await e.Message.Respond("Voice is not activated");
+                return;
+            }
+
+            var vnc = voice.GetConnection(e.Guild);
+            if (vnc == null)
+            {
+                await e.Message.Respond("Voice is not connected in this guild");
+                return;
+            }
+
+            var spk = string.Join(" ", e.Arguments);
+            if (string.IsNullOrWhiteSpace(spk))
+            {
+                await e.Message.Respond("Must say something");
+                return;
+            }
+
+            await e.Message.Respond($"Speaking");
+            await vnc.SendSpeakingAsync(true);
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    using (var sps = new SpeechSynthesizer())
+                    {
+                        sps.SetOutputToWaveStream(ms);
+                        sps.Speak(spk);
+                    }
+
+                    ms.Flush();
+                    ms.Seek(0, SeekOrigin.Begin);
+
+                    var fmt = new WaveFormat(48000, 16, 2);
+                    using (var wav = new WaveFileReader(ms))
+                    using (var pcm = new MediaFoundationResampler(wav, fmt))
+                    {
+                        pcm.ResamplerQuality = 60;
+                        var bs = fmt.AverageBytesPerSecond / 50;
+                        var buff = new byte[bs];
+                        int bc = 0;
+
+                        while ((bc = pcm.Read(buff, 0, bs)) > 0)
+                        {
+                            if (bc < bs)
+                                for (var i = 0; i < bs; i++)
+                                    buff[i] = 0;
+
+                            await vnc.SendAsync(buff, 20, fmt.BitsPerSample);
+                        }
                     }
                 }
             }

@@ -16,7 +16,7 @@ namespace DSharpPlus
         /// The channel id this user is connected to
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong ChannelID { get; internal set; }
+        public ulong? ChannelID { get; internal set; }
         /// <summary>
         /// The user id this voice state is for
         /// </summary>
@@ -52,5 +52,10 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
         public bool Suppress { get; internal set; }
+
+        public override string ToString()
+        {
+            return $"{this.UserID} in {this.GuildID}";
+        }
     }
 }

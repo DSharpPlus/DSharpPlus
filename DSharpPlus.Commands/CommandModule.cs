@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Commands
 {
-    public class CommandModule : IModule
+    public sealed class CommandModule : IModule
     {
+        public event AsyncEventHandler<CommandErrorEventArgs> CommandError
+        {
+            add { this._command_error.Register(value); }
+            remove { this._command_error.Unregister(value); }
+        }
+        private AsyncEvent<CommandErrorEventArgs> _command_error = new AsyncEvent<CommandErrorEventArgs>();
+
         internal static CommandModule instance;
-
         internal CommandConfig config { get; set; }
-
         public DiscordClient Client { get; set; }
 
         List<Command> _commands = new List<Command>();
@@ -44,13 +50,28 @@ namespace DSharpPlus.Commands
                     {
                         if (command.Name == cmdName)
                         {
-                            command.Execute(new CommandEventArgs(e.Message, command, Client));
+                            ThreadPool.QueueUserWorkItem(_ =>
+                            {
+                                try
+                                {
+                                    command.Execute(new CommandEventArgs(e.Message, command, Client));
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.OnCommandError(command, ex, e.Message);
+                                }
+                            });
                         }
                     }
                 }
 
                 return Task.Delay(0);
             };
+        }
+
+        private void OnCommandError(Command cmd, Exception ex, DiscordMessage msg)
+        {
+            this._command_error.InvokeAsync(new CommandErrorEventArgs { Command = cmd, Exception = ex, Message = msg }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public Command AddCommand(string command, Func<CommandEventArgs, Task> Do)

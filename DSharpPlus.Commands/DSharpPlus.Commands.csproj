@@ -44,6 +44,7 @@
     <Compile Include="CommandConfig.cs" />
     <Compile Include="CommandExtension.cs" />
     <Compile Include="CommandModule.cs" />
+    <Compile Include="EventArgs\CommandErrorEventArgs.cs" />
     <Compile Include="EventArgs\CommandEventArgs.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
