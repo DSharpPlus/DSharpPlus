@@ -1,8 +1,8 @@
 Reference for ``DiscordClient``
 =================================
 
-Events
---------
+Event usage
+-------------
 
 Events are the key to making any bot work. All events are asynchronous, meaning that all event handlers must return a 
 ``Task`` instance. For lambda and function handlers marked ``async`` this is automatic. For non-``async`` lambdas and 
@@ -167,7 +167,7 @@ Similarly, in Visual Basic: ::
 	End Function
 
 Event reference
-^^^^^^^^^^^^^^^^^
+-----------------
 
 Below you can find complete event reference.
 
@@ -193,4 +193,7 @@ Below you can find complete event reference.
 
 .. function DMChannelCreated
 
-	Called when a new DM channel is created. Takes ``ChannelCreate
+	Called when a new DM channel is created. Takes ``ChannelCreate`` as an argument, with following parameters:
+	
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just created.
+
