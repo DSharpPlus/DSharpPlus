@@ -12,5 +12,6 @@ namespace DSharpPlus
         public IReadOnlyList<DiscordEmoji> UsedEmojis { get; internal set; }
         public DiscordChannel Channel => Message.Parent;
         public DiscordGuild Guild => Channel.Parent;
+        public DiscordUser Author => Message.Author;
     }
 }
