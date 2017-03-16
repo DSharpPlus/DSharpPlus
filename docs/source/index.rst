@@ -33,20 +33,10 @@ Head on to :doc:`programming reference </reference/index>`.
 You'll want to start with ``DiscordClient``, and then move on to its events and other classes.
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Contents:
-   
-	examples/index
-		examples/First-bot
-		examples/Commands
-		examples/Voice
-	reference/index
-		reference/DiscordClient
-		reference/DiscordGuild
-		reference/DiscordChannel
-		reference/DiscordDMChannel
-		reference/DiscordMember
-		reference/DiscordUser
-		reference/misc/index
-			reference/misc/DiscordConfig
-			reference/misc/DebugLogger
+	:maxdepth: 3
+	:caption: Contents:
+	:glob:
+	:hidden:
+	
+	examples/index.rst
+	reference/index.rst

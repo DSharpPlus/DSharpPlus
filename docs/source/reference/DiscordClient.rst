@@ -19,8 +19,7 @@ Constructors
 
 	Initializes the client with specified configuration.
 	
-	:param config: An instance of :doc:`</reference/misc/DiscordConfig>`. Used to specify the configuration options for the 
-	client.
+	:param config: An instance of :doc:`DiscordConfig </reference/misc/DiscordConfig>`. Used to specify the configuration options for the client.
 
 Events
 --------
@@ -212,8 +211,7 @@ Below you can find complete event reference.
 	Called when a new channel is created. Takes ``ChannelCreateEventArgs`` as an argument, with following parameters:
 	
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just created.
-	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was created 
-	in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was created in.
 
 .. function DMChannelCreated
 
@@ -228,8 +226,7 @@ Below you can find complete event reference.
 	parameters:
 	
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just updated.
-	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was updated 
-	in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was updated in.
 
 .. attribute:: ChannelDeleted
 
@@ -237,8 +234,7 @@ Below you can find complete event reference.
 	parameters:
 	
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just deleted.
-	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was deleted 
-	in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was deleted in.
 
 .. attribute:: DMChannelDeleted
 
@@ -285,15 +281,12 @@ Below you can find complete event reference.
 	parameters:
 	
 	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) that was received.
-	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>`s that were mentioned in this 
-	message.
-	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>`s that were mentioned in this message.
-	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>`s that were mentioned in this 
-	message.
-	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>`s that were used in this message.
+	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>` that were mentioned in this message.
+	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>` that were mentioned in this message.
+	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>` that were mentioned in this message.
+	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that were used in this message.
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was sent in.
-	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was sent in. This 
-	parameter is ``null`` for direct messages.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was sent in. This parameter is ``null`` for direct messages.
 	:param Author: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that sent the message.
 
 .. attribute:: PresenceUpdate
@@ -330,7 +323,7 @@ Below you can find complete event reference.
 	Called whenever a guild has its emoji updated. Takes ``GuildEmojisUpdateEventArgs`` as an argument, with the 
 	following parameters:
 	
-	:param Emojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>`s that got updated.
+	:param Emojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that got updated.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that had its emoji updated.
 
 .. attribute:: GuildIntegrationsUpdate
@@ -338,8 +331,7 @@ Below you can find complete event reference.
 	Called whenever a guild has its integrations updated. Takes ``GuildIntegrationsUpdateEventArgs`` as an argument, 
 	with following parameters:
 	
-	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that had its integrations 
-	updated.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that had its integrations updated.
 
 .. attribute:: GuildMemberAdd
 
@@ -402,16 +394,12 @@ Below you can find complete event reference.
 	Called whenever a message is updated. Takes ``MessageUpdateEventArgs`` as an argument, with following parameters:
 	
 	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) that was updated.
-	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>`s that were mentioned in this 
-	message.
-	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>`s that were mentioned in this message.
-	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>`s that were mentioned in this 
-	message.
-	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>`s that were used in this message.
-	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was 
-	updated in.
-	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was updated in. This 
-	parameter is ``null`` for direct messages.
+	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>` that were mentioned in this message.
+	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>` that were mentioned in this message.
+	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>` that were mentioned in this message.
+	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that were used in this message.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was updated in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was updated in. This parameter is ``null`` for direct messages.
 	:param Author: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that updated the message.
 
 .. attribute:: MessageDelete
@@ -420,8 +408,7 @@ Below you can find complete event reference.
 	
 	:param MessageID: ID of the message that was deleted.
 	:param ChannelID: ID of the channel the message was deleted in.
-	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was 
-	deleted in.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was deleted in.
 
 .. attribute:: MessageBulkDelete
 
@@ -430,8 +417,7 @@ Below you can find complete event reference.
 	
 	:param MessageIDs: A list of IDs of messages that were deleted.
 	:param ChannelID: ID of the channel the messages were deleted in.
-	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the messages were 
-	deleted in.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the messages were deleted in.
 
 .. attribute:: TypingStart
 
@@ -440,8 +426,7 @@ Below you can find complete event reference.
 	
 	:param ChannelID: ID of the channel the user started typing in.
 	:param UserID: ID of the user that started typing.
-	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the user started 
-	typing in.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the user started typing in.
 	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that started typing.
 
 .. attribute:: UserSettingsUpdate
@@ -449,13 +434,13 @@ Below you can find complete event reference.
 	Called whenever user's settings are updated. Takes ``UserSettingsUpdateEventArgs`` as an argument, with following 
 	parameters:
 	
-	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) whose settings were updated
+	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) whose settings were updated.
 	
 .. attribute:: UserUpdate
 
 	Called whenever a user is updated. Takes ``UserUpdateEventArgs`` as an argument, with following parameters:
 	
-	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that was updated
+	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that was updated.
 
 .. attribute:: VoiceStateUpdate
 
@@ -491,9 +476,8 @@ Below you can find complete event reference.
 	argument, with following parameters:
 	
 	:param GuildID: ID of the guild for which the members were received.
-	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) for which the members were 
-	received.
-	:param Members: A list of :doc:`DiscordMember </reference/DiscordMember>`s received in this chunk.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) for which the members were received.
+	:param Members: A list of :doc:`DiscordMember </reference/DiscordMember>` received in this chunk.
 
 .. attribute:: UnknownEvent
 
@@ -516,13 +500,10 @@ Below you can find complete event reference.
 	:param UserID: ID of the user who added the reaction.
 	:param MessageID: ID of the message the reaction was added to.
 	:param ChannelID: ID of the channel the message is located in.
-	:param Emoji: The emoji (instance of :doc:`DiscordEmoji </reference/DiscordEmoji>`) that was used to react to the 
-	message.
+	:param Emoji: The emoji (instance of :doc:`DiscordEmoji </reference/DiscordEmoji>`) that was used to react to the message.
 	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) who reacted to the message.
-	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) the reaction was added 
-	to.
-	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message is located 
-	in.
+	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) the reaction was added to.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message is located in.
 
 .. attribute:: MessageReactionRemove
 
@@ -532,13 +513,10 @@ Below you can find complete event reference.
 	:param UserID: ID of the user who removed the reaction.
 	:param MessageID: ID of the message the reaction was removed from.
 	:param ChannelID: ID of the channel the message is located in.
-	:param Emoji: The emoji (instance of :doc:`DiscordEmoji </reference/DiscordEmoji>`) that was used to react to the 
-	message.
+	:param Emoji: The emoji (instance of :doc:`DiscordEmoji </reference/DiscordEmoji>`) that was used to react to the message.
 	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) who removed the reaction.
-	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) the reaction was 
-	removed from.
-	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message is located 
-	in.
+	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) the reaction was removed from.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message is located in.
 
 .. attribute:: MessageReactionRemoveAll
 
@@ -547,10 +525,8 @@ Below you can find complete event reference.
 	
 	:param MessageID: ID of the message the reactions were removed from.
 	:param ChannelID: ID of the channel the message is located in.
-	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) the reactions were 
-	removed from.
-	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message is located 
-	in.
+	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) the reactions were removed from.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message is located in.
 
 .. attribute:: WebhooksUpdate
 
@@ -559,8 +535,7 @@ Below you can find complete event reference.
 	:param GuildID: ID of the guild the webhook was updated in.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the webhook was updated in.
 	:param ChannelID: ID of the channel the webhook was updated in.
-	:param Channe: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the webhook was updated 
-	in.
+	:param Channe: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the webhook was updated in.
 
 Members
 ---------
@@ -599,11 +574,11 @@ Methods
 .. function:: Connect()
 .. function:: Connect(tokenOverride, tokenType)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
-	.. info::
+	.. note::
 	
 		If you did not specify a token or config when constructing the client, you will need to use the overload with 
 		token overrides.
@@ -627,11 +602,11 @@ Methods
 .. function:: Reconnect()
 .. function:: Reconnect(tokenOverride, tokenType, shard)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
-	.. info::
+	.. note::
 	
 		If you did not specify a token or config when constructing the client, you will need to use the overload with 
 		token overrides.
@@ -644,7 +619,7 @@ Methods
 
 .. function:: Disconnect()
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -652,7 +627,7 @@ Methods
 	
 .. function:: GetUser(user)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -663,7 +638,7 @@ Methods
 .. function:: DeleteChannel(id)
 .. function:: DeleteChannel(channel)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -675,7 +650,7 @@ Methods
 .. function:: GetMessage(channel, messageID)
 .. function:: GetMessage(channelID, messageID)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -688,7 +663,7 @@ Methods
 .. function:: GetChannel(id)
 .. function:: GetChannelByID(id)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -700,15 +675,14 @@ Methods
 .. function:: SendMessage(dmchannel, contents, tts, embed)
 .. function:: SendMessage(channelid, contents, tts, embed)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
 	Sends a message to specified channel.
 	
 	:param channel: An instance of :doc:`DiscordChannel </reference/DiscordChannel>` to send the message to.
-	:param dmchannel: An instance of An instance of :doc:`DiscordDMChannel </reference/DiscordDMChannel>` to send the 
-	message to.
+	:param dmchannel: An instance of An instance of :doc:`DiscordDMChannel </reference/DiscordDMChannel>` to send the message to.
 	:param channelid: ID of the channel to send the message to.
 	:param contents: Contents of the message to send.
 	:param tts: Whether the message is a TTS message or not. Optional, defaults to ``false``.
@@ -716,7 +690,7 @@ Methods
 
 .. function:: CreateGuild(name)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -726,7 +700,7 @@ Methods
 
 .. function:: GetGuild(id)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -737,7 +711,7 @@ Methods
 .. function:: DeleteGuild(id)
 .. function:: DeleteGuild(guild)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -748,11 +722,11 @@ Methods
 
 .. function:: GetInviteByCode(code)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
-	.. info::
+	.. note::
 	
 		This method is not usable by bot users.
 	
@@ -766,7 +740,7 @@ Methods
 
 .. function:: GetConnections()
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -774,7 +748,7 @@ Methods
 
 .. function:: ListRegions()
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -782,7 +756,7 @@ Methods
 
 .. function:: GetWebhook(id)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -792,7 +766,7 @@ Methods
 
 .. function:: GetWebhookWithToken(id, token)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -803,7 +777,7 @@ Methods
 
 .. function:: CreateDM(id)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -813,7 +787,7 @@ Methods
 
 .. function:: UpdateStatus(game, idle_since)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -824,7 +798,7 @@ Methods
 
 .. function:: ModifyMember(guildID, memberID, nickname, roles, muted, deaf, voiceChannelID)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -840,7 +814,7 @@ Methods
 
 .. function:: GetCurrentApp()
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -854,7 +828,7 @@ Methods
 
 .. function:: ListGuildMembers(guildID, limit, after)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
@@ -866,7 +840,7 @@ Methods
 
 .. function:: SetAvatar(path)
 
-	.. info:: 
+	.. note:: 
 	
 		This method is asynchronous. It needs to be awaited.
 	
