@@ -16,7 +16,7 @@ Event usage
 Events can be used in 2 ways. Via lambdas or functions. In C#, the handler needs to return ``Task``, and take 
 appropriate arguments.
 
-For events without arguments, the following methods are acceptable: ::
+For events without arguments, following methods are acceptable: ::
 
 	// lambda approach
 
@@ -196,8 +196,135 @@ Below you can find complete event reference.
 
 .. function DMChannelCreated
 
-	Called when a new DM channel is created. Takes ``ChannelCreate`` as an argument, with following parameters:
+	Called when a new DM channel is created. Takes ``DMChannelCreateEventArgs`` as an argument, with following 
+	parameters:
 	
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just created.
 
-.. function:: 
+.. function:: ChannelUpdated
+
+	Called when an existing channel is updated. Takes ``ChannelUpdateEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just updated.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was updated 
+	in.
+
+.. function:: ChannelDeleted
+
+	Called when an existing channel is deleted. Takes ``ChannelDeleteEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just deleted.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was deleted 
+	in.
+
+.. function:: DMChannelDeleted
+
+	Called when an existing DM channel is deleted. Takes ``DMChannelDeleteEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just deleted.
+
+.. function:: GuildCreated
+
+	Called when a new guild is created. Takes ``GuildCreateEventArgs`` as an argument, with following parameters:
+	
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that was just created.
+
+.. function:: GuildAvailable
+
+	Called when a guild becomes available. Takes ``GuildCreateEventArgs`` as an argument, with following parameters:
+	
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that has just become available.
+
+.. function:: GuildUpdated
+
+	Called when a guild is updated. Takes ``GuildUpdateEventArgs`` as an argument, with following parameters:
+	
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that was just updated.
+
+.. function:: GuildDeleted
+
+	Called when a guild is deleted. Takes ``GuildDeleteEventArgs`` as an argument, with following parameters:
+	
+	:param ID: ID of the guild that was just deleted.
+	:param Unavailable: Whether the guild is unavailable or not.
+
+.. function:: GuildUnavailable
+
+	Called when a guild becomes unavailable. Takes ``GuildDeleteEventArgs`` as an argument, with following parameters:
+	
+	:param ID: ID of the guild that has just become unavailable.
+	:param Unavailable: Whether the guild is unavailable or not.
+
+.. function:: MessageCreated
+
+	Called when the client receives a new message. Takes ``MessageCreateEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) that was received.
+	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>`s that were mentioned in this 
+	message.
+	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>`s that were mentioned in this message.
+	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>`s that were mentioned in this 
+	message.
+	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>`s that were used in this message.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was sent in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was sent in. This 
+	parameter is ``null`` for direct messages.
+	:param Author: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that sent the message.
+
+.. function:: PresenceUpdate
+
+	Called when a presence update occurs. Takes ``PresenceUpdateEventArgs`` as an argument, with following parameters:
+	
+	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) whose presence was updated.
+	:param UserID: The ID of the user whose presence was updated.
+	:param Game: Game the user is playing or streaming.
+	:param Status: User's status (online, idle, do not disturb, or offline).
+	:param GuildID: ID of the guild the presence update occured in.
+	:param RoleIDs: IDs of user's roles in the given guild.
+
+.. function:: GuildBanAdd
+
+	Called whenever a user gets banned from a guild. Takes ``GuildBanAddEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that got banned.
+	:param GuildID: ID of the guild the user got banned from.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the user got banned from.
+
+.. function:: GuildBanRemove
+
+	Called whenever a user gets unbanned from a guild. Takes ``GuildBanRemoveEventArgs`` as an argument, with 
+	following parameters:
+	
+	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that got unbanned.
+	:param GuildID: ID of the guild the user got unbanned from.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the user got unbanned from.
+
+.. function:: GuildEmojisUpdate
+
+	Called whenever a guild has its emoji updated. Takes ``GuildEmojisUpdateEventArgs`` as an argument, with the 
+	following parameters:
+	
+	:param Emojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>`s that got updated.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that had its emoji updated.
+
+.. function:: GuildIntegrationsUpdate
+
+	Called whenever a guild has its integrations updated. Takes ``GuildIntegrationsUpdateEventArgs`` as an argument, 
+	with following parameters:
+	
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that had its integrations 
+	updated.
+
+.. function:: GuildMemberAdd
+
+	Called whenever a member joins a guild. Takes ``GuildMemberAddEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param Member: The member (instance of :doc:`DiscordMember </reference/DiscordMember>`)
+	:param GuildID: ID of the guild the memeber has joined.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the member has joined.
