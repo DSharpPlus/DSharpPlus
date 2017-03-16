@@ -1,7 +1,16 @@
+.. DSharpPlus documentation master file, created by
+   sphinx-quickstart on Thu Mar 16 23:19:32 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
 .. image:: https://github.com/NaamloosDT/DSharpPlus/raw/master/logo/dsharp+_smaller.png
 
 Welcome to the DSharpPlus documentation
 =========================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
 DSharpPlus is a Discord API Wrapper based off DiscordSharp by Luigifan, though it has been rewritten to fit the API standards.
 
@@ -23,6 +32,6 @@ Take a look at :doc:`our example bots </examples/First-bot>`
 Looking for API reference?
 ----------------------------
 
-Head on to :doc:`programming reference </reference>`. 
+Head on to :doc:`programming reference </reference/index>`. 
 
 You'll want to start with ``DiscordClient``, and then move on to its events and other classes.
