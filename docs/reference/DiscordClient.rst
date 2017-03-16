@@ -326,5 +326,70 @@ Below you can find complete event reference.
 	parameters:
 	
 	:param Member: The member (instance of :doc:`DiscordMember </reference/DiscordMember>`)
-	:param GuildID: ID of the guild the memeber has joined.
-	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the member has joined.
+	:param GuildID: ID of the guild the memeber joined.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the member joined.
+
+.. function:: GuildMemberRemove
+
+	Called whenever a member leaves a guild. Takes ``GuildMemberRemoveEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param GuildID: ID of the guild that the member left.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the member left.
+	:param User: The member (instance of :doc:`DiscordUser </reference/DiscordUser>`) that left the guild.
+
+.. function:: GuildMemberUpdate
+
+	Called whenever a guild member is updated. Takes ``GuildMemberUpdateEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param GuildID: ID of the guild in which the update occured.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) in which the update occured.
+	:param Roles: A list of role IDs for the member.
+	:param Nickname: New nickname of the member.
+	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that got updated.
+
+.. function:: GuildRoleCreate
+
+	Called whenever a role is created in a guild. Takes ``GuildRoleCreateEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param GuildID: ID of the guild the role was created in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the role was created in.
+	:param Role: The role (instance of :doc:`DiscordRole </reference/DiscordRole>`) that was created.
+
+.. function:: GuildRoleUpdate
+
+	Called whenever a role is updated in a guild. Takes ``GuildRoleUpdateEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param GuildID: ID of the guild the role was updated in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the role was updated in.
+	:param Role: The role (instance of :doc:`DiscordRole </reference/DiscordRole>`) that was updated.
+
+.. function:: GuildRoleDelete
+
+	Called whenever a role is deleted in a guild. Takes ``GuildRoleDeleteEventArgs`` as an argument, with following 
+	parameters:
+	
+	:param GuildID: ID of the guild the role was deleted in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the role was deleted in.
+	:param Role: The role (instance of :doc:`DiscordRole </reference/DiscordRole>`) that was deleted.
+
+.. function:: MessageUpdate
+
+	Called whenever a message is updated. Takes ``MessageUpdateEventArgs`` as an argument, with following parameters:
+	
+	:param Message: The message (instance of :doc:`DiscordMessage </reference/DiscordMessage>`) that was updated.
+	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>`s that were mentioned in this 
+	message.
+	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>`s that were mentioned in this message.
+	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>`s that were mentioned in this 
+	message.
+	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>`s that were used in this message.
+	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was 
+	updated in.
+	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was updated in. This 
+	parameter is ``null`` for direct messages.
+	:param Author: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that updated the message.
+
