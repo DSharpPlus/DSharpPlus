@@ -18,7 +18,7 @@ Take a look at `this video series <https://channel9.msdn.com/Series/C-Fundamenta
 Don't know where to start?
 ----------------------------
 
-Take a look at :doc:`our example bots </examples/first-bot>`
+Take a look at :doc:`our example bots </examples/First-bot>`
 
 Looking for API reference?
 ----------------------------
