@@ -12,11 +12,11 @@ namespace DSharpPlus.Commands
             return client;
         }
 
-        public static DiscordClient UseCommands(this DiscordClient client, CommandConfig config)
+        public static CommandModule UseCommands(this DiscordClient client, CommandConfig config)
         {
-            client.AddModule(new CommandModule(config));
-
-            return client;
+            var module = new CommandModule(config);
+            client.AddModule(module);
+            return module;
         }
 
         public static CommandModule GetCommandModule(this DiscordClient client)

@@ -37,4 +37,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: NeutralResourcesLanguage("en")]
 
+[assembly: InternalsVisibleTo("DSharpPlus.Commands")]
 [assembly: InternalsVisibleTo("DSharpPlus.VoiceNext")]

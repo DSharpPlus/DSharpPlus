@@ -50,9 +50,12 @@ namespace DSharpPlus.VoiceNext
         private VoiceServerUpdatePayload ServerData { get; set; }
         private VoiceStateUpdatePayload StateData { get; set; }
 
+        private VoiceNextConfiguration Configuration { get; set; }
         private OpusCodec Opus { get; set; }
         private SodiumCodec Sodium { get; set; }
         private RtpCodec RTP { get; set; }
+        private Stopwatch Synchronizer { get; set; }
+        private TimeSpan UdpLatency { get; set; }
 
         private ushort Sequence { get; set; }
         private uint Timestamp { get; set; }
@@ -65,15 +68,18 @@ namespace DSharpPlus.VoiceNext
         private bool IsInitialized { get; set; }
         private bool IsDisposed { get; set; }
 
-        internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
+        internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceNextConfiguration config, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
             this.Discord = client;
             this.Guild = guild;
             this.Channel = channel;
 
-            this.Opus = new OpusCodec(48000, 2, Codec.VoiceApplication.Music);
+            this.Configuration = config;
+            this.Opus = new OpusCodec(48000, 2, this.Configuration.VoiceApplication);
             this.Sodium = new SodiumCodec();
             this.RTP = new RtpCodec();
+            this.Synchronizer = new Stopwatch();
+            this.UdpLatency = TimeSpan.FromMilliseconds(0.5);
 
             this.ServerData = server;
             this.StateData = state;
@@ -155,19 +161,40 @@ namespace DSharpPlus.VoiceNext
             var dat = this.Opus.Encode(pcm, 0, pcm.Length, bitrate);
             dat = this.Sodium.Encode(dat, this.RTP.MakeNonce(rtp), this.Key);
             dat = this.RTP.Encode(rtp, dat);
-
+            
             await this.UdpClient.SendAsync(dat, dat.Length);
 
             this.Sequence++;
             this.Timestamp += 48 * (uint)blocksize;
+
+            // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
+            // 
+            // delay = max(0, self.delay + ((start_time + self.delay * loops) + - time.time()))
+            // 
+            // self.delay
+            //   sample size
+            // start_time
+            //   time since streaming started
+            // loops
+            //   number of samples sent
+            // time.time()
+            //   DateTime.Now
             
-            await Task.Delay(15);
+            this.Synchronizer.Stop();
+            var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed - this.UdpLatency;
+            if (ts.Ticks < 0)
+                ts = TimeSpan.FromTicks(1);
+            Thread.Sleep(ts);
+            this.Synchronizer.Restart();
         }
 
         public async Task SendSpeakingAsync(bool speaking = true)
         {
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not yet initialized");
+
+            if (!speaking)
+                this.Synchronizer.Reset();
 
             var pld = new VoiceDispatch
             {
@@ -250,7 +277,6 @@ namespace DSharpPlus.VoiceNext
             // IP Discovery
             this.UdpClient.Connect(this.ConnectionEndpoint.Host, this.ConnectionEndpoint.Port);
             this.UdpClient.AllowNatTraversal(true);
-            //var pck = this.RTP.Encode(this.RTP.Encode(this.Sequence, this.Timestamp, this.SSRC), new byte[70]);
             var pck = new byte[70];
             Array.Copy(BitConverter.GetBytes(this.SSRC), 0, pck, pck.Length - 4, 4);
             await this.UdpClient.SendAsync(pck, pck.Length);
@@ -304,9 +330,8 @@ namespace DSharpPlus.VoiceNext
 
                 case 3:
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 received", DateTime.Now);
-                    //this.HeartbeatInterval = opp.ToObject<int>();
                     var dt = DateTime.Now;
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat).TotalMilliseconds.ToString("#,###")}ms", dt);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat).TotalMilliseconds.ToString("#,###")}ms", dt);
                     this.LastHeartbeat = dt;
                     break;
 
@@ -320,8 +345,6 @@ namespace DSharpPlus.VoiceNext
                 case 5:
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP5 received", DateTime.Now);
                     var spd = opp.ToObject<VoiceSpeakingPayload>();
-                    // Is this even necessary? We're decoupling voice from main client anyway.
-                    //DiscordClient._ssrcDict[spd.SSRC.Value] = spd.UserId.Value;
                     var spk = new UserSpeakingEventArgs
                     {
                         Speaking = spd.Speaking,
@@ -339,7 +362,7 @@ namespace DSharpPlus.VoiceNext
 
         private Task VoiceWS_SocketClosed(CloseEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "VoiceNext", $"Voice session closed: {e.Reason}; clean {e.WasClean}", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice session closed: {e.Reason}; clean {e.WasClean}", DateTime.Now);
             this.Dispose();
             return Task.Delay(0);
         }

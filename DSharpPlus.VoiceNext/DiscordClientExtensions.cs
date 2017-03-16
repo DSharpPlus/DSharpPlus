@@ -4,9 +4,12 @@
     {
         private static VoiceNextClient ClientInstance { get; set; }
 
-        public static VoiceNextClient UseVoiceNext(this DiscordClient client)
+        public static VoiceNextClient UseVoiceNext(this DiscordClient client) =>
+            UseVoiceNext(client, new VoiceNextConfiguration { VoiceApplication = Codec.VoiceApplication.Music });
+
+        public static VoiceNextClient UseVoiceNext(this DiscordClient client, VoiceNextConfiguration config)
         {
-            ClientInstance = new VoiceNextClient();
+            ClientInstance = new VoiceNextClient(config);
             client.AddModule(ClientInstance);
             return ClientInstance;
         }

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
@@ -14,12 +11,16 @@ namespace DSharpPlus.VoiceNext
         public DiscordClient Client { get { return this._client; } }
         private DiscordClient _client;
 
+        private VoiceNextConfiguration Configuration { get; set; }
+
         private ConcurrentDictionary<ulong, VoiceNextConnection> ActiveConnections { get; set; }
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; set; }
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; set; }
 
-        internal VoiceNextClient()
+        internal VoiceNextClient(VoiceNextConfiguration config)
         {
+            this.Configuration = config;
+
             this.ActiveConnections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
             this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();
             this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>>();
@@ -80,7 +81,7 @@ namespace DSharpPlus.VoiceNext
             this.VoiceStateUpdates.TryRemove(gld.ID, out _);
             this.VoiceServerUpdates.TryRemove(gld.ID, out _);
             
-            var vnc = new VoiceNextConnection(this.Client, gld, channel, vsrup, vstup);
+            var vnc = new VoiceNextConnection(this.Client, gld, channel, this.Configuration, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
             await vnc.ConnectAsync();
             await vnc.WaitForReady();

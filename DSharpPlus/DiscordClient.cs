@@ -1356,20 +1356,21 @@ namespace DSharpPlus
             string session_id = obj["d"]["session_id"].ToString();
             VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs { UserID = userID, GuildID = guildID, SessionID = session_id };
 
-            if (this.Guilds.ContainsKey(guildID))
-            {
-                var gld = this.Guilds[guildID];
+            var gld = this.Guilds.ContainsKey(guildID) ? this.Guilds[guildID] : null;
 
+            if (gld != null)
+            {
                 var vs = new DiscordVoiceState
                 {
-                    GuildID = guildID,
+                    GuildID = gld.ID,
                     ChannelID = channelID,
                     UserID = userID
                 };
-                var vs1 = gld.VoiceStates.FirstOrDefault(xvs => xvs.GuildID == guildID && xvs.ChannelID == channelID && xvs.UserID == userID);
+                var vs1 = gld.VoiceStates.FirstOrDefault(xvs => xvs.UserID == userID);
                 if (vs1 != null)
                     gld.VoiceStates.Remove(vs1);
-                gld.VoiceStates.Add(vs);
+                if (channelID != 0)
+                    gld.VoiceStates.Add(vs);
             }
 
             await this._voice_state_update.InvokeAsync(args);
