@@ -6,8 +6,14 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.VoiceNext
 {
+    /// <summary>
+    /// VoiceNext client.
+    /// </summary>
     public sealed class VoiceNextClient : IModule
     {
+        /// <summary>
+        /// DiscordClient instance for this module.
+        /// </summary>
         public DiscordClient Client { get { return this._client; } }
         private DiscordClient _client;
 
@@ -26,6 +32,10 @@ namespace DSharpPlus.VoiceNext
             this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>>();
         }
 
+        /// <summary>
+        /// DO NOT RUN THIS MANUALLY.
+        /// </summary>
+        /// <param name="client"></param>
         public void Setup(DiscordClient client)
         {
             this._client = client;
@@ -33,6 +43,11 @@ namespace DSharpPlus.VoiceNext
             this.Client.VoiceServerUpdate += this.Client_VoiceServerUpdate;
         }
 
+        /// <summary>
+        /// Create a VoiceNext connection for the specified channel.
+        /// </summary>
+        /// <param name="channel">Channel to connect to.</param>
+        /// <returns>VoiceNext connection for this channel.</returns>
         public async Task<VoiceNextConnection> ConnectAsync(DiscordChannel channel)
         {
             if (channel.Type != ChannelType.Voice)
@@ -89,6 +104,11 @@ namespace DSharpPlus.VoiceNext
             return vnc;
         }
 
+        /// <summary>
+        /// Gets a VoiceNext connection for specified guild.
+        /// </summary>
+        /// <param name="guild">Guild to get VoiceNext connection for.</param>
+        /// <returns>VoiceNext connection for the specified guild.</returns>
         public VoiceNextConnection GetConnection(DiscordGuild guild)
         {
             if (this.ActiveConnections.ContainsKey(guild.ID))

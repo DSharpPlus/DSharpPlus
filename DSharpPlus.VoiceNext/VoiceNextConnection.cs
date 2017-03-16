@@ -15,8 +15,14 @@ namespace DSharpPlus.VoiceNext
 {
     internal delegate void VoiceDisconnectedEventHandler(DiscordGuild guild);
 
+    /// <summary>
+    /// VoiceNext connection to a voice channel.
+    /// </summary>
     public sealed class VoiceNextConnection : IDisposable
     {
+        /// <summary>
+        /// Triggered whenever a user speaks in the connected voice channel.
+        /// </summary>
         public event AsyncEventHandler<UserSpeakingEventArgs> UserSpeaking
         {
             add { this._user_speaking.Register(value); }
@@ -24,6 +30,9 @@ namespace DSharpPlus.VoiceNext
         }
         private AsyncEvent<UserSpeakingEventArgs> _user_speaking = new AsyncEvent<UserSpeakingEventArgs>();
 
+        /// <summary>
+        /// Triggered whenever voice data is received from the connected voice channel.
+        /// </summary>
         public event AsyncEventHandler<VoiceReceivedEventArgs> VoiceReceived
         {
             add { this._voice_received.Register(value); }
@@ -121,6 +130,10 @@ namespace DSharpPlus.VoiceNext
             this.Dispose();
         }
 
+        /// <summary>
+        /// Connects to the specified voice channel.
+        /// </summary>
+        /// <returns>A task representing the connection operation.</returns>
         public async Task ConnectAsync()
         {
             await Task.Run(() => this.VoiceWs.Connect()).ConfigureAwait(false);
@@ -151,6 +164,13 @@ namespace DSharpPlus.VoiceNext
             await this.ReadyWait.Task.ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Encodes, encrypts, and sends the provided PCM data to the connected voice channel.
+        /// </summary>
+        /// <param name="pcm">PCM data to encode, encrypt, and send.</param>
+        /// <param name="blocksize">Millisecond length of the PCM data.</param>
+        /// <param name="bitrate">Bitrate of the PCM data.</param>
+        /// <returns>Task representing the sending operation.</returns>
         public async Task SendAsync(byte[] pcm, int blocksize, int bitrate = 16)
         {
             if (!this.IsInitialized)
@@ -188,6 +208,11 @@ namespace DSharpPlus.VoiceNext
             this.Synchronizer.Restart();
         }
 
+        /// <summary>
+        /// Sends a speaking status to the connected voice channel.
+        /// </summary>
+        /// <param name="speaking">Whether the current user is speaking or not.</param>
+        /// <returns>A task representing the sending operation.</returns>
         public async Task SendSpeakingAsync(bool speaking = true)
         {
             if (!this.IsInitialized)
@@ -210,9 +235,15 @@ namespace DSharpPlus.VoiceNext
             await Task.Run(() => this.VoiceWs._socket.Send(plj));
         }
 
+        /// <summary>
+        /// Disconnects and disposes this voice connection.
+        /// </summary>
         public void Disconnect() =>
             this.Dispose();
 
+        /// <summary>
+        /// Disconnects and disposes this voice connection.
+        /// </summary>
         public void Dispose()
         {
             if (this.IsDisposed)
