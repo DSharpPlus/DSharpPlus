@@ -8,10 +8,6 @@
 Welcome to the DSharpPlus documentation
 =========================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
 DSharpPlus is a Discord API Wrapper based off DiscordSharp by Luigifan, though it has been rewritten to fit the API standards.
 
 Here you should be able to get enough information to write your own Discord bot. If not, feel free to ask us any questions in one of these Discord servers:
@@ -35,3 +31,22 @@ Looking for API reference?
 Head on to :doc:`programming reference </reference/index>`. 
 
 You'll want to start with ``DiscordClient``, and then move on to its events and other classes.
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Contents:
+   
+	examples/index
+		examples/First-bot
+		examples/Commands
+		examples/Voice
+	reference/index
+		reference/DiscordClient
+		reference/DiscordGuild
+		reference/DiscordChannel
+		reference/DiscordDMChannel
+		reference/DiscordMember
+		reference/DiscordUser
+		reference/misc/index
+			reference/misc/DiscordConfig
+			reference/misc/DebugLogger
