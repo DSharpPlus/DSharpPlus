@@ -165,3 +165,234 @@ Methods
 	
 	Leaves this guild.
 
+.. function:: GetBans()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets all bans for this guild. Returns a list of :doc:`GuildMembers </reference/GuildMember>`.
+
+.. function:: CreateChannel(name, type, bitrate, userlimit)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Creates and returns a new channel.
+	
+	:param name: Name of the new channel.
+	:param type: Type of the new channel.
+	:param bitrate: Bitrate for the channel. This is only applicable for voice channels. Optional, defaults to ``0``.
+	:param userlimit: User limit for the channel. This is only applicable for voice channels. Optional, defaults to ``0``.
+
+.. function:: GetPruneCount(days)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Estimates and returns the number of users that would be pruned.
+	
+	:param days: Number of days the users have to be inactive to be pruned.
+
+.. function:: Prune(days)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Prunes inactive users. Returns the number of users pruned.
+	
+	:param days: Number of days the users have to be inactive to be pruned.
+
+.. function:: GetIntegrations()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets this guild's integrations.
+
+.. function:: AttachUserIntegration(integration)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Attaches an integration to the guild.
+	
+	:param integration: Integration (instance of :doc:`DiscordIntegration </reference/misc/DiscordIntegration>`) to attach.
+
+.. function:: ModifyIntegration(integration, expire_behaviour, expire_grace_period, enable_emoticons)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Modifies an integration for this guild.
+	
+	:param integration: Integration (instance of :doc:`DiscordIntegration </reference/misc/DiscordIntegration>`) to modify.
+	:param expire_behaviour: Integration subscription lapse behaviour.
+	:param expire_grace_period: Period (in seconds) during which the integration will ignore lapsed subscription.
+	:param enable_emoticons: Whether emoticons should be synced to this guild.
+
+.. function:: DeleteIntegration(integration)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Deletes an integration from this guild.
+	
+	:param integration: Integration (instance of :doc:`DiscordIntegration </reference/misc/DiscordIntegration>`) to remove.
+
+.. function:: SyncIntegration(integration)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Syncs an integration to this guild.
+
+	:param integration: Integration (instance of :doc:`DiscordIntegration </reference/misc/DiscordIntegration>`) to remove.
+
+.. function:: GetEmbed()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets this guild's widget.
+
+.. function:: GetVoiceRegions()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets the voice regions for this guild. Returns a list of :doc:`DiscordVoiceRegions </reference/misc/DiscordVoiceRegions>`.
+
+.. function:: GetInvites()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets invitations for this guild. Returns a list of :doc:`DiscordInvites </reference/misc/DiscordInvite>`.
+
+.. function:: GetWebhooks()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets webhooks for this guild. Returns a list of :doc:`DiscordWebhooks </reference/misc/DiscordWebhook>`.
+
+.. function:: RemoveMember(member)
+.. function:: RemoveMember(member_id)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Kicks a member from this guild.
+	
+	:param member: Instance of :doc:`DiscordUser </reference/DiscordUser>` to kick.
+	:param member_id: Id of the member to kick.
+
+.. function:: GetMember(member_id)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets a member of this guild by their ID.
+	
+	:param member_id: ID of the member to get.
+
+.. function:: GetAllMembers()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This method can take a while to execute.
+	
+	Dowloads all members of this guild. Returns a list of :doc:`DiscordMembers </reference/DiscordMember>`.
+
+.. function:: ModifyMember(member_id, nickname, roles, muted, deaf, voice_channel_id)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Modifies a guild member.
+
+	:param member_id: ID of the member to modify.
+	:param nickname: Nickname to give the member.
+	:param roles: Roles to replace the user's roles with.
+	:param muted: Whether the user should be muted in audio.
+	:param deaf: Whether the user should be deafened in audio.
+	:param voice_channel_id: Which voice channel to move the user to.
+
+.. function:: GetChannels()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets all channels in this guild. Returns a list of :doc:`DiscordChannels </reference/DiscordChannel>`.
+
+.. function:: ListMembers(limit, after)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Gets paginated list of users. Returns a list of :doc:`DiscordMembers </reference/DiscordMember>`.
+	
+	:param limit: Max number of members to get. Cannot exceed 100.
+	:param after: Last member from previous page.
+
+.. function:: UpdateRole(role)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Modifies a role.
+	
+	:param role: Role to modify.
+
+.. function:: CreateRole()
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Creates a new role.
+
+.. function:: AddRole(user_id, role_id)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Adds a single role to specified user.
+	
+	:param user_id: ID of the user whom to add the role to.
+	:param role_id: ID of the role to add to the user.
+
+.. function:: RemoveRole(user_id, role_id)
+
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Removes a single role from specified user.
+	
+	:param user_id: ID of the user whom to remove the role from.
+	:param role_id: ID of the role to remove from the user.
