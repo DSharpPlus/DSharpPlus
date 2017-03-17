@@ -615,7 +615,7 @@ namespace DSharpPlus
             {
                 _cancelTokenSource.Cancel();
                 _websocketClient.Disconnect();
-
+				config.AutoReconnect = false;
                 return true;
             });
         }
