@@ -1,14 +1,39 @@
-DiscordEmbed
-============
-Represents a message's Embed
+Reference for ``DiscordEmbed``
+==============================
 
-## Members
+Represents an embed, attached to a message. These can be used to represent certain kinds of information, that cannot 
+be otherwise displayed in regular messages.
 
-`string Title`: Embed Title
+.. note::
 
-`string Type`: Embed Type
+	Embeds are limited to a total of 4000 characters.
 
-`string Description`: Embed Description
+Members
+-------
+
+.. attribute:: Title
+
+	.. note::
+	
+		This property has a limit of 256 characters of length.
+
+	This embed's title
+
+.. attribute:: Type
+
+	.. note::
+	
+		When sending an embed, this property is always set to ``rich``, regardless of what it's actual set to.
+
+	This embed's type.
+
+.. attribute:: Description
+
+	.. note::
+	
+		This property has a limit of 2048 characters of length.
+
+	This embed's description.
 
 `string Url`: Embed URL
 
