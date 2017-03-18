@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'DSharpPlus'
-copyright = '2017, Naamloos, afroraydude, DrCreo, Death, Tiaqoy0, Emzi0767'
+copyright = '2017, DSharpPlus Team'
 author = 'Naamloos, afroraydude, DrCreo, Death, Tiaqoy0, Emzi0767'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -151,7 +151,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'DSharpPlus', 'DSharpPlus Documentation',
-     author, 'DSharpPlus', 'One line description of project.',
+     author, 'DSharpPlus', 'A C# Interpreter of Discord API',
      'Miscellaneous'),
 ]
 
