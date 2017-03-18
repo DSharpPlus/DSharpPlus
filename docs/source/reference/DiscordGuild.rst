@@ -7,6 +7,10 @@ your interaction with users is going to happen through guilds.
 Members
 -------
 
+.. attribute:: Id
+
+	This guild's ID.
+
 .. attribute:: Name
 
 	This guild's name.
