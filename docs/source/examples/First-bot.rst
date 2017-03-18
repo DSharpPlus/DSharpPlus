@@ -153,35 +153,10 @@ We have connected our bot and added it to a server. But it does nothing (yet). L
    
 4. Run your bot. When it comes online, type ``ping`` in chat. If your bot responds with ``pong``, congratulations, you did well.
 
-Step 6: Commands
-----------------
-
-Well, this is cool, but handing commands like this might get tedious real fast. The solution? Command module. Close the bot and let's go back to Visual Studio.
-
-Unfortunately, for this you will need to clone the repository and build the module yourself, because as of this writing, the module is not yet on NuGet. Once you have the module built and referenced, let's make the necessary changes to our code.
-
-1. Add ``using DSharpPlus.Commands;`` to the ``using`` section.
-2. In your ``Run`` method, add the following code: ::
-   
-	discord.UseCommands(new CommandConfig
-	{
-		Prefix = "#",
-		SelfBot = false
-	});
-   
-3. Now we have a command service set up, but no commands yet. Let's change that. We're going to create a ``hello`` command. We do that as follows: ::
-   
-	discord.AddCommand("hello", async e =>
-	{
-		await e.Message.Respond($"Hello, {e.Message.Author.Mention}!");
-	});
-   
-4. Now let's run our bot. Once it comes online, say ``#hello``. The bot should respond by saying ``Hello, @yourname!``. If it did, good job. From here, you can do other things.
-
 Summary
 -------
 
-You now have a bot that responds to messages and commands. You can extend it further using what you just learned, and reading the documentation.
+You now have a bot that logs in and responds to messages. You can extend it further using what you just learned, and reading the documentation.
 
 By now, your code should look like this: ::
 
@@ -231,18 +206,6 @@ By now, your code should look like this: ::
 					if (e.Message.Content.ToLower() == "ping")
 						await e.Message.Respond("pong");
 				};
-
-				discord.UseCommands(new CommandConfig
-				{
-					Prefix = "#",
-					SelfBot = false
-				});
-
-				discord.AddCommand("hello", async e =>
-				{
-					await e.Message.Respond($"Hello, {e.Message.Author.Mention}!");
-				});
-
 				await discord.Connect();
 
 				await Task.Delay(-1);
