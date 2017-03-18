@@ -8,6 +8,10 @@ be otherwise displayed in regular messages.
 
 	Embeds are limited to a total of 4000 characters.
 
+An embed looks more or less like this:
+
+.. image:: https://cdn.discordapp.com/attachments/84319995256905728/252292324967710721/embed.png
+
 Members
 -------
 
@@ -35,23 +39,50 @@ Members
 
 	This embed's description.
 
-`string Url`: Embed URL
+.. attribute:: Url
 
-`DateTime Timestamp`: Embed Timestamp
+	This embed's URL.
 
-`int Color`: Embed Color
+.. attribute:: Timestamp
 
-`DiscordEmbedFooter Footer`: Embed Footer
+	This embed's timestamp.
 
-`DiscordEmbedImage Image`: Embed Image
+.. attribute:: Color
 
-`DiscordEmbedThumbnail Thumbnail`: Embed Thumbnail
+	.. note::
+	
+		C# supports hexadecimal integer notation (i.e. ``0x0123ABCD``). You can write colors down as ``0xRRGGBB``.
 
-`DiscordEmbedVideo Video`: Embed Video
+	This embed's color.
 
-`DiscordEmbedProvider Provider`: Embed Provider
+.. attribute:: Footer
 
-`DiscordEmbedAuthor Author`: Embed Author
+	This embed's footer. Instance of :doc:`DiscordEmbedFooter </reference/entities/DiscordEmbedFooter>`.
 
-`List<DiscordEmbedField> Fields`: Embed Fields
+.. attribute:: Image
 
+	This embed's image. Instance of :doc:`DiscordEmbedImage </reference/entities/DiscordEmbedImage>`.
+
+.. attribute:: Thumbnail
+
+	This embed's thumbnail. Instance of :doc:`DiscordEmbedThumbnail </reference/entities/DiscordEmbedThumbnail>`.
+
+.. attribute:: Video
+
+	.. note::
+	
+		This property cannot be set by clients, and, as such, is ignored by Discord.
+
+	This embed's video.
+
+.. attribute:: Provider
+
+	This embed's provider.
+
+.. attribute:: Author
+
+	This embed's author. Instance of :doc:`DiscordEmbedAuthor </reference/entities/DiscordEmbedAuthor>`.
+
+.. attribute:: Fields
+
+	This embed's fields. List of :doc:`DiscordEmbedField </reference/entities/DiscordEmbedField>` instances.
