@@ -187,8 +187,8 @@ Methods
 	
 	:param name: Name of the new channel.
 	:param type: Type of the new channel.
-	:param bitrate: Bitrate for the channel. This is only applicable for voice channels. Optional, defaults to ``0``.
-	:param userlimit: User limit for the channel. This is only applicable for voice channels. Optional, defaults to ``0``.
+	:param bitrate: Bitrate for the channel. This is only applicable to voice channels. Optional, defaults to ``0``.
+	:param userlimit: User limit for the channel. This is only applicable to voice channels. Optional, defaults to ``0``.
 
 .. function:: GetPruneCount(days)
 
