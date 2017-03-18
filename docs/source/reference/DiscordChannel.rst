@@ -154,9 +154,9 @@ Methods
 	
 		This method is applicable to text channels only.
 	
-	.. note::
+	.. warning::
 	
-		``around_id``, ``before_id``, and ``after_id`` parameters are mutually exclusive.
+		``around_id``, ``before_id``, and ``after_id`` parameters are mutually exclusive. If more than one of these is specified, the request will fail!
 	
 	Gets messages from this channel. Returns a list of :doc:`DiscordMessage </reference/DiscordMessage>` instances.
 	
