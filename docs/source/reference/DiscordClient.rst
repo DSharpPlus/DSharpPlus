@@ -396,7 +396,7 @@ Members
 	
 .. attribute:: Guilds
 
-	A dictionary of guilds (instances of :doc:`DiscordGuild </reference/DiscordGuild`) the bot is in.
+	A dictionary of guilds (instances of :doc:`DiscordGuild </reference/DiscordGuild>`) the bot is in.
 
 Methods
 -------
