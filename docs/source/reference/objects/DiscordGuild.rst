@@ -1,4 +1,4 @@
-scordGuild
+DiscordGuild
 ============
 
 Represents a Guild

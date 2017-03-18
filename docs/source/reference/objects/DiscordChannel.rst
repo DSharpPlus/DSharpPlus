@@ -1,4 +1,4 @@
-scordChannel
+DiscordChannel
 ==============
 
 Represents a guild channel
