@@ -1,11 +1,11 @@
 Reference for ``DiscordGuild``
-================================
+==============================
 
 ``DiscordGuild`` represents a single user guild, which holds users, roles, channels, and messages. Most of the time, 
 your interaction with users is going to happen through guilds.
 
 Members
----------
+-------
 
 .. attribute:: Name
 
@@ -112,7 +112,7 @@ Members
 	Whether the current user is the owner of this guild.
 
 Methods
----------
+-------
 
 .. function:: Delete()
 
