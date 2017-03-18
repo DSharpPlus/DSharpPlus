@@ -1,174 +1,274 @@
-DiscordChannel
-==============
+Reference for ``DiscordChannel``
+================================
 
-Represents a guild channel
+Represents a Discord channel. This class encompasses direct and guild channels, both text and voice.
 
 Members
 -------
 
-``ulong ID``: ID for this object
+.. attribute:: ID
 
-``DateTime CreationDate``: When this was created
+	This channel's ID.
 
-``ulong GuildID``: This channel’s Guild’s ID
+.. attribute:: GuildID
 
-``string Name``: This channel’s Name
+	ID of the guild this channel belons to.
 
-``ChannelType Type``: This channel’s type (Text or Voice)
+.. attribute:: Name
 
-``int Position``: this channel’s position
+	This channel's name.
 
-``bool IsPrivate``: Wether this is a private channel
+.. attribute:: Type
 
-``DiscordGuild Parent``: This channel’s DiscordGuild (if public)
+	This channel's type. Used to distinguish voice and text channels. Instance of :doc:`ChannelType </reference/misc/ChannelType>`.
 
-``List<DiscordOverwrite> PermissionOverwrites``: Permissions for this
-channel
+.. attribute:: Position
 
-``string Topic``: This channel’s topic
+	This channel's position on the channel list.
 
-``ulong LastMessageID``: ID for this channel’s last message (if Text)
+.. attribute:: IsPrivate
 
-``int Bitrate``: This channel’s bitrate (if Voice)
+	Used to determine whether the channel is private or not.
 
-``int UserLimit``: This channel’s user limit (if Voice)
+.. attribute:: Parent
 
-``string Mention``: Builds a mention for this channel
+	The guild this channel belongs to. ``null`` if this is not a guild channel (e.g. DM channel).
+
+.. attribute:: PermissionOverwrites
+
+	This channel's permission overwrites. List of :doc:`DiscordOverwrite </reference/entities/DiscordOverwrite>` instances.
+
+.. attribute:: Topic
+
+	.. note::
+	
+		This is applicable to guild text channels only.
+
+	This channel's topic.
+
+.. attribute:: LastMessageID
+
+	ID of last message created in this channel.
+
+.. attribute:: Bitrate
+
+	.. note::
+	
+		This is applicable to voice channels only.
+
+	This channel's voice bitrate.
+
+.. attribute:: UserLimit
+
+	.. note::
+	
+		This is applicable to voice channels only.
+	
+.. attribute:: Mention
+
+	.. note::
+	
+		This is applicable to guild text channels only.
+	
+	This channel's mention.
 
 Methods
 -------
 
-SendMessage
-^^^^^^^^^^^
+.. function:: SendMessage(content, tts, embed)
 
-Sends a message to this channel
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
 
-``string content``: Content for this message
+	.. note::
+	
+		This is applicable to text channels only.
+	
+	Sends a message to this channel. Returns the sent message as an instance of :doc:`DiscordMessage </reference/DiscordMessage>`.
+	
+	:param content: Message's contents.
+	:param tts: Whether or not the message contents are to be spoken. Optional, defaults to ``false``.
+	:param embed: An instance of :doc:`DiscordEmbed </reference/entities/DiscordEmbed>` to attach to this message.
 
-``bool tts = false``: Wether this message is a TTS message
+.. function:: SendFile(filepath, filename, content, tts)
 
-``DiscordEmbed embed = null``: Embed to attach
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
 
-Returns: ``DiscordMessage``
+	.. note::
+	
+		This is applicable to text channels only. Returns the sent message.
+	
+	Sends a file to specified channel. Returns the sent message as an instance of :doc:`DiscordMessage </reference/DiscordMessage>`.
+	
+	:param filepath: Path to the file to send.
+	:param filename: Name of the file to send. This is used by discord to display the file name.
+	:param content: Message contents to send with the file. Optional, defaults to emtpy string.
+	:param tts: Whether or not the message contents are to be spoken. Optional, defaults to ``false``.
 
-SendFile
-^^^^^^^^
+.. function:: Delete()
 
-Sends a message to this channel with a file attached
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	Deletes this channel.
 
-``string filepath``: Path to the file you want to send
+.. function:: GetMessage(id)
 
-``string filename``: Name for this file (with extension)
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
 
-``string content = ""``: Content for this message
+	.. note::
+	
+		This is applicable to text channels only.
+	
+	Gets a message by its ID from this channel. Returns the message as an instance of :doc:`DiscordMessage </reference/DiscordMessage>`.
+	
+	:param id: ID of the message to get.
 
-``bool tts = false``: Wether this is a TTS message
+.. function:: ModifyPosition(position)
 
-Returns: ``DiscordMessage``
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This is applicable to guild channels only.
+	
+	Changes this channel's position in the guild's channel list.
+	
+	:param position: New position of this channel.
 
-Delete
-^^^^^^
+.. function:: GetMessages(around_id, before_id, after_id, limit)
 
-Deletes this channel (No arguments)
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
 
-Returns: Nothing
+	.. note::
+	
+		This method is applicable to text channels only.
+	
+	.. note::
+	
+		``around_id``, ``before_id``, and ``after_id`` parameters are mutually exclusive.
+	
+	Gets messages from this channel. Returns a list of :doc:`DiscordMessage </reference/DiscordMessage>` instances.
+	
+	:param around_id: Pivot message ID around which to download messages. Optional, defaults to ``0``.
+	:param before_id: Pivot message ID from before which to download messages. Optional, defaults to ``0``.
+	:param after_id: Pivot message ID after which to download messages. Optional, defaults to ``0``.
+	:param limit: Maximum number of messages to download. This number cannot exceed 100. Optional, defaults to ``50``.
 
-GetMessage
-^^^^^^^^^^
+.. function:: BulkDeleteMessages(message_ids)
 
-Gets a message from this channel
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This function is applicable to text channels only.
+	
+	.. warning::
+	
+		This method cannot be used to delete messages older than 2 weeks. If any specified message ID is older than 2 weeks, the request will fail!
+	
+	Bulk deletes messages from this channel.
+	
+	:param message_ids: IDs of messages to delete.
 
-``ulong ID`` ID for this message
+.. function:: GetInvites()
 
-Returns: ``DiscordMessage``
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This method is applicable to text channels only.
+	
+	Gets and returns a list of ``DiscordInvite </reference/entities/DiscordInvite>` for this channel.
 
-ModifyPosition
-^^^^^^^^^^^^^^
+.. function:: DeleteChannelPermission(overwrite_id)
 
-Modifies this channel’s position
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This method is applicable to guild channels only.
+	
+	Deletes a specified set of permission overwrites.
+	
+	:param overwrite_id: Permission overwrite to delete.
 
-``int position``: New position for this channel
+.. function:: TriggerTyping()
 
-Returns: Nothing
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This method is applicable to text channels only.
+	
+	Sends a typing indicator to this channel. This lasts for 10 seconds.
 
-GetMessages
-^^^^^^^^^^^
+.. function:: GetPinnedMessages()
 
-Gets a list of DiscordMessages (Only set one out of around, before and
-after!)
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This method is applicable to text channels only.
+	
+	Gets and returns this channel's pinned messages as a list of :doc:`DiscordMessage </reference/DiscordMessage>` instances.
 
-``ulong around = 0``: Gets messages around this ID
+.. function:: GetWebhooks()
 
-``ulong before = 0``: Gets messages before this ID
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This method is applicable to guild text channels only.
+	
+	Gets and returns this channel's webhooks as a list of :doc:`DiscordWebhook </reference/entities/DiscordWebhook>` instances.
 
-``ulong after = 0``: Gets messages after this ID
+.. function:: PlaceMember(member_id)
 
-``int limit = 50``: Limits the amount of messages
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
+	
+	.. note::
+	
+		This method is applicable to guild voice channels only.
+	
+	Moves a specified member to this voice channel.
+	
+	:param member_id: ID of the guild member to move.
 
-Returns: ``List<DiscordMessage>``
+.. function:: UpdateOverwrite(overwrite)
 
-BulkDeleteMessages
-^^^^^^^^^^^^^^^^^^
+	.. note::
+	
+		This method is asynchronous. It needs to be awaited.
 
-Deletes multiple DiscordMessages
-
-``List<ulong> MessageIDs``: List of messages to delete
-
-Returns: Nothing
-
-GetInvites
-^^^^^^^^^^
-
-Gets this channel’s DiscordInvites
-
-Returns: ``List<DiscordInvite>``
-
-CreateInvite
-^^^^^^^^^^^^
-
-Creates an invite for this channel
-
-``int MaxAge = 86400``: Max age for this invite
-
-``int MaxUses = 0``: Max uses for this invite (0 = unlimited)
-
-``bool temporary = false``: Wether this invite is temporary or not
-
-``bool unique = false``: Wether this invite has to be a new one or a
-pre-existing one may be returned
-
-Returns: ``DiscordInvite``
-
-DeleteChannelPermission
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Deletes a channel’s permission
-
-``ulong OverwriteID``: ID for this permission
-
-Returns: Nothing
-
-TriggerTyping
-^^^^^^^^^^^^^
-
-Makes you appear typing
-
-Returns: Nothing
-
-GetPinnedMessages
-^^^^^^^^^^^^^^^^^
-
-Gets pinned messages for this channel
-
-Returns: ``List<DiscordMessage>``
-
-CreateWebhook
-^^^^^^^^^^^^^
-
-Creates a webhook for this channel
-
-``string Name = ""``: Name for this webhook
-
-``string base64avatar = ""``: Avatar for this webhook in base64
-
-Returns: ``DiscordWebhook``
+	.. note::
+	
+		This method is applicable to guild channels only.
+	
+	Updates a permission overwrite for this channel.
+	
+	:param overwrite: An instance of :doc:`PermissionOverwrite </reference/entities/DiscordOverwrite>` to update the channel with.
