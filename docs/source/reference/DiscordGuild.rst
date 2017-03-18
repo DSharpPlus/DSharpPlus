@@ -1,11 +1,15 @@
 Reference for ``DiscordGuild``
-================================
+==============================
 
 ``DiscordGuild`` represents a single user guild, which holds users, roles, channels, and messages. Most of the time, 
 your interaction with users is going to happen through guilds.
 
 Members
----------
+-------
+
+.. attribute:: Id
+
+	This guild's ID.
 
 .. attribute:: Name
 
@@ -112,7 +116,7 @@ Members
 	Whether the current user is the owner of this guild.
 
 Methods
----------
+-------
 
 .. function:: Delete()
 
@@ -183,8 +187,8 @@ Methods
 	
 	:param name: Name of the new channel.
 	:param type: Type of the new channel.
-	:param bitrate: Bitrate for the channel. This is only applicable for voice channels. Optional, defaults to ``0``.
-	:param userlimit: User limit for the channel. This is only applicable for voice channels. Optional, defaults to ``0``.
+	:param bitrate: Bitrate for the channel. This is only applicable to voice channels. Optional, defaults to ``0``.
+	:param userlimit: User limit for the channel. This is only applicable to voice channels. Optional, defaults to ``0``.
 
 .. function:: GetPruneCount(days)
 

@@ -166,6 +166,7 @@ namespace DSharpPlus
                 byte[] trailer = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
                 await rs.WriteAsync(trailer, 0, trailer.Length);
                 rs.Close();
+                fileStream.Close();
             }
             else
             {

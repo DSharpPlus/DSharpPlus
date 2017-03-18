@@ -1,11 +1,11 @@
 Reference for ``DiscordClient``
-=================================
+===============================
 
 ``DiscordClient`` is the heart of the library and your bot. It's the class that takes care of dispatching events, 
 communicating on your bot's behalf, and performing other tasks.
 
 Constructors
---------------
+------------
 
 .. function:: DiscordClient()
 
@@ -22,9 +22,7 @@ Constructors
 	:param config: An instance of :doc:`DiscordConfig </reference/misc/DiscordConfig>`. Used to specify the configuration options for the client.
 
 Events
---------
-
-Below you can find complete event reference.
+------
 
 .. attribute:: SocketOpened
 
@@ -370,7 +368,7 @@ Below you can find complete event reference.
 	:param Channe: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the webhook was updated in.
 
 Members
----------
+-------
 
 .. attribute:: DebugLogger
 
@@ -401,7 +399,7 @@ Members
 	A dictionary of guilds (instances of :doc:`DiscordGuild </reference/DiscordGuild>`) the bot is in.
 
 Methods
----------
+-------
 
 .. function:: Connect()
 .. function:: Connect(tokenOverride, tokenType)
