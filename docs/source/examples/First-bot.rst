@@ -1,12 +1,12 @@
 Making your first bot
-=======================
+=====================
 
 Making your first bot in C# using DSharpPlus library is an easy task, however it does require good knowledge of C#.
 
 If you do not know C# well enough, I recommend checking `this video series <https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners>`_ out.
 
 Step 1: Create the application
---------------------------------
+------------------------------
 
 We begin the adventure by creating an application and bot user for your bot.
 
@@ -17,9 +17,9 @@ We begin the adventure by creating an application and bot user for your bot.
 
 3. **New app** page will open. Enter your bot's name in the **app name** field (1), and its description in the **description** field (2).
 
-.. note:: You can optionally give it an avatar by pressing on the **avatar** button (3).
-
 .. image:: http://i.imgur.com/3mrEG9x.png
+
+	* You can optionally give it an avatar by pressing on the **avatar** button (3).
 
 4. When you're done, press the **create app** button.
 
@@ -61,15 +61,15 @@ Ok. So we have a bot application created, but it does nothing. Let's change this
 
 6. Now, once this is done, go to **Installed** (1), clear the search box (2), select ``Baseclass.Contrib.Nuget.Output``, and on the right, select ``2.2.0-xbuild02`` version (3), and press **Update** (4).
 
-.. note:: this is optional if these packages are already at these or newer versions.
-
 .. image:: http://i.imgur.com/bWJifiz.png
+
+	* *Note*: this is optional if these packages are already at these or newer versions.
 
 7. Repeat this ``libsodium-net``, but install version ``0.10.0``.
 8. Now, our project is ready to begin. Close the NuGet tab, and go back to your project.
 
 Step 3: Adding the bot to your server
----------------------------------------
+-------------------------------------
 
 1. Go back to your app page, and copy your bot's **client ID**.
 
@@ -94,7 +94,7 @@ Now that our project is set up, we can begin coding. In the [generated file](htt
 
 Here's what we need to do:
 
-1. Add ``using DSharpPlus`` to the 1st section.
+1. Add `using DSharpPlus to the 1st section.
 2. Add a new method, ``public static async Task Run()`` under the ``Main`` method.
 3. Add the following code to 2nd section: ``Run().GetAwaiter().GetResult()``
 4. Add the following code to the ``Run`` method: ::
@@ -153,10 +153,35 @@ We have connected our bot and added it to a server. But it does nothing (yet). L
    
 4. Run your bot. When it comes online, type ``ping`` in chat. If your bot responds with ``pong``, congratulations, you did well.
 
-Summary
----------
+Step 6: Commands
+----------------
 
-You now have a bot that responds to messages. You can extend it further using what you just learned, looking at more advanced examples, and reading the documentation.
+Well, this is cool, but handing commands like this might get tedious real fast. The solution? Command module. Close the bot and let's go back to Visual Studio.
+
+Unfortunately, for this you will need to clone the repository and build the module yourself, because as of this writing, the module is not yet on NuGet. Once you have the module built and referenced, let's make the necessary changes to our code.
+
+1. Add ``using DSharpPlus.Commands;`` to the ``using`` section.
+2. In your ``Run`` method, add the following code: ::
+   
+	discord.UseCommands(new CommandConfig
+	{
+		Prefix = "#",
+		SelfBot = false
+	});
+   
+3. Now we have a command service set up, but no commands yet. Let's change that. We're going to create a ``hello`` command. We do that as follows: ::
+   
+	discord.AddCommand("hello", async e =>
+	{
+		await e.Message.Respond($"Hello, {e.Message.Author.Mention}!");
+	});
+   
+4. Now let's run our bot. Once it comes online, say ``#hello``. The bot should respond by saying ``Hello, @yourname!``. If it did, good job. From here, you can do other things.
+
+Summary
+-------
+
+You now have a bot that responds to messages and commands. You can extend it further using what you just learned, and reading the documentation.
 
 By now, your code should look like this: ::
 
@@ -166,6 +191,7 @@ By now, your code should look like this: ::
 	using System.Text;
 	using System.Threading.Tasks;
 	using DSharpPlus;
+	using DSharpPlus.Commands;
 
 	namespace DspBot
 	{
@@ -205,6 +231,17 @@ By now, your code should look like this: ::
 					if (e.Message.Content.ToLower() == "ping")
 						await e.Message.Respond("pong");
 				};
+
+				discord.UseCommands(new CommandConfig
+				{
+					Prefix = "#",
+					SelfBot = false
+				});
+
+				discord.AddCommand("hello", async e =>
+				{
+					await e.Message.Respond($"Hello, {e.Message.Author.Mention}!");
+				});
 
 				await discord.Connect();
 
