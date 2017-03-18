@@ -1,23 +1,36 @@
-DiscordApplication
-==================
+Reference for ``DiscordApplication``
+====================================
 
-DiscordApplication describes the your discord application, used for development of OAuth Applications
+DiscordApplication describes the your discord application. This is used primarily for development of OAuth-based 
+applications, but it can also be used to determine any application's properties.
 
 Members
 -------
 
-``ulong ID``: ID for this object
+.. attribute:: ID
 
-``DateTime CreationDate``: When this was created
+	Application's ID.
 
-``string Description``: Description of this API Application
+.. attribute:: Description
 
-``string Icon``: Icon hash for this API Application
+	Application's description. This is usually used to describe the application's purpose.
 
-``string Name``: Name for this API Application
+.. attribute:: Icon
 
-``List<string> RpcOrigins``: Not quite sure what this is
+	Application's icon.
 
-``int Flags``: Neither sure what this is
+.. attribute:: Name
 
-``DiscordApplicationOwner Owner``: Owner of this API Application
+	Application's name.
+
+.. attribute:: RpcOrigins
+
+	Application's RPC origins. This is used by RPC-based clients to determine which URLs are allowed to control the RPC client.
+
+.. attribute:: Flags
+
+	Application's flags, such as require token grant, etc.
+
+.. attribute:: Owner
+
+	Application's owner.
