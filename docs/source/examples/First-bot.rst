@@ -1,12 +1,12 @@
 Making your first bot
-=======================
+=====================
 
 Making your first bot in C# using DSharpPlus library is an easy task, however it does require good knowledge of C#.
 
 If you do not know C# well enough, I recommend checking `this video series <https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners>`_ out.
 
 Step 1: Create the application
---------------------------------
+------------------------------
 
 We begin the adventure by creating an application and bot user for your bot.
 
@@ -69,7 +69,7 @@ Ok. So we have a bot application created, but it does nothing. Let's change this
 8. Now, our project is ready to begin. Close the NuGet tab, and go back to your project.
 
 Step 3: Adding the bot to your server
----------------------------------------
+-------------------------------------
 
 1. Go back to your app page, and copy your bot's **client ID**.
 
@@ -154,7 +154,7 @@ We have connected our bot and added it to a server. But it does nothing (yet). L
 4. Run your bot. When it comes online, type ``ping`` in chat. If your bot responds with ``pong``, congratulations, you did well.
 
 Step 6: Commands
-------------------
+----------------
 
 Well, this is cool, but handing commands like this might get tedious real fast. The solution? Command module. Close the bot and let's go back to Visual Studio.
 
@@ -179,7 +179,7 @@ Unfortunately, for this you will need to clone the repository and build the modu
 4. Now let's run our bot. Once it comes online, say ``#hello``. The bot should respond by saying ``Hello, @yourname!``. If it did, good job. From here, you can do other things.
 
 Summary
----------
+-------
 
 You now have a bot that responds to messages and commands. You can extend it further using what you just learned, and reading the documentation.
 
