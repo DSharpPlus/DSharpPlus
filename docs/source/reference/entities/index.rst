@@ -6,9 +6,4 @@ Here you will find complete reference for API entites in DSharpPlus. Look throug
 .. toctree::
 	:maxdepth: 1
 	
-	TokenType
-	Permission
-	MentionType
-	LogLevel
-	ChannelType
-	Branch
+	DiscordEmbed
