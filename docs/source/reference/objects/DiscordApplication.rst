@@ -16,7 +16,7 @@ Members
 
 ``string Name``: Name for this API Application
 
-``List<string> RpcOrigins``: Not quite sure what this is 
+``List<string> RpcOrigins``: Not quite sure what this is
 
 ``int Flags``: Neither sure what this is
 
