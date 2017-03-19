@@ -23,7 +23,7 @@ Take a look at `this video series <https://channel9.msdn.com/Series/C-Fundamenta
 Don't know where to start?
 --------------------------
 
-Take a look at :doc:`our example bots </examples/First-bot>`
+Take a look at :doc:`our example bots </examples/index>`.
 
 Looking for API reference?
 --------------------------
@@ -38,5 +38,6 @@ You'll want to start with ``DiscordClient``, and then move on to its events and 
 	:glob:
 	:hidden:
 	
+	getting-started/index.rst
 	examples/index.rst
 	reference/index.rst
