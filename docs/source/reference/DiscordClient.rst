@@ -677,3 +677,18 @@ Methods
 	Updates the current user's avatar.
 	
 	:param path: Path to the file with the new avatar.
+
+Additional notes
+----------------
+
+``DiscordClient`` has several extensions available, which extend its functionality in various ways.
+
+Command module
+^^^^^^^^^^^^^
+
+Several command-specific :doc:`extensions </reference/commands/DiscordClient-extensions>` are defined in that module, which enable the its usage.
+
+VoiceNext module
+^^^^^^^^^^^^^^^^
+
+Several voice-specific :doc:`extensions </reference/voice/DiscordClient-extensions>` are defined in that module, which enable the its usage.

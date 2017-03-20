@@ -6,6 +6,7 @@ Here you will find complete reference for miscellaneous entites in DSharpPlus' c
 .. toctree::
 	:maxdepth: 1
 	
+	DiscordClient-extensions
 	CommandModule
 	CommandConfig
 	Command
