@@ -23,7 +23,7 @@ Take a look at `this video series <https://channel9.msdn.com/Series/C-Fundamenta
 Don't know where to start?
 --------------------------
 
-Head over to :doc:`Getting started `</getting-started/index>`.
+Head over to :doc:`getting started </getting-started/index>`.
 
 Looking for examples of use?
 ----------------------------
