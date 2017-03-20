@@ -170,7 +170,7 @@ Methods
 	
 		This method is asynchronous. It needs to be awaited.
 	
-	Gets all users who reacted with specified emoji. Returns a list of :doc:`DiscordUser </references/DiscordUser>`.
+	Gets all users who reacted with specified emoji. Returns a list of :doc:`DiscordUser </reference/DiscordUser>`.
 	
 	:param emoji: Reaction to check for. When using standard emoji, this needs to be the unicode entity (such as 👍 or 🤔). When using guild emoji, this needs to be a formatted emoji string (such as ``<:FeelsBadMan:229765516204441600>``).
 
