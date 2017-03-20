@@ -114,7 +114,7 @@ Events
 	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>` that were mentioned in this message.
 	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>` that were mentioned in this message.
 	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>` that were mentioned in this message.
-	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that were used in this message.
+	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/entities/DiscordEmoji>` that were used in this message.
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was sent in.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was sent in. This parameter is ``null`` for direct messages.
 	:param Author: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that sent the message.
@@ -153,7 +153,7 @@ Events
 	Called whenever a guild has its emoji updated. Takes ``GuildEmojisUpdateEventArgs`` as an argument, with the 
 	following parameters:
 	
-	:param Emojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that got updated.
+	:param Emojis: A list of :doc:`DiscordEmoji </reference/entities/DiscordEmoji>` that got updated.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that had its emoji updated.
 
 .. attribute:: GuildIntegrationsUpdate
@@ -227,7 +227,7 @@ Events
 	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>` that were mentioned in this message.
 	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>` that were mentioned in this message.
 	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>` that were mentioned in this message.
-	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that were used in this message.
+	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/entities/DiscordEmoji>` that were used in this message.
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was updated in.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was updated in. This parameter is ``null`` for direct messages.
 	:param Author: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that updated the message.
@@ -416,18 +416,18 @@ Methods
 	Connects to Discord and begins dispatching events.
 	
 	:param tokenOverride: A string containing the token used to connect.
-	:param tokenType: A :doc:`TokenType </reference/TokenType>` which defines the token's type.
+	:param tokenType: A :doc:`TokenType </reference/misc/TokenType>` which defines the token's type.
 	
 .. function:: AddModule(module)
 
 	Adds a module to the client, and returns it.
 	
-	:param module: An instance of a class implementing :doc:`IModule </reference/IModule>` interface.
+	:param module: An instance of a class implementing :doc:`IModule </reference/misc/IModule>` interface.
 	
 .. function:: GetModule<T>(module)
 
 	Finds and returns an instance of the module specified by the generic argument. ``T`` needs to be a class 
-	implementing :doc:`IModule </reference/IModule>` interface.
+	implementing :doc:`IModule </reference/misc/IModule>` interface.
 
 .. function:: Reconnect()
 .. function:: Reconnect(tokenOverride, tokenType, shard)
@@ -444,7 +444,7 @@ Methods
 	Reconnects with Discord.
 	
 	:param tokenOverride: A string containing the token used to connect.
-	:param tokenType: A :doc:`TokenType </reference/TokenType>` which defines the token's type.
+	:param tokenType: A :doc:`TokenType </reference/misc/TokenType>` which defines the token's type.
 	:param shard: Shard to connect.
 
 .. function:: Disconnect()
