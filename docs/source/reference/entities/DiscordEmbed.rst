@@ -27,7 +27,7 @@ Members
 
 	.. note::
 	
-		When sending an embed, this property is always set to ``rich``, regardless of what it's actual set to.
+		When sending an embed, this property is always set to ``rich``, regardless of what it's actually set to.
 
 	This embed's type.
 
@@ -77,7 +77,7 @@ Members
 
 .. attribute:: Provider
 
-	This embed's provider.
+	This embed's provider. Instance of :doc:`DiscordEmbedProvider </reference/entities/DiscordEmbedProvider>`.
 
 .. attribute:: Author
 
