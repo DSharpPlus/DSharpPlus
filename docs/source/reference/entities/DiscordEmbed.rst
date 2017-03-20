@@ -73,7 +73,7 @@ Members
 	
 		This property cannot be set by clients, and, as such, is ignored by Discord.
 
-	This embed's video.
+	This embed's video. Instance of :doc:`DiscordEmbedVideo </reference/entities/DiscordEmbedVideo>`.
 
 .. attribute:: Provider
 
