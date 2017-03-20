@@ -63,7 +63,7 @@ Ok. So we have a bot application created, but it does nothing. Let's change this
 
    .. image:: http://i.imgur.com/bWJifiz.png
 
-	* *Note*: this is optional if these packages are already at these or newer versions.
+   * Note: this is optional if these packages are already at these or newer versions.
 
 7. Repeat this ``libsodium-net``, but install version ``0.10.0``.
 8. Now, our project is ready to begin. Close the NuGet tab, and go back to your project.
