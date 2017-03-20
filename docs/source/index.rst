@@ -23,6 +23,11 @@ Take a look at `this video series <https://channel9.msdn.com/Series/C-Fundamenta
 Don't know where to start?
 --------------------------
 
+Head over to :doc:`Getting started `</getting-started/index>`.
+
+Looking for examples of use?
+----------------------------
+
 Take a look at :doc:`our example bots </examples/index>`.
 
 Looking for API reference?
