@@ -19,7 +19,7 @@ We begin the adventure by creating an application and bot user for your bot.
 
    .. image:: http://i.imgur.com/3mrEG9x.png
 
-	* You can optionally give it an avatar by pressing on the **avatar** button (3).
+   * You can optionally give it an avatar by pressing on the **avatar** button (3).
 
 4. When you're done, press the **create app** button.
 
