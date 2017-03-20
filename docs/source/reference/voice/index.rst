@@ -6,6 +6,7 @@ Here you will find complete reference for all of DSharpPlus' VoiceNext API. Look
 .. toctree::
 	:maxdepth: 1
 	
+	DiscordClient-extensions
 	VoiceNextClient
 	VoiceNextConnection
 	VoiceNextConfiguration
