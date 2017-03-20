@@ -87,14 +87,14 @@ Step 3: Adding the bot to your server
 Step 4: Basic bot, connecting to Discord
 ------------------------------------------
 
-Now that our project is set up, we can begin coding. In the [generated file](http://i.imgur.com/94FPUA0.png), you will quickly notice a couple things:
+Now that our project is set up, we can begin coding. In the `generated file <http://i.imgur.com/94FPUA0.png>`_, you will quickly notice a couple things:
 
 1. ``using`` section.
 2. ``Main`` method.
 
 Here's what we need to do:
 
-1. Add `using DSharpPlus to the 1st section.
+1. Add ``using DSharpPlus`` to the 1st section.
 2. Add a new method, ``public static async Task Run()`` under the ``Main`` method.
 3. Add the following code to 2nd section: ``Run().GetAwaiter().GetResult()``
 4. Add the following code to the ``Run`` method: ::
