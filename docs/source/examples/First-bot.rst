@@ -126,7 +126,7 @@ Step 5: Events
 
 We have connected our bot and added it to a server. But it does nothing (yet). Let's change that. Close your bot, and go back to Visual Studio.
 
-*Note*: All of the below will be occuring between the declaration of ````discord```` and calling ``await discord.Connect()``, in the ``Run`` method.
+*Note*: All of the below will be occuring between the declaration of ``discord`` and calling ``await discord.Connect()``, in the ``Run`` method.
 
 1. First, we might want to light our console up with some messages from the bot. Let's add a handler for this: ::
 
