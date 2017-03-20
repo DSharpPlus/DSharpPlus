@@ -7,3 +7,4 @@ Here you will find complete reference for API entites in DSharpPlus. Look throug
 	:maxdepth: 1
 	
 	DiscordEmbed
+	DiscordApplication
