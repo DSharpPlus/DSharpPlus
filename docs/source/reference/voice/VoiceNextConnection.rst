@@ -24,11 +24,6 @@ Events
 	:param Voice: Received voice data.
 	:param VoiceLength: Length of the data received.
 
-Members
--------
-
-
-
 Methods
 -------
 
