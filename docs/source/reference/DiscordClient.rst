@@ -684,7 +684,7 @@ Additional notes
 ``DiscordClient`` has several extensions available, which extend its functionality in various ways.
 
 Command module
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 Several command-specific :doc:`extensions </reference/commands/DiscordClient-extensions>` are defined in that module, which enable the its usage.
 
