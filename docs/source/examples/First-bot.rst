@@ -71,7 +71,7 @@ Now that our project is set up, we can begin coding. In the `generated file <htt
 
 Here's what we need to do:
 
-1. Add `using DSharpPlus to the 1st section.
+1. Add ``using DSharpPlus`` to the 1st section.
 2. Add a new method, ``public static async Task Run()`` under the ``Main`` method.
 3. Add the following code to 2nd section: ``Run().GetAwaiter().GetResult()``
 4. Add the following code to the ``Run`` method: ::
