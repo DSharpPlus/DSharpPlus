@@ -18,10 +18,10 @@ namespace DSharpPlus
         /// <summary>
         /// Only use for Group DM's! Whitelised bots only. Requires user's oauth2 access token
         /// </summary>
-        public async Task AddDMRecipient(ulong UserID, string accesstoken) => await DiscordClient.InternalGroupDMAddRecipient(ID, UserID, accesstoken);
+        public async Task AddDMRecipient(ulong user_id, string accesstoken) => await DiscordClient.InternalGroupDMAddRecipient(ID, user_id, accesstoken);
         /// <summary>
         /// Only use for Group DM's!
         /// </summary>
-        public async Task RemoveDMRecipient(ulong UserID, string accesstoken) => await DiscordClient.InternalGroupDMRemoveRecipient(ID, UserID);
+        public async Task RemoveDMRecipient(ulong user_id, string accesstoken) => await DiscordClient.InternalGroupDMRemoveRecipient(ID, user_id);
     }
 }

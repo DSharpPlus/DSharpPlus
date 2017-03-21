@@ -139,13 +139,13 @@ namespace DSharpPlus
         #region Guild Functions
         public async Task<DiscordGuild> Delete() => await DiscordClient.InternalDeleteGuild(ID);
         public async Task<DiscordGuild> Modify(string name = "", string region = "", int verification_level = -1, int default_message_notifications = -1,
-            ulong afkchannelid = 0, int afktimeout = -1, ulong ownerID = 0, string splash = "") 
-            => await DiscordClient.InternalModifyGuild(ID, name, region, verification_level, DefaultMessageNotifications, afkchannelid, afktimeout, "", ownerID);
-        public async Task BanMember(DiscordMember Member) => await DiscordClient.InternalCreateGuildBan(ID, Member.User.ID);
-        public async Task UnbanMember(DiscordMember Member) => await DiscordClient.InternalRemoveGuildBan(ID, Member.User.ID);
+            ulong afk_channel_id = 0, int afk_timeout = -1, ulong owner_id = 0, string splash = "") 
+            => await DiscordClient.InternalModifyGuild(ID, name, region, verification_level, DefaultMessageNotifications, afk_channel_id, afk_timeout, "", owner_id);
+        public async Task BanMember(DiscordMember member) => await DiscordClient.InternalCreateGuildBan(ID, member.User.ID);
+        public async Task UnbanMember(DiscordMember member) => await DiscordClient.InternalRemoveGuildBan(ID, member.User.ID);
         public async Task Leave() => await DiscordClient.InternalLeaveGuild(ID);
         public async Task<List<DiscordMember>> GetBans() => await DiscordClient.InternalGetGuildBans(ID);
-        public async Task<DiscordChannel> CreateChannel(string Name, ChannelType type, int bitrate = 0, int userlimit = 0) => await DiscordClient.InternalCreateChannel(ID, Name, type, bitrate, userlimit);
+        public async Task<DiscordChannel> CreateChannel(string name, ChannelType type, int bitrate = 0, int user_limit = 0) => await DiscordClient.InternalCreateChannel(ID, name, type, bitrate, user_limit);
         public async Task<int> GetPruneCount(int days) => await DiscordClient.InternalGetGuildPruneCount(ID, days);
         public async Task<int> Prune(int days) => await DiscordClient.InternalBeginGuildPrune(ID, days);
         public async Task<List<DiscordIntegration>> GetIntegrations() => await DiscordClient.InternalGetGuildIntegrations(ID);
@@ -159,17 +159,17 @@ namespace DSharpPlus
         public async Task<List<DiscordInvite>> GetInvites() => await DiscordClient.InternalGetGuildInvites(ID);
         public async Task<List<DiscordWebhook>> GetWebhooks() => await DiscordClient.InternalGetGuildWebhooks(ID);
         public async Task RemoveMember(DiscordUser user) => await DiscordClient.InternalRemoveGuildMember(ID, user.ID);
-        public async Task RemoveMember(ulong UserID) => await DiscordClient.InternalRemoveGuildMember(ID, UserID);
-        public async Task<DiscordMember> GetMember(ulong UserID) => await DiscordClient.InternalGetGuildMember(ID, UserID);
+        public async Task RemoveMember(ulong user_id) => await DiscordClient.InternalRemoveGuildMember(ID, user_id);
+        public async Task<DiscordMember> GetMember(ulong user_id) => await DiscordClient.InternalGetGuildMember(ID, user_id);
         public async Task<List<DiscordMember>> GetAllMembers() => await DiscordClient.InternalGetGuildMembers(ID, MemberCount);
-        public async Task ModifyMember(ulong MemberID, string Nickname, List<ulong> Roles, bool Muted, bool Deaf, ulong VoiceChannelID) =>
-            await DiscordClient.InternalModifyGuildMember(ID, MemberID, Nickname, Roles, Muted, Deaf, VoiceChannelID);
+        public async Task ModifyMember(ulong member_id, string nickname, List<ulong> roles, bool muted, bool deaf, ulong voicechannel_id) =>
+            await DiscordClient.InternalModifyGuildMember(ID, member_id, nickname, roles, muted, deaf, voicechannel_id);
         public async Task<List<DiscordChannel>> GetChannels() => await DiscordClient.InternalGetGuildChannels(ID);
         public async Task<List<DiscordMember>> ListMembers(int limit, int after) => await DiscordClient.InternalListGuildMembers(ID, limit, after);
         public async Task UpdateRole(DiscordRole role) => await DiscordClient.InternalModifyGuildRole(ID, role.ID, role.Name, role.Permissions, role.Position, role.Color, false, role.Mentionable);
         public async Task<DiscordRole> CreateRole() => await DiscordClient.InternalCreateGuildRole(ID);
-        public async Task AddRole(ulong UserID, ulong RoleID) => await DiscordClient.InternalAddGuildMemberRole(ID, UserID, RoleID);
-        public async Task RemoveRole(ulong UserID, ulong RoleID) => await DiscordClient.InternalRemoveGuildMemberRole(ID, UserID, RoleID);
+        public async Task AddRole(ulong user_id, ulong role_id) => await DiscordClient.InternalAddGuildMemberRole(ID, user_id, role_id);
+        public async Task RemoveRole(ulong user_id, ulong role_id) => await DiscordClient.InternalRemoveGuildMemberRole(ID, user_id, role_id);
         #endregion
 
     }
