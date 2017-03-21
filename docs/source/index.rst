@@ -6,7 +6,7 @@
 .. image:: https://github.com/NaamloosDT/DSharpPlus/raw/master/logo/dsharp+_smaller.png
 
 Welcome to the DSharpPlus documentation
-=========================================
+=======================================
 
 DSharpPlus is a Discord API Wrapper based off DiscordSharp by Luigifan, though it has been rewritten to fit the API standards.
 
@@ -16,27 +16,33 @@ Here you should be able to get enough information to write your own Discord bot.
 * `Naamloos' Chat <http://www.discord.gg/0oZpaYcAjfvkDuE4>`_
 
 New to programming in C#?
----------------------------
+-------------------------
 
 Take a look at `this video series <https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners>`_, it should help you get started.
 
 Don't know where to start?
+--------------------------
+
+Head over to :doc:`getting started </getting-started/index>`.
+
+Looking for examples of use?
 ----------------------------
 
-Take a look at :doc:`our example bots </examples/First-bot>`
+Take a look at :doc:`our example bots </examples/index>`.
 
 Looking for API reference?
-----------------------------
+--------------------------
 
 Head on to :doc:`programming reference </reference/index>`. 
 
 You'll want to start with ``DiscordClient``, and then move on to its events and other classes.
 
 .. toctree::
-	:maxdepth: 3
+	:maxdepth: 2
 	:caption: Contents:
 	:glob:
 	:hidden:
 	
+	getting-started/index.rst
 	examples/index.rst
 	reference/index.rst

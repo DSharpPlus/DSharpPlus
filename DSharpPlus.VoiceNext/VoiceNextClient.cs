@@ -93,8 +93,10 @@ namespace DSharpPlus.VoiceNext
                 Token = vsru.VoiceToken
             };
 
-            this.VoiceStateUpdates.TryRemove(gld.ID, out _);
-            this.VoiceServerUpdates.TryRemove(gld.ID, out _);
+            var d1 = (TaskCompletionSource<VoiceStateUpdateEventArgs>)null;
+            var d2 = (TaskCompletionSource<VoiceServerUpdateEventArgs>)null;
+            this.VoiceStateUpdates.TryRemove(gld.ID, out d1);
+            this.VoiceServerUpdates.TryRemove(gld.ID, out d2);
             
             var vnc = new VoiceNextConnection(this.Client, gld, channel, this.Configuration, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
@@ -119,8 +121,9 @@ namespace DSharpPlus.VoiceNext
 
         private void Vnc_VoiceDisconnected(DiscordGuild guild)
         {
+            var vnc = (VoiceNextConnection)null;
             if (this.ActiveConnections.ContainsKey(guild.ID))
-                this.ActiveConnections.TryRemove(guild.ID, out _);
+                this.ActiveConnections.TryRemove(guild.ID, out vnc);
 
             var vsd = new VoiceDispatch
             {

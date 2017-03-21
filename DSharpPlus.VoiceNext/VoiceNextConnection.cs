@@ -134,7 +134,7 @@ namespace DSharpPlus.VoiceNext
         /// Connects to the specified voice channel.
         /// </summary>
         /// <returns>A task representing the connection operation.</returns>
-        public async Task ConnectAsync()
+        internal async Task ConnectAsync()
         {
             await Task.Run(() => this.VoiceWs.Connect()).ConfigureAwait(false);
         }
