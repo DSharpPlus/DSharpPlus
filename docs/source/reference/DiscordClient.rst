@@ -1,11 +1,11 @@
 Reference for ``DiscordClient``
-=================================
+===============================
 
 ``DiscordClient`` is the heart of the library and your bot. It's the class that takes care of dispatching events, 
 communicating on your bot's behalf, and performing other tasks.
 
 Constructors
---------------
+------------
 
 .. function:: DiscordClient()
 
@@ -22,177 +22,7 @@ Constructors
 	:param config: An instance of :doc:`DiscordConfig </reference/misc/DiscordConfig>`. Used to specify the configuration options for the client.
 
 Events
---------
-
-Events are the key to making any bot work. All events are asynchronous, meaning that all event handlers must return a 
-``Task`` instance. For lambda and function handlers marked ``async`` this is automatic. For non-``async`` lambdas and 
-functions, you need to ``return Task.Delay(0)`` at the end of the handler, or make it ``async``, and begin with 
-``await Task.Yield()``. If an event takes no argument, your handler cannot take any either, otherwise it takes one 
-argument, which is an appropriate ``EventArgs`` instance.
-
-Event usage
-^^^^^^^^^^^^^
-
-Events can be used in 2 ways. Via lambdas or functions. In C#, the handler needs to return ``Task``, and take 
-appropriate arguments.
-
-For events without arguments, following methods are acceptable: ::
-
-	// lambda approach
-
-	client.Event += async () =>
-	{
-		// do something async
-		await client.SomethingAsync();
-	};
-	
-	client.Event += async () =>
-	{
-		await Task.Yield();
-		// do something non-async
-	};
-	
-	client.Event += () =>
-	{
-		// do something non-async
-		client.SomethingNonAsync();
-		
-		return Task.Delay(0);
-	};
-	
-	// function approach
-	
-	client.Event += MyHandler;
-	
-	// later in the code
-	
-	public async Task MyHandler()
-	{
-		// do something async
-		await client.SomethingAsync();
-	}
-	
-	public async Task MyHandler()
-	{
-		await Task.Yield();
-		// do something non-async
-	}
-	
-	public Task MyHandler()
-	{
-		// do something non-async
-		client.SomethingNonAsync();
-		
-		return Task.Delay(0);
-	}
-
-In Visual Basic, you can only use Function handlers, however the rest still applies. Additionally, the client instance 
-need to be defined with the ``WithEvents`` keyword, for example ``Public WithEvents Client As DiscordClient``. 
-
-Handlers in VB.NET can only be functions, but the rest still appplies: ::
-
-	Public Async Function OnEvent() As Task Handles Client.Event
-	
-		' do something async
-		Await Client.SomethingAsync()
-	
-	End Function
-	
-	Public Async Function OnEvent() As Task Handles Client.Event
-	
-		Await Task.Yield()
-		' do something non-async
-	
-	End Function
-	
-	Public Function OnEvent() As Task Handles Client.Event
-	
-		' do something non-async
-		Client.SomethingNonAsync()
-		
-		Return Task.Delay(0)
-	
-	End Function
-
-For events that take arguments, you need to make your handler take arguments too, for instance:::
-
-	// lambda approach
-
-	client.Event += async e =>
-	{
-		// do something async
-		await e.SomethingAsync();
-	};
-	
-	client.Event += async e =>
-	{
-		await Task.Yield();
-		// do something non-async
-	};
-	
-	client.Event += e =>
-	{
-		// do something non-async
-		e.SomethingNonAsync();
-		
-		return Task.Delay(0);
-	};
-	
-	// function approach
-	
-	client.Event += MyHandler;
-	
-	// later in the code
-	
-	public async Task MyHandler(EventEventArgs e)
-	{
-		// do something async
-		await e.SomethingAsync();
-	}
-	
-	public async Task MyHandler(EventEventArgs e)
-	{
-		await Task.Yield();
-		// do something non-async
-	}
-	
-	public Task MyHandler(EventEventArgs e)
-	{
-		// do something non-async
-		e.SomethingNonAsync();
-		
-		return Task.Delay(0);
-	}
-
-Similarly, in Visual Basic: ::
-
-	Public Async Function OnEvent(ByVal e As EventEventArgs) As Task Handles Client.Event
-	
-		' do something async
-		Await e.SomethingAsync()
-	
-	End Function
-	
-	Public Async Function OnEvent(ByVal e As EventEventArgs) As Task Handles Client.Event
-	
-		Await Task.Yield()
-		' do something non-async
-	
-	End Function
-	
-	Public Function OnEvent(ByVal e As EventEventArgs) As Task Handles Client.Event
-	
-		' do something non-async
-		e.SomethingNonAsync()
-		
-		Return Task.Delay(0)
-	
-	End Function
-
-Event reference
-^^^^^^^^^^^^^^^^^
-
-Below you can find complete event reference.
+------
 
 .. attribute:: SocketOpened
 
@@ -284,7 +114,7 @@ Below you can find complete event reference.
 	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>` that were mentioned in this message.
 	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>` that were mentioned in this message.
 	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>` that were mentioned in this message.
-	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that were used in this message.
+	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/entities/DiscordEmoji>` that were used in this message.
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was sent in.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was sent in. This parameter is ``null`` for direct messages.
 	:param Author: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that sent the message.
@@ -323,7 +153,7 @@ Below you can find complete event reference.
 	Called whenever a guild has its emoji updated. Takes ``GuildEmojisUpdateEventArgs`` as an argument, with the 
 	following parameters:
 	
-	:param Emojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that got updated.
+	:param Emojis: A list of :doc:`DiscordEmoji </reference/entities/DiscordEmoji>` that got updated.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that had its emoji updated.
 
 .. attribute:: GuildIntegrationsUpdate
@@ -397,7 +227,7 @@ Below you can find complete event reference.
 	:param MentionedUsers: A list of :doc:`DiscordMember </reference/DiscordMember>` that were mentioned in this message.
 	:param MentionedRoles: A list of :doc:`DiscordRole </reference/DiscordRole>` that were mentioned in this message.
 	:param MentionedChannels: A list of :doc:`DiscordChannel </reference/DiscordChannel>` that were mentioned in this message.
-	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/DiscordEmoji>` that were used in this message.
+	:param UsedEmojis: A list of :doc:`DiscordEmoji </reference/entities/DiscordEmoji>` that were used in this message.
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the message was updated in.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the message was updated in. This parameter is ``null`` for direct messages.
 	:param Author: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that updated the message.
@@ -538,7 +368,7 @@ Below you can find complete event reference.
 	:param Channe: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) the webhook was updated in.
 
 Members
----------
+-------
 
 .. attribute:: DebugLogger
 
@@ -566,10 +396,10 @@ Members
 	
 .. attribute:: Guilds
 
-	A dictionary of guilds (instances of :doc:`DiscordGuild </reference/DiscordGuild`) the bot is in.
+	A dictionary of guilds (instances of :doc:`DiscordGuild </reference/DiscordGuild>`) the bot is in.
 
 Methods
----------
+-------
 
 .. function:: Connect()
 .. function:: Connect(tokenOverride, tokenType)
@@ -586,18 +416,18 @@ Methods
 	Connects to Discord and begins dispatching events.
 	
 	:param tokenOverride: A string containing the token used to connect.
-	:param tokenType: A :doc:`TokenType </reference/TokenType>` which defines the token's type.
+	:param tokenType: A :doc:`TokenType </reference/misc/TokenType>` which defines the token's type.
 	
 .. function:: AddModule(module)
 
 	Adds a module to the client, and returns it.
 	
-	:param module: An instance of a class implementing :doc:`IModule </reference/IModule>` interface.
+	:param module: An instance of a class implementing :doc:`IModule </reference/misc/IModule>` interface.
 	
 .. function:: GetModule<T>(module)
 
 	Finds and returns an instance of the module specified by the generic argument. ``T`` needs to be a class 
-	implementing :doc:`IModule </reference/IModule>` interface.
+	implementing :doc:`IModule </reference/misc/IModule>` interface.
 
 .. function:: Reconnect()
 .. function:: Reconnect(tokenOverride, tokenType, shard)
@@ -614,7 +444,7 @@ Methods
 	Reconnects with Discord.
 	
 	:param tokenOverride: A string containing the token used to connect.
-	:param tokenType: A :doc:`TokenType </reference/TokenType>` which defines the token's type.
+	:param tokenType: A :doc:`TokenType </reference/misc/TokenType>` which defines the token's type.
 	:param shard: Shard to connect.
 
 .. function:: Disconnect()
@@ -847,3 +677,18 @@ Methods
 	Updates the current user's avatar.
 	
 	:param path: Path to the file with the new avatar.
+
+Additional notes
+----------------
+
+``DiscordClient`` has several extensions available, which extend its functionality in various ways.
+
+Command module
+^^^^^^^^^^^^^^
+
+Several command-specific :doc:`extensions </reference/commands/DiscordClient-extensions>` are defined in that module, which enable the its usage.
+
+VoiceNext module
+^^^^^^^^^^^^^^^^
+
+Several voice-specific :doc:`extensions </reference/voice/DiscordClient-extensions>` are defined in that module, which enable the its usage.
