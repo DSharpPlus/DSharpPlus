@@ -134,12 +134,12 @@ namespace DSharpPlus
         /// Respond to the message
         /// </summary>
         /// <param name="content"></param>
-        /// <param name="filepath"></param>
-        /// <param name="filename"></param>
+        /// <param name="file_path"></param>
+        /// <param name="file_name"></param>
         /// <param name="tts"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> Respond(string content, string filepath, string filename, bool tts = false) 
-            => await DiscordClient.InternalUploadFile(ChannelID, filepath, filename, content, tts);
+        public async Task<DiscordMessage> Respond(string content, string file_path, string file_name, bool tts = false) 
+            => await DiscordClient.InternalUploadFile(ChannelID, file_path, file_name, content, tts);
 
         /// <summary>
         /// Creates a reaction to this message
@@ -157,16 +157,16 @@ namespace DSharpPlus
         /// Deletes another user's reaction.
         /// </summary>
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
-        /// <param name="Member">Member you want to remove the reaction for</param>
+        /// <param name="member">Member you want to remove the reaction for</param>
         /// <returns></returns>
-        public async Task DeleteReaction(string emoji, DiscordMember Member) => await DiscordClient.InternalDeleteUserReaction(ChannelID, ID, Member.User.ID, emoji);
+        public async Task DeleteReaction(string emoji, DiscordMember member) => await DiscordClient.InternalDeleteUserReaction(ChannelID, ID, member.User.ID, emoji);
         /// <summary>
         /// Deletes another user's reaction.
         /// </summary>
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
-        /// <param name="UserID">User ID of the member you want to remove the reaction for</param>
+        /// <param name="user_id">User ID of the member you want to remove the reaction for</param>
         /// <returns></returns>
-        public async Task DeleteReaction(string emoji, ulong UserID) => await DiscordClient.InternalDeleteUserReaction(ChannelID, ID, UserID, emoji);
+        public async Task DeleteReaction(string emoji, ulong user_id) => await DiscordClient.InternalDeleteUserReaction(ChannelID, ID, user_id, emoji);
         /// <summary>
         /// Gets users that reacted with this emoji
         /// </summary>

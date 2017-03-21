@@ -57,23 +57,23 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="content"></param>
         /// <param name="username"></param>
-        /// <param name="avatarurl"></param>
+        /// <param name="avatar_url"></param>
         /// <param name="tts"></param>
         /// <param name="embeds"></param>
         /// <returns></returns>
-        public async Task Execute(string content = "", string username = "", string avatarurl = "", bool tts = false, List<DiscordEmbed> embeds = null)
-            => await DiscordClient.InternalExecuteWebhook(ID, Token, content, username, avatarurl, tts, embeds);
+        public async Task Execute(string content = "", string username = "", string avatar_url = "", bool tts = false, List<DiscordEmbed> embeds = null)
+            => await DiscordClient.InternalExecuteWebhook(ID, Token, content, username, avatar_url, tts, embeds);
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Json"></param>
+        /// <param name="json"></param>
         /// <returns></returns>
-        public async Task ExecuteSlack(string Json) => await DiscordClient.InternalExecuteWebhookSlack(ID, Token, Json);
+        public async Task ExecuteSlack(string json) => await DiscordClient.InternalExecuteWebhookSlack(ID, Token, json);
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Json"></param>
+        /// <param name="json"></param>
         /// <returns></returns>
-        public async Task ExecuteGithub(string Json) => await DiscordClient.InternalExecuteWebhookGithub(ID, Token, Json);
+        public async Task ExecuteGithub(string json) => await DiscordClient.InternalExecuteWebhookGithub(ID, Token, json);
     }
 }

@@ -83,12 +83,12 @@ namespace DSharpPlus
         /// <summary>
         /// Posts a file
         /// </summary>
-        /// <param name="filepath"></param>
-        /// <param name="filename"></param>
+        /// <param name="file_path"></param>
+        /// <param name="file_name"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendFile(string filepath, string filename, string content = "", bool tts = false) => await DiscordClient.InternalUploadFile(ID, filepath, filename, content, tts);
+        public async Task<DiscordMessage> SendFile(string file_path, string file_name, string content = "", bool tts = false) => await DiscordClient.InternalUploadFile(ID, file_path, file_name, content, tts);
         /// <summary>
         /// Deletes a guild channel
         /// </summary>
@@ -97,9 +97,9 @@ namespace DSharpPlus
         /// <summary>
         /// Returns a specific message
         /// </summary>
-        /// <param name="ID"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> GetMessage(ulong ID) => await DiscordClient.InternalGetMessage(this.ID, ID);
+        public async Task<DiscordMessage> GetMessage(ulong id) => await DiscordClient.InternalGetMessage(ID, id);
         /// <summary>
         /// Updates the channel position
         /// </summary>
@@ -113,9 +113,9 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes multiple messages
         /// </summary>
-        /// <param name="MessageIDs"></param>
+        /// <param name="message_ids"></param>
         /// <returns></returns>
-        public async Task BulkDeleteMessages(List<ulong> MessageIDs) => await DiscordClient.InternalBulkDeleteMessages(ID, MessageIDs);
+        public async Task BulkDeleteMessages(List<ulong> message_ids) => await DiscordClient.InternalBulkDeleteMessages(ID, message_ids);
         /// <summary>
         /// Returns a list of invite objects
         /// </summary>
@@ -124,19 +124,19 @@ namespace DSharpPlus
         /// <summary>
         /// Create a new invite object
         /// </summary>
-        /// <param name="MaxAge"></param>
-        /// <param name="MaxUses"></param>
+        /// <param name="max_age"></param>
+        /// <param name="max_uses"></param>
         /// <param name="temporary"></param>
         /// <param name="unique"></param>
         /// <returns></returns>
-        public async Task<DiscordInvite> CreateInvite(int MaxAge = 86400, int MaxUses = 0, bool temporary = false, bool unique = false)
-            => await DiscordClient.InternalCreateChannelInvite(ID, MaxAge, MaxUses, temporary, unique);
+        public async Task<DiscordInvite> CreateInvite(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false)
+            => await DiscordClient.InternalCreateChannelInvite(ID, max_age, max_uses, temporary, unique);
         /// <summary>
         /// Deletes a channel permission overwrite
         /// </summary>
-        /// <param name="OverwriteID"></param>
+        /// <param name="overwrite_id"></param>
         /// <returns></returns>
-        public async Task DeleteChannelPermission(ulong OverwriteID) => await DiscordClient.InternalDeleteChannelPermission(ID, OverwriteID);
+        public async Task DeleteChannelPermission(ulong overwrite_id) => await DiscordClient.InternalDeleteChannelPermission(ID, overwrite_id);
         /// <summary>
         /// Post a typing indicator
         /// </summary>
@@ -151,9 +151,9 @@ namespace DSharpPlus
         /// Create a new webhook
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="base64avatar"></param>
+        /// <param name="base64_avatar"></param>
         /// <returns></returns>
-        public async Task<DiscordWebhook> CreateWebhook(string name = "", string base64avatar = "") => await DiscordClient.InternalCreateWebhook(ID, name, base64avatar);
+        public async Task<DiscordWebhook> CreateWebhook(string name = "", string base64_avatar = "") => await DiscordClient.InternalCreateWebhook(ID, name, base64_avatar);
         /// <summary>
         /// Returns a list of webhooks
         /// </summary>
@@ -163,13 +163,13 @@ namespace DSharpPlus
         /// <summary>
         /// Moves a member to this voice channel
         /// </summary>
-        /// <param name="MemberID"></param>
+        /// <param name="member_id"></param>
         /// <returns></returns>
-        public async Task PlaceMember(ulong MemberID)
+        public async Task PlaceMember(ulong member_id)
         {
             if (Type == ChannelType.Voice)
             {
-                await DiscordClient.InternalModifyGuildMember(Parent.ID, MemberID, VoiceChannelID: ID);
+                await DiscordClient.InternalModifyGuildMember(Parent.ID, member_id, VoiceChannelID: ID);
             }
         }
 
