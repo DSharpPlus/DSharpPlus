@@ -169,7 +169,7 @@ namespace DSharpPlus
         {
             if (Type == ChannelType.Voice)
             {
-                await DiscordClient.InternalModifyGuildMember(Parent.ID, member_id, VoiceChannelID: ID);
+                await DiscordClient.InternalModifyGuildMember(Parent.ID, member_id, voicechannel_id: ID);
             }
         }
 
