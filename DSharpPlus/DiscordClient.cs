@@ -532,7 +532,9 @@ namespace DSharpPlus
         internal async Task InternalReconnect()
         {
             await Disconnect();
-            await Connect();
+            // delay task by 2 seconds to make sure everything gets closed correctly
+            await Task.Delay(2000);
+            await InternalConnect();
         }
 
         internal async Task InternalReconnect(string token_override, TokenType token_type)
@@ -615,6 +617,7 @@ namespace DSharpPlus
             {
                 _cancelTokenSource.Cancel();
                 _websocketClient.Disconnect();
+                _websocketClient.Dispose();
 				config.AutoReconnect = false;
                 return true;
             });
