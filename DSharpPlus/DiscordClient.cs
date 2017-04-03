@@ -2073,14 +2073,15 @@ namespace DSharpPlus
 
         // hi c:
 
-        internal static async Task<DiscordMessage> InternalEditMessage(ulong channel_id, ulong message_id, string content)
+        internal static async Task<DiscordMessage> InternalEditMessage(ulong channel_id, ulong message_id, string content = null, DiscordEmbed embed = null)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + channel_id + Endpoints.Messages + "/" + message_id;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
-            JObject j = new JObject
-            {
-                { "content", content }
-            };
+            JObject j = new JObject();
+            if (content != null)
+                j.Add("content", content);
+            if (embed != null)
+                j.Add("embed", JObject.FromObject(embed));
             WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
