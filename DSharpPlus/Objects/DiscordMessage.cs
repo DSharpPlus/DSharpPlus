@@ -106,7 +106,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> Edit(string content) => await DiscordClient.InternalEditMessage(ChannelID, ID, content);
+        public async Task<DiscordMessage> Edit(string content = null, DiscordEmbed embed = null) => await DiscordClient.InternalEditMessage(ChannelID, ID, content, embed);
         /// <summary>
         /// Deletes the message
         /// </summary>
