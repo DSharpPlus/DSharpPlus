@@ -570,8 +570,7 @@ namespace DSharpPlus
 
                 if (config.AutoReconnect)
                 {
-                    _websocketClient.Disconnect();
-                    _websocketClient.Connect();
+                    await Reconnect();
                     DebugLogger.LogMessage(LogLevel.Critical, "Internal", "Bot crashed. Reconnecting", DateTime.Now);
                 }
                 await this._socket_closed.InvokeAsync();
@@ -617,7 +616,6 @@ namespace DSharpPlus
             {
                 _cancelTokenSource.Cancel();
                 _websocketClient.Disconnect();
-                _websocketClient.Dispose();
 				config.AutoReconnect = false;
                 return true;
             });
