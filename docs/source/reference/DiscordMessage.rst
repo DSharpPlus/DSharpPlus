@@ -85,7 +85,7 @@ Members
 Methods
 -------
 
-.. function:: Edit(contents)
+.. function:: Edit(contents = null, embed = null)
 
 	.. note:: 
 	
@@ -94,6 +94,7 @@ Methods
 	Edits the contents of this message.
 	
 	:param contents: New contents of the message.
+	:param embed: New embed of the message.
 
 .. function:: Delete()
 

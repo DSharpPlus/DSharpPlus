@@ -56,6 +56,7 @@ Events
 	parameters:
 	
 	:param Channel: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) that was just updated.
+	:param ChannelBefore: The channel (instance of :doc:`DiscordChannel </reference/DiscordChannel>`) before it was updated.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that the channel was updated in.
 
 .. attribute:: ChannelDeleted
@@ -129,6 +130,7 @@ Events
 	:param Status: User's status (online, idle, do not disturb, or offline).
 	:param GuildID: ID of the guild the presence update occured in.
 	:param RoleIDs: IDs of user's roles in the given guild.
+	:param PresenceBefore: User's presence before it was updated.
 
 .. attribute:: GuildBanAdd
 
@@ -154,6 +156,7 @@ Events
 	following parameters:
 	
 	:param Emojis: A list of :doc:`DiscordEmoji </reference/entities/DiscordEmoji>` that got updated.
+	:param EmojisBefore: A list of :doc:`DiscordEmoji </reference/entities/DiscordEmoji>` before they got updated.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) that had its emoji updated.
 
 .. attribute:: GuildIntegrationsUpdate
@@ -189,7 +192,9 @@ Events
 	:param GuildID: ID of the guild in which the update occured.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) in which the update occured.
 	:param Roles: A list of role IDs for the member.
-	:param Nickname: New nickname of the member.
+	:param RolesBefore: A list of old role IDs for the member.
+	:param NickName: New nickname of the member.
+	:param NickNameBefore: Old nickname of the member.
 	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that got updated.
 
 .. attribute:: GuildRoleCreate
@@ -209,6 +214,7 @@ Events
 	:param GuildID: ID of the guild the role was updated in.
 	:param Guild: The guild (instance of :doc:`DiscordGuild </reference/DiscordGuild>`) the role was updated in.
 	:param Role: The role (instance of :doc:`DiscordRole </reference/DiscordRole>`) that was updated.
+	:param RoleBefore: The role (instance of :doc:`DiscordRole </reference/DiscordRole>`) before it was updated.
 
 .. attribute:: GuildRoleDelete
 
@@ -271,6 +277,7 @@ Events
 	Called whenever a user is updated. Takes ``UserUpdateEventArgs`` as an argument, with following parameters:
 	
 	:param User: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) that was updated.
+	:param UserBefore: The user (instance of :doc:`DiscordUser </reference/DiscordUser>`) before it was updated.
 
 .. attribute:: VoiceStateUpdate
 
