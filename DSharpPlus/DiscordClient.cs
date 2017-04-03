@@ -618,7 +618,7 @@ namespace DSharpPlus
             {
                 _cancelTokenSource.Cancel();
                 _websocketClient.Disconnect();
-				config.AutoReconnect = false;
+                config.AutoReconnect = false;
                 return true;
             });
         }
@@ -907,11 +907,13 @@ namespace DSharpPlus
         internal async Task OnChannelUpdateEvent(JObject obj)
         {
             DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
+            DiscordChannel old = channel;
 
             if (_guilds != null && _guilds.ContainsKey(channel.GuildID)
             && _guilds[channel.GuildID]?.Channels?.Find(x => x.ID == channel.ID) != null)
             {
                 int channelIndex = _guilds[channel.GuildID].Channels.FindIndex(x => x.ID == channel.ID);
+                old = _guilds[channel.GuildID].Channels[channelIndex];
                 _guilds[channel.GuildID].Channels[channelIndex] = channel;
             }
             else
@@ -921,7 +923,7 @@ namespace DSharpPlus
                 _guilds[channel.GuildID].Channels.Add(channel);
             }
 
-            await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
+            await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID], ChannelBefore = old });
         }
         internal async Task OnChannelDeleteEvent(JObject obj)
         {
@@ -1017,12 +1019,17 @@ namespace DSharpPlus
         {
             ulong userID = (ulong)obj["d"]["user"]["id"];
             DiscordPresence p = obj["d"].ToObject<DiscordPresence>();
+            DiscordPresence old = p;
             if (_presences.ContainsKey(userID))
+            {
+                old = _presences[userID];
                 _presences[userID] = p;
-            else
+            }
+            else 
                 _presences.Add(userID, p);
 
             PresenceUpdateEventArgs args = obj["d"].ToObject<PresenceUpdateEventArgs>();
+            args.PresenceBefore = old;
             await this._presence_update.InvokeAsync(args);
         }
         internal async Task OnGuildBanAddEvent(JObject obj)
@@ -1047,8 +1054,9 @@ namespace DSharpPlus
             {
                 emojis.Add(em.ToObject<DiscordEmoji>());
             }
+            List<DiscordEmoji> old = _guilds[guildID].Emojis;
             _guilds[guildID].Emojis = emojis;
-            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis.AsReadOnly() };
+            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = emojis.AsReadOnly(), EmojisBefore = old.AsReadOnly() };
             await this._guild_emojis_update.InvokeAsync(args);
         }
         internal async Task OnGuildIntegrationsUpdateEvent(JObject obj)
@@ -1082,6 +1090,7 @@ namespace DSharpPlus
         internal async Task OnGuildMemberUpdateEvent(JObject obj)
         {
             DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
+            DiscordMember old = new DiscordMember();
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             string nick = "";
             nick = obj["d"]["nick"].ToString();
@@ -1098,6 +1107,7 @@ namespace DSharpPlus
             if (_guilds[guildID].Members.Find(x => x.User.ID == user.ID) != null)
             {
                 DiscordMember m = _guilds[guildID].Members[index];
+                old = m;
                 m.Nickname = nick;
                 m.Roles = roles;
                 _guilds[guildID].Members[index] = m;
@@ -1112,7 +1122,7 @@ namespace DSharpPlus
                 };
                 _guilds[guildID].Members.Add(m);
             }
-            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles.AsReadOnly(), NickName = nick };
+            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = roles.AsReadOnly(), NickName = nick, NickNameBefore = old.Nickname, RolesBefore = old.Roles };
             await this._guild_member_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleCreateEvent(JObject obj)
@@ -1127,9 +1137,11 @@ namespace DSharpPlus
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
+            DiscordRole old = role;
             int index = _guilds[guildID].Roles.FindIndex(x => x.ID == role.ID);
+            old = _guilds[guildID].Roles[index];
             _guilds[guildID].Roles[index] = role;
-            GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs { GuildID = guildID, Role = role };
+            GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs { GuildID = guildID, Role = role, RoleBefore = old };
             await this._guild_role_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleDeleteEvent(JObject obj)
@@ -1312,7 +1324,8 @@ namespace DSharpPlus
         internal async Task OnUserUpdateEvent(JObject obj)
         {
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
-            UserUpdateEventArgs args = new UserUpdateEventArgs { User = user };
+            UserUpdateEventArgs args = new UserUpdateEventArgs { User = user, UserBefore = _me };
+            _me = user;
             await this._user_update.InvokeAsync(args);
         }
         internal async Task OnVoiceStateUpdateEvent(JObject obj)

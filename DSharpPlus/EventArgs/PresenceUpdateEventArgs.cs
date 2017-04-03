@@ -27,5 +27,7 @@ namespace DSharpPlus
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<ulong> RoleIDs { get; internal set; }
+
+        public DiscordPresence PresenceBefore { get; internal set; }
     }
 }
