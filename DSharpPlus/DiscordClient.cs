@@ -531,7 +531,8 @@ namespace DSharpPlus
 
         internal async Task InternalReconnect()
         {
-            await Disconnect();
+            _cancelTokenSource.Cancel();
+            _websocketClient.Disconnect();
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(2000);
             await InternalConnect();
@@ -539,7 +540,8 @@ namespace DSharpPlus
 
         internal async Task InternalReconnect(string token_override, TokenType token_type)
         {
-            await Disconnect();
+            _cancelTokenSource.Cancel();
+            _websocketClient.Disconnect();
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(2000);
             await Connect(token_override, token_type);
@@ -1448,12 +1450,11 @@ namespace DSharpPlus
 
         internal async Task OnReconnect()
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 _debugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect. ", DateTime.Now);
 
-                _websocketClient.Disconnect();
-                _websocketClient.Connect();
+                await InternalReconnect();
             });
         }
 
@@ -1529,7 +1530,7 @@ namespace DSharpPlus
             if (_waitingForAck)
             {
                 _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
-                await Reconnect();
+                await InternalReconnect();
             }
 
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Sending Heartbeat", DateTime.Now);
