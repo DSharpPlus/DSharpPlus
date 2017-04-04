@@ -529,19 +529,23 @@ namespace DSharpPlus
 
         public async Task Reconnect(string token_override, TokenType token_type) => await InternalReconnect(token_override, token_type);
 
-        internal async Task InternalReconnect()
+        internal async Task InternalReconnect(bool start_new_session = false)
         {
             _cancelTokenSource.Cancel();
             _websocketClient.Disconnect();
+            if (start_new_session)
+                _sessionID = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(2000);
             await InternalConnect();
         }
 
-        internal async Task InternalReconnect(string token_override, TokenType token_type)
+        internal async Task InternalReconnect(string token_override, TokenType token_type, bool start_new_session = false)
         {
             _cancelTokenSource.Cancel();
             _websocketClient.Disconnect();
+            if (start_new_session)
+                _sessionID = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(2000);
             await Connect(token_override, token_type);
@@ -1483,7 +1487,7 @@ namespace DSharpPlus
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _sessionID = "";
-                await SendIdentify();
+                await InternalReconnect(true);
             }
         }
 
