@@ -457,6 +457,11 @@ namespace DSharpPlus
         /// List of Guilds
         /// </summary>
         public Dictionary<ulong, DiscordGuild> Guilds => _guilds;
+
+        /// <summary>
+        /// Gets the WS latency for this client.
+        /// </summary>
+        public int Ping { get; internal set; }
         #endregion
 
         /// <summary>
@@ -1508,8 +1513,9 @@ namespace DSharpPlus
             {
                 _waitingForAck = false;
 
+                this.Ping = (int)(DateTime.Now - _lastHeartbeat).TotalMilliseconds;
                 _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {(DateTime.Now - _lastHeartbeat).Milliseconds}ms", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
             });
         }
 
