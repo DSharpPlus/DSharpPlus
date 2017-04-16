@@ -5,11 +5,11 @@ namespace DSharpPlus.Commands
 {
     public static class CommandExtension
     {
-        public static DiscordClient UseCommands(this DiscordClient client)
+        public static CommandModule UseCommands(this DiscordClient client)
         {
-            client.AddModule(new CommandModule());
-
-            return client;
+            var module = new CommandModule();
+            client.AddModule(module);
+            return module;
         }
 
         public static CommandModule UseCommands(this DiscordClient client, CommandConfig config)
