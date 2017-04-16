@@ -821,7 +821,7 @@ namespace DSharpPlus
             switch (obj.Value<int>("op"))
             {
                 case 0: await OnDispatch(obj); break;
-                case 1: await OnHeartbeat(); break;
+                case 1: await OnHeartbeat((long)obj["d"]); break;
                 case 7: await OnReconnect(); break;
                 case 9: await OnInvalidateSession(obj); break;
                 case 10: await OnHello(obj); break;
@@ -1457,17 +1457,10 @@ namespace DSharpPlus
         }
         #endregion
 
-        internal async Task OnHeartbeat()
+        internal async Task OnHeartbeat(long seq)
         {
-            await Task.Run(() =>
-            {
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
-
-                JObject obj = new JObject()
-                {
-                    { "op", 11 }
-                };
-            });
+            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
+            await SendHeartbeat(seq);
         }
 
         internal async Task OnReconnect()
@@ -1548,8 +1541,13 @@ namespace DSharpPlus
             await Task.Run(() => _websocketClient._socket.Send(obj.ToString()));
         }
 
-        internal async Task SendHeartbeat()
+        internal Task SendHeartbeat()
         {
+            return this.SendHeartbeat(_sequence);
+        }
+
+        internal async Task SendHeartbeat(long seq)
+        { 
             if (_waitingForAck)
             {
                 _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
@@ -1560,7 +1558,7 @@ namespace DSharpPlus
             JObject obj = new JObject
             {
                 { "op", 1 },
-                { "d", _sequence }
+                { "d", seq }
             };
             _websocketClient._socket.Send(obj.ToString());
             _lastHeartbeat = DateTime.Now;
