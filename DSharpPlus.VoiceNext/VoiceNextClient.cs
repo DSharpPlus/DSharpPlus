@@ -77,7 +77,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            DiscordClient._websocketClient._socket.Send(vsj);
+            DiscordClient._websocketClient.SendMessage(vsj);
             
             var vstu = await vstut.Task;
             var vstup = new VoiceStateUpdatePayload
@@ -135,7 +135,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            DiscordClient._websocketClient._socket.Send(vsj);
+            DiscordClient._websocketClient.SendMessage(vsj);
         }
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)

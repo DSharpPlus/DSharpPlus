@@ -402,7 +402,7 @@ namespace DSharpPlus
 
         internal static List<IModule> _modules = new List<IModule>();
 
-        internal static WebSocketClient _websocketClient;
+        internal static WebSocketWrapper _websocketClient;
         internal static int _sequence = 0;
         internal static string _sessionToken = "";
         internal static string _sessionID = "";
@@ -537,7 +537,7 @@ namespace DSharpPlus
         internal async Task InternalReconnect(bool start_new_session = false)
         {
             _cancelTokenSource.Cancel();
-            _websocketClient.Disconnect();
+            await _websocketClient.InternalDisconnectAsync();
             if (start_new_session)
                 _sessionID = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
@@ -548,7 +548,7 @@ namespace DSharpPlus
         internal async Task InternalReconnect(string token_override, TokenType token_type, bool start_new_session = false)
         {
             _cancelTokenSource.Cancel();
-            _websocketClient.Disconnect();
+            await _websocketClient.InternalDisconnectAsync();
             if (start_new_session)
                 _sessionID = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
@@ -561,8 +561,8 @@ namespace DSharpPlus
             await InternalUpdateGateway();
             _me = await InternalGetCurrentUser();
 
-            _websocketClient = new WebSocketClient(_gatewayUrl + "?v=5&encoding=json");
-            _websocketClient.SocketOpened += async () =>
+            _websocketClient = WebSocketWrapper.Create(_gatewayUrl + "?v=5&encoding=json");
+            _websocketClient.OnConnect += async () =>
             {
                 _privateChannels = new List<DiscordDMChannel>();
                 _guilds = new Dictionary<ulong, DiscordGuild>();
@@ -573,11 +573,11 @@ namespace DSharpPlus
                     await SendResume();
                 await this._socket_opened.InvokeAsync();
             };
-            _websocketClient.SocketClosed += async e =>
+            _websocketClient.OnDisconnect += async () =>
             {
                 _heartbeatThread.Abort();
 
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed: {e.Reason} [WasClean: {e.WasClean}]", DateTime.Now);
+                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed", DateTime.Now);
 
                 if (config.AutoReconnect)
                 {
@@ -586,8 +586,8 @@ namespace DSharpPlus
                 }
                 await this._socket_closed.InvokeAsync();
             };
-            _websocketClient.SocketMessage += async e => await HandleSocketMessage(e.Data);
-            _websocketClient.Connect();
+            _websocketClient.OnMessage += async e => await HandleSocketMessage(e.message);
+            await _websocketClient.ConnectAsync();
         }
 
         internal async Task InternalUpdateGuild(DiscordGuild guild)
@@ -623,10 +623,10 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<bool> Disconnect()
         {
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
                 _cancelTokenSource.Cancel();
-                _websocketClient.Disconnect();
+                await _websocketClient.InternalDisconnectAsync();
                 config.AutoReconnect = false;
                 return true;
             });
@@ -1538,7 +1538,7 @@ namespace DSharpPlus
                 { "d", update }
             };
 
-            await Task.Run(() => _websocketClient._socket.Send(obj.ToString()));
+            await Task.Run(() => _websocketClient.SendMessage(obj.ToString()));
         }
 
         internal Task SendHeartbeat()
@@ -1560,7 +1560,7 @@ namespace DSharpPlus
                 { "op", 1 },
                 { "d", seq }
             };
-            _websocketClient._socket.Send(obj.ToString());
+            _websocketClient.SendMessage(obj.ToString());
             _lastHeartbeat = DateTime.Now;
             _waitingForAck = true;
         }
@@ -1589,7 +1589,7 @@ namespace DSharpPlus
                         }
                     }
                 };
-                _websocketClient._socket.Send(obj.ToString());
+                _websocketClient.SendMessage(obj.ToString());
             });
         }
 
@@ -1608,7 +1608,7 @@ namespace DSharpPlus
                         }
                     }
                 };
-                _websocketClient._socket.Send(obj.ToString());
+                _websocketClient.SendMessage(obj.ToString());
             });
         }
 
@@ -1628,7 +1628,7 @@ namespace DSharpPlus
                         }
                     }
                 };
-                _websocketClient._socket.Send(obj.ToString());
+                _websocketClient.SendMessage(obj.ToString());
             });
         }
         #endregion
@@ -2932,7 +2932,7 @@ namespace DSharpPlus
             _me = null;
             _modules = null;
             _privateChannels = null;
-            _websocketClient.Dispose();
+            await _websocketClient.InternalDisconnectAsync();
 
             disposed = true;
         }
