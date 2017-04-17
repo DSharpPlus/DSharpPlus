@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
-    public class WebSocketMessageArgs : EventArgs
+    public class WebSocketMessageEventArgs : EventArgs
     {
-        public string message { get; set; }
+        public string Message { get; set; }
     }
 
     public class WebSocketWrapper
@@ -36,12 +36,12 @@ namespace DSharpPlus
         }
         private AsyncEvent _on_disconnect = new AsyncEvent();
 
-        public event AsyncEventHandler<WebSocketMessageArgs> OnMessage
+        public event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {
             add { this._on_message.Register(value); }
             remove { this._on_message.Unregister(value); }
         }
-        private AsyncEvent<WebSocketMessageArgs> _on_message = new AsyncEvent<WebSocketMessageArgs>();
+        private AsyncEvent<WebSocketMessageEventArgs> _on_message = new AsyncEvent<WebSocketMessageEventArgs>();
 
         protected WebSocketWrapper(string uri)
         {
@@ -198,9 +198,9 @@ namespace DSharpPlus
 
         internal async Task CallOnMessageAsync(StringBuilder stringResult)
         {
-            await _on_message.InvokeAsync(new WebSocketMessageArgs()
+            await _on_message.InvokeAsync(new WebSocketMessageEventArgs()
             {
-                message = stringResult.ToString()
+                Message = stringResult.ToString()
             });
         }
 
