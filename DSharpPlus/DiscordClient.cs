@@ -586,7 +586,7 @@ namespace DSharpPlus
                 }
                 await this._socket_closed.InvokeAsync();
             };
-            _websocketClient.OnMessage += async e => await HandleSocketMessage(e.message);
+            _websocketClient.OnMessage += async e => await HandleSocketMessage(e.Message);
             await _websocketClient.ConnectAsync();
         }
 

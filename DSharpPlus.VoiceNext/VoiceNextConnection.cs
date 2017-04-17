@@ -9,7 +9,6 @@ using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WebSocketSharp;
 
 namespace DSharpPlus.VoiceNext
 {
@@ -397,14 +396,9 @@ namespace DSharpPlus.VoiceNext
             return Task.Delay(0);
         }
 
-        private Task VoiceWS_SocketError(ErrorEventArgs e)
+        private async Task VoiceWS_SocketMessage(WebSocketMessageEventArgs e)
         {
-            return Task.Delay(0);
-        }
-
-        private async Task VoiceWS_SocketMessage(WebSocketMessageArgs e)
-        {
-            await this.HandleDispatch(JObject.Parse(e.message));
+            await this.HandleDispatch(JObject.Parse(e.Message));
         }
 
         private async Task VoiceWS_SocketOpened()
