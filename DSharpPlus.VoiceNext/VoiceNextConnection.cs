@@ -9,7 +9,6 @@ using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WebSocketSharp;
 
 namespace DSharpPlus.VoiceNext
 {
@@ -51,7 +50,7 @@ namespace DSharpPlus.VoiceNext
         private DiscordChannel Channel { get; set; }
 
         private UdpClient UdpClient { get; set; }
-        private WebSocketClient VoiceWs { get; set; }
+        private WebSocketWrapper VoiceWs { get; set; }
         private Thread HeartbeatThread { get; set; }
         private int HeartbeatInterval { get; set; }
         private DateTime LastHeartbeat { get; set; }
@@ -113,11 +112,10 @@ namespace DSharpPlus.VoiceNext
             this.IsDisposed = false;
 
             this.UdpClient = new UdpClient();
-            this.VoiceWs = new WebSocketClient($"wss://{this.ConnectionEndpoint.Host}");
-            this.VoiceWs.SocketClosed += this.VoiceWS_SocketClosed;
-            this.VoiceWs.SocketError += this.VoiceWS_SocketError;
-            this.VoiceWs.SocketMessage += this.VoiceWS_SocketMessage;
-            this.VoiceWs.SocketOpened += this.VoiceWS_SocketOpened;
+            this.VoiceWs = WebSocketWrapper.Create($"wss://{this.ConnectionEndpoint.Host}");
+            this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
+            this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
+            this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
         }
 
         static VoiceNextConnection()
@@ -136,7 +134,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns>A task representing the connection operation.</returns>
         internal async Task ConnectAsync()
         {
-            await Task.Run(() => this.VoiceWs.Connect()).ConfigureAwait(false);
+            await Task.Run(() => this.VoiceWs.InternalConnectAsync()).ConfigureAwait(false);
         }
 
         internal Task StartAsync()
@@ -154,7 +152,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
-            this.VoiceWs._socket.Send(vdj);
+            this.VoiceWs.SendMessage(vdj);
 
             return Task.Delay(0);
         }
@@ -232,7 +230,7 @@ namespace DSharpPlus.VoiceNext
             };
 
             var plj = JsonConvert.SerializeObject(pld, Formatting.None);
-            await Task.Run(() => this.VoiceWs._socket.Send(plj));
+            await Task.Run(() => this.VoiceWs.SendMessage(plj));
         }
 
         /// <summary>
@@ -255,7 +253,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = false;
             try
             {
-                this.VoiceWs.Disconnect();
+                this.VoiceWs.InternalDisconnectAsync();
                 this.UdpClient.Close();
             }
             catch (Exception)
@@ -285,7 +283,7 @@ namespace DSharpPlus.VoiceNext
                         Payload = UnixTimestamp(dt)
                     };
                     var hbj = JsonConvert.SerializeObject(hbd);
-                    this.VoiceWs._socket.Send(hbj);
+                    this.VoiceWs.SendMessage(hbj);
 
                     this.LastHeartbeat = dt;
                     Thread.Sleep(this.HeartbeatInterval);
@@ -333,7 +331,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-            this.VoiceWs._socket.Send(vsj);
+            this.VoiceWs.SendMessage(vsj);
         }
 
         private Task Stage2()
@@ -391,21 +389,16 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private Task VoiceWS_SocketClosed(CloseEventArgs e)
+        private Task VoiceWS_SocketClosed()
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice session closed: {e.Reason}; clean {e.WasClean}", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice session closed", DateTime.Now);
             this.Dispose();
             return Task.Delay(0);
         }
 
-        private Task VoiceWS_SocketError(ErrorEventArgs e)
+        private async Task VoiceWS_SocketMessage(WebSocketMessageEventArgs e)
         {
-            return Task.Delay(0);
-        }
-
-        private async Task VoiceWS_SocketMessage(MessageEventArgs e)
-        {
-            await this.HandleDispatch(JObject.Parse(e.Data));
+            await this.HandleDispatch(JObject.Parse(e.Message));
         }
 
         private async Task VoiceWS_SocketOpened()
