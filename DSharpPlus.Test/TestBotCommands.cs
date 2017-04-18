@@ -5,7 +5,7 @@ using System.Linq;
 using System.Speech.Synthesis;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
-using DSharpPlus.VoiceNext;
+//using DSharpPlus.VoiceNext;
 using NAudio.Wave;
 
 namespace DSharpPlus.Test
@@ -160,7 +160,14 @@ Serverowner: {e.Guild.OwnerID}
         public async Task ModifyMe(CommandEventArgs e) =>
             await e.Discord.ModifyMember(e.Guild.ID, e.Author.ID, "Tests D#+ instead of going outside");
 
-        public async Task VoiceJoin(CommandEventArgs e)
+        public async Task Hang(CommandEventArgs e)
+        {
+            await e.Message.Respond("Will now hang this thread for 10 minutes.");
+            await Task.Delay(TimeSpan.FromMinutes(10));
+            await e.Message.Respond("Thread hang completed.");
+        }
+
+        /*public async Task VoiceJoin(CommandEventArgs e)
         {
             var vs = e.Guild.VoiceStates.FirstOrDefault(xvs => xvs.UserID == e.Author.ID);
             if (vs == null)
@@ -328,6 +335,6 @@ Serverowner: {e.Guild.OwnerID}
             {
                 await vnc.SendSpeakingAsync(false);
             }
-        }
+        }*/
     }
 }

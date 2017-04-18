@@ -50,7 +50,7 @@ namespace DSharpPlus.Commands
                     {
                         if (command.Name == cmdName)
                         {
-                            ThreadPool.QueueUserWorkItem(_ =>
+                            new Task(() =>
                             {
                                 try
                                 {
@@ -60,7 +60,7 @@ namespace DSharpPlus.Commands
                                 {
                                     this.OnCommandError(command, ex, e.Message);
                                 }
-                            });
+                            }, TaskCreationOptions.LongRunning).Start();
                         }
                     }
                 }

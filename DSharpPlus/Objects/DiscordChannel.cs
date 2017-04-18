@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -83,12 +84,12 @@ namespace DSharpPlus
         /// <summary>
         /// Posts a file
         /// </summary>
-        /// <param name="file_path"></param>
+        /// <param name="file_data"></param>
         /// <param name="file_name"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendFile(string file_path, string file_name, string content = "", bool tts = false) => await DiscordClient.InternalUploadFile(ID, file_path, file_name, content, tts);
+        public async Task<DiscordMessage> SendFile(Stream file_data, string file_name, string content = "", bool tts = false) => await DiscordClient.InternalUploadFile(ID, file_data, file_name, content, tts);
         /// <summary>
         /// Deletes a guild channel
         /// </summary>

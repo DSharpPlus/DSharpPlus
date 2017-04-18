@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
-using DSharpPlus.VoiceNext;
+//using DSharpPlus.VoiceNext;
 
 namespace DSharpPlus.Test
 {
@@ -16,7 +16,7 @@ namespace DSharpPlus.Test
         private DiscordClient Discord { get; }
         private TestBotCommands Commands { get; }
         private CommandModule CommandService { get; }
-        private VoiceNextClient VoiceService { get; }
+        //private VoiceNextClient VoiceService { get; }
         private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg)
@@ -77,11 +77,11 @@ namespace DSharpPlus.Test
             }
 
             // voice config and the voice service itself
-            var vcfg = new VoiceNextConfiguration
+            /*var vcfg = new VoiceNextConfiguration
             {
                 VoiceApplication = VoiceNext.Codec.VoiceApplication.Music
             };
-            this.VoiceService = this.Discord.UseVoiceNext(vcfg);
+            this.VoiceService = this.Discord.UseVoiceNext(vcfg);*/
         }
 
         public async Task RunAsync()

@@ -50,7 +50,7 @@ namespace DSharpPlus.VoiceNext
         private DiscordChannel Channel { get; set; }
 
         private UdpClient UdpClient { get; set; }
-        private WebSocketWrapper VoiceWs { get; set; }
+        private WebSocketClient VoiceWs { get; set; }
         private Thread HeartbeatThread { get; set; }
         private int HeartbeatInterval { get; set; }
         private DateTime LastHeartbeat { get; set; }
@@ -112,7 +112,7 @@ namespace DSharpPlus.VoiceNext
             this.IsDisposed = false;
 
             this.UdpClient = new UdpClient();
-            this.VoiceWs = WebSocketWrapper.Create($"wss://{this.ConnectionEndpoint.Host}");
+            this.VoiceWs = WebSocketClient.Create();
             this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
             this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
             this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
@@ -134,7 +134,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns>A task representing the connection operation.</returns>
         internal async Task ConnectAsync()
         {
-            await Task.Run(() => this.VoiceWs.InternalConnectAsync()).ConfigureAwait(false);
+            await Task.Run(() => this.VoiceWs.ConnectAsync($"wss://{this.ConnectionEndpoint.Host}")).ConfigureAwait(false);
         }
 
         internal Task StartAsync()

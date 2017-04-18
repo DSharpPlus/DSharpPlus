@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Web;
@@ -110,17 +111,16 @@ namespace DSharpPlus
 
             if (request.ContentType == ContentType.Json)
             {
-                req.Headers.TryAddWithoutValidation("Content-Type", "application/json");
                 req.Content = new StringContent(request.Payload);
+                req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             }
             else if (request.ContentType == ContentType.Multipart)
             {
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
                 byte[] boundarybytes = UTF8.GetBytes("\r\n--" + boundary + "\r\n");
 
-                req.Headers.TryAddWithoutValidation("Content-Type", string.Concat("multipart/form-data; boundary=", boundary));
-                req.Headers.TryAddWithoutValidation("Connection", "keep-alive");
-                req.Headers.TryAddWithoutValidation("Keep-Alive", "600");
+                req.Headers.Add("Connection", "keep-alive");
+                req.Headers.Add("Keep-Alive", "600");
 
                 var ms = new MemoryStream();
                 var formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
@@ -142,16 +142,14 @@ namespace DSharpPlus
                 byte[] headerbytes = Encoding.UTF8.GetBytes(header);
                 await ms.WriteAsync(headerbytes, 0, headerbytes.Length);
 
-                using (var fileStream = File.OpenRead(request.FilePath))
-                {
-                    await fileStream.CopyToAsync(ms);
+                await request.FileData.CopyToAsync(ms);
 
-                    byte[] trailer = new UTF8Encoding(false).GetBytes("\r\n--" + boundary + "--\r\n");
-                    await ms.WriteAsync(trailer, 0, trailer.Length);
-                }
+                byte[] trailer = new UTF8Encoding(false).GetBytes("\r\n--" + boundary + "--\r\n");
+                await ms.WriteAsync(trailer, 0, trailer.Length);
 
                 ms.Seek(0, SeekOrigin.Begin);
                 req.Content = new StreamContent(ms);
+                req.Content.Headers.ContentType = new MediaTypeHeaderValue(string.Concat("multipart/form-data; boundary=", boundary));
             }
             else
             {
@@ -216,11 +214,11 @@ namespace DSharpPlus
 
         internal static void HandleRateLimit(WebRequest request, WebResponse response)
         {
-            if (response.Headers == null || response.Headers["X-RateLimit-Reset"] == null || response.Headers["X-RateLimit-Remaining"] == null || response.Headers["X-RateLimit-Limit"] == null)
+            if (response.Headers == null || !response.Headers.ContainsKey("X-RateLimit-Reset") || !response.Headers.ContainsKey("X-RateLimit-Remaining") || !response.Headers.ContainsKey("X-RateLimit-Limit"))
                 return;
 
-            DateTime clienttime = DateTime.UtcNow;
-            DateTime servertime = DateTime.Parse(response.Headers["date"]).ToUniversalTime();
+            var clienttime = DateTimeOffset.UtcNow;
+            var servertime = DateTimeOffset.Parse(response.Headers["Date"]).ToUniversalTime();
             double difference = clienttime.Subtract(servertime).TotalSeconds;
             DiscordClient._debugLogger.LogMessage(LogLevel.Info, "Internal", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
 
