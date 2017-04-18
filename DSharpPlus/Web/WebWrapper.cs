@@ -56,11 +56,7 @@ namespace DSharpPlus
                 response.ResponseCode = (int)httpResponse.StatusCode;
 
                 using (StreamReader reader = new StreamReader(httpResponse.GetResponseStream()))
-                {
                     response.Response = await reader.ReadToEndAsync();
-                    reader.Close();
-                    reader.Dispose();
-                }
             }
             catch (WebException ex)
             {
@@ -79,11 +75,7 @@ namespace DSharpPlus
                 response.ResponseCode = (int)httpResponse.StatusCode;
 
                 using (StreamReader reader = new StreamReader(httpResponse.GetResponseStream()))
-                {
                     response.Response = reader.ReadToEnd();
-                    reader.Close();
-                    reader.Dispose();
-                }
             }
 
             HandleRateLimit(request, response);
@@ -122,14 +114,12 @@ namespace DSharpPlus
                 {
                     await writer.WriteLineAsync(request.Payload);
                     await writer.FlushAsync();
-                    writer.Close();
-                    writer.Dispose();
                 }
             }
-            else if(request.ContentType == ContentType.Multipart)
+            else if (request.ContentType == ContentType.Multipart)
             {
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-                byte[] boundarybytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+                byte[] boundarybytes = new UTF8Encoding(false).GetBytes("\r\n--" + boundary + "\r\n");
 
                 httpRequest.Method = request.Method.ToString();
                 if (request.Headers != null)
@@ -139,34 +129,36 @@ namespace DSharpPlus
                 httpRequest.ContentType = "multipart/form-data; boundary=" + boundary;
                 httpRequest.KeepAlive = true;
 
-                Stream rs = await httpRequest.GetRequestStreamAsync();
-
-                string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
-
-                if (request.Values != null)
+                using (var rs = await httpRequest.GetRequestStreamAsync())
                 {
-                    foreach (string key in request.Values.Keys)
+
+                    string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
+
+                    if (request.Values != null)
                     {
-                        await rs.WriteAsync(boundarybytes, 0, boundarybytes.Length);
-                        string formitem = string.Format(formdataTemplate, key, request.Values[key]);
-                        byte[] formitembytes = Encoding.UTF8.GetBytes(formitem);
-                        await rs.WriteAsync(formitembytes, 0, formitembytes.Length);
+                        foreach (string key in request.Values.Keys)
+                        {
+                            await rs.WriteAsync(boundarybytes, 0, boundarybytes.Length);
+                            string formitem = string.Format(formdataTemplate, key, request.Values[key]);
+                            byte[] formitembytes = Encoding.UTF8.GetBytes(formitem);
+                            await rs.WriteAsync(formitembytes, 0, formitembytes.Length);
+                        }
+                    }
+                    await rs.WriteAsync(boundarybytes, 0, boundarybytes.Length);
+
+                    string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
+                    string header = string.Format(headerTemplate, "file", request.FileName, "image/jpeg");
+                    byte[] headerbytes = Encoding.UTF8.GetBytes(header);
+                    await rs.WriteAsync(headerbytes, 0, headerbytes.Length);
+
+                    using (var fileStream = File.OpenRead(request.FilePath))
+                    {
+                        await fileStream.CopyToAsync(rs);
+
+                        byte[] trailer = new UTF8Encoding(false).GetBytes("\r\n--" + boundary + "--\r\n");
+                        await rs.WriteAsync(trailer, 0, trailer.Length);
                     }
                 }
-                await rs.WriteAsync(boundarybytes, 0, boundarybytes.Length);
-
-                string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
-                string header = string.Format(headerTemplate, "file", request.FileName, "image/jpeg");
-                byte[] headerbytes = Encoding.UTF8.GetBytes(header);
-                await rs.WriteAsync(headerbytes, 0, headerbytes.Length);
-
-                FileStream fileStream = new FileStream(request.FilePath, FileMode.Open, FileAccess.Read);
-                await fileStream.CopyToAsync(rs);
-
-                byte[] trailer = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
-                await rs.WriteAsync(trailer, 0, trailer.Length);
-                rs.Close();
-                fileStream.Close();
             }
             else
             {
@@ -182,11 +174,7 @@ namespace DSharpPlus
                 response.ResponseCode = (int)httpResponse.StatusCode;
 
                 using (StreamReader reader = new StreamReader(httpResponse.GetResponseStream()))
-                {
                     response.Response = await reader.ReadToEndAsync();
-                    reader.Close();
-                    reader.Dispose();
-                }
             }
             catch (WebException ex)
             {
@@ -205,11 +193,7 @@ namespace DSharpPlus
                 response.ResponseCode = (int)httpResponse.StatusCode;
 
                 using (StreamReader reader = new StreamReader(httpResponse.GetResponseStream()))
-                {
                     response.Response = await reader.ReadToEndAsync();
-                    reader.Close();
-                    reader.Dispose();
-                }
             }
 
             HandleRateLimit(request, response);
@@ -263,19 +247,32 @@ namespace DSharpPlus
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
             if (rateLimit != null)
             {
-                rateLimit.Reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(double.Parse(response.Headers.Get("X-RateLimit-Reset")) + difference);
-                rateLimit.UsesLeft = int.Parse(response.Headers.Get("X-RateLimit-Remaining"));
-                rateLimit.UsesMax = int.Parse(response.Headers.Get("X-RateLimit-Limit"));
+                var usesmax = "";
+                var usesleft = "";
+                var reset = "";
+                response.Headers.TryGetValue("X-RateLimit-Limit", out usesmax);
+                response.Headers.TryGetValue("X-RateLimit-Remaining", out usesleft);
+                response.Headers.TryGetValue("X-RateLimit-Reset", out reset);
+
+                rateLimit.Reset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset) + difference);
+                rateLimit.UsesLeft = int.Parse(usesleft);
+                rateLimit.UsesMax = int.Parse(usesmax);
                 _rateLimits[_rateLimits.FindIndex(x => x.Url == request.URL)] = rateLimit;
             }
             else
             {
+                var usesmax = "";
+                var usesleft = "";
+                var reset = "";
+                response.Headers.TryGetValue("X-RateLimit-Limit", out usesmax);
+                response.Headers.TryGetValue("X-RateLimit-Remaining", out usesleft);
+                response.Headers.TryGetValue("X-RateLimit-Reset", out reset);
                 _rateLimits.Add(new RateLimit
                 {
-                    Reset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(double.Parse(response.Headers.Get("X-RateLimit-Reset")) + difference),
+                    Reset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset) + difference),
                     Url = request.URL,
-                    UsesLeft = int.Parse(response.Headers.Get("X-RateLimit-Remaining")),
-                    UsesMax = int.Parse(response.Headers.Get("X-RateLimit-Limit"))
+                    UsesLeft = int.Parse(usesleft),
+                    UsesMax = int.Parse(usesmax)
                 });
             }
         }

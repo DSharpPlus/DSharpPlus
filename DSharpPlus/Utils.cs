@@ -56,9 +56,9 @@ namespace DSharpPlus
             }
         }
 
-        public static WebHeaderCollection GetBaseHeaders()
+        public static Dictionary<string, string> GetBaseHeaders()
         {
-            return new WebHeaderCollection
+            return new Dictionary<string, string>
             {
                 { "Authorization", GetFormattedToken() }
             };
