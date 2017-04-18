@@ -9,7 +9,7 @@
     <AssemblyName>DSharpPlus.VoiceNext</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.0.0</Version>
+    <Version>2.0.0-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>Voice implementation for DSharpPlus.</Description>
@@ -30,6 +30,10 @@
   
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   
 </Project>
