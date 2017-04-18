@@ -3,14 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Http.Headers;
 
 namespace DSharpPlus
 {
     public static class WebWrapper
     {
         public static List<RateLimit> _rateLimits = new List<RateLimit>();
+        private static HttpClient _http_client = new HttpClient();
 
         public static async Task<WebResponse> HandleRequestAsync(WebRequest request)
         {
