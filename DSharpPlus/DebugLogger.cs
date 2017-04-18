@@ -16,6 +16,7 @@ namespace DSharpPlus
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
         {
+#if !NETSTANDARD1_1
             switch(e.Level)
             {
                 case LogLevel.Unnecessary:
@@ -55,6 +56,7 @@ namespace DSharpPlus
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine($" {e.Message}");
+#endif
         }
     }
 

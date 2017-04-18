@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
-    public class WebSocketWrapper
+    public class WebSocketClient : BaseWebSocketClient
     {
         internal const int ReceiveChunkSize = 1024;
         internal const int SendChunkSize = 1024;
@@ -17,32 +17,31 @@ namespace DSharpPlus
         internal CancellationToken _cancellationToken;
         internal bool _connected;
 
-        public event AsyncEventHandler OnConnect
+        public override event AsyncEventHandler OnConnect
         {
             add { this._on_connect.Register(value); }
             remove { this._on_connect.Unregister(value); }
         }
         private AsyncEvent _on_connect = new AsyncEvent();
 
-        public event AsyncEventHandler OnDisconnect
+        public override event AsyncEventHandler OnDisconnect
         {
             add { this._on_disconnect.Register(value); }
             remove { this._on_disconnect.Unregister(value); }
         }
         private AsyncEvent _on_disconnect = new AsyncEvent();
 
-        public event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
+        public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {
             add { this._on_message.Register(value); }
             remove { this._on_message.Unregister(value); }
         }
         private AsyncEvent<WebSocketMessageEventArgs> _on_message = new AsyncEvent<WebSocketMessageEventArgs>();
 
-        protected WebSocketWrapper(string uri)
+        protected WebSocketClient()
         {
             _ws = new ClientWebSocket();
             _ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
-            _uri = new Uri(uri);
             _cancellationToken = _cancellationTokenSource.Token;
         }
 
@@ -51,17 +50,18 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
         /// <returns></returns>
-        public static WebSocketWrapper Create(string uri)
+        public static new WebSocketClient Create()
         {
-            return new WebSocketWrapper(uri);
+            return new WebSocketClient();
         }
 
         /// <summary>
         /// Connects to the WebSocket server.
         /// </summary>
         /// <returns></returns>
-        public async Task<WebSocketWrapper> ConnectAsync()
+        public override async Task<WebSocketClient> ConnectAsync(string uri)
         {
+            _uri = new Uri(uri);
             await InternalConnectAsync();
             return this;
         }
@@ -70,7 +70,7 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been established.
         /// </summary>
         /// <returns></returns>
-        public async Task<WebSocketWrapper> OnConnectAsync()
+        public override async Task<WebSocketClient> OnConnectAsync()
         {
             await _on_connect.InvokeAsync();
             return this;
@@ -80,7 +80,7 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been terminated.
         /// </summary>
         /// <returns></returns>
-        public async Task<WebSocketWrapper> OnDisconnectAsync()
+        public override async Task<WebSocketClient> OnDisconnectAsync()
         {
             await _on_disconnect.InvokeAsync();
             return this;
@@ -90,7 +90,7 @@ namespace DSharpPlus
         /// Send a message to the WebSocket server.
         /// </summary>
         /// <param name="message">The message to send</param>
-        public void SendMessage(string message)
+        public override void SendMessage(string message)
         {
             SendMessageAsync(message);
         }
@@ -135,7 +135,7 @@ namespace DSharpPlus
 
             }
         }
-        internal async Task InternalDisconnectAsync()
+        internal override async Task InternalDisconnectAsync()
         {
             // lazy again
             _connected = false;

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using DSharpPlus.Web;
@@ -23,7 +24,7 @@ namespace DSharpPlus
 
         // Multipart
         public Dictionary<string, string> Values { get; private set; }
-        public string FilePath { get; private set; }
+        public Stream FileData { get; private set; }
         public string FileName { get; private set; } 
         public ContentType ContentType { get; set; }
 
@@ -42,7 +43,7 @@ namespace DSharpPlus
         }
 
         public static WebRequest CreateMultipartRequest(string url, HttpRequestMethod method = HttpRequestMethod.GET, Dictionary<string, string> headers = null,
-            Dictionary<string, string> values = null, string filepath = "", string filename = "")
+            Dictionary<string, string> values = null, Stream filedata = null, string filename = "")
         {
             return new WebRequest
             {
@@ -50,7 +51,7 @@ namespace DSharpPlus
                 Method = method,
                 Headers = headers,
                 Values = values,
-                FilePath = filepath,
+                FileData = filedata,
                 FileName = filename,
                 ContentType = ContentType.Multipart
             };

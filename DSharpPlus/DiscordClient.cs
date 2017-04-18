@@ -403,7 +403,7 @@ namespace DSharpPlus
 
         internal static List<IModule> _modules = new List<IModule>();
 
-        internal static WebSocketWrapper _websocketClient;
+        internal static BaseWebSocketClient _websocketClient;
         internal static int _sequence = 0;
         internal static string _sessionToken = "";
         internal static string _sessionID = "";
@@ -481,6 +481,11 @@ namespace DSharpPlus
         {
             DiscordClient.config = config;
             InternalSetup();
+        }
+
+        public void SetSocketImplementation<T>() where T : BaseWebSocketClient, new()
+        {
+            BaseWebSocketClient.ClientType = typeof(T);
         }
 
         internal void InternalSetup()
@@ -562,7 +567,7 @@ namespace DSharpPlus
             await InternalUpdateGateway();
             _me = await InternalGetCurrentUser();
 
-            _websocketClient = WebSocketWrapper.Create(_gatewayUrl + "?v=5&encoding=json");
+            _websocketClient = WebSocketClient.Create();
             _websocketClient.OnConnect += async () =>
             {
                 _privateChannels = new List<DiscordDMChannel>();
@@ -588,7 +593,7 @@ namespace DSharpPlus
                 await this._socket_closed.InvokeAsync();
             };
             _websocketClient.OnMessage += async e => await HandleSocketMessage(e.Message);
-            await _websocketClient.ConnectAsync();
+            await _websocketClient.ConnectAsync(_gatewayUrl + "?v=5&encoding=json");
         }
 
         internal async Task InternalUpdateGuild(DiscordGuild guild)
@@ -1952,7 +1957,7 @@ namespace DSharpPlus
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 
-        internal static async Task<DiscordMessage> InternalUploadFile(ulong channel_id, string file_path, string file_name, string content = "", bool tts = false)
+        internal static async Task<DiscordMessage> InternalUploadFile(ulong channel_id, Stream file_data, string file_name, string content = "", bool tts = false)
         {
             string url = Utils.GetApiBaseUri() + Endpoints.Channels + "/" + channel_id + Endpoints.Messages;
             var headers = Utils.GetBaseHeaders();
@@ -1961,7 +1966,7 @@ namespace DSharpPlus
                 values.Add("content", content);
             if (tts)
                 values.Add("tts", tts.ToString());
-            WebRequest request = WebRequest.CreateMultipartRequest(url, HttpRequestMethod.POST, headers, values, file_path, file_name);
+            WebRequest request = WebRequest.CreateMultipartRequest(url, HttpRequestMethod.POST, headers, values, file_data, file_name);
             WebResponse response = await RestClient.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
