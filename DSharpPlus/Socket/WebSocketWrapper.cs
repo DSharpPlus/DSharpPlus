@@ -15,7 +15,7 @@ namespace DSharpPlus
     {
         internal const int ReceiveChunkSize = 1024;
         internal const int SendChunkSize = 1024;
-
+        
         internal ClientWebSocket _ws;
         internal Uri _uri;
         internal CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
