@@ -1,12 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace DSharpPlus
 {
     public static class Utils
     {
+        /// <summary>
+        /// Gets the version of the library
+        /// </summary>
+        public static Version LibraryVersion { get; private set; }
+        private static string VersionHeader { get; set; }
+
+        static Utils()
+        {
+            var a = typeof(Utils).GetTypeInfo().Assembly;
+            var n = a.GetName();
+            LibraryVersion = n.Version;
+            VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, ", n.Version.ToString(2) , ")");
+        }
 
         internal static string GetAPIBaseUri()
         {
@@ -52,7 +66,7 @@ namespace DSharpPlus
 
         public static string GetUserAgent()
         {
-            return "DiscordBot (https://github.com/NaamloosDT/DSharpPlus, 1.1)";
+            return VersionHeader;
         }
 
         public static bool ContainsUserMentions(string message)
