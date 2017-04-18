@@ -1,160 +1,53 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EB3D8310-DFAD-4295-97F9-82E253647583}</ProjectGuid>
+    <TargetFrameworks>net452;net462;net47;netstandard1.0;netstandard1.3</TargetFrameworks>
+    <Optimize>True</Optimize>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DSharpPlus</RootNamespace>
     <AssemblyName>DSharpPlus</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\DSharpPlus.XML</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn>CS1591</NoWarn>
+    <Version>2.0.0</Version>
+    <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767</Authors>
+    <Company>DSharpPlus developers</Company>
+    <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/d%23%2B.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus</PackageTags>
+    <PackageReleaseNotes>Rewritten for .NET Core</PackageReleaseNotes>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Optimize>False</Optimize>
   </PropertyGroup>
+  
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AsyncEvent.cs" />
-    <Compile Include="DebugLogger.cs" />
-    <Compile Include="DiscordClient.cs" />
-    <Compile Include="DiscordConfig.cs" />
-    <Compile Include="Enums\LogLevel.cs" />
-    <Compile Include="Enums\MentionType.cs" />
-    <Compile Include="EventArgs\ChannelCreateEventArgs.cs" />
-    <Compile Include="EventArgs\ChannelDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\ChannelUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\DMChannelCreateEventArgs.cs" />
-    <Compile Include="EventArgs\DMChannelDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\GuildBanAddEventArgs.cs" />
-    <Compile Include="EventArgs\GuildBanRemoveEventArgs.cs" />
-    <Compile Include="EventArgs\GuildCreateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\GuildEmojisUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildIntegrationsUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildMemberAddEventArgs.cs" />
-    <Compile Include="EventArgs\GuildMemberRemoveEventArgs.cs" />
-    <Compile Include="EventArgs\GuildMembersChunkEventArgs.cs" />
-    <Compile Include="EventArgs\GuildMemberUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildRoleCreateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildRoleDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\GuildRoleUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\GuildUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\MessageBulkDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\MessageCreateEventArgs.cs" />
-    <Compile Include="EventArgs\MessageDeleteEventArgs.cs" />
-    <Compile Include="EventArgs\MessageReactionAddEventArgs.cs" />
-    <Compile Include="EventArgs\MessageReactionRemoveAllEventArgs.cs" />
-    <Compile Include="EventArgs\MessageReactionRemoveEventArgs.cs" />
-    <Compile Include="EventArgs\MessageUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\PresenceUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\TypingStartEventArgs.cs" />
-    <Compile Include="EventArgs\UnknownEventArgs.cs" />
-    <Compile Include="EventArgs\UserSettingsUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\UserSpeakingEventArgs.cs" />
-    <Compile Include="EventArgs\UserUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\VoiceReceivedEventArgs.cs" />
-    <Compile Include="EventArgs\VoiceServerUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\VoiceStateUpdateEventArgs.cs" />
-    <Compile Include="EventArgs\WebhooksUpdateEventArgs.cs" />
-    <Compile Include="Exceptions\BadRequestException.cs" />
-    <Compile Include="Exceptions\NotFoundException.cs" />
-    <Compile Include="Exceptions\RateLimitException.cs" />
-    <Compile Include="Exceptions\UnauthorizedException.cs" />
-    <Compile Include="Formatter.cs" />
-    <Compile Include="Interfaces\IModule.cs" />
-    <Compile Include="Objects\DiscordApplication.cs" />
-    <Compile Include="Objects\DiscordAttachment.cs" />
-    <Compile Include="Objects\DiscordConnection.cs" />
-    <Compile Include="Objects\DiscordInvite.cs" />
-    <Compile Include="Enums\Branch.cs" />
-    <Compile Include="Enums\ChannelType.cs" />
-    <Compile Include="Enums\Permission.cs" />
-    <Compile Include="Enums\TokenType.cs" />
-    <Compile Include="Objects\DiscordEmbed.cs" />
-    <Compile Include="Objects\DiscordEmbedAuthor.cs" />
-    <Compile Include="Objects\DiscordEmbedField.cs" />
-    <Compile Include="Objects\DiscordEmbedFooter.cs" />
-    <Compile Include="Objects\DiscordEmbedImage.cs" />
-    <Compile Include="Objects\DiscordEmbedProvider.cs" />
-    <Compile Include="Objects\DiscordEmbedThumbnail.cs" />
-    <Compile Include="Objects\DiscordEmbedVideo.cs" />
-    <Compile Include="Objects\DiscordGuildEmbed.cs" />
-    <Compile Include="Objects\DiscordIntegration.cs" />
-    <Compile Include="Objects\DiscordIntegrationAccount.cs" />
-    <Compile Include="Objects\DiscordInviteChannel.cs" />
-    <Compile Include="Objects\DiscordInviteGuild.cs" />
-    <Compile Include="Objects\DiscordInviteMetadata.cs" />
-    <Compile Include="Objects\DiscordOverwrite.cs" />
-    <Compile Include="Objects\DiscordPresence.cs" />
-    <Compile Include="Objects\DiscordReaction.cs" />
-    <Compile Include="Objects\DiscordWebhook.cs" />
-    <Compile Include="Socket\WebSocketWrapper.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="Web\Endpoints.cs" />
-    <Compile Include="Web\RateLimit.cs" />
-    <Compile Include="Web\WebRequestMethod.cs" />
-    <Compile Include="Objects\DiscordChannel.cs" />
-    <Compile Include="Objects\DiscordDMChannel.cs" />
-    <Compile Include="Objects\DiscordEmoji.cs" />
-    <Compile Include="Objects\DiscordGuild.cs" />
-    <Compile Include="Objects\DiscordMember.cs" />
-    <Compile Include="Objects\DiscordMessage.cs" />
-    <Compile Include="Objects\DiscordRole.cs" />
-    <Compile Include="Objects\DiscordVoiceRegion.cs" />
-    <Compile Include="Objects\DiscordVoiceState.cs" />
-    <Compile Include="Objects\SnowflakeObject.cs" />
-    <Compile Include="Objects\DiscordUser.cs" />
-    <Compile Include="Web\WebRequest.cs" />
-    <Compile Include="Web\WebResponse.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Web\WebWrapper.cs" />
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.Net.WebSockets">
+      <Version>4.3.0</Version>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net47'">
+    <PackageReference Include="System.Net.WebSockets">
+      <Version>4.3.0</Version>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <PackageReference Include="System.Net.WebSockets">
+      <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  
 </Project>
