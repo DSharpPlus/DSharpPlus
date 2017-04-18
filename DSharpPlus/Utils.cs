@@ -22,7 +22,7 @@ namespace DSharpPlus
             VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, ", n.Version.ToString(2) , ")");
         }
 
-        internal static string GetAPIBaseUri()
+        internal static string GetApiBaseUri()
         {
             switch(DiscordClient.config.DiscordBranch)
             {
@@ -58,10 +58,7 @@ namespace DSharpPlus
 
         public static Dictionary<string, string> GetBaseHeaders()
         {
-            return new Dictionary<string, string>
-            {
-                { "Authorization", GetFormattedToken() }
-            };
+            return new Dictionary<string, string>();
         }
 
         public static string GetUserAgent()

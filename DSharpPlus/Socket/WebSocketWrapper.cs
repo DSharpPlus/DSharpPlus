@@ -6,11 +6,6 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
-    public class WebSocketMessageEventArgs : EventArgs
-    {
-        public string Message { get; set; }
-    }
-
     public class WebSocketWrapper
     {
         internal const int ReceiveChunkSize = 1024;
