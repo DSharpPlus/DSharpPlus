@@ -213,10 +213,5 @@ namespace DSharpPlus
         {
             await _on_connect.InvokeAsync();
         }
-
-        internal static void RunInTask(Action action)
-        {
-            Task.Factory.StartNew(action);
-        }
     }
 }
