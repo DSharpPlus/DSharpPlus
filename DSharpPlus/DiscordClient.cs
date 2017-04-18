@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -408,7 +407,7 @@ namespace DSharpPlus
         internal static string _sessionToken = "";
         internal static string _sessionID = "";
         internal static int _heartbeatInterval;
-        internal Thread _heartbeatThread;
+        internal Task _heartbeatThread;
         internal static DateTime _lastHeartbeat;
         internal static bool _waitingForAck = false;
         internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
@@ -576,7 +575,7 @@ namespace DSharpPlus
             };
             _websocketClient.OnDisconnect += async () =>
             {
-                _heartbeatThread.Abort();
+                _cancelTokenSource.Cancel();
 
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed", DateTime.Now);
 
@@ -810,9 +809,9 @@ namespace DSharpPlus
         /// <summary>
         /// Sets bot avatar
         /// </summary>
-        /// <param name="path">Path to JPEG file</param>
+        /// <param name="img">Stream with image data. Can contain a PNG, JPG, or GIF file.</param>
         /// <returns></returns>
-        public async Task SetAvatar(string path) => await InternalSetAvatar(path);
+        public async Task SetAvatar(Stream img) => await InternalSetAvatar(img);
         #endregion
 
         #region Websocket
@@ -1496,7 +1495,7 @@ namespace DSharpPlus
             {
                 _waitingForAck = false;
                 _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
-                _heartbeatThread = new Thread(StartHeartbeating);
+                _heartbeatThread = new Task(StartHeartbeating, _cancelToken, TaskCreationOptions.LongRunning);
                 _heartbeatThread.Start();
             });
         }
@@ -1519,7 +1518,7 @@ namespace DSharpPlus
             while (!_cancelToken.IsCancellationRequested)
             {
                 await SendHeartbeat();
-                Thread.Sleep(_heartbeatInterval);
+                await Task.Delay(_heartbeatInterval);
             }
         }
 
@@ -1694,27 +1693,21 @@ namespace DSharpPlus
             return after;
         }
 
-        internal static async Task InternalSetAvatar(string path)
+        internal static async Task InternalSetAvatar(Stream image)
         {
-            using (Image image = Image.FromFile(path))
+            using (var ms = new MemoryStream())
             {
-                using (MemoryStream m = new MemoryStream())
+                await image.CopyToAsync(ms);
+                var b64 = Convert.ToBase64String(ms.ToArray());
+
+                string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
+                var headers = Utils.GetBaseHeaders();
+                JObject jo = new JObject
                 {
-                    image.Save(m, image.RawFormat);
-                    byte[] imageBytes = m.ToArray();
-
-                    // Convert byte[] to Base64 String
-                    string base64String = Convert.ToBase64String(imageBytes);
-
-                    string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
-                    var headers = Utils.GetBaseHeaders();
-                    JObject j = new JObject
-                    {
-                        { "avatar", $"data:image/jpeg;base64,{base64String}" }
-                    };
-                    WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
-                    WebResponse response = await WebWrapper.HandleRequestAsync(request);
-                }
+                    { "avatar", $"data:image/jpeg;base64,{b64}" }
+                };
+                WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, jo.ToString());
+                WebResponse response = await WebWrapper.HandleRequestAsync(request);
             }
         }
 
@@ -2902,7 +2895,6 @@ namespace DSharpPlus
 
             _cancelTokenSource.Cancel();
             _guilds = null;
-            _heartbeatThread.Abort();
             _heartbeatThread = null;
             _me = null;
             _modules = null;
