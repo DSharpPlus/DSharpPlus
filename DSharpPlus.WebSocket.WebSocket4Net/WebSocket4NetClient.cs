@@ -1,31 +1,28 @@
 ﻿using System.Threading.Tasks;
-using wss = WebSocketSharp;
+using ws4net = WebSocket4Net;
 
 namespace DSharpPlus
 {
-    /// <summary>
-    /// A WS#-based WebSocket client.
-    /// </summary>
-    public class WebSocketSharpClient : BaseWebSocketClient
+    public class WebSocket4NetClient : BaseWebSocketClient
     {
-        internal wss.WebSocket _socket;
+        internal ws4net.WebSocket _socket;
 
         public override Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
-            _socket = new wss.WebSocket(uri);
-            _socket.OnOpen += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
-            _socket.OnClose += (sender, e) => _disconnect.InvokeAsync().GetAwaiter().GetResult();
-            _socket.OnMessage += (sender, e) => _message.InvokeAsync(new WebSocketMessageEventArgs()
+            _socket = new ws4net.WebSocket(uri);
+            _socket.Opened += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
+            _socket.Closed += (sender, e) => _disconnect.InvokeAsync().GetAwaiter().GetResult();
+            _socket.MessageReceived += (sender, e) => _message.InvokeAsync(new WebSocketMessageEventArgs()
             {
-                Message = e.Data
+                Message = e.Message
             }).GetAwaiter().GetResult();
-            _socket.Connect();
+            _socket.Open();
             return Task.FromResult<BaseWebSocketClient>(this);
         }
 
         public override Task InternalDisconnectAsync()
         {
-            if (_socket.IsAlive)
+            if (_socket.State != ws4net.WebSocketState.Closed)
                 _socket.Close();
             return Task.Delay(0);
         }
@@ -42,7 +39,7 @@ namespace DSharpPlus
 
         public override void SendMessage(string message)
         {
-            if (_socket.IsAlive)
+            if (_socket.State == ws4net.WebSocketState.Open)
                 _socket.Send(message);
         }
 
@@ -56,7 +53,7 @@ namespace DSharpPlus
         public override event AsyncEventHandler OnDisconnect
         {
             add { this._disconnect.Register(value); }
-            remove { this._disconnect.Unregister(value);  }
+            remove { this._disconnect.Unregister(value); }
         }
         private AsyncEvent _disconnect = new AsyncEvent();
 
