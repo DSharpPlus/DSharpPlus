@@ -646,6 +646,12 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordUser> GetUser(string user) => await InternalGetUser(user);
         /// <summary>
+        /// Gets a user
+        /// </summary>
+        /// <param name="user">Id of the user</param>
+        /// <returns></returns>
+        public Task<DiscordUser> GetUser(ulong user) => InternalGetUser(user);
+        /// <summary>
         /// Deletes a channel
         /// </summary>
         /// <param name="id"></param>
@@ -2256,6 +2262,9 @@ namespace DSharpPlus
             return result;
         }
 
+        internal static Task<DiscordUser> InternalGetUser(ulong user) =>
+            InternalGetUser(user.ToString());
+
         internal static async Task<DiscordUser> InternalGetUser(string user)
         {
             string url = Utils.GetApiBaseUri() + Endpoints.Users + $"/{user}";
@@ -2287,15 +2296,6 @@ namespace DSharpPlus
         internal static async Task<DiscordUser> InternalGetCurrentUser()
         {
             string url = Utils.GetApiBaseUri() + Endpoints.Users + "/@me";
-            var headers = Utils.GetBaseHeaders();
-            WebRequest request = WebRequest.CreateRequest(url, HttpRequestMethod.GET, headers);
-            WebResponse response = await RestClient.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
-        }
-
-        internal static async Task<DiscordUser> InternalGetUser(ulong user_id)
-        {
-            string url = Utils.GetApiBaseUri() + Endpoints.Users + "/" + user_id;
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(url, HttpRequestMethod.GET, headers);
             WebResponse response = await RestClient.HandleRequestAsync(request);
