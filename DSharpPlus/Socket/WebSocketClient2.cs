@@ -77,7 +77,7 @@ namespace DSharpPlus
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
 
-        internal override Task InternalDisconnectAsync()
+        public override Task InternalDisconnectAsync()
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
