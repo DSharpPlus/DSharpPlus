@@ -3,23 +3,23 @@
   <PropertyGroup>
     <TargetFrameworks>net452;net462</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>DSharpPlus.WebSocket.WebSocket4Net</PackageId>
     <Version>2.0.0-rc1</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
-    <Description>A WebSocket# WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.</Description>
+    <Description>A WebSocket4Net WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.</Description>
     <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/d#+.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, WebSocket, WebSocketSharp, WebSocket#, Windows 7, Mono</PackageTags>
+    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, WebSocket, WebSocket4Net, WS4Net, Windows 7, Mono</PackageTags>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
-    <PackageId>DSharpPlus.WebSocket.WebSocketSharp</PackageId>
     <RootNamespace>DSharpPlus</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="WebSocketSharp-NonPreRelease" Version="1.0.0" />
+    <PackageReference Include="WebSocket4Net" Version="0.14.1" />
   </ItemGroup>
 
   <ItemGroup>
