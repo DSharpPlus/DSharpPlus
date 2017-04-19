@@ -45,7 +45,7 @@ namespace DSharpPlus
         /// Connects to the WebSocket server.
         /// </summary>
         /// <returns></returns>
-        public override async Task<WebSocketClient> ConnectAsync(string uri)
+        public override async Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
@@ -54,7 +54,7 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been established.
         /// </summary>
         /// <returns></returns>
-        public override async Task<WebSocketClient> OnConnectAsync()
+        public override async Task<BaseWebSocketClient> OnConnectAsync()
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
@@ -63,7 +63,7 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been terminated.
         /// </summary>
         /// <returns></returns>
-        public override async Task<WebSocketClient> OnDisconnectAsync()
+        public override async Task<BaseWebSocketClient> OnDisconnectAsync()
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }

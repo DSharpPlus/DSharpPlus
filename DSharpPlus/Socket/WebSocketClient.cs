@@ -59,7 +59,7 @@ namespace DSharpPlus
         /// Connects to the WebSocket server.
         /// </summary>
         /// <returns></returns>
-        public override async Task<WebSocketClient> ConnectAsync(string uri)
+        public override async Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
             _uri = new Uri(uri);
             await InternalConnectAsync();
@@ -70,7 +70,7 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been established.
         /// </summary>
         /// <returns></returns>
-        public override async Task<WebSocketClient> OnConnectAsync()
+        public override async Task<BaseWebSocketClient> OnConnectAsync()
         {
             await _on_connect.InvokeAsync();
             return this;
@@ -80,7 +80,7 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been terminated.
         /// </summary>
         /// <returns></returns>
-        public override async Task<WebSocketClient> OnDisconnectAsync()
+        public override async Task<BaseWebSocketClient> OnDisconnectAsync()
         {
             await _on_disconnect.InvokeAsync();
             return this;
