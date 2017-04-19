@@ -9,10 +9,23 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
+    /// <summary>
+    /// Represents an asynchronous event handler.
+    /// </summary>
+    /// <returns>Event handling task.</returns>
     public delegate Task AsyncEventHandler();
+
+    /// <summary>
+    /// Represents an asynchronous event handler.
+    /// </summary>
+    /// <typeparam name="T">Type of EventArgs for the event.</typeparam>
+    /// <returns>Event handling task.</returns>
     public delegate Task AsyncEventHandler<T>(T e) where T : EventArgs;
 
-    internal sealed class AsyncEvent
+    /// <summary>
+    /// Represents an asynchronously-handled event.
+    /// </summary>
+    public sealed class AsyncEvent
     {
         private readonly object _lock = new object();
         internal static readonly object _synclock = new object();
@@ -60,7 +73,11 @@ namespace DSharpPlus
         }
     }
 
-    internal sealed class AsyncEvent<T> where T : EventArgs
+    /// <summary>
+    /// Represents an asynchronously-handled event.
+    /// </summary>
+    /// <typeparam name="T">Type of EventArgs for this event.</typeparam>
+    public sealed class AsyncEvent<T> where T : EventArgs
     {
         private readonly object _lock = new object();
         private List<AsyncEventHandler<T>> Handlers { get; set; }
