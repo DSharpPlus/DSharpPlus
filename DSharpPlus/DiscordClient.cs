@@ -393,6 +393,13 @@ namespace DSharpPlus
             remove { this._webhooks_update.Unregister(value); }
         }
         private AsyncEvent<WebhooksUpdateEventArgs> _webhooks_update = new AsyncEvent<WebhooksUpdateEventArgs>();
+
+        public event AsyncEventHandler<HeartBeatEventArgs> HeartBeated
+        {
+            add { this._heart_beated.Register(value); }
+            remove { this._heart_beated.Unregister(value); }
+        }
+        private AsyncEvent<HeartBeatEventArgs> _heart_beated = new AsyncEvent<HeartBeatEventArgs>();
         #endregion
 
         #region Internal Variables
@@ -1515,6 +1522,11 @@ namespace DSharpPlus
                 this.Ping = (int)(DateTime.Now - _lastHeartbeat).TotalMilliseconds;
                 _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
+                HeartBeatEventArgs args = new HeartBeatEventArgs()
+                {
+                    Ping = this.Ping,
+                    Timestamp = DateTimeOffset.Now
+                };
             });
         }
 
