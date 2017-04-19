@@ -15,12 +15,13 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/d%23%2B.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/d#+.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
     <PackageReleaseNotes>Rewritten for .NET Core</PackageReleaseNotes>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <PackageId>DSharpPlus.Commands</PackageId>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
