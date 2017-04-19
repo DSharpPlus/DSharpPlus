@@ -51,6 +51,13 @@ namespace DSharpPlus.CommandsNext
             await this._registered.InvokeAsync(e).ConfigureAwait(false);
         #endregion
 
+        private CommandsNextConfig Config { get; set; }
+
+        public CommandsNextModule(CommandsNextConfig cfg)
+        {
+            this.Config = cfg;
+        }
+
         #region DiscordClient registration
         /// <summary>
         /// Gets the instance of <see cref="DiscordClient"/> for which this module is registered.
