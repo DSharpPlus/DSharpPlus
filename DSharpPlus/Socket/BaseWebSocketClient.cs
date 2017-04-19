@@ -47,6 +47,6 @@ namespace DSharpPlus
         /// <param name="message">The message to send</param>
         public abstract void SendMessage(string message);
         
-        internal abstract Task InternalDisconnectAsync();
+        public abstract Task InternalDisconnectAsync();
     }
 }

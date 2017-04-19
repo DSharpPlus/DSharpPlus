@@ -135,7 +135,7 @@ namespace DSharpPlus
 
             }
         }
-        internal override async Task InternalDisconnectAsync()
+        public override async Task InternalDisconnectAsync()
         {
             // lazy again
             _connected = false;
