@@ -26,7 +26,7 @@ namespace DSharpPlus
         }
         private AsyncEvent<WebSocketMessageEventArgs> _on_message = new AsyncEvent<WebSocketMessageEventArgs>();
 
-        protected WebSocketClient()
+        public WebSocketClient()
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }

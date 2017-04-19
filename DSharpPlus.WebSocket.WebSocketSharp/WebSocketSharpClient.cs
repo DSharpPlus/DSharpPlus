@@ -10,6 +10,8 @@ namespace DSharpPlus
     {
         internal wss.WebSocket _socket;
 
+        public WebSocketSharpClient() { }
+
         public override Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
             _socket = new wss.WebSocket(uri);
