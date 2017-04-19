@@ -22,6 +22,12 @@ namespace DSharpPlus
             VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, ", n.Version.ToString(2) , ")");
         }
 
+        internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
+        {
+            Random r = new Random();
+            return r.Next(ping, int.MaxValue);
+        }
+
         internal static string GetApiBaseUri()
         {
             switch(DiscordClient.config.DiscordBranch)
