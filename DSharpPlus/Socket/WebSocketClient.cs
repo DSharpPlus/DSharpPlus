@@ -38,7 +38,7 @@ namespace DSharpPlus
         }
         private AsyncEvent<WebSocketMessageEventArgs> _on_message = new AsyncEvent<WebSocketMessageEventArgs>();
 
-        protected WebSocketClient()
+        public WebSocketClient()
         {
             _ws = new ClientWebSocket();
             _ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);

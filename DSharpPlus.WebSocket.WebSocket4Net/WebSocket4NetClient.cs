@@ -7,6 +7,8 @@ namespace DSharpPlus
     {
         internal ws4net.WebSocket _socket;
 
+        public WebSocket4NetClient() { }
+
         public override Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
             _socket = new ws4net.WebSocket(uri);
