@@ -27,19 +27,19 @@ namespace DSharpPlus
         /// Connects to the WebSocket server.
         /// </summary>
         /// <returns></returns>
-        public abstract Task<WebSocketClient> ConnectAsync(string uri);
+        public abstract Task<BaseWebSocketClient> ConnectAsync(string uri);
 
         /// <summary>
         /// Set the Action to call when the connection has been established.
         /// </summary>
         /// <returns></returns>
-        public abstract Task<WebSocketClient> OnConnectAsync();
+        public abstract Task<BaseWebSocketClient> OnConnectAsync();
 
         /// <summary>
         /// Set the Action to call when the connection has been terminated.
         /// </summary>
         /// <returns></returns>
-        public abstract Task<WebSocketClient> OnDisconnectAsync();
+        public abstract Task<BaseWebSocketClient> OnDisconnectAsync();
 
         /// <summary>
         /// Send a message to the WebSocket server.

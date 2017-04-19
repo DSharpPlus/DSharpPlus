@@ -567,7 +567,7 @@ namespace DSharpPlus
             await InternalUpdateGateway();
             _me = await InternalGetCurrentUser();
 
-            _websocketClient = WebSocketClient.Create();
+            _websocketClient = BaseWebSocketClient.Create();
             _websocketClient.OnConnect += async () =>
             {
                 _privateChannels = new List<DiscordDMChannel>();
