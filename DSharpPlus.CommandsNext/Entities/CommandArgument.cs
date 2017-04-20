@@ -25,6 +25,11 @@ namespace DSharpPlus.CommandsNext
         public object DefaultValue { get; internal set; }
 
         /// <summary>
+        /// Gets whether this argument catches all remaining arguments.
+        /// </summary>
+        public bool IsCatchAll { get; internal set; }
+
+        /// <summary>
         /// Gets this argument's description.
         /// </summary>
         public string Description { get; internal set; }

@@ -13,7 +13,7 @@
         /// <summary>
         /// Gets or sets whether to allow bot's mention as command prefix. Defaults to true.
         /// </summary>
-        public bool MentionPrefix { get; set; } = true;
+        public bool EnableMentionPrefix { get; set; } = true;
 
         /// <summary>
         /// Gets or sets whether the bot should only respond to messages from its own account. This is used for selfbots. Defaults to false.
