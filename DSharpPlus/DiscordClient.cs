@@ -1542,6 +1542,9 @@ namespace DSharpPlus
 
         internal static async Task InternalUpdateStatus(string game = "", int idle_since = -1)
         {
+            if (game.Length > 128)
+                throw new Exception("Game name can't be longer than 128 characters!");
+
             JObject update = new JObject();
             if (idle_since > -1)
                 update.Add("idle_since", idle_since);
@@ -1906,6 +1909,9 @@ namespace DSharpPlus
 
         internal static async Task<DiscordChannel> InternalCreateGuildChannelAsync(ulong id, string name, ChannelType type)
         {
+            if (name.Length > 200 || name.Length < 2)
+                throw new Exception("Channel names can't be longer than 200 or shorter than 2 characters!");
+
             string url = Utils.GetApiBaseUri() + Endpoints.Guilds + $"/{id}" + Endpoints.Channels;
             var headers = Utils.GetBaseHeaders();
             JObject payload = new JObject { { "name", name }, { "type", type.ToString() }, { "permission_overwrites", null } };
@@ -1944,6 +1950,8 @@ namespace DSharpPlus
 
         internal static async Task<DiscordMessage> InternalCreateMessage(ulong channel_id, string content, bool tts, DiscordEmbed embed = null)
         {
+            if (content.Length > 2000)
+                throw new Exception("Messages are limited to a total of 2000 characters!");
             string url = Utils.GetApiBaseUri() + Endpoints.Channels + "/" + channel_id + Endpoints.Messages;
             JObject j = new JObject
             {
@@ -2072,6 +2080,8 @@ namespace DSharpPlus
 
         internal static async Task<DiscordMessage> InternalEditMessage(ulong channel_id, ulong message_id, string content = null, DiscordEmbed embed = null)
         {
+            if (content != null || content.Length > 2000)
+                throw new Exception("Messages are limited to a total of 2000 characters!");
             string url = Utils.GetApiBaseUri() + Endpoints.Channels + "/" + channel_id + Endpoints.Messages + "/" + message_id;
             var headers = Utils.GetBaseHeaders();
             JObject j = new JObject();
@@ -2687,6 +2697,9 @@ namespace DSharpPlus
         #region Webhooks
         internal static async Task<DiscordWebhook> InternalCreateWebhook(ulong channel_id, string name, string base64_avatar)
         {
+            if (name.Length > 200 || name.Length < 2)
+                throw new Exception("Webhook name has to be between 2 and 200 characters!");
+
             string url = Utils.GetApiBaseUri() + Endpoints.Channels + "/" + channel_id + Endpoints.Webhooks;
             var headers = Utils.GetBaseHeaders();
             JObject j = new JObject
@@ -2751,6 +2764,8 @@ namespace DSharpPlus
 
         internal static async Task<DiscordWebhook> InternalModifyWebhook(ulong webhook_id, string name, string base64_avatar)
         {
+            if (name.Length > 200 || name.Length < 2)
+                throw new Exception("Webhook name has to be between 2 and 200 characters!");
             string url = Utils.GetApiBaseUri() + Endpoints.Webhooks + "/" + webhook_id;
             var headers = Utils.GetBaseHeaders();
             JObject j = new JObject
@@ -2765,6 +2780,8 @@ namespace DSharpPlus
 
         internal static async Task<DiscordWebhook> InternalModifyWebhook(ulong webhook_id, string name, string base64_avatar, string webhook_token)
         {
+            if (name.Length > 200 || name.Length < 2)
+                throw new Exception("Webhook name has to be between 2 and 200 characters!");
             string url = Utils.GetApiBaseUri() + Endpoints.Webhooks + "/" + webhook_id + "/" + webhook_token;
             JObject j = new JObject
             {
@@ -2794,6 +2811,9 @@ namespace DSharpPlus
         internal static async Task InternalExecuteWebhook(ulong webhook_id, string webhook_token, string content = "", string username = "", string avatar_url = "",
             bool tts = false, List<DiscordEmbed> embeds = null)
         {
+            if (content.Length > 2000)
+                throw new Exception("Messages are limited to a total of 2000 characters!");
+
             string url = Utils.GetApiBaseUri() + Endpoints.Webhooks + "/" + webhook_id + "/" + webhook_token;
             JObject req = new JObject();
             if (content != "")
