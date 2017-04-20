@@ -64,6 +64,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj">
+      <Project>{c8ed55fb-e028-468d-955f-1534c20274ef}</Project>
+      <Name>DSharpPlus.CommandsNext</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DSharpPlus.Commands\DSharpPlus.Commands.csproj">
       <Project>{9f197f87-1878-4029-8cfc-e9ce4db42769}</Project>
       <Name>DSharpPlus.Commands</Name>
