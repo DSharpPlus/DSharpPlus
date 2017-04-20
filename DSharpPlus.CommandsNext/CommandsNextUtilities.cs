@@ -20,29 +20,30 @@ namespace DSharpPlus.CommandsNext
         {
             UserRegex = new Regex(@"<@\!?(\d+?)> ");
 
-            ArgumentConverters = new Dictionary<Type, IArgumentConverter>();
-            ArgumentConverters[typeof(string)] = new StringConverter();
-            ArgumentConverters[typeof(bool)] = new BoolConverter();
-            ArgumentConverters[typeof(sbyte)] = new Int8Converter();
-            ArgumentConverters[typeof(byte)] = new Uint8Converter();
-            ArgumentConverters[typeof(short)] = new Int16Converter();
-            ArgumentConverters[typeof(ushort)] = new Uint16Converter();
-            ArgumentConverters[typeof(int)] = new Int32Converter();
-            ArgumentConverters[typeof(uint)] = new Uint32Converter();
-            ArgumentConverters[typeof(long)] = new Int64Converter();
-            ArgumentConverters[typeof(ulong)] = new Uint64Converter();
-            ArgumentConverters[typeof(float)] = new Float32Converter();
-            ArgumentConverters[typeof(double)] = new Float64Converter();
-            ArgumentConverters[typeof(decimal)] = new Float128Converter();
-            ArgumentConverters[typeof(DateTime)] = new DateTimeConverter();
-            ArgumentConverters[typeof(DateTimeOffset)] = new DateTimeOffsetConverter();
-            ArgumentConverters[typeof(TimeSpan)] = new TimeSpanConverter();
-            ArgumentConverters[typeof(DiscordUser)] = new DiscordUserConverter();
-            ArgumentConverters[typeof(DiscordMember)] = new DiscordMemberConverter();
-            ArgumentConverters[typeof(DiscordRole)] = new DiscordRoleConverter();
-            ArgumentConverters[typeof(DiscordChannel)] = new DiscordChannelConverter();
-            ArgumentConverters[typeof(DiscordGuild)] = new DiscordGuildConverter();
-
+            ArgumentConverters = new Dictionary<Type, IArgumentConverter>
+            {
+                [typeof(string)] = new StringConverter(),
+                [typeof(bool)] = new BoolConverter(),
+                [typeof(sbyte)] = new Int8Converter(),
+                [typeof(byte)] = new Uint8Converter(),
+                [typeof(short)] = new Int16Converter(),
+                [typeof(ushort)] = new Uint16Converter(),
+                [typeof(int)] = new Int32Converter(),
+                [typeof(uint)] = new Uint32Converter(),
+                [typeof(long)] = new Int64Converter(),
+                [typeof(ulong)] = new Uint64Converter(),
+                [typeof(float)] = new Float32Converter(),
+                [typeof(double)] = new Float64Converter(),
+                [typeof(decimal)] = new Float128Converter(),
+                [typeof(DateTime)] = new DateTimeConverter(),
+                [typeof(DateTimeOffset)] = new DateTimeOffsetConverter(),
+                [typeof(TimeSpan)] = new TimeSpanConverter(),
+                [typeof(DiscordUser)] = new DiscordUserConverter(),
+                [typeof(DiscordMember)] = new DiscordMemberConverter(),
+                [typeof(DiscordRole)] = new DiscordRoleConverter(),
+                [typeof(DiscordChannel)] = new DiscordChannelConverter(),
+                [typeof(DiscordGuild)] = new DiscordGuildConverter()
+            };
             var t = typeof(CommandsNextUtilities);
             var ms = t.GetTypeInfo().DeclaredMethods;
             var m = ms.FirstOrDefault(xm => xm.Name == "ConvertArgument" && xm.ContainsGenericParameters && xm.IsStatic && xm.IsPublic);

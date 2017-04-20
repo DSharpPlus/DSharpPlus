@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 
@@ -43,9 +42,9 @@ namespace DSharpPlus.CommandsNext
             await this._error.InvokeAsync(e).ConfigureAwait(false);
         #endregion
 
-        private CommandsNextConfig Config { get; set; }
+        private CommandsNextConfiguration Config { get; set; }
 
-        public CommandsNextModule(CommandsNextConfig cfg)
+        public CommandsNextModule(CommandsNextConfiguration cfg)
         {
             this.Config = cfg;
             this.RegisteredCommands = new Dictionary<string, Command>();
@@ -55,7 +54,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the instance of <see cref="DiscordClient"/> for which this module is registered.
         /// </summary>
-        public DiscordClient Client { get { return this.Client; } }
+        public DiscordClient Client { get { return this._client; } }
         private DiscordClient _client;
 
         /// <summary>
@@ -69,7 +68,6 @@ namespace DSharpPlus.CommandsNext
                 throw new InvalidOperationException("What did I tell you?");
 
             this._client = client;
-            this.Client.AddModule(this);
             this.Client.MessageCreated += this.HandleCommands;
         }
         #endregion
@@ -114,7 +112,7 @@ namespace DSharpPlus.CommandsNext
             var mdl_desc = "";
             var mdl_chks = new List<ConditionBaseAttribute>();
             var mdl_cbl = (Delegate)null;
-            var mdl_args = (IReadOnlyCollection<CommandArgument>)null;
+            var mdl_args = (IReadOnlyList<CommandArgument>)null;
             var mdl = (CommandGroup)null;
             foreach (var xa in mdl_attrs)
             {
@@ -220,7 +218,7 @@ namespace DSharpPlus.CommandsNext
                 .Where(xt => xt.DeclaredConstructors.Any(xc => !xc.GetParameters().Any() || xc.IsPublic));
             foreach (var xt in ts)
             {
-                this.RegisterCommands(xt, Activator.CreateInstance(t), mdl, out var tmdl, out var tcmds);
+                this.RegisterCommands(xt.AsType(), Activator.CreateInstance(t), mdl, out var tmdl, out var tcmds);
 
                 if (tmdl == null)
                     cmds.AddRange(tcmds);
@@ -232,10 +230,9 @@ namespace DSharpPlus.CommandsNext
             if (mdl != null)
                 mdl.Children = commands;
             result = mdl;
-
         }
 
-        private void MakeCallable(MethodInfo mi, object inst, out Delegate cbl, out IReadOnlyCollection<CommandArgument> args)
+        private void MakeCallable(MethodInfo mi, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
             if (mi == null || mi.IsStatic || !mi.IsPublic)
                 throw new InvalidOperationException("Specified method is invalid, static, or not public.");
@@ -261,6 +258,8 @@ namespace DSharpPlus.CommandsNext
                     IsOptional = xp.IsOptional,
                     DefaultValue = xp.IsOptional ? xp.DefaultValue : null
                 };
+                if (i > 1 && !ca.IsOptional && argsl[i - 2].IsOptional)
+                    throw new InvalidOperationException("Non-optional argument cannot appear after an optional one");
 
                 var attrs = xp.GetCustomAttributes();
                 foreach (var xa in attrs)
@@ -284,7 +283,7 @@ namespace DSharpPlus.CommandsNext
             args = new ReadOnlyCollection<CommandArgument>(argsl);
         }
 
-        private void MakeCallableModule(TypeInfo ti, object inst, out Delegate cbl, out IReadOnlyCollection<CommandArgument> args)
+        private void MakeCallableModule(TypeInfo ti, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
             this.MakeCallable(ti.GetDeclaredMethod("ModuleCommand"), inst, out cbl, out args);
         }
