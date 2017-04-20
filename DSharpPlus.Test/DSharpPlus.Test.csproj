@@ -44,7 +44,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime" />
     <Reference Include="System.Speech" />
+    <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -72,6 +74,10 @@
     <ProjectReference Include="..\DSharpPlus.Commands\DSharpPlus.Commands.csproj">
       <Project>{9f197f87-1878-4029-8cfc-e9ce4db42769}</Project>
       <Name>DSharpPlus.Commands</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj">
+      <Project>{dd32bec3-0189-479f-86dc-ccf95e5634a9}</Project>
+      <Name>DSharpPlus.Interactivity</Name>
     </ProjectReference>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj">
       <Project>{eb3d8310-dfad-4295-97f9-82e253647583}</Project>
