@@ -218,12 +218,11 @@ namespace DSharpPlus.CommandsNext
                 .Where(xt => xt.DeclaredConstructors.Any(xc => !xc.GetParameters().Any() || xc.IsPublic));
             foreach (var xt in ts)
             {
-                this.RegisterCommands(xt.AsType(), Activator.CreateInstance(t), mdl, out var tmdl, out var tcmds);
+                this.RegisterCommands(xt.AsType(), Activator.CreateInstance(xt.AsType()), mdl, out var tmdl, out var tcmds);
 
-                if (tmdl == null)
-                    cmds.AddRange(tcmds);
-                else
+                if (tmdl != null)
                     cmds.Add(tmdl);
+                cmds.AddRange(tcmds);
             }
 
             commands = new ReadOnlyCollection<Command>(cmds);
