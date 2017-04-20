@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command's qualified name (i.e. one that includes all module names).
         /// </summary>
-        public string QualifiedName { get; }
+        public string QualifiedName => this.Parent != null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
 
         /// <summary>
         /// Gets this command's alises.
@@ -29,7 +29,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command's arguments.
         /// </summary>
-        public IReadOnlyCollection<CommandArgument> Arguments { get; internal set; }
+        public IReadOnlyList<CommandArgument> Arguments { get; internal set; }
 
         /// <summary>
         /// Gets this command's parent module, if any.
@@ -58,7 +58,18 @@ namespace DSharpPlus.CommandsNext
 
         internal virtual async Task Execute(CommandContext ctx)
         {
+            var args = new object[this.Arguments.Count + 1];
+            args[0] = ctx;
 
+            for (int i = 0; i < ctx.RawArguments.Count; i++)
+                args[i + 1] = CommandsNextUtilities.ConvertArgument(ctx.RawArguments[i], ctx, this.Arguments[i].Type);
+
+            if (ctx.RawArguments.Count < args.Length)
+                for (int i = ctx.RawArguments.Count; i < this.Arguments.Count; i++)
+                    args[i + i] = this.Arguments[i].DefaultValue;
+            
+            var ret = (Task)this.Callable.DynamicInvoke(args);
+            await ret;
         }
     }
 }

@@ -37,7 +37,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="client">Client to enable CommandsNext for.</param>
         /// <param name="cfg">CommandsNext configuration to use.</param>
         /// <returns>Created <see cref="CommandsNextModule"/>.</returns>
-        public static CommandsNextModule UseCommandsNext(this DiscordClient client, CommandsNextConfig cfg)
+        public static CommandsNextModule UseCommandsNext(this DiscordClient client, CommandsNextConfiguration cfg)
         {
             if (client.GetModule<CommandsNextModule>() != null)
                 throw new InvalidOperationException("CommandsNext is already enabled for that client.");

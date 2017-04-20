@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a configuration for <see cref="CommandsNextModule"/>.
     /// </summary>
-    public sealed class CommandsNextConfig
+    public sealed class CommandsNextConfiguration
     {
         /// <summary>
         /// Gets or sets the prefix used for commands. By default has no value.

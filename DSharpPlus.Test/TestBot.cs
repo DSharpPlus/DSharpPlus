@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
+using c = DSharpPlus.Commands;
+using DSharpPlus.CommandsNext;
 //using DSharpPlus.VoiceNext;
 
 namespace DSharpPlus.Test
@@ -15,8 +17,9 @@ namespace DSharpPlus.Test
         private TestBotConfig Config { get; }
         private DiscordClient Discord { get; }
         private TestBotCommands Commands { get; }
-        private CommandModule CommandService { get; }
+        private c.CommandModule CommandService { get; }
         //private VoiceNextClient VoiceService { get; }
+        private CommandsNextModule CommandsNextService { get; }
         private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg)
@@ -51,7 +54,7 @@ namespace DSharpPlus.Test
 
             // command config and the command service itself
             this.Commands = new TestBotCommands();
-            var ccfg = new CommandConfig
+            var ccfg = new c.CommandConfig
             {
                 Prefix = this.Config.CommandPrefix,
                 SelfBot = false
@@ -60,7 +63,7 @@ namespace DSharpPlus.Test
             this.CommandService.CommandError += this.CommandService_CommandError;
 
             // register all commands dynamically
-            var t = new[] { typeof(TestBotCommands), typeof(Task), typeof(CommandEventArgs) };
+            var t = new[] { typeof(TestBotCommands), typeof(Task), typeof(c.CommandEventArgs) };
             var cm = t[0].GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Where(xm => this.IsCommandMethod(xm, t[1], t[2]));
 
@@ -69,7 +72,7 @@ namespace DSharpPlus.Test
             foreach (var xm in cm)
             {
                 var expr_call = Expression.Call(expr_inst, xm, expr_arg0);
-                var expr_anon = Expression.Lambda<Func<CommandEventArgs, Task>>(expr_call, expr_arg0);
+                var expr_anon = Expression.Lambda<Func<c.CommandEventArgs, Task>>(expr_call, expr_arg0);
                 var cmcall = expr_anon.Compile();
 
                 this.Discord.AddCommand(xm.Name.ToLower(), cmcall);
@@ -82,6 +85,16 @@ namespace DSharpPlus.Test
                 VoiceApplication = VoiceNext.Codec.VoiceApplication.Music
             };
             this.VoiceService = this.Discord.UseVoiceNext(vcfg);*/
+
+            // commandsnext config and the commandsnext service itself
+            var cncfg = new CommandsNextConfiguration
+            {
+                Prefix = "==",
+                EnableDms = false,
+                MentionPrefix = true
+            };
+            this.CommandsNextService = this.Discord.UseCommandsNext(cncfg);
+            this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
         }
 
         public async Task RunAsync()
@@ -186,7 +199,7 @@ namespace DSharpPlus.Test
             //await e.Message.DeleteAllReactions();
         }
 
-        private async Task CommandService_CommandError(CommandErrorEventArgs e)
+        private async Task CommandService_CommandError(c.CommandErrorEventArgs e)
         {
             var ms = e.Exception.Message;
             var st = e.Exception.StackTrace;
