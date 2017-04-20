@@ -7,26 +7,26 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this argument's name.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; internal set; }
         
         /// <summary>
         /// Gets this argument's type.
         /// </summary>
-        public Type Type { get; private set; }
+        public Type Type { get; internal set; }
 
         /// <summary>
         /// Gets whether this argument is optional.
         /// </summary>
-        public bool IsOptional { get; private set; }
+        public bool IsOptional { get; internal set; }
 
         /// <summary>
         /// Gets whether this argument has a default value.
         /// </summary>
-        public object DefaultValue { get; private set; }
+        public object DefaultValue { get; internal set; }
 
         /// <summary>
         /// Gets this argument's description.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; internal set; }
     }
 }

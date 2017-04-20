@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;net462;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <Optimize>True</Optimize>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>DSharpPlus.CommandsNext</PackageId>
     <Version>2.0.0-rc3</Version>
@@ -15,6 +16,10 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Optimize>False</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
