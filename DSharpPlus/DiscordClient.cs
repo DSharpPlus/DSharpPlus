@@ -2088,7 +2088,18 @@ namespace DSharpPlus
             if (content != null)
                 j.Add("content", content);
             if (embed != null)
-                j.Add("embed", JObject.FromObject(embed));
+            {
+                JObject jembed = JObject.FromObject(embed);
+                if (embed.Timestamp == new DateTime())
+                {
+                    jembed.Remove("timestamp");
+                }
+                else
+                {
+                    jembed["timestamp"] = embed.Timestamp.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture);
+                }
+                j.Add("embed", jembed);
+            }
             WebRequest request = WebRequest.CreateRequest(url, HttpRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await RestClient.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
