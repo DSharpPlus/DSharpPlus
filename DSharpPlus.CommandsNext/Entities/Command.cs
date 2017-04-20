@@ -49,7 +49,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets a collection of execution pre-checks for this command.
         /// </summary>
-        public IReadOnlyCollection<CanExecuteAttribute> ExecutionChecks { get; internal set; }
+        public IReadOnlyCollection<ConditionBaseAttribute> ExecutionChecks { get; internal set; }
 
         /// <summary>
         /// Gets this command's callable.
