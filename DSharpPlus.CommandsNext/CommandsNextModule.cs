@@ -36,24 +36,11 @@ namespace DSharpPlus.CommandsNext
         }
         private AsyncEvent<CommandErrorEventArgs> _error = new AsyncEvent<CommandErrorEventArgs>();
 
-        /// <summary>
-        /// Triggered whenever a new command is registered.
-        /// </summary>
-        public event AsyncEventHandler<CommandEventArgs> CommandRegistered
-        {
-            add { this._registered.Register(value); }
-            remove { this._registered.Unregister(value); }
-        }
-        private AsyncEvent<CommandEventArgs> _registered = new AsyncEvent<CommandEventArgs>();
-
         private async Task OnCommandExecuted(CommandExecutedEventArgs e) =>
             await this._executed.InvokeAsync(e).ConfigureAwait(false);
 
         private async Task OnCommandErrored(CommandErrorEventArgs e) =>
             await this._error.InvokeAsync(e).ConfigureAwait(false);
-
-        private async Task OnCommandRegistered(CommandEventArgs e) =>
-            await this._registered.InvokeAsync(e).ConfigureAwait(false);
         #endregion
 
         private CommandsNextConfig Config { get; set; }
