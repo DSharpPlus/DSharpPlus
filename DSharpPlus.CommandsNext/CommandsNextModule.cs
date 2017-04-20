@@ -61,6 +61,7 @@ namespace DSharpPlus.CommandsNext
         public CommandsNextModule(CommandsNextConfig cfg)
         {
             this.Config = cfg;
+            this.RegisteredCommands = new Dictionary<string, Command>();
         }
 
         #region DiscordClient Registration
@@ -97,13 +98,23 @@ namespace DSharpPlus.CommandsNext
         #endregion
 
         #region Command Registration
+        private Dictionary<string, Command> RegisteredCommands { get; set; }
+
         public void RegisterCommands<T>() where T : new()
         {
             var t = typeof(T);
-            RegisterCommands(t, new T(), null);
+            RegisterCommands(t, new T(), null, out var tres, out var tcmds);
+
+            // register
+            if (tres != null)
+                this.RegisteredCommands.Add(tres.QualifiedName, tres);
+            foreach (var xc in tcmds)
+            {
+                this.RegisteredCommands.Add(xc.QualifiedName, xc);
+            }
         }
 
-        private void RegisterCommands(Type t, object inst, CommandGroup currentparent)
+        private void RegisterCommands(Type t, object inst, CommandGroup currentparent, out CommandGroup result, out IReadOnlyCollection<Command> commands)
         {
             var ti = t.GetTypeInfo();
 
@@ -164,9 +175,77 @@ namespace DSharpPlus.CommandsNext
                 };
 
             // candidate methods
-            
-            
+            var ms = ti.DeclaredMethods
+                .Where(xm => xm.IsPublic && !xm.IsStatic && xm.Name != "ModuleCommand");
+            var cmds = new List<Command>();
+            foreach (var m in ms)
+            {
+                if (m.ReturnType != typeof(Task))
+                    continue;
+
+                var ps = m.GetParameters();
+                if (!ps.Any() || ps.First().ParameterType != typeof(CommandContext))
+                    continue;
+
+                var attrs = m.GetCustomAttributes();
+                if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
+                    continue;
+
+                var cmd = new Command();
+
+                var cbas = new List<ConditionBaseAttribute>();
+                foreach (var xa in attrs)
+                {
+                    switch (xa)
+                    {
+                        case CommandAttribute c:
+                            cmd.Name = c.Name;
+                            break;
+
+                        case AliasesAttribute a:
+                            cmd.Aliases = a.Aliases;
+                            break;
+
+                        case ConditionBaseAttribute p:
+                            cbas.Add(p);
+                            break;
+
+                        case DescriptionAttribute d:
+                            cmd.Description = d.Description;
+                            break;
+
+                        case HiddenAttribute h:
+                            cmd.IsHidden = true;
+                            break;
+                    }
+                }
+                cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
+                cmd.Parent = mdl;
+                MakeCallable(m, inst, out var cbl, out var args);
+                cmd.Callable = cbl;
+                cmd.Arguments = args;
+
+                cmds.Add(cmd);
+            }
+
             // candidate types
+            var ts = ti.DeclaredNestedTypes
+                .Where(xt => xt.DeclaredConstructors.Any(xc => !xc.GetParameters().Any() || xc.IsPublic));
+            foreach (var xt in ts)
+            {
+                this.RegisterCommands(xt, Activator.CreateInstance(t), mdl, out var tmdl, out var tcmds);
+
+                if (tmdl == null)
+                    cmds.AddRange(tcmds);
+                else
+                    cmds.Add(tmdl);
+            }
+
+            commands = new ReadOnlyCollection<Command>(cmds);
+            if (mdl != null)
+                mdl.Children = commands;
+            result = mdl;
+
         }
 
         private void MakeCallable(MethodInfo mi, object inst, out Delegate cbl, out IReadOnlyCollection<CommandArgument> args)
@@ -175,7 +254,7 @@ namespace DSharpPlus.CommandsNext
                 throw new InvalidOperationException("Specified method is invalid, static, or not public.");
 
             var ps = mi.GetParameters();
-            if (ps.First().ParameterType != typeof(CommandContext) || mi.ReturnType != typeof(Task))
+            if (!ps.Any() || ps.First().ParameterType != typeof(CommandContext) || mi.ReturnType != typeof(Task))
                 throw new InvalidOperationException("Specified method has an invalid signature.");
 
             var ei = Expression.Constant(inst);
@@ -223,12 +302,46 @@ namespace DSharpPlus.CommandsNext
             this.MakeCallable(ti.GetDeclaredMethod("ModuleCommand"), inst, out cbl, out args);
         }
 
-        public void RegisterCommand(Delegate cmd)
+        public void RegisterCommand(Delegate dlg)
         {
-            var mi = cmd.GetMethodInfo();
+            var mi = dlg.GetMethodInfo();
             this.MakeCallable(mi, null, out var cbl, out var args);
 
-            // do other things
+            var attrs = mi.GetCustomAttributes();
+            if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
+                return;
+
+            var cmd = new Command();
+
+            var cbas = new List<ConditionBaseAttribute>();
+            foreach (var xa in attrs)
+            {
+                switch (xa)
+                {
+                    case CommandAttribute c:
+                        cmd.Name = c.Name;
+                        break;
+
+                    case AliasesAttribute a:
+                        cmd.Aliases = a.Aliases;
+                        break;
+
+                    case ConditionBaseAttribute p:
+                        cbas.Add(p);
+                        break;
+
+                    case DescriptionAttribute d:
+                        cmd.Description = d.Description;
+                        break;
+
+                    case HiddenAttribute h:
+                        cmd.IsHidden = true;
+                        break;
+                }
+            }
+            cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
+
+            this.RegisteredCommands.Add(cmd.QualifiedName, cmd);
         }
         #endregion
     }
