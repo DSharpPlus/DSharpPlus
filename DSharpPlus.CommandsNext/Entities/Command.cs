@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 
@@ -58,15 +57,7 @@ namespace DSharpPlus.CommandsNext
 
         internal virtual async Task Execute(CommandContext ctx)
         {
-            var args = new object[this.Arguments.Count + 1];
-            args[0] = ctx;
-
-            for (int i = 0; i < ctx.RawArguments.Count; i++)
-                args[i + 1] = CommandsNextUtilities.ConvertArgument(ctx.RawArguments[i], ctx, this.Arguments[i].Type);
-
-            if (ctx.RawArguments.Count < args.Length)
-                for (int i = ctx.RawArguments.Count; i < this.Arguments.Count; i++)
-                    args[i + i] = this.Arguments[i].DefaultValue;
+            var args = CommandsNextUtilities.BindArguments(ctx);
             
             var ret = (Task)this.Callable.DynamicInvoke(args);
             await ret;

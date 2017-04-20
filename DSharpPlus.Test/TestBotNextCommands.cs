@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
@@ -7,7 +8,7 @@ namespace DSharpPlus.Test
     public class TestBotNextCommands
     {
         [Command("hello"), Aliases("hi", "say_hello", "say_hi"), Description("Says hello to given user.")]
-        public async Task SayHello(CommandContext ctx, string name)
+        public async Task SayHello(CommandContext ctx, [Description("Name to say hi to.")] string name)
         {
             await ctx.RespondAsync($"Hello, {name}!");
         }
@@ -19,9 +20,22 @@ namespace DSharpPlus.Test
         }
 
         [Command("ping"), Aliases("mention"), Description("Mentions specified user.")]
-        public async Task Ping(CommandContext ctx, DiscordMember member)
+        public async Task Ping(CommandContext ctx, [Description("Member to mention.")] DiscordMember member)
         {
             await ctx.RespondAsync($"{member.User.Mention}");
+        }
+
+        [Command("echo"), Description("Echoes supplied numbers.")]
+        public async Task Echo(CommandContext ctx, [Description("Numbers to echo back.")] params int[] numbers)
+        {
+            await ctx.RespondAsync(string.Join(", ", numbers));
+        }
+
+        [Command("unixtime"), Description("Converts a unix timestamp to printable date time.")]
+        public async Task PrintUnixTimestamp(CommandContext ctx, long timestamp = 1492712905)
+        {
+            var dto = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(timestamp);
+            await ctx.RespondAsync($"{dto.ToString("yyyy-MM-dd HH:mm:ss zzz")}");
         }
 
         [Group("sub"), Aliases("submodule"), CanExecute, Description("Copypasta things.")]

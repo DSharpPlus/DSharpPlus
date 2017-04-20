@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Exceptions;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -78,12 +79,54 @@ namespace DSharpPlus.CommandsNext
             // Let the bot do its things
             await Task.Yield();
 
+            var mpos = -1;
+            if (!this.Config.EnableMentionPrefix || (mpos = e.Message.HasMentionPrefix(this.Client.Me)) == -1)
+                mpos = e.Message.HasStringPrefix(this.Config.Prefix);
 
+            if (mpos == -1)
+                return;
+
+            var cnt = e.Message.Content;
+            var cmi = cnt.IndexOf(' ', mpos);
+            var cms = cmi != -1 ? cnt.Substring(mpos, cmi - mpos) : cnt.Substring(mpos);
+            var rrg = cmi != -1 ? cnt.Substring(cmi + 1) : "";
+            var arg = CommandsNextUtilities.SplitArguments(rrg);
+
+            var cmd = this.RegisteredCommandList.FirstOrDefault(xc => xc.Name == cms || (xc.Aliases != null && xc.Aliases.Contains(cms)));
+            var ctx = new CommandContext
+            {
+                Client = this.Client,
+                Command = cmd,
+                Message = e.Message,
+                RawArguments = new ReadOnlyCollection<string>(arg.ToList())
+            };
+
+            if (cmd == null)
+            {
+                await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException("Specified command was not found.", cms) });
+                return;
+            }
+
+#pragma warning disable 4014
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await cmd.Execute(ctx);
+                    await this._executed.InvokeAsync(new CommandExecutedEventArgs { Context = ctx });
+                }
+                catch (Exception ex)
+                {
+                    await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = ex });
+                }
+            });
+#pragma warning restore 4014
         }
         #endregion
 
         #region Command Registration
         private Dictionary<string, Command> RegisteredCommands { get; set; }
+        public IEnumerable<Command> RegisteredCommandList => this.RegisteredCommands.Select(xkvp => xkvp.Value);
 
         public void RegisterCommands<T>() where T : new()
         {
@@ -247,7 +290,7 @@ namespace DSharpPlus.CommandsNext
 
             var i = 1;
             var ps1 = ps.Skip(1);
-            var argsl = new List<CommandArgument>();
+            var argsl = new List<CommandArgument>(ps.Length - 1);
             foreach (var xp in ps1)
             {
                 var ca = new CommandArgument
@@ -267,6 +310,11 @@ namespace DSharpPlus.CommandsNext
                     {
                         case DescriptionAttribute d:
                             ca.Description = d.Description;
+                            break;
+
+                        case ParamArrayAttribute p:
+                            ca.IsCatchAll = true;
+                            ca.Type = xp.ParameterType.GetElementType();
                             break;
                     }
                 }

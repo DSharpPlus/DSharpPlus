@@ -91,9 +91,11 @@ namespace DSharpPlus.Test
             {
                 Prefix = "==",
                 EnableDms = false,
-                MentionPrefix = true
+                EnableMentionPrefix = true
             };
             this.CommandsNextService = this.Discord.UseCommandsNext(cncfg);
+            this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
+            this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
             this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
         }
 
@@ -235,6 +237,52 @@ namespace DSharpPlus.Test
                 }
             };
             await e.Message.Respond("\u200b", embed: embed);
+        }
+
+        private async Task CommandsNextService_CommandErrored(CommandsNext.CommandErrorEventArgs e)
+        {
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"{e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+
+            var ms = e.Exception.Message;
+            var st = e.Exception.StackTrace;
+
+            ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
+            st = st.Length > 1000 ? st.Substring(0, 1000) : st;
+
+            var embed = new DiscordEmbed
+            {
+                Color = 0xFF0000,
+                Title = "An exception occured when executing a command",
+                Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.Name}`.",
+                Footer = new DiscordEmbedFooter
+                {
+                    IconUrl = this.Discord.Me.AvatarUrl,
+                    Text = this.Discord.Me.Username
+                },
+                Timestamp = DateTime.UtcNow,
+                Fields = new List<DiscordEmbedField>()
+                {
+                    new DiscordEmbedField
+                    {
+                        Name = "Message",
+                        Value = ms,
+                        Inline = false
+                    },
+                    new DiscordEmbedField
+                    {
+                        Name = "Stack trace",
+                        Value = $"```cs\n{st}\n```",
+                        Inline = false
+                    }
+                }
+            };
+            await e.Context.Channel.SendMessage("\u200b", embed: embed);
+        }
+
+        private Task CommandsNextService_CommandExecuted(CommandExecutedEventArgs e)
+        {
+            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "CommandsNext", $"{e.Context.User.Username} executed {e.Command.Name} in {e.Context.Channel.Name}", DateTime.Now);
+            return Task.Delay(0);
         }
 
         private void TimerCallback(object _)

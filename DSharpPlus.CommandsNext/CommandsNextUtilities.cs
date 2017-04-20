@@ -100,7 +100,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="value">Value to convert.</param>
         /// <param name="ctx">Context in which to convert to.</param>
         /// <returns>Converted object.</returns>
-        public static object ConvertArgument<T>(this string value, CommandContext ctx)
+        public static object ConvertArgument<T>(this string value, CommandContext ctx, bool optional, object dflt)
         {
             var t = typeof(T);
             if (!ArgumentConverters.ContainsKey(t))
@@ -111,7 +111,10 @@ namespace DSharpPlus.CommandsNext
                 throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
 
             if (!cv.TryConvert(value, ctx, out var result))
-                throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
+                if (!optional)
+                    throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
+                else
+                    return (T)dflt;
 
             return result;
         }
@@ -123,10 +126,10 @@ namespace DSharpPlus.CommandsNext
         /// <param name="ctx">Context in which to convert to.</param>
         /// <param name="type">Type to convert to.</param>
         /// <returns>Converted object.</returns>
-        public static object ConvertArgument(this string value, CommandContext ctx, Type type)
+        public static object ConvertArgument(this string value, CommandContext ctx, Type type, bool optional, object dflt)
         {
             var m = ConvertGeneric.MakeGenericMethod(type);
-            return m.Invoke(null, new object[] { value, ctx });
+            return m.Invoke(null, new object[] { value, ctx, optional, dflt });
         }
         
         /// <summary>
@@ -160,6 +163,9 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Enumerator of parsed strings.</returns>
         public static IEnumerable<string> SplitArguments(string str)
         {
+            if (string.IsNullOrWhiteSpace(str))
+                yield break;
+
             var stra = str.Split(' ');
             var strt = "";
             foreach (var xs in stra)
@@ -203,6 +209,37 @@ namespace DSharpPlus.CommandsNext
                     }
                 }
             }
+        }
+
+        internal static object[] BindArguments(CommandContext ctx)
+        {
+            var cmd = ctx.Command;
+
+            var args = new object[cmd.Arguments.Count + 1];
+            if (ctx.RawArguments.Count < cmd.Arguments.Count(xa => !xa.IsOptional))
+                throw new ArgumentException("Not enough arguments were supplied.");
+
+            if (ctx.RawArguments.Count > cmd.Arguments.Count && ((cmd.Arguments.Any() && !cmd.Arguments.Last().IsCatchAll) || cmd.Arguments.Count == 0))
+                throw new ArgumentException("Too many arguments were supplied.");
+
+            args[0] = ctx;
+
+            for (int i = 0; i < ctx.RawArguments.Count; i++)
+                if (!cmd.Arguments[i].IsCatchAll)
+                    args[i + 1] = ConvertArgument(ctx.RawArguments[i], ctx, cmd.Arguments[i].Type, cmd.Arguments[i].IsOptional, cmd.Arguments[i].DefaultValue);
+                else
+                {
+                    args[i + 1] = Array.CreateInstance(cmd.Arguments[i].Type, ctx.RawArguments.Count - i);
+                    var t = ctx.RawArguments.Skip(i).Select(xs => ConvertArgument(xs, ctx, cmd.Arguments[i].Type, false, null)).ToArray();
+                    Array.Copy(t, (Array)args[i + 1], t.Length);
+                    break;
+                }
+
+            if (ctx.RawArguments.Count < args.Length - 1)
+                for (int i = ctx.RawArguments.Count; i < cmd.Arguments.Count; i++)
+                    args[i + 1] = cmd.Arguments[i].DefaultValue;
+
+            return args;
         }
     }
 }
