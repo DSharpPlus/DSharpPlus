@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.WebSocket.WebSoc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.CommandsNext", "DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj", "{C8ED55FB-E028-468D-955F-1534C20274EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Interactivity", "DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj", "{DD32BEC3-0189-479F-86DC-CCF95E5634A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{C8ED55FB-E028-468D-955F-1534C20274EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8ED55FB-E028-468D-955F-1534C20274EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8ED55FB-E028-468D-955F-1534C20274EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD32BEC3-0189-479F-86DC-CCF95E5634A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD32BEC3-0189-479F-86DC-CCF95E5634A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD32BEC3-0189-479F-86DC-CCF95E5634A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD32BEC3-0189-479F-86DC-CCF95E5634A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
