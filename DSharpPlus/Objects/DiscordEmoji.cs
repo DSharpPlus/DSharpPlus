@@ -35,7 +35,9 @@ namespace DSharpPlus
         /// <returns>String representation of this emoji.</returns>
         public override string ToString()
         {
-            return $":{this.Name}:";
+            if (this.ID != 0)
+                return $"<:{this.Name}:{this.ID}>";
+            return this.Name;
         }
     }
 }
