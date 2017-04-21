@@ -30,7 +30,7 @@ namespace DSharpPlus.Test
         [Command("echo"), Description("Echoes supplied numbers.")]
         public async Task Echo(CommandContext ctx, [Description("Numbers to echo back.")] params int[] numbers)
         {
-            await ctx.RespondAsync(string.Join(", ", numbers));
+            await ctx.RespondAsync(string.Concat("Supplied numbers: ", string.Join(", ", numbers)));
         }
 
         [Command("unixtime"), Description("Converts a unix timestamp to printable date time.")]

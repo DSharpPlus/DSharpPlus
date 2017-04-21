@@ -15,6 +15,7 @@ namespace DSharpPlus.CommandsNext
         private static Regex UserRegex { get; set; }
         private static Dictionary<Type, IArgumentConverter> ArgumentConverters { get; set; }
         private static MethodInfo ConvertGeneric { get; set; }
+        private static Dictionary<Type, string> UserFriendlyTypeNames { get; set; }
 
         static CommandsNextUtilities()
         {
@@ -44,10 +45,36 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordChannel)] = new DiscordChannelConverter(),
                 [typeof(DiscordGuild)] = new DiscordGuildConverter()
             };
+
             var t = typeof(CommandsNextUtilities);
             var ms = t.GetTypeInfo().DeclaredMethods;
             var m = ms.FirstOrDefault(xm => xm.Name == "ConvertArgument" && xm.ContainsGenericParameters && xm.IsStatic && xm.IsPublic);
             ConvertGeneric = m;
+
+            UserFriendlyTypeNames = new Dictionary<Type, string>()
+            {
+                [typeof(string)] = "string",
+                [typeof(bool)] = "boolean",
+                [typeof(sbyte)] = "signed byte",
+                [typeof(byte)] = "byte",
+                [typeof(short)] = "short",
+                [typeof(ushort)] = "unsigned short",
+                [typeof(int)] = "int",
+                [typeof(uint)] = "unsigned int",
+                [typeof(long)] = "long",
+                [typeof(ulong)] = "unsigned long",
+                [typeof(float)] = "float",
+                [typeof(double)] = "double",
+                [typeof(decimal)] = "decimal",
+                [typeof(DateTime)] = "date and time",
+                [typeof(DateTimeOffset)] = "date and time",
+                [typeof(TimeSpan)] = "time span",
+                [typeof(DiscordUser)] = "user",
+                [typeof(DiscordMember)] = "member",
+                [typeof(DiscordRole)] = "role",
+                [typeof(DiscordChannel)] = "channel",
+                [typeof(DiscordGuild)] = "guild"
+            };
         }
 
         /// <summary>
@@ -157,6 +184,26 @@ namespace DSharpPlus.CommandsNext
         }
 
         /// <summary>
+        /// Registers a user-friendly type name.
+        /// </summary>
+        /// <typeparam name="T">Type to register the name for.</typeparam>
+        /// <param name="value">Name to register.</param>
+        public static void RegisterUserFriendlyTypeName<T>(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException("Name cannot be null or empty.", nameof(value));
+
+            UserFriendlyTypeNames[typeof(T)] = value;
+        }
+
+        internal static string ToUserFriendlyName(this Type t)
+        {
+            if (UserFriendlyTypeNames.ContainsKey(t))
+                return UserFriendlyTypeNames[t];
+            return t.Name;
+        }
+
+        /// <summary>
         /// Parses given argument string into individual strings.
         /// </summary>
         /// <param name="str">String to parse.</param>
@@ -216,7 +263,7 @@ namespace DSharpPlus.CommandsNext
             var cmd = ctx.Command;
 
             var args = new object[cmd.Arguments.Count + 1];
-            if (ctx.RawArguments.Count < cmd.Arguments.Count(xa => !xa.IsOptional))
+            if (ctx.RawArguments.Count < cmd.Arguments.Count(xa => !xa.IsOptional && !xa.IsCatchAll))
                 throw new ArgumentException("Not enough arguments were supplied.");
 
             if (ctx.RawArguments.Count > cmd.Arguments.Count && ((cmd.Arguments.Any() && !cmd.Arguments.Last().IsCatchAll) || cmd.Arguments.Count == 0))
@@ -237,7 +284,10 @@ namespace DSharpPlus.CommandsNext
 
             if (ctx.RawArguments.Count < args.Length - 1)
                 for (int i = ctx.RawArguments.Count; i < cmd.Arguments.Count; i++)
-                    args[i + 1] = cmd.Arguments[i].DefaultValue;
+                    if (cmd.Arguments[i].IsOptional)
+                        args[i + 1] = cmd.Arguments[i].DefaultValue;
+                    else if (cmd.Arguments[i].IsCatchAll)
+                        args[i + 1] = Array.CreateInstance(cmd.Arguments[i].Type, 0);
 
             return args;
         }

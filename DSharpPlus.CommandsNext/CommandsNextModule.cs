@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Exceptions;
@@ -70,6 +71,9 @@ namespace DSharpPlus.CommandsNext
 
             this._client = client;
             this.Client.MessageCreated += this.HandleCommands;
+
+            if (this.Config.EnableDefaultHelp)
+                this.RegisterCommand<string[]>(this.DefaultHelp);
         }
         #endregion
 
@@ -335,10 +339,26 @@ namespace DSharpPlus.CommandsNext
             this.MakeCallable(ti.GetDeclaredMethod("ModuleCommand"), inst, out cbl, out args);
         }
 
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6>(Func<CommandContext, T1, T2, T3, T4, T5, T6, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5>(Func<CommandContext, T1, T2, T3, T4, T5, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4>(Func<CommandContext, T1, T2, T3, T4, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3>(Func<CommandContext, T1, T2, T3, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2>(Func<CommandContext, T1, T2, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1>(Func<CommandContext, T1, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand(Func<CommandContext, Task> f) => this.RegisterCommand((Delegate)f);
         public void RegisterCommand(Delegate dlg)
         {
             var mi = dlg.GetMethodInfo();
-            this.MakeCallable(mi, null, out var cbl, out var args);
+            this.MakeCallable(mi, dlg.Target, out var cbl, out var args);
 
             var attrs = mi.GetCustomAttributes();
             if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
@@ -373,8 +393,109 @@ namespace DSharpPlus.CommandsNext
                 }
             }
             cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
+            cmd.Arguments = args;
+            cmd.Callable = cbl;
 
             this.RegisteredCommands.Add(cmd.QualifiedName, cmd);
+        }
+        #endregion
+
+        #region Default Help
+        [Command("help"), Description("Displays command help.")]
+        public async Task DefaultHelp(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
+        {
+            var toplevel = this.RegisteredCommandList.Where(xc => xc.Parent == null);
+            var embed = new DiscordEmbed()
+            {
+                Color = 0x007FFF,
+                Title = "Help",
+                Fields = new List<DiscordEmbedField>()
+            };
+
+            if (command != null && command.Any())
+            {
+                var cmd = (Command)null;
+                var search_in = toplevel;
+                foreach (var c in command)
+                {
+                    cmd = search_in.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)));
+                    if (cmd is CommandGroup)
+                        search_in = (cmd as CommandGroup).Children;
+                    else
+                        search_in = null;
+                }
+
+                if (cmd == null)
+                    throw new CommandNotFoundException("Specified command was not found!", string.Join(" ", command));
+
+                embed.Description = string.Concat("`", cmd.QualifiedName, "`: ", string.IsNullOrWhiteSpace(cmd.Description) ? "No description provided." : cmd.Description);
+
+                if (cmd is CommandGroup g && g.Callable != null)
+                    embed.Description = string.Concat(embed.Description, "\n\nThis group can be executed as a standalone command.");
+
+                if (cmd.Arguments != null && cmd.Arguments.Any())
+                {
+                    var args = string.Empty;
+                    var sb = new StringBuilder();
+
+                    foreach (var arg in cmd.Arguments)
+                    {
+                        if (arg.IsOptional || arg.IsCatchAll)
+                            sb.Append("`[");
+                        else
+                            sb.Append("`<");
+
+                        sb.Append(arg.Name);
+
+                        if (arg.IsCatchAll)
+                            sb.Append("...");
+
+                        if (arg.IsOptional || arg.IsCatchAll)
+                            sb.Append("]: ");
+                        else
+                            sb.Append(">: ");
+
+                        sb.Append(arg.Type.ToUserFriendlyName()).Append("`: ");
+
+                        sb.Append(string.IsNullOrWhiteSpace(arg.Description) ? "No description provided." : arg.Description);
+
+                        if (arg.IsOptional)
+                            sb.Append(" Default value: ").Append(arg.DefaultValue);
+
+                        sb.AppendLine();
+                    }
+                    args = sb.ToString();
+
+                    embed.Fields.Add(new DiscordEmbedField
+                    {
+                        Inline = false,
+                        Name = "Arguments",
+                        Value = args
+                    });
+                }
+
+                if (cmd is CommandGroup gx)
+                {
+                    embed.Fields.Add(new DiscordEmbedField
+                    {
+                        Inline = false,
+                        Name = "Subcommands",
+                        Value = string.Join(", ", gx.Children.Select(xc => string.Concat("`", xc.QualifiedName, "`")))
+                    });
+                }
+            }
+            else
+            {
+                embed.Description = "Listing all top-level commands and groups. Specify a command to see more information.";
+                embed.Fields.Add(new DiscordEmbedField
+                {
+                    Inline = false,
+                    Name = "Commands",
+                    Value = string.Join(", ", toplevel.Select(xc => string.Concat("`", xc.QualifiedName, "`")))
+                });
+            }
+
+            await ctx.RespondAsync("", embed: embed);
         }
         #endregion
     }
