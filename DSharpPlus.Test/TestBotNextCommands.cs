@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Interactivity;
 
 namespace DSharpPlus.Test
 {
@@ -36,6 +38,26 @@ namespace DSharpPlus.Test
         {
             var dto = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(timestamp);
             await ctx.RespondAsync($"{dto.ToString("yyyy-MM-dd HH:mm:ss zzz")}");
+        }
+
+        [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands.")]
+        public class InteractivityTest
+        {
+            [Command("collect"), Aliases("reactions"), Description("Collects reactions over given period of time.")]
+            public async Task CollectReactions(CommandContext ctx, [Description("How long to collect reactions for")] TimeSpan timeout)
+            {
+                var m = ctx.Client.GetInteractivityModule();
+
+                var msg = await ctx.RespondAsync($"m88 react spam here (timeout {timeout})");
+                var r = await m.CollectReactionsAsync(msg, timeout);
+
+                var embed = new DiscordEmbed
+                {
+                    Color = 0x7F00FF,
+                    Description = string.Join("\n", r.Select(xkvp => $"{xkvp.Key}: {xkvp.Value}"))
+                };
+                await msg.Respond("", embed: embed);
+            }
         }
 
         [Group("sub"), Aliases("submodule"), CanExecute, Description("Copypasta things.")]
