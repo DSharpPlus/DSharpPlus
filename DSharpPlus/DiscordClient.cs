@@ -2463,7 +2463,7 @@ namespace DSharpPlus
 
         internal static async Task<DiscordRole> InternalModifyGuildRole(ulong guild_id, ulong role_id, string name, Permission permissions, int position, int color, bool separate, bool mentionable)
         {
-            string url = Utils.GetApiBaseUri() + Endpoints.Guilds + "/" + guild_id + Endpoints.Roles + role_id;
+            string url = $"{Utils.GetApiBaseUri()}{Endpoints.Guilds}/{guild_id}{Endpoints.Roles}/{role_id}";
             var headers = Utils.GetBaseHeaders();
             JObject j = new JObject
             {
