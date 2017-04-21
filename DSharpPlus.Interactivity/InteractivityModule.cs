@@ -46,7 +46,7 @@ namespace DSharpPlus.Interactivity
         public async Task<DiscordMessage> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, TimeSpan timeout)
         {
             var tsc = new TaskCompletionSource<DiscordMessage>();
-            var ct = new CancellationTokenSource((int)timeout.TotalMilliseconds);
+            var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
             _client.MessageCreated += async (e) =>
@@ -68,7 +68,7 @@ namespace DSharpPlus.Interactivity
         public async Task<DiscordMessage> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, TimeSpan timeout)
         {
             var tsc = new TaskCompletionSource<DiscordMessage>();
-            var ct = new CancellationTokenSource((int)timeout.TotalMilliseconds);
+            var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
             _client.MessageReactionAdd += async (e) =>
@@ -89,7 +89,7 @@ namespace DSharpPlus.Interactivity
         {
             var user_id = user.ID;
             var tsc = new TaskCompletionSource<DiscordMessage>();
-            var ct = new CancellationTokenSource((int)timeout.TotalMilliseconds);
+            var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
             _client.MessageReactionAdd += async (e) =>
@@ -114,7 +114,7 @@ namespace DSharpPlus.Interactivity
         {
             var message_id = msg.ID;
             var tsc = new TaskCompletionSource<DiscordEmoji>();
-            var ct = new CancellationTokenSource((int)timeout.TotalMilliseconds);
+            var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
             _client.MessageReactionAdd += async (e) =>
@@ -138,7 +138,7 @@ namespace DSharpPlus.Interactivity
         {
             var message_id = msg.ID;
             var tsc = new TaskCompletionSource<DiscordEmoji>();
-            var ct = new CancellationTokenSource((int)timeout.TotalMilliseconds);
+            var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
             _client.MessageReactionAdd += async (e) =>
@@ -159,17 +159,17 @@ namespace DSharpPlus.Interactivity
         {
             ConcurrentDictionary<string, int> Reactions = new ConcurrentDictionary<string, int>();
             var tsc = new TaskCompletionSource<ConcurrentDictionary<string, int>>();
-            var ct = new CancellationTokenSource((int)timeout.TotalMilliseconds);
+            var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(Reactions));
             _client.MessageReactionAdd += async (e) =>
             {
                 await Task.Yield();
                 if (e.MessageID == m.ID)
                 {
-                    if (Reactions.ContainsKey(e.Emoji.Name))
-                        Reactions[e.Emoji.Name]++;
+                    if (Reactions.ContainsKey(e.Emoji.ToString()))
+                        Reactions[e.Emoji.ToString()]++;
                     else
-                        Reactions.TryAdd(e.Emoji.Name, 1);
+                        Reactions.TryAdd(e.Emoji.ToString(), 1);
                 }
             };
 
@@ -178,11 +178,11 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (e.MessageID == m.ID)
                 {
-                    if (Reactions.ContainsKey(e.Emoji.Name))
+                    if (Reactions.ContainsKey(e.Emoji.ToString()))
                     {
-                        Reactions[e.Emoji.Name]--;
-                        if (Reactions[e.Emoji.Name] == 0)
-                            Reactions.TryRemove(e.Emoji.Name, out int something);
+                        Reactions[e.Emoji.ToString()]--;
+                        if (Reactions[e.Emoji.ToString()] == 0)
+                            Reactions.TryRemove(e.Emoji.ToString(), out int something);
                     }
                 }
             };
@@ -205,7 +205,7 @@ namespace DSharpPlus.Interactivity
         {
             var channel_id = channel.ID;
             var tsc = new TaskCompletionSource<DiscordUser>();
-            var ct = new CancellationTokenSource((int)timeout.TotalMilliseconds);
+            var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
             _client.TypingStart += async (e) =>
@@ -226,7 +226,7 @@ namespace DSharpPlus.Interactivity
         {
             var user_id = user.ID;
             var tsc = new TaskCompletionSource<DiscordChannel>();
-            var ct = new CancellationTokenSource((int)timeout.TotalMilliseconds);
+            var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
             _client.TypingStart += async (e) =>
