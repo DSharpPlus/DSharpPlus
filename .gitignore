@@ -286,3 +286,4 @@ build/
 
 ### Built docs
 docs/build/
+config.json

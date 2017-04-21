@@ -11,8 +11,8 @@ install:
 script:
   - xbuild /p:Configuration=Release /p:AllowUnsafeBlocks=true DSharpPlus.sln
 #  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./MyPoject.Tests/bin/Release/MyProject.Tests.dll
-  - dotnet restore DSharpPlus.Test/DSharpPlus.Test.sln
-  - dotnet build DSharpPlus.Test/DSharpPlus.Test.sln -c Release
+  - dotnet restore DSharpPlus.Test/DSharpPlus.Test.csproj
+  - dotnet build DSharpPlus.Test/DSharpPlus.Test.csproj -c Release
 notifications:
   webhooks:
     urls:
