@@ -21,6 +21,7 @@ namespace DSharpPlus.Test
         private c.CommandModule CommandService { get; }
         //private VoiceNextClient VoiceService { get; }
         private CommandsNextModule CommandsNextService { get; }
+        private InteractivityModule InteractivityService { get; }
         private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg)
@@ -61,8 +62,6 @@ namespace DSharpPlus.Test
                 SelfBot = false
             };
 
-            Discord.UseInteractivity();
-
             this.CommandService = Discord.UseCommands(ccfg);
             this.CommandService.CommandError += this.CommandService_CommandError;
 
@@ -101,6 +100,9 @@ namespace DSharpPlus.Test
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
             this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
             this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
+
+            // interactivity service
+            this.InteractivityService = Discord.UseInteractivity();
         }
 
         public async Task RunAsync()

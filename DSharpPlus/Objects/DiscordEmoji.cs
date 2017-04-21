@@ -28,5 +28,14 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
         public bool Managed { get; internal set; }
+
+        /// <summary>
+        /// Returns a string representation of this emoji.
+        /// </summary>
+        /// <returns>String representation of this emoji.</returns>
+        public override string ToString()
+        {
+            return $":{this.Name}:";
+        }
     }
 }
