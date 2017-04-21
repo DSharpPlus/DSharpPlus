@@ -52,7 +52,7 @@ namespace DSharpPlus
                     }
             }
 
-            Console.Write($"[{e.Application.ToUpper()}] {e.TimeStamp} | {e.Level.ToString().ToUpper()}:");
+            Console.Write($"[{TimeStamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}]");
             Console.ResetColor();
             Console.WriteLine($" {e.Message}");
 #endif
@@ -68,7 +68,7 @@ namespace DSharpPlus
 
         public string ToString()
         {
-            return $"[{Application.ToUpper()}] {TimeStamp} | {Level.ToString().ToUpper()}: {Message}";
+            return $"[{TimeStamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}] {Message}";
         }
     }
 }

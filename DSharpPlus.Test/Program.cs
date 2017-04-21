@@ -18,14 +18,14 @@ namespace DSharpPlus.Test
             if (!File.Exists("config.json"))
             {
                 json = JsonConvert.SerializeObject(cfg);
-                File.WriteAllText(AppContext.BaseDirectory + Path.DirectorySeparatorChar + "config.json", json, new UTF8Encoding(false));
+                File.WriteAllText("config.json", json, new UTF8Encoding(false));
                 Console.WriteLine("Config file was not found, a new one was generated. Fill it with proper values and rerun this program");
                 Console.ReadKey();
 
                 return;
             }
 
-            json = File.ReadAllText(AppContext.BaseDirectory + Path.DirectorySeparatorChar + "config.json", new UTF8Encoding(false));
+            json = File.ReadAllText("config.json", new UTF8Encoding(false));
             cfg = JsonConvert.DeserializeObject<TestBotConfig>(json);
 
             var bot = new TestBot(cfg);
