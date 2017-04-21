@@ -480,7 +480,7 @@ namespace DSharpPlus.CommandsNext
                     {
                         Inline = false,
                         Name = "Subcommands",
-                        Value = string.Join(", ", gx.Children.Select(xc => string.Concat("`", xc.QualifiedName, "`")))
+                        Value = string.Join(", ", gx.Children.Where(xc => !xc.IsHidden).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
                     });
                 }
             }
@@ -491,7 +491,7 @@ namespace DSharpPlus.CommandsNext
                 {
                     Inline = false,
                     Name = "Commands",
-                    Value = string.Join(", ", toplevel.Select(xc => string.Concat("`", xc.QualifiedName, "`")))
+                    Value = string.Join(", ", toplevel.Where(xc => !xc.IsHidden).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
                 });
             }
 
