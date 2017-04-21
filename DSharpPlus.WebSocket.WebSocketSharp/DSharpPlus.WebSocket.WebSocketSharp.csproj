@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net452;net462</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>2.0.0-rc5</Version>
+    <Version>2.0.0-rc6</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>A WebSocket# WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.</Description>

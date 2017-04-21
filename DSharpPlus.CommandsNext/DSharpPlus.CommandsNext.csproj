@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
-    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <PackageReleaseNotes>Implemented access control and default help.</PackageReleaseNotes>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
