@@ -31,6 +31,12 @@ namespace DSharpPlus.CommandsNext
                     RawArguments = new ReadOnlyCollection<string>(ctx.RawArguments.Skip(1).ToList()),
                     Command = cmd
                 };
+                
+                if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
+                    foreach (var ec in cmd.ExecutionChecks)
+                        if (!(await ec.CanExecute(xctx)))
+                            throw new UnauthorizedAccessException("One or more execution pre-checks failed.");
+
                 await cmd.Execute(xctx);
                 return;
             }

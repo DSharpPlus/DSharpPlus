@@ -1514,6 +1514,8 @@ namespace DSharpPlus
             {
                 _waitingForAck = false;
                 _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
+                _cancelTokenSource = new CancellationTokenSource();
+                _cancelToken = _cancelTokenSource.Token;
                 _heartbeatThread = new Task(StartHeartbeating, _cancelToken, TaskCreationOptions.LongRunning);
                 _heartbeatThread.Start();
             });

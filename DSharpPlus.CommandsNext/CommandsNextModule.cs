@@ -116,6 +116,11 @@ namespace DSharpPlus.CommandsNext
             {
                 try
                 {
+                    if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
+                        foreach (var ec in cmd.ExecutionChecks)
+                            if (!(await ec.CanExecute(ctx)))
+                                throw new UnauthorizedAccessException("One or more execution pre-checks failed.");
+
                     await cmd.Execute(ctx);
                     await this._executed.InvokeAsync(new CommandExecutedEventArgs { Context = ctx });
                 }
@@ -419,6 +424,17 @@ namespace DSharpPlus.CommandsNext
                 foreach (var c in command)
                 {
                     cmd = search_in.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)));
+
+                    var ce = true;
+                    foreach (var ec in cmd.ExecutionChecks)
+                    {
+                        ce &= await ec.CanExecute(ctx);
+                        if (!ce)
+                            break;
+                    }
+                    if (!ce)
+                        throw new UnauthorizedAccessException("You cannot access that command!");
+
                     if (cmd is CommandGroup)
                         search_in = (cmd as CommandGroup).Children;
                     else
@@ -432,6 +448,14 @@ namespace DSharpPlus.CommandsNext
 
                 if (cmd is CommandGroup g && g.Callable != null)
                     embed.Description = string.Concat(embed.Description, "\n\nThis group can be executed as a standalone command.");
+
+                if (cmd.Aliases != null && cmd.Aliases.Any())
+                    embed.Fields.Add(new DiscordEmbedField
+                    {
+                        Inline = false,
+                        Name = "Aliases",
+                        Value = string.Join(", ", cmd.Aliases.Select(xs => string.Concat("`", xs, "`")))
+                    });
 
                 if (cmd.Arguments != null && cmd.Arguments.Any())
                 {
@@ -476,23 +500,67 @@ namespace DSharpPlus.CommandsNext
 
                 if (cmd is CommandGroup gx)
                 {
-                    embed.Fields.Add(new DiscordEmbedField
+                    var sxs = gx.Children.Where(xc => !xc.IsHidden);
+                    var scs = new List<Command>();
+                    foreach (var sc in sxs)
                     {
-                        Inline = false,
-                        Name = "Subcommands",
-                        Value = string.Join(", ", gx.Children.Where(xc => !xc.IsHidden).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
-                    });
+                        if (sc.ExecutionChecks == null || !sc.ExecutionChecks.Any())
+                        {
+                            scs.Add(sc);
+                            continue;
+                        }
+
+                        var ce = true;
+                        foreach (var ec in sc.ExecutionChecks)
+                        {
+                            ce &= await ec.CanExecute(ctx);
+                            if (!ce)
+                                break;
+                        }
+                        if (ce)
+                            scs.Add(sc);
+                    }
+
+                    if (scs.Any())
+                        embed.Fields.Add(new DiscordEmbedField
+                        {
+                            Inline = false,
+                            Name = "Subcommands",
+                            Value = string.Join(", ", scs.Select(xc => string.Concat("`", xc.QualifiedName, "`")))
+                        });
                 }
             }
             else
             {
-                embed.Description = "Listing all top-level commands and groups. Specify a command to see more information.";
-                embed.Fields.Add(new DiscordEmbedField
+                var sxs = toplevel.Where(xc => !xc.IsHidden);
+                var scs = new List<Command>();
+                foreach (var sc in sxs)
                 {
-                    Inline = false,
-                    Name = "Commands",
-                    Value = string.Join(", ", toplevel.Where(xc => !xc.IsHidden).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
-                });
+                    if (sc.ExecutionChecks == null || !sc.ExecutionChecks.Any())
+                    { 
+                        scs.Add(sc);
+                        continue;
+                    }
+
+                    var ce = true;
+                    foreach (var ec in sc.ExecutionChecks)
+                    {
+                        ce &= await ec.CanExecute(ctx);
+                        if (!ce)
+                            break;
+                    }
+                    if (ce)
+                        scs.Add(sc);
+                }
+
+                embed.Description = "Listing all top-level commands and groups. Specify a command to see more information.";
+                if (scs.Any())
+                    embed.Fields.Add(new DiscordEmbedField
+                    {
+                        Inline = false,
+                        Name = "Commands",
+                        Value = string.Join(", ", scs.Select(xc => string.Concat("`", xc.QualifiedName, "`")))
+                    });
             }
 
             await ctx.RespondAsync("", embed: embed);
