@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandsNext
         internal override async Task Execute(CommandContext ctx)
         {
             var cn = ctx.RawArguments.FirstOrDefault();
-            if (cn != null && this.Children.Any(xc => xc.Name == cn || xc.Aliases.Contains(cn)))
+            if (cn != null && this.Children.Any(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn))))
             {
                 // pass the execution on
                 var cmd = this.Children.First(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));

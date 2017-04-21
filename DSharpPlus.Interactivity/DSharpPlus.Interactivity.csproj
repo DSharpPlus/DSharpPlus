@@ -5,7 +5,7 @@
     <Optimize>True</Optimize>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>DSharpPlus.Interactivity</PackageId>
-    <Version>2.0.0-rc7</Version>
+    <Version>2.0.0-rc8</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>An addon that adds interactivity capabilities to commands.</Description>
