@@ -1,7 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFrameworks>net452;net462;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <Optimize>True</Optimize>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>DSharpPlus.Interactivity</PackageId>
+    <Version>2.0.0-rc4</Version>
+    <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
+    <Company>DSharpPlus developers</Company>
+    <Description>An addon that adds interactivity capabilities to commands.</Description>
+    <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/d#+.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
+    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Optimize>False</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
