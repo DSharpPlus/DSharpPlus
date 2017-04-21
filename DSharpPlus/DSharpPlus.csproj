@@ -20,7 +20,7 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus</PackageTags>
-    <PackageReleaseNotes>Various minor fixes.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixes to role modification.</PackageReleaseNotes>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
   </PropertyGroup>
   
