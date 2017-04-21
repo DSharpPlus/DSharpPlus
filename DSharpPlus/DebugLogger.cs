@@ -52,7 +52,7 @@ namespace DSharpPlus
                     }
             }
 
-            Console.Write($"[{TimeStamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}]");
+            Console.Write($"[{e.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{e.Application}] [{e.Level}]");
             Console.ResetColor();
             Console.WriteLine($" {e.Message}");
 #endif
