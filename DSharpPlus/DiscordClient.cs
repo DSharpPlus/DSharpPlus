@@ -1523,7 +1523,7 @@ namespace DSharpPlus
 
         internal async Task OnHeartbeatAck()
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 _waitingForAck = false;
 
@@ -1535,6 +1535,8 @@ namespace DSharpPlus
                     Ping = this.Ping,
                     Timestamp = DateTimeOffset.Now
                 };
+
+                await _heart_beated.InvokeAsync(args);
             });
         }
 
