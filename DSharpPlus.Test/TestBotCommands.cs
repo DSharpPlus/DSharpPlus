@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+//using System.IO;
 using System.Linq;
-using System.Speech.Synthesis;
+//using System.Speech.Synthesis;
 using System.Threading.Tasks;
 using DSharpPlus.Commands;
 //using DSharpPlus.VoiceNext;
-using NAudio.Wave;
+//using NAudio.Wave;
 using DSharpPlus.Interactivity;
 
 namespace DSharpPlus.Test
