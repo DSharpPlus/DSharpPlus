@@ -13,7 +13,7 @@ namespace DSharpPlus.Test
 
         private async Task Run(string[] args)
         {
-            var cfg = TestBotConfig.Default;
+            var cfg = new TestBotConfig();
             var json = string.Empty;
             if (!File.Exists("config.json"))
             {
