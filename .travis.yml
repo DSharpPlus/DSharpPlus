@@ -1,5 +1,7 @@
 #Testing
 language: csharp
+dist: trusty
+sudo: false
 solution: DSharpPlus.sln
 mono: latest
 dotnet: 1.0.1
