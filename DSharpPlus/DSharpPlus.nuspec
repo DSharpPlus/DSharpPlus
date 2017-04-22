@@ -3,7 +3,7 @@
   <metadata>
     <id>DSharpPlus</id>
     <version>$version$</version>
-    <title>A Discord API wrapper</title>
+    <title>DSharpPlus</title>
     <authors>DSharpPlus Devs</authors>
     <owners>Naamloos, afroraydude, DrCreo, Death, Tiaqoy0, Emzi0767</owners>
     <licenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</licenseUrl>
