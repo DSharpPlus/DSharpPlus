@@ -6,9 +6,9 @@
     <title>A Discord API wrapper</title>
     <authors>DSharpPlus Devs</authors>
     <owners>Naamloos, afroraydude, DrCreo, Death, Tiaqoy0, Emzi0767</owners>
-    <licenseUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/rewrite/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/NaamloosDT/DSharpPlus/tree/rewrite</projectUrl>
-    <iconUrl>https://github.com/NaamloosDT/DSharpPlus/raw/master/logo_smaller.png</iconUrl>
+    <licenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/NaamloosDT/DSharpPlus</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards</description>
     <releaseNotes></releaseNotes>
