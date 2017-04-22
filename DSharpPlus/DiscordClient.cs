@@ -543,9 +543,9 @@ namespace DSharpPlus
             return _modules.Find(x => x.GetType() == typeof(T)) as T;
         }
 
-        public async Task Reconnect() => await InternalReconnect();
+        public Task Reconnect() => InternalReconnect();
 
-        public async Task Reconnect(string token_override, TokenType token_type) => await InternalReconnect(token_override, token_type);
+        public Task Reconnect(string token_override, TokenType token_type) => InternalReconnect(token_override, token_type);
 
         internal async Task InternalReconnect(bool start_new_session = false)
         {
@@ -554,7 +554,7 @@ namespace DSharpPlus
             if (start_new_session)
                 _sessionID = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
-            await Task.Delay(2000);
+            await Task.Delay(5000);
             await InternalConnect();
         }
 
@@ -565,7 +565,7 @@ namespace DSharpPlus
             if (start_new_session)
                 _sessionID = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
-            await Task.Delay(2000);
+            await Task.Delay(5000);
             await Connect(token_override, token_type);
         }
 
