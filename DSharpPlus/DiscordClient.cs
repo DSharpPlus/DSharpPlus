@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace DSharpPlus
 {
@@ -1699,26 +1698,19 @@ namespace DSharpPlus
 
         internal static async Task InternalSetAvatar(string path)
         {
-            using (Image image = Image.FromFile(path))
+            byte[] imageBytes = File.ReadAllBytes(path);
+
+            // Convert byte[] to Base64 String
+            string base64String = Convert.ToBase64String(imageBytes);
+
+            string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
+            WebHeaderCollection headers = Utils.GetBaseHeaders();
+            JObject j = new JObject
             {
-                using (MemoryStream m = new MemoryStream())
-                {
-                    image.Save(m, image.RawFormat);
-                    byte[] imageBytes = m.ToArray();
-
-                    // Convert byte[] to Base64 String
-                    string base64String = Convert.ToBase64String(imageBytes);
-
-                    string url = Utils.GetAPIBaseUri() + Endpoints.Users + "/@me";
-                    WebHeaderCollection headers = Utils.GetBaseHeaders();
-                    JObject j = new JObject
-                    {
-                        { "avatar", $"data:image/jpeg;base64,{base64String}" }
-                    };
-                    WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
-                    WebResponse response = await WebWrapper.HandleRequestAsync(request);
-                }
-            }
+                { "avatar", $"data:image/jpeg;base64,{base64String}" }
+            };
+            WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.PATCH, headers, j.ToString());
+            WebResponse response = await WebWrapper.HandleRequestAsync(request);
         }
 
         #region HTTP Actions
