@@ -530,9 +530,9 @@ namespace DSharpPlus
             return _modules.Find(x => x.GetType() == typeof(T)) as T;
         }
 
-        public async Task Reconnect() => await InternalReconnect();
+        public Task Reconnect() => InternalReconnect();
 
-        public async Task Reconnect(string token_override, TokenType token_type) => await InternalReconnect(token_override, token_type);
+        public Task Reconnect(string token_override, TokenType token_type) => InternalReconnect(token_override, token_type);
 
         internal async Task InternalReconnect(bool start_new_session = false)
         {
@@ -540,8 +540,8 @@ namespace DSharpPlus
             await _websocketClient.InternalDisconnectAsync();
             if (start_new_session)
                 _sessionID = "";
-            // delay task by 2 seconds to make sure everything gets closed correctly
-            await Task.Delay(2000);
+            // delay task by 5 seconds to make sure everything gets closed correctly
+            await Task.Delay(5000);
             await InternalConnect();
         }
 
@@ -551,8 +551,8 @@ namespace DSharpPlus
             await _websocketClient.InternalDisconnectAsync();
             if (start_new_session)
                 _sessionID = "";
-            // delay task by 2 seconds to make sure everything gets closed correctly
-            await Task.Delay(2000);
+            // delay task by 5 seconds to make sure everything gets closed correctly
+            await Task.Delay(5000);
             await Connect(token_override, token_type);
         }
 
@@ -1495,6 +1495,8 @@ namespace DSharpPlus
             {
                 _waitingForAck = false;
                 _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
+                _cancelTokenSource = new CancellationTokenSource();
+                _cancelToken = _cancelTokenSource.Token;
                 _heartbeatThread = new Thread(StartHeartbeating);
                 _heartbeatThread.Start();
             });
@@ -2456,7 +2458,7 @@ namespace DSharpPlus
 
         internal static async Task<DiscordRole> InternalModifyGuildRole(ulong guild_id, ulong role_id, string name, Permission permissions, int position, int color, bool separate, bool mentionable)
         {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + guild_id + Endpoints.Roles + role_id;
+            string url = $"{Utils.GetAPIBaseUri()}{Endpoints.Guilds}/{guild_id}{Endpoints.Roles}/{role_id}";
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             JObject j = new JObject
             {
