@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace DSharpPlus.CommandsNext.Converters
@@ -160,6 +161,21 @@ namespace DSharpPlus.CommandsNext.Converters
             if (ctx.Client.Guilds.Any(xg => xg.Value.Name == value))
             {
                 result = ctx.Client.Guilds.First(xg => xg.Value.Name == value).Value;
+                return true;
+            }
+
+            result = null;
+            return false;
+        }
+    }
+
+    public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
+    {
+        public bool TryConvert(string value, CommandContext ctx, out DiscordMessage result)
+        {
+            if (ulong.TryParse(value, out var mid))
+            {
+                result = ctx.Channel.GetMessage(mid).GetAwaiter().GetResult();
                 return true;
             }
 
