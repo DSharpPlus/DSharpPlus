@@ -83,6 +83,12 @@ namespace DSharpPlus.CommandsNext
             // Let the bot do its things
             await Task.Yield();
 
+            if (!this.Config.EnableDms && e.Channel.IsPrivate)
+                return;
+
+            if (this.Config.SelfBot && e.Author.ID != this.Client.Me.ID)
+                return;
+
             var mpos = -1;
             if (!this.Config.EnableMentionPrefix || (mpos = e.Message.HasMentionPrefix(this.Client.Me)) == -1)
                 mpos = e.Message.HasStringPrefix(this.Config.Prefix);
