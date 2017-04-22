@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Commands;
-using c = DSharpPlus.Commands;
 using DSharpPlus.CommandsNext;
 //using DSharpPlus.VoiceNext;
 using DSharpPlus.Interactivity;
@@ -18,7 +16,6 @@ namespace DSharpPlus.Test
         private TestBotConfig Config { get; }
         public static DiscordClient Discord;
         private TestBotCommands Commands { get; }
-        private c.CommandModule CommandService { get; }
         //private VoiceNextClient VoiceService { get; }
         private CommandsNextModule CommandsNextService { get; }
         private InteractivityModule InteractivityService { get; }
@@ -54,34 +51,6 @@ namespace DSharpPlus.Test
             Discord.MessageReactionRemoveAll += this.Discord_MessageReactionRemoveAll;
             Discord.PresenceUpdate += this.Discord_PresenceUpdate;
 
-            // command config and the command service itself
-            this.Commands = new TestBotCommands();
-            var ccfg = new c.CommandConfig
-            {
-                Prefix = this.Config.CommandPrefix,
-                SelfBot = false
-            };
-
-            this.CommandService = Discord.UseCommands(ccfg);
-            this.CommandService.CommandError += this.CommandService_CommandError;
-
-            // register all commands dynamically
-            var t = new[] { typeof(TestBotCommands), typeof(Task), typeof(c.CommandEventArgs) };
-            var cm = t[0].GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Where(xm => this.IsCommandMethod(xm, t[1], t[2]));
-
-            var expr_inst = Expression.Constant(this.Commands);
-            var expr_arg0 = Expression.Parameter(t[2]);
-            foreach (var xm in cm)
-            {
-                var expr_call = Expression.Call(expr_inst, xm, expr_arg0);
-                var expr_anon = Expression.Lambda<Func<c.CommandEventArgs, Task>>(expr_call, expr_arg0);
-                var cmcall = expr_anon.Compile();
-
-                Discord.AddCommand(xm.Name.ToLower(), cmcall);
-                Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Command {xm.Name.ToLower()} registered", DateTime.Now);
-            }
-
             // voice config and the voice service itself
             /*var vcfg = new VoiceNextConfiguration
             {
@@ -92,13 +61,14 @@ namespace DSharpPlus.Test
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
             {
-                Prefix = "==",
+                Prefix = this.Config.CommandPrefix,
                 EnableDms = false,
                 EnableMentionPrefix = true
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
             this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
+            this.CommandsNextService.RegisterCommands<TestBotCommands>();
             this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
 
             // interactivity service
@@ -207,44 +177,6 @@ namespace DSharpPlus.Test
             //await e.Message.DeleteAllReactions();
         }
 
-        private async Task CommandService_CommandError(c.CommandErrorEventArgs e)
-        {
-            var ms = e.Exception.Message;
-            var st = e.Exception.StackTrace;
-
-            ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
-            st = st.Length > 1000 ? st.Substring(0, 1000) : st;
-
-            var embed = new DiscordEmbed
-            {
-                Color = 0xFF0000,
-                Title = "An exception occured when executing a command",
-                Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.Name}`.",
-                Footer = new DiscordEmbedFooter
-                {
-                    IconUrl = Discord.Me.AvatarUrl,
-                    Text = Discord.Me.Username
-                },
-                Timestamp = DateTime.UtcNow,
-                Fields = new List<DiscordEmbedField>()
-                {
-                    new DiscordEmbedField
-                    {
-                        Name = "Message",
-                        Value = ms,
-                        Inline = false
-                    },
-                    new DiscordEmbedField
-                    {
-                        Name = "Stack trace",
-                        Value = $"```cs\n{st}\n```",
-                        Inline = false
-                    }
-                }
-            };
-            await e.Message.Respond("\u200b", embed: embed);
-        }
-
         private async Task CommandsNextService_CommandErrored(CommandsNext.CommandErrorEventArgs e)
         {
             Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"{e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
@@ -298,22 +230,6 @@ namespace DSharpPlus.Test
                 Discord.UpdateStatus("testing with Chell").GetAwaiter().GetResult();
             }
             catch (Exception) { }
-        }
-
-        private bool IsCommandMethod(MethodInfo method, Type return_type, params Type[] arg_types)
-        {
-            if (method.ReturnType != return_type)
-                return false;
-
-            var prms = method.GetParameters();
-            if (prms.Length != arg_types.Length)
-                return false;
-
-            for (var i = 0; i < arg_types.Length; i++)
-                if (prms[i].ParameterType != arg_types[i])
-                    return false;
-
-            return true;
         }
     }
 }
