@@ -129,7 +129,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="value">Value to convert.</param>
         /// <param name="ctx">Context in which to convert to.</param>
         /// <returns>Converted object.</returns>
-        public static object ConvertArgument<T>(this string value, CommandContext ctx, bool optional, object dflt)
+        public static object ConvertArgument<T>(this string value, CommandContext ctx)
         {
             var t = typeof(T);
             if (!ArgumentConverters.ContainsKey(t))
@@ -140,10 +140,7 @@ namespace DSharpPlus.CommandsNext
                 throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
 
             if (!cv.TryConvert(value, ctx, out var result))
-                if (!optional)
-                    throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
-                else
-                    return (T)dflt;
+                throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
 
             return result;
         }
@@ -155,10 +152,17 @@ namespace DSharpPlus.CommandsNext
         /// <param name="ctx">Context in which to convert to.</param>
         /// <param name="type">Type to convert to.</param>
         /// <returns>Converted object.</returns>
-        public static object ConvertArgument(this string value, CommandContext ctx, Type type, bool optional, object dflt)
+        public static object ConvertArgument(this string value, CommandContext ctx, Type type)
         {
             var m = ConvertGeneric.MakeGenericMethod(type);
-            return m.Invoke(null, new object[] { value, ctx, optional, dflt });
+            try
+            {
+                return m.Invoke(null, new object[] { value, ctx });
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
         
         /// <summary>
@@ -275,11 +279,11 @@ namespace DSharpPlus.CommandsNext
 
             for (int i = 0; i < ctx.RawArguments.Count; i++)
                 if (!cmd.Arguments[i].IsCatchAll)
-                    args[i + 1] = ConvertArgument(ctx.RawArguments[i], ctx, cmd.Arguments[i].Type, cmd.Arguments[i].IsOptional, cmd.Arguments[i].DefaultValue);
+                    args[i + 1] = ConvertArgument(ctx.RawArguments[i], ctx, cmd.Arguments[i].Type);
                 else
                 {
                     args[i + 1] = Array.CreateInstance(cmd.Arguments[i].Type, ctx.RawArguments.Count - i);
-                    var t = ctx.RawArguments.Skip(i).Select(xs => ConvertArgument(xs, ctx, cmd.Arguments[i].Type, false, null)).ToArray();
+                    var t = ctx.RawArguments.Skip(i).Select(xs => ConvertArgument(xs, ctx, cmd.Arguments[i].Type)).ToArray();
                     Array.Copy(t, (Array)args[i + 1], t.Length);
                     break;
                 }
