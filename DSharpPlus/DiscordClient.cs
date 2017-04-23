@@ -424,24 +424,24 @@ namespace DSharpPlus
         #endregion
 
         #region Internal Variables
-        internal static CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
-        internal static CancellationToken _cancelToken = _cancelTokenSource.Token;
+        internal CancellationTokenSource _cancel_token_source;
+        internal CancellationToken _cancel_token;
 
-        internal static DiscordConfig config;
+        internal DiscordConfig config;
 
-        internal static List<IModule> _modules = new List<IModule>();
+        internal List<IModule> _modules = new List<IModule>();
 
-        internal static BaseWebSocketClient _websocketClient;
-        internal static int _sequence = 0;
-        internal static string _sessionToken = "";
-        internal static string _sessionID = "";
-        internal static int _heartbeatInterval;
-        internal Task _heartbeatThread;
-        internal static DateTime _lastHeartbeat;
-        internal static bool _waitingForAck = false;
+        internal BaseWebSocketClient _websocket_client;
+        internal int _sequence = 0;
+        internal string _session_token = "";
+        internal string _session_id = "";
+        internal int _heartbeat_interval;
+        internal Task _heartbeat_task;
+        internal DateTime _last_heartbeat;
+        internal bool _waiting_for_ack = false;
         internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
 
-        internal static Dictionary<ulong, DiscordPresence> _presences = new Dictionary<ulong, DiscordPresence>();
+        internal Dictionary<ulong, DiscordPresence> _presences = new Dictionary<ulong, DiscordPresence>();
         #endregion
 
         #region Public Variables
@@ -549,7 +549,7 @@ namespace DSharpPlus
         /// <param name="config">Overwrites the default config</param>
         public DiscordClient(DiscordConfig config)
         {
-            DiscordClient.config = config;
+            this.config = config;
             InternalSetup();
         }
 
@@ -612,10 +612,10 @@ namespace DSharpPlus
 
         internal async Task InternalReconnect(bool start_new_session = false)
         {
-            _cancelTokenSource.Cancel();
-            await _websocketClient.InternalDisconnectAsync();
+            _cancel_token_source.Cancel();
+            await _websocket_client.InternalDisconnectAsync();
             if (start_new_session)
-                _sessionID = "";
+                _session_id = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(5000);
             await InternalConnect();
@@ -623,10 +623,10 @@ namespace DSharpPlus
 
         internal async Task InternalReconnect(string token_override, TokenType token_type, bool start_new_session = false)
         {
-            _cancelTokenSource.Cancel();
-            await _websocketClient.InternalDisconnectAsync();
+            _cancel_token_source.Cancel();
+            await _websocket_client.InternalDisconnectAsync();
             if (start_new_session)
-                _sessionID = "";
+                _session_id = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(5000);
             await Connect(token_override, token_type);
@@ -637,21 +637,21 @@ namespace DSharpPlus
             await InternalUpdateGateway();
             _me = await InternalGetCurrentUser();
 
-            _websocketClient = BaseWebSocketClient.Create();
-            _websocketClient.OnConnect += async () =>
+            _websocket_client = BaseWebSocketClient.Create();
+            _websocket_client.OnConnect += async () =>
             {
                 _privateChannels = new List<DiscordDMChannel>();
                 _guilds = new Dictionary<ulong, DiscordGuild>();
 
-                if (_sessionID == "")
+                if (_session_id == "")
                     await SendIdentify();
                 else
                     await SendResume();
                 await this._socket_opened.InvokeAsync();
             };
-            _websocketClient.OnDisconnect += async () =>
+            _websocket_client.OnDisconnect += async () =>
             {
-                _cancelTokenSource.Cancel();
+                _cancel_token_source.Cancel();
 
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed", DateTime.Now);
 
@@ -662,8 +662,8 @@ namespace DSharpPlus
                 }
                 await this._socket_closed.InvokeAsync();
             };
-            _websocketClient.OnMessage += async e => await HandleSocketMessage(e.Message);
-            await _websocketClient.ConnectAsync(_gatewayUrl + "?v=5&encoding=json");
+            _websocket_client.OnMessage += async e => await HandleSocketMessage(e.Message);
+            await _websocket_client.ConnectAsync(_gatewayUrl + "?v=5&encoding=json");
         }
 
         internal async Task InternalUpdateGuild(DiscordGuild guild)
@@ -677,7 +677,7 @@ namespace DSharpPlus
             });
         }
 
-        internal static async Task InternalUpdateGateway()
+        internal async Task InternalUpdateGateway()
         {
             string url = Utils.GetApiBaseUri() + Endpoints.Gateway;
             var headers = Utils.GetBaseHeaders();
@@ -701,8 +701,8 @@ namespace DSharpPlus
         {
             return await Task.Run(async () =>
             {
-                _cancelTokenSource.Cancel();
-                await _websocketClient.InternalDisconnectAsync();
+                _cancel_token_source.Cancel();
+                await _websocket_client.InternalDisconnectAsync();
                 config.AutoReconnect = false;
                 return true;
             });
@@ -851,7 +851,7 @@ namespace DSharpPlus
         /// <param name="game">Game you're playing</param>
         /// <param name="idle_since"></param>
         /// <returns></returns>
-        public async Task UpdateStatus(string game = "", int idle_since = -1) => await InternalUpdateStatus(game, idle_since);
+        public Task UpdateStatus(string game = "", int idle_since = -1) => InternalUpdateStatus(game, idle_since);
 
         /// <summary>
         /// Modifies a guild member
@@ -973,7 +973,7 @@ namespace DSharpPlus
                         _guilds.Add(guild.Value<ulong>("id"), guild.ToObject<DiscordGuild>());
                 }
             }
-            _sessionID = obj["d"]["session_id"].ToString();
+            _session_id = obj["d"]["session_id"].ToString();
 
             await this._ready.InvokeAsync();
         }
@@ -1566,7 +1566,7 @@ namespace DSharpPlus
             else
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
-                _sessionID = "";
+                _session_id = "";
                 await InternalReconnect(true);
             }
         }
@@ -1575,12 +1575,12 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                _waitingForAck = false;
-                _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
-                _cancelTokenSource = new CancellationTokenSource();
-                _cancelToken = _cancelTokenSource.Token;
-                _heartbeatThread = new Task(StartHeartbeating, _cancelToken, TaskCreationOptions.LongRunning);
-                _heartbeatThread.Start();
+                _waiting_for_ack = false;
+                _heartbeat_interval = obj["d"].Value<int>("heartbeat_interval");
+                _cancel_token_source = new CancellationTokenSource();
+                _cancel_token = _cancel_token_source.Token;
+                _heartbeat_task = new Task(StartHeartbeating, _cancel_token, TaskCreationOptions.LongRunning);
+                _heartbeat_task.Start();
             });
         }
 
@@ -1588,9 +1588,9 @@ namespace DSharpPlus
         {
             await Task.Run(async () =>
             {
-                _waitingForAck = false;
+                _waiting_for_ack = false;
 
-                this.Ping = (int)(DateTime.Now - _lastHeartbeat).TotalMilliseconds;
+                this.Ping = (int)(DateTime.Now - _last_heartbeat).TotalMilliseconds;
                 _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
                 HeartBeatEventArgs args = new HeartBeatEventArgs()
@@ -1606,14 +1606,14 @@ namespace DSharpPlus
         internal async void StartHeartbeating()
         {
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Starting Heartbeat", DateTime.Now);
-            while (!_cancelToken.IsCancellationRequested)
+            while (!_cancel_token.IsCancellationRequested)
             {
                 await SendHeartbeat();
-                await Task.Delay(_heartbeatInterval);
+                await Task.Delay(_heartbeat_interval);
             }
         }
 
-        internal static async Task InternalUpdateStatus(string game = "", int idle_since = -1)
+        internal async Task InternalUpdateStatus(string game = "", int idle_since = -1)
         {
             if (game.Length > 128)
                 throw new Exception("Game name can't be longer than 128 characters!");
@@ -1632,7 +1632,7 @@ namespace DSharpPlus
                 { "d", update }
             };
 
-            await Task.Run(() => _websocketClient.SendMessage(obj.ToString()));
+            await Task.Run(() => _websocket_client.SendMessage(obj.ToString()));
         }
 
         internal Task SendHeartbeat()
@@ -1642,7 +1642,7 @@ namespace DSharpPlus
 
         internal async Task SendHeartbeat(long seq)
         { 
-            if (_waitingForAck)
+            if (_waiting_for_ack)
             {
                 _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
                 await InternalReconnect();
@@ -1654,9 +1654,9 @@ namespace DSharpPlus
                 { "op", 1 },
                 { "d", seq }
             };
-            _websocketClient.SendMessage(obj.ToString());
-            _lastHeartbeat = DateTime.Now;
-            _waitingForAck = true;
+            _websocket_client.SendMessage(obj.ToString());
+            _last_heartbeat = DateTime.Now;
+            _waiting_for_ack = true;
         }
 
         internal async Task SendIdentify()
@@ -1683,7 +1683,7 @@ namespace DSharpPlus
                         }
                     }
                 };
-                _websocketClient.SendMessage(obj.ToString());
+                _websocket_client.SendMessage(obj.ToString());
             });
         }
 
@@ -1696,17 +1696,17 @@ namespace DSharpPlus
                     { "op", 6 },
                     { "d", new JObject
                         {
-                            { "token", _sessionToken },
-                            { "session_id", _sessionID },
+                            { "token", _session_token },
+                            { "session_id", _session_id },
                             { "seq", _sequence }
                         }
                     }
                 };
-                _websocketClient.SendMessage(obj.ToString());
+                _websocket_client.SendMessage(obj.ToString());
             });
         }
 
-        internal static async Task SendVoiceStateUpdate(DiscordChannel channel, bool mute = false, bool deaf = false)
+        internal async Task SendVoiceStateUpdate(DiscordChannel channel, bool mute = false, bool deaf = false)
         {
             await Task.Run(() =>
             {
@@ -1722,7 +1722,7 @@ namespace DSharpPlus
                         }
                     }
                 };
-                _websocketClient.SendMessage(obj.ToString());
+                _websocket_client.SendMessage(obj.ToString());
             });
         }
         #endregion
@@ -1757,7 +1757,7 @@ namespace DSharpPlus
             };
         }
 
-        internal static DiscordPresence InternalGetUserPresence(ulong user_id)
+        internal DiscordPresence InternalGetUserPresence(ulong user_id)
         {
             if (_presences.ContainsKey(user_id))
                 return _presences[user_id];
@@ -3009,13 +3009,13 @@ namespace DSharpPlus
 
             await Disconnect();
 
-            _cancelTokenSource.Cancel();
+            _cancel_token_source.Cancel();
             _guilds = null;
-            _heartbeatThread = null;
+            _heartbeat_task = null;
             _me = null;
             _modules = null;
             _privateChannels = null;
-            await _websocketClient.InternalDisconnectAsync();
+            await _websocket_client.InternalDisconnectAsync();
 
             disposed = true;
         }
