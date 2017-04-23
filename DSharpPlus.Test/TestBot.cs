@@ -34,7 +34,7 @@ namespace DSharpPlus.Test
                 LargeThreshold = 250, 
                 // Use unnecessary instead of debug for more verbosity
                 //LogLevel = LogLevel.Unnecessary,
-                LogLevel = LogLevel.Debug,
+                LogLevel = LogLevel.Unnecessary,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = false,

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace DSharpPlus.Interactivity
 {
@@ -25,6 +27,12 @@ namespace DSharpPlus.Interactivity
                 throw new Exception("Interactivity module is not enabled for this client!");
 
             return m;
+        }
+
+        public static IEnumerable<string> Split(this string str, int chunkSize)
+        {
+            return Enumerable.Range(0, str.Length / chunkSize)
+                .Select(i => str.Substring(i * chunkSize, chunkSize));
         }
     }
     #endregion
@@ -243,5 +251,174 @@ namespace DSharpPlus.Interactivity
             return result;
         }
         #endregion
+
+        // ⏮ ◀ ⏹ (🔢) ▶ ⏭
+        public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour) 
+            => await SendPaginatedMessage(channel.ID, user.ID, pages, timeout, timeout_behaviour);
+        public async Task SendPaginatedMessage(ulong channel_id, ulong user_id, IEnumerable<Page> pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour)
+        {
+            if (pages.Count() == 0)
+                throw new ArgumentException("You need to provide at least 1 page!");
+
+            var tsc = new TaskCompletionSource<string>();
+            var ct = new CancellationTokenSource(timeout);
+            ct.Token.Register(() => tsc.TrySetResult(null));
+
+            DiscordMessage m = await _client.SendMessage(channel_id, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
+
+            PaginatedMessage pm = new PaginatedMessage()
+            {
+                CurrentIndex = 0,
+                Pages = pages,
+                Timeout = timeout
+            };
+
+            #region Ugh, adding reactions
+            await m.CreateReaction("⏮");
+            await Task.Delay(500);
+            await m.CreateReaction("◀");
+            await Task.Delay(500);
+            await m.CreateReaction("⏹");
+            //await Task.Delay(500);
+            //await m.CreateReaction("🔢");
+            await Task.Delay(500);
+            await m.CreateReaction("▶");
+            await Task.Delay(500);
+            await m.CreateReaction("⏭");
+            #endregion
+
+            _client.MessageReactionRemoveAll += async e =>
+            {
+                #region Ugh, adding reactions back
+                await m.CreateReaction("⏮");
+                await Task.Delay(500);
+                await m.CreateReaction("◀");
+                await Task.Delay(500);
+                await m.CreateReaction("⏹");
+                //await Task.Delay(500);
+                //await m.CreateReaction("🔢");
+                await Task.Delay(500);
+                await m.CreateReaction("▶");
+                await Task.Delay(500);
+                await m.CreateReaction("⏭");
+                #endregion
+            };
+
+            _client.MessageReactionAdd += async e =>
+            {
+                if (e.MessageID == m.ID)
+                {
+                    if (e.UserID != _client.Me.ID)
+                    {
+                        if (e.Emoji.ID == 0)
+                            await m.DeleteReaction(e.Emoji.Name, e.UserID);
+                        else
+                            await m.DeleteReaction(e.Emoji.Name + ":" + e.Emoji.ID, e.UserID);
+
+                        if (e.UserID == user_id)
+                        {
+                            #region The "good" shit
+                            switch (e.Emoji.Name)
+                            {
+                                default:
+                                    break;
+                                case "⏮":
+                                    pm.CurrentIndex = 0;
+                                    break;
+                                case "◀":
+                                    if (pm.CurrentIndex != 0)
+                                        pm.CurrentIndex--;
+                                    break;
+                                case "⏹":
+                                    ct.Cancel();
+                                    break;
+                                /*
+                            case "🔢":
+                                var m1 = await e.Channel.SendMessage("Enter page number..");
+                                var m2 = await WaitForMessageAsync(x => x.ChannelID == channel_id && x.Author.ID == user_id, TimeSpan.FromSeconds(10));
+                                int i = int.Parse(m2.Content);
+                                if (i < pm.Pages.Count() - 1)
+                                    pm.CurrentIndex = i;
+                                break;
+                                */
+                                case "▶":
+                                    if (pm.CurrentIndex != pm.Pages.Count() - 1)
+                                        pm.CurrentIndex++;
+                                    break;
+                                case "⏭":
+                                    pm.CurrentIndex = pm.Pages.Count() - 1;
+                                    break;
+                            }
+
+                            await m.Edit((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
+                                embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? new DiscordEmbed());
+                            #endregion
+                        }
+                    }
+                }
+            };
+
+            await tsc.Task;
+            switch (timeout_behaviour)
+            {
+                case TimeoutBehaviour.Default:
+                case TimeoutBehaviour.Ignore:
+                    break;
+                case TimeoutBehaviour.Delete:
+                    await m.Delete();
+                    break;
+            }
+        }
+        public IEnumerable<Page> GeneratePagesInEmbeds(string input)
+        {
+            List<Page> result = new List<Page>();
+            List<string> split = input.Split(2000).ToList();
+            foreach (string s in split)
+            {
+                result.Add(new Page()
+                {
+                    Embed = new DiscordEmbed()
+                    {
+                        Description = s
+                    }
+                });
+            }
+            return result;
+        }
+        public IEnumerable<Page> GeneratePagesInStrings(string input)
+        {
+            List<Page> result = new List<Page>();
+            List<string> split = input.Split(2000).ToList();
+            foreach (string s in split)
+            {
+                result.Add(new Page()
+                {
+                    Content = s
+                });
+            }
+            return result;
+        }
     }
+
+    public enum TimeoutBehaviour
+    {
+        Default, // ignore
+        Ignore,
+        Delete
+    }
+
+    public class PaginatedMessage
+    {
+        public IEnumerable<Page> Pages { get; internal set; }
+        public int CurrentIndex { get; internal set; }
+        public TimeSpan Timeout { get; internal set; }
+    }
+
+    public class Page
+    {
+        public string Content { get; set; }
+        public DiscordEmbed Embed { get; set; }
+    }
+
 }
+// send nudes
