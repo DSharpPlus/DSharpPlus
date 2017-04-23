@@ -39,7 +39,7 @@ namespace DSharpPlus
         /// <summary>
         /// The guild
         /// </summary>
-        public DiscordGuild Guild => (GuildID == 0) ? new DiscordGuild() : (this.Discord._guilds.ContainsKey(GuildID)) ? this.Discord._guilds[GuildID] : this.Discord._rest_client.InternalGetGuildAsync(GuildID).Result;
+        public DiscordGuild Guild => (GuildID == 0) ? new DiscordGuild() : (this.Discord._guilds.ContainsKey(GuildID)) ? this.Discord._guilds[GuildID] : this.Discord._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
         /// <summary>
         /// A list of permission overwrite
         /// </summary>

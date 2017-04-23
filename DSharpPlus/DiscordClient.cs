@@ -1060,7 +1060,10 @@ namespace DSharpPlus
             guild.Discord = this;
 
             foreach (DiscordChannel channel in guild.Channels)
+            {
                 if (channel.GuildID == 0) channel.GuildID = guild.Id;
+                channel.Discord = this;
+            }
 
             foreach (DiscordPresence Presence in guild.Presences)
             {
@@ -1626,8 +1629,9 @@ namespace DSharpPlus
             _heartbeat_interval = obj["d"].Value<int>("heartbeat_interval");
             _cancel_token_source = new CancellationTokenSource();
             _cancel_token = _cancel_token_source.Token;
-            //_heartbeat_task = new Task(StartHeartbeatingAsync, _cancel_token, TaskCreationOptions.LongRunning);
-            _heartbeat_task = Task.Run(this.StartHeartbeatingAsync, _cancel_token);
+            _heartbeat_task = new Task(StartHeartbeating, _cancel_token, TaskCreationOptions.LongRunning);
+            _heartbeat_task.Start();
+            //_heartbeat_task = Task.Run(this.StartHeartbeatingAsync, _cancel_token);
             return Task.Delay(0);
         }
 
@@ -1647,13 +1651,14 @@ namespace DSharpPlus
             await _heart_beated.InvokeAsync(args);
         }
 
-        internal async Task StartHeartbeatingAsync()
+        //internal async Task StartHeartbeatingAsync()
+        internal void StartHeartbeating()
         {
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Starting Heartbeat", DateTime.Now);
             while (!_cancel_token.IsCancellationRequested)
             {
-                await SendHeartbeatAsync();
-                await Task.Delay(_heartbeat_interval);
+                SendHeartbeatAsync().GetAwaiter().GetResult();
+                Task.Delay(_heartbeat_interval).GetAwaiter().GetResult();
             }
         }
 
