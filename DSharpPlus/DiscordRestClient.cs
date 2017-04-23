@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Objects.Transport;
 using DSharpPlus.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -31,10 +33,10 @@ namespace DSharpPlus
             WebResponse response = await this.Rest.HandleRequestAsync(request);
 
             DiscordGuild guild = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            guild.Discord = this.Discord;
             return guild;
         }
-
-
+        
         internal async void InternalDeleteGuildAsync(ulong id)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Guilds + $"/{id}";
@@ -70,7 +72,9 @@ namespace DSharpPlus
 
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<List<DiscordMember>> InternalGetGuildBans(ulong guild_id)
@@ -83,7 +87,17 @@ namespace DSharpPlus
             List<DiscordMember> bans = new List<DiscordMember>();
             foreach (JObject obj in j)
             {
-                bans.Add(obj.ToObject<DiscordMember>());
+                var tm = obj.ToObject<TransportMember>();
+                var us = await this.InternalGetUser(tm.User.Id);
+                var ret = new DiscordMember(us)
+                {
+                    IsDeafened = tm.IsDeafened,
+                    IsMuted = tm.IsMuted,
+                    JoinedAt = tm.JoinedAt,
+                    Nickname = tm.Nickname,
+                    Roles = tm.Roles
+                };
+                bans.Add(ret);
             }
             return bans;
         }
@@ -126,11 +140,13 @@ namespace DSharpPlus
             };
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordMember> InternalAddGuildMember(ulong guild_id, ulong user_id, string access_token, string nick = "", List<DiscordRole> roles = null,
-        bool muted = false, bool deafened = false)
+            bool muted = false, bool deafened = false)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Guilds + "/" + guild_id + Endpoints.Members + "/" + user_id;
             var headers = Utils.GetBaseHeaders();
@@ -155,7 +171,17 @@ namespace DSharpPlus
                 j.Add("deaf", true);
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
+            var tm = JsonConvert.DeserializeObject<TransportMember>(response.Response);
+            var us = await this.InternalGetUser(tm.User.Id);
+            var ret = new DiscordMember(us)
+            {
+                IsDeafened = tm.IsDeafened,
+                IsMuted = tm.IsMuted,
+                JoinedAt = tm.JoinedAt,
+                Nickname = tm.Nickname,
+                Roles = tm.Roles
+            };
+            return ret;
         }
 
         internal async Task<List<DiscordMember>> InternalListGuildMembers(ulong guild_id, int limit, int after)
@@ -170,7 +196,17 @@ namespace DSharpPlus
             List<DiscordMember> members = new List<DiscordMember>();
             foreach (JObject m in ja)
             {
-                members.Add(m.ToObject<DiscordMember>());
+                var tm = m.ToObject<TransportMember>();
+                var us = await this.InternalGetUser(tm.User.Id);
+                var ret = new DiscordMember(us)
+                {
+                    IsDeafened = tm.IsDeafened,
+                    IsMuted = tm.IsMuted,
+                    JoinedAt = tm.JoinedAt,
+                    Nickname = tm.Nickname,
+                    Roles = tm.Roles
+                };
+                members.Add(ret);
             }
             return members;
         }
@@ -193,7 +229,6 @@ namespace DSharpPlus
         #endregion
 
         #region Channel
-
         internal async Task<DiscordChannel> InternalCreateGuildChannelAsync(ulong id, string name, ChannelType type)
         {
             if (name.Length > 200 || name.Length < 2)
@@ -206,7 +241,9 @@ namespace DSharpPlus
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, payload.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
 
-            return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordChannel> InternalGetChannel(ulong id)
@@ -215,7 +252,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task InternalDeleteChannel(ulong id)
@@ -232,7 +271,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordMessage> InternalCreateMessage(ulong channel_id, string content, bool tts, DiscordEmbed embed = null)
@@ -261,7 +302,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordMessage> InternalUploadFile(ulong channel_id, Stream file_data, string file_name, string content = "", bool tts = false)
@@ -275,7 +318,9 @@ namespace DSharpPlus
                 values.Add("tts", tts.ToString());
             WebRequest request = WebRequest.CreateMultipartRequest(url, HttpRequestMethod.POST, headers, values, file_data, file_name);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<List<DiscordChannel>> InternalGetGuildChannels(ulong guild_id)
@@ -288,7 +333,9 @@ namespace DSharpPlus
             List<DiscordChannel> channels = new List<DiscordChannel>();
             foreach (JObject jj in j)
             {
-                channels.Add(JsonConvert.DeserializeObject<DiscordChannel>(jj.ToString()));
+                var ret = JsonConvert.DeserializeObject<DiscordChannel>(jj.ToString());
+                ret.Discord = this.Discord;
+                channels.Add(ret);
             }
             return channels;
         }
@@ -309,7 +356,9 @@ namespace DSharpPlus
             }
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordChannel>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         // TODO
@@ -349,7 +398,9 @@ namespace DSharpPlus
             List<DiscordMessage> messages = new List<DiscordMessage>();
             foreach (JObject jo in ja)
             {
-                messages.Add(jo.ToObject<DiscordMessage>());
+                var ret = jo.ToObject<DiscordMessage>();
+                ret.Discord = this.Discord;
+                messages.Add(ret);
             }
             return messages;
         }
@@ -360,7 +411,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         // hi c:
@@ -389,7 +442,9 @@ namespace DSharpPlus
             }
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task InternalDeleteMessage(ulong channel_id, ulong message_id)
@@ -425,7 +480,9 @@ namespace DSharpPlus
             List<DiscordInvite> invites = new List<DiscordInvite>();
             foreach (JObject jo in ja)
             {
-                invites.Add(JsonConvert.DeserializeObject<DiscordInvite>(jo.ToString()));
+                var ret = JsonConvert.DeserializeObject<DiscordInvite>(jo.ToString());
+                ret.Discord = this.Discord;
+                invites.Add(ret);
             }
             return invites;
         }
@@ -443,7 +500,9 @@ namespace DSharpPlus
             };
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task InternalDeleteChannelPermission(ulong channel_id, ulong overwrite_id)
@@ -472,7 +531,9 @@ namespace DSharpPlus
             List<DiscordMessage> messages = new List<DiscordMessage>();
             foreach (JObject obj in j)
             {
-                messages.Add(JsonConvert.DeserializeObject<DiscordMessage>(obj.ToString()));
+                var ret = obj.ToObject<DiscordMessage>();
+                ret.Discord = this.Discord;
+                messages.Add(ret);
             }
             return messages;
         }
@@ -528,7 +589,7 @@ namespace DSharpPlus
             WebResponse response = await this.Rest.HandleRequestAsync(request);
         }
 
-        internal async Task<DiscordDMChannel> InternalCreateDM(ulong recipient_id)
+        internal async Task<DiscordDmChannel> InternalCreateDM(ulong recipient_id)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Users + "/@me" + Endpoints.Channels;
             var headers = Utils.GetBaseHeaders();
@@ -538,10 +599,12 @@ namespace DSharpPlus
             };
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordDmChannel>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
-        internal async Task<DiscordDMChannel> InternalCreateGroupDM(List<string> access_tokens)
+        internal async Task<DiscordDmChannel> InternalCreateGroupDM(List<string> access_tokens)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Users + "/@me" + Endpoints.Channels;
             var headers = Utils.GetBaseHeaders();
@@ -552,7 +615,9 @@ namespace DSharpPlus
             }
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, tokens.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordDMChannel>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordDmChannel>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
         #endregion
 
@@ -563,16 +628,31 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             List<DiscordMember> result = new List<DiscordMember>();
             int pages = (int)Math.Ceiling((double)member_count / 1000);
-            ulong lastId = 0;
+            ulong? lastId = 0;
 
             for (int i = 0; i < pages; i++)
             {
-                WebRequest request = WebRequest.CreateRequest(this.Discord, $"{url}?limit=1000&after={lastId}", HttpRequestMethod.GET, headers);
+                WebRequest request = WebRequest.CreateRequest(this.Discord, $"{url}?limit=1000&after={lastId.Value}", HttpRequestMethod.GET, headers);
                 WebResponse response = await this.Rest.HandleRequestAsync(request);
-
-                List<DiscordMember> items = JsonConvert.DeserializeObject<List<DiscordMember>>(response.Response);
-                result.AddRange(items);
-                lastId = items[items.Count - 1].Id;
+                
+                IEnumerable<TransportMember> items = JsonConvert.DeserializeObject<List<TransportMember>>(response.Response);
+                var sitms = new List<DiscordMember>();
+                foreach (var tm in items)
+                {
+                    var us = await this.InternalGetUser(tm.User.Id);
+                    var ret = new DiscordMember(us)
+                    {
+                        Discord = this.Discord,
+                        IsDeafened = tm.IsDeafened,
+                        IsMuted = tm.IsMuted,
+                        JoinedAt = tm.JoinedAt,
+                        Nickname = tm.Nickname,
+                        Roles = tm.Roles
+                    };
+                    sitms.Add(ret);
+                }
+                result.AddRange(sitms);
+                lastId = sitms.LastOrDefault()?.Id;
             }
             return result;
         }
@@ -588,7 +668,11 @@ namespace DSharpPlus
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
 
-            return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+
+            ret.Discord = this.Discord;
+
+            return ret;
         }
 
         internal async Task<DiscordMember> InternalGetGuildMember(ulong guild_id, ulong member_id)
@@ -597,7 +681,17 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordMember>(response.Response);
+            var tm = JsonConvert.DeserializeObject<TransportMember>(response.Response);
+            var us = await this.InternalGetUser(tm.User.Id);
+            var ret = new DiscordMember(us)
+            {
+                IsDeafened = tm.IsDeafened,
+                IsMuted = tm.IsMuted,
+                JoinedAt = tm.JoinedAt,
+                Nickname = tm.Nickname,
+                Roles = tm.Roles
+            };
+            return ret;
         }
 
         internal async Task InternalRemoveGuildMember(ulong guild_id, ulong user_id)
@@ -614,7 +708,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordUser> InternalModifyCurrentUser(string username = "", string base64_avatar = "")
@@ -628,7 +724,9 @@ namespace DSharpPlus
                 j.Add("avatar", base64_avatar);
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordUser>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<List<DiscordGuild>> InternalGetCurrentUserGuilds()
@@ -640,7 +738,9 @@ namespace DSharpPlus
             List<DiscordGuild> guilds = new List<DiscordGuild>();
             foreach (JObject j in JArray.Parse(response.Response))
             {
-                guilds.Add(JsonConvert.DeserializeObject<DiscordGuild>(j.ToString()));
+                var ret = j.ToObject<DiscordGuild>();
+                ret.Discord = this.Discord;
+                guilds.Add(ret);
             }
             return guilds;
         }
@@ -732,7 +832,9 @@ namespace DSharpPlus
 
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordGuild> InternalDeleteGuild(ulong guild_id)
@@ -741,7 +843,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.DELETE, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordGuild>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordRole> InternalModifyGuildRole(ulong guild_id, ulong role_id, string name, Permission permissions, int position, int color, bool separate, bool mentionable)
@@ -759,7 +863,9 @@ namespace DSharpPlus
             };
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordRole>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordRole> InternalDeleteRole(ulong guild_id, ulong role_id)
@@ -768,7 +874,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.DELETE, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordRole>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordRole> InternalCreateGuildRole(ulong guild_id)
@@ -777,7 +885,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordRole>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordRole>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         #endregion
@@ -815,7 +925,6 @@ namespace DSharpPlus
         #endregion
 
         #region GuildVarious
-
         internal async Task<List<DiscordIntegration>> InternalGetGuildIntegrations(ulong guild_id)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Guilds + "/" + guild_id + Endpoints.Integrations;
@@ -826,7 +935,9 @@ namespace DSharpPlus
             List<DiscordIntegration> integrations = new List<DiscordIntegration>();
             foreach (JObject obj in j)
             {
-                integrations.Add(JsonConvert.DeserializeObject<DiscordIntegration>(obj.ToString()));
+                var ret = obj.ToObject<DiscordIntegration>();
+                ret.Discord = this.Discord;
+                integrations.Add(ret);
             }
             return integrations;
         }
@@ -843,7 +954,9 @@ namespace DSharpPlus
             };
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordIntegration> InternalModifyGuildIntegration(ulong guild_id, ulong integration_id, int expire_behaviour,
@@ -859,7 +972,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordIntegration>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task InternalDeleteGuildIntegration(ulong guild_id, DiscordIntegration integration)
@@ -909,7 +1024,7 @@ namespace DSharpPlus
             List<DiscordVoiceRegion> regions = new List<DiscordVoiceRegion>();
             foreach (JObject obj in j)
             {
-                regions.Add(JsonConvert.DeserializeObject<DiscordVoiceRegion>(obj.ToString()));
+                regions.Add(obj.ToObject<DiscordVoiceRegion>());
             }
             return regions;
         }
@@ -924,7 +1039,9 @@ namespace DSharpPlus
             List<DiscordInvite> invites = new List<DiscordInvite>();
             foreach (JObject obj in j)
             {
-                invites.Add(JsonConvert.DeserializeObject<DiscordInvite>(obj.ToString()));
+                var ret = obj.ToObject<DiscordInvite>();
+                ret.Discord = this.Discord;
+                invites.Add(ret);
             }
             return invites;
         }
@@ -938,7 +1055,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordInvite> InternalDeleteInvite(string invite_code)
@@ -947,7 +1066,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.DELETE, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordInvite> InternalAcceptInvite(string invite_code)
@@ -957,7 +1078,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordInvite>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
         #endregion
 
@@ -971,7 +1094,9 @@ namespace DSharpPlus
             List<DiscordConnection> connections = new List<DiscordConnection>();
             foreach (JObject j in JArray.Parse(response.Response))
             {
-                connections.Add(JsonConvert.DeserializeObject<DiscordConnection>(j.ToString()));
+                var ret = j.ToObject<DiscordConnection>();
+                ret.Discord = this.Discord;
+                connections.Add(ret);
             }
             return connections;
         }
@@ -988,7 +1113,7 @@ namespace DSharpPlus
             JArray j = JArray.Parse(response.Response);
             foreach (JObject obj in j)
             {
-                regions.Add(JsonConvert.DeserializeObject<DiscordVoiceRegion>(obj.ToString()));
+                regions.Add(obj.ToObject<DiscordVoiceRegion>());
             }
             return regions;
         }
@@ -1010,7 +1135,11 @@ namespace DSharpPlus
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
 
-            return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+
+            ret.Discord = this.Discord;
+
+            return ret;
         }
 
         internal async Task<List<DiscordWebhook>> InternalGetChannelWebhooks(ulong channel_id)
@@ -1022,7 +1151,9 @@ namespace DSharpPlus
             List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
             foreach (JObject j in JArray.Parse(response.Response))
             {
-                webhooks.Add(JsonConvert.DeserializeObject<DiscordWebhook>(j.ToString()));
+                var ret = j.ToObject<DiscordWebhook>();
+                ret.Discord = this.Discord;
+                webhooks.Add(ret);
             }
             return webhooks;
         }
@@ -1036,7 +1167,9 @@ namespace DSharpPlus
             List<DiscordWebhook> webhooks = new List<DiscordWebhook>();
             foreach (JObject j in JArray.Parse(response.Response))
             {
-                webhooks.Add(JsonConvert.DeserializeObject<DiscordWebhook>(j.ToString()));
+                var ret = j.ToObject<DiscordWebhook>();
+                ret.Discord = this.Discord;
+                webhooks.Add(ret);
             }
             return webhooks;
         }
@@ -1047,7 +1180,9 @@ namespace DSharpPlus
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         // Auth header not required
@@ -1075,7 +1210,9 @@ namespace DSharpPlus
             };
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordWebhook> InternalModifyWebhook(ulong webhook_id, string name, string base64_avatar, string webhook_token)
@@ -1090,7 +1227,9 @@ namespace DSharpPlus
             };
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, payload: j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            return JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordWebhook>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task InternalDeleteWebhook(ulong webhook_id)

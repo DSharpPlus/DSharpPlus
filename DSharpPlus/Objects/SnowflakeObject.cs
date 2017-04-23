@@ -22,6 +22,7 @@ namespace DSharpPlus
         /// <summary>
         /// The client instance this object is tied to.
         /// </summary>
+        [JsonIgnore]
         internal DiscordClient Discord { get; set; }
 
         internal SnowflakeObject() { }
