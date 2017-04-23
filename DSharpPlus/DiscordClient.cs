@@ -2090,7 +2090,7 @@ namespace DSharpPlus
 
         internal static async Task<DiscordMessage> InternalEditMessage(ulong channel_id, ulong message_id, string content = null, DiscordEmbed embed = null)
         {
-            if (content != null || content.Length > 2000)
+            if (content != null && content.Length > 2000)
                 throw new Exception("Messages are limited to a total of 2000 characters!");
             string url = Utils.GetApiBaseUri() + Endpoints.Channels + "/" + channel_id + Endpoints.Messages + "/" + message_id;
             var headers = Utils.GetBaseHeaders();
