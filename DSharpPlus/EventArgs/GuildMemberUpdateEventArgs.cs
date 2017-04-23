@@ -6,7 +6,7 @@ namespace DSharpPlus
     public class GuildMemberUpdateEventArgs : EventArgs
     {
         public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
+        public DiscordGuild Guild => DiscordClient.InternalGetGuildAsync(GuildID).Result;
         public IReadOnlyList<ulong> Roles { get; internal set; }
         public IReadOnlyList<ulong> RolesBefore { get; internal set; }
         public string NickName { get; internal set; }

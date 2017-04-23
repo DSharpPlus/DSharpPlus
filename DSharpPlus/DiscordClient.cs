@@ -445,43 +445,43 @@ namespace DSharpPlus
         #endregion
 
         #region Public Variables
-        internal static DebugLogger _debugLogger = new DebugLogger();
+        internal DebugLogger _debugLogger = new DebugLogger();
         /// <summary>
         /// 
         /// </summary>
         public DebugLogger DebugLogger => _debugLogger;
 
-        internal static int _gatewayVersion;
+        internal int _gatewayVersion;
         /// <summary>
         /// Gateway protocol version
         /// </summary>
         public int GatewayVersion => _gatewayVersion;
 
-        internal static string _gatewayUrl = "";
+        internal string _gatewayUrl = "";
         /// <summary>
         /// Gateway url
         /// </summary>
         public string GatewayUrl => _gatewayUrl;
 
-        internal static int _shardCount = 1;
+        internal int _shardCount = 1;
         /// <summary>
         /// Number of shards the bot is connected with
         /// </summary>
         public int Shards => _shardCount;
 
-        internal static DiscordUser _me;
+        internal DiscordUser _me;
         /// <summary>
         /// The current user
         /// </summary>
         public DiscordUser Me => _me;
 
-        internal static List<DiscordDMChannel> _privateChannels = new List<DiscordDMChannel>();
+        internal List<DiscordDMChannel> _privateChannels = new List<DiscordDMChannel>();
         /// <summary>
         /// List of DM Channels
         /// </summary>
         public IReadOnlyList<DiscordDMChannel> PrivateChannels => new ReadOnlyCollection<DiscordDMChannel>(_privateChannels);
 
-        internal static Dictionary<ulong, DiscordGuild> _guilds = new Dictionary<ulong, DiscordGuild>();
+        internal Dictionary<ulong, DiscordGuild> _guilds = new Dictionary<ulong, DiscordGuild>();
         /// <summary>
         /// List of Guilds
         /// </summary>
@@ -553,6 +553,10 @@ namespace DSharpPlus
             InternalSetup();
         }
 
+        /// <summary>
+        /// Sets the WebSocket provider.
+        /// </summary>
+        /// <typeparam name="T">Type of the WebSocket provider to use.</typeparam>
         public void SetSocketImplementation<T>() where T : BaseWebSocketClient, new()
         {
             BaseWebSocketClient.ClientType = typeof(T);
@@ -568,7 +572,7 @@ namespace DSharpPlus
         /// Connects to the gateway
         /// </summary>
         /// <returns></returns>
-        public async Task Connect() => await InternalConnect();
+        public async Task ConnectAsync() => await InternalConnectAsync();
 
         /// <summary>
         /// Connects to the gateway
@@ -576,12 +580,12 @@ namespace DSharpPlus
         /// <param name="token_override"></param>
         /// <param name="token_type"></param>
         /// <returns></returns>
-        public async Task Connect(string token_override, TokenType token_type)
+        public async Task ConnectAsync(string token_override, TokenType token_type)
         {
             config.Token = token_override;
             config.TokenType = token_type;
 
-            await InternalConnect();
+            await InternalConnectAsync();
         }
 
         /// <summary>
@@ -606,11 +610,11 @@ namespace DSharpPlus
             return _modules.Find(x => x.GetType() == typeof(T)) as T;
         }
 
-        public Task Reconnect() => InternalReconnect();
+        public Task ReconnectAsync() => InternalReconnectAsync();
 
-        public Task Reconnect(string token_override, TokenType token_type) => InternalReconnect(token_override, token_type);
+        public Task ReconnectAsync(string token_override, TokenType token_type) => InternalReconnectAsync(token_override, token_type);
 
-        internal async Task InternalReconnect(bool start_new_session = false)
+        internal async Task InternalReconnectAsync(bool start_new_session = false)
         {
             _cancel_token_source.Cancel();
             await _websocket_client.InternalDisconnectAsync();
@@ -618,10 +622,10 @@ namespace DSharpPlus
                 _session_id = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(5000);
-            await InternalConnect();
+            await InternalConnectAsync();
         }
 
-        internal async Task InternalReconnect(string token_override, TokenType token_type, bool start_new_session = false)
+        internal async Task InternalReconnectAsync(string token_override, TokenType token_type, bool start_new_session = false)
         {
             _cancel_token_source.Cancel();
             await _websocket_client.InternalDisconnectAsync();
@@ -629,12 +633,12 @@ namespace DSharpPlus
                 _session_id = "";
             // delay task by 2 seconds to make sure everything gets closed correctly
             await Task.Delay(5000);
-            await Connect(token_override, token_type);
+            await ConnectAsync(token_override, token_type);
         }
 
-        internal async Task InternalConnect()
+        internal async Task InternalConnectAsync()
         {
-            await InternalUpdateGateway();
+            await InternalUpdateGatewayAsync();
             _me = await InternalGetCurrentUser();
 
             _websocket_client = BaseWebSocketClient.Create();
@@ -644,9 +648,9 @@ namespace DSharpPlus
                 _guilds = new Dictionary<ulong, DiscordGuild>();
 
                 if (_session_id == "")
-                    await SendIdentify();
+                    await SendIdentifyAsync();
                 else
-                    await SendResume();
+                    await SendResumeAsync();
                 await this._socket_opened.InvokeAsync();
             };
             _websocket_client.OnDisconnect += async () =>
@@ -657,27 +661,25 @@ namespace DSharpPlus
 
                 if (config.AutoReconnect)
                 {
-                    await Reconnect();
+                    await ReconnectAsync();
                     DebugLogger.LogMessage(LogLevel.Critical, "Internal", "Bot crashed. Reconnecting", DateTime.Now);
                 }
                 await this._socket_closed.InvokeAsync();
             };
-            _websocket_client.OnMessage += async e => await HandleSocketMessage(e.Message);
+            _websocket_client.OnMessage += async e => await HandleSocketMessageAsync(e.Message);
             await _websocket_client.ConnectAsync(_gatewayUrl + "?v=5&encoding=json");
         }
 
-        internal async Task InternalUpdateGuild(DiscordGuild guild)
+        internal Task InternalUpdateGuildAsync(DiscordGuild guild)
         {
-            await Task.Run(() =>
-            {
-                if (Guilds[guild.ID] == null)
-                    Guilds.Add(guild.ID, guild);
-                else
-                    Guilds[guild.ID] = guild;
-            });
+            if (Guilds[guild.ID] == null)
+                Guilds.Add(guild.ID, guild);
+            else
+                Guilds[guild.ID] = guild;
+            return Task.Delay(0);
         }
 
-        internal async Task InternalUpdateGateway()
+        internal async Task InternalUpdateGatewayAsync()
         {
             string url = Utils.GetApiBaseUri() + Endpoints.Gateway;
             var headers = Utils.GetBaseHeaders();
@@ -697,15 +699,12 @@ namespace DSharpPlus
         /// Disconnects from the gateway
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> Disconnect()
+        public async Task<bool> DisconnectAsync()
         {
-            return await Task.Run(async () =>
-            {
-                _cancel_token_source.Cancel();
-                await _websocket_client.InternalDisconnectAsync();
-                config.AutoReconnect = false;
-                return true;
-            });
+            _cancel_token_source.Cancel();
+            await _websocket_client.InternalDisconnectAsync();
+            config.AutoReconnect = false;
+            return true;
         }
 
         #region Public Functions
@@ -714,25 +713,25 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="user">userid or @me</param>
         /// <returns></returns>
-        public async Task<DiscordUser> GetUser(string user) => await InternalGetUser(user);
+        public Task<DiscordUser> GetUserAsync(string user) => InternalGetUser(user);
         /// <summary>
         /// Gets a user
         /// </summary>
         /// <param name="user">Id of the user</param>
         /// <returns></returns>
-        public Task<DiscordUser> GetUser(ulong user) => InternalGetUser(user);
+        public Task<DiscordUser> GetUserAsync(ulong user) => InternalGetUser(user);
         /// <summary>
         /// Deletes a channel
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task DeleteChannel(ulong id) => await InternalDeleteChannel(id);
+        public Task DeleteChannelAsync(ulong id) => InternalDeleteChannel(id);
         /// <summary>
         /// Deletes a channel
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
-        public async Task DeleteChannel(DiscordChannel channel) => await InternalDeleteChannel(channel.ID);
+        public Task DeleteChannelAsync(DiscordChannel channel) => InternalDeleteChannel(channel.ID);
         /// <summary>
         /// Gets a message
         /// </summary>
@@ -791,7 +790,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<DiscordGuild> GetGuild(ulong id) => await InternalGetGuild(id);
+        public async Task<DiscordGuild> GetGuild(ulong id) => await InternalGetGuildAsync(id);
         /// <summary>
         /// Deletes a guild
         /// </summary>
@@ -851,7 +850,7 @@ namespace DSharpPlus
         /// <param name="game">Game you're playing</param>
         /// <param name="idle_since"></param>
         /// <returns></returns>
-        public Task UpdateStatus(string game = "", int idle_since = -1) => InternalUpdateStatus(game, idle_since);
+        public Task UpdateStatus(string game = "", int idle_since = -1) => InternalUpdateStatusAsync(game, idle_since);
 
         /// <summary>
         /// Modifies a guild member
@@ -893,21 +892,21 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="img">Stream with image data. Can contain a PNG, JPG, or GIF file.</param>
         /// <returns></returns>
-        public async Task SetAvatar(Stream img) => await InternalSetAvatar(img);
+        public async Task SetAvatar(Stream img) => await InternalSetAvatarAsync(img);
         #endregion
 
         #region Websocket
-        internal async Task HandleSocketMessage(string data)
+        internal async Task HandleSocketMessageAsync(string data)
         {
             JObject obj = JObject.Parse(data);
             switch (obj.Value<int>("op"))
             {
-                case 0: await OnDispatch(obj); break;
-                case 1: await OnHeartbeat((long)obj["d"]); break;
-                case 7: await OnReconnect(); break;
-                case 9: await OnInvalidateSession(obj); break;
-                case 10: await OnHello(obj); break;
-                case 11: await OnHeartbeatAck(); break;
+                case 0: await HandleDispatchAsync(obj); break;
+                case 1: await OnHeartbeatAsync((long)obj["d"]); break;
+                case 7: await OnReconnectAsync(); break;
+                case 9: await OnInvalidateSessionAsync(obj); break;
+                case 10: await OnHelloAsync(obj); break;
+                case 11: await OnHeartbeatAckAsync(); break;
                 default:
                     {
                         DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown OP-Code: {obj.Value<int>("op")}\n{obj}", DateTime.Now);
@@ -916,51 +915,51 @@ namespace DSharpPlus
             }
         }
 
-        internal async Task OnDispatch(JObject obj)
+        internal async Task HandleDispatchAsync(JObject obj)
         {
             switch (obj.Value<string>("t").ToLower())
             {
-                case "ready": await OnReadyEvent(obj); break;
-                case "channel_create": await OnChannelCreateEvent(obj); break;
-                case "channel_update": await OnChannelUpdateEvent(obj); break;
-                case "channel_delete": await OnChannelDeleteEvent(obj); break;
-                case "guild_create": await OnGuildCreateEvent(obj); break;
-                case "guild_update": await OnGuildUpdateEvent(obj); break;
-                case "guild_delete": await OnGuildDeleteEvent(obj); break;
-                case "guild_ban_add": await OnGuildBanAddEvent(obj); break;
-                case "guild_ban_remove": await OnGuildBanRemoveEvent(obj); break;
-                case "guild_emojis_update": await OnGuildEmojisUpdateEvent(obj); break;
-                case "guild_integrations_update": await OnGuildIntegrationsUpdateEvent(obj); break;
-                case "guild_member_add": await OnGuildMemberAddEvent(obj); break;
-                case "guild_member_remove": await OnGuildMemberRemoveEvent(obj); break;
-                case "guild_member_update": await OnGuildMemberUpdateEvent(obj); break;
-                case "guild_member_chunk": await OnGuildMembersChunkEvent(obj); break;
-                case "guild_role_create": await OnGuildRoleCreateEvent(obj); break;
-                case "guild_role_update": await OnGuildRoleUpdateEvent(obj); break;
-                case "guild_role_delete": await OnGuildRoleDeleteEvent(obj); break;
-                case "message_create": await OnMessageCreateEvent(obj); break;
-                case "message_update": await OnMessageUpdateEvent(obj); break;
-                case "message_delete": await OnMessageDeleteEvent(obj); break;
-                case "message_delete_bulk": await OnMessageBulkDeleteEvent(obj); break;
-                case "presence_update": await OnPresenceUpdateEvent(obj); break;
-                case "typing_start": await OnTypingStartEvent(obj); break;
-                case "user_settings_update": await OnUserSettingsUpdateEvent(obj); break;
-                case "user_update": await OnUserUpdateEvent(obj); break;
-                case "voice_state_update": await OnVoiceStateUpdateEvent(obj); break;
-                case "voice_server_update": await OnVoiceServerUpdateEvent(obj); break;
-                case "message_reaction_add": await OnMessageReactionAdd(obj); break;
-                case "message_reaction_remove": await OnMessageReactionRemove(obj); break;
-                case "message_reaction_remove_all": await OnMessageReactionRemoveAll(obj); break;
-                case "webhooks_update": await OnWebhooksUpdate(obj); break;
+                case "ready": await OnReadyEventAsync(obj); break;
+                case "channel_create": await OnChannelCreateEventAsync(obj); break;
+                case "channel_update": await OnChannelUpdateEventAsync(obj); break;
+                case "channel_delete": await OnChannelDeleteEventAsync(obj); break;
+                case "guild_create": await OnGuildCreateEventAsync(obj); break;
+                case "guild_update": await OnGuildUpdateEventAsync(obj); break;
+                case "guild_delete": await OnGuildDeleteEventAsync(obj); break;
+                case "guild_ban_add": await OnGuildBanAddEventAsync(obj); break;
+                case "guild_ban_remove": await OnGuildBanRemoveEventAsync(obj); break;
+                case "guild_emojis_update": await OnGuildEmojisUpdateEventAsync(obj); break;
+                case "guild_integrations_update": await OnGuildIntegrationsUpdateEventAsync(obj); break;
+                case "guild_member_add": await OnGuildMemberAddEventAsync(obj); break;
+                case "guild_member_remove": await OnGuildMemberRemoveEventAsync(obj); break;
+                case "guild_member_update": await OnGuildMemberUpdateEventAsync(obj); break;
+                case "guild_member_chunk": await OnGuildMembersChunkEventAsync(obj); break;
+                case "guild_role_create": await OnGuildRoleCreateEventAsync(obj); break;
+                case "guild_role_update": await OnGuildRoleUpdateEventAsync(obj); break;
+                case "guild_role_delete": await OnGuildRoleDeleteEventAsync(obj); break;
+                case "message_create": await OnMessageCreateEventAsync(obj); break;
+                case "message_update": await OnMessageUpdateEventAsync(obj); break;
+                case "message_delete": await OnMessageDeleteEventAsync(obj); break;
+                case "message_delete_bulk": await OnMessageBulkDeleteEventAsync(obj); break;
+                case "presence_update": await OnPresenceUpdateEventAsync(obj); break;
+                case "typing_start": await OnTypingStartEventAsync(obj); break;
+                case "user_settings_update": await OnUserSettingsUpdateEventAsync(obj); break;
+                case "user_update": await OnUserUpdateEventAsync(obj); break;
+                case "voice_state_update": await OnVoiceStateUpdateEventAsync(obj); break;
+                case "voice_server_update": await OnVoiceServerUpdateEventAsync(obj); break;
+                case "message_reaction_add": await OnMessageReactionAddAsync(obj); break;
+                case "message_reaction_remove": await OnMessageReactionRemoveAsync(obj); break;
+                case "message_reaction_remove_all": await OnMessageReactionRemoveAllAsync(obj); break;
+                case "webhooks_update": await OnWebhooksUpdateAsync(obj); break;
                 default:
-                    await OnUnknownEvent(obj);
+                    await OnUnknownEventAsync(obj);
                     DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown event: {obj.Value<string>("t")}\n{obj["d"]}", DateTime.Now);
                     break;
             }
         }
 
         #region Events
-        internal async Task OnReadyEvent(JObject obj)
+        internal async Task OnReadyEventAsync(JObject obj)
         {
             _gatewayVersion = obj["d"]["v"].ToObject<int>();
             _me = obj["d"]["user"].ToObject<DiscordUser>();
@@ -977,7 +976,7 @@ namespace DSharpPlus
 
             await this._ready.InvokeAsync();
         }
-        internal async Task OnChannelCreateEvent(JObject obj)
+        internal async Task OnChannelCreateEventAsync(JObject obj)
         {
             if (obj["d"]["is_private"] != null && obj["d"]["is_private"].ToObject<bool>())
             {
@@ -995,7 +994,7 @@ namespace DSharpPlus
                 await this._channel_created.InvokeAsync(new ChannelCreateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
             }
         }
-        internal async Task OnChannelUpdateEvent(JObject obj)
+        internal async Task OnChannelUpdateEventAsync(JObject obj)
         {
             DiscordChannel channel = obj["d"].ToObject<DiscordChannel>();
             DiscordChannel old = channel;
@@ -1016,7 +1015,7 @@ namespace DSharpPlus
 
             await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID], ChannelBefore = old });
         }
-        internal async Task OnChannelDeleteEvent(JObject obj)
+        internal async Task OnChannelDeleteEventAsync(JObject obj)
         {
             if (obj["d"]["is_private"] != null && obj["d"]["is_private"].ToObject<bool>())
             {
@@ -1034,7 +1033,7 @@ namespace DSharpPlus
                 await this._channel_deleted.InvokeAsync(new ChannelDeleteEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
             }
         }
-        internal async Task OnGuildCreateEvent(JObject obj)
+        internal async Task OnGuildCreateEventAsync(JObject obj)
         {
             DiscordGuild guild = obj["d"].ToObject<DiscordGuild>();
 
@@ -1071,7 +1070,7 @@ namespace DSharpPlus
                 await this._guild_created.InvokeAsync(new GuildCreateEventArgs { Guild = guild });
             }
         }
-        internal async Task OnGuildUpdateEvent(JObject obj)
+        internal async Task OnGuildUpdateEventAsync(JObject obj)
         {
             DiscordGuild guild = _guilds[obj["d"].Value<ulong>("id")];
             if (guild != null)
@@ -1086,7 +1085,7 @@ namespace DSharpPlus
             }
             await this._guild_updated.InvokeAsync(new GuildUpdateEventArgs { Guild = guild });
         }
-        internal async Task OnGuildDeleteEvent(JObject obj)
+        internal async Task OnGuildDeleteEventAsync(JObject obj)
         {
             if (_guilds.ContainsKey(obj["d"].Value<ulong>("id")))
             {
@@ -1106,7 +1105,7 @@ namespace DSharpPlus
                 }
             }
         }
-        internal async Task OnPresenceUpdateEvent(JObject obj)
+        internal async Task OnPresenceUpdateEventAsync(JObject obj)
         {
             ulong userID = (ulong)obj["d"]["user"]["id"];
             DiscordPresence p = obj["d"].ToObject<DiscordPresence>();
@@ -1116,28 +1115,28 @@ namespace DSharpPlus
                 old = _presences[userID];
                 _presences[userID] = p;
             }
-            else 
+            else
                 _presences.Add(userID, p);
 
             PresenceUpdateEventArgs args = obj["d"].ToObject<PresenceUpdateEventArgs>();
             args.PresenceBefore = old;
             await this._presence_update.InvokeAsync(args);
         }
-        internal async Task OnGuildBanAddEvent(JObject obj)
+        internal async Task OnGuildBanAddEventAsync(JObject obj)
         {
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             GuildBanAddEventArgs args = new GuildBanAddEventArgs { User = user, GuildID = guildID };
             await this._guild_ban_add.InvokeAsync(args);
         }
-        internal async Task OnGuildBanRemoveEvent(JObject obj)
+        internal async Task OnGuildBanRemoveEventAsync(JObject obj)
         {
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             GuildBanRemoveEventArgs args = new GuildBanRemoveEventArgs { User = user, GuildID = guildID };
             await this._guild_ban_remove.InvokeAsync(args);
         }
-        internal async Task OnGuildEmojisUpdateEvent(JObject obj)
+        internal async Task OnGuildEmojisUpdateEventAsync(JObject obj)
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             List<DiscordEmoji> emojis = new List<DiscordEmoji>();
@@ -1150,13 +1149,13 @@ namespace DSharpPlus
             GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = new ReadOnlyCollection<DiscordEmoji>(emojis), EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old) };
             await this._guild_emojis_update.InvokeAsync(args);
         }
-        internal async Task OnGuildIntegrationsUpdateEvent(JObject obj)
+        internal async Task OnGuildIntegrationsUpdateEventAsync(JObject obj)
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             GuildIntegrationsUpdateEventArgs args = new GuildIntegrationsUpdateEventArgs { GuildID = guildID };
             await this._guild_integrations_update.InvokeAsync(args);
         }
-        internal async Task OnGuildMemberAddEvent(JObject obj)
+        internal async Task OnGuildMemberAddEventAsync(JObject obj)
         {
             DiscordMember user = obj["d"].ToObject<DiscordMember>();
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
@@ -1165,7 +1164,7 @@ namespace DSharpPlus
             GuildMemberAddEventArgs args = new GuildMemberAddEventArgs { Member = user, GuildID = guildID };
             await this._guild_member_add.InvokeAsync(args);
         }
-        internal async Task OnGuildMemberRemoveEvent(JObject obj)
+        internal async Task OnGuildMemberRemoveEventAsync(JObject obj)
         {
             DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
@@ -1178,7 +1177,7 @@ namespace DSharpPlus
             GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs { User = user, GuildID = guildID };
             await this._guild_member_remove.InvokeAsync(args);
         }
-        internal async Task OnGuildMemberUpdateEvent(JObject obj)
+        internal async Task OnGuildMemberUpdateEventAsync(JObject obj)
         {
             DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
             DiscordMember old = new DiscordMember();
@@ -1216,7 +1215,7 @@ namespace DSharpPlus
             GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = new ReadOnlyCollection<ulong>(roles), NickName = nick, NickNameBefore = old.Nickname, RolesBefore = old.Roles };
             await this._guild_member_update.InvokeAsync(args);
         }
-        internal async Task OnGuildRoleCreateEvent(JObject obj)
+        internal async Task OnGuildRoleCreateEventAsync(JObject obj)
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
@@ -1224,7 +1223,7 @@ namespace DSharpPlus
             GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs { GuildID = guildID, Role = role };
             await this._guild_role_create.InvokeAsync(args);
         }
-        internal async Task OnGuildRoleUpdateEvent(JObject obj)
+        internal async Task OnGuildRoleUpdateEventAsync(JObject obj)
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
@@ -1235,7 +1234,7 @@ namespace DSharpPlus
             GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs { GuildID = guildID, Role = role, RoleBefore = old };
             await this._guild_role_update.InvokeAsync(args);
         }
-        internal async Task OnGuildRoleDeleteEvent(JObject obj)
+        internal async Task OnGuildRoleDeleteEventAsync(JObject obj)
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             ulong roleID = obj["d"]["role_id"].ToObject<ulong>();
@@ -1244,7 +1243,7 @@ namespace DSharpPlus
             GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs { GuildID = guildID, RoleID = roleID };
             await this._guild_role_delete.InvokeAsync(args);
         }
-        internal async Task OnMessageCreateEvent(JObject obj)
+        internal async Task OnMessageCreateEventAsync(JObject obj)
         {
             DiscordMessage message;
             try
@@ -1325,7 +1324,7 @@ namespace DSharpPlus
             };
             await this._message_created.InvokeAsync(args);
         }
-        internal async Task OnMessageUpdateEvent(JObject obj)
+        internal async Task OnMessageUpdateEventAsync(JObject obj)
         {
             DiscordMessage message;
             message = obj["d"].ToObject<DiscordMessage>();
@@ -1380,14 +1379,14 @@ namespace DSharpPlus
             };
             await this._message_update.InvokeAsync(args);
         }
-        internal async Task OnMessageDeleteEvent(JObject obj)
+        internal async Task OnMessageDeleteEventAsync(JObject obj)
         {
             ulong ID = ulong.Parse(obj["d"]["id"].ToString());
             ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
             MessageDeleteEventArgs args = new MessageDeleteEventArgs { ChannelID = channelID, MessageID = ID };
             await this._message_delete.InvokeAsync(args);
         }
-        internal async Task OnMessageBulkDeleteEvent(JObject obj)
+        internal async Task OnMessageBulkDeleteEventAsync(JObject obj)
         {
             JArray IDsJson = (JArray)obj["d"]["ids"];
             List<ulong> ids = new List<ulong>();
@@ -1399,27 +1398,27 @@ namespace DSharpPlus
             MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs { MessageIDs = new ReadOnlyCollection<ulong>(ids), ChannelID = channelID };
             await this._message_bulk_delete.InvokeAsync(args);
         }
-        internal async Task OnTypingStartEvent(JObject obj)
+        internal async Task OnTypingStartEventAsync(JObject obj)
         {
             ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
             ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
             TypingStartEventArgs args = new TypingStartEventArgs { ChannelID = channelID, UserID = userID };
             await this._typing_start.InvokeAsync(args);
         }
-        internal async Task OnUserSettingsUpdateEvent(JObject obj)
+        internal async Task OnUserSettingsUpdateEventAsync(JObject obj)
         {
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             UserSettingsUpdateEventArgs args = new UserSettingsUpdateEventArgs { User = user };
             await this._user_settings_update.InvokeAsync(args);
         }
-        internal async Task OnUserUpdateEvent(JObject obj)
+        internal async Task OnUserUpdateEventAsync(JObject obj)
         {
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             UserUpdateEventArgs args = new UserUpdateEventArgs { User = user, UserBefore = _me };
             _me = user;
             await this._user_update.InvokeAsync(args);
         }
-        internal async Task OnVoiceStateUpdateEvent(JObject obj)
+        internal async Task OnVoiceStateUpdateEventAsync(JObject obj)
         {
             ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
             ulong guildID = 0;
@@ -1450,7 +1449,7 @@ namespace DSharpPlus
 
             await this._voice_state_update.InvokeAsync(args);
         }
-        internal async Task OnVoiceServerUpdateEvent(JObject obj)
+        internal async Task OnVoiceServerUpdateEventAsync(JObject obj)
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             string endpoint = obj["d"]["endpoint"].ToString();
@@ -1458,9 +1457,8 @@ namespace DSharpPlus
 
             VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs { GuildID = guildID, Endpoint = endpoint, VoiceToken = token };
             await this._voice_server_update.InvokeAsync(args);
-            //await _voiceClient.Init(token, guildID, endpoint);
         }
-        internal async Task OnGuildMembersChunkEvent(JObject obj)
+        internal async Task OnGuildMembersChunkEventAsync(JObject obj)
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             List<DiscordMember> members = new List<DiscordMember>();
@@ -1474,7 +1472,7 @@ namespace DSharpPlus
             await this._guild_members_chunk.InvokeAsync(args);
         }
 
-        internal async Task OnUnknownEvent(JObject obj)
+        internal async Task OnUnknownEventAsync(JObject obj)
         {
             string name = obj["t"].ToString();
             string json = obj["d"].ToString();
@@ -1482,7 +1480,7 @@ namespace DSharpPlus
             await this._unknown_event.InvokeAsync(args);
         }
 
-        internal async Task OnMessageReactionAdd(JObject obj)
+        internal async Task OnMessageReactionAddAsync(JObject obj)
         {
             ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
             ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
@@ -1498,7 +1496,7 @@ namespace DSharpPlus
             await this._message_reaction_add.InvokeAsync(args);
         }
 
-        internal async Task OnMessageReactionRemove(JObject obj)
+        internal async Task OnMessageReactionRemoveAsync(JObject obj)
         {
             ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
             ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
@@ -1514,7 +1512,7 @@ namespace DSharpPlus
             await this._message_reaction_remove.InvokeAsync(args);
         }
 
-        internal async Task OnMessageReactionRemoveAll(JObject obj)
+        internal async Task OnMessageReactionRemoveAllAsync(JObject obj)
         {
             ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
             ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
@@ -1526,7 +1524,7 @@ namespace DSharpPlus
             await this._message_reaction_remove_all.InvokeAsync(args);
         }
 
-        internal async Task OnWebhooksUpdate(JObject obj)
+        internal async Task OnWebhooksUpdateAsync(JObject obj)
         {
             ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
             ulong guildid = ulong.Parse(obj["d"]["guild_id"].ToString());
@@ -1539,81 +1537,74 @@ namespace DSharpPlus
         }
         #endregion
 
-        internal async Task OnHeartbeat(long seq)
+        internal async Task OnHeartbeatAsync(long seq)
         {
             _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
-            await SendHeartbeat(seq);
+            await SendHeartbeatAsync(seq);
         }
 
-        internal async Task OnReconnect()
+        internal async Task OnReconnectAsync()
         {
-            await Task.Run(async () =>
-            {
-                _debugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect. ", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect. ", DateTime.Now);
 
-                await InternalReconnect();
-            });
+            await InternalReconnectAsync();
         }
 
-        internal async Task OnInvalidateSession(JObject obj)
+        internal async Task OnInvalidateSessionAsync(JObject obj)
         {
             if (obj.Value<bool>("d"))
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a few second and sending resume again.", DateTime.Now);
                 await Task.Delay(5000);
-                await SendResume();
+                await SendResumeAsync();
             }
             else
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _session_id = "";
-                await InternalReconnect(true);
+                await InternalReconnectAsync(true);
             }
         }
 
-        internal async Task OnHello(JObject obj)
+        internal Task OnHelloAsync(JObject obj)
         {
-            await Task.Run(() =>
-            {
-                _waiting_for_ack = false;
-                _heartbeat_interval = obj["d"].Value<int>("heartbeat_interval");
-                _cancel_token_source = new CancellationTokenSource();
-                _cancel_token = _cancel_token_source.Token;
-                _heartbeat_task = new Task(StartHeartbeating, _cancel_token, TaskCreationOptions.LongRunning);
-                _heartbeat_task.Start();
-            });
+            _waiting_for_ack = false;
+            _heartbeat_interval = obj["d"].Value<int>("heartbeat_interval");
+            _cancel_token_source = new CancellationTokenSource();
+            _cancel_token = _cancel_token_source.Token;
+            //_heartbeat_task = new Task(StartHeartbeatingAsync, _cancel_token, TaskCreationOptions.LongRunning);
+            _heartbeat_task = Task.Run(this.StartHeartbeatingAsync, _cancel_token);
+            _heartbeat_task.Start();
+            return Task.Delay(0);
         }
 
-        internal async Task OnHeartbeatAck()
+        internal async Task OnHeartbeatAckAsync()
         {
-            await Task.Run(async () =>
+            _waiting_for_ack = false;
+
+            this.Ping = (int)(DateTime.Now - _last_heartbeat).TotalMilliseconds;
+            _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
+            HeartBeatEventArgs args = new HeartBeatEventArgs()
             {
-                _waiting_for_ack = false;
+                Ping = this.Ping,
+                Timestamp = DateTimeOffset.Now
+            };
 
-                this.Ping = (int)(DateTime.Now - _last_heartbeat).TotalMilliseconds;
-                _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
-                HeartBeatEventArgs args = new HeartBeatEventArgs()
-                {
-                    Ping = this.Ping,
-                    Timestamp = DateTimeOffset.Now
-                };
-
-                await _heart_beated.InvokeAsync(args);
-            });
+            await _heart_beated.InvokeAsync(args);
         }
 
-        internal async void StartHeartbeating()
+        internal async Task StartHeartbeatingAsync()
         {
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Starting Heartbeat", DateTime.Now);
             while (!_cancel_token.IsCancellationRequested)
             {
-                await SendHeartbeat();
+                await SendHeartbeatAsync();
                 await Task.Delay(_heartbeat_interval);
             }
         }
 
-        internal async Task InternalUpdateStatus(string game = "", int idle_since = -1)
+        internal async Task InternalUpdateStatusAsync(string game = "", int idle_since = -1)
         {
             if (game.Length > 128)
                 throw new Exception("Game name can't be longer than 128 characters!");
@@ -1635,17 +1626,17 @@ namespace DSharpPlus
             await Task.Run(() => _websocket_client.SendMessage(obj.ToString()));
         }
 
-        internal Task SendHeartbeat()
+        internal Task SendHeartbeatAsync()
         {
-            return this.SendHeartbeat(_sequence);
+            return this.SendHeartbeatAsync(_sequence);
         }
 
-        internal async Task SendHeartbeat(long seq)
-        { 
+        internal async Task SendHeartbeatAsync(long seq)
+        {
             if (_waiting_for_ack)
             {
                 _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
-                await InternalReconnect();
+                await InternalReconnectAsync();
             }
 
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Sending Heartbeat", DateTime.Now);
@@ -1659,75 +1650,69 @@ namespace DSharpPlus
             _waiting_for_ack = true;
         }
 
-        internal async Task SendIdentify()
+        internal Task SendIdentifyAsync()
         {
-            await Task.Run(() =>
+            JObject obj = new JObject
             {
-                JObject obj = new JObject
-                {
-                    { "op", 2 },
-                    { "d", new JObject
+                { "op", 2 },
+                { "d", new JObject
+                    {
+                        { "token", Utils.GetFormattedToken() },
+                        { "properties", new JObject
                         {
-                            { "token", Utils.GetFormattedToken() },
-                            { "properties", new JObject
-                            {
-                                { "$os", "linux" },
-                                { "$browser", "DSharpPlus 1.0" },
-                                { "$device", "DSharpPlus 1.0" },
-                                { "$referrer", "" },
-                                { "$referring_domain", "" }
-                            } },
-                            { "compress", false },
-                            { "large_threshold" , config.LargeThreshold },
-                            { "shards", new JArray { 0, _shardCount } }
-                        }
+                            { "$os", "linux" },
+                            { "$browser", "DSharpPlus 1.0" },
+                            { "$device", "DSharpPlus 1.0" },
+                            { "$referrer", "" },
+                            { "$referring_domain", "" }
+                        } },
+                        { "compress", false },
+                        { "large_threshold" , config.LargeThreshold },
+                        { "shards", new JArray { 0, _shardCount } }
                     }
-                };
-                _websocket_client.SendMessage(obj.ToString());
-            });
+                }
+            };
+            _websocket_client.SendMessage(obj.ToString());
+            return Task.Delay(0);
         }
 
-        internal async Task SendResume()
+        internal Task SendResumeAsync()
         {
-            await Task.Run(() =>
+            JObject obj = new JObject
             {
-                JObject obj = new JObject
-                {
-                    { "op", 6 },
-                    { "d", new JObject
-                        {
-                            { "token", _session_token },
-                            { "session_id", _session_id },
-                            { "seq", _sequence }
-                        }
+                { "op", 6 },
+                { "d", new JObject
+                    {
+                        { "token", _session_token },
+                        { "session_id", _session_id },
+                        { "seq", _sequence }
                     }
-                };
-                _websocket_client.SendMessage(obj.ToString());
-            });
+                }
+            };
+            _websocket_client.SendMessage(obj.ToString());
+            return Task.Delay(0);
         }
 
-        internal async Task SendVoiceStateUpdate(DiscordChannel channel, bool mute = false, bool deaf = false)
+        internal Task SendVoiceStateUpdateAsync(DiscordChannel channel, bool mute = false, bool deaf = false)
         {
-            await Task.Run(() =>
+            JObject obj = new JObject
             {
-                JObject obj = new JObject
-                {
-                    { "op", 4 },
-                    { "d", new JObject
-                        {
-                            { "guild_id", channel.Parent.ID },
-                            { "channel_id", channel?.ID },
-                            { "self_mute", mute },
-                            { "self_deaf", deaf }
-                        }
+                { "op", 4 },
+                { "d", new JObject
+                    {
+                        { "guild_id", channel.Parent.ID },
+                        { "channel_id", channel?.ID },
+                        { "self_mute", mute },
+                        { "self_deaf", deaf }
                     }
-                };
-                _websocket_client.SendMessage(obj.ToString());
-            });
+                }
+            };
+            _websocket_client.SendMessage(obj.ToString());
+            return Task.Delay(0);
         }
         #endregion
 
-        internal static ulong GetGuildIdFromChannelID(ulong channel_id)
+        internal ulong GetGuildIdFromChannelID(ulong channel_id)
         {
             foreach (DiscordGuild guild in _guilds.Values)
             {
@@ -1736,7 +1721,7 @@ namespace DSharpPlus
             return 0;
         }
 
-        internal static int GetChannelIndex(ulong channel_id)
+        internal int GetChannelIndex(ulong channel_id)
         {
             foreach (DiscordGuild guild in _guilds.Values)
             {
@@ -1745,7 +1730,7 @@ namespace DSharpPlus
             return 0;
         }
 
-        internal static DiscordUser InternalGetCachedUser(ulong user_id)
+        internal DiscordUser InternalGetCachedUser(ulong user_id)
         {
             foreach (DiscordGuild guild in _guilds.Values)
             {
@@ -1785,24 +1770,6 @@ namespace DSharpPlus
             Permission after = before;
             after &= ~p;
             return after;
-        }
-
-        internal static async Task InternalSetAvatar(Stream image)
-        {
-            using (var ms = new MemoryStream())
-            {
-                await image.CopyToAsync(ms);
-                var b64 = Convert.ToBase64String(ms.ToArray());
-
-                string url = Utils.GetApiBaseUri() + Endpoints.Users + "/@me";
-                var headers = Utils.GetBaseHeaders();
-                JObject jo = new JObject
-                {
-                    { "avatar", $"data:image/jpeg;base64,{b64}" }
-                };
-                WebRequest request = WebRequest.CreateRequest(url, HttpRequestMethod.PATCH, headers, jo.ToString());
-                WebResponse response = await RestClient.HandleRequestAsync(request);
-            }
         }
 
         #region HTTP Actions
@@ -2460,18 +2427,18 @@ namespace DSharpPlus
         #endregion
         #region Roles
         // TODO
-        internal static List<DiscordRole> InternalGetGuildRoles(ulong guild_id)
+        internal List<DiscordRole> InternalGetGuildRoles(ulong guild_id)
         {
             return new List<DiscordRole>();
         }
 
         // TODO
-        internal static List<DiscordRole> InternalModifyGuildRolePosition(ulong guild_id, ulong id, int position)
+        internal List<DiscordRole> InternalModifyGuildRolePosition(ulong guild_id, ulong id, int position)
         {
             return new List<DiscordRole>();
         }
 
-        internal static async Task<DiscordGuild> InternalGetGuild(ulong guild_id)
+        internal async Task<DiscordGuild> InternalGetGuildAsync(ulong guild_id)
         {
             string url = Utils.GetApiBaseUri() + Endpoints.Guilds + "/" + guild_id;
             var headers = Utils.GetBaseHeaders();
@@ -2489,7 +2456,7 @@ namespace DSharpPlus
             return guild;
         }
 
-        internal static async Task<DiscordGuild> InternalModifyGuild(string name = "", string region = "", string icon = "", int verification_level = -1,
+        internal async Task<DiscordGuild> InternalModifyGuild(string name = "", string region = "", string icon = "", int verification_level = -1,
             int default_message_notifications = -1, ulong afk_channel_id = 0, int afk_timeout = -1, ulong owner_id = 0, string splash = "")
         {
             string url = Utils.GetApiBaseUri() + Endpoints.Guilds;
@@ -2988,6 +2955,24 @@ namespace DSharpPlus
             WebResponse response = await RestClient.HandleRequestAsync(request);
             return JObject.Parse(response.Response).ToObject<DiscordApplication>();
         }
+
+        internal static async Task InternalSetAvatarAsync(Stream image)
+        {
+            using (var ms = new MemoryStream())
+            {
+                await image.CopyToAsync(ms);
+                var b64 = Convert.ToBase64String(ms.ToArray());
+
+                string url = Utils.GetApiBaseUri() + Endpoints.Users + "/@me";
+                var headers = Utils.GetBaseHeaders();
+                JObject jo = new JObject
+                {
+                    { "avatar", $"data:image/jpeg;base64,{b64}" }
+                };
+                WebRequest request = WebRequest.CreateRequest(url, HttpRequestMethod.PATCH, headers, jo.ToString());
+                WebResponse response = await RestClient.HandleRequestAsync(request);
+            }
+        }
         #endregion
         #endregion
 
@@ -3007,7 +2992,7 @@ namespace DSharpPlus
 
             GC.SuppressFinalize(this);
 
-            await Disconnect();
+            await DisconnectAsync();
 
             _cancel_token_source.Cancel();
             _guilds = null;

@@ -78,7 +78,7 @@ namespace DSharpPlus.Test
 
         public async Task RunAsync()
         {
-            await Discord.Connect();
+            await Discord.ConnectAsync();
             await Task.Delay(-1);
         }
 

@@ -17,14 +17,14 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, out var uid))
             {
-                result = ctx.Client.GetUser(uid).GetAwaiter().GetResult();
+                result = ctx.Client.GetUserAsync(uid).GetAwaiter().GetResult();
                 return true;
             }
 
             var m = UserRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, out uid))
             {
-                result = ctx.Client.GetUser(uid).GetAwaiter().GetResult();
+                result = ctx.Client.GetUserAsync(uid).GetAwaiter().GetResult();
                 return true;
             }
 

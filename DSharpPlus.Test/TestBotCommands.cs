@@ -135,7 +135,7 @@ Serverowner: {e.Guild.OwnerID}
 
         [Command("reconnect")]
         public async Task Restart(CommandContext e) =>
-            await e.Client.Reconnect();
+            await e.Client.ReconnectAsync();
 
         [Command("purgechannel")]
         public async Task PurgeChannel(CommandContext e)
