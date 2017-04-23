@@ -1,11 +1,11 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class GuildMemberRemoveEventArgs : EventArgs
+    public class GuildMemberRemoveEventArgs : DiscordEventArgs
     {
         public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => this.User.Discord._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
+        public DiscordGuild Guild => this.Client._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
         public DiscordUser User { get; internal set; }
+
+        public GuildMemberRemoveEventArgs(DiscordClient client) : base(client) { }
     }
 }

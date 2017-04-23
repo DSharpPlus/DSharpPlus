@@ -1,13 +1,12 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class VoiceServerUpdateEventArgs : EventArgs
+    public class VoiceServerUpdateEventArgs : DiscordEventArgs
     {
-        internal DiscordClient Discord { get; set; }
         internal string VoiceToken { get; set; }
         public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => this.Discord._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
+        public DiscordGuild Guild => this.Client._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
         public string Endpoint { get; internal set; }
+
+        public VoiceServerUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

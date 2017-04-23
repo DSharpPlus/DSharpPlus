@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace DSharpPlus
 {
-    public class MessageCreateEventArgs : EventArgs
+    public class MessageCreateEventArgs : DiscordEventArgs
     {
         public DiscordMessage Message { get; internal set; }
         public IReadOnlyList<DiscordMember> MentionedUsers { get; internal set; }
@@ -13,5 +12,7 @@ namespace DSharpPlus
         public DiscordChannel Channel => Message.Channel;
         public DiscordGuild Guild => Channel.Guild;
         public DiscordUser Author => Message.Author;
+
+        public MessageCreateEventArgs(DiscordClient client) : base(client) { }
     }
 }

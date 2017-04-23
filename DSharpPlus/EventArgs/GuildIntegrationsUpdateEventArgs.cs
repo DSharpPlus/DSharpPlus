@@ -1,11 +1,10 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class GuildIntegrationsUpdateEventArgs : EventArgs
+    public class GuildIntegrationsUpdateEventArgs : DiscordEventArgs
     {
-        internal DiscordClient Discord { get; set; }
         internal ulong GuildID { get; set; }
-        public DiscordGuild Guild => this.Discord._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
+        public DiscordGuild Guild => this.Client._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
+
+        public GuildIntegrationsUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

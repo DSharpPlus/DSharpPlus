@@ -1,12 +1,11 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class MessageDeleteEventArgs : EventArgs
+    public class MessageDeleteEventArgs : DiscordEventArgs
     {
-        internal DiscordClient Discord { get; set; }
         public ulong MessageID { get; internal set; }
         public ulong ChannelID { get; internal set; }
-        public DiscordChannel Channel => this.Discord._rest_client.InternalGetChannel(ChannelID).GetAwaiter().GetResult();
+        public DiscordChannel Channel => this.Client._rest_client.InternalGetChannel(ChannelID).GetAwaiter().GetResult();
+
+        public MessageDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

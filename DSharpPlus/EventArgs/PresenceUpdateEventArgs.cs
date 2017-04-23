@@ -1,13 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 
 namespace DSharpPlus
 {
-    public class PresenceUpdateEventArgs : EventArgs
+    public class PresenceUpdateEventArgs : DiscordEventArgs
     {
-        public DiscordUser User => this.InternalUser.Discord._guilds[GuildID].Members.Find(x => x.Id == UserID);
+        public DiscordUser User => this.Client._guilds[GuildID].Members.Find(x => x.Id == UserID);
 
         [JsonProperty("user")]
         internal DiscordUser InternalUser { get; set; }
@@ -29,5 +28,7 @@ namespace DSharpPlus
         public IReadOnlyList<ulong> RoleIDs { get; internal set; }
 
         public DiscordPresence PresenceBefore { get; internal set; }
+
+        public PresenceUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

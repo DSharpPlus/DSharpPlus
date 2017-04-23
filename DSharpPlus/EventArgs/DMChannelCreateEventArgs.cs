@@ -1,9 +1,9 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class DmChannelCreateEventArgs : EventArgs
+    public class DmChannelCreateEventArgs : DiscordEventArgs
     {
         public DiscordDmChannel Channel { get; internal set; }
+
+        public DmChannelCreateEventArgs(DiscordClient client) : base(client) { }
     }
 }

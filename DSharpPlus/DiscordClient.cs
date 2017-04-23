@@ -413,7 +413,7 @@ namespace DSharpPlus
         internal void EventErrorHandler(string evname, Exception ex)
         {
             this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occured in {evname}.", DateTime.Now);
-            this._client_error.InvokeAsync(new ClientErrorEventArgs { EventName = evname, Exception = ex }).GetAwaiter().GetResult();
+            this._client_error.InvokeAsync(new ClientErrorEventArgs(this) { EventName = evname, Exception = ex }).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
@@ -1001,7 +1001,7 @@ namespace DSharpPlus
                 channel.Discord = this;
                 _privateChannels.Add(channel);
 
-                await this._dm_channel_created.InvokeAsync(new DmChannelCreateEventArgs { Channel = channel });
+                await this._dm_channel_created.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = channel });
             }
             else
             {
@@ -1010,7 +1010,7 @@ namespace DSharpPlus
 
                 _guilds[channel.GuildID].Channels.Add(channel);
 
-                await this._channel_created.InvokeAsync(new ChannelCreateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
+                await this._channel_created.InvokeAsync(new ChannelCreateEventArgs(this) { Channel = channel, Guild = _guilds[channel.GuildID] });
             }
         }
         internal async Task OnChannelUpdateEventAsync(JObject obj)
@@ -1033,7 +1033,7 @@ namespace DSharpPlus
                 _guilds[channel.GuildID].Channels.Add(channel);
             }
 
-            await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs { Channel = channel, Guild = _guilds[channel.GuildID], ChannelBefore = old });
+            await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs(this) { Channel = channel, Guild = _guilds[channel.GuildID], ChannelBefore = old });
         }
         internal async Task OnChannelDeleteEventAsync(JObject obj)
         {
@@ -1044,7 +1044,7 @@ namespace DSharpPlus
                 int channelIndex = _privateChannels.FindIndex(x => x.Id == channel.Id);
                 _privateChannels.RemoveAt(channelIndex);
 
-                await this._dm_channel_deleted.InvokeAsync(new DmChannelDeleteEventArgs { Channel = channel });
+                await this._dm_channel_deleted.InvokeAsync(new DmChannelDeleteEventArgs(this) { Channel = channel });
             }
             else
             {
@@ -1052,7 +1052,7 @@ namespace DSharpPlus
                 channel.Discord = this;
                 _guilds[channel.GuildID].Channels.RemoveAll(x => x.Id == channel.Id);
 
-                await this._channel_deleted.InvokeAsync(new ChannelDeleteEventArgs { Channel = channel, Guild = _guilds[channel.GuildID] });
+                await this._channel_deleted.InvokeAsync(new ChannelDeleteEventArgs(this) { Channel = channel, Guild = _guilds[channel.GuildID] });
             }
         }
         internal async Task OnGuildCreateEventAsync(JObject obj)
@@ -1087,13 +1087,13 @@ namespace DSharpPlus
             {
                 _guilds[guild.Id] = guild;
 
-                await this._guild_available.InvokeAsync(new GuildCreateEventArgs { Guild = guild });
+                await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild });
             }
             else
             {
                 _guilds.Add(guild.Id, guild);
 
-                await this._guild_created.InvokeAsync(new GuildCreateEventArgs { Guild = guild });
+                await this._guild_created.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild });
             }
         }
         internal async Task OnGuildUpdateEventAsync(JObject obj)
@@ -1112,7 +1112,7 @@ namespace DSharpPlus
                 guild.Discord = this;
                 _guilds.Add(guild.Id, guild);
             }
-            await this._guild_updated.InvokeAsync(new GuildUpdateEventArgs { Guild = guild });
+            await this._guild_updated.InvokeAsync(new GuildUpdateEventArgs(this) { Guild = guild });
         }
         internal async Task OnGuildDeleteEventAsync(JObject obj)
         {
@@ -1125,13 +1125,13 @@ namespace DSharpPlus
 
                     _guilds[guild.Id] = guild;
 
-                    await this._guild_unavailable.InvokeAsync(new GuildDeleteEventArgs { ID = obj["d"].Value<ulong>("id"), Unavailable = true });
+                    await this._guild_unavailable.InvokeAsync(new GuildDeleteEventArgs(this) { ID = obj["d"].Value<ulong>("id"), Unavailable = true });
                 }
                 else
                 {
                     _guilds.Remove(obj["d"].Value<ulong>("id"));
 
-                    await this._guild_deleted.InvokeAsync(new GuildDeleteEventArgs { ID = obj["d"].Value<ulong>("id") });
+                    await this._guild_deleted.InvokeAsync(new GuildDeleteEventArgs(this) { ID = obj["d"].Value<ulong>("id") });
                 }
             }
         }
@@ -1157,7 +1157,7 @@ namespace DSharpPlus
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             user.Discord = this;
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            GuildBanAddEventArgs args = new GuildBanAddEventArgs { User = user, GuildID = guildID };
+            GuildBanAddEventArgs args = new GuildBanAddEventArgs(this) { User = user, GuildID = guildID };
             await this._guild_ban_add.InvokeAsync(args);
         }
         internal async Task OnGuildBanRemoveEventAsync(JObject obj)
@@ -1165,7 +1165,7 @@ namespace DSharpPlus
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             user.Discord = this;
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            GuildBanRemoveEventArgs args = new GuildBanRemoveEventArgs { User = user, GuildID = guildID };
+            GuildBanRemoveEventArgs args = new GuildBanRemoveEventArgs(this) { User = user, GuildID = guildID };
             await this._guild_ban_remove.InvokeAsync(args);
         }
         internal async Task OnGuildEmojisUpdateEventAsync(JObject obj)
@@ -1180,13 +1180,13 @@ namespace DSharpPlus
             }
             List<DiscordEmoji> old = _guilds[guildID].Emojis;
             _guilds[guildID].Emojis = emojis;
-            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs { GuildID = guildID, Emojis = new ReadOnlyCollection<DiscordEmoji>(emojis), EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old) };
+            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs(this) { GuildID = guildID, Emojis = new ReadOnlyCollection<DiscordEmoji>(emojis), EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old) };
             await this._guild_emojis_update.InvokeAsync(args);
         }
         internal async Task OnGuildIntegrationsUpdateEventAsync(JObject obj)
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            GuildIntegrationsUpdateEventArgs args = new GuildIntegrationsUpdateEventArgs { GuildID = guildID, Discord = this };
+            GuildIntegrationsUpdateEventArgs args = new GuildIntegrationsUpdateEventArgs(this) { GuildID = guildID };
             await this._guild_integrations_update.InvokeAsync(args);
         }
         internal async Task OnGuildMemberAddEventAsync(JObject obj)
@@ -1196,7 +1196,7 @@ namespace DSharpPlus
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             _guilds[guildID].Members.Add(user);
             _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
-            GuildMemberAddEventArgs args = new GuildMemberAddEventArgs { Member = user, GuildID = guildID };
+            GuildMemberAddEventArgs args = new GuildMemberAddEventArgs(this) { Member = user, GuildID = guildID };
             await this._guild_member_add.InvokeAsync(args);
         }
         internal async Task OnGuildMemberRemoveEventAsync(JObject obj)
@@ -1210,7 +1210,7 @@ namespace DSharpPlus
                 _guilds[guildID].Members.RemoveAt(index);
                 _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
             }
-            GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs { User = user, GuildID = guildID };
+            GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs(this) { User = user, GuildID = guildID };
             await this._guild_member_remove.InvokeAsync(args);
         }
         internal async Task OnGuildMemberUpdateEventAsync(JObject obj)
@@ -1250,7 +1250,7 @@ namespace DSharpPlus
                 };
                 _guilds[guildID].Members.Add(m);
             }
-            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs { User = user, GuildID = guildID, Roles = new ReadOnlyCollection<ulong>(roles), NickName = nick, NickNameBefore = old.Nickname, RolesBefore = old.Roles };
+            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs(this) { User = user, GuildID = guildID, Roles = new ReadOnlyCollection<ulong>(roles), NickName = nick, NickNameBefore = old.Nickname, RolesBefore = old.Roles };
             await this._guild_member_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleCreateEventAsync(JObject obj)
@@ -1259,7 +1259,7 @@ namespace DSharpPlus
             DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
             role.Discord = this;
             _guilds[guildID].Roles.Add(role);
-            GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs { GuildID = guildID, Role = role };
+            GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs(this) { GuildID = guildID, Role = role };
             await this._guild_role_create.InvokeAsync(args);
         }
         internal async Task OnGuildRoleUpdateEventAsync(JObject obj)
@@ -1271,7 +1271,7 @@ namespace DSharpPlus
             int index = _guilds[guildID].Roles.FindIndex(x => x.Id == role.Id);
             old = _guilds[guildID].Roles[index];
             _guilds[guildID].Roles[index] = role;
-            GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs { GuildID = guildID, Role = role, RoleBefore = old };
+            GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs(this) { GuildID = guildID, Role = role, RoleBefore = old };
             await this._guild_role_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleDeleteEventAsync(JObject obj)
@@ -1280,7 +1280,7 @@ namespace DSharpPlus
             ulong roleID = obj["d"]["role_id"].ToObject<ulong>();
             int index = _guilds[guildID].Roles.FindIndex(x => x.Id == roleID);
             _guilds[guildID].Roles.RemoveAt(index);
-            GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs { GuildID = guildID, RoleID = roleID, Discord = this };
+            GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs(this) { GuildID = guildID, RoleID = roleID };
             await this._guild_role_delete.InvokeAsync(args);
         }
         internal async Task OnMessageCreateEventAsync(JObject obj)
@@ -1356,7 +1356,7 @@ namespace DSharpPlus
                 }
                 */
             }
-            MessageCreateEventArgs args = new MessageCreateEventArgs
+            MessageCreateEventArgs args = new MessageCreateEventArgs(this)
             {
                 Message = message,
                 MentionedUsers = new ReadOnlyCollection<DiscordMember>(MentionedUsers),
@@ -1411,7 +1411,7 @@ namespace DSharpPlus
                 */
             }
 
-            MessageUpdateEventArgs args = new MessageUpdateEventArgs
+            MessageUpdateEventArgs args = new MessageUpdateEventArgs(this)
             {
                 Message = message,
                 MentionedUsers = new ReadOnlyCollection<DiscordMember>(MentionedUsers),
@@ -1425,7 +1425,7 @@ namespace DSharpPlus
         {
             ulong ID = ulong.Parse(obj["d"]["id"].ToString());
             ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-            MessageDeleteEventArgs args = new MessageDeleteEventArgs { ChannelID = channelID, MessageID = ID, Discord = this };
+            MessageDeleteEventArgs args = new MessageDeleteEventArgs(this) { ChannelID = channelID, MessageID = ID };
             await this._message_delete.InvokeAsync(args);
         }
         internal async Task OnMessageBulkDeleteEventAsync(JObject obj)
@@ -1437,28 +1437,28 @@ namespace DSharpPlus
                 ids.Add(ulong.Parse(t.ToString()));
             }
             ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-            MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs { MessageIDs = new ReadOnlyCollection<ulong>(ids), ChannelID = channelID, Discord = this };
+            MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs(this) { MessageIDs = new ReadOnlyCollection<ulong>(ids), ChannelID = channelID };
             await this._message_bulk_delete.InvokeAsync(args);
         }
         internal async Task OnTypingStartEventAsync(JObject obj)
         {
             ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
             ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
-            TypingStartEventArgs args = new TypingStartEventArgs { ChannelID = channelID, UserID = userID, Discord = this };
+            TypingStartEventArgs args = new TypingStartEventArgs(this) { ChannelID = channelID, UserID = userID };
             await this._typing_start.InvokeAsync(args);
         }
         internal async Task OnUserSettingsUpdateEventAsync(JObject obj)
         {
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             user.Discord = this;
-            UserSettingsUpdateEventArgs args = new UserSettingsUpdateEventArgs { User = user };
+            UserSettingsUpdateEventArgs args = new UserSettingsUpdateEventArgs(this) { User = user };
             await this._user_settings_update.InvokeAsync(args);
         }
         internal async Task OnUserUpdateEventAsync(JObject obj)
         {
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             user.Discord = this;
-            UserUpdateEventArgs args = new UserUpdateEventArgs { User = user, UserBefore = _me };
+            UserUpdateEventArgs args = new UserUpdateEventArgs(this) { User = user, UserBefore = _me };
             _me = user;
             await this._user_update.InvokeAsync(args);
         }
@@ -1472,7 +1472,7 @@ namespace DSharpPlus
             if (obj["d"]["channel_id"] != null)
                 ulong.TryParse(obj["d"]["channel_id"].ToString(), out channelID);
             string session_id = obj["d"]["session_id"].ToString();
-            VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs { UserID = userID, GuildID = guildID, SessionID = session_id, Discord = this };
+            VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs(this) { UserID = userID, GuildID = guildID, SessionID = session_id };
 
             var gld = this.Guilds.ContainsKey(guildID) ? this.Guilds[guildID] : null;
 
@@ -1499,7 +1499,7 @@ namespace DSharpPlus
             string endpoint = obj["d"]["endpoint"].ToString();
             string token = obj["d"]["token"].ToString();
 
-            VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs { GuildID = guildID, Endpoint = endpoint, VoiceToken = token, Discord = this };
+            VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs(this) { GuildID = guildID, Endpoint = endpoint, VoiceToken = token };
             await this._voice_server_update.InvokeAsync(args);
         }
         internal async Task OnGuildMembersChunkEventAsync(JObject obj)
@@ -1522,7 +1522,7 @@ namespace DSharpPlus
             }
             _guilds[guildID].Members = members;
             _guilds[guildID].MemberCount = members.Count;
-            GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs { Discord = this, GuildID = guildID, Members = new ReadOnlyCollection<DiscordMember>(members) };
+            GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs(this) { GuildID = guildID, Members = new ReadOnlyCollection<DiscordMember>(members) };
             await this._guild_members_chunk.InvokeAsync(args);
         }
 
@@ -1530,7 +1530,7 @@ namespace DSharpPlus
         {
             string name = obj["t"].ToString();
             string json = obj["d"].ToString();
-            UnknownEventArgs args = new UnknownEventArgs { EventName = name, Json = json };
+            UnknownEventArgs args = new UnknownEventArgs(this) { EventName = name, Json = json };
             await this._unknown_event.InvokeAsync(args);
         }
 
@@ -1541,7 +1541,7 @@ namespace DSharpPlus
             ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
             DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
             emoji.Discord = this;
-            MessageReactionAddEventArgs args = new MessageReactionAddEventArgs
+            MessageReactionAddEventArgs args = new MessageReactionAddEventArgs(this)
             {
                 ChannelID = channelid,
                 MessageID = messageid,
@@ -1558,7 +1558,7 @@ namespace DSharpPlus
             ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
             DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
             emoji.Discord = this;
-            MessageReactionRemoveEventArgs args = new MessageReactionRemoveEventArgs
+            MessageReactionRemoveEventArgs args = new MessageReactionRemoveEventArgs(this)
             {
                 ChannelID = channelid,
                 MessageID = messageid,
@@ -1572,11 +1572,10 @@ namespace DSharpPlus
         {
             ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
             ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
-            MessageReactionRemoveAllEventArgs args = new MessageReactionRemoveAllEventArgs
+            MessageReactionRemoveAllEventArgs args = new MessageReactionRemoveAllEventArgs(this)
             {
                 ChannelID = channelid,
-                MessageID = messageid,
-                Discord = this
+                MessageID = messageid
             };
             await this._message_reaction_remove_all.InvokeAsync(args);
         }
@@ -1585,11 +1584,10 @@ namespace DSharpPlus
         {
             ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
             ulong guildid = ulong.Parse(obj["d"]["guild_id"].ToString());
-            WebhooksUpdateEventArgs args = new WebhooksUpdateEventArgs
+            WebhooksUpdateEventArgs args = new WebhooksUpdateEventArgs(this)
             {
                 ChannelID = channelid,
-                GuildID = guildid,
-                Discord = this
+                GuildID = guildid
             };
             await this._webhooks_update.InvokeAsync(args);
         }
@@ -1643,7 +1641,7 @@ namespace DSharpPlus
             this.Ping = (int)(DateTime.Now - _last_heartbeat).TotalMilliseconds;
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
             _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
-            HeartBeatEventArgs args = new HeartBeatEventArgs()
+            HeartBeatEventArgs args = new HeartBeatEventArgs(this)
             {
                 Ping = this.Ping,
                 Timestamp = DateTimeOffset.Now
