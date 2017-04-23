@@ -977,8 +977,8 @@ namespace DSharpPlus
             _gatewayVersion = obj["d"]["v"].ToObject<int>();
             _me = obj["d"]["user"].ToObject<DiscordUser>();
             _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDmChannel>>();
-            if (config.TokenType != TokenType.User)
-            {
+            //if (config.TokenType != TokenType.User)
+            //{
                 foreach (JObject guild in obj["d"]["guilds"])
                 {
                     if (!_guilds.ContainsKey(guild.Value<ulong>("id")))
@@ -988,7 +988,7 @@ namespace DSharpPlus
                         _guilds.Add(guild.Value<ulong>("id"), ret);
                     }
                 }
-            }
+            //}
             _session_id = obj["d"]["session_id"].ToString();
 
             await this._ready.InvokeAsync();
@@ -1299,22 +1299,25 @@ namespace DSharpPlus
                 message.Discord = this;
             }
 
-            try
+            if (config.TokenType != TokenType.User)
             {
-                if (_privateChannels.Find(x => x.Id == message.ChannelID) == null)
+                try
                 {
-                    int channelindex = _guilds[message.Channel.Guild.Id].Channels.FindIndex(x => x.Id == message.ChannelID);
-                    _guilds[message.Channel.Guild.Id].Channels[channelindex].LastMessageID = message.Id;
+                    if (_privateChannels.Find(x => x.Id == message.ChannelID) == null)
+                    {
+                        int channelindex = _guilds[message.Channel.Guild.Id].Channels.FindIndex(x => x.Id == message.ChannelID);
+                        _guilds[message.Channel.Guild.Id].Channels[channelindex].LastMessageID = message.Id;
+                    }
+                    else
+                    {
+                        int channelindex = _privateChannels.FindIndex(x => x.Id == message.ChannelID);
+                        _privateChannels[channelindex].LastMessageID = message.Id;
+                    }
                 }
-                else
+                catch (KeyNotFoundException)
                 {
-                    int channelindex = _privateChannels.FindIndex(x => x.Id == message.ChannelID);
-                    _privateChannels[channelindex].LastMessageID = message.Id;
+                    DebugLogger.LogMessage(LogLevel.Error, "Event", "Could not find channel last message belonged to?", DateTime.Now);
                 }
-            }
-            catch (KeyNotFoundException)
-            {
-                DebugLogger.LogMessage(LogLevel.Error, "Event", "Could not find channel last message belonged to?", DateTime.Now);
             }
 
             List<DiscordMember> MentionedUsers = new List<DiscordMember>();
