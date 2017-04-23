@@ -9,7 +9,7 @@
     <AssemblyName>DSharpPlus</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.0.0-rc10</Version>
+    <Version>2.0.1-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
@@ -21,7 +21,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus</PackageTags>
     <PackageReleaseNotes>Fixes for asynchronous events.</PackageReleaseNotes>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
