@@ -25,7 +25,7 @@ namespace DSharpPlus.CommandsNext
             add { this._executed.Register(value); }
             remove { this._executed.Unregister(value); }
         }
-        private AsyncEvent<CommandExecutedEventArgs> _executed = new AsyncEvent<CommandExecutedEventArgs>();
+        private AsyncEvent<CommandExecutedEventArgs> _executed;
 
         /// <summary>
         /// Triggered whenever a command throws an exception during execution.
@@ -35,7 +35,7 @@ namespace DSharpPlus.CommandsNext
             add { this._error.Register(value); }
             remove { this._error.Unregister(value); }
         }
-        private AsyncEvent<CommandErrorEventArgs> _error = new AsyncEvent<CommandErrorEventArgs>();
+        private AsyncEvent<CommandErrorEventArgs> _error;
 
         private async Task OnCommandExecuted(CommandExecutedEventArgs e) =>
             await this._executed.InvokeAsync(e).ConfigureAwait(false);
@@ -70,6 +70,10 @@ namespace DSharpPlus.CommandsNext
                 throw new InvalidOperationException("What did I tell you?");
 
             this._client = client;
+
+            this._executed = new AsyncEvent<CommandExecutedEventArgs>(this.Client.EventErrorHandler, "COMMAND_EXECUTED");
+            this._error = new AsyncEvent<CommandErrorEventArgs>(this.Client.EventErrorHandler, "COMMAND_ERRORED");
+
             this.Client.MessageCreated += this.HandleCommands;
 
             if (this.Config.EnableDefaultHelp)

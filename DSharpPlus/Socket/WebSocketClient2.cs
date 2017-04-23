@@ -10,21 +10,21 @@ namespace DSharpPlus
             add { this._on_connect.Register(value); }
             remove { this._on_connect.Unregister(value); }
         }
-        private AsyncEvent _on_connect = new AsyncEvent();
+        private AsyncEvent _on_connect;
 
         public override event AsyncEventHandler OnDisconnect
         {
             add { this._on_disconnect.Register(value); }
             remove { this._on_disconnect.Unregister(value); }
         }
-        private AsyncEvent _on_disconnect = new AsyncEvent();
+        private AsyncEvent _on_disconnect;
 
         public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {
             add { this._on_message.Register(value); }
             remove { this._on_message.Unregister(value); }
         }
-        private AsyncEvent<WebSocketMessageEventArgs> _on_message = new AsyncEvent<WebSocketMessageEventArgs>();
+        private AsyncEvent<WebSocketMessageEventArgs> _on_message;
 
         public WebSocketClient()
         {

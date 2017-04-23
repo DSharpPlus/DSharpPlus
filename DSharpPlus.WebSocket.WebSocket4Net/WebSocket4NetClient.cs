@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using ws4net = WebSocket4Net;
 
 namespace DSharpPlus
@@ -7,7 +8,12 @@ namespace DSharpPlus
     {
         internal ws4net.WebSocket _socket;
 
-        public WebSocket4NetClient() { }
+        public WebSocket4NetClient()
+        {
+            this._connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
+            this._disconnect = new AsyncEvent(this.EventErrorHandler, "WS_DISCONNECT");
+            this._message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
+        }
 
         public override Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
@@ -50,20 +56,25 @@ namespace DSharpPlus
             add { this._connect.Register(value); }
             remove { this._connect.Unregister(value); }
         }
-        private AsyncEvent _connect = new AsyncEvent();
+        private AsyncEvent _connect;
 
         public override event AsyncEventHandler OnDisconnect
         {
             add { this._disconnect.Register(value); }
             remove { this._disconnect.Unregister(value); }
         }
-        private AsyncEvent _disconnect = new AsyncEvent();
+        private AsyncEvent _disconnect;
 
         public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {
             add { this._message.Register(value); }
             remove { this._message.Unregister(value); }
         }
-        private AsyncEvent<WebSocketMessageEventArgs> _message = new AsyncEvent<WebSocketMessageEventArgs>();
+        private AsyncEvent<WebSocketMessageEventArgs> _message;
+
+        private void EventErrorHandler(string evname, Exception ex)
+        {
+            Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
+        }
     }
 }

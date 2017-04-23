@@ -22,24 +22,28 @@ namespace DSharpPlus
             add { this._on_connect.Register(value); }
             remove { this._on_connect.Unregister(value); }
         }
-        private AsyncEvent _on_connect = new AsyncEvent();
+        private AsyncEvent _on_connect;
 
         public override event AsyncEventHandler OnDisconnect
         {
             add { this._on_disconnect.Register(value); }
             remove { this._on_disconnect.Unregister(value); }
         }
-        private AsyncEvent _on_disconnect = new AsyncEvent();
+        private AsyncEvent _on_disconnect;
 
         public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {
             add { this._on_message.Register(value); }
             remove { this._on_message.Unregister(value); }
         }
-        private AsyncEvent<WebSocketMessageEventArgs> _on_message = new AsyncEvent<WebSocketMessageEventArgs>();
+        private AsyncEvent<WebSocketMessageEventArgs> _on_message;
 
         public WebSocketClient()
         {
+            this._on_connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
+            this._on_disconnect = new AsyncEvent(this.EventErrorHandler, "WS_DISCONNECT");
+            this._on_message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
+
             _ws = new ClientWebSocket();
             _ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
             _cancellationToken = _cancellationTokenSource.Token;
@@ -207,6 +211,11 @@ namespace DSharpPlus
         internal async Task CallOnConnectedAsync()
         {
             await _on_connect.InvokeAsync();
+        }
+
+        private void EventErrorHandler(string evname, Exception ex)
+        {
+            Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
         }
     }
 }

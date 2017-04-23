@@ -30,10 +30,14 @@ namespace DSharpPlus
         private readonly object _lock = new object();
         internal static readonly object _synclock = new object();
         private List<AsyncEventHandler> Handlers { get; set; }
+        private Action<string, Exception> ErrorHandler { get; set; }
+        private string EventName { get; set; }
 
-        public AsyncEvent()
+        public AsyncEvent(Action<string, Exception> errhandler, string event_name)
         {
             this.Handlers = new List<AsyncEventHandler>();
+            this.ErrorHandler = errhandler;
+            this.EventName = event_name;
         }
 
         public void Register(AsyncEventHandler handler)
@@ -69,7 +73,14 @@ namespace DSharpPlus
 
                 SynchronizationContext.SetSynchronizationContext(sc);
             }
-            await task;
+            try
+            {
+                await task;
+            }
+            catch (Exception ex)
+            {
+                this.ErrorHandler(this.EventName, ex);
+            }
         }
     }
 
@@ -81,10 +92,14 @@ namespace DSharpPlus
     {
         private readonly object _lock = new object();
         private List<AsyncEventHandler<T>> Handlers { get; set; }
+        private Action<string, Exception> ErrorHandler { get; set; }
+        private string EventName { get; set; }
 
-        public AsyncEvent()
+        public AsyncEvent(Action<string, Exception> errhandler, string event_name)
         {
             this.Handlers = new List<AsyncEventHandler<T>>();
+            this.ErrorHandler = errhandler;
+            this.EventName = event_name;
         }
 
         public void Register(AsyncEventHandler<T> handler)
@@ -120,7 +135,14 @@ namespace DSharpPlus
 
                 SynchronizationContext.SetSynchronizationContext(sc);
             }
-            await task;
+            try
+            {
+                await task;
+            }
+            catch (Exception ex)
+            {
+                this.ErrorHandler(this.EventName, ex);
+            }
         }
     }
 }
