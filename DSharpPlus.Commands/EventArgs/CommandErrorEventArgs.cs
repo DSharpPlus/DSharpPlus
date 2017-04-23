@@ -8,8 +8,8 @@ namespace DSharpPlus.Commands
         public Exception Exception { get; internal set; }
 
         public DiscordMessage Message { get; internal set; }
-        public DiscordChannel Channel => this.Message.Parent;
-        public DiscordGuild Guild => this.Channel.Parent;
+        public DiscordChannel Channel => this.Message.Channel;
+        public DiscordGuild Guild => this.Channel.Guild;
         public DiscordUser Author => this.Message.Author;
     }
 }

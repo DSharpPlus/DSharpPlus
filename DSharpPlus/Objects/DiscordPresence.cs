@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
@@ -13,7 +8,7 @@ namespace DSharpPlus
         [JsonProperty("user")]
         internal DiscordUser InternalUser { get; set; }
 
-        public DiscordUser User => DiscordClient.InternalGetCachedUser(UserID);
+        public DiscordUser User => this.User.Discord.InternalGetCachedUser(UserID);
 
         public ulong UserID => InternalUser == null ? 0 : InternalUser.Id;
 

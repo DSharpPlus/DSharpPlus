@@ -54,6 +54,6 @@ namespace DSharpPlus
         /// <summary>
         /// This user's presence.
         /// </summary>
-        public DiscordPresence Presence => DiscordClient.InternalGetUserPresence(Id);
+        public DiscordPresence Presence => this.Discord.InternalGetUserPresence(Id);
     }
 }

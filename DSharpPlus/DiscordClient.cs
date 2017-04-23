@@ -446,7 +446,7 @@ namespace DSharpPlus
         #endregion
 
         #region Public Variables
-        internal DebugLogger _debugLogger = new DebugLogger();
+        internal DebugLogger _debugLogger;
         /// <summary>
         /// 
         /// </summary>
@@ -542,6 +542,7 @@ namespace DSharpPlus
             this._heart_beated = new AsyncEvent<HeartBeatEventArgs>(this.EventErrorHandler, "HEART_BEATED");
 
             this._rest_client = new DiscordRestClient(this);
+            this._debugLogger = new DebugLogger(this);
 
             InternalSetup();
         }
@@ -684,12 +685,12 @@ namespace DSharpPlus
 
         internal async Task InternalUpdateGatewayAsync()
         {
-            string url = Utils.GetApiBaseUri() + Endpoints.Gateway;
+            string url = Utils.GetApiBaseUri(this) + Endpoints.Gateway;
             var headers = Utils.GetBaseHeaders();
             if (config.TokenType == TokenType.Bot)
                 url += Endpoints.Bot;
 
-            WebRequest request = WebRequest.CreateRequest(url, HttpRequestMethod.GET, headers);
+            WebRequest request = WebRequest.CreateRequest(this, url, HttpRequestMethod.GET, headers);
             WebResponse response = await RestClient.HandleRequestAsync(request);
 
             JObject jObj = JObject.Parse(response.Response);
@@ -1174,9 +1175,9 @@ namespace DSharpPlus
         {
             DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            if (_guilds[guildID].Members.Find(x => x.User.Id == user.Id) != null)
+            if (_guilds[guildID].Members.Find(x => x.Id == user.Id) != null)
             {
-                int index = _guilds[guildID].Members.FindIndex(x => x.User.Id == user.Id);
+                int index = _guilds[guildID].Members.FindIndex(x => x.Id == user.Id);
                 _guilds[guildID].Members.RemoveAt(index);
                 _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
             }
@@ -1199,8 +1200,8 @@ namespace DSharpPlus
                     roles.Add(ulong.Parse(role.ToString()));
                 }
             }
-            int index = _guilds[guildID].Members.FindIndex(x => x.User.Id == user.Id);
-            if (_guilds[guildID].Members.Find(x => x.User.Id == user.Id) != null)
+            int index = _guilds[guildID].Members.FindIndex(x => x.Id == user.Id);
+            if (_guilds[guildID].Members.Find(x => x.Id == user.Id) != null)
             {
                 DiscordMember m = _guilds[guildID].Members[index];
                 old = m;
@@ -1210,9 +1211,8 @@ namespace DSharpPlus
             }
             else
             {
-                DiscordMember m = new DiscordMember()
+                DiscordMember m = new DiscordMember(user)
                 {
-                    User = user,
                     Nickname = nick,
                     Roles = roles,
                 };
@@ -1267,8 +1267,8 @@ namespace DSharpPlus
             {
                 if (_privateChannels.Find(x => x.Id == message.ChannelID) == null)
                 {
-                    int channelindex = _guilds[message.Parent.Parent.Id].Channels.FindIndex(x => x.Id == message.ChannelID);
-                    _guilds[message.Parent.Parent.Id].Channels[channelindex].LastMessageID = message.Id;
+                    int channelindex = _guilds[message.Channel.Guild.Id].Channels.FindIndex(x => x.Id == message.ChannelID);
+                    _guilds[message.Channel.Guild.Id].Channels[channelindex].LastMessageID = message.Id;
                 }
                 else
                 {
@@ -1285,30 +1285,30 @@ namespace DSharpPlus
             List<DiscordRole> MentionedRoles = new List<DiscordRole>();
             List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
             List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-            if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Parent.Parent.Id))
+            if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Channel.Guild.Id))
             {
                 foreach (ulong user in Utils.GetUserMentions(message))
                 {
-                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.Id] != null
-                    && _guilds[message.Parent.Parent.Id].Members != null
-                    && _guilds[message.Parent.Parent.Id].Members.Find(x => x.User.Id == user) != null)
-                        MentionedUsers.Add(_guilds[message.Parent.Parent.Id].Members.Find(x => x.User.Id == user));
+                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
+                    && _guilds[message.Channel.Guild.Id].Members != null
+                    && _guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user) != null)
+                        MentionedUsers.Add(_guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user));
                 }
 
                 foreach (ulong role in Utils.GetRoleMentions(message))
                 {
-                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.Id] != null
-                    && _guilds[message.Parent.Parent.Id].Roles != null
-                    && _guilds[message.Parent.Parent.Id].Roles.Find(x => x.Id == role) != null)
-                        MentionedRoles.Add(_guilds[message.Parent.Parent.Id].Roles.Find(x => x.Id == role));
+                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
+                    && _guilds[message.Channel.Guild.Id].Roles != null
+                    && _guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role) != null)
+                        MentionedRoles.Add(_guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role));
                 }
 
                 foreach (ulong channel in Utils.GetChannelMentions(message))
                 {
-                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.Id] != null
-                    && _guilds[message.Parent.Parent.Id].Channels != null
-                    && _guilds[message.Parent.Parent.Id].Channels.Find(x => x.Id == channel) != null)
-                        MentionedChannels.Add(_guilds[message.Parent.Parent.Id].Channels.Find(x => x.Id == channel));
+                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
+                    && _guilds[message.Channel.Guild.Id].Channels != null
+                    && _guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel) != null)
+                        MentionedChannels.Add(_guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel));
                 }
                 /*
                 foreach (ulong emoji in Utils.GetEmojis(message))
@@ -1339,30 +1339,30 @@ namespace DSharpPlus
             List<DiscordRole> MentionedRoles = new List<DiscordRole>();
             List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
             List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-            if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Parent.Parent.Id))
+            if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Channel.Guild.Id))
             {
                 foreach (ulong user in Utils.GetUserMentions(message))
                 {
-                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.Id] != null
-                    && _guilds[message.Parent.Parent.Id].Members != null
-                    && _guilds[message.Parent.Parent.Id].Members.Find(x => x.User.Id == user) != null)
-                        MentionedUsers.Add(_guilds[message.Parent.Parent.Id].Members.Find(x => x.User.Id == user));
+                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
+                    && _guilds[message.Channel.Guild.Id].Members != null
+                    && _guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user) != null)
+                        MentionedUsers.Add(_guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user));
                 }
 
                 foreach (ulong role in Utils.GetRoleMentions(message))
                 {
-                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.Id] != null
-                    && _guilds[message.Parent.Parent.Id].Roles != null
-                    && _guilds[message.Parent.Parent.Id].Roles.Find(x => x.Id == role) != null)
-                        MentionedRoles.Add(_guilds[message.Parent.Parent.Id].Roles.Find(x => x.Id == role));
+                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
+                    && _guilds[message.Channel.Guild.Id].Roles != null
+                    && _guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role) != null)
+                        MentionedRoles.Add(_guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role));
                 }
 
                 foreach (ulong channel in Utils.GetChannelMentions(message))
                 {
-                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.Id] != null
-                    && _guilds[message.Parent.Parent.Id].Channels != null
-                    && _guilds[message.Parent.Parent.Id].Channels.Find(x => x.Id == channel) != null)
-                        MentionedChannels.Add(_guilds[message.Parent.Parent.Id].Channels.Find(x => x.Id == channel));
+                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
+                    && _guilds[message.Channel.Guild.Id].Channels != null
+                    && _guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel) != null)
+                        MentionedChannels.Add(_guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel));
                 }
                 /*
                 foreach (ulong emoji in Utils.GetEmojis(message))
@@ -1663,7 +1663,7 @@ namespace DSharpPlus
                 { "op", 2 },
                 { "d", new JObject
                     {
-                        { "token", Utils.GetFormattedToken() },
+                        { "token", Utils.GetFormattedToken(this) },
                         { "properties", new JObject
                         {
                             { "$os", "linux" },
@@ -1706,7 +1706,7 @@ namespace DSharpPlus
                 { "op", 4 },
                 { "d", new JObject
                     {
-                        { "guild_id", channel.Parent.Id },
+                        { "guild_id", channel.Guild.Id },
                         { "channel_id", channel?.Id },
                         { "self_mute", mute },
                         { "self_deaf", deaf }
@@ -1740,7 +1740,7 @@ namespace DSharpPlus
         {
             foreach (DiscordGuild guild in _guilds.Values)
             {
-                if (guild.Members.Find(x => x.User.Id == user_id) != null) return guild.Members.Find(x => x.User.Id == user_id).User;
+                if (guild.Members.Find(x => x.Id == user_id) != null) return guild.Members.Find(x => x.Id == user_id);
             }
             return new DiscordUser()
             {

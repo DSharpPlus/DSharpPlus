@@ -19,6 +19,11 @@ namespace DSharpPlus
         [JsonIgnore]
         public DateTimeOffset CreationDate => new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(Id >> 22);
 
+        /// <summary>
+        /// The client instance this object is tied to.
+        /// </summary>
+        internal DiscordClient Discord { get; set; }
+
         internal SnowflakeObject() { }
     }
 }

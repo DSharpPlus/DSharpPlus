@@ -28,9 +28,9 @@ namespace DSharpPlus
             return r.Next(ping, int.MaxValue);
         }
 
-        internal static string GetApiBaseUri()
+        internal static string GetApiBaseUri(DiscordClient client)
         {
-            switch(DiscordClient.config.DiscordBranch)
+            switch(client.config.DiscordBranch)
             {
                 case Branch.Canary:
                     return Endpoints.CanaryBaseUri;
@@ -43,21 +43,21 @@ namespace DSharpPlus
             }
         }
 
-        internal static string GetFormattedToken()
+        internal static string GetFormattedToken(DiscordClient client)
         {
-            switch (DiscordClient.config.TokenType)
+            switch (client.config.TokenType)
             {
                 case TokenType.Bearer:
                     {
-                        return $"Bearer {DiscordClient.config.Token}";
+                        return $"Bearer {client.config.Token}";
                     }
                 case TokenType.Bot:
                     {
-                        return $"Bot {DiscordClient.config.Token}";
+                        return $"Bot {client.config.Token}";
                     }
                 default:
                     {
-                        return DiscordClient.config.Token;
+                        return client.config.Token;
                     }
             }
         }

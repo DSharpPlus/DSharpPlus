@@ -22,12 +22,12 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the channel in which the execution was triggered,
         /// </summary>
-        public DiscordChannel Channel => this.Message.Parent;
+        public DiscordChannel Channel => this.Message.Channel;
 
         /// <summary>
         /// Gets the guild in which the execution was triggered. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordGuild Guild => this.Channel.Parent;
+        public DiscordGuild Guild => this.Channel.Guild;
 
         /// <summary>
         /// Gets the user who triggered the execution.
@@ -37,7 +37,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordMember Member => this.Guild?.GetMember(this.User.Id).GetAwaiter().GetResult();
+        public DiscordMember Member => this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets the command that is being executed.
@@ -57,7 +57,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="embed">Embed to attach.</param>
         /// <returns></returns>
         public Task<DiscordMessage> RespondAsync(string content, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.Respond(content, is_tts, embed);
+            this.Message.RespondAsync(content, is_tts, embed);
 
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.
@@ -68,6 +68,6 @@ namespace DSharpPlus.CommandsNext
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <returns></returns>
         public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool is_tts = false) =>
-            this.Message.Respond(content, file_data, file_name, is_tts);
+            this.Message.RespondAsync(content, file_data, file_name, is_tts);
     }
 }

@@ -56,7 +56,7 @@ namespace DSharpPlus.Test
                     Color = 0x7F00FF,
                     Description = string.Join("\n", r.Select(xkvp => $"{xkvp.Key}: {xkvp.Value}"))
                 };
-                await msg.Respond("", embed: embed);
+                await msg.RespondAsync("", embed: embed);
             }
         }
 

@@ -60,14 +60,14 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, out var uid))
             {
-                result = ctx.Guild.GetMember(uid).GetAwaiter().GetResult();
+                result = ctx.Guild.GetMemberAsync(uid).GetAwaiter().GetResult();
                 return true;
             }
 
             var m = UserRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, out uid))
             {
-                result = ctx.Guild.GetMember(uid).GetAwaiter().GetResult();
+                result = ctx.Guild.GetMemberAsync(uid).GetAwaiter().GetResult();
                 return true;
             }
 
@@ -175,7 +175,7 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, out var mid))
             {
-                result = ctx.Channel.GetMessage(mid).GetAwaiter().GetResult();
+                result = ctx.Channel.GetMessageAsync(mid).GetAwaiter().GetResult();
                 return true;
             }
 

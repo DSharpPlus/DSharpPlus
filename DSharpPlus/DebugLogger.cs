@@ -5,12 +5,16 @@ namespace DSharpPlus
     public class DebugLogger
     {
         public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;
+        private DiscordClient Client { get; }
 
-        internal DebugLogger() { }
+        internal DebugLogger(DiscordClient client)
+        {
+            this.Client = client;
+        }
 
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
-            if (level >= DiscordClient.config.LogLevel)
+            if (level >= this.Client.config.LogLevel)
                 LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, TimeStamp = timestamp });
         }
 
@@ -66,7 +70,7 @@ namespace DSharpPlus
         public string Message;
         public DateTime TimeStamp;
 
-        public string ToString()
+        public override string ToString()
         {
             return $"[{TimeStamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}] {Message}";
         }

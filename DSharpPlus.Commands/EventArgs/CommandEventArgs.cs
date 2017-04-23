@@ -11,8 +11,8 @@ namespace DSharpPlus.Commands
         public IReadOnlyList<string> Arguments { get; }
         public DiscordClient Discord { get; }
 
-        public DiscordChannel Channel => this.Message.Parent;
-        public DiscordGuild Guild => this.Channel.Parent;
+        public DiscordChannel Channel => this.Message.Channel;
+        public DiscordGuild Guild => this.Channel.Guild;
         public DiscordUser Author => this.Message.Author;
 
         public CommandEventArgs(DiscordMessage message, Command command, DiscordClient client)

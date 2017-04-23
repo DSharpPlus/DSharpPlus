@@ -147,7 +147,7 @@ namespace DSharpPlus.Test
 
             var ch = e.Guild.Channels.FirstOrDefault(xc => xc.Name.Contains("logs"));
             if (ch != null)
-                await ch.SendMessage($"**{usrn}#{e.User.Discriminator.ToString("0000")} got bent**");
+                await ch.SendMessageAsync($"**{usrn}#{e.User.Discriminator.ToString("0000")} got bent**");
         }
 
         private Task Discord_PresenceUpdate(PresenceUpdateEventArgs e)
@@ -161,7 +161,7 @@ namespace DSharpPlus.Test
         private async Task Discord_MessageCreated(MessageCreateEventArgs e)
         {
             if (e.Message.Content.Contains("<@!276042646693216258>") || e.Message.Content.Contains("<@276042646693216258>"))
-                await e.Message.Respond("r u havin' a ggl thr m8");
+                await e.Message.RespondAsync("r u havin' a ggl thr m8");
         }
 
         private /*async*/ Task Discord_MessageReactionAdd(MessageReactionAddEventArgs e)
@@ -218,7 +218,7 @@ namespace DSharpPlus.Test
                     }
                 }
             };
-            await e.Context.Channel.SendMessage("\u200b", embed: embed);
+            await e.Context.Channel.SendMessageAsync("\u200b", embed: embed);
         }
 
         private Task CommandsNextService_CommandExecuted(CommandExecutedEventArgs e)

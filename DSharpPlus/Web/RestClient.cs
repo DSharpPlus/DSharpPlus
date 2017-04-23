@@ -202,7 +202,7 @@ namespace DSharpPlus
             {
                 if (rateLimit.UsesLeft == 0 && rateLimit.Reset > time)
                 {
-                    DiscordClient._debugLogger.LogMessage(LogLevel.Warning, "Internal", $"Rate-limitted. Waiting till {rateLimit.Reset}", DateTime.Now);
+                    request.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Internal", $"Rate-limitted. Waiting till {rateLimit.Reset}", DateTime.Now);
                     await Task.Delay((rateLimit.Reset - time));
                 }
                 else if(rateLimit.UsesLeft == 0 && rateLimit.Reset < time)
@@ -220,7 +220,7 @@ namespace DSharpPlus
             var clienttime = DateTimeOffset.UtcNow;
             var servertime = DateTimeOffset.Parse(response.Headers["Date"]).ToUniversalTime();
             double difference = clienttime.Subtract(servertime).TotalSeconds;
-            DiscordClient._debugLogger.LogMessage(LogLevel.Info, "Internal", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
+            request.Discord.DebugLogger.LogMessage(LogLevel.Info, "Internal", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
 
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
             if (rateLimit != null)

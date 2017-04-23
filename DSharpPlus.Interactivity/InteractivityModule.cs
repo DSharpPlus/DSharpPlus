@@ -272,33 +272,33 @@ namespace DSharpPlus.Interactivity
             };
 
             #region Ugh, adding reactions
-            await m.CreateReaction("⏮");
+            await m.CreateReactionAsync("⏮");
             await Task.Delay(500);
-            await m.CreateReaction("◀");
+            await m.CreateReactionAsync("◀");
             await Task.Delay(500);
-            await m.CreateReaction("⏹");
+            await m.CreateReactionAsync("⏹");
             //await Task.Delay(500);
             //await m.CreateReaction("🔢");
             await Task.Delay(500);
-            await m.CreateReaction("▶");
+            await m.CreateReactionAsync("▶");
             await Task.Delay(500);
-            await m.CreateReaction("⏭");
+            await m.CreateReactionAsync("⏭");
             #endregion
 
             _client.MessageReactionRemoveAll += async e =>
             {
                 #region Ugh, adding reactions back
-                await m.CreateReaction("⏮");
+                await m.CreateReactionAsync("⏮");
                 await Task.Delay(500);
-                await m.CreateReaction("◀");
+                await m.CreateReactionAsync("◀");
                 await Task.Delay(500);
-                await m.CreateReaction("⏹");
+                await m.CreateReactionAsync("⏹");
                 //await Task.Delay(500);
                 //await m.CreateReaction("🔢");
                 await Task.Delay(500);
-                await m.CreateReaction("▶");
+                await m.CreateReactionAsync("▶");
                 await Task.Delay(500);
-                await m.CreateReaction("⏭");
+                await m.CreateReactionAsync("⏭");
                 #endregion
             };
 
@@ -309,9 +309,9 @@ namespace DSharpPlus.Interactivity
                     if (e.UserID != _client.Me.Id)
                     {
                         if (e.Emoji.Id == 0)
-                            await m.DeleteReaction(e.Emoji.Name, e.UserID);
+                            await m.DeleteReactionAsync(e.Emoji.Name, e.UserID);
                         else
-                            await m.DeleteReaction(e.Emoji.Name + ":" + e.Emoji.Id, e.UserID);
+                            await m.DeleteReactionAsync(e.Emoji.Name + ":" + e.Emoji.Id, e.UserID);
 
                         if (e.UserID == user.Id)
                         {
@@ -348,7 +348,7 @@ namespace DSharpPlus.Interactivity
                                     break;
                             }
 
-                            await m.Edit((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
+                            await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
                                 embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? new DiscordEmbed());
                             #endregion
                         }
@@ -363,7 +363,7 @@ namespace DSharpPlus.Interactivity
                 case TimeoutBehaviour.Ignore:
                     break;
                 case TimeoutBehaviour.Delete:
-                    await m.Delete();
+                    await m.DeleteAsync();
                     break;
             }
         }

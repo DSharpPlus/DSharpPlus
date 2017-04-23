@@ -8,13 +8,22 @@ namespace DSharpPlus
     /// <summary>
     /// 
     /// </summary>
-    public class DiscordMember
+    public class DiscordMember : DiscordUser
     {
-        /// <summary>
-        /// User object
-        /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordUser User { get; internal set; }
+        public DiscordMember() { }
+        public DiscordMember(DiscordUser user)
+        {
+            this.AvatarHash = user.AvatarHash;
+            this.Discord = user.Discord;
+            this.Discriminator = user.Discriminator;
+            this.Email = user.Email;
+            this.Id = user.Id;
+            this.IsBot = user.IsBot;
+            this.MFAEnabled = user.MFAEnabled;
+            this.Username = user.Username;
+            this.Verified = user.Verified;
+        }
+
         /// <summary>
         /// This users guild nickname
         /// </summary>
@@ -41,6 +50,6 @@ namespace DSharpPlus
         [JsonProperty("is_muted", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMuted { get; internal set; }
 
-        public async Task<DiscordDMChannel> SendDM() => await DiscordClient.InternalCreateDM(User.Id);
+        public Task<DiscordDMChannel> SendDmAsync() => this.Discord._rest_client.InternalCreateDM(this.Id);
     }
 }

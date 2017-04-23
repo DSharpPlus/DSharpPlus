@@ -15,6 +15,8 @@ namespace DSharpPlus
 
     public class WebRequest
     {
+        internal DiscordClient Discord { get; set; }
+
         public string URL { get; private set; }
         public HttpRequestMethod Method { get; private set; }
         public Dictionary<string, string> Headers { get; private set; }
@@ -30,10 +32,11 @@ namespace DSharpPlus
 
         private WebRequest() { }
 
-        public static WebRequest CreateRequest(string url, HttpRequestMethod method = HttpRequestMethod.GET, Dictionary<string, string> headers = null, string payload = "")
+        public static WebRequest CreateRequest(DiscordClient client, string url, HttpRequestMethod method = HttpRequestMethod.GET, Dictionary<string, string> headers = null, string payload = "")
         {
             return new WebRequest
             {
+                Discord = client,
                 URL = url,
                 Method = method,
                 Headers = headers,

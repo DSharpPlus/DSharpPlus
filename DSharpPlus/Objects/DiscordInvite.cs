@@ -8,6 +8,7 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordInvite
     {
+        internal DiscordClient Discord { get; set; }
         /// <summary>
         /// The invite code (unique ID)
         /// </summary>
@@ -28,11 +29,11 @@ namespace DSharpPlus
         /// Delete the invite
         /// </summary>
         /// <returns></returns>
-        public async Task<DiscordInvite> Delete() => await DiscordClient.InternalDeleteInvite(Code);
+        public Task<DiscordInvite> DeleteAsync() => this.Discord._rest_client.InternalDeleteInvite(Code);
         /// <summary>
         /// Accept an invite. Not available to bot accounts. Requires "guilds.join" scope or user token.
         /// </summary>
         /// <returns></returns>
-        public async Task<DiscordInvite> Accept() => await DiscordClient.InternalAcceptInvite(Code);
+        public Task<DiscordInvite> AcceptAsync() => this.Discord._rest_client.InternalAcceptInvite(Code);
     }
 }

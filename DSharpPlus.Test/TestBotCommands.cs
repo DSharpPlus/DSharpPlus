@@ -16,7 +16,7 @@ namespace DSharpPlus.Test
     {
         [Command("test")]
         public async Task Test(CommandContext e) =>
-            await e.Channel.SendMessage("u w0t m8");
+            await e.Channel.SendMessageAsync("u w0t m8");
 
         [Command("testerino")]
         public async Task Testerino(CommandContext e)
@@ -31,12 +31,12 @@ Serverowner: {e.Guild.OwnerID}
         [Command("cunt")]
         public async Task Cunt(CommandContext e)
         {
-            await e.Message.Respond("u wot");
+            await e.Message.RespondAsync("u wot");
             DiscordMessage m = await TestBot.Discord.GetInteractivityModule().WaitForMessageAsync(xm => xm.Content.ToLower() == "no u", TimeSpan.FromSeconds(30));
             if (m == null)
-                await e.Message.Respond("that's what i thought u lil basterd");
+                await e.Message.RespondAsync("that's what i thought u lil basterd");
             else
-                await e.Message.Respond("What the fuck did you just fucking say about me, you little bitch? I’ll have you know I graduated top of my class in the Navy Seals, and I’ve been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I’m the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You’re fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that’s just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little “clever” comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn’t, you didn’t, and now you’re paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You’re fucking dead, kiddo.");
+                await e.Message.RespondAsync("What the fuck did you just fucking say about me, you little bitch? I’ll have you know I graduated top of my class in the Navy Seals, and I’ve been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I’m the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You’re fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that’s just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little “clever” comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn’t, you didn’t, and now you’re paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You’re fucking dead, kiddo.");
         }
 
         [Command("pageembed")]
@@ -114,21 +114,21 @@ Serverowner: {e.Guild.OwnerID}
         [Command("poll")]
         public async Task Poll(CommandContext e)
         {
-            var m = await e.Message.Respond("Hey everyone! Add some reactions to this message! you've got 30 seconds!");
-            await e.Message.Delete();
+            var m = await e.Message.RespondAsync("Hey everyone! Add some reactions to this message! you've got 30 seconds!");
+            await e.Message.DeleteAsync();
             var list = await TestBot.Discord.GetInteractivityModule().CollectReactionsAsync(m, TimeSpan.FromSeconds(30));
             string reactions = "We're done people!\n\nReactions:";
             foreach(var collected in list)
             {
                 reactions += "\n" + collected.Key + ": " + collected.Value + "times!";
             }
-            await m.Respond(reactions);
+            await m.RespondAsync(reactions);
         }
 
         [Command("kill")]
         public async Task Kill(CommandContext e)
         {
-            await e.Channel.SendMessage("kthxbai 👋");
+            await e.Channel.SendMessageAsync("kthxbai 👋");
             e.Client.Dispose();
             await Task.Delay(-1);
         }
@@ -140,16 +140,16 @@ Serverowner: {e.Guild.OwnerID}
         [Command("purgechannel")]
         public async Task PurgeChannel(CommandContext e)
         {
-            var ids = (await e.Channel.GetMessages(before: e.Message.Id, limit: 50))
+            var ids = (await e.Channel.GetMessagesAsync(before: e.Message.Id, limit: 50))
                 .Select(y => y.Id)
                 .ToList();
-            await e.Channel.BulkDeleteMessages(ids);
-            await e.Message.Respond($"Removed `{ids.Count}` messages");
+            await e.Channel.BulkDeleteMessagesAsync(ids);
+            await e.Message.RespondAsync($"Removed `{ids.Count}` messages");
         }
 
         [Command("presence")]
         public async Task Presence(CommandContext e) =>
-            await e.Message.Respond(e.User.Username);
+            await e.Message.RespondAsync(e.User.Username);
 
         [Command("guild")]
         public async Task Guild(CommandContext e)
@@ -180,7 +180,7 @@ Serverowner: {e.Guild.OwnerID}
                 }
             };
 
-            await e.Message.Respond("", embed: embed);
+            await e.Message.RespondAsync("", embed: embed);
         }
 
         [Command("embed")]
@@ -233,7 +233,7 @@ Serverowner: {e.Guild.OwnerID}
                     Width = 10
                 }
             };
-            await e.Message.Respond("testing embed:", embed: embed);
+            await e.Message.RespondAsync("testing embed:", embed: embed);
         }
 
         [Command("appinfo")]
@@ -259,7 +259,7 @@ Serverowner: {e.Guild.OwnerID}
             embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Created", Value = app.CreationDate.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") });
             embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Owner", Value = $"{usrn}#{app.Owner.Discriminator.ToString("0000")} ({app.Owner.Id})" });
 
-            await e.Message.Respond("", embed: embed);
+            await e.Message.RespondAsync("", embed: embed);
         }
 
         [Command("modifyme")]

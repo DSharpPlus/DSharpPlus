@@ -53,10 +53,10 @@ namespace DSharpPlus.VoiceNext
             if (channel.Type != ChannelType.Voice)
                 throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be voice channel");
 
-            if (channel.Parent == null)
+            if (channel.Guild == null)
                 throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be guild channel");
 
-            var gld = channel.Parent;
+            var gld = channel.Guild;
             if (ActiveConnections.ContainsKey(gld.Id))
                 throw new InvalidOperationException("This guild already has a voice connection");
 

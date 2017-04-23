@@ -20,7 +20,8 @@ namespace DSharpPlus
         /// The channel the message was sent in
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel Parent => DiscordClient.GetGuildIdFromChannelID(ChannelID) == 0? (DiscordClient._privateChannels.FindAll(x => x.Id == ChannelID).Count != 0? DiscordClient._privateChannels.Find(x => x.Id == ChannelID) : new DiscordChannel() ) : DiscordClient._guilds[DiscordClient.GetGuildIdFromChannelID(ChannelID)].Channels.Find(x => x.Id == ChannelID) ;
+        public DiscordChannel Channel => 
+            this.Discord.GetGuildIdFromChannelID(ChannelID) == 0? (this.Discord._privateChannels.FindAll(x => x.Id == ChannelID).Count != 0? this.Discord._privateChannels.Find(x => x.Id == ChannelID) : new DiscordChannel() ) : this.Discord._guilds[this.Discord.GetGuildIdFromChannelID(ChannelID)].Channels.Find(x => x.Id == ChannelID) ;
         /// <summary>
         /// The author of this message
         /// </summary>
@@ -107,22 +108,26 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> Edit(string content = null, DiscordEmbed embed = null) => await DiscordClient.InternalEditMessage(ChannelID, Id, content, embed);
+        public Task<DiscordMessage> EditAsync(string content = null, DiscordEmbed embed = null) =>
+            this.Discord._rest_client.InternalEditMessage(ChannelID, Id, content, embed);
         /// <summary>
         /// Deletes the message
         /// </summary>
         /// <returns></returns>
-        public async Task Delete() => await DiscordClient.InternalDeleteMessage(ChannelID, Id);
+        public Task DeleteAsync() =>
+            this.Discord._rest_client.InternalDeleteMessage(ChannelID, Id);
         /// <summary>
         /// Pin the message
         /// </summary>
         /// <returns></returns>
-        public async Task Pin() => await DiscordClient.InternalAddPinnedChannelMessage(ChannelID, Id);
+        public Task PinAsync() =>
+            this.Discord._rest_client.InternalAddPinnedChannelMessage(ChannelID, Id);
         /// <summary>
         /// Unpin the message
         /// </summary>
         /// <returns></returns>
-        public async Task Unpin() => await DiscordClient.InternalDeletePinnedChannelMessage(ChannelID, Id);
+        public Task UnpinAsync() =>
+            this.Discord._rest_client.InternalDeletePinnedChannelMessage(ChannelID, Id);
         /// <summary>
         /// Respond to the message
         /// </summary>
@@ -130,7 +135,8 @@ namespace DSharpPlus
         /// <param name="tts"></param>
         /// <param name="embed"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> Respond(string content, bool tts = false, DiscordEmbed embed = null) => await DiscordClient.InternalCreateMessage(ChannelID, content, tts, embed);
+        public Task<DiscordMessage> RespondAsync(string content, bool tts = false, DiscordEmbed embed = null) =>
+            this.Discord._rest_client.InternalCreateMessage(ChannelID, content, tts, embed);
         /// <summary>
         /// Respond to the message
         /// </summary>
@@ -139,45 +145,51 @@ namespace DSharpPlus
         /// <param name="file_name"></param>
         /// <param name="tts"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> Respond(string content, Stream file_data, string file_name, bool tts = false) 
-            => await DiscordClient.InternalUploadFile(ChannelID, file_data, file_name, content, tts);
+        public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool tts = false) => 
+            this.Discord._rest_client.InternalUploadFile(ChannelID, file_data, file_name, content, tts);
 
         /// <summary>
         /// Creates a reaction to this message
         /// </summary>
         /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
         /// <returns></returns>
-        public async Task CreateReaction(string emoji) => await DiscordClient.InternalCreateReaction(ChannelID, Id, emoji);
+        public Task CreateReactionAsync(string emoji) =>
+            this.Discord._rest_client.InternalCreateReaction(ChannelID, Id, emoji);
         /// <summary>
         /// Deletes your own reaction
         /// </summary>
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
         /// <returns></returns>
-        public async Task DeleteOwnReaction(string emoji) => await DiscordClient.InternalDeleteOwnReaction(ChannelID, Id, emoji);
+        public Task DeleteOwnReactionAsync(string emoji) =>
+            this.Discord._rest_client.InternalDeleteOwnReaction(ChannelID, Id, emoji);
         /// <summary>
         /// Deletes another user's reaction.
         /// </summary>
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
         /// <param name="member">Member you want to remove the reaction for</param>
         /// <returns></returns>
-        public async Task DeleteReaction(string emoji, DiscordMember member) => await DiscordClient.InternalDeleteUserReaction(ChannelID, Id, member.User.Id, emoji);
+        public Task DeleteReactionAsync(string emoji, DiscordMember member) =>
+            this.Discord._rest_client.InternalDeleteUserReaction(ChannelID, Id, member.Id, emoji);
         /// <summary>
         /// Deletes another user's reaction.
         /// </summary>
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
         /// <param name="user_id">User ID of the member you want to remove the reaction for</param>
         /// <returns></returns>
-        public async Task DeleteReaction(string emoji, ulong user_id) => await DiscordClient.InternalDeleteUserReaction(ChannelID, Id, user_id, emoji);
+        public Task DeleteReactionAsync(string emoji, ulong user_id) =>
+            this.Discord._rest_client.InternalDeleteUserReaction(ChannelID, Id, user_id, emoji);
         /// <summary>
         /// Gets users that reacted with this emoji
         /// </summary>
         /// <param name="emoji">Either an emoji or a name:id</param>
         /// <returns></returns>
-        public async Task<List<DiscordUser>> GetReactions(string emoji) => await DiscordClient.InternalGetReactions(ChannelID, Id, emoji);
+        public Task<List<DiscordUser>> GetReactionsAsync(string emoji) =>
+            this.Discord._rest_client.InternalGetReactions(ChannelID, Id, emoji);
         /// <summary>
         /// Deletes all reactions for this message
         /// </summary>
         /// <returns></returns>
-        public async Task DeleteAllReactions() => await DiscordClient.InternalDeleteAllReactions(ChannelID, Id);
+        public Task DeleteAllReactionsAsync() =>
+            this.Discord._rest_client.InternalDeleteAllReactions(ChannelID, Id);
     }
 }

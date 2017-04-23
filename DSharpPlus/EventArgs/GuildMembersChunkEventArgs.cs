@@ -5,8 +5,9 @@ namespace DSharpPlus
 {
     public class GuildMembersChunkEventArgs : EventArgs
     {
+        internal DiscordClient Discord { get; set; }
         public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuildAsync(GuildID).Result;
+        public DiscordGuild Guild => this.Discord._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
         public IReadOnlyList<DiscordMember> Members { get; internal set; }
     }
 }
