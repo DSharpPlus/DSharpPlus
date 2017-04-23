@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFrameworks>net452;net462;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;net462;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
     <Optimize>True</Optimize>
     <OutputType>Library</OutputType>
     <RootNamespace>DSharpPlus.VoiceNext</RootNamespace>
@@ -30,10 +30,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   
 </Project>
