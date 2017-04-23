@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Exceptions;
 //using DSharpPlus.VoiceNext;
 using DSharpPlus.Interactivity;
 
@@ -177,8 +178,11 @@ namespace DSharpPlus.Test
             //await e.Message.DeleteAllReactions();
         }
 
-        private async Task CommandsNextService_CommandErrored(CommandsNext.CommandErrorEventArgs e)
+        private async Task CommandsNextService_CommandErrored(CommandErrorEventArgs e)
         {
+            if (e.Exception is CommandNotFoundException)
+                return;
+
             Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"{e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
 
             var ms = e.Exception.Message;

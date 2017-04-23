@@ -9,5 +9,8 @@ namespace DSharpPlus.Test
 
         [JsonProperty("command_prefix")]
         public string CommandPrefix { get; private set; } = "d#+";
+
+        [JsonProperty("shards")]
+        public int ShardCount { get; private set; } = 1;
     }
 }
