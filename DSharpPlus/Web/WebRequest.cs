@@ -59,7 +59,5 @@ namespace DSharpPlus
                 ContentType = ContentType.Multipart
             };
         }
-
-        public async Task<WebResponse> HandleRequestAsync() => await RestClient.HandleRequestAsync(this);
     }
 }

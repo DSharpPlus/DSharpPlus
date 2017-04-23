@@ -13,20 +13,22 @@ namespace DSharpPlus
     /// <summary>
     /// Represents a client used to make REST requests.
     /// </summary>
-    public static class RestClient
+    public class RestClient
     {
         private static List<RateLimit> _rateLimits = new List<RateLimit>();
-        private static HttpClient _http;
         private static UTF8Encoding UTF8 = new UTF8Encoding(false);
+        private HttpClient _http;
+        private DiscordClient _discord;
 
-        static RestClient()
+        public RestClient(DiscordClient client)
         {
             _http = new HttpClient
             {
-                BaseAddress = new Uri(Utils.GetApiBaseUri())
+                BaseAddress = new Uri(Utils.GetApiBaseUri(client))
             };
             _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utils.GetUserAgent());
-            _http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utils.GetFormattedToken());
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utils.GetFormattedToken(client));
+            _discord = client;
         }
 
         /// <summary>
@@ -34,7 +36,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="request">REST request to execute.</param>
         /// <returns>Request task.</returns>
-        public static async Task<WebResponse> HandleRequestAsync(WebRequest request)
+        public async Task<WebResponse> HandleRequestAsync(WebRequest request)
         {
             if (request.ContentType == ContentType.Json)
             {
@@ -59,7 +61,7 @@ namespace DSharpPlus
             return await WithPayloadAsync(request);
         }
 
-        internal static async Task<WebResponse> WithoutPayloadAsync(WebRequest request)
+        internal async Task<WebResponse> WithoutPayloadAsync(WebRequest request)
         {
             var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
             foreach (var kvp in request.Headers)
@@ -103,7 +105,7 @@ namespace DSharpPlus
             return response;
         }
 
-        internal static async Task<WebResponse> WithPayloadAsync(WebRequest request)
+        internal async Task<WebResponse> WithPayloadAsync(WebRequest request)
         {
             var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
             foreach (var kvp in request.Headers)
@@ -194,7 +196,7 @@ namespace DSharpPlus
             return response;
         }
 
-        internal static async Task DelayRequest(WebRequest request)
+        internal async Task DelayRequest(WebRequest request)
         {
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
             DateTimeOffset time = DateTimeOffset.UtcNow;
@@ -212,7 +214,7 @@ namespace DSharpPlus
             }
         }
 
-        internal static void HandleRateLimit(WebRequest request, WebResponse response)
+        internal void HandleRateLimit(WebRequest request, WebResponse response)
         {
             if (response.Headers == null || !response.Headers.ContainsKey("X-RateLimit-Reset") || !response.Headers.ContainsKey("X-RateLimit-Remaining") || !response.Headers.ContainsKey("X-RateLimit-Limit"))
                 return;
