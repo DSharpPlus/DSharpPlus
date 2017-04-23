@@ -10,10 +10,10 @@
         public static string Strike(string content) => $"~{content}~";
 
         public static string Mention(DiscordMember member, bool nickname = false) => Mention(member.User, nickname);
-        public static string Mention(DiscordUser user, bool nickname = false) => (nickname ? $"<@!{user.ID}>" : $"<@{user.ID}>");
-        public static string Mention(DiscordChannel channel) => $"<#{channel.ID}>";
-        public static string Mention(DiscordRole role) => $"<@&{role.ID}>";
+        public static string Mention(DiscordUser user, bool nickname = false) => (nickname ? $"<@!{user.Id}>" : $"<@{user.Id}>");
+        public static string Mention(DiscordChannel channel) => $"<#{channel.Id}>";
+        public static string Mention(DiscordRole role) => $"<@&{role.Id}>";
 
-        public static string Emoji(DiscordEmoji emoji) => $"<:{emoji.Name}:{emoji.ID}>";
+        public static string Emoji(DiscordEmoji emoji) => $"<:{emoji.Name}:{emoji.Id}>";
     }
 }

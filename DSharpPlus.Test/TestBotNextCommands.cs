@@ -89,7 +89,7 @@ namespace DSharpPlus.Test
 
         public override Task<bool> CanExecute(CommandContext ctx)
         {
-            if (specs.Contains(ctx.User.ID))
+            if (specs.Contains(ctx.User.Id))
                 return Task.FromResult(true);
             return Task.FromResult(false);
         }

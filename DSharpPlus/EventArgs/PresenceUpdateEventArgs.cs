@@ -7,12 +7,12 @@ namespace DSharpPlus
 {
     public class PresenceUpdateEventArgs : EventArgs
     {
-        public DiscordUser User => DiscordClient._guilds[GuildID].Members.Find(x => x.User.ID == UserID)?.User;
+        public DiscordUser User => DiscordClient._guilds[GuildID].Members.Find(x => x.User.Id == UserID)?.User;
 
         [JsonProperty("user")]
         internal DiscordUser InternalUser { get; set; }
 
-        public ulong UserID => InternalUser == null ? 0 : InternalUser.ID;
+        public ulong UserID => InternalUser == null ? 0 : InternalUser.Id;
 
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
         internal JObject InternalGame { get; set; }

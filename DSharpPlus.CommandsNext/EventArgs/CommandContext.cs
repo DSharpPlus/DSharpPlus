@@ -37,7 +37,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordMember Member => this.Guild?.GetMember(this.User.ID).GetAwaiter().GetResult();
+        public DiscordMember Member => this.Guild?.GetMember(this.User.Id).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets the command that is being executed.

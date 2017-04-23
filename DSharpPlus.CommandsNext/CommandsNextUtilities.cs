@@ -116,7 +116,7 @@ namespace DSharpPlus.CommandsNext
                 return -1;
 
             var uid = ulong.Parse(m.Groups[1].Value);
-            if (user.ID != uid)
+            if (user.Id != uid)
                 return -1;
 
             return m.Value.Length;

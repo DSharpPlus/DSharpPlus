@@ -34,7 +34,7 @@ namespace DSharpPlus.CommandsNext.Attributes
                 return true;
 
             var usr = ctx.Member;
-            var bot = await ctx.Guild.GetMember(ctx.Client.Me.ID);
+            var bot = await ctx.Guild.GetMember(ctx.Client.Me.Id);
             if (bot == null || usr == null)
                 return false;
 

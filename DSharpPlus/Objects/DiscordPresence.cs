@@ -15,7 +15,7 @@ namespace DSharpPlus
 
         public DiscordUser User => DiscordClient.InternalGetCachedUser(UserID);
 
-        public ulong UserID => InternalUser == null ? 0 : InternalUser.ID;
+        public ulong UserID => InternalUser == null ? 0 : InternalUser.Id;
 
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
         internal JObject InternalGame;

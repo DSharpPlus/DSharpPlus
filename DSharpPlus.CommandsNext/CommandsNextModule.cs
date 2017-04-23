@@ -90,7 +90,7 @@ namespace DSharpPlus.CommandsNext
             if (!this.Config.EnableDms && e.Channel.IsPrivate)
                 return;
 
-            if (this.Config.SelfBot && e.Author.ID != this.Client.Me.ID)
+            if (this.Config.SelfBot && e.Author.Id != this.Client.Me.Id)
                 return;
 
             var mpos = -1;

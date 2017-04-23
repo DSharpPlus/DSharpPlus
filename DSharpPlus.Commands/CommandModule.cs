@@ -40,7 +40,7 @@ namespace DSharpPlus.Commands
 
             Client.MessageCreated += e =>
             {
-                if (((e.Message.Author.ID != Client.Me.ID && !config.SelfBot) || (e.Message.Author.ID == Client.Me.ID && config.SelfBot))
+                if (((e.Message.Author.Id != Client.Me.Id && !config.SelfBot) || (e.Message.Author.Id == Client.Me.Id && config.SelfBot))
                         && e.Message.Content.StartsWith(config.Prefix))
                 {
                     string[] split = e.Message.Content.Split(new char[] { ' ' });

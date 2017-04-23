@@ -231,7 +231,7 @@ namespace DSharpPlus.Test
         {
             try
             {
-                Discord.UpdateStatus("testing with Chell").GetAwaiter().GetResult();
+                Discord.UpdateStatusAsync("testing with Chell").GetAwaiter().GetResult();
             }
             catch (Exception) { }
         }

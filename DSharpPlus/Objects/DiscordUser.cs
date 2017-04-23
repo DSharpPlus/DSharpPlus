@@ -26,7 +26,7 @@ namespace DSharpPlus
         /// The user's avatar url
         /// </summary>
         [JsonIgnore]
-        public string AvatarUrl => AvatarHash.StartsWith("a_")? $"https://cdn.discordapp.com/avatars/{ID}/{AvatarHash}.gif" : $"https://cdn.discordapp.com/avatars/{ID}/{AvatarHash}.jpg";
+        public string AvatarUrl => AvatarHash.StartsWith("a_")? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.gif" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.jpg";
         /// <summary>
         /// Whether the user belongs to an oauth2 application
         /// </summary>
@@ -54,6 +54,6 @@ namespace DSharpPlus
         /// <summary>
         /// This user's presence.
         /// </summary>
-        public DiscordPresence Presence => DiscordClient.InternalGetUserPresence(ID);
+        public DiscordPresence Presence => DiscordClient.InternalGetUserPresence(Id);
     }
 }

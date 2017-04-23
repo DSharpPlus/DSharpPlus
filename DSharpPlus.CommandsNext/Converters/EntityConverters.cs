@@ -102,14 +102,14 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, out var cid))
             {
-                result = ctx.Guild.Channels.FirstOrDefault(xc => xc.ID == cid);
+                result = ctx.Guild.Channels.FirstOrDefault(xc => xc.Id == cid);
                 return true;
             }
 
             var m = ChannelRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, out cid))
             {
-                result = ctx.Guild.Channels.FirstOrDefault(xc => xc.ID == cid);
+                result = ctx.Guild.Channels.FirstOrDefault(xc => xc.Id == cid);
                 return true;
             }
 
@@ -132,14 +132,14 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, out var rid))
             {
-                result = ctx.Guild.Roles.FirstOrDefault(xr => xr.ID == rid);
+                result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
                 return true;
             }
 
             var m = RoleRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, out rid))
             {
-                result = ctx.Guild.Roles.FirstOrDefault(xr => xr.ID == rid);
+                result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
                 return true;
             }
 

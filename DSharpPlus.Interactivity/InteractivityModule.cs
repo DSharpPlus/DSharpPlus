@@ -95,7 +95,7 @@ namespace DSharpPlus.Interactivity
 
         public async Task<DiscordMessage> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan timeout)
         {
-            var user_id = user.ID;
+            var user_id = user.Id;
             var tsc = new TaskCompletionSource<DiscordMessage>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -120,7 +120,7 @@ namespace DSharpPlus.Interactivity
 
         public async Task<DiscordEmoji> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, TimeSpan timeout)
         {
-            var message_id = msg.ID;
+            var message_id = msg.Id;
             var tsc = new TaskCompletionSource<DiscordEmoji>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -144,7 +144,7 @@ namespace DSharpPlus.Interactivity
 
         public async Task<DiscordEmoji> WaitForMessageReactionAsync(DiscordMessage msg, TimeSpan timeout)
         {
-            var message_id = msg.ID;
+            var message_id = msg.Id;
             var tsc = new TaskCompletionSource<DiscordEmoji>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -172,7 +172,7 @@ namespace DSharpPlus.Interactivity
             _client.MessageReactionAdd += async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageID == m.ID)
+                if (e.MessageID == m.Id)
                 {
                     if (Reactions.ContainsKey(e.Emoji.ToString()))
                         Reactions[e.Emoji.ToString()]++;
@@ -184,7 +184,7 @@ namespace DSharpPlus.Interactivity
             _client.MessageReactionRemove += async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageID == m.ID)
+                if (e.MessageID == m.Id)
                 {
                     if (Reactions.ContainsKey(e.Emoji.ToString()))
                     {
@@ -198,7 +198,7 @@ namespace DSharpPlus.Interactivity
             _client.MessageReactionRemoveAll += async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageID == m.ID)
+                if (e.MessageID == m.Id)
                 {
                     Reactions = new ConcurrentDictionary<string, int>();
                 }
@@ -211,7 +211,7 @@ namespace DSharpPlus.Interactivity
         #region Typing
         public async Task<DiscordUser> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan timeout)
         {
-            var channel_id = channel.ID;
+            var channel_id = channel.Id;
             var tsc = new TaskCompletionSource<DiscordUser>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -232,7 +232,7 @@ namespace DSharpPlus.Interactivity
 
         public async Task<DiscordChannel> WaitForTypingChannelAsync(DiscordUser user, TimeSpan timeout)
         {
-            var user_id = user.ID;
+            var user_id = user.Id;
             var tsc = new TaskCompletionSource<DiscordChannel>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -262,7 +262,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            DiscordMessage m = await _client.SendMessage(channel.ID, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
+            DiscordMessage m = await _client.SendMessageAsync(channel.Id, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
 
             PaginatedMessage pm = new PaginatedMessage()
             {
@@ -304,16 +304,16 @@ namespace DSharpPlus.Interactivity
 
             _client.MessageReactionAdd += async e =>
             {
-                if (e.MessageID == m.ID)
+                if (e.MessageID == m.Id)
                 {
-                    if (e.UserID != _client.Me.ID)
+                    if (e.UserID != _client.Me.Id)
                     {
-                        if (e.Emoji.ID == 0)
+                        if (e.Emoji.Id == 0)
                             await m.DeleteReaction(e.Emoji.Name, e.UserID);
                         else
-                            await m.DeleteReaction(e.Emoji.Name + ":" + e.Emoji.ID, e.UserID);
+                            await m.DeleteReaction(e.Emoji.Name + ":" + e.Emoji.Id, e.UserID);
 
-                        if (e.UserID == user.ID)
+                        if (e.UserID == user.Id)
                         {
                             #region The "good" shit
                             switch (e.Emoji.Name)
