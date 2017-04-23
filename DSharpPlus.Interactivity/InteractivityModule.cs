@@ -253,9 +253,7 @@ namespace DSharpPlus.Interactivity
         #endregion
 
         // ⏮ ◀ ⏹ (🔢) ▶ ⏭
-        public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour) 
-            => await SendPaginatedMessage(channel.ID, user.ID, pages, timeout, timeout_behaviour);
-        public async Task SendPaginatedMessage(ulong channel_id, ulong user_id, IEnumerable<Page> pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour)
+        public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour)
         {
             if (pages.Count() == 0)
                 throw new ArgumentException("You need to provide at least 1 page!");
@@ -264,7 +262,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            DiscordMessage m = await _client.SendMessage(channel_id, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
+            DiscordMessage m = await _client.SendMessage(channel.ID, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
 
             PaginatedMessage pm = new PaginatedMessage()
             {
@@ -315,7 +313,7 @@ namespace DSharpPlus.Interactivity
                         else
                             await m.DeleteReaction(e.Emoji.Name + ":" + e.Emoji.ID, e.UserID);
 
-                        if (e.UserID == user_id)
+                        if (e.UserID == user.ID)
                         {
                             #region The "good" shit
                             switch (e.Emoji.Name)
