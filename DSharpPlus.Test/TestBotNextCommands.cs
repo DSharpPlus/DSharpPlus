@@ -24,7 +24,7 @@ namespace DSharpPlus.Test
         [Command("ping"), Aliases("mention"), Description("Mentions specified user.")]
         public async Task Ping(CommandContext ctx, [Description("Member to mention.")] DiscordMember member)
         {
-            await ctx.RespondAsync($"{member.User.Mention}");
+            await ctx.RespondAsync($"{member.Mention}");
         }
 
         [Command("echo"), Description("Echoes supplied numbers.")]
