@@ -691,7 +691,7 @@ namespace DSharpPlus
                 url += Endpoints.Bot;
 
             WebRequest request = WebRequest.CreateRequest(this, url, HttpRequestMethod.GET, headers);
-            WebResponse response = await RestClient.HandleRequestAsync(request);
+            WebResponse response = await this._rest_client.Rest.HandleRequestAsync(request);
 
             JObject jObj = JObject.Parse(response.Response);
             _gatewayUrl = jObj.Value<string>("url");
