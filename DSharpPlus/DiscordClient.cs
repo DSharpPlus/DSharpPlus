@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Globalization;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using System.Collections.ObjectModel;
-using DSharpPlus.Web;
+using System.Threading;
+using System.Threading.Tasks;
 using DSharpPlus.Objects.Transport;
+using DSharpPlus.Web;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -500,6 +498,33 @@ namespace DSharpPlus
         /// </summary>
         public DiscordClient()
         {
+            this.config = new DiscordConfig();
+
+            InternalSetup();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of DiscordClient
+        /// </summary>
+        /// <param name="config">Overwrites the default config</param>
+        public DiscordClient(DiscordConfig config)
+        {
+            this.config = config;
+
+            InternalSetup();
+        }
+
+        /// <summary>
+        /// Sets the WebSocket provider.
+        /// </summary>
+        /// <typeparam name="T">Type of the WebSocket provider to use.</typeparam>
+        public void SetSocketImplementation<T>() where T : BaseWebSocketClient, new()
+        {
+            BaseWebSocketClient.ClientType = typeof(T);
+        }
+
+        internal void InternalSetup()
+        {
             this._client_error = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERROR");
             this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
             this._socket_closed = new AsyncEvent(this.EventErrorHandler, "SOCKET_CLOSED");
@@ -545,30 +570,6 @@ namespace DSharpPlus
             this._rest_client = new DiscordRestClient(this);
             this._debugLogger = new DebugLogger(this);
 
-            InternalSetup();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of DiscordClient
-        /// </summary>
-        /// <param name="config">Overwrites the default config</param>
-        public DiscordClient(DiscordConfig config)
-            : this()
-        {
-            this.config = config;
-        }
-
-        /// <summary>
-        /// Sets the WebSocket provider.
-        /// </summary>
-        /// <typeparam name="T">Type of the WebSocket provider to use.</typeparam>
-        public void SetSocketImplementation<T>() where T : BaseWebSocketClient, new()
-        {
-            BaseWebSocketClient.ClientType = typeof(T);
-        }
-
-        internal void InternalSetup()
-        {
             if (config.UseInternalLogHandler)
                 DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
         }
@@ -643,6 +644,9 @@ namespace DSharpPlus
 
         internal async Task InternalConnectAsync()
         {
+            var an = typeof(DiscordClient).GetTypeInfo().Assembly.GetName();
+            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {an.Version.ToString(3)}, booting", DateTime.Now);
+
             await InternalUpdateGatewayAsync();
             _me = await this._rest_client.InternalGetCurrentUser();
 
@@ -1624,7 +1628,6 @@ namespace DSharpPlus
             _cancel_token = _cancel_token_source.Token;
             //_heartbeat_task = new Task(StartHeartbeatingAsync, _cancel_token, TaskCreationOptions.LongRunning);
             _heartbeat_task = Task.Run(this.StartHeartbeatingAsync, _cancel_token);
-            _heartbeat_task.Start();
             return Task.Delay(0);
         }
 
