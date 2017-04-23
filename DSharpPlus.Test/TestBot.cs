@@ -15,14 +15,14 @@ namespace DSharpPlus.Test
     internal sealed class TestBot
     {
         private TestBotConfig Config { get; }
-        public static DiscordClient Discord;
+        public DiscordClient Discord;
         private TestBotCommands Commands { get; }
         //private VoiceNextClient VoiceService { get; }
         private CommandsNextModule CommandsNextService { get; }
         private InteractivityModule InteractivityService { get; }
         private Timer GameGuard { get; set; }
 
-        public TestBot(TestBotConfig cfg)
+        public TestBot(TestBotConfig cfg, int shardid)
         {
             // global bot config
             this.Config = cfg;
@@ -33,12 +33,12 @@ namespace DSharpPlus.Test
                 AutoReconnect = true,
                 DiscordBranch = Branch.Stable,
                 LargeThreshold = 250, 
-                // Use unnecessary instead of debug for more verbosity
-                //LogLevel = LogLevel.Unnecessary,
                 LogLevel = LogLevel.Unnecessary,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = false,
+                ShardId = shardid,
+                ShardCount = this.Config.ShardCount
             };
             Discord = new DiscordClient(dcfg);
 
@@ -93,6 +93,9 @@ namespace DSharpPlus.Test
             if (tag.Length < 12)
                 tag = tag.PadLeft(12, ' ');
             Console.Write("[{0}] ", tag);
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("[{0}] ", string.Concat("SHARD ", this.Discord.ShardId.ToString("00")));
 
             switch (e.Level)
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,8 +29,15 @@ namespace DSharpPlus.Test
             json = File.ReadAllText("config.json", new UTF8Encoding(false));
             cfg = JsonConvert.DeserializeObject<TestBotConfig>(json);
 
-            var bot = new TestBot(cfg);
-            await bot.RunAsync();
+            var tskl = new List<Task>();
+            for (var i = 0; i < cfg.ShardCount; i++)
+            {
+                var bot = new TestBot(cfg, i);
+                tskl.Add(bot.RunAsync());
+                await Task.Delay(7500);
+            }
+
+            await Task.WhenAll(tskl);
         }
     }
 }

@@ -467,7 +467,8 @@ namespace DSharpPlus
         /// <summary>
         /// Number of shards the bot is connected with
         /// </summary>
-        public int Shards => _shardCount;
+        public int ShardCount => this.config.ShardCount;
+        public int ShardId => this.config.ShardId;
 
         internal DiscordUser _me;
         /// <summary>
@@ -1726,7 +1727,7 @@ namespace DSharpPlus
                         } },
                         { "compress", false },
                         { "large_threshold" , config.LargeThreshold },
-                        { "shards", new JArray { 0, _shardCount } }
+                        { "shard", new JArray { config.ShardId, config.ShardCount } }
                     }
                 }
             };
