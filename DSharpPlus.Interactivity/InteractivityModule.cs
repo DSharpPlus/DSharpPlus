@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.ObjectModel;
 
 namespace DSharpPlus.Interactivity
 {
@@ -20,13 +21,35 @@ namespace DSharpPlus.Interactivity
             return m;
         }
 
+        public static IReadOnlyDictionary<int, InteractivityModule> UseInteractivity(this DiscordShardedClient c)
+        {
+            var modules = new Dictionary<int, InteractivityModule>();
+
+            foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
+            {
+                var m = shard.GetModule<InteractivityModule>();
+                if (m == null)
+                    m = shard.UseInteractivity();
+
+                modules.Add(shard.ShardId, m);
+            }
+
+            return new ReadOnlyDictionary<int, InteractivityModule>(modules);
+        }
+
         public static InteractivityModule GetInteractivityModule(this DiscordClient c)
         {
-            var m = c.GetModule<InteractivityModule>();
-            if (m == null)
-                throw new Exception("Interactivity module is not enabled for this client!");
+            return c.GetModule<InteractivityModule>();
+        }
 
-            return m;
+        public static IReadOnlyDictionary<int, InteractivityModule> GetInteractivityModule(this DiscordShardedClient c)
+        {
+            var modules = new Dictionary<int, InteractivityModule>();
+
+            foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
+                modules.Add(shard.ShardId, shard.GetModule<InteractivityModule>());
+
+            return new ReadOnlyDictionary<int, InteractivityModule>(modules);
         }
 
         public static IEnumerable<string> Split(this string str, int chunkSize)
