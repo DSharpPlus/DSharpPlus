@@ -9,7 +9,7 @@
     <AssemblyName>DSharpPlus</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.1.0-rc</Version>
+    <Version>2.1.1-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
@@ -20,8 +20,8 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus</PackageTags>
-    <PackageReleaseNotes>New client architecture. WebSocket fixes. Sharding.</PackageReleaseNotes>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <PackageReleaseNotes>Selfbot support. Implemented missing role endpoints.</PackageReleaseNotes>
+    <AssemblyVersion>2.1.1.0</AssemblyVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
