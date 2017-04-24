@@ -23,9 +23,10 @@
     <AssemblyVersion>2.1.1.0</AssemblyVersion>
     <PackageId>DSharpPlus.Commands</PackageId>
   </PropertyGroup>
-  
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <Optimize>False</Optimize>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
   
   <ItemGroup>

@@ -18,9 +18,10 @@
     <RootNamespace>DSharpPlus</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="WebSocketSharp-NonPreRelease" Version="1.0.0" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <Optimize>False</Optimize>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />

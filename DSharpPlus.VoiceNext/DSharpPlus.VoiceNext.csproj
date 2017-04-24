@@ -23,9 +23,10 @@
     <PackageReleaseNotes>Rewritten for .NET Core</PackageReleaseNotes>
     <AssemblyVersion>2.1.2.0</AssemblyVersion>
   </PropertyGroup>
-  
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <Optimize>False</Optimize>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
   
   <ItemGroup>
