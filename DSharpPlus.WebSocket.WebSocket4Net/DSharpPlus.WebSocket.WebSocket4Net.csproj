@@ -24,6 +24,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="WebSocket4Net" Version="0.14.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 
