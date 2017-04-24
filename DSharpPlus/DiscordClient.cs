@@ -51,12 +51,12 @@ namespace DSharpPlus
         /// <summary>
         /// The ready event is dispatched when a client completed the initial handshake.
         /// </summary>
-        public event AsyncEventHandler Ready
+        public event AsyncEventHandler<ReadyEventArgs> Ready
         {
             add { this._ready.Register(value); }
             remove { this._ready.Unregister(value); }
         }
-        private AsyncEvent _ready;
+        private AsyncEvent<ReadyEventArgs> _ready;
         /// <summary>
         /// Sent when a new channel is created.
         /// </summary>
@@ -529,7 +529,7 @@ namespace DSharpPlus
             this._client_error = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERROR");
             this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
             this._socket_closed = new AsyncEvent(this.EventErrorHandler, "SOCKET_CLOSED");
-            this._ready = new AsyncEvent(this.EventErrorHandler, "READY");
+            this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
             this._channel_created = new AsyncEvent<ChannelCreateEventArgs>(this.EventErrorHandler, "CHANNEL_CREATED");
             this._dm_channel_created = new AsyncEvent<DmChannelCreateEventArgs>(this.EventErrorHandler, "DM_CHANNEL_CREATED");
             this._channel_updated = new AsyncEvent<ChannelUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_UPDATED");
@@ -627,8 +627,8 @@ namespace DSharpPlus
             await _websocket_client.InternalDisconnectAsync();
             if (start_new_session)
                 _session_id = "";
-            // delay task by 2 seconds to make sure everything gets closed correctly
-            await Task.Delay(5000);
+            // delay task by 6 seconds to make sure everything gets closed correctly
+            await Task.Delay(6000);
             await InternalConnectAsync();
         }
 
@@ -638,8 +638,8 @@ namespace DSharpPlus
             await _websocket_client.InternalDisconnectAsync();
             if (start_new_session)
                 _session_id = "";
-            // delay task by 2 seconds to make sure everything gets closed correctly
-            await Task.Delay(5000);
+            // delay task by 6 seconds to make sure everything gets closed correctly
+            await Task.Delay(6000);
             await ConnectAsync(token_override, token_type);
         }
 
@@ -991,7 +991,7 @@ namespace DSharpPlus
             //}
             _session_id = obj["d"]["session_id"].ToString();
 
-            await this._ready.InvokeAsync();
+            await this._ready.InvokeAsync(new ReadyEventArgs(this));
         }
         internal async Task OnChannelCreateEventAsync(JObject obj)
         {
@@ -1614,7 +1614,7 @@ namespace DSharpPlus
             if (obj.Value<bool>("d"))
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a few second and sending resume again.", DateTime.Now);
-                await Task.Delay(5000);
+                await Task.Delay(6000);
                 await SendResumeAsync();
             }
             else

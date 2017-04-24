@@ -5,17 +5,22 @@ namespace DSharpPlus
     public class DebugLogger
     {
         public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;
-        private DiscordClient Client { get; }
+        private LogLevel Level { get; }
 
         internal DebugLogger(DiscordClient client)
         {
-            this.Client = client;
+            this.Level = client.config.LogLevel;
+        }
+
+        internal DebugLogger(LogLevel level)
+        {
+            this.Level = level;
         }
 
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
-            if (level >= this.Client.config.LogLevel)
-                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, TimeStamp = timestamp });
+            if (level >= this.Level)
+                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp });
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
@@ -56,7 +61,7 @@ namespace DSharpPlus
                     }
             }
 
-            Console.Write($"[{e.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{e.Application}] [{e.Level}]");
+            Console.Write($"[{e.Timestamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{e.Application}] [{e.Level}]");
             Console.ResetColor();
             Console.WriteLine($" {e.Message}");
 #endif
@@ -65,14 +70,14 @@ namespace DSharpPlus
 
     public class DebugLogMessageEventArgs : EventArgs
     {
-        public LogLevel Level;
-        public string Application;
-        public string Message;
-        public DateTime TimeStamp;
+        public LogLevel Level { get; internal set; }
+        public string Application { get; internal set; }
+        public string Message { get; internal set; }
+        public DateTime Timestamp { get; internal set; }
 
         public override string ToString()
         {
-            return $"[{TimeStamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}] {Message}";
+            return $"[{Timestamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}] {Message}";
         }
     }
 }

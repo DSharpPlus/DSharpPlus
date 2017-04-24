@@ -29,9 +29,9 @@ namespace DSharpPlus
     {
         private readonly object _lock = new object();
         internal static readonly object _synclock = new object();
-        private List<AsyncEventHandler> Handlers { get; set; }
-        private Action<string, Exception> ErrorHandler { get; set; }
-        private string EventName { get; set; }
+        private List<AsyncEventHandler> Handlers { get; }
+        private Action<string, Exception> ErrorHandler { get; }
+        private string EventName { get; }
 
         public AsyncEvent(Action<string, Exception> errhandler, string event_name)
         {
@@ -91,9 +91,9 @@ namespace DSharpPlus
     public sealed class AsyncEvent<T> where T : EventArgs
     {
         private readonly object _lock = new object();
-        private List<AsyncEventHandler<T>> Handlers { get; set; }
-        private Action<string, Exception> ErrorHandler { get; set; }
-        private string EventName { get; set; }
+        private List<AsyncEventHandler<T>> Handlers { get; }
+        private Action<string, Exception> ErrorHandler { get; }
+        private string EventName { get; }
 
         public AsyncEvent(Action<string, Exception> errhandler, string event_name)
         {

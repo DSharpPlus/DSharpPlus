@@ -85,7 +85,7 @@ namespace DSharpPlus.Test
         private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("[{0:yyyy-MM-dd HH:mm:ss zzz}] ", e.TimeStamp.ToLocalTime());
+            Console.Write("[{0:yyyy-MM-dd HH:mm:ss zzz}] ", e.Timestamp.ToLocalTime());
 
             var tag = e.Application;
             if (tag.Length > 12)
@@ -127,7 +127,7 @@ namespace DSharpPlus.Test
             Console.WriteLine(e.Message);
         }
 
-        private Task Discord_Ready()
+        private Task Discord_Ready(ReadyEventArgs e)
         {
             this.GameGuard = new Timer(TimerCallback, null, TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(15));
             return Task.Delay(0);
