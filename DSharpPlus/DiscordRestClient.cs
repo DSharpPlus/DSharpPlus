@@ -775,16 +775,33 @@ namespace DSharpPlus
         #endregion
 
         #region Roles
-        // TODO
-        internal List<DiscordRole> InternalGetGuildRoles(ulong guild_id)
+        internal async Task<List<DiscordRole>> InternalGetGuildRolesAsync(ulong guild_id)
         {
-            return new List<DiscordRole>();
+            string url = $"{Utils.GetApiBaseUri(this.Discord)}{Endpoints.Guilds}/{guild_id}{Endpoints.Roles}";
+            var headers = Utils.GetBaseHeaders();
+            WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
+            WebResponse response = await this.Rest.HandleRequestAsync(request);
+            var ret = JsonConvert.DeserializeObject<List<DiscordRole>>(response.Response);
+            foreach (var xr in ret)
+                xr.Discord = this.Discord;
+            return ret;
         }
-
-        // TODO
-        internal List<DiscordRole> InternalModifyGuildRolePosition(ulong guild_id, ulong id, int position)
+        
+        internal async Task<List<DiscordRole>> InternalModifyGuildRolePosition(ulong guild_id, ulong id, int position)
         {
-            return new List<DiscordRole>();
+            var jo = new JObject
+            {
+                { "id", id },
+                { "position", position }
+            };
+            string url = $"{Utils.GetApiBaseUri(this.Discord)}{Endpoints.Guilds}/{guild_id}{Endpoints.Roles}";
+            var headers = Utils.GetBaseHeaders();
+            WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PATCH, headers, jo.ToString());
+            WebResponse response = await this.Rest.HandleRequestAsync(request);
+            var ret = JsonConvert.DeserializeObject<List<DiscordRole>>(response.Response);
+            foreach (var xr in ret)
+                xr.Discord = this.Discord;
+            return ret;
         }
 
         internal async Task<DiscordGuild> InternalGetGuildAsync(ulong guild_id)
