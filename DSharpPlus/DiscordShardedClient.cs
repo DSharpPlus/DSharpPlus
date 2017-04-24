@@ -561,6 +561,15 @@ namespace DSharpPlus
             await Task.WhenAll(stasks);
         }
 
+        /// <summary>
+        /// Sets the WebSocket provider.
+        /// </summary>
+        /// <typeparam name="T">Type of the WebSocket provider to use.</typeparam>
+        public void SetSocketImplementation<T>() where T : BaseWebSocketClient, new()
+        {
+            BaseWebSocketClient.ClientType = typeof(T);
+        }
+
         private async Task<int> GetShardCount()
         {
             string url = $"{Utils.GetApiBaseUri(this.Config)}{Endpoints.Gateway}{Endpoints.Bot}";
