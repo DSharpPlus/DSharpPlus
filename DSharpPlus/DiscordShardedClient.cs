@@ -493,8 +493,7 @@ namespace DSharpPlus
         {
             var shardc = this.Config.ShardCount == 1 ? await this.GetShardCount() : this.Config.ShardCount;
             this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc} shards", DateTime.Now);
-
-            var stasks = new List<Task>();
+            
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfig(this.Config)
@@ -552,13 +551,9 @@ namespace DSharpPlus
                 client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 
                 await Task.Delay(6000);
-                var stask = client.ConnectAsync();
+                await client.ConnectAsync();
                 this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i}", DateTime.Now);
-
-                stasks.Add(stask);
             }
-
-            await Task.WhenAll(stasks);
         }
 
         /// <summary>

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.Interactivity;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Test
@@ -52,7 +54,14 @@ namespace DSharpPlus.Test
             };
             var bot = new DiscordShardedClient(dcfg);
             bot.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
-            await bot.StartAsync();*/
+            await bot.StartAsync();
+            bot.UseInteractivity();
+            var modules = bot.UseCommandsNext(new CommandsNextConfiguration { Prefix = cfg.CommandPrefix });
+            foreach (var m in modules.Values)
+            {
+                m.RegisterCommands<TestBotCommands>();
+                m.RegisterCommands<TestBotNextCommands>();
+            }*/
 
             await Task.Delay(-1);
         }
