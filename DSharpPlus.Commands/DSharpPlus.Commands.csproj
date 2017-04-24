@@ -8,7 +8,7 @@
     <RootNamespace>DSharpPlus.Commands</RootNamespace>
     <AssemblyName>DSharpPlus.Commands</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>2.1.1-rc</Version>
+    <Version>2.1.2-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>Basic command framework for DSharpPlus.</Description>
