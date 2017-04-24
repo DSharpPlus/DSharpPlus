@@ -9,7 +9,7 @@
     <AssemblyName>DSharpPlus</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.1.2-rc</Version>
+    <Version>2.1.3-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
@@ -20,8 +20,9 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus</PackageTags>
-    <PackageReleaseNotes>Autosharded client.</PackageReleaseNotes>
-    <AssemblyVersion>2.1.2.0</AssemblyVersion>
+    <PackageReleaseNotes>Fixed infinite websocket blocking.</PackageReleaseNotes>
+    <AssemblyVersion>2.1.3.0</AssemblyVersion>
+    <FileVersion>2.1.3.0</FileVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

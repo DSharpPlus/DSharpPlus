@@ -17,6 +17,8 @@ namespace DSharpPlus
         internal CancellationToken _cancellationToken;
         internal bool _connected;
 
+        private Task _listener;
+
         public override event AsyncEventHandler OnConnect
         {
             add { this._on_connect.Register(value); }
@@ -132,7 +134,8 @@ namespace DSharpPlus
             {
                 await _ws.ConnectAsync(_uri, _cancellationToken);
                 await CallOnConnectedAsync();
-                await StartListen();
+                //await StartListen();
+                this._listener = Task.Run(StartListen);
             }
             catch (Exception)
             {
@@ -164,6 +167,8 @@ namespace DSharpPlus
 
         internal async Task StartListen()
         {
+            await Task.Yield();
+
             var buffer = new byte[ReceiveChunkSize];
             try
             {

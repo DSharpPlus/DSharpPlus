@@ -39,20 +39,20 @@ namespace DSharpPlus.Test
             
             await Task.WhenAll(tskl);
 
-            //var dcfg = new DiscordConfig
-            //{
-            //    AutoReconnect = true,
-            //    DiscordBranch = Branch.Stable,
-            //    LargeThreshold = 250,
-            //    LogLevel = LogLevel.Unnecessary,
-            //    Token = cfg.Token,
-            //    TokenType = TokenType.Bot,
-            //    UseInternalLogHandler = false,
-            //    ShardCount = cfg.ShardCount
-            //};
-            //var bot = new DiscordShardedClient(dcfg);
-            //bot.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
-            //await bot.StartAsync();
+            /*var dcfg = new DiscordConfig
+            {
+                AutoReconnect = true,
+                DiscordBranch = Branch.Stable,
+                LargeThreshold = 250,
+                LogLevel = LogLevel.Unnecessary,
+                Token = cfg.Token,
+                TokenType = TokenType.Bot,
+                UseInternalLogHandler = false,
+                ShardCount = cfg.ShardCount
+            };
+            var bot = new DiscordShardedClient(dcfg);
+            bot.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
+            await bot.StartAsync();*/
 
             await Task.Delay(-1);
         }
