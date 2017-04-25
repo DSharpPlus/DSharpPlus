@@ -539,8 +539,8 @@ namespace DSharpPlus
             await _websocketClient.InternalDisconnectAsync();
             if (start_new_session)
                 _sessionID = "";
-            // delay task by 5 seconds to make sure everything gets closed correctly
-            await Task.Delay(5000);
+            // delay task by 6 seconds to make sure everything gets closed correctly
+            await Task.Delay(6000);
             await InternalConnect();
         }
 
@@ -550,8 +550,8 @@ namespace DSharpPlus
             await _websocketClient.InternalDisconnectAsync();
             if (start_new_session)
                 _sessionID = "";
-            // delay task by 5 seconds to make sure everything gets closed correctly
-            await Task.Delay(5000);
+            // delay task by 6 seconds to make sure everything gets closed correctly
+            await Task.Delay(6000);
             await Connect(token_override, token_type);
         }
 
@@ -1477,7 +1477,7 @@ namespace DSharpPlus
             if (obj.Value<bool>("d"))
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a few second and sending resume again.", DateTime.Now);
-                await Task.Delay(5000);
+                await Task.Delay(6000);
                 await SendResume();
             }
             else
