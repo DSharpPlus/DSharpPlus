@@ -61,6 +61,7 @@ namespace DSharpPlus.Test
             {
                 m.RegisterCommands<TestBotCommands>();
                 m.RegisterCommands<TestBotNextCommands>();
+                m.RegisterCommands<TestBotEvalCommands>();
             }*/
 
             await Task.Delay(-1);

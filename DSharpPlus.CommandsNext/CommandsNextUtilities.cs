@@ -219,49 +219,77 @@ namespace DSharpPlus.CommandsNext
             if (string.IsNullOrWhiteSpace(str))
                 yield break;
 
-            var stra = str.Split(' ');
-            var strt = "";
-            foreach (var xs in stra)
+            var in_backtick = false;
+            var in_triple_backtick = false;
+            var in_quote = false;
+            var in_escape = false;
+            var sp = -1;
+            var ep = -1;
+            for (int i = 0; i < str.Length; i++)
             {
-                if (strt == "")
+                if (char.IsWhiteSpace(str[i]) && !in_quote && !in_triple_backtick && !in_backtick && !in_escape)
+                    ep = i;
+
+                if (sp == -1)
+                    sp = i;
+
+                if (str[i] == '\\')
                 {
-                    if (xs.StartsWith("\"") && xs.EndsWith("\""))
+                    if (!in_escape && !in_backtick && !in_triple_backtick)
                     {
-                        if (xs[xs.Length - 2] != '\\')
-                            yield return xs.Substring(1, xs.Length - 2);
-                        else
-                            strt = xs.Substring(1).Remove(xs.Length - 3, 1);
+                        in_escape = true;
+                        str = str.Remove(i, 1);
                     }
-                    else if (xs.StartsWith("\""))
+                    else if ((in_backtick || in_triple_backtick) && str.IndexOf("\\`", i) == i)
                     {
-                        strt = xs.Substring(1);
-                    }
-                    else
-                    {
-                        yield return xs;
+                        in_escape = true;
+                        str = str.Remove(i, 1);
                     }
                 }
-                else
+
+                if (str[i] == '`' && !in_escape)
                 {
-                    if (xs.EndsWith("\""))
+                    if (in_triple_backtick && str.IndexOf("```", i) == i)
                     {
-                        if (xs[xs.Length - 2] != '\\')
-                        {
-                            strt = string.Concat(strt, " ", xs.Substring(0, xs.Length - 1));
-                            yield return strt;
-                            strt = "";
-                        }
-                        else
-                        {
-                            strt = string.Concat(strt, " ", xs.Remove(xs.Length - 3, 1));
-                        }
+                        in_triple_backtick = false;
+                        i += 2;
                     }
+                    else if (!in_backtick && str.IndexOf("```", i) == i)
+                    {
+                        in_triple_backtick = true;
+                        i += 2;
+                    }
+
+                    if (in_backtick && str.IndexOf("```", i) != i)
+                        in_backtick = false;
+                    else if (!in_triple_backtick && str.IndexOf("```", i) == i)
+                        in_backtick = true;
+                }
+
+                if (str[i] == '"' && !in_escape && !in_backtick && !in_triple_backtick)
+                {
+                    str = str.Remove(i, 1);
+                    i--;
+
+                    if (!in_quote)
+                        in_quote = true;
                     else
-                    {
-                        strt = string.Concat(strt, " ", xs);
-                    }
+                        in_quote = false;
+                }
+
+                if (in_escape)
+                    in_escape = false;
+
+                if (sp != -1 && ep != 1 && sp < ep)
+                {
+                    yield return str.Substring(sp, ep - sp);
+                    ep = -1;
+                    sp = -1;
                 }
             }
+
+            if (sp != -1)
+                yield return str.Substring(sp);
         }
 
         internal static object[] BindArguments(CommandContext ctx)
