@@ -22,6 +22,8 @@ namespace DSharpPlus
         internal CancellationToken _cancellationToken;
         internal bool _connected;
 
+        private Task _reader;
+
         public event AsyncEventHandler OnConnect
         {
             add { this._on_connect.Register(value); }
@@ -133,7 +135,8 @@ namespace DSharpPlus
             {
                 await _ws.ConnectAsync(_uri, _cancellationToken);
                 await CallOnConnectedAsync();
-                await StartListen();
+                //await StartListen();
+                this._reader = Task.Run(StartListen);
             }
             catch (Exception)
             {
