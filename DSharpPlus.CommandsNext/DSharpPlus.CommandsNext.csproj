@@ -5,7 +5,7 @@
     <Optimize>True</Optimize>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>DSharpPlus.CommandsNext</PackageId>
-    <Version>2.1.4-rc</Version>
+    <Version>2.1.5-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>Advanced command framework for DSharpPlus.</Description>
@@ -15,9 +15,9 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
-    <PackageReleaseNotes>Implemented support for autosharded client.</PackageReleaseNotes>
-    <AssemblyVersion>2.1.4.0</AssemblyVersion>
-    <FileVersion>2.1.4.0</FileVersion>
+    <PackageReleaseNotes>Fixed argument parsing.</PackageReleaseNotes>
+    <AssemblyVersion>2.1.5.0</AssemblyVersion>
+    <FileVersion>2.1.5.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
