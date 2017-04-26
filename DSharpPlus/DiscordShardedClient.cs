@@ -549,8 +549,7 @@ namespace DSharpPlus
                 client.WebhooksUpdate += this.Client_WebhooksUpdate;
                 client.HeartBeated += this.Client_HeartBeated;
                 client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
-
-                await Task.Delay(6000);
+                
                 await client.ConnectAsync();
                 this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i}", DateTime.Now);
             }

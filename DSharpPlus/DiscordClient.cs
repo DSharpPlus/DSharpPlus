@@ -494,6 +494,11 @@ namespace DSharpPlus
         public int Ping { get; internal set; }
         #endregion
 
+        #region Connection semaphore
+        private static SemaphoreSlim ConnectionSemaphore => _semaphore_init.Value;
+        private static Lazy<SemaphoreSlim> _semaphore_init = new Lazy<SemaphoreSlim>(() => new SemaphoreSlim(1, 1));
+        #endregion
+
         /// <summary>
         /// Intializes a new instance of DiscordClient
         /// </summary>
@@ -628,7 +633,7 @@ namespace DSharpPlus
             if (start_new_session)
                 _session_id = "";
             // delay task by 6 seconds to make sure everything gets closed correctly
-            await Task.Delay(6000);
+            //await Task.Delay(6000);
             await InternalConnectAsync();
         }
 
@@ -639,7 +644,7 @@ namespace DSharpPlus
             if (start_new_session)
                 _session_id = "";
             // delay task by 6 seconds to make sure everything gets closed correctly
-            await Task.Delay(6000);
+            //await Task.Delay(6000);
             await ConnectAsync(token_override, token_type);
         }
 
@@ -647,6 +652,9 @@ namespace DSharpPlus
         {
             var an = typeof(DiscordClient).GetTypeInfo().Assembly.GetName();
             this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {an.Version.ToString(3)}, booting", DateTime.Now);
+
+            await ConnectionSemaphore.WaitAsync();
+            await Task.Delay(6000);
 
             await InternalUpdateGatewayAsync();
             _me = await this._rest_client.InternalGetCurrentUser();
@@ -662,6 +670,8 @@ namespace DSharpPlus
                 else
                     await SendResumeAsync();
                 await this._socket_opened.InvokeAsync();
+
+                ConnectionSemaphore.Release();
             };
             _websocket_client.OnDisconnect += async () =>
             {
@@ -1657,11 +1667,15 @@ namespace DSharpPlus
         internal void StartHeartbeating()
         {
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Starting Heartbeat", DateTime.Now);
-            while (!_cancel_token.IsCancellationRequested)
+            try
             {
-                SendHeartbeatAsync().GetAwaiter().GetResult();
-                Task.Delay(_heartbeat_interval).GetAwaiter().GetResult();
+                while (!_cancel_token.IsCancellationRequested)
+                {
+                    SendHeartbeatAsync().GetAwaiter().GetResult();
+                    Task.Delay(_heartbeat_interval, _cancel_token).GetAwaiter().GetResult();
+                }
             }
+            catch (Exception) { }
         }
 
         internal async Task InternalUpdateStatusAsync(string game = "", int idle_since = -1)
