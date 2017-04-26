@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -215,8 +216,17 @@ namespace DSharpPlus
         public Task UpdateRoleAsync(DiscordRole role) =>
             this.Discord._rest_client.InternalModifyGuildRole(Id, role.Id, role.Name, role.Permissions, role.Position, role.Color, false, role.Mentionable);
 
+        public Task UpdateRolePositionAsync(DiscordRole role, int position) =>
+            this.Discord._rest_client.InternalModifyGuildRolePosition(this.Id, role.Id, position);
+
         public Task<DiscordRole> CreateRoleAsync() =>
             this.Discord._rest_client.InternalCreateGuildRole(Id);
+
+        public Task DeleteRoleAsync(DiscordRole role) =>
+            this.Discord._rest_client.InternalDeleteRole(this.Id, role.Id);
+
+        public DiscordRole GetRole(ulong id) =>
+            this.Roles.FirstOrDefault(xr => xr.Id == id);
 
         public Task AddRoleAsync(ulong user_id, ulong role_id) =>
             this.Discord._rest_client.InternalAddGuildMemberRole(Id, user_id, role_id);
