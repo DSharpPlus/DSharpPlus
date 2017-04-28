@@ -789,10 +789,13 @@ namespace DSharpPlus
         
         internal async Task<List<DiscordRole>> InternalModifyGuildRolePosition(ulong guild_id, ulong id, int position)
         {
-            var jo = new JObject
+            var jo = new JArray
             {
-                { "id", id },
-                { "position", position }
+                new JObject
+                {
+                    { "id", id },
+                    { "position", position }
+                }
             };
             string url = $"{Utils.GetApiBaseUri(this.Discord)}{Endpoints.Guilds}/{guild_id}{Endpoints.Roles}";
             var headers = Utils.GetBaseHeaders();

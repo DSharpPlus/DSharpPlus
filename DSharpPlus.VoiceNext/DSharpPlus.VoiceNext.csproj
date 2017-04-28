@@ -9,7 +9,7 @@
     <AssemblyName>DSharpPlus.VoiceNext</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.1.6-rc</Version>
+    <Version>2.1.7-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>Voice implementation for DSharpPlus.</Description>
@@ -21,7 +21,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Voice</PackageTags>
     <PackageReleaseNotes>Rewritten for .NET Core</PackageReleaseNotes>
-    <AssemblyVersion>2.1.6.0</AssemblyVersion>
+    <AssemblyVersion>2.1.7.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
