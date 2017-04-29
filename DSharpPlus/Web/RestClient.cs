@@ -16,7 +16,7 @@ namespace DSharpPlus
     public class RestClient
     {
         private static List<RateLimit> _rateLimits = new List<RateLimit>();
-        private static UTF8Encoding UTF8 = new UTF8Encoding(false);
+        private static UTF8Encoding utf8 = new UTF8Encoding(false);
         private HttpClient _http;
         private DiscordClient _discord;
 

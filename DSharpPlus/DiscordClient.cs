@@ -476,11 +476,11 @@ namespace DSharpPlus
         /// </summary>
         public DiscordUser Me => _me;
 
-        internal List<DiscordDmChannel> _privateChannels = new List<DiscordDmChannel>();
+        internal List<DiscordDmChannel> _private_channels = new List<DiscordDmChannel>();
         /// <summary>
         /// List of DM Channels
         /// </summary>
-        public IReadOnlyList<DiscordDmChannel> PrivateChannels => new ReadOnlyCollection<DiscordDmChannel>(_privateChannels);
+        public IReadOnlyList<DiscordDmChannel> PrivateChannels => new ReadOnlyCollection<DiscordDmChannel>(_private_channels);
 
         internal Dictionary<ulong, DiscordGuild> _guilds = new Dictionary<ulong, DiscordGuild>();
         /// <summary>
@@ -662,7 +662,7 @@ namespace DSharpPlus
             _websocket_client = BaseWebSocketClient.Create();
             _websocket_client.OnConnect += async () =>
             {
-                _privateChannels = new List<DiscordDmChannel>();
+                _private_channels = new List<DiscordDmChannel>();
                 _guilds = new Dictionary<ulong, DiscordGuild>();
 
                 if (_session_id == "")
@@ -986,7 +986,7 @@ namespace DSharpPlus
         {
             _gatewayVersion = obj["d"]["v"].ToObject<int>();
             _me = obj["d"]["user"].ToObject<DiscordUser>();
-            _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDmChannel>>();
+            _private_channels = obj["d"]["private_channels"].ToObject<List<DiscordDmChannel>>();
             foreach (JObject guild in obj["d"]["guilds"])
             {
                 if (!_guilds.ContainsKey(guild.Value<ulong>("id")))
@@ -1010,7 +1010,7 @@ namespace DSharpPlus
             {
                 DiscordDmChannel channel = obj["d"].ToObject<DiscordDmChannel>();
                 channel.Discord = this;
-                _privateChannels.Add(channel);
+                _private_channels.Add(channel);
 
                 await this._dm_channel_created.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = channel });
             }
@@ -1052,8 +1052,8 @@ namespace DSharpPlus
             {
                 DiscordDmChannel channel = obj["d"].ToObject<DiscordDmChannel>();
                 channel.Discord = this;
-                int channelIndex = _privateChannels.FindIndex(x => x.Id == channel.Id);
-                _privateChannels.RemoveAt(channelIndex);
+                int channelIndex = _private_channels.FindIndex(x => x.Id == channel.Id);
+                _private_channels.RemoveAt(channelIndex);
 
                 await this._dm_channel_deleted.InvokeAsync(new DmChannelDeleteEventArgs(this) { Channel = channel });
             }
@@ -1330,15 +1330,15 @@ namespace DSharpPlus
             {
                 try
                 {
-                    if (_privateChannels.Find(x => x.Id == message.ChannelID) == null)
+                    if (_private_channels.Find(x => x.Id == message.ChannelID) == null)
                     {
                         int channelindex = _guilds[message.Channel.Guild.Id].Channels.FindIndex(x => x.Id == message.ChannelID);
                         _guilds[message.Channel.Guild.Id].Channels[channelindex].LastMessageID = message.Id;
                     }
                     else
                     {
-                        int channelindex = _privateChannels.FindIndex(x => x.Id == message.ChannelID);
-                        _privateChannels[channelindex].LastMessageID = message.Id;
+                        int channelindex = _private_channels.FindIndex(x => x.Id == message.ChannelID);
+                        _private_channels[channelindex].LastMessageID = message.Id;
                     }
                 }
                 catch (KeyNotFoundException)
@@ -1873,7 +1873,7 @@ namespace DSharpPlus
             _heartbeat_task = null;
             _me = null;
             _modules = null;
-            _privateChannels = null;
+            _private_channels = null;
             await _websocket_client.InternalDisconnectAsync();
 
             disposed = true;

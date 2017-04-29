@@ -2,10 +2,10 @@
 {
     internal static class Endpoints
     {
-        private const string InternalBaseUri = "https://{0}discordapp.com/api";
-        public static string CanaryBaseUri => string.Format(InternalBaseUri, "canary.");
-        public static string PTBBaseUri => string.Format(InternalBaseUri, "ptb.");
-        public static string StableBaseUri => string.Format(InternalBaseUri, "");
+        private const string internal_base_uri = "https://{0}discordapp.com/api";
+        public static string CanaryBaseUri => string.Format(internal_base_uri, "canary.");
+        public static string PTBBaseUri => string.Format(internal_base_uri, "ptb.");
+        public static string StableBaseUri => string.Format(internal_base_uri, "");
 
         public const string OAuth2 = "/oauth2";
         public const string Applications = "/applications";

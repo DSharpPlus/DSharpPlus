@@ -38,7 +38,8 @@ namespace DSharpPlus.Test
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = false,
                 ShardId = shardid,
-                ShardCount = this.Config.ShardCount
+                ShardCount = this.Config.ShardCount,
+                GatewayVersion = 5
             };
             Discord = new DiscordClient(dcfg);
 
