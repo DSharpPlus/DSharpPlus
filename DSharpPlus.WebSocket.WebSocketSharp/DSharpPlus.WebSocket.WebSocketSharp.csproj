@@ -4,6 +4,7 @@
   <PropertyGroup>
     <!-- <TargetFrameworks>net452;net462;net47</TargetFrameworks> -->
 	<TargetFrameworks>net452;net462</TargetFrameworks>
+    <NoWarn>1591</NoWarn>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RootNamespace>DSharpPlus</RootNamespace>
     <PackageId>DSharpPlus.WebSocket.WebSocketSharp</PackageId>
