@@ -55,6 +55,8 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         internal Delegate Callable { get; set; }
 
+        internal Command() { }
+
         internal virtual async Task Execute(CommandContext ctx)
         {
             var args = CommandsNextUtilities.BindArguments(ctx);

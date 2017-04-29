@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DSharpPlus.Objects.Transport;
 using Newtonsoft.Json;
 
 namespace DSharpPlus
@@ -10,18 +11,27 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordMember : DiscordUser
     {
-        public DiscordMember() { }
-        public DiscordMember(DiscordUser user)
+        internal DiscordMember() { }
+        internal DiscordMember(DiscordUser user)
         {
             this.AvatarHash = user.AvatarHash;
             this.Discord = user.Discord;
-            this.Discriminator = user.Discriminator;
+            this.DiscriminatorInt = user.DiscriminatorInt;
             this.Email = user.Email;
             this.Id = user.Id;
             this.IsBot = user.IsBot;
             this.MFAEnabled = user.MFAEnabled;
             this.Username = user.Username;
             this.Verified = user.Verified;
+        }
+        internal DiscordMember(TransportMember mbr)
+            : base(mbr.User)
+        {
+            this.IsDeafened = mbr.IsDeafened;
+            this.IsMuted = mbr.IsMuted;
+            this.JoinedAt = mbr.JoinedAt;
+            this.Nickname = mbr.Nickname;
+            this.Roles = mbr.Roles;
         }
 
         /// <summary>

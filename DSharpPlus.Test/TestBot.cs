@@ -151,7 +151,7 @@ namespace DSharpPlus.Test
 
             var ch = e.Guild.Channels.FirstOrDefault(xc => xc.Name.Contains("logs"));
             if (ch != null)
-                await ch.SendMessageAsync($"**{usrn}#{e.User.Discriminator.ToString("0000")} got bent**");
+                await ch.SendMessageAsync($"**{usrn}#{e.User.Discriminator} got bent**");
         }
 
         private Task Discord_PresenceUpdate(PresenceUpdateEventArgs e)

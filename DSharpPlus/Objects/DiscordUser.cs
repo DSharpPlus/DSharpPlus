@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DSharpPlus.Objects.Transport;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
@@ -7,6 +8,19 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordUser : SnowflakeObject
     {
+        internal DiscordUser() { }
+        internal DiscordUser(TransportUser transport)
+        {
+            this.Id = transport.Id;
+            this.Username = transport.Username;
+            this.DiscriminatorInt = transport.DiscriminatorInt;
+            this.AvatarHash = transport.AvatarHash;
+            this.IsBot = transport.IsBot;
+            this.MFAEnabled = transport.MFAEnabled;
+            this.Verified = transport.Verified;
+            this.Email = transport.Email;
+        }
+
         /// <summary>
         /// The user's username
         /// </summary>
@@ -16,7 +30,12 @@ namespace DSharpPlus
         /// The user's 4-digit tag
         /// </summary>
         [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
-        public int Discriminator { get; internal set; }
+        internal int DiscriminatorInt { get; set; }
+        /// <summary>
+        /// Gets the user's 4-digit tag.
+        /// </summary>
+        [JsonIgnore]
+        public string Discriminator => this.DiscriminatorInt.ToString("0000");
         /// <summary>
         /// The user's avatar hash
         /// </summary>

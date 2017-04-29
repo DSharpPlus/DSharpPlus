@@ -257,7 +257,7 @@ Serverowner: {e.Guild.OwnerID}
             embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Description", Value = string.Concat("```\n", app.Description, "\n```") });
             embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "ID", Value = app.Id.ToString() });
             embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Created", Value = app.CreationDate.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Owner", Value = $"{usrn}#{app.Owner.Discriminator.ToString("0000")} ({app.Owner.Id})" });
+            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Owner", Value = $"{usrn}#{app.Owner.Discriminator} ({app.Owner.Id})" });
 
             await e.Message.RespondAsync("", embed: embed);
         }
