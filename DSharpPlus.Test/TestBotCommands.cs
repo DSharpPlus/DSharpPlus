@@ -9,6 +9,7 @@ using DSharpPlus.CommandsNext.Attributes;
 //using DSharpPlus.VoiceNext;
 //using NAudio.Wave;
 using DSharpPlus.Interactivity;
+using System.IO;
 
 namespace DSharpPlus.Test
 {
@@ -70,7 +71,7 @@ Serverowner: {e.Guild.OwnerID}
                     Content = "test 4"
                 }
             };
-            await e.Client.GetInteractivityModule().SendPaginatedMessage(e.Channel, e.User, 
+            await e.Client.GetInteractivityModule().SendPaginatedMessage(e.Channel, e.User,
                 e.Client.GetInteractivityModule().GeneratePagesInEmbeds(/*Dont mind this, i've broken it in parts*/"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quae mihi ipsi, qui volo et esse et haberi gratus, grata non essent, nisi eum perspicerem mea causa mihi amicum fuisse, non sua, nisi hoc dicis sua, quod interest omnium recte facere. Omnes, qui non sint sapientes, aeque miseros esse, sapientes omnes summe beatos, recte facta omnia aequalia, omnia peccata paria; Vives, inquit Aristo, magnifice atque praeclare, quod erit cumque visum ages, numquam angere, numquam cupies, numquam timebis. Illud vero minime consectarium, sed in primis hebes, illorum scilicet, non tuum, gloriatione dignam esse beatam vitam, quod non possit sine honestate contingere, ut iure quisquam glorietur. Superiores tres erant, quae esse possent, quarum est una sola defensa, eaque vehementer. Duo Reges: constructio interrete. Ex ea quae sint apta, ea bonesta, ea pulchra, ea laudabilia, illa autem superiora naturale nominantur, quae coniuncta cum honestis vitam beatam perficiunt et absolvunt. Quantum Aristoxeni ingenium consumptum videmus in musicis? Ita, quod certissimum est, pro vera certaque iustitia simulationem nobis iustitiae traditis praecipitisque quodam modo ut nostram stabilem conscientiam contemnamus, aliorum errantem opinionem aucupemur. Etenim nec iustitia nec amicitia esse omnino poterunt, nisi ipsae per se expetuntur. Aufidio, praetorio, erudito homine, oculis capto, saepe audiebam, cum se lucis magis quam utilitatis desiderio moveri diceret. Ex quo intellegitur nec intemperantiam propter se esse fugiendam temperantiamque expetendam, non quia voluptates fugiat, sed quia maiores consequatur. Sin autem est in ea, quod quidam volunt, nihil impedit hanc nostram comprehensionem summi boni. Totius enim quaestionis eius, quae habetur de finibus bonorum et malorum, cum quaeritur, in his quid sít extremum et ultimum, fons reperiendus est, in quo sint prima invitamenta naturae; Quod idem cum vestri faciant, non satis magnam tribuunt inventoribus gratiam. Quaeque de virtutibus dicta sunt, quem ad modum eae semper voluptatibus inhaererent, eadem de amicitia dicenda sunt. Quo modo autem optimum, si bonum praeterea nullum est? Incommoda autem et commoda-ita enim estmata et dustmata appello-communia esse voluerunt, paria noluerunt. Cum autem assumpta ratío est, tanto in dominatu locatur, ut omnia illa prima naturae hulus tutelae subiciantur. Omne enim animal, simul et ortum est, se ipsum et omnes partes suas diligit duasque, quae maximae sunt, in primis amplectitur, animum et corpus, deinde utriusque partes. Pomponius Luciusque Cicero, frater noster cognatione patruelis, amore germanus, constituimus inter nos ut ambulationem postmeridianam conficeremus in Academia, maxime quod is locus ab omni turba id temporis vacuus esset. Atque his tribus generibus honestorum notatis quartum sequitur et in eadem pulchritudine et aptum ex illis tribus, in quo inest ordo et moderatio. Is hoc melior, quam Pyrrho, quod aliquod genus appetendi dedit, deterior quam ceteri, quod penitus a natura recessit. Ergo infelix una molestia, fellx rursus, cum is ipse anulus in praecordiis piscis inventus est? Quae cum ita sint, effectum est nihil esse malum, quod turpe non sit. Sed virtutem ipsam inchoavit, nihil amplius. In homine autem summa omnis animi est et in animo rationis, ex qua virtus est, quae rationis absolutio definitur, quam etiam atque etiam explicandam putant. Alii rursum isdem a principiis omne officium referent aut ad voluptatem aut ad non dolendum aut ad prima illa secundum naturam optinenda. Quodsi esset in voluptate summum bonum, ut dicitis, optabile esset maxima in voluptate nullo intervallo interiecto dies noctesque versari, cum omnes sensus dulcedine omni quasi perfusi moverentur. Quantam rem agas, ut Circeis qui habitet totum hunc mundum suum municipium esse existimet? Quod quam magnum sit fictae veterum fabulae declarant, in quibus tam multis tamque variis ab ultima antiquitate repetitis tria vix amicorum paria reperiuntur, ut ad Orestem pervenias profectus a Theseo. Et tamen vide, ne, si ego non intellegam quid Epicurus loquatur, cum Graece, ut videor, luculenter sciam, sit aliqua culpa eius, qui ita loquatur, ut non intellegatur. Non potes ergo ista tueri, Torquate, mihi crede, si te ipse et tuas cogitationes et studia perspexeris; Non ergo Epicurus ineruditus, sed ii indocti, qui, quae pueros non didicisse turpe est, ea putant usque ad senectutem esse discenda. Nam si dicent ab illis has res esse tractatas, ne ipsos quidem Graecos est cur tam multos legant, quam legendi sunt. Ego autem tibi, Piso, assentior usu hoc venire, ut acrius aliquanto et attentius de claris viris locorum admonitu cogitemus. Constituto autem illo, de quo ante diximus, quod honestum esset, id esse solum bonum, intellegi necesse est pluris id, quod honestum sit, aestimandum esse quam illa media, quae ex eo comparentur. Iudicia rerum in sensibus ponit, quibus si semel aliquid falsi pro vero probatum sit, sublatum esse omne iudicium veri et falsi putat.")
                 , TimeSpan.FromMinutes(1), TimeoutBehaviour.Delete);
         }
@@ -118,7 +119,7 @@ Serverowner: {e.Guild.OwnerID}
             await e.Message.DeleteAsync();
             var list = await e.Client.GetInteractivityModule().CollectReactionsAsync(m, TimeSpan.FromSeconds(30));
             string reactions = "We're done people!\n\nReactions:";
-            foreach(var collected in list)
+            foreach (var collected in list)
             {
                 reactions += "\n" + collected.Key + ": " + collected.Value + "times!";
             }
@@ -150,6 +151,16 @@ Serverowner: {e.Guild.OwnerID}
         [Command("presence")]
         public async Task Presence(CommandContext e) =>
             await e.Message.RespondAsync(e.User.Username);
+
+        [Command("multifile")]
+        public async Task MultiFile(CommandContext e)
+        {
+            Dictionary<string, Stream> files = new Dictionary<string, Stream>();
+            files.Add("file1.png", File.OpenRead("file1.png"));
+            files.Add("file2.jpeg", File.OpenRead("file2.jpeg"));
+
+            await e.Message.RespondAsync("multiple images?", files);
+        }
 
         [Command("guild")]
         public async Task Guild(CommandContext e)

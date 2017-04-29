@@ -148,6 +148,9 @@ namespace DSharpPlus
         public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool tts = false) => 
             this.Discord._rest_client.InternalUploadFile(ChannelID, file_data, file_name, content, tts);
 
+        public Task<DiscordMessage> RespondAsync(string content, Dictionary<string, Stream> files, bool tts = false) =>
+            this.Discord._rest_client.InternalUploadMultipleFiles(ChannelID, files, content, tts);
+
         /// <summary>
         /// Creates a reaction to this message
         /// </summary>

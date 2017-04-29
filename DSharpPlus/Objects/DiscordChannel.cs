@@ -93,6 +93,18 @@ namespace DSharpPlus
         public Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = "", bool tts = false) =>
             this.Discord._rest_client.InternalUploadFile(Id, file_data, file_name, content, tts);
         /// <summary>
+        /// Posts a file
+        /// </summary>
+        /// <param name="files"></param>
+        /// <param name="content"></param>
+        /// <param name="tts"></param>
+        /// <returns></returns>
+        public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false) =>
+            this.Discord._rest_client.InternalUploadMultipleFiles(Id, files, content, tts);
+
+        // Please send memes to Naamloos#2887 at discord <3 thank you
+
+        /// <summary>
         /// Deletes a guild channel
         /// </summary>
         /// <returns></returns>

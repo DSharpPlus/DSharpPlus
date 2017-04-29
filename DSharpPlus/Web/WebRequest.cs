@@ -26,8 +26,7 @@ namespace DSharpPlus
 
         // Multipart
         public Dictionary<string, string> Values { get; private set; }
-        public Stream FileData { get; private set; }
-        public string FileName { get; private set; } 
+        public Dictionary<string, Stream> Files { get; private set; }
         public ContentType ContentType { get; set; }
 
         private WebRequest() { }
@@ -46,7 +45,7 @@ namespace DSharpPlus
         }
 
         public static WebRequest CreateMultipartRequest(DiscordClient client, string url, HttpRequestMethod method = HttpRequestMethod.GET, Dictionary<string, string> headers = null,
-            Dictionary<string, string> values = null, Stream filedata = null, string filename = "")
+            Dictionary<string, string> values = null, Dictionary<string, Stream> files = null)
         {
             return new WebRequest
             {
@@ -55,8 +54,7 @@ namespace DSharpPlus
                 Method = method,
                 Headers = headers,
                 Values = values,
-                FileData = filedata,
-                FileName = filename,
+                Files = files,
                 ContentType = ContentType.Multipart
             };
         }
