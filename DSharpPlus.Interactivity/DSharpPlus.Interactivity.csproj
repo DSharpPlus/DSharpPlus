@@ -5,7 +5,7 @@
     <Optimize>True</Optimize>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>DSharpPlus.Interactivity</PackageId>
-    <Version>2.1.7-rc</Version>
+    <Version>2.1.8-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>An addon that adds interactivity capabilities to commands.</Description>
@@ -14,8 +14,10 @@
     <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
+    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands, Interactive, Pagination, Reactions</PackageTags>
     <PackageReleaseNotes>Implemented support for autosharded client.</PackageReleaseNotes>
+    <AssemblyVersion>2.1.8.0</AssemblyVersion>
+    <FileVersion>2.1.8.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

@@ -119,39 +119,17 @@ namespace DSharpPlus
             else if (request.ContentType == ContentType.Multipart)
             {
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-                byte[] boundarybytes = UTF8.GetBytes("\r\n--" + boundary + "\r\n");
-
+                
                 req.Headers.Add("Connection", "keep-alive");
                 req.Headers.Add("Keep-Alive", "600");
 
-                var ms = new MemoryStream();
-                var formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
-                var headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
-
+                var content = new MultipartFormDataContent(boundary);
                 if (request.Values != null)
-                {
-                    foreach (string key in request.Values.Keys)
-                    {
-                        await ms.WriteAsync(boundarybytes, 0, boundarybytes.Length);
-                        string formitem = string.Format(formdataTemplate, key, request.Values[key]);
-                        byte[] formitembytes = UTF8.GetBytes(formitem);
-                        await ms.WriteAsync(formitembytes, 0, formitembytes.Length);
-                    }
-                }
-                await ms.WriteAsync(boundarybytes, 0, boundarybytes.Length);
+                    foreach (var kvp in request.Values)
+                        content.Add(new StringContent(kvp.Value), kvp.Key);
+                content.Add(new StreamContent(request.FileData), "file", request.FileName);
 
-                string header = string.Format(headerTemplate, "file", request.FileName, "image/jpeg");
-                byte[] headerbytes = Encoding.UTF8.GetBytes(header);
-                await ms.WriteAsync(headerbytes, 0, headerbytes.Length);
-
-                await request.FileData.CopyToAsync(ms);
-
-                byte[] trailer = new UTF8Encoding(false).GetBytes("\r\n--" + boundary + "--\r\n");
-                await ms.WriteAsync(trailer, 0, trailer.Length);
-
-                ms.Seek(0, SeekOrigin.Begin);
-                req.Content = new StreamContent(ms);
-                req.Content.Headers.ContentType = new MediaTypeHeaderValue(string.Concat("multipart/form-data; boundary=", boundary));
+                req.Content = content;
             }
             else
             {

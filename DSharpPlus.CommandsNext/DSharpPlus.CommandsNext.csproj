@@ -5,7 +5,7 @@
     <Optimize>True</Optimize>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>DSharpPlus.CommandsNext</PackageId>
-    <Version>2.1.7-rc</Version>
+    <Version>2.1.8-rc</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>Advanced command framework for DSharpPlus.</Description>
@@ -16,8 +16,8 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
     <PackageReleaseNotes>Fixed argument parsing.</PackageReleaseNotes>
-    <AssemblyVersion>2.1.7.0</AssemblyVersion>
-    <FileVersion>2.1.7.0</FileVersion>
+    <AssemblyVersion>2.1.8.0</AssemblyVersion>
+    <FileVersion>2.1.8.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
