@@ -69,5 +69,16 @@ namespace DSharpPlus.CommandsNext
         /// <returns></returns>
         public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool is_tts = false) =>
             this.Message.RespondAsync(content, file_data, file_name, is_tts);
+
+        /// <summary>
+        /// Quickly respond with multiple files to the message that triggered the command.
+        /// </summary>
+        /// <param name="content">Message to respond with.</param>
+        /// <param name="file_data">File to send.</param>
+        /// <param name="file_name">Name of the file to send.</param>
+        /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> RespondAsync(string content, Dictionary<string, Stream> files, bool is_tts = false) =>
+            this.Message.RespondAsync(content, files, is_tts);
     }
 }
