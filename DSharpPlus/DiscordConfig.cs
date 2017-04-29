@@ -11,6 +11,7 @@
         public bool AutoReconnect { get; set; } = false;
         public int ShardId { get; set; } = 0;
         public int ShardCount { get; set; } = 1;
+        public int GatewayVersion { get; set; } = 5;
 
         public DiscordConfig() { }
         public DiscordConfig(DiscordConfig other)

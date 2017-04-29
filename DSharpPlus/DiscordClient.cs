@@ -687,7 +687,7 @@ namespace DSharpPlus
                 await this._socket_closed.InvokeAsync();
             };
             _websocket_client.OnMessage += async e => await HandleSocketMessageAsync(e.Message);
-            await _websocket_client.ConnectAsync(_gatewayUrl + "?v=5&encoding=json");
+            await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={config.GatewayVersion}&encoding=json");
         }
 
         internal Task InternalUpdateGuildAsync(DiscordGuild guild)
