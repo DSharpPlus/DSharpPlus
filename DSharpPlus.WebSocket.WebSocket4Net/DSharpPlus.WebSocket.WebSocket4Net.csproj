@@ -1,7 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;net462;net47</TargetFrameworks>
+    <!-- <TargetFrameworks>net452;net462;net47</TargetFrameworks> -->
+	<TargetFrameworks>net452;net462</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RootNamespace>DSharpPlus</RootNamespace>
     <PackageId>DSharpPlus.WebSocket.WebSocket4Net</PackageId>
