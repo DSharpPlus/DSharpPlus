@@ -296,7 +296,27 @@ namespace DSharpPlus
                 values.Add("content", content);
             if (tts)
                 values.Add("tts", tts.ToString());
-            WebRequest request = WebRequest.CreateMultipartRequest(this.Discord, url, HttpRequestMethod.POST, headers, values, file_data, file_name);
+            Dictionary<string, Stream> file = new Dictionary<string, Stream>
+            {
+                { file_name, file_data }
+            };
+            WebRequest request = WebRequest.CreateMultipartRequest(this.Discord, url, HttpRequestMethod.POST, headers, values, file);
+            WebResponse response = await this.Rest.HandleRequestAsync(request);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
+        }
+
+        internal async Task<DiscordMessage> InternalUploadMultipleFiles(ulong channel_id, Dictionary<string, Stream> files, string content = "", bool tts = false)
+        {
+            string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Channels + "/" + channel_id + Endpoints.Messages;
+            var headers = Utils.GetBaseHeaders();
+            var values = new Dictionary<string, string>();
+            if (content != "")
+                values.Add("content", content);
+            if (tts)
+                values.Add("tts", tts.ToString());
+            WebRequest request = WebRequest.CreateMultipartRequest(this.Discord, url, HttpRequestMethod.POST, headers, values, files);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
             ret.Discord = this.Discord;

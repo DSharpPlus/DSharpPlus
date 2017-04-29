@@ -119,7 +119,7 @@ namespace DSharpPlus
             else if (request.ContentType == ContentType.Multipart)
             {
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-                
+
                 req.Headers.Add("Connection", "keep-alive");
                 req.Headers.Add("Keep-Alive", "600");
 
@@ -127,7 +127,15 @@ namespace DSharpPlus
                 if (request.Values != null)
                     foreach (var kvp in request.Values)
                         content.Add(new StringContent(kvp.Value), kvp.Key);
-                content.Add(new StreamContent(request.FileData), "file", request.FileName);
+                if (request.Files != null)
+                {
+                    int i = 1;
+                    foreach (var f in request.Files)
+                    {
+                        content.Add(new StreamContent(f.Value), $"file{i}", f.Key);
+                        i++;
+                    }
+                }
 
                 req.Content = content;
             }
@@ -185,7 +193,7 @@ namespace DSharpPlus
                     request.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Internal", $"Rate-limitted. Waiting till {rateLimit.Reset}", DateTime.Now);
                     await Task.Delay((rateLimit.Reset - time));
                 }
-                else if(rateLimit.UsesLeft == 0 && rateLimit.Reset < time)
+                else if (rateLimit.UsesLeft == 0 && rateLimit.Reset < time)
                 {
                     _rateLimits.Remove(rateLimit);
                 }
