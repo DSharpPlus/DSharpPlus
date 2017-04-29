@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -78,6 +80,23 @@ namespace DSharpPlus.Test
             public async Task ModuleCommand(CommandContext ctx)
             {
                 await ctx.RespondAsync("I'm a proud ethnic Kekistani. For centuries my people bled under Normie oppression. But no more. We have suffered enough under your Social Media Tyranny. It is time to strike back. I hereby declare a meme jihad on all Normies. Normies, GET OUT! RRRÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ﻿");
+            }
+        }
+
+        [Group("actualtesting"), Aliases("testing"), Description("This is for actually testing the bot.")]
+        public class ActualTesting
+        {
+            [Command("test_me_senpai"), Description("S-senpai...")]
+            public async Task TestMeSenpai(CommandContext ctx, [Description("...please be gentle.")] params string[] filename)
+            {
+                var a = typeof(ActualTesting).GetTypeInfo().Assembly;
+                var l = a.Location;
+                var p1 = Path.GetDirectoryName(l);
+                var p2 = string.Join(" ", filename);
+
+                var p = Path.Combine(p1, p2);
+                using (var fs = File.OpenRead(p))
+                    await ctx.RespondAsync("", fs, Path.GetFileName(p));
             }
         }
     }

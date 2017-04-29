@@ -316,7 +316,7 @@ namespace DSharpPlus
                 values.Add("content", content);
             if (tts)
                 values.Add("tts", tts.ToString());
-            WebRequest request = WebRequest.CreateMultipartRequest(url, HttpRequestMethod.POST, headers, values, file_data, file_name);
+            WebRequest request = WebRequest.CreateMultipartRequest(this.Discord, url, HttpRequestMethod.POST, headers, values, file_data, file_name);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
             ret.Discord = this.Discord;

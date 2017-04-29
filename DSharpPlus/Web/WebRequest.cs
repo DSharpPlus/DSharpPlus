@@ -45,11 +45,12 @@ namespace DSharpPlus
             };
         }
 
-        public static WebRequest CreateMultipartRequest(string url, HttpRequestMethod method = HttpRequestMethod.GET, Dictionary<string, string> headers = null,
+        public static WebRequest CreateMultipartRequest(DiscordClient client, string url, HttpRequestMethod method = HttpRequestMethod.GET, Dictionary<string, string> headers = null,
             Dictionary<string, string> values = null, Stream filedata = null, string filename = "")
         {
             return new WebRequest
             {
+                Discord = client,
                 URL = url,
                 Method = method,
                 Headers = headers,
