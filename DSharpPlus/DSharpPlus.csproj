@@ -9,7 +9,7 @@
     <AssemblyName>DSharpPlus</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.1.9-rc</Version>
+    <Version>2.1.9-rc-$(VersionSuffix)</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
@@ -20,9 +20,8 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus</PackageTags>
-    <PackageReleaseNotes>Fixed several member and guild parsing issues. Updated user model.</PackageReleaseNotes>
-    <AssemblyVersion>2.1.9.0</AssemblyVersion>
-    <FileVersion>2.1.9.0</FileVersion>
+    <AssemblyVersion>2.1.9.$(VersionSuffix)</AssemblyVersion>
+    <FileVersion>2.1.9.$(VersionSuffix)</FileVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

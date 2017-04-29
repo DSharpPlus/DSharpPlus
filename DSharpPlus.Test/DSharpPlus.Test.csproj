@@ -7,6 +7,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>DSharpPlus.Test</RootNamespace>
     <AssemblyName>DSharpPlus.Test</AssemblyName>
+	<Version>2.0.0-preview-$(VersionSuffix)</Version>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

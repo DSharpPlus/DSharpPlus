@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TargetFrameworks>net452;net462;net47</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>2.1.9-rc</Version>
+    <RootNamespace>DSharpPlus</RootNamespace>
+    <PackageId>DSharpPlus.WebSocket.WebSocketSharp</PackageId>
+    <Version>2.1.9-rc-$(VersionSuffix)</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>A WebSocket# WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.</Description>
@@ -13,9 +15,8 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, WebSocket, WebSocketSharp, WebSocket#, Windows 7, Mono</PackageTags>
-    <PackageReleaseNotes>WebSocket fixes.</PackageReleaseNotes>
-    <PackageId>DSharpPlus.WebSocket.WebSocketSharp</PackageId>
-    <RootNamespace>DSharpPlus</RootNamespace>
+    <AssemblyVersion>2.1.9.$(VersionSuffix)</AssemblyVersion>
+    <FileVersion>2.1.9.$(VersionSuffix)</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

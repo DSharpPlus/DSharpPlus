@@ -5,7 +5,7 @@
     <Optimize>True</Optimize>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>DSharpPlus.CommandsNext</PackageId>
-    <Version>2.1.9-rc</Version>
+    <Version>2.1.9-rc-$(VersionSuffix)</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>Advanced command framework for DSharpPlus.</Description>
@@ -15,9 +15,8 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
-    <PackageReleaseNotes>Updated for user changes.</PackageReleaseNotes>
-    <AssemblyVersion>2.1.9.0</AssemblyVersion>
-    <FileVersion>2.1.9.0</FileVersion>
+    <AssemblyVersion>2.1.9.$(VersionSuffix)</AssemblyVersion>
+    <FileVersion>2.1.9.$(VersionSuffix)</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
