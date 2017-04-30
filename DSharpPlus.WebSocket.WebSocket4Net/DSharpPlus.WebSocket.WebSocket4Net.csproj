@@ -3,12 +3,11 @@
 
   <PropertyGroup>
     <!-- <TargetFrameworks>net452;net462;net47</TargetFrameworks> -->
-	<TargetFrameworks>net452;net462</TargetFrameworks>
+	  <TargetFrameworks>net452;net462</TargetFrameworks>
     <NoWarn>1591</NoWarn>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RootNamespace>DSharpPlus</RootNamespace>
     <PackageId>DSharpPlus.WebSocket.WebSocket4Net</PackageId>
-    <Version>2.1.9-rc-$(VersionSuffix)</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>A WebSocket4Net WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.</Description>
@@ -18,8 +17,18 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, WebSocket, WebSocket4Net, WS4Net, Windows 7, Mono</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
+    <Version>2.1.9-rc-$(VersionSuffix)</Version>
     <AssemblyVersion>2.1.9.$(VersionSuffix)</AssemblyVersion>
     <FileVersion>2.1.9.$(VersionSuffix)</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VersionSuffix)' == ''">
+    <Version>2.1.9-rc</Version>
+    <AssemblyVersion>2.1.9.0</AssemblyVersion>
+    <FileVersion>2.1.9.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

@@ -17,7 +17,7 @@ namespace DSharpPlus.CommandsNext.Exceptions
         /// </summary>
         /// <param name="message">Message that describes the error.</param>
         /// <param name="command">Command that was not found.</param>
-        public CommandNotFoundException(string message, string command)
+        internal CommandNotFoundException(string message, string command)
             : base(message)
         {
             this.Command = command;

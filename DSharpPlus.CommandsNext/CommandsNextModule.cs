@@ -49,7 +49,7 @@ namespace DSharpPlus.CommandsNext
         public CommandsNextModule(CommandsNextConfiguration cfg)
         {
             this.Config = cfg;
-            this.RegisteredCommands = new Dictionary<string, Command>();
+            this.TopLevelCommands = new Dictionary<string, Command>();
         }
 
         #region DiscordClient Registration
@@ -106,7 +106,8 @@ namespace DSharpPlus.CommandsNext
             var rrg = cmi != -1 ? cnt.Substring(cmi + 1) : "";
             var arg = CommandsNextUtilities.SplitArguments(rrg);
 
-            var cmd = this.RegisteredCommandList.FirstOrDefault(xc => xc.Name == cms || (xc.Aliases != null && xc.Aliases.Contains(cms)));
+            //var cmd = this.RegisteredCommandList.FirstOrDefault(xc => xc.Name == cms || (xc.Aliases != null && xc.Aliases.Contains(cms)));
+            var cmd = this.TopLevelCommands[cms];
             var ctx = new CommandContext
             {
                 Client = this.Client,
@@ -129,7 +130,7 @@ namespace DSharpPlus.CommandsNext
                     if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
                         foreach (var ec in cmd.ExecutionChecks)
                             if (!(await ec.CanExecute(ctx)))
-                                throw new UnauthorizedAccessException("One or more execution pre-checks failed.");
+                                throw new ChecksFailedException("One or more execution pre-checks failed.", cmd, ctx);
 
                     await cmd.Execute(ctx);
                     await this._executed.InvokeAsync(new CommandExecutedEventArgs { Context = ctx });
@@ -144,21 +145,19 @@ namespace DSharpPlus.CommandsNext
         #endregion
 
         #region Command Registration
-        private Dictionary<string, Command> RegisteredCommands { get; set; }
-        public IEnumerable<Command> RegisteredCommandList => this.RegisteredCommands.Select(xkvp => xkvp.Value);
+        private Dictionary<string, Command> TopLevelCommands { get; set; }
 
         public void RegisterCommands<T>() where T : new()
         {
             var t = typeof(T);
             RegisterCommands(t, new T(), null, out var tres, out var tcmds);
-
-            // register
+            
             if (tres != null)
-                this.RegisteredCommands.Add(tres.QualifiedName, tres);
-            foreach (var xc in tcmds)
-            {
-                this.RegisteredCommands.Add(xc.QualifiedName, xc);
-            }
+                this.AddToCommandDictionary(tres);
+
+            if (tcmds != null)
+                foreach (var xc in tcmds)
+                    this.AddToCommandDictionary(xc);
         }
 
         private void RegisterCommands(Type t, object inst, CommandGroup currentparent, out CommandGroup result, out IReadOnlyCollection<Command> commands)
@@ -293,6 +292,66 @@ namespace DSharpPlus.CommandsNext
             result = mdl;
         }
 
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5, T6>(Func<CommandContext, T1, T2, T3, T4, T5, T6, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4, T5>(Func<CommandContext, T1, T2, T3, T4, T5, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3, T4>(Func<CommandContext, T1, T2, T3, T4, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2, T3>(Func<CommandContext, T1, T2, T3, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1, T2>(Func<CommandContext, T1, T2, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand<T1>(Func<CommandContext, T1, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand(Func<CommandContext, Task> f) => this.RegisterCommand((Delegate)f);
+        public void RegisterCommand(Delegate dlg)
+        {
+            var mi = dlg.GetMethodInfo();
+            this.MakeCallable(mi, dlg.Target, out var cbl, out var args);
+
+            var attrs = mi.GetCustomAttributes();
+            if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
+                return;
+
+            var cmd = new Command();
+
+            var cbas = new List<ConditionBaseAttribute>();
+            foreach (var xa in attrs)
+            {
+                switch (xa)
+                {
+                    case CommandAttribute c:
+                        cmd.Name = c.Name;
+                        break;
+
+                    case AliasesAttribute a:
+                        cmd.Aliases = a.Aliases;
+                        break;
+
+                    case ConditionBaseAttribute p:
+                        cbas.Add(p);
+                        break;
+
+                    case DescriptionAttribute d:
+                        cmd.Description = d.Description;
+                        break;
+
+                    case HiddenAttribute h:
+                        cmd.IsHidden = true;
+                        break;
+                }
+            }
+            cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
+            cmd.Arguments = args;
+            cmd.Callable = cbl;
+
+            this.AddToCommandDictionary(cmd);
+        }
+
         private void MakeCallable(MethodInfo mi, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
             if (mi == null || mi.IsStatic || !mi.IsPublic)
@@ -354,64 +413,18 @@ namespace DSharpPlus.CommandsNext
             this.MakeCallable(ti.GetDeclaredMethod("ModuleCommand"), inst, out cbl, out args);
         }
 
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6>(Func<CommandContext, T1, T2, T3, T4, T5, T6, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5>(Func<CommandContext, T1, T2, T3, T4, T5, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4>(Func<CommandContext, T1, T2, T3, T4, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3>(Func<CommandContext, T1, T2, T3, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2>(Func<CommandContext, T1, T2, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1>(Func<CommandContext, T1, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand(Func<CommandContext, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand(Delegate dlg)
+        private void AddToCommandDictionary(Command cmd)
         {
-            var mi = dlg.GetMethodInfo();
-            this.MakeCallable(mi, dlg.Target, out var cbl, out var args);
-
-            var attrs = mi.GetCustomAttributes();
-            if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
+            if (cmd.Parent != null)
                 return;
 
-            var cmd = new Command();
+            if (this.TopLevelCommands.ContainsKey(cmd.Name) || (cmd.Aliases != null && cmd.Aliases.Any(xs => this.TopLevelCommands.ContainsKey(xs))))
+                throw new CommandExistsException("Given command name is already registered.", cmd.Name);
 
-            var cbas = new List<ConditionBaseAttribute>();
-            foreach (var xa in attrs)
-            {
-                switch (xa)
-                {
-                    case CommandAttribute c:
-                        cmd.Name = c.Name;
-                        break;
-
-                    case AliasesAttribute a:
-                        cmd.Aliases = a.Aliases;
-                        break;
-
-                    case ConditionBaseAttribute p:
-                        cbas.Add(p);
-                        break;
-
-                    case DescriptionAttribute d:
-                        cmd.Description = d.Description;
-                        break;
-
-                    case HiddenAttribute h:
-                        cmd.IsHidden = true;
-                        break;
-                }
-            }
-            cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
-            cmd.Arguments = args;
-            cmd.Callable = cbl;
-
-            this.RegisteredCommands.Add(cmd.QualifiedName, cmd);
+            this.TopLevelCommands[cmd.Name] = cmd;
+            if (cmd.Aliases != null)
+                foreach (var xs in cmd.Aliases)
+                    this.TopLevelCommands[xs] = cmd;
         }
         #endregion
 
@@ -419,7 +432,7 @@ namespace DSharpPlus.CommandsNext
         [Command("help"), Description("Displays command help.")]
         public async Task DefaultHelp(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
-            var toplevel = this.RegisteredCommandList.Where(xc => xc.Parent == null);
+            var toplevel = this.TopLevelCommands.Values.Distinct();
             var embed = new DiscordEmbed()
             {
                 Color = 0x007FFF,
@@ -443,7 +456,7 @@ namespace DSharpPlus.CommandsNext
                             break;
                     }
                     if (!ce)
-                        throw new UnauthorizedAccessException("You cannot access that command!");
+                        throw new ChecksFailedException("You cannot access that command!", cmd, ctx);
 
                     if (cmd is CommandGroup)
                         search_in = (cmd as CommandGroup).Children;

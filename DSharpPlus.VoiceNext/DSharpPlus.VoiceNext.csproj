@@ -3,7 +3,7 @@
   
   <PropertyGroup>
     <!-- <TargetFrameworks>net452;net462;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks> -->
-	<TargetFrameworks>net452;net462;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+	  <TargetFrameworks>net452;net462;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
     <NoWarn>1591</NoWarn>
     <Optimize>True</Optimize>
     <OutputType>Library</OutputType>
@@ -11,7 +11,6 @@
     <AssemblyName>DSharpPlus.VoiceNext</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>2.1.9-rc-$(VersionSuffix)</Version>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <Description>Voice implementation for DSharpPlus.</Description>
@@ -22,8 +21,18 @@
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Voice</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
+    <Version>2.1.9-rc-$(VersionSuffix)</Version>
     <AssemblyVersion>2.1.9.$(VersionSuffix)</AssemblyVersion>
     <FileVersion>2.1.9.$(VersionSuffix)</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VersionSuffix)' == ''">
+    <Version>2.1.9-rc</Version>
+    <AssemblyVersion>2.1.9.0</AssemblyVersion>
+    <FileVersion>2.1.9.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
