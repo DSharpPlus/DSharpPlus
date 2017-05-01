@@ -382,17 +382,16 @@ namespace DSharpPlus
 
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Channels + "/" + channel_id + Endpoints.Messages;
             var headers = Utils.GetBaseHeaders();
-            JObject j = new JObject();
             if (around != 0)
-                j.Add("around", around);
+                url += "?around=" + around;
             if (before != 0)
-                j.Add("before", before);
+                url += "?before=" + before;
             if (after != 0)
-                j.Add("after", after);
+                url += "?after=" + after;
             if (limit > -1)
-                j.Add("limit", limit);
+                url += "&limit=" + limit;
 
-            WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers, j.ToString());
+            WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
             List<DiscordMessage> messages = new List<DiscordMessage>();
