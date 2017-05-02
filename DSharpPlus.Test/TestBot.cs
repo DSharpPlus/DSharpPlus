@@ -165,7 +165,7 @@ namespace DSharpPlus.Test
 
         private async Task Discord_MessageCreated(MessageCreateEventArgs e)
         {
-            if (e.Message.Content.Contains("<@!276042646693216258>") || e.Message.Content.Contains("<@276042646693216258>"))
+            if (e.Message.Content.Contains($"<@!{e.Client.Me.Id}>") || e.Message.Content.Contains($"<@{e.Client.Me.Id}>"))
                 await e.Message.RespondAsync("r u havin' a ggl thr m8");
         }
 
