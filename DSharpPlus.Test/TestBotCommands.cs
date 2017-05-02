@@ -155,9 +155,11 @@ Serverowner: {e.Guild.OwnerID}
         [Command("multifile")]
         public async Task MultiFile(CommandContext e)
         {
-            Dictionary<string, Stream> files = new Dictionary<string, Stream>();
-            files.Add("file1.png", File.OpenRead("file1.png"));
-            files.Add("file2.jpeg", File.OpenRead("file2.jpeg"));
+            Dictionary<string, Stream> files = new Dictionary<string, Stream>
+            {
+                { "file1.png", File.OpenRead("file1.png") },
+                { "file2.jpeg", File.OpenRead("file2.jpeg") }
+            };
 
             await e.Message.RespondAsync("multiple images?", files);
         }

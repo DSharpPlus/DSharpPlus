@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -18,6 +19,8 @@ namespace DSharpPlus
         internal bool _connected;
 
         private Task _listener;
+        private Task _smq_task;
+        private ConcurrentQueue<string> SocketMessageQueue { get; }
 
         public override event AsyncEventHandler OnConnect
         {
@@ -46,6 +49,9 @@ namespace DSharpPlus
             this._on_disconnect = new AsyncEvent(this.EventErrorHandler, "WS_DISCONNECT");
             this._on_message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
 
+            this.SocketMessageQueue = new ConcurrentQueue<string>();
+            this._smq_task = Task.Run(this.SMQTask, this._cancellationToken);
+
             _ws = new ClientWebSocket();
             _ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
             _cancellationToken = _cancellationTokenSource.Token;
@@ -54,7 +60,6 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a new instance.
         /// </summary>
-        /// <param name="uri">The URI of the WebSocket server.</param>
         /// <returns></returns>
         public static new WebSocketClient Create()
         {
@@ -64,6 +69,7 @@ namespace DSharpPlus
         /// <summary>
         /// Connects to the WebSocket server.
         /// </summary>
+        /// <param name="uri">The URI of the WebSocket server.</param>
         /// <returns></returns>
         public override async Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
@@ -104,24 +110,33 @@ namespace DSharpPlus
         internal void SendMessageAsync(string message)
         {
             if (_ws.State != WebSocketState.Open)
-            {
                 return;
-            }
 
-            var messageBuffer = Encoding.UTF8.GetBytes(message);
-            var messagesCount = (int)Math.Ceiling((double)messageBuffer.Length / SendChunkSize);
+            this.SocketMessageQueue.Enqueue(message);
+        }
 
-            for (var i = 0; i < messagesCount; i++)
+        internal async Task SMQTask()
+        {
+            while (!this._cancellationToken.IsCancellationRequested)
             {
-                var offset = (SendChunkSize * i);
-                var count = SendChunkSize;
-                var lastMessage = ((i + 1) == messagesCount);
+                if (!this.SocketMessageQueue.TryDequeue(out var message))
+                    continue;
 
-                if ((count * (i + 1)) > messageBuffer.Length)
+                var messageBuffer = Encoding.UTF8.GetBytes(message);
+                var messagesCount = (int)Math.Ceiling((double)messageBuffer.Length / SendChunkSize);
+
+                for (var i = 0; i < messagesCount; i++)
                 {
-                    count = messageBuffer.Length - offset;
+                    var offset = (SendChunkSize * i);
+                    var count = SendChunkSize;
+                    var lastMessage = ((i + 1) == messagesCount);
+
+                    if ((count * (i + 1)) > messageBuffer.Length)
+                    {
+                        count = messageBuffer.Length - offset;
+                    }
+                    await _ws.SendAsync(new ArraySegment<byte>(messageBuffer, offset, count), WebSocketMessageType.Text, lastMessage, _cancellationToken);
                 }
-                _ws.SendAsync(new ArraySegment<byte>(messageBuffer, offset, count), WebSocketMessageType.Text, lastMessage, _cancellationToken).Wait();
             }
         }
 
@@ -144,18 +159,22 @@ namespace DSharpPlus
         }
         public override async Task InternalDisconnectAsync()
         {
+            if (!_connected)
+                return;
+
             // lazy again
             _connected = false;
             try
             {
-                _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "", _cancellationToken).Wait();
+                await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "", _cancellationToken);
                 _ws.Abort();
                 _ws.Dispose();
-                await CallOnDisconnectedAsync();
             }
             catch (Exception)
+            { }
+            finally
             {
-
+                await CallOnDisconnectedAsync();
             }
         }
 

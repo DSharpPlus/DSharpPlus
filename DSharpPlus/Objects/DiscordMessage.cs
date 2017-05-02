@@ -107,6 +107,7 @@ namespace DSharpPlus
         /// Edit the message
         /// </summary>
         /// <param name="content"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
         public Task<DiscordMessage> EditAsync(string content = null, DiscordEmbed embed = null) =>
             this.Discord._rest_client.InternalEditMessage(ChannelID, Id, content, embed);

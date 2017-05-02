@@ -16,7 +16,6 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a new instance.
         /// </summary>
-        /// <param name="uri">The URI of the WebSocket server.</param>
         /// <returns></returns>
         public static BaseWebSocketClient Create()
         {
@@ -26,6 +25,7 @@ namespace DSharpPlus
         /// <summary>
         /// Connects to the WebSocket server.
         /// </summary>
+        /// <param name="uri">The URI of the WebSocket server.</param>
         /// <returns></returns>
         public abstract Task<BaseWebSocketClient> ConnectAsync(string uri);
 

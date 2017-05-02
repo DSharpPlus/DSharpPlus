@@ -432,7 +432,7 @@ namespace DSharpPlus
 
         internal BaseWebSocketClient _websocket_client;
         internal DiscordRestClient _rest_client;
-        internal int _sequence = 0;
+        internal long _sequence = 0;
         internal string _session_token = "";
         internal string _session_id = "";
         internal int _heartbeat_interval;
@@ -622,14 +622,20 @@ namespace DSharpPlus
             return _modules.Find(x => x.GetType() == typeof(T)) as T;
         }
 
-        public Task ReconnectAsync() => InternalReconnectAsync();
+        public async Task ReconnectAsync()
+        {
+            await _websocket_client.InternalDisconnectAsync();
+            await this.InternalReconnectAsync(true);
+        }
 
-        public Task ReconnectAsync(string token_override, TokenType token_type) => InternalReconnectAsync(token_override, token_type);
+        public async Task ReconnectAsync(string token_override, TokenType token_type)
+        {
+            await _websocket_client.InternalDisconnectAsync();
+            await this.InternalReconnectAsync(token_override, token_type, true);
+        }
 
         internal async Task InternalReconnectAsync(bool start_new_session = false)
         {
-            _cancel_token_source.Cancel();
-            await _websocket_client.InternalDisconnectAsync();
             if (start_new_session)
                 _session_id = "";
             // delay task by 6 seconds to make sure everything gets closed correctly
@@ -639,8 +645,6 @@ namespace DSharpPlus
 
         internal async Task InternalReconnectAsync(string token_override, TokenType token_type, bool start_new_session = false)
         {
-            _cancel_token_source.Cancel();
-            await _websocket_client.InternalDisconnectAsync();
             if (start_new_session)
                 _session_id = "";
             // delay task by 6 seconds to make sure everything gets closed correctly
@@ -660,31 +664,29 @@ namespace DSharpPlus
             _me = await this._rest_client.InternalGetCurrentUser();
 
             _websocket_client = BaseWebSocketClient.Create();
+            
+            _cancel_token_source = new CancellationTokenSource();
+            _cancel_token = _cancel_token_source.Token;
+
             _websocket_client.OnConnect += async () =>
             {
                 _private_channels = new List<DiscordDmChannel>();
                 _guilds = new Dictionary<ulong, DiscordGuild>();
 
-                if (_session_id == "")
-                    await SendIdentifyAsync();
-                else
-                    await SendResumeAsync();
                 await this._socket_opened.InvokeAsync();
-
-                ConnectionSemaphore.Release();
             };
             _websocket_client.OnDisconnect += async () =>
             {
                 _cancel_token_source.Cancel();
 
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed", DateTime.Now);
+                await this._socket_closed.InvokeAsync();
 
                 if (config.AutoReconnect)
                 {
                     await ReconnectAsync();
                     DebugLogger.LogMessage(LogLevel.Critical, "Internal", "Bot crashed. Reconnecting", DateTime.Now);
                 }
-                await this._socket_closed.InvokeAsync();
             };
             _websocket_client.OnMessage += async e => await HandleSocketMessageAsync(e.Message);
             await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={config.GatewayVersion}&encoding=json");
@@ -721,7 +723,6 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<bool> DisconnectAsync()
         {
-            _cancel_token_source.Cancel();
             await _websocket_client.InternalDisconnectAsync();
             config.AutoReconnect = false;
             return true;
@@ -943,6 +944,7 @@ namespace DSharpPlus
             switch (obj.Value<string>("t").ToLower())
             {
                 case "ready": await OnReadyEventAsync(obj); break;
+                case "resumed": await OnResumedAsync(); break;
                 case "channel_create": await OnChannelCreateEventAsync(obj); break;
                 case "channel_update": await OnChannelUpdateEventAsync(obj); break;
                 case "channel_delete": await OnChannelDeleteEventAsync(obj); break;
@@ -1004,6 +1006,13 @@ namespace DSharpPlus
 
             await this._ready.InvokeAsync(new ReadyEventArgs(this));
         }
+
+        internal Task OnResumedAsync()
+        {
+            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", "Session resumed.", DateTime.Now);
+            return Task.Delay(0);
+        }
+
         internal async Task OnChannelCreateEventAsync(JObject obj)
         {
             if (obj["d"]["is_private"] != null && obj["d"]["is_private"].ToObject<bool>())
@@ -1620,7 +1629,7 @@ namespace DSharpPlus
         {
             _debugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect. ", DateTime.Now);
 
-            await InternalReconnectAsync();
+            await ReconnectAsync();
         }
 
         internal async Task OnInvalidateSessionAsync(JObject obj)
@@ -1635,26 +1644,31 @@ namespace DSharpPlus
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _session_id = "";
-                await InternalReconnectAsync(true);
+                await SendIdentifyAsync();
             }
         }
 
-        internal Task OnHelloAsync(JObject obj)
+        internal async Task OnHelloAsync(JObject obj)
         {
             _waiting_for_ack = false;
             _heartbeat_interval = obj["d"].Value<int>("heartbeat_interval");
-            _cancel_token_source = new CancellationTokenSource();
-            _cancel_token = _cancel_token_source.Token;
             _heartbeat_task = new Task(StartHeartbeating, _cancel_token, TaskCreationOptions.LongRunning);
             _heartbeat_task.Start();
             //_heartbeat_task = Task.Run(this.StartHeartbeatingAsync, _cancel_token);
-            return Task.Delay(0);
+
+            if (_session_id == "")
+                await SendIdentifyAsync();
+            else
+                await SendResumeAsync();
+
+            ConnectionSemaphore.Release();
         }
 
         internal async Task OnHeartbeatAckAsync()
         {
             _waiting_for_ack = false;
 
+            this._sequence++;
             this.Ping = (int)(DateTime.Now - _last_heartbeat).TotalMilliseconds;
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
             _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
@@ -1675,7 +1689,7 @@ namespace DSharpPlus
             {
                 while (!_cancel_token.IsCancellationRequested)
                 {
-                    SendHeartbeatAsync().GetAwaiter().GetResult();
+                    SendHeartbeatAsync(this._sequence).GetAwaiter().GetResult();
                     Task.Delay(_heartbeat_interval, _cancel_token).GetAwaiter().GetResult();
                 }
             }
@@ -1714,7 +1728,7 @@ namespace DSharpPlus
             if (_waiting_for_ack)
             {
                 _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
-                await InternalReconnectAsync();
+                await ReconnectAsync();
             }
 
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Sending Heartbeat", DateTime.Now);
@@ -1738,9 +1752,9 @@ namespace DSharpPlus
                         { "token", Utils.GetFormattedToken(this) },
                         { "properties", new JObject
                         {
-                            { "$os", "linux" },
-                            { "$browser", "DSharpPlus 1.0" },
-                            { "$device", "DSharpPlus 1.0" },
+                            { "$os", "invariant" },
+                            { "$browser", "DSharpPlus 2.0" },
+                            { "$device", "DSharpPlus 2.0" },
                             { "$referrer", "" },
                             { "$referring_domain", "" }
                         } },
@@ -1761,7 +1775,7 @@ namespace DSharpPlus
                 { "op", 6 },
                 { "d", new JObject
                     {
-                        { "token", _session_token },
+                        { "token", Utils.GetFormattedToken(this) },
                         { "session_id", _session_id },
                         { "seq", _sequence }
                     }
