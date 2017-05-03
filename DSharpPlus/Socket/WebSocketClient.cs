@@ -198,10 +198,9 @@ namespace DSharpPlus
                     do
                     {
                         result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationToken);
-                        await Task.Yield();
                         if (result.MessageType == WebSocketMessageType.Close)
                         {
-                            await InternalDisconnectAsync();
+                            throw new WebSocketException("Server requested the connection to be terminated.");
                         }
                         else
                         {
@@ -209,13 +208,12 @@ namespace DSharpPlus
                             stringResult.Append(str);
                         }
 
-                    } while (!result.EndOfMessage);
+                    }
+                    while (!result.EndOfMessage);
                     await CallOnMessageAsync(stringResult);
                 }
             }
-            catch (Exception)
-            {
-            }
+            catch (Exception) { }
             await InternalDisconnectAsync();
         }
 

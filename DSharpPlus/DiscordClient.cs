@@ -684,8 +684,8 @@ namespace DSharpPlus
 
                 if (config.AutoReconnect)
                 {
+                    DebugLogger.LogMessage(LogLevel.Critical, "Websocket", "Socket connection terminated. Reconnecting", DateTime.Now);
                     await ReconnectAsync();
-                    DebugLogger.LogMessage(LogLevel.Critical, "Internal", "Bot crashed. Reconnecting", DateTime.Now);
                 }
             };
             _websocket_client.OnMessage += async e => await HandleSocketMessageAsync(e.Message);
