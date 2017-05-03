@@ -183,7 +183,7 @@ namespace DSharpPlus.VoiceNext
             await this.UdpClient.SendAsync(dat, dat.Length);
 
             this.Sequence++;
-            this.Timestamp += 50 * (uint)blocksize;
+            this.Timestamp += 48 * (uint)blocksize;
 
             // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
             // 
