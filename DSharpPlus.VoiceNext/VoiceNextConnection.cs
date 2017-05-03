@@ -183,7 +183,7 @@ namespace DSharpPlus.VoiceNext
             await this.UdpClient.SendAsync(dat, dat.Length);
 
             this.Sequence++;
-            this.Timestamp += 48 * (uint)blocksize;
+            this.Timestamp += 50 * (uint)blocksize;
 
             // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
             // 
@@ -247,13 +247,13 @@ namespace DSharpPlus.VoiceNext
             if (this.IsDisposed)
                 return;
 
-            this.HeartbeatThread.Abort();
+            this.HeartbeatThread?.Abort();
 
             this.IsDisposed = true;
             this.IsInitialized = false;
             try
             {
-                this.VoiceWs.InternalDisconnectAsync();
+                this.VoiceWs.InternalDisconnectAsync().GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
             catch (Exception)
