@@ -50,9 +50,9 @@ namespace DSharpPlus.Test
 
             if (sides > 1 && sides < 256 && rolls > 0)
             {
-                var rng = RandomNumberGenerator.Create();
                 var drs = new byte[rolls];
-                rng.GetBytes(drs);
+                using (var rng = RandomNumberGenerator.Create())
+                    rng.GetBytes(drs);
 
                 for (var i = 0; i < rolls; i++)
                     drs[i] = (byte)((drs[i] % sides) + 1);
