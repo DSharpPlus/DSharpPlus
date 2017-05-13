@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -40,6 +41,27 @@ namespace DSharpPlus.Test
         {
             var dto = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(timestamp);
             await ctx.RespondAsync($"{dto.ToString("yyyy-MM-dd HH:mm:ss zzz")}");
+        }
+
+        [Command("dice"), Aliases("roll"), Description("Rolls dice.")]
+        public async Task Roll(CommandContext ctx, [Description("Number of sides the dice have.")] int sides, [Description("Number of times to roll.")] int rolls)
+        {
+            await ctx.Channel.TriggerTypingAsync();
+
+            if (sides > 1 && sides < 256 && rolls > 0)
+            {
+                var rng = RandomNumberGenerator.Create();
+                var drs = new byte[rolls];
+                rng.GetBytes(drs);
+
+                for (var i = 0; i < rolls; i++)
+                    drs[i] = (byte)((drs[i] % sides) + 1);
+
+                var ans = $"{ctx.Member.Mention} Rolled {drs.Sum(xb => xb)}: {string.Join(", ", drs)}";
+                await ctx.RespondAsync(ans);
+            }
+            else
+                await ctx.RespondAsync("ill fukken bash ur head in i swer on me mum");
         }
 
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), SimpleCanTest]

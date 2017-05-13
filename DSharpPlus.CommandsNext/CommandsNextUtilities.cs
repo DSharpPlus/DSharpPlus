@@ -280,7 +280,7 @@ namespace DSharpPlus.CommandsNext
                 if (in_escape)
                     in_escape = false;
 
-                if (sp != -1 && ep != 1 && sp < ep)
+                if (sp != -1 && ep != -1 && sp < ep)
                 {
                     yield return str.Substring(sp, ep - sp);
                     ep = -1;
