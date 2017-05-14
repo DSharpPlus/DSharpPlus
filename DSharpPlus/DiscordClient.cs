@@ -1834,6 +1834,18 @@ namespace DSharpPlus
             };
         }
 
+        internal DiscordChannel InternalGetCachedChannel(ulong channel_id)
+        {
+            foreach (DiscordGuild guild in _guilds.Values)
+            {
+                if (guild.Channels.Find(x => x.Id == channel_id) != null) return guild.Channels.Find(x => x.Id == channel_id);
+            }
+            return new DiscordChannel()
+            {
+                Id = channel_id
+            };
+        }
+
         internal DiscordPresence InternalGetUserPresence(ulong user_id)
         {
             if (_presences.ContainsKey(user_id))
