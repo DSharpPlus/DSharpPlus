@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext
@@ -37,7 +39,8 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordMember Member => this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult();
+        public DiscordMember Member => this._lazy_ass_member.Value;
+        private Lazy<DiscordMember> _lazy_ass_member;
 
         /// <summary>
         /// Gets the command that is being executed.
@@ -48,6 +51,11 @@ namespace DSharpPlus.CommandsNext
         /// Gets the list of raw arguments passed to the command.
         /// </summary>
         public IReadOnlyList<string> RawArguments { get; internal set; }
+
+        internal CommandContext()
+        {
+            this._lazy_ass_member = new Lazy<DiscordMember>(() => this.Guild?.Members.FirstOrDefault(xm => xm.Id == this.User.Id) ?? this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult());
+        }
 
         /// <summary>
         /// Quickly respond to the message that triggered the command.
