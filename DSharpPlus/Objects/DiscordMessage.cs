@@ -21,7 +21,6 @@ namespace DSharpPlus
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Channel =>
-            //this.Discord.GetGuildIdFromChannelID(ChannelID) == 0? (this.Discord._private_channels.FindAll(x => x.Id == ChannelID).Count != 0? this.Discord._private_channels.Find(x => x.Id == ChannelID) : new DiscordChannel() ) : this.Discord._guilds[this.Discord.GetGuildIdFromChannelID(ChannelID)].Channels.Find(x => x.Id == ChannelID) ;
             this.Discord.InternalGetCachedChannel(this.ChannelID);
         /// <summary>
         /// The author of this message
