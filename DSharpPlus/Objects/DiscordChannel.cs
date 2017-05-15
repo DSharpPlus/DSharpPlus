@@ -15,7 +15,7 @@ namespace DSharpPlus
         /// The id of the guild
         /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong GuildID { get; internal set; }
+        internal ulong GuildID { get; set; }
         /// <summary>
         /// The name of the channel
         /// </summary>

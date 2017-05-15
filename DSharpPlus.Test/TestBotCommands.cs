@@ -23,7 +23,7 @@ namespace DSharpPlus.Test
         public async Task Testerino(CommandContext e)
         {
             await e.Client.SendMessageAsync(e.Channel, "ill bash ur head in i sweak on me fkin mum");
-            await e.Client.SendMessageAsync(e.Message.ChannelID, $@"```
+            await e.Client.SendMessageAsync(e.Message.Channel.Id, $@"```
 Servername: {e.Guild.Name}
 Serverowner: {e.Guild.OwnerID}
 ```");
