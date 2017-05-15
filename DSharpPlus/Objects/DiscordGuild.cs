@@ -125,7 +125,7 @@ namespace DSharpPlus
         /// List of channel objects
         /// </summary>
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
-        public List<DiscordChannel> Channels;
+        public List<DiscordChannel> Channels { get; internal set; }
         /// <summary>
         /// List of simple presence objects
         /// </summary>

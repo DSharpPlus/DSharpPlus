@@ -1821,30 +1821,19 @@ namespace DSharpPlus
             }
             return 0;
         }
-
-        internal DiscordUser InternalGetCachedUser(ulong user_id)
-        {
-            foreach (DiscordGuild guild in _guilds.Values)
-            {
-                if (guild.Members.Find(x => x.Id == user_id) != null) return guild.Members.Find(x => x.Id == user_id);
-            }
-            return new DiscordUser()
-            {
-                Id = user_id
-            };
-        }
-
-        internal DiscordChannel InternalGetCachedChannel(ulong channel_id)
-        {
-            foreach (DiscordGuild guild in _guilds.Values)
-            {
-                if (guild.Channels.Find(x => x.Id == channel_id) != null) return guild.Channels.Find(x => x.Id == channel_id);
-            }
-            return new DiscordChannel()
-            {
-                Id = channel_id
-            };
-        }
+        
+        // LINQ :^)
+        internal DiscordUser InternalGetCachedUser(ulong user_id) =>
+            this.Guilds.Values.SelectMany(xg => xg.Members)
+                .GroupBy(xm => xm.Id)
+                .Select(xgrp => xgrp.First())
+                .FirstOrDefault(xm => xm.Id == user_id);
+        
+        // LINQ :^)
+        internal DiscordChannel InternalGetCachedChannel(ulong channel_id) =>
+            this.Guilds.Values.SelectMany(xg => xg.Channels)
+                .Concat(this._private_channels)
+                .FirstOrDefault(xc => xc.Id == channel_id);
 
         internal DiscordPresence InternalGetUserPresence(ulong user_id)
         {
