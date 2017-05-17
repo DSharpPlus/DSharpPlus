@@ -999,6 +999,12 @@ namespace DSharpPlus
                         .Select(xtm => new DiscordMember(xtm) { Discord = this })
                         .ToList();
 
+                    foreach (DiscordChannel channel in ret.Channels)
+                    {
+                        if (channel.GuildID == 0) channel.GuildID = ret.Id;
+                        channel.Discord = this;
+                    }
+
                     _guilds.Add(guild.Value<ulong>("id"), ret);
                 }
             }
