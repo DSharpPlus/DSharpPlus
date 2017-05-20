@@ -9,19 +9,19 @@ namespace DSharpPlus
 {
     public class WebSocketClient : BaseWebSocketClient
     {
-        internal const int ReceiveChunkSize = 1024;
-        internal const int SendChunkSize = 1024;
+        private const int BUFFER_SIZE = 32768;
+
+        private static UTF8Encoding UTF8 { get; set; }
         
-        internal ClientWebSocket _ws;
-        internal Uri _uri;
-        internal CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        internal CancellationToken _cancellationToken;
-        internal bool _connected;
+        private ConcurrentQueue<string> SocketMessageQueue { get; set; }
+        private CancellationTokenSource TokenSource { get; set; }
+        private CancellationToken Token => this.TokenSource.Token;
 
-        private Task _listener;
-        private Task _smq_task;
-        private ConcurrentQueue<string> SocketMessageQueue { get; }
+        private ClientWebSocket Socket { get; set; }
+        private Task WsListener { get; set; }
+        private Task SocketQueueManager { get; set; }
 
+        #region Events
         public override event AsyncEventHandler OnConnect
         {
             add { this._on_connect.Register(value); }
@@ -42,19 +42,18 @@ namespace DSharpPlus
             remove { this._on_message.Unregister(value); }
         }
         private AsyncEvent<WebSocketMessageEventArgs> _on_message;
+        #endregion
 
         public WebSocketClient()
         {
             this._on_connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
             this._on_disconnect = new AsyncEvent(this.EventErrorHandler, "WS_DISCONNECT");
             this._on_message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
+        }
 
-            this.SocketMessageQueue = new ConcurrentQueue<string>();
-            this._smq_task = Task.Run(this.SMQTask, this._cancellationToken);
-
-            _ws = new ClientWebSocket();
-            _ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
-            _cancellationToken = _cancellationTokenSource.Token;
+        static WebSocketClient()
+        {
+            UTF8 = new UTF8Encoding(false);
         }
 
         /// <summary>
@@ -73,8 +72,10 @@ namespace DSharpPlus
         /// <returns></returns>
         public override async Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
-            _uri = new Uri(uri);
-            await InternalConnectAsync();
+            this.SocketMessageQueue = new ConcurrentQueue<string>();
+            this.TokenSource = new CancellationTokenSource();
+
+            await InternalConnectAsync(new Uri(uri));
             return this;
         }
 
@@ -109,66 +110,37 @@ namespace DSharpPlus
 
         internal void SendMessageAsync(string message)
         {
-            if (_ws.State != WebSocketState.Open)
+            if (Socket.State != WebSocketState.Open)
                 return;
 
             this.SocketMessageQueue.Enqueue(message);
         }
 
-        internal async Task SMQTask()
+        internal async Task InternalConnectAsync(Uri uri)
         {
-            while (!this._cancellationToken.IsCancellationRequested)
-            {
-                if (!this.SocketMessageQueue.TryDequeue(out var message))
-                    continue;
-
-                var messageBuffer = Encoding.UTF8.GetBytes(message);
-                var messagesCount = (int)Math.Ceiling((double)messageBuffer.Length / SendChunkSize);
-
-                for (var i = 0; i < messagesCount; i++)
-                {
-                    var offset = (SendChunkSize * i);
-                    var count = SendChunkSize;
-                    var lastMessage = ((i + 1) == messagesCount);
-
-                    if ((count * (i + 1)) > messageBuffer.Length)
-                    {
-                        count = messageBuffer.Length - offset;
-                    }
-                    await _ws.SendAsync(new ArraySegment<byte>(messageBuffer, offset, count), WebSocketMessageType.Text, lastMessage, _cancellationToken);
-                }
-            }
-        }
-
-        internal async Task InternalConnectAsync()
-        {
-            // laziness intensifies
-            _connected = true;
-            _ws = new ClientWebSocket();
             try
             {
-                await _ws.ConnectAsync(_uri, _cancellationToken);
-                await CallOnConnectedAsync();
-                //await StartListen();
-                this._listener = Task.Run(StartListen);
-            }
-            catch (Exception)
-            {
+                this.Socket = new ClientWebSocket();
+                this.Socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
 
+                await Socket.ConnectAsync(uri, this.Token);
+                await CallOnConnectedAsync();
+                this.WsListener = Task.Run(this.Listen, this.Token);
+                this.SocketQueueManager = Task.Run(this.SmqTask, this.Token);
             }
+            catch (Exception) { }
         }
+
         public override async Task InternalDisconnectAsync()
         {
-            if (!_connected)
+            if (this.Socket.State != WebSocketState.Open)
                 return;
-
-            // lazy again
-            _connected = false;
+            
             try
             {
-                await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "", _cancellationToken);
-                _ws.Abort();
-                _ws.Dispose();
+                await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", this.Token);
+                Socket.Abort();
+                Socket.Dispose();
             }
             catch (Exception)
             { }
@@ -178,51 +150,65 @@ namespace DSharpPlus
             }
         }
 
-        internal async Task InternalReconnectAsync()
-        {
-            await InternalDisconnectAsync();
-            await InternalConnectAsync();
-        }
-
-        internal async Task StartListen()
+        internal async Task Listen()
         {
             await Task.Yield();
 
-            var buffer = new byte[ReceiveChunkSize];
+            var buff = new byte[BUFFER_SIZE];
+            var buffseg = new ArraySegment<byte>(buff);
+            var rsb = new StringBuilder();
+            var result = (WebSocketReceiveResult)null;
+            
             try
             {
-                while (_connected)
+                while (!this.Token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
                 {
-                    var stringResult = new StringBuilder();
-                    WebSocketReceiveResult result;
                     do
                     {
-                        result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationToken);
-                        if (result.MessageType == WebSocketMessageType.Close)
-                        {
-                            throw new WebSocketException("Server requested the connection to be terminated.");
-                        }
-                        else
-                        {
-                            var str = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                            stringResult.Append(str);
-                        }
+                        result = await this.Socket.ReceiveAsync(buffseg, this.Token);
 
+                        if (result.MessageType == WebSocketMessageType.Close)
+                            throw new WebSocketException("Server requested the connection to be terminated.");
+                        else
+                            rsb.Append(UTF8.GetString(buff, 0, result.Count));
                     }
                     while (!result.EndOfMessage);
-                    await CallOnMessageAsync(stringResult);
+
+                    await this.CallOnMessageAsync(rsb.ToString());
+                    rsb.Clear();
                 }
             }
             catch (Exception) { }
+
             await InternalDisconnectAsync();
         }
 
-        internal async Task CallOnMessageAsync(StringBuilder stringResult)
+        internal async Task SmqTask()
         {
-            await _on_message.InvokeAsync(new WebSocketMessageEventArgs()
+            while (!this.Token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
             {
-                Message = stringResult.ToString()
-            });
+                if (!this.SocketMessageQueue.TryDequeue(out var message))
+                    continue;
+
+                var buff = UTF8.GetBytes(message);
+                var msgc = buff.Length / BUFFER_SIZE;
+                if (buff.Length % BUFFER_SIZE != 0)
+                    msgc++;
+
+                for (var i = 0; i < msgc; i++)
+                {
+                    var off = BUFFER_SIZE * i;
+                    var cnt = Math.Min(BUFFER_SIZE, buff.Length - off);
+
+                    var lm = i == msgc - 1;
+                    await Socket.SendAsync(new ArraySegment<byte>(buff, off, cnt), WebSocketMessageType.Text, lm, this.Token);
+                }
+            }
+        }
+
+        internal async Task CallOnMessageAsync(string result)
+        {
+            await _on_message.InvokeAsync(new WebSocketMessageEventArgs() { Message = result });
         }
 
         internal async Task CallOnDisconnectedAsync()

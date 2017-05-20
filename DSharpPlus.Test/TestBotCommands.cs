@@ -43,21 +43,21 @@ Serverowner: {e.Guild.OwnerID}
         [Command("pageembed")]
         public async Task Page(CommandContext e)
         {
-            List<Page> pages = new List<Interactivity.Page>()
+            List<Page> pages = new List<Page>()
             {
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 0"
                 },
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 1"
                 },
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 2"
                 },
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 3",
                     Embed = new DiscordEmbed()
@@ -66,7 +66,7 @@ Serverowner: {e.Guild.OwnerID}
                         Description = "this has embeds!!"
                     }
                 },
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 4"
                 }
@@ -79,21 +79,21 @@ Serverowner: {e.Guild.OwnerID}
         [Command("pagestring")]
         public async Task Page2(CommandContext e)
         {
-            List<Page> pages = new List<Interactivity.Page>()
+            List<Page> pages = new List<Page>()
             {
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 0"
                 },
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 1"
                 },
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 2"
                 },
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 3",
                     Embed = new DiscordEmbed()
@@ -102,7 +102,7 @@ Serverowner: {e.Guild.OwnerID}
                         Description = "this has embeds!!"
                     }
                 },
-                new Interactivity.Page()
+                new Page()
                 {
                     Content = "test 4"
                 }
