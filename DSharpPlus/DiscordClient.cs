@@ -576,6 +576,9 @@ namespace DSharpPlus
             this._rest_client = new DiscordRestClient(this);
             this._debugLogger = new DebugLogger(this);
 
+            this._private_channels = new List<DiscordDmChannel>();
+            this._guilds = new Dictionary<ulong, DiscordGuild>();
+
             if (config.UseInternalLogHandler)
                 DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
         }
@@ -664,17 +667,11 @@ namespace DSharpPlus
             _me = await this._rest_client.InternalGetCurrentUser();
 
             _websocket_client = BaseWebSocketClient.Create();
-            
+
             _cancel_token_source = new CancellationTokenSource();
             _cancel_token = _cancel_token_source.Token;
 
-            _websocket_client.OnConnect += async () =>
-            {
-                _private_channels = new List<DiscordDmChannel>();
-                _guilds = new Dictionary<ulong, DiscordGuild>();
-
-                await this._socket_opened.InvokeAsync();
-            };
+            _websocket_client.OnConnect += async () => await this._socket_opened.InvokeAsync();
             _websocket_client.OnDisconnect += async () =>
             {
                 _cancel_token_source.Cancel();
@@ -989,6 +986,10 @@ namespace DSharpPlus
             _gatewayVersion = obj["d"]["v"].ToObject<int>();
             _me = obj["d"]["user"].ToObject<DiscordUser>();
             _private_channels = obj["d"]["private_channels"].ToObject<List<DiscordDmChannel>>();
+
+            foreach (var dmc in this._private_channels)
+                dmc.Discord = this;
+
             foreach (JObject guild in obj["d"]["guilds"])
             {
                 if (!_guilds.ContainsKey(guild.Value<ulong>("id")))
@@ -998,6 +999,13 @@ namespace DSharpPlus
                     ret.Members = guild["members"] == null ? new List<DiscordMember>() : guild["members"].ToObject<IEnumerable<TransportMember>>()
                         .Select(xtm => new DiscordMember(xtm) { Discord = this })
                         .ToList();
+
+                    if (ret.Channels != null)
+                        foreach (DiscordChannel channel in ret.Channels)
+                        {
+                            if (channel.GuildID == 0) channel.GuildID = ret.Id;
+                            channel.Discord = this;
+                        }
 
                     _guilds.Add(guild.Value<ulong>("id"), ret);
                 }
@@ -1360,7 +1368,7 @@ namespace DSharpPlus
             List<DiscordRole> MentionedRoles = new List<DiscordRole>();
             List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
             List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-            if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Channel.Guild.Id))
+            if (!string.IsNullOrWhiteSpace(message.Content))
             {
                 foreach (ulong user in Utils.GetUserMentions(message))
                 {
@@ -1370,20 +1378,23 @@ namespace DSharpPlus
                         MentionedUsers.Add(_guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user));
                 }
 
-                foreach (ulong role in Utils.GetRoleMentions(message))
+                if (message.Channel.Guild != null && _guilds.ContainsKey(message.Channel.Guild.Id))
                 {
-                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
-                    && _guilds[message.Channel.Guild.Id].Roles != null
-                    && _guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role) != null)
-                        MentionedRoles.Add(_guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role));
-                }
+                    foreach (ulong role in Utils.GetRoleMentions(message))
+                    {
+                        if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
+                        && _guilds[message.Channel.Guild.Id].Roles != null
+                        && _guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role) != null)
+                            MentionedRoles.Add(_guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role));
+                    }
 
-                foreach (ulong channel in Utils.GetChannelMentions(message))
-                {
-                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
-                    && _guilds[message.Channel.Guild.Id].Channels != null
-                    && _guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel) != null)
-                        MentionedChannels.Add(_guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel));
+                    foreach (ulong channel in Utils.GetChannelMentions(message))
+                    {
+                        if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
+                        && _guilds[message.Channel.Guild.Id].Channels != null
+                        && _guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel) != null)
+                            MentionedChannels.Add(_guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel));
+                    }
                 }
                 /*
                 foreach (ulong emoji in Utils.GetEmojis(message))
@@ -1822,29 +1833,18 @@ namespace DSharpPlus
             return 0;
         }
 
-        internal DiscordUser InternalGetCachedUser(ulong user_id)
-        {
-            foreach (DiscordGuild guild in _guilds.Values)
-            {
-                if (guild.Members.Find(x => x.Id == user_id) != null) return guild.Members.Find(x => x.Id == user_id);
-            }
-            return new DiscordUser()
-            {
-                Id = user_id
-            };
-        }
+        // LINQ :^)
+        internal DiscordUser InternalGetCachedUser(ulong user_id) =>
+            this.Guilds.Values.SelectMany(xg => xg.Members)
+                .GroupBy(xm => xm.Id)
+                .Select(xgrp => xgrp.First())
+                .FirstOrDefault(xm => xm.Id == user_id);
 
-        internal DiscordChannel InternalGetCachedChannel(ulong channel_id)
-        {
-            foreach (DiscordGuild guild in _guilds.Values)
-            {
-                if (guild.Channels.Find(x => x.Id == channel_id) != null) return guild.Channels.Find(x => x.Id == channel_id);
-            }
-            return new DiscordChannel()
-            {
-                Id = channel_id
-            };
-        }
+        // LINQ :^)
+        internal DiscordChannel InternalGetCachedChannel(ulong channel_id) =>
+            this.Guilds.Values.SelectMany(xg => xg.Channels)
+                .Concat(this._private_channels)
+                .FirstOrDefault(xc => xc.Id == channel_id);
 
         internal DiscordPresence InternalGetUserPresence(ulong user_id)
         {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -15,7 +14,7 @@ namespace DSharpPlus
         /// The id of the guild
         /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong GuildID { get; internal set; }
+        internal ulong GuildID { get; set; }
         /// <summary>
         /// The name of the channel
         /// </summary>
@@ -39,7 +38,9 @@ namespace DSharpPlus
         /// <summary>
         /// The guild
         /// </summary>
-        public DiscordGuild Guild => (GuildID == 0) ? new DiscordGuild() : (this.Discord._guilds.ContainsKey(GuildID)) ? this.Discord._guilds[GuildID] : this.Discord._rest_client.InternalGetGuildAsync(GuildID).GetAwaiter().GetResult();
+        [JsonIgnore]
+        public DiscordGuild Guild =>
+            this.Discord._guilds.ContainsKey(this.GuildID) ? this.Discord._guilds[this.GuildID] : null;
         /// <summary>
         /// A list of permission overwrite
         /// </summary>

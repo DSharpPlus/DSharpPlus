@@ -110,7 +110,10 @@ namespace DSharpPlus.CommandsNext
                 return -1;
 
             var cni = cnt.IndexOf('>');
-            var cnp = cnt.Substring(0, cni);
+            if (cni == -1 || cnt.Length <= cni + 2)
+                return -1;
+
+            var cnp = cnt.Substring(0, cni + 2);
             var m = UserRegex.Match(cnp);
             if (!m.Success)
                 return -1;

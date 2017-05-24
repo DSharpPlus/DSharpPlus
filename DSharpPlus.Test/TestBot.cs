@@ -64,7 +64,7 @@ namespace DSharpPlus.Test
             var cncfg = new CommandsNextConfiguration
             {
                 Prefix = this.Config.CommandPrefix,
-                EnableDms = false,
+                EnableDms = true,
                 EnableMentionPrefix = true
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);

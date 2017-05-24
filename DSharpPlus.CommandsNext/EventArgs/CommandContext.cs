@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext
@@ -37,7 +39,8 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordMember Member => this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult();
+        public DiscordMember Member => this._lazy_ass_member.Value;
+        private Lazy<DiscordMember> _lazy_ass_member;
 
         /// <summary>
         /// Gets the command that is being executed.
@@ -48,6 +51,11 @@ namespace DSharpPlus.CommandsNext
         /// Gets the list of raw arguments passed to the command.
         /// </summary>
         public IReadOnlyList<string> RawArguments { get; internal set; }
+
+        internal CommandContext()
+        {
+            this._lazy_ass_member = new Lazy<DiscordMember>(() => this.Guild?.Members.FirstOrDefault(xm => xm.Id == this.User.Id) ?? this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult());
+        }
 
         /// <summary>
         /// Quickly respond to the message that triggered the command.
@@ -74,11 +82,17 @@ namespace DSharpPlus.CommandsNext
         /// Quickly respond with multiple files to the message that triggered the command.
         /// </summary>
         /// <param name="content">Message to respond with.</param>
-        /// <param name="file_data">File to send.</param>
-        /// <param name="file_name">Name of the file to send.</param>
+        /// <param name="files">Files to send.</param>
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <returns></returns>
         public Task<DiscordMessage> RespondAsync(string content, Dictionary<string, Stream> files, bool is_tts = false, DiscordEmbed embed = null) =>
             this.Message.RespondAsync(content, files, is_tts, embed);
+
+        /// <summary>
+        /// Triggers typing in the channel containing the message that triggered the command.
+        /// </summary>
+        /// <returns></returns>
+        public Task TriggerTypingAsync() =>
+            this.Channel.TriggerTypingAsync();
     }
 }

@@ -15,13 +15,13 @@ namespace DSharpPlus
         /// ID of the channel the message was sent in
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong ChannelID { get; internal set; }
+        internal ulong ChannelID { get; set; }
         /// <summary> 
         /// The channel the message was sent in
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel Channel => 
-            this.Discord.GetGuildIdFromChannelID(ChannelID) == 0? (this.Discord._private_channels.FindAll(x => x.Id == ChannelID).Count != 0? this.Discord._private_channels.Find(x => x.Id == ChannelID) : new DiscordChannel() ) : this.Discord._guilds[this.Discord.GetGuildIdFromChannelID(ChannelID)].Channels.Find(x => x.Id == ChannelID) ;
+        public DiscordChannel Channel =>
+            this.Discord.InternalGetCachedChannel(this.ChannelID);
         /// <summary>
         /// The author of this message
         /// </summary>
