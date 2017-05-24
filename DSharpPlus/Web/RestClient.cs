@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Web;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace DSharpPlus
 {
@@ -139,8 +140,18 @@ namespace DSharpPlus
                 }
                 if(request.MultipartEmbed != null)
                 {
+                    JObject embed = JObject.FromObject(request.MultipartEmbed);
+                    if (request.MultipartEmbed.Timestamp == new DateTime())
+                    {
+                        embed.Remove("timestamp");
+                    }
+                    else
+                    {
+                        embed["timestamp"] = request.MultipartEmbed.Timestamp.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture);
+                    }
+
                     JObject j = new JObject();
-                    j.Add("embed", JObject.FromObject(request.MultipartEmbed));
+                    j.Add("embed", embed);
                     content.Add(new StringContent(j.ToString()), "payload_json");
                 }
 

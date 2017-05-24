@@ -24,7 +24,8 @@ namespace DSharpPlus.Test
                 Image = new DiscordEmbedImage()
                 {
                     Url = "attachment://file.png"
-                }
+                },
+                Timestamp = DateTime.Now
             });
         }
 
