@@ -287,7 +287,7 @@ namespace DSharpPlus
             return ret;
         }
 
-        internal async Task<DiscordMessage> InternalUploadFile(ulong channel_id, Stream file_data, string file_name, string content = "", bool tts = false)
+        internal async Task<DiscordMessage> InternalUploadFile(ulong channel_id, Stream file_data, string file_name, string content = "", bool tts = false, DiscordEmbed embed = null)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Channels + "/" + channel_id + Endpoints.Messages;
             var headers = Utils.GetBaseHeaders();
@@ -300,14 +300,14 @@ namespace DSharpPlus
             {
                 { file_name, file_data }
             };
-            WebRequest request = WebRequest.CreateMultipartRequest(this.Discord, url, HttpRequestMethod.POST, headers, values, file);
+            WebRequest request = WebRequest.CreateMultipartRequest(this.Discord, url, HttpRequestMethod.POST, headers, values, file, embed);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
             ret.Discord = this.Discord;
             return ret;
         }
 
-        internal async Task<DiscordMessage> InternalUploadMultipleFiles(ulong channel_id, Dictionary<string, Stream> files, string content = "", bool tts = false)
+        internal async Task<DiscordMessage> InternalUploadMultipleFiles(ulong channel_id, Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Channels + "/" + channel_id + Endpoints.Messages;
             var headers = Utils.GetBaseHeaders();
@@ -316,7 +316,7 @@ namespace DSharpPlus
                 values.Add("content", content);
             if (tts)
                 values.Add("tts", tts.ToString());
-            WebRequest request = WebRequest.CreateMultipartRequest(this.Discord, url, HttpRequestMethod.POST, headers, values, files);
+            WebRequest request = WebRequest.CreateMultipartRequest(this.Discord, url, HttpRequestMethod.POST, headers, values, files, embed);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
             ret.Discord = this.Discord;

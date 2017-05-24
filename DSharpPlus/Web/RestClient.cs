@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Web;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -135,6 +136,12 @@ namespace DSharpPlus
                         content.Add(new StreamContent(f.Value), $"file{i}", f.Key);
                         i++;
                     }
+                }
+                if(request.MultipartEmbed != null)
+                {
+                    JObject j = new JObject();
+                    j.Add("embed", JObject.FromObject(request.MultipartEmbed));
+                    content.Add(new StringContent(j.ToString()), "payload_json");
                 }
 
                 req.Content = content;

@@ -28,6 +28,7 @@ namespace DSharpPlus
         public Dictionary<string, string> Values { get; private set; }
         public Dictionary<string, Stream> Files { get; private set; }
         public ContentType ContentType { get; set; }
+        public DiscordEmbed MultipartEmbed { get; set; }
 
         private WebRequest() { }
 
@@ -45,7 +46,7 @@ namespace DSharpPlus
         }
 
         public static WebRequest CreateMultipartRequest(DiscordClient client, string url, HttpRequestMethod method = HttpRequestMethod.GET, Dictionary<string, string> headers = null,
-            Dictionary<string, string> values = null, Dictionary<string, Stream> files = null)
+            Dictionary<string, string> values = null, Dictionary<string, Stream> files = null, DiscordEmbed embed = null)
         {
             return new WebRequest
             {
@@ -55,7 +56,8 @@ namespace DSharpPlus
                 Headers = headers,
                 Values = values,
                 Files = files,
-                ContentType = ContentType.Multipart
+                ContentType = ContentType.Multipart,
+                MultipartEmbed = embed
             };
         }
     }

@@ -15,6 +15,19 @@ namespace DSharpPlus.Test
 {
     public sealed class TestBotCommands
     {
+        [Command("uploadembed")]
+        public async Task UplEm(CommandContext e)
+        {
+            await e.Channel.SendFileAsync(new FileStream("file.png", FileMode.Open), "file.png", "test upload file to embed", false, new DiscordEmbed()
+            {
+                Title = "lil test",
+                Image = new DiscordEmbedImage()
+                {
+                    Url = "attachment://file.png"
+                }
+            });
+        }
+
         [Command("test")]
         public async Task Test(CommandContext e) =>
             await e.Channel.SendMessageAsync("u w0t m8");

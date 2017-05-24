@@ -146,11 +146,11 @@ namespace DSharpPlus
         /// <param name="file_name"></param>
         /// <param name="tts"></param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool tts = false) => 
-            this.Discord._rest_client.InternalUploadFile(ChannelID, file_data, file_name, content, tts);
+        public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool tts = false, DiscordEmbed embed = null) => 
+            this.Discord._rest_client.InternalUploadFile(ChannelID, file_data, file_name, content, tts, embed);
 
-        public Task<DiscordMessage> RespondAsync(string content, Dictionary<string, Stream> files, bool tts = false) =>
-            this.Discord._rest_client.InternalUploadMultipleFiles(ChannelID, files, content, tts);
+        public Task<DiscordMessage> RespondAsync(string content, Dictionary<string, Stream> files, bool tts = false, DiscordEmbed embed = null) =>
+            this.Discord._rest_client.InternalUploadMultipleFiles(ChannelID, files, content, tts, embed);
 
         /// <summary>
         /// Creates a reaction to this message
