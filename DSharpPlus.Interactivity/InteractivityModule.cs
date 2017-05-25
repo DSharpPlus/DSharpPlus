@@ -80,7 +80,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            _client.MessageCreated += async (e) =>
+            AsyncEventHandler<MessageCreateEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
                 if (predicate(e.Message))
@@ -90,7 +90,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
+            _client.MessageCreated += handler;
+
             DiscordMessage result = await tsc.Task;
+
+            _client.MessageCreated -= handler;
             return result;
         }
         #endregion
@@ -101,8 +105,7 @@ namespace DSharpPlus.Interactivity
             var tsc = new TaskCompletionSource<DiscordMessage>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
-
-            _client.MessageReactionAdd += async (e) =>
+            AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
                 if (predicate(e.Emoji))
@@ -112,7 +115,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
+            _client.MessageReactionAdd += handler;
+
             DiscordMessage result = await tsc.Task;
+
+            _client.MessageReactionAdd -= handler;
             return result;
         }
 
@@ -123,7 +130,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            _client.MessageReactionAdd += async (e) =>
+            AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
                 if (predicate(e.Emoji))
@@ -136,7 +143,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
+            _client.MessageReactionAdd += handler;
+
             DiscordMessage result = await tsc.Task;
+
+            _client.MessageReactionAdd -= handler;
             return result;
         }
 
@@ -148,7 +159,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            _client.MessageReactionAdd += async (e) =>
+            AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
                 if (predicate(e.Emoji))
@@ -161,7 +172,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
+            _client.MessageReactionAdd += handler;
+
             DiscordEmoji result = await tsc.Task;
+
+            _client.MessageReactionAdd -= handler;
             return result;
         }
 
@@ -172,7 +187,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            _client.MessageReactionAdd += async (e) =>
+            AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
                 if (e.MessageID == message_id)
@@ -182,7 +197,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
+            _client.MessageReactionAdd += handler;
+
             DiscordEmoji result = await tsc.Task;
+
+            _client.MessageReactionAdd -= handler;
             return result;
         }
 
@@ -192,7 +211,7 @@ namespace DSharpPlus.Interactivity
             var tsc = new TaskCompletionSource<ConcurrentDictionary<string, int>>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(Reactions));
-            _client.MessageReactionAdd += async (e) =>
+            AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
             {
                 await Task.Yield();
                 if (e.MessageID == m.Id)
@@ -204,7 +223,9 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionRemove += async (e) =>
+            _client.MessageReactionAdd += handler1;
+
+            AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
             {
                 await Task.Yield();
                 if (e.MessageID == m.Id)
@@ -218,7 +239,9 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionRemoveAll += async (e) =>
+            _client.MessageReactionRemove += handler2;
+
+            AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler3 = async (e) =>
             {
                 await Task.Yield();
                 if (e.MessageID == m.Id)
@@ -227,7 +250,15 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            return await tsc.Task;
+            _client.MessageReactionRemoveAll += handler3;
+
+            var result = await tsc.Task;
+
+            _client.MessageReactionAdd -= handler1;
+            _client.MessageReactionRemove -= handler2;
+            _client.MessageReactionRemoveAll -= handler3;
+
+            return result;
         }
         #endregion
 
@@ -239,7 +270,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            _client.TypingStart += async (e) =>
+            AsyncEventHandler<TypingStartEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
                 if (e.ChannelID == channel_id)
@@ -249,7 +280,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
+            _client.TypingStart += handler;
+
             DiscordUser result = await tsc.Task;
+
+            _client.TypingStart -= handler;
             return result;
         }
 
@@ -260,7 +295,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            _client.TypingStart += async (e) =>
+            AsyncEventHandler<TypingStartEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
                 if (e.UserID == user_id)
@@ -270,7 +305,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
+            _client.TypingStart += handler;
+
             DiscordChannel result = await tsc.Task;
+
+            _client.TypingStart -= handler;
             return result;
         }
         #endregion
@@ -308,7 +347,7 @@ namespace DSharpPlus.Interactivity
             await m.CreateReactionAsync("⏭");
             #endregion
 
-            _client.MessageReactionRemoveAll += async e =>
+            AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler1 = async e =>
             {
                 #region Ugh, adding reactions back
                 await m.CreateReactionAsync("⏮");
@@ -325,34 +364,36 @@ namespace DSharpPlus.Interactivity
                 #endregion
             };
 
-            _client.MessageReactionAdd += async e =>
-            {
-                if (e.MessageID == m.Id)
-                {
-                    if (e.UserID != _client.Me.Id)
-                    {
-                        if (e.Emoji.Id == 0)
-                            await m.DeleteReactionAsync(e.Emoji.Name, e.UserID);
-                        else
-                            await m.DeleteReactionAsync(e.Emoji.Name + ":" + e.Emoji.Id, e.UserID);
+            _client.MessageReactionRemoveAll += handler1;
 
-                        if (e.UserID == user.Id)
-                        {
+            AsyncEventHandler<MessageReactionAddEventArgs> handler2 = async e =>
+             {
+                 if (e.MessageID == m.Id)
+                 {
+                     if (e.UserID != _client.Me.Id)
+                     {
+                         if (e.Emoji.Id == 0)
+                             await m.DeleteReactionAsync(e.Emoji.Name, e.UserID);
+                         else
+                             await m.DeleteReactionAsync(e.Emoji.Name + ":" + e.Emoji.Id, e.UserID);
+
+                         if (e.UserID == user.Id)
+                         {
                             #region The "good" shit
                             switch (e.Emoji.Name)
-                            {
-                                default:
-                                    break;
-                                case "⏮":
-                                    pm.CurrentIndex = 0;
-                                    break;
-                                case "◀":
-                                    if (pm.CurrentIndex != 0)
-                                        pm.CurrentIndex--;
-                                    break;
-                                case "⏹":
-                                    ct.Cancel();
-                                    break;
+                             {
+                                 default:
+                                     break;
+                                 case "⏮":
+                                     pm.CurrentIndex = 0;
+                                     break;
+                                 case "◀":
+                                     if (pm.CurrentIndex != 0)
+                                         pm.CurrentIndex--;
+                                     break;
+                                 case "⏹":
+                                     ct.Cancel();
+                                     break;
                                 /*
                             case "🔢":
                                 var m1 = await e.Channel.SendMessage("Enter page number..");
@@ -362,22 +403,24 @@ namespace DSharpPlus.Interactivity
                                     pm.CurrentIndex = i;
                                 break;
                                 */
-                                case "▶":
-                                    if (pm.CurrentIndex != pm.Pages.Count() - 1)
-                                        pm.CurrentIndex++;
-                                    break;
-                                case "⏭":
-                                    pm.CurrentIndex = pm.Pages.Count() - 1;
-                                    break;
-                            }
+                                 case "▶":
+                                     if (pm.CurrentIndex != pm.Pages.Count() - 1)
+                                         pm.CurrentIndex++;
+                                     break;
+                                 case "⏭":
+                                     pm.CurrentIndex = pm.Pages.Count() - 1;
+                                     break;
+                             }
 
-                            await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
-                                embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? new DiscordEmbed());
+                             await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
+                                 embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? new DiscordEmbed());
                             #endregion
                         }
-                    }
-                }
-            };
+                     }
+                 }
+             };
+
+            _client.MessageReactionAdd += handler2;
 
             await tsc.Task;
             switch (timeout_behaviour)
@@ -389,6 +432,9 @@ namespace DSharpPlus.Interactivity
                     await m.DeleteAsync();
                     break;
             }
+
+            _client.MessageReactionRemoveAll -= handler1;
+            _client.MessageReactionAdd -= handler2;
         }
         public IEnumerable<Page> GeneratePagesInEmbeds(string input)
         {
@@ -443,3 +489,5 @@ namespace DSharpPlus.Interactivity
 
 }
 // send nudes
+
+// wait don't im not 18 yet
