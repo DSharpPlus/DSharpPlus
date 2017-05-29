@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
-//using DSharpPlus.VoiceNext;
 using DSharpPlus.Interactivity;
+using DSharpPlus.VoiceNext;
 
 namespace DSharpPlus.Test
 {
@@ -17,7 +15,7 @@ namespace DSharpPlus.Test
         private TestBotConfig Config { get; }
         public DiscordClient Discord;
         private TestBotCommands Commands { get; }
-        //private VoiceNextClient VoiceService { get; }
+        private VoiceNextClient VoiceService { get; }
         private CommandsNextModule CommandsNextService { get; }
         private InteractivityModule InteractivityService { get; }
         private Timer GameGuard { get; set; }
@@ -54,11 +52,11 @@ namespace DSharpPlus.Test
             Discord.PresenceUpdate += this.Discord_PresenceUpdate;
 
             // voice config and the voice service itself
-            /*var vcfg = new VoiceNextConfiguration
+            var vcfg = new VoiceNextConfiguration
             {
                 VoiceApplication = VoiceNext.Codec.VoiceApplication.Music
             };
-            this.VoiceService = this.Discord.UseVoiceNext(vcfg);*/
+            this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
