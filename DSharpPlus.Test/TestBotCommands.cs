@@ -6,10 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-//using DSharpPlus.VoiceNext;
+using DSharpPlus.VoiceNext;
 //using NAudio.Wave;
 using DSharpPlus.Interactivity;
 using System.IO;
+using System.Diagnostics;
 
 namespace DSharpPlus.Test
 {
@@ -293,33 +294,33 @@ Serverowner: {e.Guild.OwnerID}
         public async Task ModifyMe(CommandContext e) =>
             await e.Client.ModifyMemberAsync(e.Guild.Id, e.User.Id, "Tests D#+ instead of going outside");
 
-        /*[Command("voicejoin")]
+        [Command("voicejoin")]
         public async Task VoiceJoin(CommandContext e)
         {
-            var vs = e.Guild.VoiceStates.FirstOrDefault(xvs => xvs.UserID == e.User.ID);
+            var vs = e.Guild.VoiceStates.FirstOrDefault(xvs => xvs.UserID == e.User.Id);
             if (vs == null)
             {
-                await e.Message.Respond("You are not in a voice channel");
+                await e.Message.RespondAsync("You are not in a voice channel");
                 return;
             }
 
-            var chn = e.Guild.Channels.FirstOrDefault(xc => xc.ID == vs.ChannelID);
+            var chn = e.Guild.Channels.FirstOrDefault(xc => xc.Id == vs.ChannelID);
             if (chn == null)
             {
-                await e.Message.Respond("Your voice channel was not found");
+                await e.Message.RespondAsync("Your voice channel was not found");
                 return;
             }
 
             var voice = e.Client.GetVoiceNextClient();
             if (voice == null)
             {
-                await e.Message.Respond("Voice is not activated");
+                await e.Message.RespondAsync("Voice is not activated");
                 return;
             }
 
             await Task.Yield();
             await voice.ConnectAsync(chn);
-            await e.Message.Respond($"Tryina join `{chn.Name}` ({chn.ID})");
+            await e.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})");
         }
 
         [Command("voiceleave")]
@@ -328,67 +329,72 @@ Serverowner: {e.Guild.OwnerID}
             var voice = e.Client.GetVoiceNextClient();
             if (voice == null)
             {
-                await e.Message.Respond("Voice is not activated");
+                await e.Message.RespondAsync("Voice is not activated");
                 return;
             }
 
             var vnc = voice.GetConnection(e.Guild);
             if (vnc == null)
             {
-                await e.Message.Respond("Voice is not connected in this guild");
+                await e.Message.RespondAsync("Voice is not connected in this guild");
                 return;
             }
 
             vnc.Disconnect();
-            await e.Message.Respond("Disconnected");
+            await e.Message.RespondAsync("Disconnected");
         }
 
         [Command("voiceplay")]
-        public async Task VoicePlay(CommandContext e)
+        public async Task VoicePlay(CommandContext e, params string[] filename)
         {
             var voice = e.Client.GetVoiceNextClient();
             if (voice == null)
             {
-                await e.Message.Respond("Voice is not activated");
+                await e.Message.RespondAsync("Voice is not activated");
                 return;
             }
 
             var vnc = voice.GetConnection(e.Guild);
             if (vnc == null)
             {
-                await e.Message.Respond("Voice is not connected in this guild");
+                await e.Message.RespondAsync("Voice is not connected in this guild");
                 return;
             }
-
-            var snd = string.Join(" ", e.Arguments);
+            
+            var snd = string.Join(" ", filename);
             if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
             {
-                await e.Message.Respond("Invalid file specified");
+                await e.Message.RespondAsync("Invalid file specified");
                 return;
             }
 
             var exc = (Exception)null;
-            await e.Message.Respond($"Playing `{snd}`");
+            await e.Message.RespondAsync($"Playing `{snd}`");
             await vnc.SendSpeakingAsync(true);
             try
             {
-                var fmt = new WaveFormat(48000, 16, 2);
-                using (var wav = new AudioFileReader(snd))
-                using (var pcm = new MediaFoundationResampler(wav, fmt))
-                {
-                    pcm.ResamplerQuality = 60;
-                    var bs = fmt.AverageBytesPerSecond / 50;
-                    var buff = new byte[bs];
-                    int bc = 0;
-                    
-                    while ((bc = pcm.Read(buff, 0, bs)) > 0)
-                    {
-                        if (bc < bs)
-                            for (var i = 0; i < bs; i++)
-                                buff[i] = 0;
+                // borrowed from
+                // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
 
-                        await vnc.SendAsync(buff, 20, fmt.BitsPerSample);
-                    }
+                var ffmpeg_inf = new ProcessStartInfo
+                {
+                    FileName = "ffmpeg",
+                    Arguments = $"-i {snd} -ac 2 -f s16le -ar 48000 pipe:1",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                };
+                var ffmpeg = Process.Start(ffmpeg_inf);
+                var ffout = ffmpeg.StandardOutput.BaseStream;
+
+                var buff = new byte[3840]; // buffer to hold the PCM data
+                var br = 0;
+                while ((br = ffout.Read(buff, 0, buff.Length)) > 0)
+                {
+                    if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
+                        for (var i = br; i < buff.Length; i++)
+                            buff[i] = 0;
+
+                    await vnc.SendAsync(buff, 20); // we're sending 20ms of data
                 }
             }
             catch (Exception ex) { exc = ex; }
@@ -400,71 +406,5 @@ Serverowner: {e.Guild.OwnerID}
             if (exc != null)
                 throw exc;
         }
-
-        [Command("voicespeak")]
-        public async Task VoiceSpeak(CommandContext e)
-        {
-            var voice = e.Client.GetVoiceNextClient();
-            if (voice == null)
-            {
-                await e.Message.Respond("Voice is not activated");
-                return;
-            }
-
-            var vnc = voice.GetConnection(e.Guild);
-            if (vnc == null)
-            {
-                await e.Message.Respond("Voice is not connected in this guild");
-                return;
-            }
-
-            var spk = string.Join(" ", e.Arguments);
-            if (string.IsNullOrWhiteSpace(spk))
-            {
-                await e.Message.Respond("Must say something");
-                return;
-            }
-
-            await e.Message.Respond($"Speaking");
-            await vnc.SendSpeakingAsync(true);
-            try
-            {
-                using (var ms = new MemoryStream())
-                {
-                    using (var sps = new SpeechSynthesizer())
-                    {
-                        sps.SetOutputToWaveStream(ms);
-                        sps.Speak(spk);
-                    }
-
-                    ms.Flush();
-                    ms.Seek(0, SeekOrigin.Begin);
-
-                    var fmt = new WaveFormat(48000, 16, 2);
-                    using (var wav = new WaveFileReader(ms))
-                    using (var pcm = new MediaFoundationResampler(wav, fmt))
-                    {
-                        pcm.ResamplerQuality = 60;
-                        var bs = fmt.AverageBytesPerSecond / 50;
-                        var buff = new byte[bs];
-                        int bc = 0;
-
-                        while ((bc = pcm.Read(buff, 0, bs)) > 0)
-                        {
-                            if (bc < bs)
-                                for (var i = 0; i < bs; i++)
-                                    buff[i] = 0;
-
-                            await vnc.SendAsync(buff, 20, fmt.BitsPerSample);
-                        }
-                    }
-                }
-            }
-            catch (Exception) { }
-            finally
-            {
-                await vnc.SendSpeakingAsync(false);
-            }
-        }*/
     }
 }

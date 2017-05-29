@@ -41,19 +41,23 @@
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
-    <Compile Remove="Socket\WebSocketClient.cs" />
+    <Compile Remove="Net\WebSocketClient.cs" />
+    <Compile Remove="Net\DspUdpClient.cs" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
-    <None Include="Socket\WebSocketClient.cs" />
+    <None Include="Net\WebSocketClient.cs" />
+    <None Include="Net\DspUdpClient.cs" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard1.1'">
-    <Compile Remove="Socket\WebSocketClient2.cs" />
+    <Compile Remove="Net\WebSocketClient2.cs" />
+    <Compile Remove="Net\DspUdpClient2.cs" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard1.1'">
-    <None Include="Socket\WebSocketClient2.cs" />
+    <None Include="Net\WebSocketClient2.cs" />
+    <None Include="Net\DspUdpClient2.cs" />
   </ItemGroup>
   
   <ItemGroup>

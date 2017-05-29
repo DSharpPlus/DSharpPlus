@@ -6,13 +6,13 @@ namespace DSharpPlus.VoiceNext.Codec
 {
     public sealed class OpusCodec : IDisposable
     {
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_create")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_create")]
         private static extern IntPtr CreateEncoder(int samplerate, int channels, int application, out OpusError error);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_destroy")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_destroy")]
         private static extern void DestroyEncoder(IntPtr encoder);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encode")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encode")]
         private static extern int Encode(IntPtr encoder, byte[] pcm, int frame_size, IntPtr data, int max_data_bytes);
 
         private IntPtr Encoder { get; set; }

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26430.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus", "DSharpPlus\DSharpPlus.csproj", "{EB3D8310-DFAD-4295-97F9-82E253647583}"
 EndProject
@@ -42,7 +42,9 @@ Global
 		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}.Release|Any CPU.ActiveCfg = Release|Any CPU

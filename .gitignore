@@ -287,3 +287,6 @@ build/
 ### Built docs
 docs/build/
 config.json
+/DSharpPlus.Test/libsodium.dll
+/DSharpPlus.Test/libopus.dll
+/DSharpPlus.Test/ffmpeg.exe

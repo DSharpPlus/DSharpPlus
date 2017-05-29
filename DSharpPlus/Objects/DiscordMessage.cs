@@ -145,6 +145,7 @@ namespace DSharpPlus
         /// <param name="file_data"></param>
         /// <param name="file_name"></param>
         /// <param name="tts"></param>
+        /// <param name="embed"></param>
         /// <returns></returns>
         public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool tts = false, DiscordEmbed embed = null) => 
             this.Discord._rest_client.InternalUploadFile(ChannelID, file_data, file_name, content, tts, embed);

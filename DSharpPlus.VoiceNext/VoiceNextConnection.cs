@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,8 +25,9 @@ namespace DSharpPlus.VoiceNext
             add { this._user_speaking.Register(value); }
             remove { this._user_speaking.Unregister(value); }
         }
-        private AsyncEvent<UserSpeakingEventArgs> _user_speaking = new AsyncEvent<UserSpeakingEventArgs>();
+        private AsyncEvent<UserSpeakingEventArgs> _user_speaking;
 
+#if !NETSTANDARD1_1
         /// <summary>
         /// Triggered whenever voice data is received from the connected voice channel.
         /// </summary>
@@ -37,7 +36,8 @@ namespace DSharpPlus.VoiceNext
             add { this._voice_received.Register(value); }
             remove { this._voice_received.Unregister(value); }
         }
-        private AsyncEvent<VoiceReceivedEventArgs> _voice_received = new AsyncEvent<VoiceReceivedEventArgs>();
+        private AsyncEvent<VoiceReceivedEventArgs> _voice_received;
+#endif
 
         internal event VoiceDisconnectedEventHandler VoiceDisconnected;
 
@@ -49,11 +49,14 @@ namespace DSharpPlus.VoiceNext
         private DiscordGuild Guild { get; set; }
         private DiscordChannel Channel { get; set; }
 
-        private UdpClient UdpClient { get; set; }
-        private WebSocketClient VoiceWs { get; set; }
-        private Thread HeartbeatThread { get; set; }
+        private BaseUdpClient UdpClient { get; set; }
+        private BaseWebSocketClient VoiceWs { get; set; }
+        private Task HeartbeatTask { get; set; }
         private int HeartbeatInterval { get; set; }
         private DateTime LastHeartbeat { get; set; }
+
+        private CancellationTokenSource TokenSource { get; }
+        private CancellationToken Token => this.TokenSource.Token;
 
         private VoiceServerUpdatePayload ServerData { get; set; }
         private VoiceStateUpdatePayload StateData { get; set; }
@@ -69,8 +72,10 @@ namespace DSharpPlus.VoiceNext
         private uint Timestamp { get; set; }
         private uint SSRC { get; set; }
         private byte[] Key { get; set; }
-        private IPEndPoint DiscoveredEndpoint { get; set; }
-        private DnsEndPoint ConnectionEndpoint { get; set; }
+#if !NETSTANDARD1_1
+        private IpEndpoint DiscoveredEndpoint { get; set; }
+#endif
+        private ConnectionEndpoint ConnectionEndpoint { get; set; }
         
         private TaskCompletionSource<bool> ReadyWait { get; set; }
         private bool IsInitialized { get; set; }
@@ -81,6 +86,12 @@ namespace DSharpPlus.VoiceNext
             this.Discord = client;
             this.Guild = guild;
             this.Channel = channel;
+
+            this._user_speaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "USER_SPEAKING");
+#if !NETSTANDARD1_1
+            this._voice_received = new AsyncEvent<VoiceReceivedEventArgs>(this.Discord.EventErrorHandler, "VOICE_RECEIVED");
+#endif
+            this.TokenSource = new CancellationTokenSource();
 
             this.Configuration = config;
             this.Opus = new OpusCodec(48000, 2, this.Configuration.VoiceApplication);
@@ -105,14 +116,14 @@ namespace DSharpPlus.VoiceNext
             {
                 eph = eps;
             }
-            this.ConnectionEndpoint = new DnsEndPoint(eph, epp);
+            this.ConnectionEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
 
             this.ReadyWait = new TaskCompletionSource<bool>();
             this.IsInitialized = false;
             this.IsDisposed = false;
 
-            this.UdpClient = new UdpClient();
-            this.VoiceWs = WebSocketClient.Create();
+            this.UdpClient = BaseUdpClient.Create();
+            this.VoiceWs = BaseWebSocketClient.Create();
             this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
             this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
             this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
@@ -134,7 +145,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns>A task representing the connection operation.</returns>
         internal async Task ConnectAsync()
         {
-            await Task.Run(() => this.VoiceWs.ConnectAsync($"wss://{this.ConnectionEndpoint.Host}")).ConfigureAwait(false);
+            await Task.Run(() => this.VoiceWs.ConnectAsync($"wss://{this.ConnectionEndpoint.Hostname}")).ConfigureAwait(false);
         }
 
         internal Task StartAsync()
@@ -202,7 +213,8 @@ namespace DSharpPlus.VoiceNext
             var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed - this.UdpLatency;
             if (ts.Ticks < 0)
                 ts = TimeSpan.FromTicks(1);
-            Thread.Sleep(ts);
+            //Thread.Sleep(ts);
+            await Task.Delay(ts);
             this.Synchronizer.Restart();
         }
 
@@ -247,13 +259,13 @@ namespace DSharpPlus.VoiceNext
             if (this.IsDisposed)
                 return;
 
-            this.HeartbeatThread.Abort();
+            this.TokenSource.Cancel();
 
             this.IsDisposed = true;
             this.IsInitialized = false;
             try
             {
-                this.VoiceWs.InternalDisconnectAsync();
+                this.VoiceWs.InternalDisconnectAsync().GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
             catch (Exception)
@@ -268,8 +280,10 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceDisconnected(this.Guild);
         }
 
-        private void Heartbeat()
+        private async Task Heartbeat()
         {
+            await Task.Yield();
+
             while (true)
             {
                 try
@@ -286,9 +300,9 @@ namespace DSharpPlus.VoiceNext
                     this.VoiceWs.SendMessage(hbj);
 
                     this.LastHeartbeat = dt;
-                    Thread.Sleep(this.HeartbeatInterval);
+                    await Task.Delay(this.HeartbeatInterval);
                 }
-                catch (ThreadAbortException)
+                catch (TaskCanceledException)
                 {
                     return;
                 }
@@ -298,22 +312,20 @@ namespace DSharpPlus.VoiceNext
         private async Task Stage1()
         {
             // Begin heartbeating
-            this.HeartbeatThread = new Thread(this.Heartbeat);
-            this.HeartbeatThread.SetApartmentState(ApartmentState.STA);
-            this.HeartbeatThread.Name = $"Heartbeat for Voice ({this.SSRC})";
-            this.HeartbeatThread.Start();
+            this.HeartbeatTask = Task.Run(this.Heartbeat);
 
+#if !NETSTANDARD1_1
             // IP Discovery
-            this.UdpClient.Connect(this.ConnectionEndpoint.Host, this.ConnectionEndpoint.Port);
-            this.UdpClient.AllowNatTraversal(true);
+            this.UdpClient.Setup(this.ConnectionEndpoint);
             var pck = new byte[70];
             Array.Copy(BitConverter.GetBytes(this.SSRC), 0, pck, pck.Length - 4, 4);
             await this.UdpClient.SendAsync(pck, pck.Length);
             var ipd = await this.UdpClient.ReceiveAsync();
-            var ipe = Array.IndexOf<byte>(ipd.Buffer, 0, 4);
-            var ip = new UTF8Encoding(false).GetString(ipd.Buffer, 4, ipe - 4);
-            var port = BitConverter.ToUInt16(ipd.Buffer, ipd.Buffer.Length - 2);
-            this.DiscoveredEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            var ipe = Array.IndexOf<byte>(ipd, 0, 4);
+            var ip = new UTF8Encoding(false).GetString(ipd, 4, ipe - 4);
+            var port = BitConverter.ToUInt16(ipd, ipd.Length - 2);
+            this.DiscoveredEndpoint = new IpEndpoint { Address = System.Net.IPAddress.Parse(ip), Port = port };
+#endif
 
             // Ready
             var vsp = new VoiceDispatch
@@ -324,8 +336,13 @@ namespace DSharpPlus.VoiceNext
                     Protocol = "udp",
                     Data = new VoiceSelectProtocolPayloadData
                     {
+#if !NETSTANDARD1_1
                         Address = this.DiscoveredEndpoint.Address.ToString(),
                         Port = (ushort)this.DiscoveredEndpoint.Port,
+#else
+                        Address = "0.0.0.0",
+                        Port = 0,
+#endif
                         Mode = VOICE_MODE
                     }
                 }
@@ -352,7 +369,7 @@ namespace DSharpPlus.VoiceNext
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP2 received", DateTime.Now);
                     var vrp = opp.ToObject<VoiceReadyPayload>();
                     this.SSRC = vrp.SSRC;
-                    this.ConnectionEndpoint = new DnsEndPoint(this.ConnectionEndpoint.Host, vrp.Port);
+                    this.ConnectionEndpoint = new ConnectionEndpoint { Hostname = this.ConnectionEndpoint.Hostname, Port = vrp.Port };
                     this.HeartbeatInterval = vrp.HeartbeatInterval;
                     await this.Stage1();
                     break;
@@ -374,7 +391,7 @@ namespace DSharpPlus.VoiceNext
                 case 5:
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP5 received", DateTime.Now);
                     var spd = opp.ToObject<VoiceSpeakingPayload>();
-                    var spk = new UserSpeakingEventArgs
+                    var spk = new UserSpeakingEventArgs(this.Discord)
                     {
                         Speaking = spd.Speaking,
                         SSRC = spd.SSRC.Value,
