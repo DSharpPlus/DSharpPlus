@@ -98,7 +98,7 @@ namespace DSharpPlus.VoiceNext
             this.Sodium = new SodiumCodec();
             this.RTP = new RtpCodec();
             this.Synchronizer = new Stopwatch();
-            this.UdpLatency = TimeSpan.FromMilliseconds(0.5);
+            this.UdpLatency = TimeSpan.FromMilliseconds(0.1);
 
             this.ServerData = server;
             this.StateData = state;
@@ -210,7 +210,7 @@ namespace DSharpPlus.VoiceNext
             //   DateTime.Now
             
             this.Synchronizer.Stop();
-            var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed;// - this.UdpLatency;
+            var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed - this.UdpLatency;
             if (ts.Ticks < 0)
                 ts = TimeSpan.FromTicks(1);
             var dt = DateTime.Now;

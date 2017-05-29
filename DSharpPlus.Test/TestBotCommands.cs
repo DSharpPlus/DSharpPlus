@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -13,6 +14,10 @@ namespace DSharpPlus.Test
 {
     public sealed class TestBotCommands
     {
+        private CancellationTokenSource AudioLoopCancelTokenSource { get; set; }
+        private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
+        private Task AudioLoopTask { get; set; }
+
         [Command("uploadembed")]
         public async Task UplEm(CommandContext e)
         {
@@ -409,6 +414,121 @@ Serverowner: {e.Guild.OwnerID}
 
             if (exc != null)
                 throw exc;
+        }
+
+        [Command("voiceplayloop")]
+        public async Task VoicePlayLoop(CommandContext e, params string[] filename)
+        {
+            var voice = e.Client.GetVoiceNextClient();
+            if (voice == null)
+            {
+                await e.Message.RespondAsync("Voice is not activated");
+                return;
+            }
+
+            var vnc = voice.GetConnection(e.Guild);
+            if (vnc == null)
+            {
+                await e.Message.RespondAsync("Voice is not connected in this guild");
+                return;
+            }
+
+            if (this.AudioLoopTask != null && !this.AudioLoopCancelToken.IsCancellationRequested)
+            {
+                await e.Message.RespondAsync("Audio loop is already playing");
+                return;
+            }
+
+            var snd = string.Join(" ", filename);
+            if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
+            {
+                await e.Message.RespondAsync("Invalid file specified");
+                return;
+            }
+            
+            await e.Message.RespondAsync($"Playing `{snd}` in a loop");
+            this.AudioLoopCancelTokenSource = new CancellationTokenSource();
+            this.AudioLoopTask = Task.Run(async () =>
+            {
+                var chn = e.Channel;
+                var token = this.AudioLoopCancelToken;
+                await vnc.SendSpeakingAsync(true);
+                try
+                {
+                    // borrowed from
+                    // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
+
+                    var ffmpeg_inf = new ProcessStartInfo
+                    {
+                        FileName = "ffmpeg",
+                        Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    };
+                    var ffmpeg = Process.Start(ffmpeg_inf);
+                    var ffout = ffmpeg.StandardOutput.BaseStream;
+
+                    using (var ms = new MemoryStream()) // this will hold our PCM data
+                    {
+                        await ffout.CopyToAsync(ms);
+                        ms.Position = 0;
+
+                        var buff = new byte[3840]; // buffer to hold the PCM data
+                        var br = 0;
+                        while (true)
+                        {
+                            while ((br = ms.Read(buff, 0, buff.Length)) > 0)
+                            {
+                                if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
+                                    for (var i = br; i < buff.Length; i++)
+                                        buff[i] = 0;
+
+                                await vnc.SendAsync(buff, 20); // we're sending 20ms of data
+                                token.ThrowIfCancellationRequested();
+                            }
+                            ms.Position = 0;
+                            token.ThrowIfCancellationRequested();
+                        }
+                    }
+                }
+                catch (OperationCanceledException) { }
+                catch (Exception ex) { await chn.SendMessageAsync($"Audio loop crashed: {ex.GetType()}: {ex.Message}"); }
+                finally
+                {
+                    await vnc.SendSpeakingAsync(false);
+                }
+            }, this.AudioLoopCancelToken);
+        }
+
+        [Command("voiceplaystop")]
+        public async Task VoicePlayLoopStop(CommandContext e)
+        {
+            var voice = e.Client.GetVoiceNextClient();
+            if (voice == null)
+            {
+                await e.Message.RespondAsync("Voice is not activated");
+                return;
+            }
+
+            var vnc = voice.GetConnection(e.Guild);
+            if (vnc == null)
+            {
+                await e.Message.RespondAsync("Voice is not connected in this guild");
+                return;
+            }
+
+            if (this.AudioLoopTask == null || this.AudioLoopCancelToken.IsCancellationRequested)
+            {
+                await e.Message.RespondAsync("Audio loop is already paused");
+                return;
+            }
+
+            this.AudioLoopCancelTokenSource.Cancel();
+            await this.AudioLoopTask;
+            this.AudioLoopTask = null;
+
+            await e.Message.RespondAsync("Audio loop stopped");
         }
     }
 }
