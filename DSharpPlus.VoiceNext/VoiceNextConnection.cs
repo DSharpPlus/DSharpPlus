@@ -289,6 +289,8 @@ namespace DSharpPlus.VoiceNext
             {
                 try
                 {
+                    this.Token.ThrowIfCancellationRequested();
+
                     var dt = DateTime.Now;
                     this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "VoiceNext", "Sent heartbeat", dt);
 
@@ -303,7 +305,7 @@ namespace DSharpPlus.VoiceNext
                     this.LastHeartbeat = dt;
                     await Task.Delay(this.HeartbeatInterval);
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
                 {
                     return;
                 }

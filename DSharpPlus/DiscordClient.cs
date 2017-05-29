@@ -1705,15 +1705,17 @@ namespace DSharpPlus
         internal void StartHeartbeating()
         {
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Starting Heartbeat", DateTime.Now);
+            var token = this._cancel_token;
             try
             {
-                while (!_cancel_token.IsCancellationRequested)
+                while (true)
                 {
                     SendHeartbeatAsync(this._sequence).GetAwaiter().GetResult();
                     Task.Delay(_heartbeat_interval, _cancel_token).GetAwaiter().GetResult();
+                    token.ThrowIfCancellationRequested();
                 }
             }
-            catch (Exception) { }
+            catch (OperationCanceledException) { }
         }
 
         internal async Task InternalUpdateStatusAsync(string game = "", int idle_since = -1)
