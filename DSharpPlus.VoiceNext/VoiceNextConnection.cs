@@ -214,7 +214,8 @@ namespace DSharpPlus.VoiceNext
             if (ts.Ticks < 0)
                 ts = TimeSpan.FromTicks(1);
             //Thread.Sleep(ts);
-            await Task.Delay(ts);
+            //await Task.Delay(ts);
+            await Task.Delay(15);
             this.Synchronizer.Restart();
         }
 

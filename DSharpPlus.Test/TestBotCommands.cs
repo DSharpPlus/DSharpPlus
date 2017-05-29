@@ -382,19 +382,26 @@ Serverowner: {e.Guild.OwnerID}
                     Arguments = $"-i {snd} -ac 2 -f s16le -ar 48000 pipe:1",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true
                 };
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
 
-                var buff = new byte[3840]; // buffer to hold the PCM data
-                var br = 0;
-                while ((br = ffout.Read(buff, 0, buff.Length)) > 0)
+                using (var ms = new MemoryStream()) // if ffmpeg quits fast, that'll hold the data
                 {
-                    if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
-                        for (var i = br; i < buff.Length; i++)
-                            buff[i] = 0;
+                    await ffout.CopyToAsync(ms);
+                    ms.Position = 0;
 
-                    await vnc.SendAsync(buff, 20); // we're sending 20ms of data
+                    var buff = new byte[3840]; // buffer to hold the PCM data
+                    var br = 0;
+                    while ((br = ms.Read(buff, 0, buff.Length)) > 0)
+                    {
+                        if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
+                            for (var i = br; i < buff.Length; i++)
+                                buff[i] = 0;
+
+                        await vnc.SendAsync(buff, 20); // we're sending 20ms of data
+                    }
                 }
             }
             catch (Exception ex) { exc = ex; }
