@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.IO;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-//using System.Speech.Synthesis;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.VoiceNext;
-//using NAudio.Wave;
 using DSharpPlus.Interactivity;
-using System.IO;
-using System.Diagnostics;
+using DSharpPlus.VoiceNext;
 
 namespace DSharpPlus.Test
 {
@@ -379,7 +376,7 @@ Serverowner: {e.Guild.OwnerID}
                 var ffmpeg_inf = new ProcessStartInfo
                 {
                     FileName = "ffmpeg",
-                    Arguments = $"-i {snd} -ac 2 -f s16le -ar 48000 pipe:1",
+                    Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true

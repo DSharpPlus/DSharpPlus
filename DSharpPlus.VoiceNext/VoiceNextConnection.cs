@@ -210,12 +210,12 @@ namespace DSharpPlus.VoiceNext
             //   DateTime.Now
             
             this.Synchronizer.Stop();
-            var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed - this.UdpLatency;
+            var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed;// - this.UdpLatency;
             if (ts.Ticks < 0)
                 ts = TimeSpan.FromTicks(1);
-            //Thread.Sleep(ts);
+            var dt = DateTime.Now;
             //await Task.Delay(ts);
-            await Task.Delay(15);
+            while (DateTime.Now - dt < ts) ;
             this.Synchronizer.Restart();
         }
 
