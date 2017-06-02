@@ -87,6 +87,9 @@ namespace DSharpPlus.CommandsNext
             // Let the bot do its things
             await Task.Yield();
 
+            if (e.Author.IsBot) // bad bot
+                return;
+
             if (!this.Config.EnableDms && e.Channel.IsPrivate)
                 return;
 
