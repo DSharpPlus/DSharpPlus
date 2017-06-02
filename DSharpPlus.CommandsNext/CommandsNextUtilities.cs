@@ -91,10 +91,17 @@ namespace DSharpPlus.CommandsNext
             if (str.Length >= cnt.Length)
                 return -1;
 
-            if (cnt.StartsWith(str))
-                return str.Length;
+            if (!cnt.StartsWith(str))
+                return -1;
 
-            return -1;
+            int sn = 0;
+            for (var i = str.Length; i < cnt.Length; i++)
+                if (char.IsWhiteSpace(cnt[i]))
+                    sn++;
+                else
+                    break;
+
+            return str.Length + sn;
         }
 
         /// <summary>
@@ -122,7 +129,14 @@ namespace DSharpPlus.CommandsNext
             if (user.Id != uid)
                 return -1;
 
-            return m.Value.Length;
+            int sn = 0;
+            for (var i = m.Value.Length; i < cnt.Length; i++)
+                if (char.IsWhiteSpace(cnt[i]))
+                    sn++;
+                else
+                    break;
+
+            return m.Value.Length + sn;
         }
 
         /// <summary>

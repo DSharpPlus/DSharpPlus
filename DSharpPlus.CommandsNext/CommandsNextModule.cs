@@ -109,7 +109,6 @@ namespace DSharpPlus.CommandsNext
             var rrg = cmi != -1 ? cnt.Substring(cmi + 1) : "";
             var arg = CommandsNextUtilities.SplitArguments(rrg);
 
-            //var cmd = this.RegisteredCommandList.FirstOrDefault(xc => xc.Name == cms || (xc.Aliases != null && xc.Aliases.Contains(cms)));
             var cmd = this.TopLevelCommands[cms];
             var ctx = new CommandContext
             {
