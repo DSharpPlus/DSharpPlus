@@ -114,6 +114,9 @@ namespace DSharpPlus
                 return;
 
             this.SocketMessageQueue.Enqueue(message);
+
+            if (this.SocketQueueManager == null || this.SocketQueueManager.IsCompleted)
+                this.SocketQueueManager = Task.Run(this.SmqTask, this.Token);
         }
 
         internal async Task InternalConnectAsync(Uri uri)
@@ -126,7 +129,6 @@ namespace DSharpPlus
                 await Socket.ConnectAsync(uri, this.Token);
                 await CallOnConnectedAsync();
                 this.WsListener = Task.Run(this.Listen, this.Token);
-                this.SocketQueueManager = Task.Run(this.SmqTask, this.Token);
             }
             catch (Exception) { }
         }
@@ -158,14 +160,16 @@ namespace DSharpPlus
             var buffseg = new ArraySegment<byte>(buff);
             var rsb = new StringBuilder();
             var result = (WebSocketReceiveResult)null;
+
+            var token = this.Token;
             
             try
             {
-                while (!this.Token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
+                while (!token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
                 {
                     do
                     {
-                        result = await this.Socket.ReceiveAsync(buffseg, this.Token);
+                        result = await this.Socket.ReceiveAsync(buffseg, token);
 
                         if (result.MessageType == WebSocketMessageType.Close)
                             throw new WebSocketException("Server requested the connection to be terminated.");
@@ -185,10 +189,16 @@ namespace DSharpPlus
 
         internal async Task SmqTask()
         {
-            while (!this.Token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
+            await Task.Yield();
+
+            var token = this.Token;
+            while (!token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
             {
+                if (this.SocketMessageQueue.IsEmpty)
+                    break;
+
                 if (!this.SocketMessageQueue.TryDequeue(out var message))
-                    continue;
+                    break;
 
                 var buff = UTF8.GetBytes(message);
                 var msgc = buff.Length / BUFFER_SIZE;
