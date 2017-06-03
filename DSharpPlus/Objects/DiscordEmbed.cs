@@ -9,6 +9,10 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordEmbed
     {
+        public DiscordEmbed()
+        {
+            Fields = new List<DiscordEmbedField>();
+        }
         /// <summary>
         /// Title of the embed
         /// </summary>
