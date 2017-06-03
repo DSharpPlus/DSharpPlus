@@ -61,33 +61,35 @@ namespace DSharpPlus
         [JsonProperty("is_muted", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMuted { get; internal set; }
 
-        public ulong GuildId = 0;
+        internal ulong _guild_id = 0;
+
+        public DiscordGuild Guild => this.Discord.Guilds[_guild_id];
 
         public Task<DiscordDmChannel> SendDmAsync() => this.Discord._rest_client.InternalCreateDM(this.Id);
 
-        public Task SetMuteAsync(bool muted) => this.Discord._rest_client.InternalModifyGuildMember(GuildId, Id, muted: muted);
+        public Task SetMuteAsync(bool muted) => this.Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, muted: muted);
 
-        public Task SetDeafAsync(bool deafened) => this.Discord._rest_client.InternalModifyGuildMember(GuildId, Id, deafened: deafened);
+        public Task SetDeafAsync(bool deafened) => this.Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, deafened: deafened);
 
-        public Task ModifyAsync(string nickname = null, List<ulong> roles = null, ulong voicechannel_id = 0) => this.Discord._rest_client.InternalModifyGuildMember(GuildId, Id, nickname, roles, voicechannel_id: voicechannel_id);
+        public Task ModifyAsync(string nickname = null, List<ulong> roles = null, ulong voicechannel_id = 0) => this.Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, nickname, roles, voicechannel_id: voicechannel_id);
 
         public async Task GrantRoleAsync(ulong RoleID)
         {
             var roles = Roles;
             roles.Add(RoleID);
-            await Discord._rest_client.InternalModifyGuildMember(GuildId, Id, roles: roles);
+            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: roles);
         }
 
         public async Task TakeRoleAsync(ulong RoleID)
         {
             var roles = Roles;
             roles.Add(RoleID);
-            await Discord._rest_client.InternalModifyGuildMember(GuildId, Id, roles: roles);
+            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: roles);
         }
 
         public int GetNameColor()
         {
-            List<DiscordRole> r = this.Discord.Guilds[GuildId].Roles.FindAll(x => Roles.Contains(x.Id));
+            List<DiscordRole> r = this.Discord.Guilds[_guild_id].Roles.FindAll(x => Roles.Contains(x.Id));
             var rr = r.OrderBy(x => x.Position);
             return rr.ToList().Last().Color;
         }
