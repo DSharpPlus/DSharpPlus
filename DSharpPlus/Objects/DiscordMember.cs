@@ -63,5 +63,9 @@ namespace DSharpPlus
         public ulong GuildId = 0;
 
         public Task<DiscordDmChannel> SendDmAsync() => this.Discord._rest_client.InternalCreateDM(this.Id);
+
+        public Task SetMuteAsync(bool muted) => this.Discord._rest_client.InternalModifyGuildMember(GuildId, Id, muted: muted);
+
+        public Task SetDeafAsync(bool deafened) => this.Discord._rest_client.InternalModifyGuildMember(GuildId, Id, deafened: deafened);
     }
 }
