@@ -391,6 +391,12 @@ Serverowner: {e.Guild.OwnerID}
                 return;
             }
 
+            while (vnc.IsPlaying)
+            {
+                await e.Message.RespondAsync("This connection is playing audio, waiting for end.");
+                await vnc.WaitForPlaybackFinishAsync();
+            }
+
             var exc = (Exception)null;
             await e.Message.RespondAsync($"Playing `{snd}`");
             await vnc.SendSpeakingAsync(true);
@@ -550,6 +556,76 @@ Serverowner: {e.Guild.OwnerID}
             this.AudioLoopTask = null;
 
             await e.Message.RespondAsync("Audio loop stopped");
+        }
+
+        [Command("voiceplayforce"), Description("Forces audio playback, regardless of whether audio is playing or not.")]
+        public async Task VoicePlayForce(CommandContext e, params string[] filename)
+        {
+            var voice = e.Client.GetVoiceNextClient();
+            if (voice == null)
+            {
+                await e.Message.RespondAsync("Voice is not activated");
+                return;
+            }
+
+            var vnc = voice.GetConnection(e.Guild);
+            if (vnc == null)
+            {
+                await e.Message.RespondAsync("Voice is not connected in this guild");
+                return;
+            }
+
+            var snd = string.Join(" ", filename);
+            if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
+            {
+                await e.Message.RespondAsync("Invalid file specified");
+                return;
+            }
+
+            var exc = (Exception)null;
+            await e.Message.RespondAsync($"Playing `{snd}`");
+            await vnc.SendSpeakingAsync(true);
+            try
+            {
+                // borrowed from
+                // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
+
+                var ffmpeg_inf = new ProcessStartInfo
+                {
+                    FileName = "ffmpeg",
+                    Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                var ffmpeg = Process.Start(ffmpeg_inf);
+                var ffout = ffmpeg.StandardOutput.BaseStream;
+
+                using (var ms = new MemoryStream()) // if ffmpeg quits fast, that'll hold the data
+                {
+                    await ffout.CopyToAsync(ms);
+                    ms.Position = 0;
+
+                    var buff = new byte[3840]; // buffer to hold the PCM data
+                    var br = 0;
+                    while ((br = ms.Read(buff, 0, buff.Length)) > 0)
+                    {
+                        if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
+                            for (var i = br; i < buff.Length; i++)
+                                buff[i] = 0;
+
+                        await vnc.SendAsync(buff, 20); // we're sending 20ms of data
+                    }
+                }
+            }
+            catch (Exception ex) { exc = ex; }
+            finally
+            {
+                await vnc.SendSpeakingAsync(false);
+            }
+
+            if (exc != null)
+                throw exc;
         }
     }
 }

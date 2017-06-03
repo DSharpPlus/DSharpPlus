@@ -81,6 +81,14 @@ namespace DSharpPlus.VoiceNext
         private bool IsInitialized { get; set; }
         private bool IsDisposed { get; set; }
 
+        private TaskCompletionSource<bool> PlayingWait { get; set; }
+        private SemaphoreSlim PlaybackSemaphore { get; set; }
+
+        /// <summary>
+        /// Gets whether this connection is still playing audio.
+        /// </summary>
+        public bool IsPlaying => this.PlaybackSemaphore.CurrentCount == 0 || (this.PlayingWait != null && !this.PlayingWait.Task.IsCompleted);
+
         internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceNextConfiguration config, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
             this.Discord = client;
@@ -121,6 +129,9 @@ namespace DSharpPlus.VoiceNext
             this.ReadyWait = new TaskCompletionSource<bool>();
             this.IsInitialized = false;
             this.IsDisposed = false;
+
+            this.PlayingWait = null;
+            this.PlaybackSemaphore = new SemaphoreSlim(1, 1);
 
             this.UdpClient = BaseUdpClient.Create();
             this.VoiceWs = BaseWebSocketClient.Create();
@@ -183,7 +194,9 @@ namespace DSharpPlus.VoiceNext
         public async Task SendAsync(byte[] pcm, int blocksize, int bitrate = 16)
         {
             if (!this.IsInitialized)
-                throw new InvalidOperationException("The connection is not yet initialized");
+                throw new InvalidOperationException("The connection is not initialized");
+
+            await this.PlaybackSemaphore.WaitAsync();
 
             var rtp = this.RTP.Encode(this.Sequence, this.Timestamp, this.SSRC);
 
@@ -217,6 +230,8 @@ namespace DSharpPlus.VoiceNext
             //await Task.Delay(ts);
             while (DateTime.Now - dt < ts) ;
             this.Synchronizer.Restart();
+
+            this.PlaybackSemaphore.Release();
         }
 
         /// <summary>
@@ -227,10 +242,19 @@ namespace DSharpPlus.VoiceNext
         public async Task SendSpeakingAsync(bool speaking = true)
         {
             if (!this.IsInitialized)
-                throw new InvalidOperationException("The connection is not yet initialized");
+                throw new InvalidOperationException("The connection is not initialized");
 
             if (!speaking)
+            {
                 this.Synchronizer.Reset();
+                if (this.PlayingWait != null)
+                    this.PlayingWait.SetResult(true);
+            }
+            else
+            {
+                if (this.PlayingWait == null || this.PlayingWait.Task.IsCompleted)
+                    this.PlayingWait = new TaskCompletionSource<bool>();
+            }
 
             var pld = new VoiceDispatch
             {
@@ -244,6 +268,16 @@ namespace DSharpPlus.VoiceNext
 
             var plj = JsonConvert.SerializeObject(pld, Formatting.None);
             await Task.Run(() => this.VoiceWs.SendMessage(plj));
+        }
+
+        /// <summary>
+        /// Asynchronously waits for playback to be finished. Playback is finished when speaking = false is signalled.
+        /// </summary>
+        /// <returns>A task representing the waiting operation.</returns>
+        public async Task WaitForPlaybackFinishAsync()
+        {
+            if (this.PlayingWait != null)
+                await this.PlayingWait.Task;
         }
 
         /// <summary>
