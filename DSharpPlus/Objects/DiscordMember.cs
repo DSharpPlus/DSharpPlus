@@ -75,25 +75,22 @@ namespace DSharpPlus
 
         public async Task GrantRoleAsync(ulong RoleID)
         {
-            var roles = Roles;
-            if (!roles.Contains(RoleID))
-                roles.Add(RoleID);
-            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: roles);
+            if (!Roles.Contains(RoleID))
+                Roles.Add(RoleID);
+            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: Roles);
         }
 
         public async Task TakeRoleAsync(ulong RoleID)
         {
-            var roles = Roles;
-            if(roles.Contains(RoleID))
-                roles.Remove(RoleID);
-            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: roles);
+            if(Roles.Contains(RoleID))
+                Roles.Remove(RoleID);
+            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: Roles);
         }
 
         public int GetNameColor()
         {
-            List<DiscordRole> r = this.Discord.Guilds[_guild_id].Roles.FindAll(x => Roles.Contains(x.Id));
-            var rr = r.OrderBy(x => x.Position);
-            return rr.ToList().Last().Color;
+            var r = this.Discord.Guilds[_guild_id].Roles.FindAll(x => Roles.Contains(x.Id) && x.Color != 0).OrderBy(x => x.Position);
+            return r.Last().Color;
         }
 
     }
