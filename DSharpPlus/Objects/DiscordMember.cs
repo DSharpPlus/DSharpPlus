@@ -60,6 +60,8 @@ namespace DSharpPlus
         [JsonProperty("is_muted", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMuted { get; internal set; }
 
+        public ulong GuildId = 0;
+
         public Task<DiscordDmChannel> SendDmAsync() => this.Discord._rest_client.InternalCreateDM(this.Id);
     }
 }

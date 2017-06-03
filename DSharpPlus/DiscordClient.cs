@@ -1006,7 +1006,7 @@ namespace DSharpPlus
                     var ret = guild.ToObject<DiscordGuild>();
                     ret.Discord = this;
                     ret.Members = guild["members"] == null ? new List<DiscordMember>() : guild["members"].ToObject<IEnumerable<TransportMember>>()
-                        .Select(xtm => new DiscordMember(xtm) { Discord = this })
+                        .Select(xtm => new DiscordMember(xtm) { Discord = this, GuildId = guild["id"].ToObject<ulong>() })
                         .ToList();
 
                     if (ret.Channels != null)
@@ -1097,7 +1097,7 @@ namespace DSharpPlus
             DiscordGuild guild = obj["d"].ToObject<DiscordGuild>();
             guild.Discord = this;
             guild.Members = obj["d"]["members"].ToObject<IEnumerable<TransportMember>>()
-                .Select(xtm => new DiscordMember(xtm) { Discord = this })
+                .Select(xtm => new DiscordMember(xtm) { Discord = this, GuildId = obj["d"]["id"].ToObject<ulong>() })
                 .ToList();
 
             foreach (DiscordChannel channel in guild.Channels)
@@ -1145,7 +1145,7 @@ namespace DSharpPlus
                 guild = obj["d"].ToObject<DiscordGuild>();
                 guild.Discord = this;
                 guild.Members = obj["d"]["members"].ToObject<IEnumerable<TransportMember>>()
-                    .Select(xtm => new DiscordMember(xtm) { Discord = this })
+                    .Select(xtm => new DiscordMember(xtm) { Discord = this, GuildId = obj["d"]["id"].ToObject<ulong>() })
                     .ToList();
 
                 _guilds[guild.Id] = guild;
@@ -1155,7 +1155,7 @@ namespace DSharpPlus
                 guild = obj["d"].ToObject<DiscordGuild>();
                 guild.Discord = this;
                 guild.Members = obj["d"]["members"].ToObject<IEnumerable<TransportMember>>()
-                    .Select(xtm => new DiscordMember(xtm) { Discord = this })
+                    .Select(xtm => new DiscordMember(xtm) { Discord = this, GuildId = obj["d"]["id"].ToObject<ulong>() })
                     .ToList();
 
                 _guilds.Add(guild.Id, guild);
@@ -1171,7 +1171,7 @@ namespace DSharpPlus
                     DiscordGuild guild = obj["d"].ToObject<DiscordGuild>();
                     guild.Discord = this;
                     guild.Members = obj["d"]["members"] == null ? new List<DiscordMember>() : obj["d"]["members"].ToObject<IEnumerable<TransportMember>>()
-                        .Select(xtm => new DiscordMember(xtm) { Discord = this })
+                        .Select(xtm => new DiscordMember(xtm) { Discord = this, GuildId = obj["d"]["id"].ToObject<ulong>() })
                         .ToList();
 
                     _guilds[guild.Id] = guild;
@@ -1243,7 +1243,8 @@ namespace DSharpPlus
         {
             var user = new DiscordMember(obj["d"].ToObject<TransportMember>())
             {
-                Discord = this
+                Discord = this,
+                GuildId = obj["d"]["guild_id"].ToObject<ulong>()
             };
 
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
@@ -1288,6 +1289,7 @@ namespace DSharpPlus
             {
                 DiscordMember m = _guilds[guildID].Members[index];
                 m.Discord = this;
+                m.GuildId = guildID;
                 old = m;
                 m.Nickname = nick;
                 m.Roles = roles;
@@ -1300,6 +1302,7 @@ namespace DSharpPlus
                     Discord = this,
                     Nickname = nick,
                     Roles = roles,
+                    GuildId = guildID
                 };
                 _guilds[guildID].Members.Add(m);
             }
@@ -1565,7 +1568,7 @@ namespace DSharpPlus
         {
             ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
             _guilds[guildID].Members = ((JArray)obj["d"]["members"])
-                .Select(xjt => new DiscordMember(xjt.ToObject<TransportMember>()) { Discord = this })
+                .Select(xjt => new DiscordMember(xjt.ToObject<TransportMember>()) { Discord = this, GuildId = obj["d"]["guild_id"].ToObject<ulong>() })
                 .ToList();
             _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
             GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs(this) { GuildID = guildID, Members = new ReadOnlyCollection<DiscordMember>(_guilds[guildID].Members) };
@@ -1670,6 +1673,7 @@ namespace DSharpPlus
 
         internal async Task OnHelloAsync(JObject obj)
         {
+            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify", DateTime.Now);
             _waiting_for_ack = false;
             _heartbeat_interval = obj["d"].Value<int>("heartbeat_interval");
             _heartbeat_task = new Task(StartHeartbeating, _cancel_token, TaskCreationOptions.LongRunning);

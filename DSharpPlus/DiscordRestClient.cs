@@ -36,7 +36,7 @@ namespace DSharpPlus
             DiscordGuild guild = jo.ToObject<DiscordGuild>();
             guild.Discord = this.Discord;
             guild.Members = jo["members"].ToObject<IEnumerable<TransportMember>>()
-                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord })
+                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, GuildId = jo["id"].ToObject<ulong>() })
                 .ToList();
 
             return guild;
@@ -82,7 +82,7 @@ namespace DSharpPlus
             DiscordGuild ret = jo.ToObject<DiscordGuild>();
             ret.Discord = this.Discord;
             ret.Members = jo["members"].ToObject<IEnumerable<TransportMember>>()
-                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord })
+                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, GuildId = guild_id })
                 .ToList();
 
             return ret;
@@ -95,7 +95,7 @@ namespace DSharpPlus
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             JArray j = JArray.Parse(response.Response);
-            List<DiscordMember> bans = j.Select(xt => new DiscordMember(xt.ToObject<TransportMember>()) { Discord = this.Discord }).ToList();
+            List<DiscordMember> bans = j.Select(xt => new DiscordMember(xt.ToObject<TransportMember>()) { Discord = this.Discord, GuildId = guild_id }).ToList();
             return bans;
         }
 
@@ -142,7 +142,7 @@ namespace DSharpPlus
             DiscordGuild ret = jo.ToObject<DiscordGuild>();
             ret.Discord = this.Discord;
             ret.Members = jo["members"].ToObject<IEnumerable<TransportMember>>()
-                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord })
+                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, GuildId = jo["id"].ToObject<ulong>() })
                 .ToList();
 
             return ret;
@@ -175,7 +175,7 @@ namespace DSharpPlus
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.PUT, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             var tm = JsonConvert.DeserializeObject<TransportMember>(response.Response);
-            return new DiscordMember(tm) { Discord = this.Discord };
+            return new DiscordMember(tm) { Discord = this.Discord, GuildId = guild_id };
         }
 
         internal async Task<List<DiscordMember>> InternalListGuildMembers(ulong guild_id, int limit, int after)
@@ -187,7 +187,7 @@ namespace DSharpPlus
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             JArray ja = JArray.Parse(response.Response);
-            List<DiscordMember> members = ja.Select(xt => new DiscordMember(xt.ToObject<TransportMember>()) { Discord = this.Discord }).ToList();
+            List<DiscordMember> members = ja.Select(xt => new DiscordMember(xt.ToObject<TransportMember>()) { Discord = this.Discord, GuildId = guild_id }).ToList();
             return members;
         }
 
@@ -635,7 +635,7 @@ namespace DSharpPlus
                 WebResponse response = await this.Rest.HandleRequestAsync(request);
                 
                 var items = JsonConvert.DeserializeObject<List<TransportMember>>(response.Response)
-                    .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord });
+                    .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, GuildId = guild_id });
                 result.AddRange(items);
                 lastId = result.LastOrDefault()?.Id;
             }
@@ -669,7 +669,8 @@ namespace DSharpPlus
             var tm = JsonConvert.DeserializeObject<TransportMember>(response.Response);
             return new DiscordMember(tm)
             {
-                Discord = this.Discord
+                Discord = this.Discord,
+                GuildId = guild_id
             };
         }
 
@@ -720,7 +721,7 @@ namespace DSharpPlus
                 var ret = j.ToObject<DiscordGuild>();
                 ret.Discord = this.Discord;
                 ret.Members = j["members"].ToObject<IEnumerable<TransportMember>>()
-                    .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord })
+                    .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, GuildId = j["id"].ToObject<ulong>() })
                     .ToList();
 
                 guilds.Add(ret);
