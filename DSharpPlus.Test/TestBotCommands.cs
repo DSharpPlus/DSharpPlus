@@ -18,6 +18,18 @@ namespace DSharpPlus.Test
         private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
         private Task AudioLoopTask { get; set; }
 
+        [Command("namecolor")]
+        public async Task NameColor(CommandContext e, DiscordMember u)
+        {
+            DiscordMember m = e.Guild.Members.Find(x => x.Id == u.Id);
+            DiscordEmbed embed = new DiscordEmbed()
+            {
+                Color = m.GetNameColor(),
+                Title = "Color on the left m8"
+            };
+            await e.RespondAsync("", embed: embed);
+        }
+
         [Command("uploadembed")]
         public async Task UplEm(CommandContext e)
         {

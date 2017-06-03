@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Objects.Transport;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace DSharpPlus
 {
@@ -67,5 +68,29 @@ namespace DSharpPlus
         public Task SetMuteAsync(bool muted) => this.Discord._rest_client.InternalModifyGuildMember(GuildId, Id, muted: muted);
 
         public Task SetDeafAsync(bool deafened) => this.Discord._rest_client.InternalModifyGuildMember(GuildId, Id, deafened: deafened);
+
+        public Task ModifyAsync(string nickname = null, List<ulong> roles = null, ulong voicechannel_id = 0) => this.Discord._rest_client.InternalModifyGuildMember(GuildId, Id, nickname, roles, voicechannel_id: voicechannel_id);
+
+        public async Task GrantRoleAsync(ulong RoleID)
+        {
+            var roles = Roles;
+            roles.Add(RoleID);
+            await Discord._rest_client.InternalModifyGuildMember(GuildId, Id, roles: roles);
+        }
+
+        public async Task TakeRoleAsync(ulong RoleID)
+        {
+            var roles = Roles;
+            roles.Add(RoleID);
+            await Discord._rest_client.InternalModifyGuildMember(GuildId, Id, roles: roles);
+        }
+
+        public int GetNameColor()
+        {
+            List<DiscordRole> r = this.Discord.Guilds[GuildId].Roles.FindAll(x => Roles.Contains(x.Id));
+            var rr = r.OrderBy(x => x.Position);
+            return rr.ToList().Last().Color;
+        }
+
     }
 }
