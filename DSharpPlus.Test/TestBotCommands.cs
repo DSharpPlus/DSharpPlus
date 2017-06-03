@@ -19,9 +19,8 @@ namespace DSharpPlus.Test
         private Task AudioLoopTask { get; set; }
 
         [Command("namecolor")]
-        public async Task NameColor(CommandContext e, DiscordMember u)
+        public async Task NameColor(CommandContext e, DiscordMember m)
         {
-            DiscordMember m = e.Guild.Members.Find(x => x.Id == u.Id);
             DiscordEmbed embed = new DiscordEmbed()
             {
                 Color = m.GetNameColor(),
