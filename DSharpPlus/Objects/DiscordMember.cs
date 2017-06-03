@@ -76,14 +76,16 @@ namespace DSharpPlus
         public async Task GrantRoleAsync(ulong RoleID)
         {
             var roles = Roles;
-            roles.Add(RoleID);
+            if (!roles.Contains(RoleID))
+                roles.Add(RoleID);
             await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: roles);
         }
 
         public async Task TakeRoleAsync(ulong RoleID)
         {
             var roles = Roles;
-            roles.Add(RoleID);
+            if(roles.Contains(RoleID))
+                roles.Remove(RoleID);
             await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: roles);
         }
 
