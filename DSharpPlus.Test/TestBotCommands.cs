@@ -18,6 +18,16 @@ namespace DSharpPlus.Test
         private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
         private Task AudioLoopTask { get; set; }
 
+        [Command("testreason")]
+        public async Task TestReason(CommandContext e, DiscordMember m)
+        {
+            e.Client.WithAuditReason("testing");
+            string oldnick = m.Nickname;
+            await m.ModifyAsync("test");
+            await Task.Delay(1000);
+            await m.ModifyAsync(oldnick);
+        }
+
         [Command("namecolor")]
         public async Task NameColor(CommandContext e, DiscordMember m)
         {

@@ -22,6 +22,10 @@ namespace DSharpPlus
         private HttpClient _http;
         private DiscordClient _discord;
 
+        // Audit logs
+        public string _reason = "";
+        public bool _using_reason = false;
+
         public RestClient(DiscordClient client)
         {
             _http = new HttpClient
@@ -68,6 +72,11 @@ namespace DSharpPlus
             var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
             foreach (var kvp in request.Headers)
                 req.Headers.Add(kvp.Key, kvp.Value);
+            if (_using_reason)
+            {
+                req.Headers.Add("x-audit-log-reason", _reason);
+                _using_reason = false;
+            }
 
             WebResponse response = new WebResponse();
             try
@@ -112,6 +121,12 @@ namespace DSharpPlus
             var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
             foreach (var kvp in request.Headers)
                 req.Headers.Add(kvp.Key, kvp.Value);
+
+            if (_using_reason)
+            {
+                req.Headers.Add("x-audit-log-reason", _reason);
+                _using_reason = false;
+            }
 
             if (request.ContentType == ContentType.Json)
             {

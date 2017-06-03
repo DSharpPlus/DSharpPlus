@@ -923,6 +923,8 @@ namespace DSharpPlus
         /// <param name="img">Stream with image data. Can contain a PNG, JPG, or GIF file.</param>
         /// <returns></returns>
         public Task SetAvatarAsync(Stream img) => this._rest_client.InternalSetAvatarAsync(img);
+
+        public void WithAuditReason(string reason) { this._rest_client.Rest._reason = reason; this._rest_client.Rest._using_reason = true; }
         #endregion
 
         #region Websocket
