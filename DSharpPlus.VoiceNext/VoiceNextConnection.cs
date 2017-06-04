@@ -203,7 +203,8 @@ namespace DSharpPlus.VoiceNext
             var dat = this.Opus.Encode(pcm, 0, pcm.Length, bitrate);
             dat = this.Sodium.Encode(dat, this.RTP.MakeNonce(rtp), this.Key);
             dat = this.RTP.Encode(rtp, dat);
-            
+
+            await this.SendSpeakingAsync(true);
             await this.UdpClient.SendAsync(dat, dat.Length);
 
             this.Sequence++;
@@ -300,7 +301,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = false;
             try
             {
-                this.VoiceWs.InternalDisconnectAsync().GetAwaiter().GetResult();
+                this.VoiceWs.InternalDisconnectAsync(null).GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
             catch (Exception)
@@ -443,9 +444,9 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private Task VoiceWS_SocketClosed()
+        private Task VoiceWS_SocketClosed(SocketDisconnectEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice session closed", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice socket closed ({e.CloseCode}, '{e.CloseMessage}')", DateTime.Now);
             this.Dispose();
             return Task.Delay(0);
         }

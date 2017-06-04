@@ -11,7 +11,7 @@ namespace DSharpPlus
         public WebSocket4NetClient()
         {
             this._connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
-            this._disconnect = new AsyncEvent(this.EventErrorHandler, "WS_DISCONNECT");
+            this._disconnect = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
             this._message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
         }
 
@@ -19,7 +19,13 @@ namespace DSharpPlus
         {
             _socket = new ws4net.WebSocket(uri);
             _socket.Opened += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
-            _socket.Closed += (sender, e) => _disconnect.InvokeAsync().GetAwaiter().GetResult();
+            _socket.Closed += (sender, e) =>
+            {
+                if (e is ws4net.ClosedEventArgs ea)
+                    _disconnect.InvokeAsync(new SocketDisconnectEventArgs(null) { CloseCode = ea.Code, CloseMessage = ea.Reason }).GetAwaiter().GetResult();
+                else
+                    _disconnect.InvokeAsync(new SocketDisconnectEventArgs(null) { CloseCode = -1, CloseMessage = "unknown" }).GetAwaiter().GetResult();
+            };
             _socket.MessageReceived += (sender, e) => _message.InvokeAsync(new WebSocketMessageEventArgs()
             {
                 Message = e.Message
@@ -28,7 +34,7 @@ namespace DSharpPlus
             return Task.FromResult<BaseWebSocketClient>(this);
         }
 
-        public override Task InternalDisconnectAsync()
+        public override Task InternalDisconnectAsync(SocketDisconnectEventArgs e)
         {
             if (_socket.State != ws4net.WebSocketState.Closed)
                 _socket.Close();
@@ -40,7 +46,7 @@ namespace DSharpPlus
             return Task.FromResult<BaseWebSocketClient>(this);
         }
 
-        public override Task<BaseWebSocketClient> OnDisconnectAsync()
+        public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketDisconnectEventArgs e)
         {
             return Task.FromResult<BaseWebSocketClient>(this);
         }
@@ -58,12 +64,12 @@ namespace DSharpPlus
         }
         private AsyncEvent _connect;
 
-        public override event AsyncEventHandler OnDisconnect
+        public override event AsyncEventHandler<SocketDisconnectEventArgs> OnDisconnect
         {
             add { this._disconnect.Register(value); }
             remove { this._disconnect.Unregister(value); }
         }
-        private AsyncEvent _disconnect;
+        private AsyncEvent<SocketDisconnectEventArgs> _disconnect;
 
         public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {

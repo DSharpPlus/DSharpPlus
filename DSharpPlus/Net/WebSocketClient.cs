@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -29,12 +30,12 @@ namespace DSharpPlus
         }
         private AsyncEvent _on_connect;
 
-        public override event AsyncEventHandler OnDisconnect
+        public override event AsyncEventHandler<SocketDisconnectEventArgs> OnDisconnect
         {
             add { this._on_disconnect.Register(value); }
             remove { this._on_disconnect.Unregister(value); }
         }
-        private AsyncEvent _on_disconnect;
+        private AsyncEvent<SocketDisconnectEventArgs> _on_disconnect;
 
         public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {
@@ -47,7 +48,7 @@ namespace DSharpPlus
         public WebSocketClient()
         {
             this._on_connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
-            this._on_disconnect = new AsyncEvent(this.EventErrorHandler, "WS_DISCONNECT");
+            this._on_disconnect = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
             this._on_message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
         }
 
@@ -93,9 +94,9 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been terminated.
         /// </summary>
         /// <returns></returns>
-        public override async Task<BaseWebSocketClient> OnDisconnectAsync()
+        public override async Task<BaseWebSocketClient> OnDisconnectAsync(SocketDisconnectEventArgs e)
         {
-            await _on_disconnect.InvokeAsync();
+            await _on_disconnect.InvokeAsync(e);
             return this;
         }
 
@@ -133,7 +134,7 @@ namespace DSharpPlus
             catch (Exception) { }
         }
 
-        public override async Task InternalDisconnectAsync()
+        public override async Task InternalDisconnectAsync(SocketDisconnectEventArgs e)
         {
             if (this.Socket.State != WebSocketState.Open)
                 return;
@@ -141,6 +142,7 @@ namespace DSharpPlus
             try
             {
                 await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", this.Token);
+                e = e ?? new SocketDisconnectEventArgs(null) { CloseCode = (int)WebSocketCloseStatus.NormalClosure, CloseMessage = "" };
                 Socket.Abort();
                 Socket.Dispose();
             }
@@ -148,7 +150,12 @@ namespace DSharpPlus
             { }
             finally
             {
-                await CallOnDisconnectedAsync();
+                if (e == null)
+                {
+                    var cc = this.Socket.CloseStatus != null ? (int)this.Socket.CloseStatus.Value : -1;
+                    e = new SocketDisconnectEventArgs(null) { CloseCode = cc, CloseMessage = this.Socket.CloseStatusDescription ?? "Unknown reason" };
+                }
+                await CallOnDisconnectedAsync(e);
             }
         }
 
@@ -160,6 +167,7 @@ namespace DSharpPlus
             var buffseg = new ArraySegment<byte>(buff);
             var rsb = new StringBuilder();
             var result = (WebSocketReceiveResult)null;
+            var close = (SocketDisconnectEventArgs)null;
 
             var token = this.Token;
             
@@ -172,7 +180,11 @@ namespace DSharpPlus
                         result = await this.Socket.ReceiveAsync(buffseg, token);
 
                         if (result.MessageType == WebSocketMessageType.Close)
+                        {
+                            var cc = result.CloseStatus != null ? (int)result.CloseStatus.Value : -1;
+                            close = new SocketDisconnectEventArgs(null) { CloseCode = cc, CloseMessage = result.CloseStatusDescription };
                             throw new WebSocketException("Server requested the connection to be terminated.");
+                        }
                         else
                             rsb.Append(UTF8.GetString(buff, 0, result.Count));
                     }
@@ -182,9 +194,12 @@ namespace DSharpPlus
                     rsb.Clear();
                 }
             }
-            catch (Exception) { }
+            catch (Exception e)
+            {
+                close = new SocketDisconnectEventArgs(null) { CloseCode = -1, CloseMessage = e.Message };
+            }
 
-            await InternalDisconnectAsync();
+            await InternalDisconnectAsync(close);
         }
 
         internal async Task SmqTask()
@@ -221,9 +236,9 @@ namespace DSharpPlus
             await _on_message.InvokeAsync(new WebSocketMessageEventArgs() { Message = result });
         }
 
-        internal async Task CallOnDisconnectedAsync()
+        internal async Task CallOnDisconnectedAsync(SocketDisconnectEventArgs e)
         {
-            await _on_disconnect.InvokeAsync();
+            await _on_disconnect.InvokeAsync(e);
         }
 
         internal async Task CallOnConnectedAsync()

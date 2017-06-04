@@ -13,12 +13,12 @@ namespace DSharpPlus
         }
         private AsyncEvent _on_connect;
 
-        public override event AsyncEventHandler OnDisconnect
+        public override event AsyncEventHandler<SocketDisconnectEventArgs> OnDisconnect
         {
             add { this._on_disconnect.Register(value); }
             remove { this._on_disconnect.Unregister(value); }
         }
-        private AsyncEvent _on_disconnect;
+        private AsyncEvent<SocketDisconnectEventArgs> _on_disconnect;
 
         public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {
@@ -65,7 +65,7 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been terminated.
         /// </summary>
         /// <returns></returns>
-        public override Task<BaseWebSocketClient> OnDisconnectAsync()
+        public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketDisconnectEventArgs e)
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
@@ -79,7 +79,7 @@ namespace DSharpPlus
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
 
-        public override Task InternalDisconnectAsync()
+        public override Task InternalDisconnectAsync(SocketDisconnectEventArgs e)
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }

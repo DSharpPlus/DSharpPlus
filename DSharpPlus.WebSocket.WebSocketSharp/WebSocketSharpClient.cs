@@ -14,7 +14,7 @@ namespace DSharpPlus
         public WebSocketSharpClient()
         {
             this._connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
-            this._disconnect = new AsyncEvent(this.EventErrorHandler, "WS_DISCONNECT");
+            this._disconnect = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
             this._message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
         }
 
@@ -22,7 +22,7 @@ namespace DSharpPlus
         {
             _socket = new wss.WebSocket(uri);
             _socket.OnOpen += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
-            _socket.OnClose += (sender, e) => _disconnect.InvokeAsync().GetAwaiter().GetResult();
+            _socket.OnClose += (sender, e) => _disconnect.InvokeAsync(new SocketDisconnectEventArgs(null) { CloseCode = e.Code, CloseMessage = e.Reason }).GetAwaiter().GetResult();
             _socket.OnMessage += (sender, e) => _message.InvokeAsync(new WebSocketMessageEventArgs()
             {
                 Message = e.Data
@@ -31,7 +31,7 @@ namespace DSharpPlus
             return Task.FromResult<BaseWebSocketClient>(this);
         }
 
-        public override Task InternalDisconnectAsync()
+        public override Task InternalDisconnectAsync(SocketDisconnectEventArgs e)
         {
             if (_socket.IsAlive)
                 _socket.Close();
@@ -43,7 +43,7 @@ namespace DSharpPlus
             return Task.FromResult<BaseWebSocketClient>(this);
         }
 
-        public override Task<BaseWebSocketClient> OnDisconnectAsync()
+        public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketDisconnectEventArgs e)
         {
             return Task.FromResult<BaseWebSocketClient>(this);
         }
@@ -61,12 +61,12 @@ namespace DSharpPlus
         }
         private AsyncEvent _connect;
 
-        public override event AsyncEventHandler OnDisconnect
+        public override event AsyncEventHandler<SocketDisconnectEventArgs> OnDisconnect
         {
             add { this._disconnect.Register(value); }
             remove { this._disconnect.Unregister(value);  }
         }
-        private AsyncEvent _disconnect;
+        private AsyncEvent<SocketDisconnectEventArgs> _disconnect;
 
         public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
         {

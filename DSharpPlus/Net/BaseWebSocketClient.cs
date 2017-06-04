@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus
@@ -9,7 +6,7 @@ namespace DSharpPlus
     public abstract class BaseWebSocketClient
     {
         public abstract event AsyncEventHandler OnConnect;
-        public abstract event AsyncEventHandler OnDisconnect;
+        public abstract event AsyncEventHandler<SocketDisconnectEventArgs> OnDisconnect;
         public abstract event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage;
         internal static Type ClientType { get; set; } = typeof(WebSocketClient);
 
@@ -39,7 +36,7 @@ namespace DSharpPlus
         /// Set the Action to call when the connection has been terminated.
         /// </summary>
         /// <returns></returns>
-        public abstract Task<BaseWebSocketClient> OnDisconnectAsync();
+        public abstract Task<BaseWebSocketClient> OnDisconnectAsync(SocketDisconnectEventArgs e);
 
         /// <summary>
         /// Send a message to the WebSocket server.
@@ -47,6 +44,6 @@ namespace DSharpPlus
         /// <param name="message">The message to send</param>
         public abstract void SendMessage(string message);
         
-        public abstract Task InternalDisconnectAsync();
+        public abstract Task InternalDisconnectAsync(SocketDisconnectEventArgs e);
     }
 }

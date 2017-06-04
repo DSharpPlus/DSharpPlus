@@ -36,12 +36,12 @@ namespace DSharpPlus
         /// <summary>
         /// 
         /// </summary>
-        public event AsyncEventHandler SocketClosed
+        public event AsyncEventHandler<SocketDisconnectEventArgs> SocketClosed
         {
             add { this._socket_closed.Register(value); }
             remove { this._socket_closed.Unregister(value); }
         }
-        private AsyncEvent _socket_closed;
+        private AsyncEvent<SocketDisconnectEventArgs> _socket_closed;
         /// <summary>
         /// The ready event is dispatched when a client completed the initial handshake.
         /// </summary>
@@ -437,7 +437,7 @@ namespace DSharpPlus
         {
             this._client_error = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERROR");
             this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
-            this._socket_closed = new AsyncEvent(this.EventErrorHandler, "SOCKET_CLOSED");
+            this._socket_closed = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
             this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
             this._channel_created = new AsyncEvent<ChannelCreateEventArgs>(this.EventErrorHandler, "CHANNEL_CREATED");
             this._dm_channel_created = new AsyncEvent<DmChannelCreateEventArgs>(this.EventErrorHandler, "DM_CHANNEL_CREATED");
@@ -556,12 +556,36 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Sets the WebSocket provider.
+        /// Sets the WebSocket client implementation.
         /// </summary>
-        /// <typeparam name="T">Type of the WebSocket provider to use.</typeparam>
-        public void SetSocketImplementation<T>() where T : BaseWebSocketClient, new()
+        /// <typeparam name="T">Type of the WebSocket client to use.</typeparam>
+        public void SetWebSocketClient<T>() where T : BaseWebSocketClient, new()
         {
             BaseWebSocketClient.ClientType = typeof(T);
+        }
+
+        /// <summary>
+        /// Sets the UDP client implementation.
+        /// </summary>
+        /// <typeparam name="T">Type of the UDP client to use.</typeparam>
+        public void SetUdpClient<T>() where T : BaseUdpClient, new()
+        {
+            BaseUdpClient.ClientType = typeof(T);
+        }
+
+        /// <summary>
+        /// Updates playing statuses on all shards.
+        /// </summary>
+        /// <param name="game">Game to set.</param>
+        /// <param name="idle_since">Since when is the client idle.</param>
+        /// <returns>Asynchronous operation.</returns>
+        public async Task UpdateStatusAsync(string game = "", int idle_since = -1)
+        {
+            var tasks = new List<Task>();
+            foreach (var client in this.ShardClients.Values)
+                tasks.Add(client.UpdateStatusAsync(game, idle_since));
+
+            await Task.WhenAll(tasks);
         }
 
         private async Task<int> GetShardCount()
@@ -587,8 +611,8 @@ namespace DSharpPlus
         private Task Client_SocketOpened() =>
             this._socket_opened.InvokeAsync();
 
-        private Task Client_SocketClosed() =>
-            this._socket_closed.InvokeAsync();
+        private Task Client_SocketClosed(SocketDisconnectEventArgs e) =>
+            this._socket_closed.InvokeAsync(e);
 
         private Task Client_Ready(ReadyEventArgs e) =>
             this._ready.InvokeAsync(e);

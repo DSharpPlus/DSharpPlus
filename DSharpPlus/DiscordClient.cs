@@ -42,12 +42,12 @@ namespace DSharpPlus
         /// <summary>
         /// 
         /// </summary>
-        public event AsyncEventHandler SocketClosed
+        public event AsyncEventHandler<SocketDisconnectEventArgs> SocketClosed
         {
             add { this._socket_closed.Register(value); }
             remove { this._socket_closed.Unregister(value); }
         }
-        private AsyncEvent _socket_closed;
+        private AsyncEvent<SocketDisconnectEventArgs> _socket_closed;
         /// <summary>
         /// The ready event is dispatched when a client completed the initial handshake.
         /// </summary>
@@ -542,7 +542,7 @@ namespace DSharpPlus
         {
             this._client_error = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERROR");
             this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
-            this._socket_closed = new AsyncEvent(this.EventErrorHandler, "SOCKET_CLOSED");
+            this._socket_closed = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
             this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
             this._channel_created = new AsyncEvent<ChannelCreateEventArgs>(this.EventErrorHandler, "CHANNEL_CREATED");
             this._dm_channel_created = new AsyncEvent<DmChannelCreateEventArgs>(this.EventErrorHandler, "DM_CHANNEL_CREATED");
@@ -636,13 +636,13 @@ namespace DSharpPlus
 
         public async Task ReconnectAsync()
         {
-            await _websocket_client.InternalDisconnectAsync();
+            await _websocket_client.InternalDisconnectAsync(null);
             await this.InternalReconnectAsync(true);
         }
 
         public async Task ReconnectAsync(string token_override, TokenType token_type)
         {
-            await _websocket_client.InternalDisconnectAsync();
+            await _websocket_client.InternalDisconnectAsync(null);
             await this.InternalReconnectAsync(token_override, token_type, true);
         }
 
@@ -681,16 +681,16 @@ namespace DSharpPlus
             _cancel_token = _cancel_token_source.Token;
 
             _websocket_client.OnConnect += async () => await this._socket_opened.InvokeAsync();
-            _websocket_client.OnDisconnect += async () =>
+            _websocket_client.OnDisconnect += async e =>
             {
                 _cancel_token_source.Cancel();
 
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed", DateTime.Now);
-                await this._socket_closed.InvokeAsync();
+                await this._socket_closed.InvokeAsync(new SocketDisconnectEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage });
 
                 if (config.AutoReconnect)
                 {
-                    DebugLogger.LogMessage(LogLevel.Critical, "Websocket", "Socket connection terminated. Reconnecting", DateTime.Now);
+                    DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode}, '{e.CloseMessage}'). Reconnecting", DateTime.Now);
                     await ReconnectAsync();
                 }
             };
@@ -729,7 +729,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<bool> DisconnectAsync()
         {
-            await _websocket_client.InternalDisconnectAsync();
+            await _websocket_client.InternalDisconnectAsync(null);
             config.AutoReconnect = false;
             return true;
         }
@@ -1917,7 +1917,7 @@ namespace DSharpPlus
             _me = null;
             _modules = null;
             _private_channels = null;
-            await _websocket_client.InternalDisconnectAsync();
+            await _websocket_client.InternalDisconnectAsync(null);
 
             disposed = true;
         }
