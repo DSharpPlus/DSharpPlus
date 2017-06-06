@@ -28,7 +28,6 @@ namespace DSharpPlus
     public sealed class AsyncEvent
     {
         private readonly object _lock = new object();
-        internal static readonly object _synclock = new object();
         private List<AsyncEventHandler> Handlers { get; }
         private Action<string, Exception> ErrorHandler { get; }
         private string EventName { get; }
@@ -60,27 +59,28 @@ namespace DSharpPlus
 
         public async Task InvokeAsync()
         {
-            if (!this.Handlers.Any())
+            var handlers = (AsyncEventHandler[])null;
+            lock (this._lock)
+                handlers = this.Handlers.ToArray();
+
+            if (!handlers.Any())
                 return;
 
-            var task = (Task)null;
-            lock (_synclock)
+            var exs = new List<Exception>(handlers.Length);
+            for (var i = 0; i < handlers.Length; i++)
             {
-                var sc = SynchronizationContext.Current;
-                SynchronizationContext.SetSynchronizationContext(null);
+                try
+                {
+                    await handlers[i]().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    exs.Add(ex);
+                }
+            }
 
-                task = Task.WhenAll(this.Handlers.Select(xh => xh()));
-
-                SynchronizationContext.SetSynchronizationContext(sc);
-            }
-            try
-            {
-                await task;
-            }
-            catch (Exception ex)
-            {
-                this.ErrorHandler(this.EventName, ex);
-            }
+            if (exs.Any())
+                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
         }
     }
 
@@ -122,27 +122,28 @@ namespace DSharpPlus
 
         public async Task InvokeAsync(T e)
         {
-            if (!this.Handlers.Any())
+            var handlers = (AsyncEventHandler<T>[])null;
+            lock (this._lock)
+                handlers = this.Handlers.ToArray();
+
+            if (!handlers.Any())
                 return;
 
-            var task = (Task)null;
-            lock (AsyncEvent._synclock)
+            var exs = new List<Exception>(handlers.Length);
+            for (var i = 0; i < handlers.Length; i++)
             {
-                var sc = SynchronizationContext.Current;
-                SynchronizationContext.SetSynchronizationContext(null);
+                try
+                {
+                    await handlers[i](e).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    exs.Add(ex);
+                }
+            }
 
-                task = Task.WhenAll(this.Handlers.Select(xh => xh(e)));
-
-                SynchronizationContext.SetSynchronizationContext(sc);
-            }
-            try
-            {
-                await task;
-            }
-            catch (Exception ex)
-            {
-                this.ErrorHandler(this.EventName, ex);
-            }
+            if (exs.Any())
+                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
         }
     }
 }
