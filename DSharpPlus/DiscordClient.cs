@@ -470,11 +470,11 @@ namespace DSharpPlus
         public int ShardCount => this.config.ShardCount;
         public int ShardId => this.config.ShardId;
 
-        internal DiscordUser _me;
+        internal DiscordUser _current_user;
         /// <summary>
         /// The current user
         /// </summary>
-        public DiscordUser Me => _me;
+        public DiscordUser CurrentUser => _current_user;
 
         internal List<DiscordDmChannel> _private_channels = new List<DiscordDmChannel>();
         /// <summary>
@@ -486,7 +486,7 @@ namespace DSharpPlus
         /// <summary>
         /// List of Guilds
         /// </summary>
-        public Dictionary<ulong, DiscordGuild> Guilds => _guilds;
+        public IReadOnlyDictionary<ulong, DiscordGuild> Guilds => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds);
 
         /// <summary>
         /// Gets the WS latency for this client.
@@ -673,7 +673,8 @@ namespace DSharpPlus
             await Task.Delay(6000);
 
             await InternalUpdateGatewayAsync();
-            _me = await this._rest_client.InternalGetCurrentUser();
+            if (_current_user == null)
+                _current_user = await this._rest_client.InternalGetCurrentUser();
 
             _websocket_client = BaseWebSocketClient.Create();
 
@@ -995,7 +996,7 @@ namespace DSharpPlus
         internal async Task OnReadyEventAsync(JObject obj)
         {
             _gatewayVersion = obj["d"]["v"].ToObject<int>();
-            _me = obj["d"]["user"].ToObject<DiscordUser>();
+            _current_user = obj["d"]["user"].ToObject<DiscordUser>();
             _private_channels = obj["d"]["private_channels"].ToObject<List<DiscordDmChannel>>();
 
             foreach (var dmc in this._private_channels)
@@ -1522,8 +1523,8 @@ namespace DSharpPlus
         {
             DiscordUser user = obj["d"].ToObject<DiscordUser>();
             user.Discord = this;
-            UserUpdateEventArgs args = new UserUpdateEventArgs(this) { User = user, UserBefore = _me };
-            _me = user;
+            UserUpdateEventArgs args = new UserUpdateEventArgs(this) { User = user, UserBefore = _current_user };
+            _current_user = user;
             await this._user_update.InvokeAsync(args);
         }
         internal async Task OnVoiceStateUpdateEventAsync(JObject obj)
@@ -1914,7 +1915,7 @@ namespace DSharpPlus
             _cancel_token_source.Cancel();
             _guilds = null;
             _heartbeat_task = null;
-            _me = null;
+            _current_user = null;
             _modules = null;
             _private_channels = null;
             await _websocket_client.InternalDisconnectAsync(null);

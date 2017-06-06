@@ -163,7 +163,7 @@ namespace DSharpPlus.Test
 
         private async Task Discord_MessageCreated(MessageCreateEventArgs e)
         {
-            if (e.Message.Content.Contains($"<@!{e.Client.Me.Id}>") || e.Message.Content.Contains($"<@{e.Client.Me.Id}>"))
+            if (e.Message.Content.Contains($"<@!{e.Client.CurrentUser.Id}>") || e.Message.Content.Contains($"<@{e.Client.CurrentUser.Id}>"))
                 await e.Message.RespondAsync("r u havin' a ggl thr m8");
         }
 
@@ -201,8 +201,8 @@ namespace DSharpPlus.Test
                 Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.Name}`.",
                 Footer = new DiscordEmbedFooter
                 {
-                    IconUrl = Discord.Me.AvatarUrl,
-                    Text = Discord.Me.Username
+                    IconUrl = Discord.CurrentUser.AvatarUrl,
+                    Text = Discord.CurrentUser.Username
                 },
                 Timestamp = DateTime.UtcNow,
                 Fields = new List<DiscordEmbedField>()

@@ -93,11 +93,11 @@ namespace DSharpPlus.CommandsNext
             if (!this.Config.EnableDms && e.Channel.IsPrivate)
                 return;
 
-            if (this.Config.SelfBot && e.Author.Id != this.Client.Me.Id)
+            if (this.Config.SelfBot && e.Author.Id != this.Client.CurrentUser.Id)
                 return;
 
             var mpos = -1;
-            if (!this.Config.EnableMentionPrefix || (mpos = e.Message.HasMentionPrefix(this.Client.Me)) == -1)
+            if (!this.Config.EnableMentionPrefix || (mpos = e.Message.HasMentionPrefix(this.Client.CurrentUser)) == -1)
                 mpos = e.Message.HasStringPrefix(this.Config.Prefix);
 
             if (mpos == -1)

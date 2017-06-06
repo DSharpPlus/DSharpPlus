@@ -135,7 +135,7 @@ namespace DSharpPlus
         /// Is the current user the guild owner
         /// </summary>
         [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
-        public bool IsOwner => (OwnerID == this.Discord.Me.Id);
+        public bool IsOwner => (OwnerID == this.Discord.CurrentUser.Id);
 
         #region Guild Functions
         public Task<DiscordGuild> DeleteAsync() => 
