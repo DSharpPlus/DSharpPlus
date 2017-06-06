@@ -702,9 +702,9 @@ namespace DSharpPlus
         internal Task InternalUpdateGuildAsync(DiscordGuild guild)
         {
             if (Guilds[guild.Id] == null)
-                Guilds.Add(guild.Id, guild);
+                this._guilds.Add(guild.Id, guild);
             else
-                Guilds[guild.Id] = guild;
+                this._guilds[guild.Id] = guild;
             return Task.Delay(0);
         }
 
