@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DSharpPlus.Web;
 using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
@@ -430,6 +431,12 @@ namespace DSharpPlus
         public IReadOnlyDictionary<int, DiscordClient> ShardClients => new ReadOnlyDictionary<int, DiscordClient>(this.Shards);
 
         /// <summary>
+        /// Gets the current user.
+        /// </summary>
+        public DiscordUser CurrentUser => this._current_user;
+        private DiscordUser _current_user;
+
+        /// <summary>
         /// Initializes new auto-sharding Discord client.
         /// </summary>
         /// <param name="config">Configuration to use.</param>
@@ -491,9 +498,9 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task StartAsync()
         {
-            var shardc = this.Config.ShardCount == 1 ? await this.GetShardCount() : this.Config.ShardCount;
+            var shardc = this.Config.ShardCount == 1 ? await this.GetShardCountAsync() : this.Config.ShardCount;
             this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc} shards", DateTime.Now);
-            
+
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfig(this.Config)
@@ -506,6 +513,9 @@ namespace DSharpPlus
                 var client = new DiscordClient(cfg);
                 if (!this.Shards.TryAdd(i, client))
                     throw new Exception("Could not initialize shards.");
+
+                if (this.CurrentUser != null)
+                    client._current_user = this.CurrentUser;
 
                 client.ClientError += this.Client_ClientError;
                 client.SocketOpened += this.Client_SocketOpened;
@@ -552,6 +562,9 @@ namespace DSharpPlus
                 
                 await client.ConnectAsync();
                 this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i}", DateTime.Now);
+
+                if (this._current_user == null)
+                    this._current_user = client.CurrentUser;
             }
         }
 
@@ -588,7 +601,7 @@ namespace DSharpPlus
             await Task.WhenAll(tasks);
         }
 
-        private async Task<int> GetShardCount()
+        private async Task<int> GetShardCountAsync()
         {
             string url = $"{Utils.GetApiBaseUri(this.Config)}{Endpoints.Gateway}{Endpoints.Bot}";
             var headers = Utils.GetBaseHeaders();

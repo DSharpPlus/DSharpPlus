@@ -370,7 +370,7 @@ namespace DSharpPlus.Interactivity
              {
                  if (e.MessageID == m.Id)
                  {
-                     if (e.UserID != _client.Me.Id)
+                     if (e.UserID != _client.CurrentUser.Id)
                      {
                          if (e.Emoji.Id == 0)
                              await m.DeleteReactionAsync(e.Emoji.Name, e.UserID);
