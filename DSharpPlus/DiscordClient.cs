@@ -639,6 +639,7 @@ namespace DSharpPlus
             await Task.Delay(6000);
 
             await InternalUpdateGatewayAsync();
+
             if (_current_user == null)
                 _current_user = await this._rest_client.InternalGetCurrentUser();
 
