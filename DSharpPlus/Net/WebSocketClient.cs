@@ -136,7 +136,7 @@ namespace DSharpPlus
 
         public override async Task InternalDisconnectAsync(SocketDisconnectEventArgs e)
         {
-            if (this.Socket.State != WebSocketState.Open)
+            if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
                 return;
             
             try
@@ -236,9 +236,16 @@ namespace DSharpPlus
             await _on_message.InvokeAsync(new WebSocketMessageEventArgs() { Message = result });
         }
 
-        internal async Task CallOnDisconnectedAsync(SocketDisconnectEventArgs e)
+        internal Task CallOnDisconnectedAsync(SocketDisconnectEventArgs e)
         {
-            await _on_disconnect.InvokeAsync(e);
+            //await _on_disconnect.InvokeAsync(e);
+
+#pragma warning disable 4014
+            // Zis is to prevent deadlocks (I hope)
+            this._on_disconnect.InvokeAsync(e);
+#pragma warning restore 4014
+
+            return Task.Delay(0);
         }
 
         internal async Task CallOnConnectedAsync()

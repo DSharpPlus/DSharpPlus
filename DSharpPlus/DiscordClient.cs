@@ -593,26 +593,6 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Connects to the gateway
-        /// </summary>
-        /// <returns></returns>
-        public async Task ConnectAsync() => await InternalConnectAsync();
-
-        /// <summary>
-        /// Connects to the gateway
-        /// </summary>
-        /// <param name="token_override"></param>
-        /// <param name="token_type"></param>
-        /// <returns></returns>
-        public async Task ConnectAsync(string token_override, TokenType token_type)
-        {
-            config.Token = token_override;
-            config.TokenType = token_type;
-
-            await InternalConnectAsync();
-        }
-
-        /// <summary>
         /// Adds a new module to the module list
         /// </summary>
         /// <param name="module"></param>
@@ -634,35 +614,21 @@ namespace DSharpPlus
             return _modules.Find(x => x.GetType() == typeof(T)) as T;
         }
 
-        public async Task ReconnectAsync()
-        {
-            await _websocket_client.InternalDisconnectAsync(null);
-            await this.InternalReconnectAsync(true);
-        }
+        /// <summary>
+        /// Connects to the gateway
+        /// </summary>
+        /// <returns></returns>
+        public Task ConnectAsync() => InternalConnectAsync();
 
-        public async Task ReconnectAsync(string token_override, TokenType token_type)
-        {
-            await _websocket_client.InternalDisconnectAsync(null);
-            await this.InternalReconnectAsync(token_override, token_type, true);
-        }
-
-        internal async Task InternalReconnectAsync(bool start_new_session = false)
+        public Task ReconnectAsync(bool start_new_session = false)
         {
             if (start_new_session)
                 _session_id = "";
-            // delay task by 6 seconds to make sure everything gets closed correctly
-            //await Task.Delay(6000);
-            await InternalConnectAsync();
+
+            return _websocket_client.InternalDisconnectAsync(null);
         }
 
-        internal async Task InternalReconnectAsync(string token_override, TokenType token_type, bool start_new_session = false)
-        {
-            if (start_new_session)
-                _session_id = "";
-            // delay task by 6 seconds to make sure everything gets closed correctly
-            //await Task.Delay(6000);
-            await ConnectAsync(token_override, token_type);
-        }
+        internal Task InternalReconnectAsync() => InternalConnectAsync();
 
         internal async Task InternalConnectAsync()
         {
@@ -673,14 +639,16 @@ namespace DSharpPlus
             await Task.Delay(6000);
 
             await InternalUpdateGatewayAsync();
-            _me = await this._rest_client.InternalGetCurrentUser();
+
+            if (this._me == null)
+                _me = await this._rest_client.InternalGetCurrentUser();
 
             _websocket_client = BaseWebSocketClient.Create();
 
             _cancel_token_source = new CancellationTokenSource();
             _cancel_token = _cancel_token_source.Token;
 
-            _websocket_client.OnConnect += async () => await this._socket_opened.InvokeAsync();
+            _websocket_client.OnConnect += () => this._socket_opened.InvokeAsync();
             _websocket_client.OnDisconnect += async e =>
             {
                 _cancel_token_source.Cancel();
@@ -691,10 +659,10 @@ namespace DSharpPlus
                 if (config.AutoReconnect)
                 {
                     DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode}, '{e.CloseMessage}'). Reconnecting", DateTime.Now);
-                    await ReconnectAsync();
+                    await ConnectAsync();
                 }
             };
-            _websocket_client.OnMessage += async e => await HandleSocketMessageAsync(e.Message);
+            _websocket_client.OnMessage += e => HandleSocketMessageAsync(e.Message);
             await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={config.GatewayVersion}&encoding=json");
         }
 
@@ -729,8 +697,8 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<bool> DisconnectAsync()
         {
-            await _websocket_client.InternalDisconnectAsync(null);
             config.AutoReconnect = false;
+            await _websocket_client.InternalDisconnectAsync(null);
             return true;
         }
 
