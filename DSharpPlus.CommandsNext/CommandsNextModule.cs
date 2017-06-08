@@ -45,6 +45,7 @@ namespace DSharpPlus.CommandsNext
         #endregion
 
         private CommandsNextConfiguration Config { get; set; }
+        private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroup";
 
         public CommandsNextModule(CommandsNextConfiguration cfg)
         {
@@ -77,7 +78,49 @@ namespace DSharpPlus.CommandsNext
             this.Client.MessageCreated += this.HandleCommands;
 
             if (this.Config.EnableDefaultHelp)
-                this.RegisterCommand<string[]>(this.DefaultHelp);
+            {
+                var dlg = new Func<CommandContext, string[], Task>(this.DefaultHelp);
+                var mi = dlg.GetMethodInfo();
+                this.MakeCallable(mi, dlg.Target, out var cbl, out var args);
+
+                var attrs = mi.GetCustomAttributes();
+                if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
+                    return;
+
+                var cmd = new Command();
+
+                var cbas = new List<ConditionBaseAttribute>();
+                foreach (var xa in attrs)
+                {
+                    switch (xa)
+                    {
+                        case CommandAttribute c:
+                            cmd.Name = c.Name;
+                            break;
+
+                        case AliasesAttribute a:
+                            cmd.Aliases = a.Aliases;
+                            break;
+
+                        case ConditionBaseAttribute p:
+                            cbas.Add(p);
+                            break;
+
+                        case DescriptionAttribute d:
+                            cmd.Description = d.Description;
+                            break;
+
+                        case HiddenAttribute h:
+                            cmd.IsHidden = true;
+                            break;
+                    }
+                }
+                cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
+                cmd.Arguments = args;
+                cmd.Callable = cbl;
+
+                this.AddToCommandDictionary(cmd);
+            }
         }
         #endregion
 
@@ -224,7 +267,7 @@ namespace DSharpPlus.CommandsNext
 
             // candidate methods
             var ms = ti.DeclaredMethods
-                .Where(xm => xm.IsPublic && !xm.IsStatic && xm.Name != "ModuleCommand");
+                .Where(xm => xm.IsPublic && !xm.IsStatic && xm.Name != GROUP_COMMAND_METHOD_NAME);
             var cmds = new List<Command>();
             foreach (var m in ms)
             {
@@ -294,66 +337,6 @@ namespace DSharpPlus.CommandsNext
             result = mdl;
         }
 
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7, T8>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, T8, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6, T7>(Func<CommandContext, T1, T2, T3, T4, T5, T6, T7, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5, T6>(Func<CommandContext, T1, T2, T3, T4, T5, T6, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4, T5>(Func<CommandContext, T1, T2, T3, T4, T5, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3, T4>(Func<CommandContext, T1, T2, T3, T4, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2, T3>(Func<CommandContext, T1, T2, T3, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1, T2>(Func<CommandContext, T1, T2, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand<T1>(Func<CommandContext, T1, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand(Func<CommandContext, Task> f) => this.RegisterCommand((Delegate)f);
-        public void RegisterCommand(Delegate dlg)
-        {
-            var mi = dlg.GetMethodInfo();
-            this.MakeCallable(mi, dlg.Target, out var cbl, out var args);
-
-            var attrs = mi.GetCustomAttributes();
-            if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
-                return;
-
-            var cmd = new Command();
-
-            var cbas = new List<ConditionBaseAttribute>();
-            foreach (var xa in attrs)
-            {
-                switch (xa)
-                {
-                    case CommandAttribute c:
-                        cmd.Name = c.Name;
-                        break;
-
-                    case AliasesAttribute a:
-                        cmd.Aliases = a.Aliases;
-                        break;
-
-                    case ConditionBaseAttribute p:
-                        cbas.Add(p);
-                        break;
-
-                    case DescriptionAttribute d:
-                        cmd.Description = d.Description;
-                        break;
-
-                    case HiddenAttribute h:
-                        cmd.IsHidden = true;
-                        break;
-                }
-            }
-            cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
-            cmd.Arguments = args;
-            cmd.Callable = cbl;
-
-            this.AddToCommandDictionary(cmd);
-        }
-
         private void MakeCallable(MethodInfo mi, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
             if (mi == null || mi.IsStatic || !mi.IsPublic)
@@ -412,7 +395,7 @@ namespace DSharpPlus.CommandsNext
 
         private void MakeCallableModule(TypeInfo ti, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
-            this.MakeCallable(ti.GetDeclaredMethod("ModuleCommand"), inst, out cbl, out args);
+            this.MakeCallable(ti.GetDeclaredMethod(GROUP_COMMAND_METHOD_NAME), inst, out cbl, out args);
         }
 
         private void AddToCommandDictionary(Command cmd)
