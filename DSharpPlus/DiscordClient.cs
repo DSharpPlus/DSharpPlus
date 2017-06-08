@@ -1262,7 +1262,7 @@ namespace DSharpPlus
                 m._guild_id = guildID;
                 old = m;
                 m.Nickname = nick;
-                m.Roles = roles;
+                m._role_ids = roles;
                 _guilds[guildID].Members[index] = m;
             }
             else
@@ -1271,12 +1271,12 @@ namespace DSharpPlus
                 {
                     Discord = this,
                     Nickname = nick,
-                    Roles = roles,
+                    _role_ids = roles,
                     _guild_id = guildID
                 };
                 _guilds[guildID].Members.Add(m);
             }
-            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs(this) { User = user, GuildID = guildID, Roles = new ReadOnlyCollection<ulong>(roles), NickName = nick, NickNameBefore = old.Nickname, RolesBefore = old.Roles };
+            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs(this) { User = user, GuildID = guildID, Roles = new ReadOnlyCollection<ulong>(roles), NickName = nick, NickNameBefore = old.Nickname, RolesBefore = old.RoleIds };
             await this._guild_member_update.InvokeAsync(args);
         }
         internal async Task OnGuildRoleCreateEventAsync(JObject obj)

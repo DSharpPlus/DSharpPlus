@@ -29,7 +29,7 @@ namespace DSharpPlus.Test
         {
             DiscordEmbed embed = new DiscordEmbed()
             {
-                Color = m.GetNameColor(),
+                Color = m.Color,
                 Title = "Color on the left m8"
             };
             await e.RespondAsync("", embed: embed);

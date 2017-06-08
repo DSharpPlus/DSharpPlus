@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Objects.Transport;
 using Newtonsoft.Json;
 using System.Linq;
+using System.Collections.ObjectModel;
 
 namespace DSharpPlus
 {
@@ -32,7 +33,7 @@ namespace DSharpPlus
             this.IsMuted = mbr.IsMuted;
             this.JoinedAt = mbr.JoinedAt;
             this.Nickname = mbr.Nickname;
-            this.Roles = mbr.Roles;
+            this._role_ids = mbr.Roles;
         }
 
         /// <summary>
@@ -41,10 +42,31 @@ namespace DSharpPlus
         [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
         public string Nickname { get; internal set; }
         /// <summary>
-        /// List of role object id's
+        /// List of role ids
         /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<ulong> RoleIds => new ReadOnlyCollection<ulong>(this._role_ids);
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public List<ulong> Roles { get; internal set; }
+        internal List<ulong> _role_ids;
+        /// <summary>
+        /// Gets the list of roles associated with this member.
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<DiscordRole> Roles => this._role_ids.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+        /// <summary>
+        /// Gets the color associated with this user's top color-giving role, otherwise 0 (no color).
+        /// </summary>
+        [JsonIgnore]
+        public int Color
+        {
+            get
+            {
+                var role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color != 0);
+                if (role != null)
+                    return role.Color;
+                return 0;
+            }
+        }
         /// <summary>
         /// Date the user joined the guild
         /// </summary>
@@ -75,23 +97,16 @@ namespace DSharpPlus
 
         public async Task GrantRoleAsync(ulong RoleID)
         {
-            if (!Roles.Contains(RoleID))
-                Roles.Add(RoleID);
-            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: Roles);
+            if (!this._role_ids.Contains(RoleID))
+                this._role_ids.Add(RoleID);
+            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: this._role_ids);
         }
 
         public async Task TakeRoleAsync(ulong RoleID)
         {
-            if(Roles.Contains(RoleID))
-                Roles.Remove(RoleID);
-            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: Roles);
+            if(this._role_ids.Contains(RoleID))
+                this._role_ids.Remove(RoleID);
+            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: this._role_ids);
         }
-
-        public int GetNameColor()
-        {
-            var r = this.Discord.Guilds[_guild_id].Roles.FindAll(x => Roles.Contains(x.Id) && x.Color != 0).OrderBy(x => x.Position);
-            return r.Last().Color;
-        }
-
     }
 }
