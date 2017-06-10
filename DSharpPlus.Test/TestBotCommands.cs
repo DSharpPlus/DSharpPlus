@@ -323,14 +323,14 @@ Serverowner: {e.Guild.OwnerID}
             [Command("join")]
             public async Task VoiceJoin(CommandContext e)
             {
-                var vs = e.Guild.VoiceStates.FirstOrDefault(xvs => xvs.UserID == e.User.Id);
+                var vs = e.Guild.VoiceStates.FirstOrDefault(xvs => xvs.UserId == e.User.Id);
                 if (vs == null)
                 {
                     await e.Message.RespondAsync("You are not in a voice channel");
                     return;
                 }
 
-                var chn = e.Guild.Channels.FirstOrDefault(xc => xc.Id == vs.ChannelID);
+                var chn = e.Guild.Channels.FirstOrDefault(xc => xc.Id == vs.ChannelId);
                 if (chn == null)
                 {
                     await e.Message.RespondAsync("Your voice channel was not found");

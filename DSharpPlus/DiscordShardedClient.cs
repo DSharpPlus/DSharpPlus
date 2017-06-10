@@ -590,13 +590,15 @@ namespace DSharpPlus
         /// Updates playing statuses on all shards.
         /// </summary>
         /// <param name="game">Game to set.</param>
+        /// <param name="user_status">Status of the user.</param>
         /// <param name="idle_since">Since when is the client idle.</param>
+        /// <param name="afk">Whether the user is away from keyboard.</param>
         /// <returns>Asynchronous operation.</returns>
-        public async Task UpdateStatusAsync(string game = "", int idle_since = -1)
+        public async Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, long? idle_since = null, bool afk = false)
         {
             var tasks = new List<Task>();
             foreach (var client in this.ShardClients.Values)
-                tasks.Add(client.UpdateStatusAsync(game, idle_since));
+                tasks.Add(client.UpdateStatusAsync(game, user_status, idle_since, afk));
 
             await Task.WhenAll(tasks);
         }

@@ -339,7 +339,10 @@ namespace DSharpPlus.CommandsNext
 
         private void MakeCallable(MethodInfo mi, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
-            if (mi == null || mi.IsStatic || !mi.IsPublic)
+            if (mi == null)
+                throw new MissingMethodException("Specified method does not exist.");
+
+            if (mi.IsStatic || !mi.IsPublic)
                 throw new InvalidOperationException("Specified method is invalid, static, or not public.");
 
             var ps = mi.GetParameters();
@@ -395,7 +398,11 @@ namespace DSharpPlus.CommandsNext
 
         private void MakeCallableModule(TypeInfo ti, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
-            this.MakeCallable(ti.GetDeclaredMethod(GROUP_COMMAND_METHOD_NAME), inst, out cbl, out args);
+            var mtd = ti.GetDeclaredMethod(GROUP_COMMAND_METHOD_NAME);
+            if (mtd == null)
+                throw new MissingMethodException($"A group marked with CanExecute must have a method named {GROUP_COMMAND_METHOD_NAME}.");
+
+            this.MakeCallable(mtd, inst, out cbl, out args);
         }
 
         private void AddToCommandDictionary(Command cmd)

@@ -9,11 +9,15 @@ using System.Collections.ObjectModel;
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    /// Represents a Discord guild member.
     /// </summary>
     public class DiscordMember : DiscordUser
     {
-        internal DiscordMember() { }
+        internal DiscordMember()
+        {
+            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
+        }
+
         internal DiscordMember(DiscordUser user)
         {
             this.AvatarHash = user.AvatarHash;
@@ -25,7 +29,10 @@ namespace DSharpPlus
             this.MFAEnabled = user.MFAEnabled;
             this.Username = user.Username;
             this.Verified = user.Verified;
+
+            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
+
         internal DiscordMember(TransportMember mbr)
             : base(mbr.User)
         {
@@ -34,25 +41,38 @@ namespace DSharpPlus
             this.JoinedAt = mbr.JoinedAt;
             this.Nickname = mbr.Nickname;
             this._role_ids = mbr.Roles;
+
+            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
 
         /// <summary>
-        /// This users guild nickname
+        /// Gets this member's nickname.
         /// </summary>
         [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
         public string Nickname { get; internal set; }
+
+        /// <summary>
+        /// Gets this member's display name.
+        /// </summary>
+        [JsonIgnore]
+        public string DisplayName => this.Nickname ?? this.Username;
+
         /// <summary>
         /// List of role ids
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<ulong> RoleIds => new ReadOnlyCollection<ulong>(this._role_ids);
+        public IReadOnlyList<ulong> RoleIds => this._role_ids_lazy.Value;
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _role_ids;
+        [JsonIgnore]
+        private Lazy<IReadOnlyList<ulong>> _role_ids_lazy;
+
         /// <summary>
         /// Gets the list of roles associated with this member.
         /// </summary>
         [JsonIgnore]
         public IEnumerable<DiscordRole> Roles => this._role_ids.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+
         /// <summary>
         /// Gets the color associated with this user's top color-giving role, otherwise 0 (no color).
         /// </summary>
@@ -67,21 +87,29 @@ namespace DSharpPlus
                 return 0;
             }
         }
+
         /// <summary>
         /// Date the user joined the guild
         /// </summary>
         [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime JoinedAt { get; internal set; }
+
         /// <summary>
         /// If the user is deafened
         /// </summary>
         [JsonProperty("is_deafened", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsDeafened { get; internal set; }
+
         /// <summary>
         /// If the user is muted
         /// </summary>
         [JsonProperty("is_muted", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMuted { get; internal set; }
+
+        /// <summary>
+        /// Gets this member's voice state.
+        /// </summary>
+        public DiscordVoiceState VoiceState => this.Discord.Guilds[this._guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == this.Id);
 
         internal ulong _guild_id = 0;
 

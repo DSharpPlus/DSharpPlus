@@ -1,34 +1,39 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
     public class PresenceUpdateEventArgs : DiscordEventArgs
     {
-        public DiscordUser User => this.Client._guilds[GuildID].Members.Find(x => x.Id == UserID);
-
         [JsonProperty("user")]
         internal DiscordUser InternalUser { get; set; }
 
-        public ulong UserID => InternalUser == null ? 0 : InternalUser.Id;
+        [JsonIgnore]
+        public DiscordMember Member => this.Client._guilds[this.GuildId].Members.FirstOrDefault(xm => xm.Id == this.InternalUser.Id);
 
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
-        internal JObject InternalGame { get; set; }
-
-        public string Game => (InternalGame == null) ? "" : InternalGame["name"].ToString();
+        public Game Game { get; internal set; }
 
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
         public string Status { get; internal set; }
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong GuildID { get; internal set; }
+        internal ulong GuildId { get; set; }
+
+        [JsonIgnore]
+        public DiscordGuild Guild => this.Client._guilds[this.GuildId];
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyList<ulong> RoleIDs { get; internal set; }
+        internal IReadOnlyList<ulong> RoleIds { get; set; }
 
+        [JsonIgnore]
+        public IEnumerable<DiscordRole> Roles => this.RoleIds.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+
+        [JsonIgnore]
         public DiscordPresence PresenceBefore { get; internal set; }
 
+        public PresenceUpdateEventArgs() : base(null) { }
         public PresenceUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }
