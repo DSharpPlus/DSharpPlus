@@ -1982,7 +1982,7 @@ namespace DSharpPlus
 
             var status = new StatusUpdate
             {
-                Game = game,
+                Game = game ?? new Game(),
                 IdleSince = idle_since,
                 IsAFK = afk,
                 Status = user_status ?? UserStatus.Online

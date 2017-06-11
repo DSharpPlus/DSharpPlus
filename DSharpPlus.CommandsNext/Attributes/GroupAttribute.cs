@@ -14,6 +14,11 @@ namespace DSharpPlus.CommandsNext.Attributes
         public string Name { get; private set; }
 
         /// <summary>
+        /// Whether or not this group can be invoked without subcommand. If this is set to true, the group needs to have a ExecuteGroup method.
+        /// </summary>
+        public bool CanInvokeWithoutSubcommand { get; set; } = false;
+
+        /// <summary>
         /// Marks this class as a command group with specified name.
         /// </summary>
         /// <param name="name">Name of this group.</param>

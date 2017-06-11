@@ -227,6 +227,8 @@ namespace DSharpPlus.CommandsNext
                     case GroupAttribute g:
                         is_mdl = true;
                         mdl_name = g.Name;
+                        if (g.CanInvokeWithoutSubcommand)
+                            this.MakeCallableModule(ti, inst, out mdl_cbl, out mdl_args);
                         break;
 
                     case AliasesAttribute a:
@@ -243,10 +245,6 @@ namespace DSharpPlus.CommandsNext
 
                     case ConditionBaseAttribute c:
                         mdl_chks.Add(c);
-                        break;
-
-                    case CanExecuteAttribute x:
-                        this.MakeCallableModule(ti, inst, out mdl_cbl, out mdl_args);
                         break;
                 }
             }

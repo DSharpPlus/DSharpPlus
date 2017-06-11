@@ -79,7 +79,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets or sets the name of the game the user is playing.
         /// </summary>
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
 
         /// <summary>

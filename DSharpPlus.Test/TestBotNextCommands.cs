@@ -84,7 +84,7 @@ namespace DSharpPlus.Test
             }
         }
 
-        [Group("sub"), Aliases("submodule"), CanExecute, Description("Copypasta things."), Hidden]
+        [Group("sub", CanInvokeWithoutSubcommand = true), Aliases("submodule"), Description("Copypasta things."), Hidden]
         public class SubGroup
         {
             [Command("navyseal"), Aliases("navy_seal", "copypasta"), Description("Prints a modified Navy Seal copypasta."), SimpleCanTest]
