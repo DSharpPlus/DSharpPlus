@@ -85,7 +85,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="msg">Message to check.</param>
         /// <param name="str">String to check for.</param>
         /// <returns>Positive number if the prefix is present, -1 otherwise.</returns>
-        public static int HasStringPrefix(this DiscordMessage msg, string str)
+        public static int GetStringPrefixLength(this DiscordMessage msg, string str)
         {
             var cnt = msg.Content;
             if (str.Length >= cnt.Length)
@@ -110,7 +110,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="msg">Message to check.</param>
         /// <param name="str">User to check for.</param>
         /// <returns>Positive number if the prefix is present, -1 otherwise.</returns>
-        public static int HasMentionPrefix(this DiscordMessage msg, DiscordUser user)
+        public static int GetMentionPrefixLength(this DiscordMessage msg, DiscordUser user)
         {
             var cnt = msg.Content;
             if (!cnt.StartsWith("<@"))

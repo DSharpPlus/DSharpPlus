@@ -141,8 +141,14 @@ namespace DSharpPlus.CommandsNext
                 return;
 
             var mpos = -1;
-            if (!this.Config.EnableMentionPrefix || (mpos = e.Message.HasMentionPrefix(this.Client.CurrentUser)) == -1)
-                mpos = e.Message.HasStringPrefix(this.Config.Prefix);
+            if (this.Config.EnableMentionPrefix)
+                mpos = e.Message.GetMentionPrefixLength(this.Client.CurrentUser);
+
+            if (mpos == -1 && !string.IsNullOrWhiteSpace(this.Config.StringPrefix))
+                mpos = e.Message.GetStringPrefixLength(this.Config.StringPrefix);
+
+            if (mpos == -1 && this.Config.CustomPrefixPredicate != null)
+                mpos = this.Config.CustomPrefixPredicate(e.Message);
 
             if (mpos == -1)
                 return;
@@ -153,7 +159,7 @@ namespace DSharpPlus.CommandsNext
             var rrg = cmi != -1 ? cnt.Substring(cmi + 1) : "";
             var arg = CommandsNextUtilities.SplitArguments(rrg);
 
-            var cmd = this.TopLevelCommands[cms];
+            var cmd = this.TopLevelCommands.ContainsKey(cms) ? this.TopLevelCommands[cms] : null;
             var ctx = new CommandContext
             {
                 Client = this.Client,
@@ -439,6 +445,12 @@ namespace DSharpPlus.CommandsNext
                 var search_in = toplevel;
                 foreach (var c in command)
                 {
+                    if (search_in == null)
+                    {
+                        cmd = null;
+                        break;
+                    }
+
                     cmd = search_in.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)));
 
                     if (cmd == null)

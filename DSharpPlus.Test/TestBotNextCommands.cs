@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,8 @@ namespace DSharpPlus.Test
 {
     public class TestBotNextCommands
     {
+        public static ConcurrentDictionary<ulong, string> Prefixes { get; } = new ConcurrentDictionary<ulong, string>();
+
         [Command("hello"), Aliases("hi", "say_hello", "say_hi"), Description("Says hello to given user.")]
         public async Task SayHello(CommandContext ctx, [Description("Name to say hi to.")] string name)
         {
@@ -62,6 +65,21 @@ namespace DSharpPlus.Test
             }
             else
                 await ctx.RespondAsync("ill fukken bash ur head in i swer on me mum");
+        }
+
+        [Command("setprefix"), Aliases("channelprefix"), Description("Sets custom command prefix for current channel. The bot will still respond to the default one.")]
+        public async Task SetPrefix(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
+        {
+            if (string.IsNullOrWhiteSpace(prefix))
+                if (Prefixes.TryRemove(ctx.Channel.Id, out _))
+                    await ctx.RespondAsync("👍");
+                else
+                    await ctx.RespondAsync("👎");
+            else
+            {
+                Prefixes.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);
+                await ctx.RespondAsync("👍");
+            }
         }
 
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), SimpleCanTest]

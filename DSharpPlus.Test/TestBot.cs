@@ -30,7 +30,7 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 DiscordBranch = Branch.Stable,
-                LargeThreshold = 250, 
+                LargeThreshold = 250,
                 LogLevel = LogLevel.Unnecessary,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
@@ -50,6 +50,7 @@ namespace DSharpPlus.Test
             Discord.MessageReactionAdd += this.Discord_MessageReactionAdd;
             Discord.MessageReactionRemoveAll += this.Discord_MessageReactionRemoveAll;
             Discord.PresenceUpdate += this.Discord_PresenceUpdate;
+            Discord.ClientError += this.Discord_ClientError;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -61,7 +62,13 @@ namespace DSharpPlus.Test
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
             {
-                Prefix = this.Config.CommandPrefix,
+                StringPrefix = this.Config.CommandPrefix,
+                CustomPrefixPredicate = msg =>
+                {
+                    if (TestBotNextCommands.Prefixes.ContainsKey(msg.Channel.Id) && TestBotNextCommands.Prefixes.TryGetValue(msg.Channel.Id, out var pfix))
+                        return msg.GetStringPrefixLength(pfix);
+                    return -1;
+                },
                 EnableDms = true,
                 EnableMentionPrefix = true
             };
@@ -181,31 +188,34 @@ namespace DSharpPlus.Test
             //await e.Message.DeleteAllReactions();
         }
 
-        private async Task CommandsNextService_CommandErrored(CommandErrorEventArgs e)
+        private async Task Discord_ClientError(ClientErrorEventArgs e)
         {
-            if (e.Exception is CommandNotFoundException && (e.Command == null && e.Command.QualifiedName != "help"))
-                return;
+            var exs = new List<Exception>();
+            if (e.Exception is AggregateException ae)
+                exs.AddRange(ae.InnerExceptions);
+            else
+                exs.Add(e.Exception);
 
-            Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"{e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
-
-            var ms = e.Exception.Message;
-            var st = e.Exception.StackTrace;
-
-            ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
-            st = st.Length > 1000 ? st.Substring(0, 1000) : st;
-
-            var embed = new DiscordEmbed
+            foreach (var ex in exs)
             {
-                Color = 0xFF0000,
-                Title = "An exception occured when executing a command",
-                Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.Name}`.",
-                Footer = new DiscordEmbedFooter
+                var ms = ex.Message;
+                var st = ex.StackTrace;
+
+                ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
+                st = st.Length > 1000 ? st.Substring(0, 1000) : st;
+
+                var embed = new DiscordEmbed
                 {
-                    IconUrl = Discord.CurrentUser.AvatarUrl,
-                    Text = Discord.CurrentUser.Username
-                },
-                Timestamp = DateTime.UtcNow,
-                Fields = new List<DiscordEmbedField>()
+                    Color = 0xFF0000,
+                    Title = "An exception occured within the client",
+                    Description = $"Event `{e.EventName}` threw an exception.",
+                    Footer = new DiscordEmbedFooter
+                    {
+                        IconUrl = Discord.CurrentUser.AvatarUrl,
+                        Text = Discord.CurrentUser.Username
+                    },
+                    Timestamp = DateTime.UtcNow,
+                    Fields = new List<DiscordEmbedField>()
                 {
                     new DiscordEmbedField
                     {
@@ -220,8 +230,64 @@ namespace DSharpPlus.Test
                         Inline = false
                     }
                 }
-            };
-            await e.Context.Channel.SendMessageAsync("\u200b", embed: embed);
+                };
+                await e.Client.SendMessageAsync(186565646161674240u, "\u200b", embed: embed);
+            }
+        }
+
+        private async Task CommandsNextService_CommandErrored(CommandErrorEventArgs e)
+        {
+            if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
+                return;
+
+            Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"{e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+
+            var exs = new List<Exception>();
+            if (e.Exception is AggregateException ae)
+                exs.AddRange(ae.InnerExceptions);
+            else
+                exs.Add(e.Exception);
+
+            foreach (var ex in exs)
+            {
+                if (ex is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
+                    return;
+
+                var ms = ex.Message;
+                var st = ex.StackTrace;
+
+                ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
+                st = st.Length > 1000 ? st.Substring(0, 1000) : st;
+
+                var embed = new DiscordEmbed
+                {
+                    Color = 0xFF0000,
+                    Title = "An exception occured when executing a command",
+                    Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.Name}`.",
+                    Footer = new DiscordEmbedFooter
+                    {
+                        IconUrl = Discord.CurrentUser.AvatarUrl,
+                        Text = Discord.CurrentUser.Username
+                    },
+                    Timestamp = DateTime.UtcNow,
+                    Fields = new List<DiscordEmbedField>()
+                    {
+                        new DiscordEmbedField
+                        {
+                            Name = "Message",
+                            Value = ms,
+                            Inline = false
+                        },
+                        new DiscordEmbedField
+                        {
+                            Name = "Stack trace",
+                            Value = $"```cs\n{st}\n```",
+                            Inline = false
+                        }
+                    }
+                };
+                await e.Context.Channel.SendMessageAsync("\u200b", embed: embed);
+            }
         }
 
         private Task CommandsNextService_CommandExecuted(CommandExecutedEventArgs e)

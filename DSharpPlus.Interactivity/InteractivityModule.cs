@@ -335,94 +335,39 @@ namespace DSharpPlus.Interactivity
                 Timeout = timeout
             };
 
-            #region Ugh, adding reactions
-            await m.CreateReactionAsync("⏮");
-            await Task.Delay(500);
-            await m.CreateReactionAsync("◀");
-            await Task.Delay(500);
-            await m.CreateReactionAsync("⏹");
-            //await Task.Delay(500);
-            //await m.CreateReaction("🔢");
-            await Task.Delay(500);
-            await m.CreateReactionAsync("▶");
-            await Task.Delay(500);
-            await m.CreateReactionAsync("⏭");
-            #endregion
+            await this.GeneratePaginationReactions(m);
 
             AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler1 = async e =>
             {
-                #region Ugh, adding reactions back
-                await m.CreateReactionAsync("⏮");
-                await Task.Delay(500);
-                await m.CreateReactionAsync("◀");
-                await Task.Delay(500);
-                await m.CreateReactionAsync("⏹");
-                //await Task.Delay(500);
-                //await m.CreateReaction("🔢");
-                await Task.Delay(500);
-                await m.CreateReactionAsync("▶");
-                await Task.Delay(500);
-                await m.CreateReactionAsync("⏭");
-                #endregion
+                await this.GeneratePaginationReactions(m);
             };
 
             _client.MessageReactionRemoveAll += handler1;
 
             AsyncEventHandler<MessageReactionAddEventArgs> handler2 = async e =>
-             {
-                 if (e.MessageId == m.Id)
-                 {
-                     if (e.User.Id != _client.CurrentUser.Id)
-                     {
-                         if (e.Emoji.Id == 0)
-                             await m.DeleteReactionAsync(e.Emoji.Name, e.User.Id);
-                         else
-                             await m.DeleteReactionAsync(e.Emoji.Name + ":" + e.Emoji.Id, e.User.Id);
+            {
+                if (e.MessageId == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
+                {
+                    /*
+                     * THIS REQUIRES MANAGE_MESSAGES, WHICH MIGHT BREAK THE PAGINATOR. WE'LL HOOK ADD/REMOVE INSTEAD.
+                     * 
+                     * if (e.Emoji.Id == 0)
+                     *     await m.DeleteReactionAsync(e.Emoji.Name, e.User.Id);
+                     * else
+                     *     await m.DeleteReactionAsync(e.Emoji.Name + ":" + e.Emoji.Id, e.User.Id);
+                     */
 
-                         if (e.User.Id == user.Id)
-                         {
-                            #region The "good" shit
-                            switch (e.Emoji.Name)
-                             {
-                                 default:
-                                     break;
-                                 case "⏮":
-                                     pm.CurrentIndex = 0;
-                                     break;
-                                 case "◀":
-                                     if (pm.CurrentIndex != 0)
-                                         pm.CurrentIndex--;
-                                     break;
-                                 case "⏹":
-                                     ct.Cancel();
-                                     break;
-                                /*
-                            case "🔢":
-                                var m1 = await e.Channel.SendMessage("Enter page number..");
-                                var m2 = await WaitForMessageAsync(x => x.ChannelID == channel_id && x.Author.ID == user_id, TimeSpan.FromSeconds(10));
-                                int i = int.Parse(m2.Content);
-                                if (i < pm.Pages.Count() - 1)
-                                    pm.CurrentIndex = i;
-                                break;
-                                */
-                                 case "▶":
-                                     if (pm.CurrentIndex != pm.Pages.Count() - 1)
-                                         pm.CurrentIndex++;
-                                     break;
-                                 case "⏭":
-                                     pm.CurrentIndex = pm.Pages.Count() - 1;
-                                     break;
-                             }
-
-                             await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
-                                 embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? new DiscordEmbed());
-                            #endregion
-                        }
-                     }
-                 }
-             };
+                    await this.DoPagination(e.Emoji, m, pm, ct);
+                }
+            };
+            AsyncEventHandler<MessageReactionRemoveEventArgs> handler3 = async e =>
+            {
+                if (e.MessageId == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
+                    await this.DoPagination(e.Emoji, m, pm, ct);
+            };
 
             _client.MessageReactionAdd += handler2;
+            _client.MessageReactionRemove += handler3;
 
             await tsc.Task;
             switch (timeout_behaviour)
@@ -437,6 +382,7 @@ namespace DSharpPlus.Interactivity
 
             _client.MessageReactionRemoveAll -= handler1;
             _client.MessageReactionAdd -= handler2;
+            _client.MessageReactionRemove -= handler3;
         }
         public IEnumerable<Page> GeneratePagesInEmbeds(string input)
         {
@@ -466,6 +412,67 @@ namespace DSharpPlus.Interactivity
                 });
             }
             return result;
+        }
+
+        public async Task GeneratePaginationReactions(DiscordMessage m)
+        {
+            await m.CreateReactionAsync("⏮");
+            await Task.Delay(500);
+            await m.CreateReactionAsync("◀");
+            await Task.Delay(500);
+            await m.CreateReactionAsync("⏹");
+            //await Task.Delay(500);
+            //await m.CreateReaction("🔢");
+            await Task.Delay(500);
+            await m.CreateReactionAsync("▶");
+            await Task.Delay(500);
+            await m.CreateReactionAsync("⏭");
+        }
+
+        public async Task DoPagination(DiscordEmoji emoji, DiscordMessage m, PaginatedMessage pm, CancellationTokenSource ct)
+        {
+            #region The "good" shit
+            switch (emoji.Name)
+            {
+                case "⏮":
+                    pm.CurrentIndex = 0;
+                    break;
+
+                case "◀":
+                    if (pm.CurrentIndex != 0)
+                        pm.CurrentIndex--;
+                    break;
+
+                case "⏹":
+                    ct.Cancel();
+                    return;
+
+                /*
+                case "🔢":
+                    var m1 = await e.Channel.SendMessage("Enter page number..");
+                    var m2 = await WaitForMessageAsync(x => x.ChannelID == channel_id && x.Author.ID == user_id, TimeSpan.FromSeconds(10));
+                    int i = int.Parse(m2.Content);
+                    if (i < pm.Pages.Count() - 1)
+                        pm.CurrentIndex = i;
+                    break;
+                */
+
+                case "▶":
+                    if (pm.CurrentIndex != pm.Pages.Count() - 1)
+                        pm.CurrentIndex++;
+                    break;
+
+                case "⏭":
+                    pm.CurrentIndex = pm.Pages.Count() - 1;
+                    break;
+
+                default:
+                    return;
+            }
+
+            await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
+                embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? new DiscordEmbed());
+            #endregion
         }
     }
 
