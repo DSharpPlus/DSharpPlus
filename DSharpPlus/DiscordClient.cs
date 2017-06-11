@@ -1156,7 +1156,7 @@ namespace DSharpPlus
                         xg._channels = new List<DiscordChannel>();
                     foreach (var xc in xg.Channels)
                     {
-                        xc.GuildID = xg.Id;
+                        xc.GuildId = xg.Id;
                         xc.Discord = this;
                     }
 
@@ -1214,7 +1214,7 @@ namespace DSharpPlus
             {
                 channel.Discord = this;
 
-                _guilds[channel.GuildID]._channels.Add(channel);
+                _guilds[channel.GuildId]._channels.Add(channel);
 
                 await this._channel_created.InvokeAsync(new ChannelCreateEventArgs(this) { Channel = channel, Guild = channel.Guild });
             }
@@ -1270,7 +1270,7 @@ namespace DSharpPlus
                 guild._channels = new List<DiscordChannel>();
             foreach (var xc in guild.Channels)
             {
-                xc.GuildID = guild.Id;
+                xc.GuildId = guild.Id;
                 xc.Discord = this;
             }
 
@@ -1315,7 +1315,7 @@ namespace DSharpPlus
                 guild._channels = new List<DiscordChannel>();
             foreach (var xc in guild.Channels)
             {
-                xc.GuildID = guild.Id;
+                xc.GuildId = guild.Id;
                 xc.Discord = this;
             }
 
@@ -1361,7 +1361,7 @@ namespace DSharpPlus
                         guild._channels = new List<DiscordChannel>();
                     foreach (var xc in guild.Channels)
                     {
-                        xc.GuildID = guild.Id;
+                        xc.GuildId = guild.Id;
                         xc.Discord = this;
                     }
 
@@ -1606,7 +1606,7 @@ namespace DSharpPlus
             if (message.Channel == null)
                 DebugLogger.LogMessage(LogLevel.Warning, "Event", "Could not find channel last message belonged to", DateTime.Now);
             else
-                message.Channel.LastMessageID = message.Id;
+                message.Channel.LastMessageId = message.Id;
 
             var guild = message.Channel?.Guild;
 

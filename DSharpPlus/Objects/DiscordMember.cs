@@ -116,6 +116,11 @@ namespace DSharpPlus
         /// </summary>
         public new DiscordPresence Presence => this.Guild._presences.FirstOrDefault(xp => xp.User.Id == this.Id) ?? base.Presence;
 
+        /// <summary>
+        /// Gets this user's presence.
+        /// </summary>
+        public DiscordPresence UserPresence => base.Presence;
+
         internal ulong _guild_id = 0;
 
         public DiscordGuild Guild => this.Discord.Guilds[_guild_id];

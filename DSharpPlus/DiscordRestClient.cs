@@ -68,7 +68,7 @@ namespace DSharpPlus
                 guild._channels = new List<DiscordChannel>();
             foreach (var xc in guild.Channels)
             {
-                xc.GuildID = guild.Id;
+                xc.GuildId = guild.Id;
                 xc.Discord = this.Discord;
             }
 
@@ -159,7 +159,7 @@ namespace DSharpPlus
                 guild._channels = new List<DiscordChannel>();
             foreach (var xc in guild.Channels)
             {
-                xc.GuildID = guild.Id;
+                xc.GuildId = guild.Id;
                 xc.Discord = this.Discord;
             }
 
@@ -769,7 +769,7 @@ namespace DSharpPlus
                     guild._channels = new List<DiscordChannel>();
                 foreach (var xc in guild.Channels)
                 {
-                    xc.GuildID = guild.Id;
+                    xc.GuildId = guild.Id;
                     xc.Discord = this.Discord;
                 }
 

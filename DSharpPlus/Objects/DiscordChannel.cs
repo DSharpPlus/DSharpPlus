@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -6,72 +8,92 @@ using Newtonsoft.Json;
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a discord channel
+    /// Represents a discord channel.
     /// </summary>
     public class DiscordChannel : SnowflakeObject
     {
-        /// <summary>
-        /// The id of the guild
-        /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong GuildID { get; set; }
+        internal ulong GuildId { get; set; }
+
         /// <summary>
-        /// The name of the channel
+        /// Gets the name of this channel.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
+
         /// <summary>
-        /// The type of the channel
+        /// Gets the type of this channel.
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public ChannelType Type { get; internal set; }
+
         /// <summary>
-        /// Sorting position of the channel
+        /// Gets the position of this channel.
         /// </summary>
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int Position { get; set; }
+
         /// <summary>
-        /// Should always be false for guild channels
+        /// Gets whether this channel is a DM channel.
         /// </summary>
         [JsonProperty("is_private", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsPrivate { get; internal set; }
+
         /// <summary>
-        /// The guild
+        /// Gets the guild to which this channel belongs.
         /// </summary>
         [JsonIgnore]
         public DiscordGuild Guild =>
-            this.Discord._guilds.ContainsKey(this.GuildID) ? this.Discord._guilds[this.GuildID] : null;
-        /// <summary>
-        /// A list of permission overwrite
-        /// </summary>
-        [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-        public List<DiscordOverwrite> PermissionOverwrites { get; internal set; }
+            this.Discord._guilds.ContainsKey(this.GuildId) ? this.Discord._guilds[this.GuildId] : null;
 
         /// <summary>
-        /// The channel topic (Text only)
+        /// Gets a collection of permission overwrites for this channel.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<DiscordOverwrite> PermissionOverwrites => this._permission_overwrites_lazy.Value;
+        [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
+        internal List<DiscordOverwrite> _permission_overwrites = new List<DiscordOverwrite>();
+        [JsonIgnore]
+        private Lazy<IReadOnlyList<DiscordOverwrite>> _permission_overwrites_lazy;
+
+        /// <summary>
+        /// Gets the channel's topic. This is applicable to text channels only.
         /// </summary>
         [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
         public string Topic { get; internal set; } = "";
-        /// <summary>
-        /// The id of the last message (Text only)
-        /// </summary>
-        [JsonProperty("last_message_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong LastMessageID { get; internal set; } = 0;
 
         /// <summary>
-        /// The channel bitrate (Voice only)
+        /// Gets the ID of the last message sent in this channel. This is applicable to text channels only.
+        /// </summary>
+        [JsonProperty("last_message_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong LastMessageId { get; internal set; } = 0;
+
+        /// <summary>
+        /// Gets this channel's bitrate. This is applicable to voice channels only.
         /// </summary>
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
         public int Bitrate { get; internal set; }
+
         /// <summary>
-        /// The channel user limit (Voice only)
+        /// Gets this channel's user limit. This is applicable to voice channels only.
         /// </summary>
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
         public int UserLimit { get; internal set; }
+
         /// <summary>
-        /// Mentions the channel similar to how a client would
+        /// Gets this channel's mention string.
         /// </summary>
         public string Mention => Formatter.Mention(this);
+
+        /// <summary>
+        /// Gets whether this channel is an NSFW channel.
+        /// </summary>
+        public bool IsNSFW => !this.IsPrivate && this.Type == ChannelType.Text && (this.Name == "nsfw" || this.Name.StartsWith("nsfw-"));
+
+        public DiscordChannel()
+        {
+            this._permission_overwrites_lazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permission_overwrites));
+        }
 
         #region Methods
         /// <summary>
@@ -126,7 +148,7 @@ namespace DSharpPlus
         /// <param name="position"></param>
         /// <returns></returns>
         public Task ModifyPositionAsync(int position) =>
-            this.Discord._rest_client.InternalModifyGuildChannelPosition(GuildID, Id, position);
+            this.Discord._rest_client.InternalModifyGuildChannelPosition(GuildId, Id, position);
         /// <summary>  
         /// Returns a list of messages.Only set ONE of the three parameters. They are Message ID's
         /// </summary> 
