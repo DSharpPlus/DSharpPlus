@@ -1785,6 +1785,12 @@ namespace DSharpPlus
         {
             voice_state.Discord = this;
 
+            var index = voice_state.Guild._voice_states.FindIndex(xvs => xvs.UserId == voice_state.UserId);
+            if (index < 0)
+                voice_state.Guild._voice_states.Add(voice_state);
+            else
+                voice_state.Guild._voice_states[index] = voice_state;
+
             var ea = new VoiceStateUpdateEventArgs(this)
             {
                 Guild = voice_state.Guild,
