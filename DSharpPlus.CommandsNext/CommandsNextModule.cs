@@ -51,6 +51,7 @@ namespace DSharpPlus.CommandsNext
         {
             this.Config = cfg;
             this.TopLevelCommands = new Dictionary<string, Command>();
+            this._registered_commands_lazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
         }
 
         #region DiscordClient Registration
@@ -191,6 +192,8 @@ namespace DSharpPlus.CommandsNext
 
         #region Command Registration
         private Dictionary<string, Command> TopLevelCommands { get; set; }
+        private Lazy<IReadOnlyDictionary<string, Command>> _registered_commands_lazy;
+        public IReadOnlyDictionary<string, Command> RegisteredCommands => this._registered_commands_lazy.Value;
 
         public void RegisterCommands<T>() where T : new()
         {
