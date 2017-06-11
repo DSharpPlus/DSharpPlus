@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.IO;
+using System.IO.Compression;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -168,9 +170,10 @@ namespace DSharpPlus
 
             var buff = new byte[BUFFER_SIZE];
             var buffseg = new ArraySegment<byte>(buff);
-            var rsb = new StringBuilder();
-            var result = (WebSocketReceiveResult)null;
-            var close = (SocketDisconnectEventArgs)null;
+
+            byte[] resultbuff = null;
+            WebSocketReceiveResult result = null;
+            SocketDisconnectEventArgs close = null;
 
             var token = this.Token;
             
@@ -178,25 +181,43 @@ namespace DSharpPlus
             {
                 while (!token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
                 {
-                    do
+                    using (var ms = new MemoryStream())
                     {
-                        result = await this.Socket.ReceiveAsync(buffseg, token);
-
-                        if (result.MessageType == WebSocketMessageType.Close)
+                        do
                         {
-                            var cc = result.CloseStatus != null ? (int)result.CloseStatus.Value : -1;
-                            close = new SocketDisconnectEventArgs(null) { CloseCode = cc, CloseMessage = result.CloseStatusDescription };
+                            result = await this.Socket.ReceiveAsync(buffseg, token);
+
+                            if (result.MessageType == WebSocketMessageType.Close)
+                            {
+                                var cc = result.CloseStatus != null ? (int)result.CloseStatus.Value : -1;
+                                close = new SocketDisconnectEventArgs(null) { CloseCode = cc, CloseMessage = result.CloseStatusDescription };
+                            }
+                            else
+                                ms.Write(buff, 0, result.Count);
                         }
-                        else
-                            rsb.Append(UTF8.GetString(buff, 0, result.Count));
+                        while (!result.EndOfMessage);
+
+                        resultbuff = ms.ToArray();
                     }
-                    while (!result.EndOfMessage);
 
                     if (close != null)
                         break;
 
-                    await this.CallOnMessageAsync(rsb.ToString());
-                    rsb.Clear();
+                    var resultstr = "";
+                    if (result.MessageType == WebSocketMessageType.Binary)
+                    {
+                        using (var ms1 = new MemoryStream(resultbuff, 2, resultbuff.Length - 2))
+                        using (var ms2 = new MemoryStream())
+                        {
+                            using (var zlib = new DeflateStream(ms1, CompressionMode.Decompress))
+                                await zlib.CopyToAsync(ms2);
+
+                            resultbuff = ms2.ToArray();
+                        }
+                    }
+                    
+                    resultstr = UTF8.GetString(resultbuff, 0, resultbuff.Length);
+                    await this.CallOnMessageAsync(resultstr);
                 }
             }
             catch (Exception e)

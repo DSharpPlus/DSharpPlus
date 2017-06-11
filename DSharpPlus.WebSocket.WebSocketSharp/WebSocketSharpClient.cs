@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.IO.Compression;
+using System.Text;
 using System.Threading.Tasks;
 using wss = WebSocketSharp;
 
@@ -9,6 +12,7 @@ namespace DSharpPlus
     /// </summary>
     public class WebSocketSharpClient : BaseWebSocketClient
     {
+        internal static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         internal wss.WebSocket _socket;
 
         public WebSocketSharpClient()
@@ -23,10 +27,29 @@ namespace DSharpPlus
             _socket = new wss.WebSocket(uri);
             _socket.OnOpen += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
             _socket.OnClose += (sender, e) => _disconnect.InvokeAsync(new SocketDisconnectEventArgs(null) { CloseCode = e.Code, CloseMessage = e.Reason }).GetAwaiter().GetResult();
-            _socket.OnMessage += (sender, e) => _message.InvokeAsync(new WebSocketMessageEventArgs()
+            _socket.OnMessage += (sender, e) =>
             {
-                Message = e.Data
-            }).GetAwaiter().GetResult();
+                var msg = "";
+
+                if (e.IsBinary)
+                {
+                    using (var ms1 = new MemoryStream(e.RawData, 2, e.RawData.Length - 2))
+                    using (var ms2 = new MemoryStream())
+                    {
+                        using (var zlib = new DeflateStream(ms1, CompressionMode.Decompress))
+                            zlib.CopyTo(ms2);
+
+                        msg = UTF8.GetString(ms2.ToArray(), 0, (int)ms2.Length);
+                    }
+                }
+                else
+                    msg = e.Data;
+
+                _message.InvokeAsync(new WebSocketMessageEventArgs()
+                {
+                    Message = msg
+                }).GetAwaiter().GetResult();
+            };
             _socket.Connect();
             return Task.FromResult<BaseWebSocketClient>(this);
         }

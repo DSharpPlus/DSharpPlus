@@ -12,6 +12,7 @@
         public int ShardId { get; set; } = 0;
         public int ShardCount { get; set; } = 1;
         public int GatewayVersion { get; set; } = 5;
+        public bool EnableCompression { get; set; } = true;
 
         public DiscordConfig() { }
         public DiscordConfig(DiscordConfig other)
@@ -25,6 +26,7 @@
             this.AutoReconnect = other.AutoReconnect;
             this.ShardId = other.ShardId;
             this.ShardCount = other.ShardCount;
+            this.EnableCompression = other.EnableCompression;
         }
     }
 }

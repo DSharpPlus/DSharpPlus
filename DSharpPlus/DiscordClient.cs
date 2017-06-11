@@ -1985,7 +1985,7 @@ namespace DSharpPlus
                 Game = game,
                 IdleSince = idle_since,
                 IsAFK = afk,
-                Status = user_status.HasValue ? user_status.Value : UserStatus.Online
+                Status = user_status ?? UserStatus.Online
             };
             var status_update = new GatewayPayload
             {
@@ -2029,7 +2029,7 @@ namespace DSharpPlus
             var identify = new GatewayIdentify
             {
                 Token = Utils.GetFormattedToken(this),
-                Compress = false,
+                Compress = this.config.EnableCompression,
                 LargeThreshold = this.config.LargeThreshold,
                 ShardInfo = new ShardInfo
                 {

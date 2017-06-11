@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.IO.Compression;
+using System.Text;
 using System.Threading.Tasks;
 using ws4net = WebSocket4Net;
 
@@ -6,6 +9,7 @@ namespace DSharpPlus
 {
     public class WebSocket4NetClient : BaseWebSocketClient
     {
+        internal static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         internal ws4net.WebSocket _socket;
 
         public WebSocket4NetClient()
@@ -30,6 +34,24 @@ namespace DSharpPlus
             {
                 Message = e.Message
             }).GetAwaiter().GetResult();
+            _socket.DataReceived += (sender, e) =>
+            {
+                var msg = "";
+
+                using (var ms1 = new MemoryStream(e.Data, 2, e.Data.Length - 2))
+                using (var ms2 = new MemoryStream())
+                {
+                    using (var zlib = new DeflateStream(ms1, CompressionMode.Decompress))
+                        zlib.CopyTo(ms2);
+
+                    msg = UTF8.GetString(ms2.ToArray(), 0, (int)ms2.Length);
+                }
+
+                _message.InvokeAsync(new WebSocketMessageEventArgs()
+                {
+                    Message = msg
+                }).GetAwaiter().GetResult();
+            };
             _socket.Open();
             return Task.FromResult<BaseWebSocketClient>(this);
         }
