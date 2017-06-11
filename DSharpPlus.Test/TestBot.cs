@@ -183,7 +183,7 @@ namespace DSharpPlus.Test
 
         private async Task CommandsNextService_CommandErrored(CommandErrorEventArgs e)
         {
-            if (e.Exception is CommandNotFoundException)
+            if (e.Exception is CommandNotFoundException && (e.Command == null && e.Command.QualifiedName != "help"))
                 return;
 
             Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"{e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);

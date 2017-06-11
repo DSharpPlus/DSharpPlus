@@ -438,6 +438,9 @@ namespace DSharpPlus.CommandsNext
                 {
                     cmd = search_in.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)));
 
+                    if (cmd == null)
+                        break;
+
                     var ce = true;
                     foreach (var ec in cmd.ExecutionChecks)
                     {
