@@ -2,9 +2,9 @@
 {
     public class MessageDeleteEventArgs : DiscordEventArgs
     {
-        public ulong MessageID { get; internal set; }
-        public ulong ChannelID { get; internal set; }
-        public DiscordChannel Channel => this.Client._rest_client.InternalGetChannel(ChannelID).GetAwaiter().GetResult();
+        public ulong MessageId { get; internal set; }
+        public DiscordChannel Channel { get; internal set; }
+        public DiscordGuild Guild => this.Channel.Guild;
 
         public MessageDeleteEventArgs(DiscordClient client) : base(client) { }
     }

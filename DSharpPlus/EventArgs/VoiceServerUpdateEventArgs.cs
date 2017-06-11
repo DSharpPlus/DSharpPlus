@@ -2,10 +2,10 @@
 {
     public class VoiceServerUpdateEventArgs : DiscordEventArgs
     {
-        internal string VoiceToken { get; set; }
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => this.Client.Guilds[GuildID];
+        public DiscordGuild Guild { get; internal set; }
+
         public string Endpoint { get; internal set; }
+        internal string VoiceToken { get; set; }
 
         public VoiceServerUpdateEventArgs(DiscordClient client) : base(client) { }
     }

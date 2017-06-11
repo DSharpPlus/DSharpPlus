@@ -2,10 +2,10 @@
 {
     public class VoiceStateUpdateEventArgs : DiscordEventArgs
     {
-        public ulong UserID { get; internal set; }
-        public ulong GuildID { get; internal set; }
-        public DiscordMember Member => this.Client.Guilds[GuildID].Members.Find(x => x.Id == UserID);
-        internal string SessionID { get; set; }
+        public DiscordUser User { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
+        public DiscordChannel Channel { get; internal set; }
+        internal string SessionId { get; set; }
 
         public VoiceStateUpdateEventArgs(DiscordClient client) : base(client) { }
     }

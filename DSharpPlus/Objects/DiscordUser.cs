@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    /// Represents a Discord user.
     /// </summary>
     public class DiscordUser : SnowflakeObject
     {
@@ -16,63 +16,69 @@ namespace DSharpPlus
             this.DiscriminatorInt = transport.DiscriminatorInt;
             this.AvatarHash = transport.AvatarHash;
             this.IsBot = transport.IsBot;
-            this.MFAEnabled = transport.MFAEnabled;
+            this.MfaEnabled = transport.MfaEnabled;
             this.Verified = transport.Verified;
             this.Email = transport.Email;
         }
 
         /// <summary>
-        /// The user's username
+        /// Gets this user's username.
         /// </summary>
         [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
         public string Username { get; internal set; }
-        /// <summary>
-        /// The user's 4-digit tag
-        /// </summary>
-        [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
-        internal int DiscriminatorInt { get; set; }
+        
         /// <summary>
         /// Gets the user's 4-digit tag.
         /// </summary>
         [JsonIgnore]
         public string Discriminator => this.DiscriminatorInt.ToString("0000");
+        [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
+        internal int DiscriminatorInt { get; set; }
+
         /// <summary>
-        /// The user's avatar hash
+        /// Gets the user's avatar hash.
         /// </summary>
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public string AvatarHash { get; internal set; }
+
         /// <summary>
-        /// The user's avatar url
+        /// Gets the user's avatar URL.
         /// </summary>
         [JsonIgnore]
         public string AvatarUrl => AvatarHash.StartsWith("a_")? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.gif" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.jpg";
+
         /// <summary>
-        /// Whether the user belongs to an oauth2 application
+        /// Gets whether the user is a bot.
         /// </summary>
         [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsBot { get; internal set; }
+
         /// <summary>
-        /// Whether the user has tho factor enabled
+        /// Gets whether the user has multi-factor authentication enabled.
         /// </summary>
         [JsonProperty("mfa_enabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? MFAEnabled { get; internal set; }
+        public bool? MfaEnabled { get; internal set; }
+
         /// <summary>
-        /// Whether the email on this account has been verified
+        /// Gets whether the user is verified.
         /// </summary>
         [JsonProperty("verified", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Verified { get; internal set; }
+
         /// <summary>
-        /// The user's email
+        /// Gets the user's email address.
         /// </summary>
         [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
         public string Email { get; internal set; }
+
         /// <summary>
-        /// Mentions the user similar to how a client would
+        /// Gets the user's mention string.
         /// </summary>
         public string Mention => Formatter.Mention(this);
+        
         /// <summary>
-        /// This user's presence.
+        /// Gets this user's presence.
         /// </summary>
-        public DiscordPresence Presence => this.Discord.InternalGetUserPresence(Id);
+        public DiscordPresence Presence => this.Discord.Presences.ContainsKey(this.Id) ? this.Discord.Presences[this.Id] : null;
     }
 }

@@ -2,9 +2,8 @@
 {
     public class GuildBanRemoveEventArgs : DiscordEventArgs
     {
-        public DiscordUser User { get; internal set; }
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => this.Client.Guilds[GuildID];
+        public DiscordMember Member { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
 
         public GuildBanRemoveEventArgs(DiscordClient client) : base(client) { }
     }

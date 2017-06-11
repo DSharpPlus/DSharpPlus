@@ -162,7 +162,7 @@ namespace DSharpPlus
         /// Gets a collection of all the voice states for this guilds.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordVoiceState> VoiceStates { get; internal set; }
+        public IReadOnlyList<DiscordVoiceState> VoiceStates => this._voice_states_lazy.Value;
         [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordVoiceState> _voice_states;
         [JsonIgnore]
@@ -224,8 +224,8 @@ namespace DSharpPlus
         public Task<DiscordGuild> DeleteAsync() =>
             this.Discord._rest_client.InternalDeleteGuild(Id);
 
-        public Task<DiscordGuild> ModifyAsync(string name = "", string region = "", int verification_level = -1, int default_message_notifications = -1, ulong afk_channel_id = 0, int afk_timeout = -1, ulong owner_id = 0, string splash = "") =>
-            this.Discord._rest_client.InternalModifyGuild(Id, name, region, verification_level, DefaultMessageNotifications, afk_channel_id, afk_timeout, "", owner_id);
+        public Task<DiscordGuild> ModifyAsync(string name = "", string region = "", VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null, ulong afk_channel_id = 0, int afk_timeout = -1, ulong owner_id = 0, string splash = "") =>
+            this.Discord._rest_client.InternalModifyGuild(Id, name, region, (int)(verification_level != null ? verification_level.Value : this.VerificationLevel), (int)(default_message_notifications != null ? default_message_notifications.Value : this.DefaultMessageNotifications), afk_channel_id, afk_timeout, "", owner_id);
 
         public Task BanMemberAsync(DiscordMember member) =>
             this.Discord._rest_client.InternalCreateGuildBan(Id, member.Id);

@@ -31,7 +31,7 @@ namespace DSharpPlus
         /// Permission bit set
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-        public Permission Permissions { get; set; }
+        public Permissions Permissions { get; set; }
         /// <summary>
         /// Whether this role is managed by an integration
         /// </summary>
@@ -46,15 +46,15 @@ namespace DSharpPlus
         /// Mentions the role similar to how a client would, if the role is mentionable
         /// </summary>
         public string Mention => Formatter.Mention(this);
-        public PermissionLevel CheckPermission(Permission permission)
+        public PermissionLevel CheckPermission(Permissions permission)
         {
             if ((Permissions & permission) != 0)
                 return PermissionLevel.Allowed;
             return PermissionLevel.Unset;
         }
 
-        public void AddPermission(Permission permission) { Permissions = DiscordClient.InternalAddPermission(Permissions, permission); }
+        public void AddPermission(Permissions permission) { Permissions = DiscordClient.InternalAddPermission(Permissions, permission); }
 
-        public void RemovePermission(Permission permission) { Permissions = DiscordClient.InternalRemovePermission(Permissions, permission); }
+        public void RemovePermission(Permissions permission) { Permissions = DiscordClient.InternalRemovePermission(Permissions, permission); }
     }
 }

@@ -26,7 +26,7 @@ namespace DSharpPlus
             this.Email = user.Email;
             this.Id = user.Id;
             this.IsBot = user.IsBot;
-            this.MFAEnabled = user.MFAEnabled;
+            this.MfaEnabled = user.MfaEnabled;
             this.Username = user.Username;
             this.Verified = user.Verified;
 
@@ -61,7 +61,7 @@ namespace DSharpPlus
         /// List of role ids
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<ulong> RoleIds => this._role_ids_lazy.Value;
+        internal IReadOnlyList<ulong> RoleIds => this._role_ids_lazy.Value;
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _role_ids;
         [JsonIgnore]
@@ -71,7 +71,7 @@ namespace DSharpPlus
         /// Gets the list of roles associated with this member.
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<DiscordRole> Roles => this._role_ids.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+        public IEnumerable<DiscordRole> Roles => this.RoleIds.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
 
         /// <summary>
         /// Gets the color associated with this user's top color-giving role, otherwise 0 (no color).
@@ -110,6 +110,11 @@ namespace DSharpPlus
         /// Gets this member's voice state.
         /// </summary>
         public DiscordVoiceState VoiceState => this.Discord.Guilds[this._guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == this.Id);
+
+        /// <summary>
+        /// Gets this member's presence.
+        /// </summary>
+        public new DiscordPresence Presence => this.Guild._presences.FirstOrDefault(xp => xp.User.Id == this.Id) ?? base.Presence;
 
         internal ulong _guild_id = 0;
 

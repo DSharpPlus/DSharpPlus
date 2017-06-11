@@ -23,7 +23,7 @@
     /// Bitwise permission flags
     /// </summary>
     [System.Flags]
-    public enum Permission : ulong
+    public enum Permissions : ulong
     {
         /// <summary>
         /// Allow creation of instant invites
@@ -53,6 +53,10 @@
         /// Allows for the addition of reactions to messages
         /// </summary>
         AddReactions            = 0x00000040,
+        /// <summary>
+        /// Allows viewing of audit logs
+        /// </summary>
+        ViewAuditLogs           = 0x00000080,
         /// <summary>
         /// Allows reading messages in a channel. The channel will not appear for users without this permission
         /// </summary>

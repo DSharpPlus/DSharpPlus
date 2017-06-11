@@ -2,10 +2,8 @@
 {
     public class WebhooksUpdateEventArgs : DiscordEventArgs
     {
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => this.Client.Guilds[GuildID];
-        public ulong ChannelID { get; internal set; }
-        public DiscordChannel Channel => this.Client.Guilds[GuildID].Channels.Find(x => x.Id == ChannelID);
+        public DiscordGuild Guild { get; internal set; }
+        public DiscordChannel Channel { get; internal set; }
 
         public WebhooksUpdateEventArgs(DiscordClient client) : base(client) { }
     }

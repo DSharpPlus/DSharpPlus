@@ -82,14 +82,14 @@ namespace DSharpPlus.VoiceNext
             var vstu = await vstut.Task;
             var vstup = new VoiceStateUpdatePayload
             {
-                SessionId = vstu.SessionID,
-                UserId = vstu.UserID
+                SessionId = vstu.SessionId,
+                UserId = vstu.User.Id
             };
             var vsru = await vsrut.Task;
             var vsrup = new VoiceServerUpdatePayload
             {
                 Endpoint = vsru.Endpoint,
-                GuildId = vsru.GuildID,
+                GuildId = vsru.Guild.Id,
                 Token = vsru.VoiceToken
             };
 
@@ -140,21 +140,24 @@ namespace DSharpPlus.VoiceNext
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
         {
-            var gid = e.GuildID;
-            if (gid == 0)
+            var gld = e.Guild;
+            if (gld == null)
                 return Task.Delay(0);
 
-            if (this.VoiceStateUpdates.ContainsKey(gid))
-                this.VoiceStateUpdates[gid].SetResult(e);
+            if (this.VoiceStateUpdates.ContainsKey(gld.Id))
+                this.VoiceStateUpdates[gld.Id].SetResult(e);
 
             return Task.Delay(0);
         }
 
         private Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
         {
-            var gid = e.GuildID;
-            if (this.VoiceServerUpdates.ContainsKey(gid))
-                this.VoiceServerUpdates[gid].SetResult(e);
+            var gld = e.Guild;
+            if (gld == null)
+                return Task.Delay(0);
+
+            if (this.VoiceServerUpdates.ContainsKey(gld.Id))
+                this.VoiceServerUpdates[gld.Id].SetResult(e);
 
             return Task.Delay(0);
         }

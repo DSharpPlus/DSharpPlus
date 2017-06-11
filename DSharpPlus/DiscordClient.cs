@@ -475,22 +475,28 @@ namespace DSharpPlus
         /// </summary>
         public DiscordUser CurrentUser => _current_user;
 
-        internal List<DiscordDmChannel> _private_channels = new List<DiscordDmChannel>();
         /// <summary>
         /// List of DM Channels
         /// </summary>
-        public IReadOnlyList<DiscordDmChannel> PrivateChannels => new ReadOnlyCollection<DiscordDmChannel>(_private_channels);
+        public IReadOnlyList<DiscordDmChannel> PrivateChannels => this._private_channels_lazy.Value;
+        internal List<DiscordDmChannel> _private_channels = new List<DiscordDmChannel>();
+        private Lazy<IReadOnlyList<DiscordDmChannel>> _private_channels_lazy;
 
-        internal Dictionary<ulong, DiscordGuild> _guilds = new Dictionary<ulong, DiscordGuild>();
         /// <summary>
         /// List of Guilds
         /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordGuild> Guilds => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds);
+        public IReadOnlyDictionary<ulong, DiscordGuild> Guilds => this._guilds_lazy.Value;
+        internal Dictionary<ulong, DiscordGuild> _guilds = new Dictionary<ulong, DiscordGuild>();
+        private Lazy<IReadOnlyDictionary<ulong, DiscordGuild>> _guilds_lazy;
 
         /// <summary>
         /// Gets the WS latency for this client.
         /// </summary>
         public int Ping { get; internal set; }
+
+        public IReadOnlyDictionary<ulong, DiscordPresence> Presences => this._presences_lazy.Value;
+        internal Dictionary<ulong, DiscordPresence> _presences = new Dictionary<ulong, DiscordPresence>();
+        private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presences_lazy;
         #endregion
 
         #region Connection semaphore
@@ -586,6 +592,10 @@ namespace DSharpPlus
 
             this._private_channels = new List<DiscordDmChannel>();
             this._guilds = new Dictionary<ulong, DiscordGuild>();
+
+            this._private_channels_lazy = new Lazy<IReadOnlyList<DiscordDmChannel>>(() => new ReadOnlyCollection<DiscordDmChannel>(this._private_channels));
+            this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
+            this._presences_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
 
             if (config.UseInternalLogHandler)
                 DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
@@ -708,24 +718,28 @@ namespace DSharpPlus
         /// <param name="user">userid or @me</param>
         /// <returns></returns>
         public Task<DiscordUser> GetUserAsync(string user) => this._rest_client.InternalGetUser(user);
+
         /// <summary>
         /// Gets a user
         /// </summary>
         /// <param name="user">Id of the user</param>
         /// <returns></returns>
         public Task<DiscordUser> GetUserAsync(ulong user) => this._rest_client.InternalGetUser(user);
+
         /// <summary>
         /// Deletes a channel
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public Task DeleteChannelAsync(ulong id) => this._rest_client.InternalDeleteChannel(id);
+
         /// <summary>
         /// Deletes a channel
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
         public Task DeleteChannelAsync(DiscordChannel channel) => this._rest_client.InternalDeleteChannel(channel.Id);
+
         /// <summary>
         /// Gets a message
         /// </summary>
@@ -733,6 +747,7 @@ namespace DSharpPlus
         /// <param name="message_id"></param>
         /// <returns></returns>
         public Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong message_id) => this._rest_client.InternalGetMessage(channel.Id, message_id);
+
         /// <summary>
         /// Gets a message
         /// </summary>
@@ -740,12 +755,14 @@ namespace DSharpPlus
         /// <param name="message_id"></param>
         /// <returns></returns>
         public Task<DiscordMessage> GetMessageAsync(ulong channel_id, ulong message_id) => this._rest_client.InternalGetMessage(channel_id, message_id);
+
         /// <summary>
         /// Gets a channel
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public Task<DiscordChannel> GetChannelAsync(ulong id) => this._rest_client.InternalGetChannel(id);
+
         /// <summary>
         /// Sends a message
         /// </summary>
@@ -756,6 +773,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(ulong channel_id, string content, bool tts = false, DiscordEmbed embed = null) =>
             this._rest_client.InternalCreateMessage(channel_id, content, tts, embed);
+
         /// <summary>
         /// Sends a message
         /// </summary>
@@ -766,6 +784,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content, bool tts = false, DiscordEmbed embed = null) =>
             this._rest_client.InternalCreateMessage(channel.Id, content, tts, embed);
+
         /// <summary>
         /// Sends a message
         /// </summary>
@@ -776,58 +795,73 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(DiscordDmChannel channel, string content, bool tts = false, DiscordEmbed embed = null) =>
             this._rest_client.InternalCreateMessage(channel.Id, content, tts, embed);
+
         /// <summary>
         /// Creates a guild. Only for whitelisted bots
         /// </summary>
         /// <param name="name"></param>
+        /// <param name="region"></param>
+        /// <param name="icon"></param>
+        /// <param name="verification_level"></param>
+        /// <param name="default_message_notifications"></param>
         /// <returns></returns>
-        public Task<DiscordGuild> CreateGuildAsync(string name) => this._rest_client.InternalCreateGuildAsync(name);
+        public Task<DiscordGuild> CreateGuildAsync(string name, string region, string icon, VerificationLevel verification_level, DefaultMessageNotifications default_message_notifications) => 
+            this._rest_client.InternalCreateGuildAsync(name, region, icon, (int)verification_level, (int)default_message_notifications);
+
         /// <summary>
         /// Gets a guild
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public Task<DiscordGuild> GetGuildAsync(ulong id) => this._rest_client.InternalGetGuildAsync(id);
+
         /// <summary>
         /// Deletes a guild
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public Task<DiscordGuild> DeleteGuildAsync(ulong id) => this._rest_client.InternalDeleteGuild(id);
+
         /// <summary>
         /// Deletes a guild
         /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
         public Task<DiscordGuild> DeleteGuildAsync(DiscordGuild guild) => this._rest_client.InternalDeleteGuild(guild.Id);
+
         /// <summary>
         /// Gets a channel
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public Task<DiscordChannel> GetChannelByIdAsync(ulong id) => this._rest_client.InternalGetChannel(id);
+
         /// <summary>
         /// Gets an invite
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
         public Task<DiscordInvite> GetInviteByCodeAsync(string code) => this._rest_client.InternalGetInvite(code);
+
         /// <summary>
         /// Gets a list of connections
         /// </summary>
         /// <returns></returns>
         public Task<List<DiscordConnection>> GetConnectionsAsync() => this._rest_client.InternalGetUsersConnections();
+
         /// <summary>
         /// Gets a list of regions
         /// </summary>
         /// <returns></returns>
         public Task<List<DiscordVoiceRegion>> ListRegionsAsync() => this._rest_client.InternalListVoiceRegions();
+
         /// <summary>
         /// Gets a webhook
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public Task<DiscordWebhook> GetWebhookAsync(ulong id) => this._rest_client.InternalGetWebhook(id);
+
         /// <summary>
         /// Gets a webhook
         /// </summary>
@@ -835,12 +869,14 @@ namespace DSharpPlus
         /// <param name="token"></param>
         /// <returns></returns>
         public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token) => this._rest_client.InternalGetWebhookWithToken(id, token);
+
         /// <summary>
         /// Creates a dm
         /// </summary>
         /// <param name="user_id"></param>
         /// <returns></returns>
         public Task<DiscordDmChannel> CreateDmAsync(ulong user_id) => this._rest_client.InternalCreateDM(user_id);
+
         /// <summary>
         /// Updates current user's status
         /// </summary>
@@ -870,13 +906,7 @@ namespace DSharpPlus
         /// </summary>
         /// <returns></returns>
         public Task<DiscordApplication> GetCurrentAppAsync() => this._rest_client.InternalGetApplicationInfo("@me");
-
-        /// <summary>
-        /// Gets cached presence for a user.
-        /// </summary>
-        /// <param name="user_id">User's ID</param>
-        /// <returns></returns>
-        public DiscordPresence GetUserPresence(ulong user_id) => InternalGetUserPresence(user_id);
+        
         /// <summary>
         /// Lists guild members
         /// </summary>
@@ -937,6 +967,9 @@ namespace DSharpPlus
             var dat = payload.Data as JObject;
 
             var chn = null as DiscordChannel;
+            var gid = 0ul;
+            var cid = 0ul;
+            var usr = null as DiscordUser;
 
             switch (payload.EventName.ToLower())
             {
@@ -976,63 +1009,77 @@ namespace DSharpPlus
                     break;
 
                 case "guild_ban_add":
-                    await OnGuildBanAddEventAsync(obj);
+                    usr = dat.ToObject<DiscordUser>();
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildBanAddEventAsync(usr, this._guilds[gid]);
                     break;
 
                 case "guild_ban_remove":
-                    await OnGuildBanRemoveEventAsync(obj);
+                    usr = dat.ToObject<DiscordUser>();
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildBanRemoveEventAsync(usr, this._guilds[gid]);
                     break;
 
                 case "guild_emojis_update":
-                    await OnGuildEmojisUpdateEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    var ems = dat["emojis"].ToObject<IEnumerable<DiscordEmoji>>();
+                    await OnGuildEmojisUpdateEventAsync(this._guilds[gid], ems);
                     break;
 
                 case "guild_integrations_update":
-                    await OnGuildIntegrationsUpdateEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildIntegrationsUpdateEventAsync(this._guilds[gid]);
                     break;
 
                 case "guild_member_add":
-                    await OnGuildMemberAddEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildMemberAddEventAsync(dat.ToObject<TransportMember>(), this._guilds[gid]);
                     break;
 
                 case "guild_member_remove":
-                    await OnGuildMemberRemoveEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildMemberRemoveEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid]);
                     break;
 
                 case "guild_member_update":
-                    await OnGuildMemberUpdateEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildMemberUpdateEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"]);
                     break;
 
                 case "guild_member_chunk":
-                    await OnGuildMembersChunkEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildMembersChunkEventAsync(dat["members"].ToObject<IEnumerable<TransportMember>>(), this._guilds[gid]);
                     break;
 
                 case "guild_role_create":
-                    await OnGuildRoleCreateEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildRoleCreateEventAsync(dat["role"].ToObject<DiscordRole>(), this._guilds[gid]);
                     break;
 
                 case "guild_role_update":
-                    await OnGuildRoleUpdateEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildRoleUpdateEventAsync(dat["role"].ToObject<DiscordRole>(), this._guilds[gid]);
                     break;
 
                 case "guild_role_delete":
-                    await OnGuildRoleDeleteEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], this._guilds[gid]);
                     break;
 
                 case "message_create":
-                    await OnMessageCreateEventAsync(obj);
+                    await OnMessageCreateEventAsync(dat.ToObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>());
                     break;
 
                 case "message_update":
-                    await OnMessageUpdateEventAsync(obj);
+                    await OnMessageUpdateEventAsync(dat.ToObject<DiscordMessage>(), dat["author"] != null ? dat["author"].ToObject<TransportUser>() : null);
                     break;
 
                 case "message_delete":
-                    await OnMessageDeleteEventAsync(obj);
+                    await OnMessageDeleteEventAsync((ulong)dat["id"], this.InternalGetCachedChannel((ulong)dat["channel_id"]));
                     break;
 
                 case "message_delete_bulk":
-                    await OnMessageBulkDeleteEventAsync(obj);
+                    await OnMessageBulkDeleteEventAsync(dat["ids"].ToObject<IEnumerable<ulong>>(), this.InternalGetCachedChannel((ulong)dat["channel_id"]));
                     break;
 
                 case "presence_update":
@@ -1040,39 +1087,46 @@ namespace DSharpPlus
                     break;
 
                 case "typing_start":
-                    await OnTypingStartEventAsync(obj);
+                    cid = (ulong)dat["channel_id"];
+                    await OnTypingStartEventAsync((ulong)dat["user_id"], this.InternalGetCachedChannel(cid), Utils.GetTimestamp((long)dat["timestamp"]));
                     break;
 
                 case "user_settings_update":
-                    await OnUserSettingsUpdateEventAsync(obj);
+                    await OnUserSettingsUpdateEventAsync(dat.ToObject<TransportUser>());
                     break;
 
                 case "user_update":
-                    await OnUserUpdateEventAsync(obj);
+                    await OnUserUpdateEventAsync(dat.ToObject<TransportUser>());
                     break;
 
                 case "voice_state_update":
-                    await OnVoiceStateUpdateEventAsync(obj);
+                    await OnVoiceStateUpdateEventAsync(dat.ToObject<DiscordVoiceState>());
                     break;
 
                 case "voice_server_update":
-                    await OnVoiceServerUpdateEventAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    await OnVoiceServerUpdateEventAsync((string)dat["endpoint"], (string)dat["token"], this._guilds[gid]);
                     break;
 
                 case "message_reaction_add":
-                    await OnMessageReactionAddAsync(obj);
+                    cid = (ulong)dat["channel_id"];
+                    await OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], this.InternalGetCachedChannel(cid), dat["emoji"].ToObject<DiscordEmoji>());
                     break;
 
                 case "message_reaction_remove":
-                    await OnMessageReactionRemoveAsync(obj);
+                    cid = (ulong)dat["channel_id"];
+                    await OnMessageReactionRemoveAsync((ulong)dat["user_id"], (ulong)dat["message_id"], this.InternalGetCachedChannel(cid), dat["emoji"].ToObject<DiscordEmoji>());
                     break;
 
                 case "message_reaction_remove_all":
-                    await OnMessageReactionRemoveAllAsync(obj);
+                    cid = (ulong)dat["channel_id"];
+                    await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], this.InternalGetCachedChannel(cid));
                     break;
 
                 case "webhooks_update":
-                    await OnWebhooksUpdateAsync(obj);
+                    gid = (ulong)dat["guild_id"];
+                    cid = (ulong)dat["channel_id"];
+                    await OnWebhooksUpdateAsync(this._guilds[gid]._channels.FirstOrDefault(xc => xc.Id == cid), this._guilds[gid]);
                     break;
 
                 default:
@@ -1124,8 +1178,13 @@ namespace DSharpPlus
 
                     if (xg._presences == null)
                         xg._presences = new List<DiscordPresence>();
+                    foreach (var xp in xg.Presences)
+                        xp.Discord = this;
+
                     if (xg._voice_states == null)
                         xg._voice_states = new List<DiscordVoiceState>();
+                    foreach (var xvs in xg.VoiceStates)
+                        xvs.Discord = this;
 
                     return xg;
                 }).ToDictionary(xg => xg.Id, xg => xg);
@@ -1160,6 +1219,7 @@ namespace DSharpPlus
                 await this._channel_created.InvokeAsync(new ChannelCreateEventArgs(this) { Channel = channel, Guild = channel.Guild });
             }
         }
+
         internal async Task OnChannelUpdateEventAsync(DiscordChannel channel)
         {
             channel.Discord = this;
@@ -1178,6 +1238,7 @@ namespace DSharpPlus
 
             await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs(this) { Channel = channel, Guild = gld, ChannelBefore = old });
         }
+
         internal async Task OnChannelDeleteEventAsync(DiscordChannel channel)
         {
             channel.Discord = this;
@@ -1200,6 +1261,7 @@ namespace DSharpPlus
                 await this._channel_deleted.InvokeAsync(new ChannelDeleteEventArgs(this) { Channel = channel, Guild = gld });
             }
         }
+
         internal async Task OnGuildCreateEventAsync(DiscordGuild guild, JArray raw_members)
         {
             guild.Discord = this;
@@ -1228,8 +1290,13 @@ namespace DSharpPlus
 
             if (guild._presences == null)
                 guild._presences = new List<DiscordPresence>();
+            foreach (var xp in guild.Presences)
+                xp.Discord = this;
+
             if (guild._voice_states == null)
                 guild._voice_states = new List<DiscordVoiceState>();
+            foreach (var xvs in guild.VoiceStates)
+                xvs.Discord = this;
 
             var exists = this._guilds.ContainsKey(guild.Id);
             this._guilds[guild.Id] = guild;
@@ -1239,6 +1306,7 @@ namespace DSharpPlus
             else
                 await this._guild_created.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild });
         }
+
         internal async Task OnGuildUpdateEventAsync(DiscordGuild guild, JArray raw_members)
         {
             guild.Discord = this;
@@ -1267,14 +1335,20 @@ namespace DSharpPlus
 
             if (guild._presences == null)
                 guild._presences = new List<DiscordPresence>();
+            foreach (var xp in guild.Presences)
+                xp.Discord = this;
+
             if (guild._voice_states == null)
                 guild._voice_states = new List<DiscordVoiceState>();
+            foreach (var xvs in guild.VoiceStates)
+                xvs.Discord = this;
 
             var exists = this._guilds.ContainsKey(guild.Id);
             this._guilds[guild.Id] = guild;
 
             await this._guild_updated.InvokeAsync(new GuildUpdateEventArgs(this) { Guild = guild });
         }
+
         internal async Task OnGuildDeleteEventAsync(DiscordGuild guild, JArray raw_members)
         {
             if (this._guilds.ContainsKey(guild.Id))
@@ -1307,8 +1381,13 @@ namespace DSharpPlus
 
                     if (guild._presences == null)
                         guild._presences = new List<DiscordPresence>();
+                    foreach (var xp in guild.Presences)
+                        xp.Discord = this;
+
                     if (guild._voice_states == null)
                         guild._voice_states = new List<DiscordVoiceState>();
+                    foreach (var xvs in guild.VoiceStates)
+                        xvs.Discord = this;
 
                     this._guilds[guild.Id] = guild;
                     await this._guild_unavailable.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = guild, Unavailable = true });
@@ -1322,398 +1401,426 @@ namespace DSharpPlus
                 }
             }
         }
+
         internal async Task OnPresenceUpdateEventAsync(DiscordPresence presence, PresenceUpdateEventArgs ea)
         {
             presence.Discord = this;
-
-            var index = presence.Guild._presences.FindIndex(xp => xp.User.Id == presence.User.Id);
             var old = null as DiscordPresence;
-            if (index >= 0)
+
+            if (presence.GuildId != 0)
             {
-                old = presence.Guild.Presences[index];
-                presence.Guild._presences[index] = presence;
+                // guild presence
+
+                var index = presence.Guild._presences.FindIndex(xp => xp.InternalUser.Id == presence.InternalUser.Id);
+                if (index > -1)
+                {
+                    old = presence.Guild._presences[index];
+                    presence.Guild._presences[index] = presence;
+                }
+                else
+                    presence.Guild._presences.Add(presence);
             }
             else
             {
-                presence.Guild._presences.Add(presence);
+                old = this._presences[presence.InternalUser.Id];
             }
+
+            this._presences[presence.InternalUser.Id] = presence;
 
             ea.Client = this;
             ea.PresenceBefore = old;
 
             await this._presence_update.InvokeAsync(ea);
         }
-        internal async Task OnGuildBanAddEventAsync(JObject obj)
+
+        internal async Task OnGuildBanAddEventAsync(DiscordUser user, DiscordGuild guild)
         {
-            DiscordUser user = obj["d"].ToObject<DiscordUser>();
-            user.Discord = this;
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            GuildBanAddEventArgs args = new GuildBanAddEventArgs(this) { User = user, GuildID = guildID };
-            await this._guild_ban_add.InvokeAsync(args);
-        }
-        internal async Task OnGuildBanRemoveEventAsync(JObject obj)
-        {
-            DiscordUser user = obj["d"].ToObject<DiscordUser>();
-            user.Discord = this;
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            GuildBanRemoveEventArgs args = new GuildBanRemoveEventArgs(this) { User = user, GuildID = guildID };
-            await this._guild_ban_remove.InvokeAsync(args);
-        }
-        internal async Task OnGuildEmojisUpdateEventAsync(JObject obj)
-        {
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            List<DiscordEmoji> emojis = new List<DiscordEmoji>();
-            foreach (JObject em in (JArray)obj["d"]["emojis"])
+            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(user) { Discord = this, _guild_id = guild.Id };
+            var ea = new GuildBanAddEventArgs(this)
             {
-                var ret = em.ToObject<DiscordEmoji>();
-                ret.Discord = this;
-                emojis.Add(ret);
-            }
-            List<DiscordEmoji> old = _guilds[guildID].Emojis;
-            _guilds[guildID].Emojis = emojis;
-            GuildEmojisUpdateEventArgs args = new GuildEmojisUpdateEventArgs(this) { GuildID = guildID, Emojis = new ReadOnlyCollection<DiscordEmoji>(emojis), EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old) };
-            await this._guild_emojis_update.InvokeAsync(args);
+                Guild = guild,
+                Member = mbr
+            };
+            await this._guild_ban_add.InvokeAsync(ea);
         }
-        internal async Task OnGuildIntegrationsUpdateEventAsync(JObject obj)
+
+        internal async Task OnGuildBanRemoveEventAsync(DiscordUser user, DiscordGuild guild)
         {
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            GuildIntegrationsUpdateEventArgs args = new GuildIntegrationsUpdateEventArgs(this) { GuildID = guildID };
-            await this._guild_integrations_update.InvokeAsync(args);
+            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(user) { Discord = this, _guild_id = guild.Id };
+            var ea = new GuildBanRemoveEventArgs(this)
+            {
+                Guild = guild,
+                Member = mbr
+            };
+            await this._guild_ban_remove.InvokeAsync(ea);
         }
-        internal async Task OnGuildMemberAddEventAsync(JObject obj)
+
+        internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> new_emojis)
         {
-            var user = new DiscordMember(obj["d"].ToObject<TransportMember>())
+            var old_emojis = new List<DiscordEmoji>(guild._emojis);
+            guild._emojis.Clear();
+            guild._emojis.AddRange(new_emojis.Select(xe => { xe.Discord = this; return xe; }));
+            var ea = new GuildEmojisUpdateEventArgs(this)
+            {
+                Guild = guild,
+                Emojis = guild.Emojis,
+                EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old_emojis)
+            };
+            await this._guild_emojis_update.InvokeAsync(ea);
+        }
+
+        internal async Task OnGuildIntegrationsUpdateEventAsync(DiscordGuild guild)
+        {
+            var ea = new GuildIntegrationsUpdateEventArgs(this)
+            {
+                Guild = guild
+            };
+            await this._guild_integrations_update.InvokeAsync(ea);
+        }
+
+        internal async Task OnGuildMemberAddEventAsync(TransportMember member, DiscordGuild guild)
+        {
+            var mbr = new DiscordMember(member)
             {
                 Discord = this,
-                _guild_id = obj["d"]["guild_id"].ToObject<ulong>()
+                _guild_id = guild.Id
+            };
+            
+            guild._members.Add(mbr);
+            guild.MemberCount++;
+
+            var ea = new GuildMemberAddEventArgs(this)
+            {
+                Guild = guild,
+                Member = mbr
+            };
+            await this._guild_member_add.InvokeAsync(ea);
+        }
+
+        internal async Task OnGuildMemberRemoveEventAsync(TransportUser user, DiscordGuild guild)
+        {
+            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(new DiscordUser(user)) { Discord = this, _guild_id = guild.Id };
+
+            var index = guild._members.FindIndex(xm => xm.Id == mbr.Id);
+            if (index > -1)
+                guild._members.RemoveAt(index);
+            guild.MemberCount--;
+
+            var ea = new GuildMemberRemoveEventArgs(this)
+            {
+                Guild = guild,
+                Member = mbr
+            };
+            await this._guild_member_remove.InvokeAsync(ea);
+        }
+
+        internal async Task OnGuildMemberUpdateEventAsync(TransportUser user, DiscordGuild guild, IEnumerable<ulong> roles, string nick)
+        {
+            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(new DiscordUser(user)) { Discord = this, _guild_id = guild.Id };
+
+            var nick_old = mbr.Nickname;
+            var roles_old = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles));
+
+            mbr.Nickname = nick;
+            mbr._role_ids.Clear();
+            mbr._role_ids.AddRange(roles);
+
+            var ea = new GuildMemberUpdateEventArgs(this)
+            {
+                Guild = guild,
+                Member = mbr,
+
+                NicknameAfter = mbr.Nickname,
+                RolesAfter = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles)),
+
+                NicknameBefore = nick_old,
+                RolesBefore = roles_old
+            };
+            await this._guild_member_update.InvokeAsync(ea);
+        }
+
+        internal async Task OnGuildRoleCreateEventAsync(DiscordRole role, DiscordGuild guild)
+        {
+            role.Discord = this;
+            guild._roles.Add(role);
+
+            var ea = new GuildRoleCreateEventArgs(this)
+            {
+                Guild = guild,
+                Role = role
+            };
+            await this._guild_role_create.InvokeAsync(ea);
+        }
+
+        internal async Task OnGuildRoleUpdateEventAsync(DiscordRole role, DiscordGuild guild)
+        {
+            var role_new = guild.Roles.FirstOrDefault(xr => xr.Id == role.Id);
+            var role_old = new DiscordRole
+            {
+                Color = role_new.Color,
+                Discord = this,
+                Hoist = role_new.Hoist,
+                Id = role_new.Id,
+                Managed = role_new.Managed,
+                Mentionable = role_new.Managed,
+                Name = role_new.Name,
+                Permissions = role_new.Permissions,
+                Position = role_new.Position
             };
 
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            _guilds[guildID].Members.Add(user);
-            _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
-            GuildMemberAddEventArgs args = new GuildMemberAddEventArgs(this) { Member = user, GuildID = guildID };
-            await this._guild_member_add.InvokeAsync(args);
-        }
-        internal async Task OnGuildMemberRemoveEventAsync(JObject obj)
-        {
-            DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
-            user.Discord = this;
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            if (_guilds[guildID].Members.Find(x => x.Id == user.Id) != null)
-            {
-                int index = _guilds[guildID].Members.FindIndex(x => x.Id == user.Id);
-                _guilds[guildID].Members.RemoveAt(index);
-                _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
-            }
-            GuildMemberRemoveEventArgs args = new GuildMemberRemoveEventArgs(this) { User = user, GuildID = guildID };
-            await this._guild_member_remove.InvokeAsync(args);
-        }
-        internal async Task OnGuildMemberUpdateEventAsync(JObject obj)
-        {
-            DiscordUser user = obj["d"]["user"].ToObject<DiscordUser>();
-            user.Discord = this;
-            DiscordMember old = new DiscordMember();
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            string nick = "";
-            nick = obj["d"]["nick"].ToString();
-            List<ulong> roles = new List<ulong>();
-            if (obj["d"]["roles"] != null)
-            {
-                JArray rolesjson = (JArray)obj["d"]["roles"];
-                foreach (var role in rolesjson)
-                {
-                    roles.Add(ulong.Parse(role.ToString()));
-                }
-            }
-            int index = _guilds[guildID].Members.FindIndex(x => x.Id == user.Id);
-            if (_guilds[guildID].Members.Find(x => x.Id == user.Id) != null)
-            {
-                DiscordMember m = _guilds[guildID].Members[index];
-                m.Discord = this;
-                m._guild_id = guildID;
-                old = m;
-                m.Nickname = nick;
-                m._role_ids = roles;
-                _guilds[guildID].Members[index] = m;
-            }
-            else
-            {
-                DiscordMember m = new DiscordMember(user)
-                {
-                    Discord = this,
-                    Nickname = nick,
-                    _role_ids = roles,
-                    _guild_id = guildID
-                };
-                _guilds[guildID].Members.Add(m);
-            }
-            GuildMemberUpdateEventArgs args = new GuildMemberUpdateEventArgs(this) { User = user, GuildID = guildID, Roles = new ReadOnlyCollection<ulong>(roles), NickName = nick, NickNameBefore = old.Nickname, RolesBefore = old.RoleIds };
-            await this._guild_member_update.InvokeAsync(args);
-        }
-        internal async Task OnGuildRoleCreateEventAsync(JObject obj)
-        {
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
-            role.Discord = this;
-            _guilds[guildID].Roles.Add(role);
-            GuildRoleCreateEventArgs args = new GuildRoleCreateEventArgs(this) { GuildID = guildID, Role = role };
-            await this._guild_role_create.InvokeAsync(args);
-        }
-        internal async Task OnGuildRoleUpdateEventAsync(JObject obj)
-        {
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            DiscordRole role = obj["d"]["role"].ToObject<DiscordRole>();
-            role.Discord = this;
-            DiscordRole old = role;
-            int index = _guilds[guildID].Roles.FindIndex(x => x.Id == role.Id);
-            old = _guilds[guildID].Roles[index];
-            _guilds[guildID].Roles[index] = role;
-            GuildRoleUpdateEventArgs args = new GuildRoleUpdateEventArgs(this) { GuildID = guildID, Role = role, RoleBefore = old };
-            await this._guild_role_update.InvokeAsync(args);
-        }
-        internal async Task OnGuildRoleDeleteEventAsync(JObject obj)
-        {
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            ulong roleID = obj["d"]["role_id"].ToObject<ulong>();
-            int index = _guilds[guildID].Roles.FindIndex(x => x.Id == roleID);
-            _guilds[guildID].Roles.RemoveAt(index);
-            GuildRoleDeleteEventArgs args = new GuildRoleDeleteEventArgs(this) { GuildID = guildID, RoleID = roleID };
-            await this._guild_role_delete.InvokeAsync(args);
-        }
-        internal async Task OnMessageCreateEventAsync(JObject obj)
-        {
-            DiscordMessage message;
-            try
-            {
-                message = obj["d"].ToObject<DiscordMessage>();
-                message.Discord = this;
-            }
-            catch (JsonSerializationException)
-            {
-                JObject msg = (JObject)obj["d"];
-                msg["nonce"] = 0;
-                message = msg.ToObject<DiscordMessage>();
-                message.Discord = this;
-            }
+            role_new.Color = role.Color;
+            role_new.Hoist = role.Hoist;
+            role_new.Managed = role.Managed;
+            role_new.Mentionable = role.Mentionable;
+            role_new.Name = role.Name;
+            role_new.Permissions = role.Permissions;
+            role_new.Position = role.Position;
 
-            if (config.TokenType != TokenType.User)
+            var ea = new GuildRoleUpdateEventArgs(this)
             {
-                try
-                {
-                    if (_private_channels.Find(x => x.Id == message.ChannelID) == null)
-                    {
-                        int channelindex = _guilds[message.Channel.Guild.Id].Channels.FindIndex(x => x.Id == message.ChannelID);
-                        _guilds[message.Channel.Guild.Id].Channels[channelindex].LastMessageID = message.Id;
-                    }
-                    else
-                    {
-                        int channelindex = _private_channels.FindIndex(x => x.Id == message.ChannelID);
-                        _private_channels[channelindex].LastMessageID = message.Id;
-                    }
-                }
-                catch (KeyNotFoundException)
-                {
-                    DebugLogger.LogMessage(LogLevel.Error, "Event", "Could not find channel last message belonged to?", DateTime.Now);
-                }
-            }
-
-            List<DiscordMember> MentionedUsers = new List<DiscordMember>();
-            List<DiscordRole> MentionedRoles = new List<DiscordRole>();
-            List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-            List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-            if (!string.IsNullOrWhiteSpace(message.Content))
-            {
-                foreach (ulong user in Utils.GetUserMentions(message))
-                {
-                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
-                    && _guilds[message.Channel.Guild.Id].Members != null
-                    && _guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user) != null)
-                        MentionedUsers.Add(_guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user));
-                }
-
-                if (message.Channel.Guild != null && _guilds.ContainsKey(message.Channel.Guild.Id))
-                {
-                    foreach (ulong role in Utils.GetRoleMentions(message))
-                    {
-                        if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
-                        && _guilds[message.Channel.Guild.Id].Roles != null
-                        && _guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role) != null)
-                            MentionedRoles.Add(_guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role));
-                    }
-
-                    foreach (ulong channel in Utils.GetChannelMentions(message))
-                    {
-                        if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
-                        && _guilds[message.Channel.Guild.Id].Channels != null
-                        && _guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel) != null)
-                            MentionedChannels.Add(_guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel));
-                    }
-                }
-                /*
-                foreach (ulong emoji in Utils.GetEmojis(message))
-                {
-                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                    && _guilds[message.Parent.Parent.ID].Emojis != null
-                    && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
-                        UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
-                }
-                */
-            }
-            MessageCreateEventArgs args = new MessageCreateEventArgs(this)
-            {
-                Message = message,
-                MentionedUsers = new ReadOnlyCollection<DiscordMember>(MentionedUsers),
-                MentionedRoles = new ReadOnlyCollection<DiscordRole>(MentionedRoles),
-                MentionedChannels = new ReadOnlyCollection<DiscordChannel>(MentionedChannels),
-                UsedEmojis = new ReadOnlyCollection<DiscordEmoji>(UsedEmojis)
+                Guild = guild,
+                RoleAfter = role_new,
+                RoleBefore = role_old
             };
-            await this._message_created.InvokeAsync(args);
+            await this._guild_role_update.InvokeAsync(ea);
         }
-        internal async Task OnMessageUpdateEventAsync(JObject obj)
+
+        internal async Task OnGuildRoleDeleteEventAsync(ulong role_id, DiscordGuild guild)
         {
-            DiscordMessage message = obj["d"].ToObject<DiscordMessage>();
+            var index = guild._roles.FindIndex(xr => xr.Id == role_id);
+            var role = guild._roles[index];
+            guild._roles.RemoveAt(index);
+
+            var ea = new GuildRoleDeleteEventArgs(this)
+            {
+                Guild = guild,
+                Role = role
+            };
+            await this._guild_role_delete.InvokeAsync(ea);
+        }
+
+        internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author)
+        {
             message.Discord = this;
 
-            List<DiscordMember> MentionedUsers = new List<DiscordMember>();
-            List<DiscordRole> MentionedRoles = new List<DiscordRole>();
-            List<DiscordChannel> MentionedChannels = new List<DiscordChannel>();
-            List<DiscordEmoji> UsedEmojis = new List<DiscordEmoji>();
-            if (message.Content != null && message.Content != "" && _guilds.ContainsKey(message.Channel.Guild.Id))
+            if (message.Channel == null)
+                DebugLogger.LogMessage(LogLevel.Warning, "Event", "Could not find channel last message belonged to", DateTime.Now);
+            else
+                message.Channel.LastMessageID = message.Id;
+
+            var guild = message.Channel?.Guild;
+
+            if (guild != null)
+                message.Author = guild.Members.FirstOrDefault(xm => xm.Id == author.Id) ?? new DiscordMember(new DiscordUser(author)) { Discord = this, _guild_id = guild.Id };
+            else
+                message.Author = this.InternalGetCachedUser(author.Id) ?? new DiscordUser(author) { Discord = this };
+
+            var mentioned_users = new List<DiscordUser>();
+            var mentioned_roles = guild != null ? new List<DiscordRole>() : null;
+            var mentioned_channels = guild != null ? new List<DiscordChannel>() : null;
+
+            if (!string.IsNullOrWhiteSpace(message.Content))
             {
-                foreach (ulong user in Utils.GetUserMentions(message))
+                if (guild != null)
                 {
-                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
-                    && _guilds[message.Channel.Guild.Id].Members != null
-                    && _guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user) != null)
-                        MentionedUsers.Add(_guilds[message.Channel.Guild.Id].Members.Find(x => x.Id == user));
+                    mentioned_users = Utils.GetUserMentions(message).Select(xid => guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_roles = Utils.GetRoleMentions(message).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
+                    mentioned_channels = Utils.GetChannelMentions(message).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
                 }
-
-                foreach (ulong role in Utils.GetRoleMentions(message))
+                else
                 {
-                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
-                    && _guilds[message.Channel.Guild.Id].Roles != null
-                    && _guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role) != null)
-                        MentionedRoles.Add(_guilds[message.Channel.Guild.Id].Roles.Find(x => x.Id == role));
+                    mentioned_users = Utils.GetUserMentions(message).Select(xid => this.InternalGetCachedUser(xid)).ToList();
                 }
-
-                foreach (ulong channel in Utils.GetChannelMentions(message))
-                {
-                    if (message.Channel != null && message.Channel.Guild != null && _guilds[message.Channel.Guild.Id] != null
-                    && _guilds[message.Channel.Guild.Id].Channels != null
-                    && _guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel) != null)
-                        MentionedChannels.Add(_guilds[message.Channel.Guild.Id].Channels.Find(x => x.Id == channel));
-                }
-                /*
-                foreach (ulong emoji in Utils.GetEmojis(message))
-                {
-                    if (message.Parent != null && message.Parent.Parent != null && _guilds[message.Parent.Parent.ID] != null
-                    && _guilds[message.Parent.Parent.ID].Emojis != null
-                    && _guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji) != null)
-                        UsedEmojis.Add(_guilds[message.Parent.Parent.ID].Emojis.Find(x => x.ID == emoji));
-                }
-                */
             }
 
-            MessageUpdateEventArgs args = new MessageUpdateEventArgs(this)
+            message._mentioned_users = mentioned_users;
+            message._mentioned_roles = mentioned_roles;
+            message._mentioned_channels = mentioned_channels;
+
+            if (message._reactions == null)
+                message._reactions = new List<DiscordReaction>();
+            foreach (var xr in message._reactions)
+                xr.Emoji.Discord = this;
+
+            MessageCreateEventArgs ea = new MessageCreateEventArgs(this)
             {
                 Message = message,
-                MentionedUsers = new ReadOnlyCollection<DiscordMember>(MentionedUsers),
-                MentionedRoles = new ReadOnlyCollection<DiscordRole>(MentionedRoles),
-                MentionedChannels = new ReadOnlyCollection<DiscordChannel>(MentionedChannels),
-                UsedEmojis = new ReadOnlyCollection<DiscordEmoji>(UsedEmojis)
+
+                MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentioned_users),
+                MentionedRoles = new ReadOnlyCollection<DiscordRole>(mentioned_roles),
+                MentionedChannels = new ReadOnlyCollection<DiscordChannel>(mentioned_channels)
             };
-            await this._message_update.InvokeAsync(args);
+            await this._message_created.InvokeAsync(ea);
         }
-        internal async Task OnMessageDeleteEventAsync(JObject obj)
+
+        internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author)
         {
-            ulong ID = ulong.Parse(obj["d"]["id"].ToString());
-            ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-            MessageDeleteEventArgs args = new MessageDeleteEventArgs(this) { ChannelID = channelID, MessageID = ID };
-            await this._message_delete.InvokeAsync(args);
-        }
-        internal async Task OnMessageBulkDeleteEventAsync(JObject obj)
-        {
-            JArray IDsJson = (JArray)obj["d"]["ids"];
-            List<ulong> ids = new List<ulong>();
-            foreach (JToken t in IDsJson)
+            message.Discord = this;
+
+            var guild = message.Channel?.Guild;
+
+            if (author != null)
             {
-                ids.Add(ulong.Parse(t.ToString()));
+                if (guild != null)
+                    message.Author = guild.Members.FirstOrDefault(xm => xm.Id == author.Id) ?? new DiscordMember(new DiscordUser(author)) { Discord = this, _guild_id = guild.Id };
+                else
+                    message.Author = this.InternalGetCachedUser(author.Id) ?? new DiscordUser(author) { Discord = this };
             }
-            ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-            MessageBulkDeleteEventArgs args = new MessageBulkDeleteEventArgs(this) { MessageIDs = new ReadOnlyCollection<ulong>(ids), ChannelID = channelID };
-            await this._message_bulk_delete.InvokeAsync(args);
-        }
-        internal async Task OnTypingStartEventAsync(JObject obj)
-        {
-            ulong channelID = ulong.Parse(obj["d"]["channel_id"].ToString());
-            ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
-            TypingStartEventArgs args = new TypingStartEventArgs(this) { ChannelID = channelID, UserID = userID };
-            await this._typing_start.InvokeAsync(args);
-        }
-        internal async Task OnUserSettingsUpdateEventAsync(JObject obj)
-        {
-            DiscordUser user = obj["d"].ToObject<DiscordUser>();
-            user.Discord = this;
-            UserSettingsUpdateEventArgs args = new UserSettingsUpdateEventArgs(this) { User = user };
-            await this._user_settings_update.InvokeAsync(args);
-        }
-        internal async Task OnUserUpdateEventAsync(JObject obj)
-        {
-            DiscordUser user = obj["d"].ToObject<DiscordUser>();
-            user.Discord = this;
-            UserUpdateEventArgs args = new UserUpdateEventArgs(this) { User = user, UserBefore = _current_user };
-            _current_user = user;
-            await this._user_update.InvokeAsync(args);
-        }
-        internal async Task OnVoiceStateUpdateEventAsync(JObject obj)
-        {
-            ulong userID = ulong.Parse(obj["d"]["user_id"].ToString());
-            ulong guildID = 0;
-            if (obj["d"]["guild_id"] != null)
-                ulong.TryParse(obj["d"]["guild_id"].ToString(), out guildID);
-            ulong channelID = 0;
-            if (obj["d"]["channel_id"] != null)
-                ulong.TryParse(obj["d"]["channel_id"].ToString(), out channelID);
-            string session_id = obj["d"]["session_id"].ToString();
-            VoiceStateUpdateEventArgs args = new VoiceStateUpdateEventArgs(this) { UserID = userID, GuildID = guildID, SessionID = session_id };
 
-            var gld = this.Guilds.ContainsKey(guildID) ? this.Guilds[guildID] : null;
+            var mentioned_users = new List<DiscordUser>();
+            var mentioned_roles = guild != null ? new List<DiscordRole>() : null;
+            var mentioned_channels = guild != null ? new List<DiscordChannel>() : null;
 
-            if (gld != null)
+            if (!string.IsNullOrWhiteSpace(message.Content))
             {
-                var vs = new DiscordVoiceState
+                if (guild != null)
                 {
-                    GuildId = gld.Id,
-                    ChannelId = channelID,
-                    UserId = userID
-                };
-                var vs1 = gld.VoiceStates.FirstOrDefault(xvs => xvs.UserId == userID);
-                if (vs1 != null)
-                    gld.VoiceStates.Remove(vs1);
-                if (channelID != 0)
-                    gld.VoiceStates.Add(vs);
+                    mentioned_users = Utils.GetUserMentions(message).Select(xid => guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_roles = Utils.GetRoleMentions(message).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
+                    mentioned_channels = Utils.GetChannelMentions(message).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
+                }
+                else
+                {
+                    mentioned_users = Utils.GetUserMentions(message).Select(xid => this.InternalGetCachedUser(xid)).ToList();
+                }
             }
 
-            await this._voice_state_update.InvokeAsync(args);
-        }
-        internal async Task OnVoiceServerUpdateEventAsync(JObject obj)
-        {
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            string endpoint = obj["d"]["endpoint"].ToString();
-            string token = obj["d"]["token"].ToString();
+            message._mentioned_users = mentioned_users;
+            message._mentioned_roles = mentioned_roles;
+            message._mentioned_channels = mentioned_channels;
 
-            VoiceServerUpdateEventArgs args = new VoiceServerUpdateEventArgs(this) { GuildID = guildID, Endpoint = endpoint, VoiceToken = token };
-            await this._voice_server_update.InvokeAsync(args);
+            if (message._reactions == null)
+                message._reactions = new List<DiscordReaction>();
+            foreach (var xr in message._reactions)
+                xr.Emoji.Discord = this;
+
+            var ea = new MessageUpdateEventArgs(this)
+            {
+                Message = message,
+
+                MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentioned_users),
+                MentionedRoles = new ReadOnlyCollection<DiscordRole>(mentioned_roles),
+                MentionedChannels = new ReadOnlyCollection<DiscordChannel>(mentioned_channels),
+            };
+            await this._message_update.InvokeAsync(ea);
         }
-        internal async Task OnGuildMembersChunkEventAsync(JObject obj)
+
+        internal async Task OnMessageDeleteEventAsync(ulong message_id, DiscordChannel channel)
         {
-            ulong guildID = ulong.Parse(obj["d"]["guild_id"].ToString());
-            _guilds[guildID].Members = ((JArray)obj["d"]["members"])
-                .Select(xjt => new DiscordMember(xjt.ToObject<TransportMember>()) { Discord = this, _guild_id = obj["d"]["guild_id"].ToObject<ulong>() })
-                .ToList();
-            _guilds[guildID].MemberCount = _guilds[guildID].Members.Count;
-            GuildMembersChunkEventArgs args = new GuildMembersChunkEventArgs(this) { GuildID = guildID, Members = new ReadOnlyCollection<DiscordMember>(_guilds[guildID].Members) };
-            await this._guild_members_chunk.InvokeAsync(args);
+            var ea = new MessageDeleteEventArgs(this)
+            {
+                Channel = channel,
+                MessageId = message_id
+            };
+            await this._message_delete.InvokeAsync(ea);
+        }
+
+        internal async Task OnMessageBulkDeleteEventAsync(IEnumerable<ulong> message_ids, DiscordChannel channel)
+        {
+            var ea = new MessageBulkDeleteEventArgs(this)
+            {
+                Channel = channel,
+                MessageIds = new ReadOnlyCollection<ulong>(new List<ulong>(message_ids))
+            };
+            await this._message_bulk_delete.InvokeAsync(ea);
+        }
+
+        internal async Task OnTypingStartEventAsync(ulong user_id, DiscordChannel channel, DateTimeOffset started)
+        {
+            var usr = channel.Guild != null ? channel.Guild.Members.FirstOrDefault(xm => xm.Id == user_id) : this.InternalGetCachedUser(user_id);
+
+            var ea = new TypingStartEventArgs(this)
+            {
+                Channel = channel,
+                User = usr,
+                StartedAt = started
+            };
+            await this._typing_start.InvokeAsync(ea);
+        }
+
+        internal async Task OnUserSettingsUpdateEventAsync(TransportUser user)
+        {
+            var usr = new DiscordUser(user) { Discord = this };
+
+            var ea = new UserSettingsUpdateEventArgs(this)
+            {
+                User = usr
+            };
+            await this._user_settings_update.InvokeAsync(ea);
+        }
+
+        internal async Task OnUserUpdateEventAsync(TransportUser user)
+        {
+            var usr_old = new DiscordUser
+            {
+                AvatarHash = this._current_user.AvatarHash,
+                Discord = this,
+                DiscriminatorInt = this._current_user.DiscriminatorInt,
+                Email = this._current_user.Email,
+                Id = this._current_user.Id,
+                IsBot = this._current_user.IsBot,
+                MfaEnabled = this._current_user.MfaEnabled,
+                Username = this._current_user.Username,
+                Verified = this._current_user.Verified
+            };
+
+            this._current_user.AvatarHash = user.AvatarHash;
+            this._current_user.DiscriminatorInt = user.DiscriminatorInt;
+            this._current_user.Email = user.Email;
+            this._current_user.Id = user.Id;
+            this._current_user.IsBot = user.IsBot;
+            this._current_user.MfaEnabled = user.MfaEnabled;
+            this._current_user.Username = user.Username;
+            this._current_user.Verified = user.Verified;
+
+            var ea = new UserUpdateEventArgs(this)
+            {
+                UserAfter = this.CurrentUser,
+                UserBefore = usr_old
+            };
+            await this._user_update.InvokeAsync(ea);
+        }
+
+        internal async Task OnVoiceStateUpdateEventAsync(DiscordVoiceState voice_state)
+        {
+            voice_state.Discord = this;
+
+            var ea = new VoiceStateUpdateEventArgs(this)
+            {
+                Guild = voice_state.Guild,
+                Channel = voice_state.Channel,
+                User = voice_state.User,
+                SessionId = voice_state.SessionId
+            };
+            await this._voice_state_update.InvokeAsync(ea);
+        }
+
+        internal async Task OnVoiceServerUpdateEventAsync(string endpoint, string token, DiscordGuild guild)
+        {
+            var ea = new VoiceServerUpdateEventArgs(this)
+            {
+                Endpoint = endpoint,
+                VoiceToken = token,
+                Guild = guild
+            };
+            await this._voice_server_update.InvokeAsync(ea);
+        }
+
+        internal async Task OnGuildMembersChunkEventAsync(IEnumerable<TransportMember> members, DiscordGuild guild)
+        {
+            var ids = guild.Members.Select(xm => xm.Id);
+            var mbrs = members.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id })
+                .Where(xm => !ids.Contains(xm.Id));
+
+            guild._members.AddRange(mbrs);
+            guild.MemberCount = guild._members.Count;
+
+            var ea = new GuildMembersChunkEventArgs(this)
+            {
+                Guild = guild,
+                Members = new ReadOnlyCollection<DiscordMember>(new List<DiscordMember>(mbrs))
+            };
+            await this._guild_members_chunk.InvokeAsync(ea);
         }
 
         internal async Task OnUnknownEventAsync(GatewayPayload payload)
@@ -1722,62 +1829,64 @@ namespace DSharpPlus
             await this._unknown_event.InvokeAsync(args);
         }
 
-        internal async Task OnMessageReactionAddAsync(JObject obj)
+        internal async Task OnMessageReactionAddAsync(ulong user_id, ulong message_id, DiscordChannel channel, DiscordEmoji emoji)
         {
-            ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
-            ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
-            ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
-            DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
             emoji.Discord = this;
-            MessageReactionAddEventArgs args = new MessageReactionAddEventArgs(this)
+
+            var usr = null as DiscordUser;
+            if (channel.Guild != null)
+                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.InternalGetGuildMember(channel.Guild.Id, user_id);
+            else
+                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUser(user_id);
+
+            var ea = new MessageReactionAddEventArgs(this)
             {
-                ChannelID = channelid,
-                MessageID = messageid,
-                UserID = userid,
+                MessageId = message_id,
+                Channel = channel,
+                User = usr,
                 Emoji = emoji
             };
-            await this._message_reaction_add.InvokeAsync(args);
+            await this._message_reaction_add.InvokeAsync(ea);
         }
 
-        internal async Task OnMessageReactionRemoveAsync(JObject obj)
+        internal async Task OnMessageReactionRemoveAsync(ulong user_id, ulong message_id, DiscordChannel channel, DiscordEmoji emoji)
         {
-            ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
-            ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
-            ulong userid = ulong.Parse(obj["d"]["user_id"].ToString());
-            DiscordEmoji emoji = obj["d"]["emoji"].ToObject<DiscordEmoji>();
             emoji.Discord = this;
-            MessageReactionRemoveEventArgs args = new MessageReactionRemoveEventArgs(this)
+
+            var usr = null as DiscordUser;
+            if (channel.Guild != null)
+                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.InternalGetGuildMember(channel.Guild.Id, user_id);
+            else
+                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUser(user_id);
+
+            var ea = new MessageReactionRemoveEventArgs(this)
             {
-                ChannelID = channelid,
-                MessageID = messageid,
-                UserID = userid,
+                MessageId = message_id,
+                Channel = channel,
+                User = usr,
                 Emoji = emoji
             };
-            await this._message_reaction_remove.InvokeAsync(args);
+            await this._message_reaction_remove.InvokeAsync(ea);
         }
 
-        internal async Task OnMessageReactionRemoveAllAsync(JObject obj)
+        internal async Task OnMessageReactionRemoveAllAsync(ulong message_id, DiscordChannel channel)
         {
-            ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
-            ulong messageid = ulong.Parse(obj["d"]["message_id"].ToString());
-            MessageReactionRemoveAllEventArgs args = new MessageReactionRemoveAllEventArgs(this)
+            var ea = new MessageReactionRemoveAllEventArgs(this)
             {
-                ChannelID = channelid,
-                MessageID = messageid
+                MessageId = message_id,
+                Channel = channel
             };
-            await this._message_reaction_remove_all.InvokeAsync(args);
+            await this._message_reaction_remove_all.InvokeAsync(ea);
         }
 
-        internal async Task OnWebhooksUpdateAsync(JObject obj)
+        internal async Task OnWebhooksUpdateAsync(DiscordChannel channel, DiscordGuild guild)
         {
-            ulong channelid = ulong.Parse(obj["d"]["channel_id"].ToString());
-            ulong guildid = ulong.Parse(obj["d"]["guild_id"].ToString());
-            WebhooksUpdateEventArgs args = new WebhooksUpdateEventArgs(this)
+            var ea = new WebhooksUpdateEventArgs(this)
             {
-                ChannelID = channelid,
-                GuildID = guildid
+                Channel = channel,
+                Guild = guild
             };
-            await this._webhooks_update.InvokeAsync(args);
+            await this._webhooks_update.InvokeAsync(ea);
         }
         #endregion
 
@@ -1972,24 +2081,6 @@ namespace DSharpPlus
         }
         #endregion
 
-        internal ulong GetGuildIdFromChannelID(ulong channel_id)
-        {
-            foreach (DiscordGuild guild in _guilds.Values)
-            {
-                if (guild.Channels != null && guild.Channels.Find(x => x.Id == channel_id) != null) return guild.Id;
-            }
-            return 0;
-        }
-
-        internal int GetChannelIndex(ulong channel_id)
-        {
-            foreach (DiscordGuild guild in _guilds.Values)
-            {
-                if (guild.Channels.Find(x => x.Id == channel_id) != null) return guild.Channels.FindIndex(x => x.Id == channel_id);
-            }
-            return 0;
-        }
-
         // LINQ :^)
         internal DiscordUser InternalGetCachedUser(ulong user_id) =>
             this.Guilds.Values.SelectMany(xg => xg.Members)
@@ -2003,16 +2094,16 @@ namespace DSharpPlus
                 .Concat(this._private_channels)
                 .FirstOrDefault(xc => xc.Id == channel_id);
 
-        internal static Permission InternalAddPermission(Permission before, Permission p)
+        internal static Permissions InternalAddPermission(Permissions before, Permissions p)
         {
-            Permission after = before;
+            Permissions after = before;
             after |= p;
             return after;
         }
 
-        internal static Permission InternalRemovePermission(Permission before, Permission p)
+        internal static Permissions InternalRemovePermission(Permissions before, Permissions p)
         {
-            Permission after = before;
+            Permissions after = before;
             after &= ~p;
             return after;
         }

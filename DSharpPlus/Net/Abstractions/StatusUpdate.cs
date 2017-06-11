@@ -10,7 +10,7 @@ namespace DSharpPlus.Net.Abstractions
         /// <summary>
         /// Gets or sets the unix millisecond timestamp of when the user went idle.
         /// </summary>
-        [JsonProperty("idle_since", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("idle_since", NullValueHandling = NullValueHandling.Include)]
         public long? IdleSince { get; set; }
 
         /// <summary>

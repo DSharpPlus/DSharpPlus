@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
+    // weebsocket
     public class WebSocketClient : BaseWebSocketClient
     {
         private const int BUFFER_SIZE = 32768;
@@ -134,11 +134,14 @@ namespace DSharpPlus
             catch (Exception) { }
         }
 
+        private bool close_requested = false;
         public override async Task InternalDisconnectAsync(SocketDisconnectEventArgs e)
         {
-            if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
+            //if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
+            if (close_requested)
                 return;
-            
+
+            close_requested = true;
             try
             {
                 await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", this.Token);
@@ -183,12 +186,14 @@ namespace DSharpPlus
                         {
                             var cc = result.CloseStatus != null ? (int)result.CloseStatus.Value : -1;
                             close = new SocketDisconnectEventArgs(null) { CloseCode = cc, CloseMessage = result.CloseStatusDescription };
-                            throw new WebSocketException("Server requested the connection to be terminated.");
                         }
                         else
                             rsb.Append(UTF8.GetString(buff, 0, result.Count));
                     }
                     while (!result.EndOfMessage);
+
+                    if (close != null)
+                        break;
 
                     await this.CallOnMessageAsync(rsb.ToString());
                     rsb.Clear();

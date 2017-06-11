@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Linq;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
@@ -7,23 +8,57 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordVoiceState
     {
+        internal DiscordClient Discord { get; set; }
+
         /// <summary>
         /// The guild id this voice state is for
         /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? GuildId { get; internal set; }
+        internal ulong? GuildId { get; set; }
+
+        /// <summary>
+        /// Gets the guild associated with this voice state.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordGuild Guild => this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : null;
 
         /// <summary>
         /// The channel id this user is connected to
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? ChannelId { get; internal set; }
+        internal ulong? ChannelId { get; set; }
+
+        /// <summary>
+        /// Gets the voice channel associated with this voice state.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordChannel Channel => this.ChannelId != null && this.ChannelId.Value != 0 ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
 
         /// <summary>
         /// The user id this voice state is for
         /// </summary>
         [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong UserId { get; internal set; }
+        internal ulong UserId { get; set; }
+
+        /// <summary>
+        /// Gets the user associated with this voice state.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordUser User
+        {
+            get
+            {
+                var usr = null as DiscordUser;
+
+                if (this.Guild != null)
+                    usr = this.Guild._members.FirstOrDefault(xm => xm.Id == this.UserId);
+
+                if (usr == null)
+                    usr = this.Discord.InternalGetCachedUser(this.UserId);
+
+                return usr;
+            }
+        }
 
         /// <summary>
         /// The session id for this voice state

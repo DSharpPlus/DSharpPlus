@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Linq;
+using DSharpPlus.Objects.Transport;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
@@ -8,10 +10,10 @@ namespace DSharpPlus
         internal DiscordClient Discord { get; set; }
 
         [JsonProperty("user")]
-        internal DiscordUser InternalUser { get; set; }
+        internal TransportUser InternalUser { get; set; }
 
         [JsonIgnore]
-        public DiscordUser User => this.Discord.InternalGetCachedUser(this.InternalUser.Id);
+        public DiscordUser User => this.Guild != null ? this.Guild._members.FirstOrDefault(xm => xm.Id == this.InternalUser.Id) : this.Discord.InternalGetCachedUser(this.InternalUser.Id) ?? new DiscordUser(this.InternalUser) { Discord = this.Discord };
 
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
         public Game Game { get; internal set; }
@@ -20,9 +22,9 @@ namespace DSharpPlus
         public string Status { get; internal set; }
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        private ulong GuildId { get; set; }
+        internal ulong GuildId { get; set; }
 
         [JsonIgnore]
-        public DiscordGuild Guild => this.Discord._guilds[this.GuildId];
+        public DiscordGuild Guild => this.GuildId != 0 ? this.Discord._guilds[this.GuildId] : null;
     }
 }

@@ -15,7 +15,7 @@ namespace DSharpPlus.Objects.Transport
         [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsBot { get; internal set; }
         [JsonProperty("mfa_enabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? MFAEnabled { get; internal set; }
+        public bool? MfaEnabled { get; internal set; }
         [JsonProperty("verified", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Verified { get; internal set; }
         [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]

@@ -59,7 +59,7 @@ namespace DSharpPlus.Test
             await e.Client.SendMessageAsync(e.Channel, "ill bash ur head in i sweak on me fkin mum");
             await e.Client.SendMessageAsync(e.Message.Channel.Id, $@"```
 Servername: {e.Guild.Name}
-Serverowner: {e.Guild.OwnerID}
+Serverowner: {e.Guild.Owner.DisplayName}
 ```");
         }
 
@@ -321,87 +321,87 @@ Serverowner: {e.Guild.OwnerID}
             private Task AudioLoopTask { get; set; }
 
             [Command("join")]
-            public async Task VoiceJoin(CommandContext e)
+            public async Task VoiceJoin(CommandContext ctx)
             {
-                var vs = e.Guild.VoiceStates.FirstOrDefault(xvs => xvs.UserId == e.User.Id);
+                var vs = ctx.Member?.VoiceState;
                 if (vs == null)
                 {
-                    await e.Message.RespondAsync("You are not in a voice channel");
+                    await ctx.Message.RespondAsync("You are not in a voice channel");
                     return;
                 }
 
-                var chn = e.Guild.Channels.FirstOrDefault(xc => xc.Id == vs.ChannelId);
+                var chn = vs.Channel;
                 if (chn == null)
                 {
-                    await e.Message.RespondAsync("Your voice channel was not found");
+                    await ctx.Message.RespondAsync("Your voice channel was not found");
                     return;
                 }
 
-                var voice = e.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNextClient();
                 if (voice == null)
                 {
-                    await e.Message.RespondAsync("Voice is not activated");
+                    await ctx.Message.RespondAsync("Voice is not activated");
                     return;
                 }
 
                 await Task.Yield();
                 await voice.ConnectAsync(chn);
-                await e.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})");
+                await ctx.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})");
             }
 
             [Command("leave")]
-            public async Task VoiceLeave(CommandContext e)
+            public async Task VoiceLeave(CommandContext ctx)
             {
-                var voice = e.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNextClient();
                 if (voice == null)
                 {
-                    await e.Message.RespondAsync("Voice is not activated");
+                    await ctx.Message.RespondAsync("Voice is not activated");
                     return;
                 }
 
-                var vnc = voice.GetConnection(e.Guild);
+                var vnc = voice.GetConnection(ctx.Guild);
                 if (vnc == null)
                 {
-                    await e.Message.RespondAsync("Voice is not connected in this guild");
+                    await ctx.Message.RespondAsync("Voice is not connected in this guild");
                     return;
                 }
 
                 vnc.Disconnect();
-                await e.Message.RespondAsync("Disconnected");
+                await ctx.Message.RespondAsync("Disconnected");
             }
 
             [Command("play")]
-            public async Task VoicePlay(CommandContext e, params string[] filename)
+            public async Task VoicePlay(CommandContext ctx, params string[] filename)
             {
-                var voice = e.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNextClient();
                 if (voice == null)
                 {
-                    await e.Message.RespondAsync("Voice is not activated");
+                    await ctx.Message.RespondAsync("Voice is not activated");
                     return;
                 }
 
-                var vnc = voice.GetConnection(e.Guild);
+                var vnc = voice.GetConnection(ctx.Guild);
                 if (vnc == null)
                 {
-                    await e.Message.RespondAsync("Voice is not connected in this guild");
+                    await ctx.Message.RespondAsync("Voice is not connected in this guild");
                     return;
                 }
 
                 var snd = string.Join(" ", filename);
                 if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
                 {
-                    await e.Message.RespondAsync("Invalid file specified");
+                    await ctx.Message.RespondAsync("Invalid file specified");
                     return;
                 }
 
                 while (vnc.IsPlaying)
                 {
-                    await e.Message.RespondAsync("This connection is playing audio, waiting for end.");
+                    await ctx.Message.RespondAsync("This connection is playing audio, waiting for end.");
                     await vnc.WaitForPlaybackFinishAsync();
                 }
 
                 var exc = (Exception)null;
-                await e.Message.RespondAsync($"Playing `{snd}`");
+                await ctx.Message.RespondAsync($"Playing `{snd}`");
                 await vnc.SendSpeakingAsync(true);
                 try
                 {
@@ -447,48 +447,48 @@ Serverowner: {e.Guild.OwnerID}
             }
 
             [Command("playloop")]
-            public async Task VoicePlayLoop(CommandContext e, params string[] filename)
+            public async Task VoicePlayLoop(CommandContext ctx, params string[] filename)
             {
-                var voice = e.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNextClient();
                 if (voice == null)
                 {
-                    await e.Message.RespondAsync("Voice is not activated");
+                    await ctx.Message.RespondAsync("Voice is not activated");
                     return;
                 }
 
-                var vnc = voice.GetConnection(e.Guild);
+                var vnc = voice.GetConnection(ctx.Guild);
                 if (vnc == null)
                 {
-                    await e.Message.RespondAsync("Voice is not connected in this guild");
+                    await ctx.Message.RespondAsync("Voice is not connected in this guild");
                     return;
                 }
 
                 if (this.AudioLoopTask != null && !this.AudioLoopCancelToken.IsCancellationRequested)
                 {
-                    await e.Message.RespondAsync("Audio loop is already playing");
+                    await ctx.Message.RespondAsync("Audio loop is already playing");
                     return;
                 }
 
                 var snd = string.Join(" ", filename);
                 if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
                 {
-                    await e.Message.RespondAsync("Invalid file specified");
+                    await ctx.Message.RespondAsync("Invalid file specified");
                     return;
                 }
 
-                await e.Message.RespondAsync($"Playing `{snd}` in a loop");
+                await ctx.Message.RespondAsync($"Playing `{snd}` in a loop");
                 this.AudioLoopCancelTokenSource = new CancellationTokenSource();
                 this.AudioLoopTask = Task.Run(async () =>
                 {
-                    var chn = e.Channel;
+                    var chn = ctx.Channel;
                     var token = this.AudioLoopCancelToken;
                     await vnc.SendSpeakingAsync(true);
                     try
                     {
-                    // borrowed from
-                    // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
+                        // borrowed from
+                        // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
 
-                    var ffmpeg_inf = new ProcessStartInfo
+                        var ffmpeg_inf = new ProcessStartInfo
                         {
                             FileName = "ffmpeg",
                             Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
@@ -500,22 +500,22 @@ Serverowner: {e.Guild.OwnerID}
                         var ffout = ffmpeg.StandardOutput.BaseStream;
 
                         using (var ms = new MemoryStream()) // this will hold our PCM data
-                    {
+                        {
                             await ffout.CopyToAsync(ms);
                             ms.Position = 0;
 
                             var buff = new byte[3840]; // buffer to hold the PCM data
-                        var br = 0;
+                            var br = 0;
                             while (true)
                             {
                                 while ((br = ms.Read(buff, 0, buff.Length)) > 0)
                                 {
                                     if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
-                                    for (var i = br; i < buff.Length; i++)
+                                        for (var i = br; i < buff.Length; i++)
                                             buff[i] = 0;
 
                                     await vnc.SendAsync(buff, 20); // we're sending 20ms of data
-                                token.ThrowIfCancellationRequested();
+                                    token.ThrowIfCancellationRequested();
                                 }
                                 ms.Position = 0;
                                 token.ThrowIfCancellationRequested();
@@ -532,25 +532,25 @@ Serverowner: {e.Guild.OwnerID}
             }
 
             [Command("playstop")]
-            public async Task VoicePlayLoopStop(CommandContext e)
+            public async Task VoicePlayLoopStop(CommandContext ctx)
             {
-                var voice = e.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNextClient();
                 if (voice == null)
                 {
-                    await e.Message.RespondAsync("Voice is not activated");
+                    await ctx.Message.RespondAsync("Voice is not activated");
                     return;
                 }
 
-                var vnc = voice.GetConnection(e.Guild);
+                var vnc = voice.GetConnection(ctx.Guild);
                 if (vnc == null)
                 {
-                    await e.Message.RespondAsync("Voice is not connected in this guild");
+                    await ctx.Message.RespondAsync("Voice is not connected in this guild");
                     return;
                 }
 
                 if (this.AudioLoopTask == null || this.AudioLoopCancelToken.IsCancellationRequested)
                 {
-                    await e.Message.RespondAsync("Audio loop is already paused");
+                    await ctx.Message.RespondAsync("Audio loop is already paused");
                     return;
                 }
 
@@ -558,35 +558,35 @@ Serverowner: {e.Guild.OwnerID}
                 await this.AudioLoopTask;
                 this.AudioLoopTask = null;
 
-                await e.Message.RespondAsync("Audio loop stopped");
+                await ctx.Message.RespondAsync("Audio loop stopped");
             }
 
             [Command("playforce"), Description("Forces audio playback, regardless of whether audio is playing or not.")]
-            public async Task VoicePlayForce(CommandContext e, params string[] filename)
+            public async Task VoicePlayForce(CommandContext ctx, params string[] filename)
             {
-                var voice = e.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNextClient();
                 if (voice == null)
                 {
-                    await e.Message.RespondAsync("Voice is not activated");
+                    await ctx.Message.RespondAsync("Voice is not activated");
                     return;
                 }
 
-                var vnc = voice.GetConnection(e.Guild);
+                var vnc = voice.GetConnection(ctx.Guild);
                 if (vnc == null)
                 {
-                    await e.Message.RespondAsync("Voice is not connected in this guild");
+                    await ctx.Message.RespondAsync("Voice is not connected in this guild");
                     return;
                 }
 
                 var snd = string.Join(" ", filename);
                 if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
                 {
-                    await e.Message.RespondAsync("Invalid file specified");
+                    await ctx.Message.RespondAsync("Invalid file specified");
                     return;
                 }
 
                 var exc = (Exception)null;
-                await e.Message.RespondAsync($"Playing `{snd}`");
+                await ctx.Message.RespondAsync($"Playing `{snd}`");
                 await vnc.SendSpeakingAsync(true);
                 try
                 {

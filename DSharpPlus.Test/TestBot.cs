@@ -141,7 +141,7 @@ namespace DSharpPlus.Test
 
         private async Task Discord_GuildBanAdd(GuildBanAddEventArgs e)
         {
-            var usrn = e.User.Username
+            var usrn = e.Member.Username
                 .Replace(@"\", @"\\")
                 .Replace(@"*", @"\*")
                 .Replace(@"_", @"\_")
@@ -150,7 +150,7 @@ namespace DSharpPlus.Test
 
             var ch = e.Guild.Channels.FirstOrDefault(xc => xc.Name.Contains("logs"));
             if (ch != null)
-                await ch.SendMessageAsync($"**{usrn}#{e.User.Discriminator} got bent**");
+                await ch.SendMessageAsync($"**{usrn}#{e.Member.Discriminator} got bent**");
         }
 
         private Task Discord_PresenceUpdate(PresenceUpdateEventArgs e)
@@ -234,7 +234,7 @@ namespace DSharpPlus.Test
         {
             try
             {
-                Discord.UpdateStatusAsync("testing with Chell").GetAwaiter().GetResult();
+                this.Discord.UpdateStatusAsync(new Game { Name = "testing with Chell", StreamType = GameStreamType.Twitch, Url = "https://www.twitch.tv/emzi0767" }).GetAwaiter().GetResult();
             }
             catch (Exception) { }
         }

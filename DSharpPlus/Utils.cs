@@ -119,75 +119,62 @@ namespace DSharpPlus
 
         public static List<ulong> GetUserMentions(DiscordMessage message)
         {
-            List<ulong> result = new List<ulong>();
-
-            string pattern = @"<@(\d+)>";
-            Regex regex = new Regex(pattern);
-
+            var result = new List<ulong>();
+            
+            var regex = new Regex(@"<@!?(\d+)>");
             var matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
-            }
-
-            pattern = @"<@!(\d+)>";
-            regex = new Regex(pattern);
-
-            matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(3, match.ToString().Length - 4)));
-            }
+            foreach (Match match in matches)
+                result.Add(ulong.Parse(match.Groups[1].Value));
 
             return result;
         }
 
         public static List<ulong> GetRoleMentions(DiscordMessage message)
         {
-            List<ulong> result = new List<ulong>();
-
-            string pattern = @"<@&(\d+)>";
-            Regex regex = new Regex(pattern);
-
+            var result = new List<ulong>();
+            
+            var regex = new Regex(@"<@&(\d+)>");
             var matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(3, match.ToString().Length - 4)));
-            }
+            foreach (Match match in matches)
+                result.Add(ulong.Parse(match.Groups[1].Value));
 
             return result;
         }
 
         public static List<ulong> GetChannelMentions(DiscordMessage message)
         {
-            List<ulong> result = new List<ulong>();
+            var result = new List<ulong>();
 
-            string pattern = @"<#(\d+)>";
-            Regex regex = new Regex(pattern);
-
+            var regex = new Regex(@"<#(\d+)>");
             var matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
-            }
+            foreach (Match match in matches)
+                result.Add(ulong.Parse(match.Groups[1].Value));
 
             return result;
         }
 
         public static List<ulong> GetEmojis(DiscordMessage message)
         {
-            List<ulong> result = new List<ulong>();
-
-            string pattern = @"<:(.*):(\d+)>";
-            Regex regex = new Regex(pattern);
-
+            var result = new List<ulong>();
+            
+            var regex = new Regex(@"<:([a-zA-Z0-9_]+):(\d+)>");
             var matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
-            }
+            foreach (Match match in matches)
+                result.Add(ulong.Parse(match.Groups[2].Value));
 
             return result;
+        }
+
+        public static DateTimeOffset GetTimestamp(long unixtime)
+        {
+#if !(NETSTANDARD1_1 || NET45)
+            return DateTimeOffset.FromUnixTimeSeconds(unixtime);
+#else
+            // below constant taken from 
+            // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
+            var ticks = unixtime * TimeSpan.TicksPerSecond + 621_355_968_000_000_000;
+            return new DateTimeOffset(ticks, TimeSpan.Zero);
+#endif
         }
     }
 }

@@ -105,12 +105,13 @@ namespace DSharpPlus.Interactivity
             var tsc = new TaskCompletionSource<DiscordMessage>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
-            AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
+            AsyncEventHandler<MessageReactionAddEventArgs> handler = async e =>
             {
                 await Task.Yield();
                 if (predicate(e.Emoji))
                 {
-                    tsc.TrySetResult(e.Message);
+                    var msg = await this.Client.GetMessageAsync(e.Channel, e.MessageId);
+                    tsc.TrySetResult(msg);
                     return;
                 }
             };
@@ -135,9 +136,10 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (predicate(e.Emoji))
                 {
-                    if (e.UserID == user_id)
+                    if (e.User.Id == user_id)
                     {
-                        tsc.TrySetResult(e.Message);
+                        var msg = await this.Client.GetMessageAsync(e.Channel, e.MessageId);
+                        tsc.TrySetResult(msg);
                         return;
                     }
                 }
@@ -164,7 +166,7 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (predicate(e.Emoji))
                 {
-                    if (e.MessageID == message_id)
+                    if (e.MessageId == message_id)
                     {
                         tsc.TrySetResult(e.Emoji);
                         return;
@@ -190,7 +192,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageID == message_id)
+                if (e.MessageId == message_id)
                 {
                     tsc.TrySetResult(e.Emoji);
                     return;
@@ -214,7 +216,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageID == m.Id)
+                if (e.MessageId == m.Id)
                 {
                     if (Reactions.ContainsKey(e.Emoji.ToString()))
                         Reactions[e.Emoji.ToString()]++;
@@ -228,7 +230,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageID == m.Id)
+                if (e.MessageId == m.Id)
                 {
                     if (Reactions.ContainsKey(e.Emoji.ToString()))
                     {
@@ -244,7 +246,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler3 = async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageID == m.Id)
+                if (e.MessageId == m.Id)
                 {
                     Reactions = new ConcurrentDictionary<string, int>();
                 }
@@ -273,7 +275,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<TypingStartEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
-                if (e.ChannelID == channel_id)
+                if (e.Channel.Id == channel_id)
                 {
                     tsc.TrySetResult(e.User);
                     return;
@@ -298,7 +300,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<TypingStartEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
-                if (e.UserID == user_id)
+                if (e.User.Id == user_id)
                 {
                     tsc.TrySetResult(e.Channel);
                     return;
@@ -368,16 +370,16 @@ namespace DSharpPlus.Interactivity
 
             AsyncEventHandler<MessageReactionAddEventArgs> handler2 = async e =>
              {
-                 if (e.MessageID == m.Id)
+                 if (e.MessageId == m.Id)
                  {
-                     if (e.UserID != _client.CurrentUser.Id)
+                     if (e.User.Id != _client.CurrentUser.Id)
                      {
                          if (e.Emoji.Id == 0)
-                             await m.DeleteReactionAsync(e.Emoji.Name, e.UserID);
+                             await m.DeleteReactionAsync(e.Emoji.Name, e.User.Id);
                          else
-                             await m.DeleteReactionAsync(e.Emoji.Name + ":" + e.Emoji.Id, e.UserID);
+                             await m.DeleteReactionAsync(e.Emoji.Name + ":" + e.Emoji.Id, e.User.Id);
 
-                         if (e.UserID == user.Id)
+                         if (e.User.Id == user.Id)
                          {
                             #region The "good" shit
                             switch (e.Emoji.Name)

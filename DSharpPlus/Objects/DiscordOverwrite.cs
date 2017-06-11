@@ -16,14 +16,14 @@ namespace DSharpPlus
         /// Termission bit set
         /// </summary>
         [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
-        public Permission Allow { get; set; }
+        public Permissions Allow { get; set; }
         /// <summary>
         /// Permission bit set
         /// </summary>
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
-        public Permission Deny { get; set; }
+        public Permissions Deny { get; set; }
 
-        public PermissionLevel CheckPermission(Permission permission)
+        public PermissionLevel CheckPermission(Permissions permission)
         {
             if ((Allow & permission) != 0)
                 return PermissionLevel.Allowed;
@@ -32,9 +32,9 @@ namespace DSharpPlus
             return PermissionLevel.Unset;
         }
 
-        public void DenyPermission(Permission p) { Deny = DiscordClient.InternalAddPermission(Deny, p); }
-        public void UndenyPermission(Permission p) { Deny = DiscordClient.InternalRemovePermission(Deny, p); }
-        public void AllowPermission(Permission p) { Allow = DiscordClient.InternalAddPermission(Allow, p); }
-        public void UnallowPermission(Permission p) { Allow = DiscordClient.InternalRemovePermission(Allow, p); }
+        public void DenyPermission(Permissions p) { Deny = DiscordClient.InternalAddPermission(Deny, p); }
+        public void UndenyPermission(Permissions p) { Deny = DiscordClient.InternalRemovePermission(Deny, p); }
+        public void AllowPermission(Permissions p) { Allow = DiscordClient.InternalAddPermission(Allow, p); }
+        public void UnallowPermission(Permissions p) { Allow = DiscordClient.InternalRemovePermission(Allow, p); }
     }
 }

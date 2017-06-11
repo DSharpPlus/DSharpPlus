@@ -23,25 +23,6 @@ namespace DSharpPlus
         }
 
         #region Guild
-        internal async Task<DiscordGuild> InternalCreateGuildAsync(string name)
-        {
-            string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Guilds;
-            var headers = Utils.GetBaseHeaders();
-            JObject payload = new JObject { { "name", name } };
-
-            WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, payload.ToString());
-            WebResponse response = await this.Rest.HandleRequestAsync(request);
-
-            var jo = JObject.Parse(response.Response);
-            DiscordGuild guild = jo.ToObject<DiscordGuild>();
-            guild.Discord = this.Discord;
-            guild.Members = jo["members"].ToObject<IEnumerable<TransportMember>>()
-                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = jo["id"].ToObject<ulong>() })
-                .ToList();
-
-            return guild;
-        }
-        
         internal async void InternalDeleteGuildAsync(ulong id)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Guilds + $"/{id}";
@@ -79,13 +60,44 @@ namespace DSharpPlus
             WebResponse response = await this.Rest.HandleRequestAsync(request);
 
             var jo = JObject.Parse(response.Response);
-            DiscordGuild ret = jo.ToObject<DiscordGuild>();
-            ret.Discord = this.Discord;
-            ret.Members = jo["members"].ToObject<IEnumerable<TransportMember>>()
-                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = guild_id })
+            var guild = jo.ToObject<DiscordGuild>();
+
+            guild.Discord = this.Discord;
+
+            if (guild._channels == null)
+                guild._channels = new List<DiscordChannel>();
+            foreach (var xc in guild.Channels)
+            {
+                xc.GuildID = guild.Id;
+                xc.Discord = this.Discord;
+            }
+
+            if (guild._roles == null)
+                guild._roles = new List<DiscordRole>();
+            foreach (var xr in guild.Roles)
+                xr.Discord = this.Discord;
+
+            var raw_members = (JArray)jo["members"];
+            guild._members = raw_members == null ? new List<DiscordMember>() : raw_members.ToObject<IEnumerable<TransportMember>>()
+                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = guild.Id })
                 .ToList();
 
-            return ret;
+            if (guild._emojis == null)
+                guild._emojis = new List<DiscordEmoji>();
+            foreach (var xe in guild.Emojis)
+                xe.Discord = this.Discord;
+
+            if (guild._presences == null)
+                guild._presences = new List<DiscordPresence>();
+            foreach (var xp in guild.Presences)
+                xp.Discord = this.Discord;
+
+            if (guild._voice_states == null)
+                guild._voice_states = new List<DiscordVoiceState>();
+            foreach (var xvs in guild.VoiceStates)
+                xvs.Discord = this.Discord;
+
+            return guild;
         }
 
         internal async Task<List<DiscordMember>> InternalGetGuildBans(ulong guild_id)
@@ -123,7 +135,7 @@ namespace DSharpPlus
             WebResponse response = await this.Rest.HandleRequestAsync(request);
         }
 
-        internal async Task<DiscordGuild> InternalCreateGuild(string name, string region, string icon, int verification_level, int default_message_notifications)
+        internal async Task<DiscordGuild> InternalCreateGuildAsync(string name, string region, string icon, int verification_level, int default_message_notifications)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Guilds;
             var headers = Utils.GetBaseHeaders();
@@ -139,13 +151,44 @@ namespace DSharpPlus
             WebResponse response = await this.Rest.HandleRequestAsync(request);
 
             var jo = JObject.Parse(response.Response);
-            DiscordGuild ret = jo.ToObject<DiscordGuild>();
-            ret.Discord = this.Discord;
-            ret.Members = jo["members"].ToObject<IEnumerable<TransportMember>>()
-                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = jo["id"].ToObject<ulong>() })
+            var guild = jo.ToObject<DiscordGuild>();
+
+            guild.Discord = this.Discord;
+
+            if (guild._channels == null)
+                guild._channels = new List<DiscordChannel>();
+            foreach (var xc in guild.Channels)
+            {
+                xc.GuildID = guild.Id;
+                xc.Discord = this.Discord;
+            }
+
+            if (guild._roles == null)
+                guild._roles = new List<DiscordRole>();
+            foreach (var xr in guild.Roles)
+                xr.Discord = this.Discord;
+
+            var raw_members = (JArray)jo["members"];
+            guild._members = raw_members == null ? new List<DiscordMember>() : raw_members.ToObject<IEnumerable<TransportMember>>()
+                .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = guild.Id })
                 .ToList();
 
-            return ret;
+            if (guild._emojis == null)
+                guild._emojis = new List<DiscordEmoji>();
+            foreach (var xe in guild.Emojis)
+                xe.Discord = this.Discord;
+
+            if (guild._presences == null)
+                guild._presences = new List<DiscordPresence>();
+            foreach (var xp in guild.Presences)
+                xp.Discord = this.Discord;
+
+            if (guild._voice_states == null)
+                guild._voice_states = new List<DiscordVoiceState>();
+            foreach (var xvs in guild.VoiceStates)
+                xvs.Discord = this.Discord;
+
+            return guild;
         }
 
         internal async Task<DiscordMember> InternalAddGuildMember(ulong guild_id, ulong user_id, string access_token, string nick = "", List<DiscordRole> roles = null,
@@ -574,7 +617,7 @@ namespace DSharpPlus
         }
 
 
-        internal async Task InternalEditChannelPermissions(ulong channel_id, ulong overwrite_id, Permission allow, Permission deny, string type)
+        internal async Task InternalEditChannelPermissions(ulong channel_id, ulong overwrite_id, Permissions allow, Permissions deny, string type)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Channels + "/" + channel_id + Endpoints.Permissions + "/" + overwrite_id;
             var headers = Utils.GetBaseHeaders();
@@ -718,13 +761,44 @@ namespace DSharpPlus
             List<DiscordGuild> guilds = new List<DiscordGuild>();
             foreach (JObject j in JArray.Parse(response.Response))
             {
-                var ret = j.ToObject<DiscordGuild>();
-                ret.Discord = this.Discord;
-                ret.Members = j["members"].ToObject<IEnumerable<TransportMember>>()
-                    .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = j["id"].ToObject<ulong>() })
+                var guild = j.ToObject<DiscordGuild>();
+
+                guild.Discord = this.Discord;
+
+                if (guild._channels == null)
+                    guild._channels = new List<DiscordChannel>();
+                foreach (var xc in guild.Channels)
+                {
+                    xc.GuildID = guild.Id;
+                    xc.Discord = this.Discord;
+                }
+
+                if (guild._roles == null)
+                    guild._roles = new List<DiscordRole>();
+                foreach (var xr in guild.Roles)
+                    xr.Discord = this.Discord;
+
+                var raw_members = (JArray)j["members"];
+                guild._members = raw_members == null ? new List<DiscordMember>() : raw_members.ToObject<IEnumerable<TransportMember>>()
+                    .Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = guild.Id })
                     .ToList();
 
-                guilds.Add(ret);
+                if (guild._emojis == null)
+                    guild._emojis = new List<DiscordEmoji>();
+                foreach (var xe in guild.Emojis)
+                    xe.Discord = this.Discord;
+
+                if (guild._presences == null)
+                    guild._presences = new List<DiscordPresence>();
+                foreach (var xp in guild.Presences)
+                    xp.Discord = this.Discord;
+
+                if (guild._voice_states == null)
+                    guild._voice_states = new List<DiscordVoiceState>();
+                foreach (var xvs in guild.VoiceStates)
+                    xvs.Discord = this.Discord;
+
+                guilds.Add(guild);
             }
             return guilds;
         }
@@ -851,7 +925,7 @@ namespace DSharpPlus
             return ret;
         }
 
-        internal async Task<DiscordRole> InternalModifyGuildRole(ulong guild_id, ulong role_id, string name, Permission permissions, int position, int color, bool separate, bool mentionable)
+        internal async Task<DiscordRole> InternalModifyGuildRole(ulong guild_id, ulong role_id, string name, Permissions permissions, int position, int color, bool separate, bool mentionable)
         {
             string url = $"{Utils.GetApiBaseUri(this.Discord)}{Endpoints.Guilds}/{guild_id}{Endpoints.Roles}/{role_id}";
             var headers = Utils.GetBaseHeaders();
