@@ -949,22 +949,32 @@ namespace DSharpPlus
             return ret;
         }
 
-        internal async Task<DiscordRole> InternalDeleteRole(ulong guild_id, ulong role_id)
+        internal async Task InternalDeleteRole(ulong guild_id, ulong role_id)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Guilds + "/" + guild_id + Endpoints.Roles + "/" + role_id;
             var headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.DELETE, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
-            var ret = JsonConvert.DeserializeObject<DiscordRole>(response.Response);
-            ret.Discord = this.Discord;
-            return ret;
         }
 
-        internal async Task<DiscordRole> InternalCreateGuildRole(ulong guild_id)
+        internal async Task<DiscordRole> InternalCreateGuildRole(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Guilds + "/" + guild_id + Endpoints.Roles;
             var headers = Utils.GetBaseHeaders();
-            WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers);
+
+            var jo = new JObject();
+            if (!string.IsNullOrWhiteSpace(name))
+                jo.Add("name", name);
+            if (permissions != null)
+                jo.Add("permissions", (ulong)permissions.Value);
+            if (color != null)
+                jo.Add("color", color.Value);
+            if (hoist != null)
+                jo.Add("hoist", hoist.Value);
+            if (mentionable != null)
+                jo.Add("mentionable", mentionable.Value);
+
+            WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, jo.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
             var ret = JsonConvert.DeserializeObject<DiscordRole>(response.Response);
             ret.Discord = this.Discord;
