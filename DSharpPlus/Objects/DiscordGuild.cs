@@ -135,13 +135,13 @@ namespace DSharpPlus
         public MfaLevel MfaLevel { get; internal set; }
 
         /// <summary>
-        /// Gets this guild's creation date.
+        /// Gets this guild's join date.
         /// </summary>
         [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime JoinedAt { get; internal set; }
 
         /// <summary>
-        /// Gets whether this guild is considered tp be a large guild.
+        /// Gets whether this guild is considered to be a large guild.
         /// </summary>
         [JsonProperty("large", NullValueHandling = NullValueHandling.Ignore)]
         public bool Large { get; internal set; }

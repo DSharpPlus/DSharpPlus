@@ -175,10 +175,8 @@ Serverowner: {e.Guild.Owner.DisplayName}
         [Command("purgechannel")]
         public async Task PurgeChannel(CommandContext e)
         {
-            var ids = (await e.Channel.GetMessagesAsync(before: e.Message.Id, limit: 50))
-                .Select(y => y.Id)
-                .ToList();
-            await e.Channel.BulkDeleteMessagesAsync(ids);
+            var ids = (await e.Channel.GetMessagesAsync(before: e.Message.Id, limit: 50));
+            await e.Channel.DeleteMessagesAsync(ids);
             await e.Message.RespondAsync($"Removed `{ids.Count}` messages");
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using DSharpPlus.Objects.Transport;
 using DSharpPlus.Web;
@@ -21,6 +22,9 @@ namespace DSharpPlus
             this.Discord = client;
             this.Rest = new RestClient(client);
         }
+
+        internal static string BuildQueryString(IDictionary<string, string> values) =>
+            string.Concat("?", string.Join("&", values.Select(xkvp => string.Concat(WebUtility.UrlEncode(xkvp.Key), "=", WebUtility.UrlEncode(xkvp.Value)))));
 
         #region Guild
         internal async void InternalDeleteGuildAsync(ulong id)
@@ -421,18 +425,21 @@ namespace DSharpPlus
         internal async Task<List<DiscordMessage>> InternalGetChannelMessages(ulong channel_id, ulong around = 0, ulong before = 0, ulong after = 0, int limit = -1)
         {
             // ONLY ONE OUT OF around, before or after MAY BE USED.
-            // THESE ARE MESSAGE ID's
+            // THESE ARE MESSAGE IDs
 
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Channels + "/" + channel_id + Endpoints.Messages;
             var headers = Utils.GetBaseHeaders();
+            var urlparams = new Dictionary<string, string>();
             if (around != 0)
-                url += "?around=" + around;
+                urlparams["around"] = around.ToString();
             if (before != 0)
-                url += "?before=" + before;
+                urlparams["before"] = before.ToString();
             if (after != 0)
-                url += "?after=" + after;
+                urlparams["after"] = after.ToString();
             if (limit > -1)
-                url += "&limit=" + limit;
+                urlparams["limit"] = limit.ToString();
+            if (urlparams.Count > 0)
+                url = string.Concat(url, BuildQueryString(urlparams));
 
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this.Rest.HandleRequestAsync(request);
@@ -497,17 +504,14 @@ namespace DSharpPlus
             WebResponse response = await this.Rest.HandleRequestAsync(request);
         }
 
-        internal async Task InternalBulkDeleteMessages(ulong channel_id, List<ulong> message_ids)
+        internal async Task InternalBulkDeleteMessages(ulong channel_id, IEnumerable<ulong> message_ids)
         {
             string url = Utils.GetApiBaseUri(this.Discord) + Endpoints.Channels + "/" + channel_id + Endpoints.Messages + Endpoints.BulkDelete;
             var headers = Utils.GetBaseHeaders();
-            JObject j = new JObject();
-            JArray msgs = new JArray();
-            foreach (ulong messageID in message_ids)
+            JObject j = new JObject
             {
-                msgs.Add(messageID);
-            }
-            j.Add("messages", msgs);
+                { "messages", new JArray(message_ids.ToArray()) }
+            };
             WebRequest request = WebRequest.CreateRequest(this.Discord, url, HttpRequestMethod.POST, headers, j.ToString());
             WebResponse response = await this.Rest.HandleRequestAsync(request);
         }
