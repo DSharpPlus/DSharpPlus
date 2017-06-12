@@ -110,8 +110,7 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (predicate(e.Emoji))
                 {
-                    var msg = await this.Client.GetMessageAsync(e.Channel, e.MessageId);
-                    tsc.TrySetResult(msg);
+                    tsc.TrySetResult(e.Message);
                     return;
                 }
             };
@@ -138,8 +137,7 @@ namespace DSharpPlus.Interactivity
                 {
                     if (e.User.Id == user_id)
                     {
-                        var msg = await this.Client.GetMessageAsync(e.Channel, e.MessageId);
-                        tsc.TrySetResult(msg);
+                        tsc.TrySetResult(e.Message);
                         return;
                     }
                 }
@@ -166,7 +164,7 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (predicate(e.Emoji))
                 {
-                    if (e.MessageId == message_id)
+                    if (e.Message.Id == message_id)
                     {
                         tsc.TrySetResult(e.Emoji);
                         return;
@@ -192,7 +190,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageId == message_id)
+                if (e.Message.Id == message_id)
                 {
                     tsc.TrySetResult(e.Emoji);
                     return;
@@ -216,7 +214,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageId == m.Id)
+                if (e.Message.Id == m.Id)
                 {
                     if (Reactions.ContainsKey(e.Emoji.ToString()))
                         Reactions[e.Emoji.ToString()]++;
@@ -230,7 +228,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageId == m.Id)
+                if (e.Message.Id == m.Id)
                 {
                     if (Reactions.ContainsKey(e.Emoji.ToString()))
                     {
@@ -246,7 +244,7 @@ namespace DSharpPlus.Interactivity
             AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler3 = async (e) =>
             {
                 await Task.Yield();
-                if (e.MessageId == m.Id)
+                if (e.Message.Id == m.Id)
                 {
                     Reactions = new ConcurrentDictionary<string, int>();
                 }
@@ -346,7 +344,7 @@ namespace DSharpPlus.Interactivity
 
             AsyncEventHandler<MessageReactionAddEventArgs> handler2 = async e =>
             {
-                if (e.MessageId == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
+                if (e.Message.Id == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
                 {
                     /*
                      * THIS REQUIRES MANAGE_MESSAGES, WHICH MIGHT BREAK THE PAGINATOR. WE'LL HOOK ADD/REMOVE INSTEAD.
@@ -362,7 +360,7 @@ namespace DSharpPlus.Interactivity
             };
             AsyncEventHandler<MessageReactionRemoveEventArgs> handler3 = async e =>
             {
-                if (e.MessageId == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
+                if (e.Message.Id == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
                     await this.DoPagination(e.Emoji, m, pm, ct);
             };
 

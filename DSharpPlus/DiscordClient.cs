@@ -1357,6 +1357,11 @@ namespace DSharpPlus
 
             this.UpdateCachedGuild(event_guild, raw_members);
 
+            guild.JoinedAt = event_guild.JoinedAt;
+            guild.Large = event_guild.Large;
+            guild.MemberCount = Math.Max(event_guild.MemberCount, guild._members.Count);
+            guild.Unavailable = event_guild.Unavailable;
+
             foreach (var xc in guild._channels)
             {
                 xc.GuildId = guild.Id;
@@ -1926,9 +1931,13 @@ namespace DSharpPlus
             else
                 usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUser(user_id);
 
+            DiscordMessage msg = null;
+            if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+                msg = new DiscordMessage { Id = message_id, Discord = this };
+
             var ea = new MessageReactionAddEventArgs(this)
             {
-                MessageId = message_id,
+                Message = msg,
                 Channel = channel,
                 User = usr,
                 Emoji = emoji
@@ -1946,9 +1955,13 @@ namespace DSharpPlus
             else
                 usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUser(user_id);
 
+            DiscordMessage msg = null;
+            if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+                msg = new DiscordMessage { Id = message_id, Discord = this };
+
             var ea = new MessageReactionRemoveEventArgs(this)
             {
-                MessageId = message_id,
+                Message = msg,
                 Channel = channel,
                 User = usr,
                 Emoji = emoji
@@ -1958,9 +1971,13 @@ namespace DSharpPlus
 
         internal async Task OnMessageReactionRemoveAllAsync(ulong message_id, DiscordChannel channel)
         {
+            DiscordMessage msg = null;
+            if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+                msg = new DiscordMessage { Id = message_id, Discord = this };
+
             var ea = new MessageReactionRemoveAllEventArgs(this)
             {
-                MessageId = message_id,
+                Message = msg,
                 Channel = channel
             };
             await this._message_reaction_remove_all.InvokeAsync(ea);
@@ -2211,8 +2228,6 @@ namespace DSharpPlus
             var _r = new_guild._roles.Where(xr => !guild._roles.Any(xxr => xxr.Id == xr.Id));
             guild._roles.AddRange(_r);
 
-            // ignore voice states, no point
-
             guild.Name = new_guild.Name;
             guild.AfkChannelId = new_guild.AfkChannelId;
             guild.AfkTimeout = new_guild.AfkTimeout;
@@ -2221,15 +2236,18 @@ namespace DSharpPlus
             guild.EmbedEnabled = new_guild.EmbedEnabled;
             guild.Features = new_guild.Features;
             guild.IconHash = new_guild.IconHash;
-            //guild.JoinedAt = new_guild.JoinedAt;
-            //guild.Large = new_guild.Large;
-            //guild.MemberCount = Math.Max(new_guild.MemberCount, guild._members.Count);
             guild.MfaLevel = new_guild.MfaLevel;
             guild.OwnerId = new_guild.OwnerId;
             guild.RegionId = new_guild.RegionId;
             guild.SplashHash = new_guild.SplashHash;
-            //guild.Unavailable = new_guild.Unavailable;
             guild.VerificationLevel = new_guild.VerificationLevel;
+
+            // fields not sent for update:
+            // - voice states
+            // - guild.JoinedAt = new_guild.JoinedAt;
+            // - guild.Large = new_guild.Large;
+            // - guild.MemberCount = Math.Max(new_guild.MemberCount, guild._members.Count);
+            // - guild.Unavailable = new_guild.Unavailable;
         }
 
         internal static Permissions InternalAddPermission(Permissions before, Permissions p)
