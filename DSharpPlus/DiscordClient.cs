@@ -1143,7 +1143,7 @@ namespace DSharpPlus
 
             this._gateway_version = ready.GatewayVersion;
             this._current_user = ready.CurrentUser;
-            this._private_channels = ready.DmChannels.Select(xdc => { xdc.Discord = this; return xdc; }).ToList();
+            this._private_channels = ready.DmChannels.Select(xdc => { xdc.Discord = this; if (this.config.MessageCacheSize > 0) xdc.MessageCache = new RingBuffer<DiscordMessage>(this.config.MessageCacheSize); return xdc; }).ToList();
             this._session_id = ready.SessionId;
 
             var raw_guild_index = raw_guilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
@@ -1645,8 +1645,8 @@ namespace DSharpPlus
                 Message = message,
 
                 MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentioned_users),
-                MentionedRoles = new ReadOnlyCollection<DiscordRole>(mentioned_roles),
-                MentionedChannels = new ReadOnlyCollection<DiscordChannel>(mentioned_channels)
+                MentionedRoles = mentioned_roles != null ? new ReadOnlyCollection<DiscordRole>(mentioned_roles) : null,
+                MentionedChannels = mentioned_channels != null ? new ReadOnlyCollection<DiscordChannel>(mentioned_channels) : null
             };
             await this._message_created.InvokeAsync(ea);
         }
@@ -1714,8 +1714,8 @@ namespace DSharpPlus
                 Message = message,
 
                 MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentioned_users),
-                MentionedRoles = new ReadOnlyCollection<DiscordRole>(mentioned_roles),
-                MentionedChannels = new ReadOnlyCollection<DiscordChannel>(mentioned_channels),
+                MentionedRoles = mentioned_roles != null ? new ReadOnlyCollection<DiscordRole>(mentioned_roles) : null,
+                MentionedChannels = mentioned_channels != null ? new ReadOnlyCollection<DiscordChannel>(mentioned_channels) : null
             };
             await this._message_update.InvokeAsync(ea);
         }
