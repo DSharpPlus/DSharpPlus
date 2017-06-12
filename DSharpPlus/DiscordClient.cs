@@ -22,7 +22,7 @@ namespace DSharpPlus
     {
         #region Events
         /// <summary>
-        /// 
+        /// Triggered whenever an error occurs within an event handler.
         /// </summary>
         public event AsyncEventHandler<ClientErrorEventArgs> ClientError
         {
@@ -32,7 +32,7 @@ namespace DSharpPlus
         private AsyncEvent<ClientErrorEventArgs> _client_error;
 
         /// <summary>
-        /// 
+        /// Triggered whenever WebSocket connection is established.
         /// </summary>
         public event AsyncEventHandler SocketOpened
         {
@@ -40,8 +40,9 @@ namespace DSharpPlus
             remove { this._socket_opened.Unregister(value); }
         }
         private AsyncEvent _socket_opened;
+
         /// <summary>
-        /// 
+        /// Triggered whenever WebSocket connection is terminated.
         /// </summary>
         public event AsyncEventHandler<SocketDisconnectEventArgs> SocketClosed
         {
@@ -49,6 +50,7 @@ namespace DSharpPlus
             remove { this._socket_closed.Unregister(value); }
         }
         private AsyncEvent<SocketDisconnectEventArgs> _socket_closed;
+
         /// <summary>
         /// The ready event is dispatched when a client completed the initial handshake.
         /// </summary>
@@ -58,6 +60,7 @@ namespace DSharpPlus
             remove { this._ready.Unregister(value); }
         }
         private AsyncEvent<ReadyEventArgs> _ready;
+
         /// <summary>
         /// Sent when a new channel is created.
         /// </summary>
@@ -67,15 +70,17 @@ namespace DSharpPlus
             remove { this._channel_created.Unregister(value); }
         }
         private AsyncEvent<ChannelCreateEventArgs> _channel_created;
+
         /// <summary>
         /// Sent when a new dm channel is created.
         /// </summary>
-        public event AsyncEventHandler<DmChannelCreateEventArgs> DMChannelCreated
+        public event AsyncEventHandler<DmChannelCreateEventArgs> DmChannelCreated
         {
             add { this._dm_channel_created.Register(value); }
             remove { this._dm_channel_created.Unregister(value); }
         }
         private AsyncEvent<DmChannelCreateEventArgs> _dm_channel_created;
+
         /// <summary>
         /// Sent when a channel is updated.
         /// </summary>
@@ -85,6 +90,7 @@ namespace DSharpPlus
             remove { this._channel_updated.Unregister(value); }
         }
         private AsyncEvent<ChannelUpdateEventArgs> _channel_updated;
+
         /// <summary>
         /// Sent when a channel is deleted
         /// </summary>
@@ -94,15 +100,27 @@ namespace DSharpPlus
             remove { this._channel_deleted.Unregister(value); }
         }
         private AsyncEvent<ChannelDeleteEventArgs> _channel_deleted;
+
         /// <summary>
         /// Sent when a dm channel is deleted
         /// </summary>
-        public event AsyncEventHandler<DmChannelDeleteEventArgs> DMChannelDeleted
+        public event AsyncEventHandler<DmChannelDeleteEventArgs> DmChannelDeleted
         {
             add { this._dm_channel_deleted.Register(value); }
             remove { this._dm_channel_deleted.Unregister(value); }
         }
         private AsyncEvent<DmChannelDeleteEventArgs> _dm_channel_deleted;
+
+        /// <summary>
+        /// Triggered whenever a channel's pinned message list is updated.
+        /// </summary>
+        public event AsyncEventHandler<ChannelPinsUpdateEventArgs> ChannelPinsUpdated
+        {
+            add { this._channel_pins_updated.Register(value); }
+            remove { this._channel_pins_updated.Unregister(value); }
+        }
+        private AsyncEvent<ChannelPinsUpdateEventArgs> _channel_pins_updated;
+
         /// <summary>
         /// Sent when the user joins a new guild.
         /// </summary>
@@ -112,6 +130,7 @@ namespace DSharpPlus
             remove { this._guild_created.Unregister(value); }
         }
         private AsyncEvent<GuildCreateEventArgs> _guild_created;
+
         /// <summary>
         /// Sent when a guild is becoming available.
         /// </summary>
@@ -121,6 +140,7 @@ namespace DSharpPlus
             remove { this._guild_available.Unregister(value); }
         }
         private AsyncEvent<GuildCreateEventArgs> _guild_available;
+
         /// <summary>
         /// Sent when a guild is updated.
         /// </summary>
@@ -130,6 +150,7 @@ namespace DSharpPlus
             remove { this._guild_updated.Unregister(value); }
         }
         private AsyncEvent<GuildUpdateEventArgs> _guild_updated;
+
         /// <summary>
         /// Sent when the user leaves or is removed from a guild.
         /// </summary>
@@ -139,6 +160,7 @@ namespace DSharpPlus
             remove { this._guild_deleted.Unregister(value); }
         }
         private AsyncEvent<GuildDeleteEventArgs> _guild_deleted;
+
         /// <summary>
         /// Sent when a guild becomes unavailable.
         /// </summary>
@@ -148,6 +170,7 @@ namespace DSharpPlus
             remove { this._guild_unavailable.Unregister(value); }
         }
         private AsyncEvent<GuildDeleteEventArgs> _guild_unavailable;
+
         /// <summary>
         /// Sent when a message is created.
         /// </summary>
@@ -217,6 +240,7 @@ namespace DSharpPlus
             remove { this._guild_member_add.Unregister(value); }
         }
         private AsyncEvent<GuildMemberAddEventArgs> _guild_member_add;
+
         /// <summary>
         /// Sent when a user is removed from a guild (leave/kick/ban).
         /// </summary>
@@ -397,6 +421,9 @@ namespace DSharpPlus
         }
         private AsyncEvent<MessageReactionRemoveAllEventArgs> _message_reaction_remove_all;
 
+        /// <summary>
+        /// Triggered whenever webhooks update.
+        /// </summary>
         public event AsyncEventHandler<WebhooksUpdateEventArgs> WebhooksUpdate
         {
             add { this._webhooks_update.Register(value); }
@@ -404,12 +431,15 @@ namespace DSharpPlus
         }
         private AsyncEvent<WebhooksUpdateEventArgs> _webhooks_update;
 
-        public event AsyncEventHandler<HeartBeatEventArgs> HeartBeated
+        /// <summary>
+        /// Triggered on received heartbeat ACK.
+        /// </summary>
+        public event AsyncEventHandler<HeartBeatEventArgs> Heartbeated
         {
-            add { this._heart_beated.Register(value); }
-            remove { this._heart_beated.Unregister(value); }
+            add { this._heartbeated.Register(value); }
+            remove { this._heartbeated.Unregister(value); }
         }
-        private AsyncEvent<HeartBeatEventArgs> _heart_beated;
+        private AsyncEvent<HeartBeatEventArgs> _heartbeated;
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
@@ -554,6 +584,7 @@ namespace DSharpPlus
             this._channel_updated = new AsyncEvent<ChannelUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_UPDATED");
             this._channel_deleted = new AsyncEvent<ChannelDeleteEventArgs>(this.EventErrorHandler, "CHANNEL_DELETED");
             this._dm_channel_deleted = new AsyncEvent<DmChannelDeleteEventArgs>(this.EventErrorHandler, "DM_CHANNEL_DELETED");
+            this._channel_pins_updated = new AsyncEvent<ChannelPinsUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_PINS_UPDATE");
             this._guild_created = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_CREATED");
             this._guild_available = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_AVAILABLE");
             this._guild_updated = new AsyncEvent<GuildUpdateEventArgs>(this.EventErrorHandler, "GUILD_UPDATED");
@@ -585,7 +616,7 @@ namespace DSharpPlus
             this._message_reaction_remove = new AsyncEvent<MessageReactionRemoveEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVE");
             this._message_reaction_remove_all = new AsyncEvent<MessageReactionRemoveAllEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVE_ALL");
             this._webhooks_update = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATE");
-            this._heart_beated = new AsyncEvent<HeartBeatEventArgs>(this.EventErrorHandler, "HEART_BEATED");
+            this._heartbeated = new AsyncEvent<HeartBeatEventArgs>(this.EventErrorHandler, "HEART_BEATED");
 
             this._rest_client = new DiscordRestClient(this);
             this._debugLogger = new DebugLogger(this);
@@ -996,6 +1027,11 @@ namespace DSharpPlus
                     await OnChannelDeleteEventAsync(chn.IsPrivate ? dat.ToObject<DiscordDmChannel>() : chn);
                     break;
 
+                case "channel_pins_update":
+                    cid = (ulong)dat["channel_id"];
+                    await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), DateTimeOffset.Parse((string)dat["last_pin_timestamp"]));
+                    break;
+
                 case "guild_create":
                     await OnGuildCreateEventAsync(dat.ToObject<DiscordGuild>(), (JArray)dat["members"]);
                     break;
@@ -1284,6 +1320,16 @@ namespace DSharpPlus
 
                 await this._channel_deleted.InvokeAsync(new ChannelDeleteEventArgs(this) { Channel = channel, Guild = gld });
             }
+        }
+
+        internal async Task OnChannelPinsUpdate(DiscordChannel channel, DateTimeOffset last_pin_timestamp)
+        {
+            var ea = new ChannelPinsUpdateEventArgs(this)
+            {
+                Channel = channel,
+                LastPinTimestamp = last_pin_timestamp
+            };
+            await this._channel_pins_updated.InvokeAsync(ea);
         }
 
         internal async Task OnGuildCreateEventAsync(DiscordGuild guild, JArray raw_members)
@@ -1990,7 +2036,7 @@ namespace DSharpPlus
                 Timestamp = DateTimeOffset.Now
             };
 
-            await _heart_beated.InvokeAsync(args);
+            await _heartbeated.InvokeAsync(args);
         }
 
         //internal async Task StartHeartbeatingAsync()

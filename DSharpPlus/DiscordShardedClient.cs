@@ -522,10 +522,10 @@ namespace DSharpPlus
                 client.SocketClosed += this.Client_SocketClosed;
                 client.Ready += this.Client_Ready;
                 client.ChannelCreated += this.Client_ChannelCreated;
-                client.DMChannelCreated += this.Client_DMChannelCreated;
+                client.DmChannelCreated += this.Client_DMChannelCreated;
                 client.ChannelUpdated += this.Client_ChannelUpdated;
                 client.ChannelDeleted += this.Client_ChannelDeleted;
-                client.DMChannelDeleted += this.Client_DMChannelDeleted;
+                client.DmChannelDeleted += this.Client_DMChannelDeleted;
                 client.GuildCreated += this.Client_GuildCreated;
                 client.GuildAvailable += this.Client_GuildAvailable;
                 client.GuildUpdated += this.Client_GuildUpdated;
@@ -557,7 +557,7 @@ namespace DSharpPlus
                 client.MessageReactionRemove += this.Client_MessageReactionRemove;
                 client.MessageReactionRemoveAll += this.Client_MessageReactionRemoveAll;
                 client.WebhooksUpdate += this.Client_WebhooksUpdate;
-                client.HeartBeated += this.Client_HeartBeated;
+                client.Heartbeated += this.Client_HeartBeated;
                 client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
                 
                 await client.ConnectAsync();
