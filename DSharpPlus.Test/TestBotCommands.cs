@@ -150,7 +150,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
         public async Task Poll(CommandContext e)
         {
             var m = await e.Message.RespondAsync("Hey everyone! Add some reactions to this message! you've got 30 seconds!");
-            await e.Message.DeleteAsync();
+            //await e.Message.DeleteAsync();
             var list = await e.Client.GetInteractivityModule().CollectReactionsAsync(m, TimeSpan.FromSeconds(30));
             string reactions = "We're done people!\n\nReactions:";
             foreach (var collected in list)

@@ -301,7 +301,7 @@ namespace DSharpPlus
 
         internal async Task<DiscordMessage> InternalCreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed)
         {
-            if (embed.Timestamp != null)
+            if (embed != null && embed.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageCreatePayload
@@ -415,7 +415,7 @@ namespace DSharpPlus
 
         internal async Task<DiscordMessage> InternalEditMessageAsync(ulong channel_id, ulong message_id, string content, DiscordEmbed embed)
         {
-            if (embed.Timestamp != null)
+            if (embed != null && embed.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageEditPayload
