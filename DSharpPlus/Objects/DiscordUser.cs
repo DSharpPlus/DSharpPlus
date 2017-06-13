@@ -74,7 +74,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the user's mention string.
         /// </summary>
-        public string Mention => Formatter.Mention(this);
+        public string Mention => Formatter.Mention(this, this is DiscordMember);
         
         /// <summary>
         /// Gets this user's presence.
