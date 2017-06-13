@@ -469,7 +469,7 @@ namespace DSharpPlus.Interactivity
             }
 
             await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
-                embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? new DiscordEmbed());
+                embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed);
             #endregion
         }
     }
