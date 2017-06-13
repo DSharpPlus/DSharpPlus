@@ -54,8 +54,15 @@ namespace DSharpPlus.Interactivity
 
         public static IEnumerable<string> Split(this string str, int chunkSize)
         {
-            return Enumerable.Range(0, str.Length / chunkSize)
-                .Select(i => str.Substring(i * chunkSize, chunkSize));
+            var len = str.Length;
+            var i = 0;
+
+            while (i < len)
+            {
+                var size = Math.Min(len - i, chunkSize);
+                yield return str.Substring(i, size);
+                i += size;
+            }
         }
     }
     #endregion
@@ -315,8 +322,9 @@ namespace DSharpPlus.Interactivity
         #endregion
 
         // ⏮ ◀ ⏹ (🔢) ▶ ⏭
-        public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour)
+        public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> message_pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour)
         {
+            List<Page> pages = message_pages.ToList();
             if (pages.Count() == 0)
                 throw new ArgumentException("You need to provide at least 1 page!");
 
@@ -372,8 +380,13 @@ namespace DSharpPlus.Interactivity
             {
                 case TimeoutBehaviour.Default:
                 case TimeoutBehaviour.Ignore:
+                    await Task.Delay(100);
+                    await m.DeleteAllReactionsAsync();
                     break;
                 case TimeoutBehaviour.Delete:
+                    await Task.Delay(100);
+                    await m.DeleteAllReactionsAsync();
+                    await Task.Delay(100);
                     await m.DeleteAsync();
                     break;
             }
@@ -469,7 +482,7 @@ namespace DSharpPlus.Interactivity
             }
 
             await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
-                embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed);
+                embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? null);
             #endregion
         }
     }
