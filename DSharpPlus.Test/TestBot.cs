@@ -302,7 +302,7 @@ namespace DSharpPlus.Test
         {
             try
             {
-                this.Discord.UpdateStatusAsync(new Game { Name = "testing with Chell", StreamType = GameStreamType.Twitch, Url = "https://www.twitch.tv/emzi0767" }).GetAwaiter().GetResult();
+                this.Discord.UpdateStatusAsync(new Game("gitting gud at API")).GetAwaiter().GetResult();
             }
             catch (Exception) { }
         }

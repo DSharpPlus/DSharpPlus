@@ -123,28 +123,26 @@ namespace DSharpPlus
 
         internal ulong _guild_id = 0;
 
+        /// <summary>
+        /// Gets the guild of which this member is a part of.
+        /// </summary>
         public DiscordGuild Guild => this.Discord.Guilds[_guild_id];
 
-        public Task<DiscordDmChannel> SendDmAsync() => this.Discord._rest_client.InternalCreateDM(this.Id);
+        public Task<DiscordDmChannel> SendDmAsync() => this.Discord._rest_client.InternalCreateDmAsync(this.Id);
 
-        public Task SetMuteAsync(bool muted) => this.Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, muted: muted);
+        public Task SetMuteAsync(bool mute, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(_guild_id, this.Id, null, null, mute, null, null, reason);
 
-        public Task SetDeafAsync(bool deafened) => this.Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, deafened: deafened);
+        public Task SetDeafAsync(bool deaf, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(_guild_id, this.Id, null, null, null, deaf, null, reason);
 
-        public Task ModifyAsync(string nickname = null, List<ulong> roles = null, ulong voicechannel_id = 0) => this.Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, nickname, roles, voicechannel_id: voicechannel_id);
+        public Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, ulong? voice_channel_id = null, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles.Select(xr => xr.Id), mute, deaf, voice_channel_id, reason);
 
-        public async Task GrantRoleAsync(ulong RoleID)
-        {
-            if (!this._role_ids.Contains(RoleID))
-                this._role_ids.Add(RoleID);
-            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: this._role_ids);
-        }
+        public Task GrantRoleAsync(DiscordRole role, string reason = null) =>
+            this.Discord._rest_client.InternalAddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
-        public async Task TakeRoleAsync(ulong RoleID)
-        {
-            if(this._role_ids.Contains(RoleID))
-                this._role_ids.Remove(RoleID);
-            await Discord._rest_client.InternalModifyGuildMember(_guild_id, Id, roles: this._role_ids);
-        }
+        public Task TakeRoleAsync(DiscordRole role, string reason = null) =>
+            this.Discord._rest_client.InternalRemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+
+        public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) =>
+            this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles.Select(xr => xr.Id), null, null, null, reason);
     }
 }

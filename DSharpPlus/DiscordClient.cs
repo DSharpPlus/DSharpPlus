@@ -681,7 +681,7 @@ namespace DSharpPlus
             await InternalUpdateGatewayAsync();
 
             if (_current_user == null)
-                _current_user = await this._rest_client.InternalGetCurrentUser();
+                _current_user = await this._rest_client.InternalGetCurrentUserAsync();
 
             _websocket_client = BaseWebSocketClient.Create();
 
@@ -717,10 +717,10 @@ namespace DSharpPlus
 
         internal async Task InternalUpdateGatewayAsync()
         {
-            string url = Utils.GetApiBaseUri(this) + Endpoints.Gateway;
+            string url = Utils.GetApiBaseUri(this) + Endpoints.GATEWAY;
             var headers = Utils.GetBaseHeaders();
             if (config.TokenType == TokenType.Bot)
-                url += Endpoints.Bot;
+                url += Endpoints.BOT;
 
             WebRequest request = WebRequest.CreateRequest(this, url, HttpRequestMethod.GET, headers);
             WebResponse response = await this._rest_client.Rest.HandleRequestAsync(request);
@@ -748,28 +748,22 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="user">userid or @me</param>
         /// <returns></returns>
-        public Task<DiscordUser> GetUserAsync(string user) => this._rest_client.InternalGetUser(user);
+        public Task<DiscordUser> GetUserAsync(string user) => this._rest_client.InternalGetUserAsync(user);
 
         /// <summary>
         /// Gets a user
         /// </summary>
         /// <param name="user">Id of the user</param>
         /// <returns></returns>
-        public Task<DiscordUser> GetUserAsync(ulong user) => this._rest_client.InternalGetUser(user);
-
-        /// <summary>
-        /// Deletes a channel
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public Task DeleteChannelAsync(ulong id) => this._rest_client.InternalDeleteChannel(id);
+        public Task<DiscordUser> GetUserAsync(ulong user) => this._rest_client.InternalGetUserAsync(user);
 
         /// <summary>
         /// Deletes a channel
         /// </summary>
         /// <param name="channel"></param>
+        /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteChannelAsync(DiscordChannel channel) => this._rest_client.InternalDeleteChannel(channel.Id);
+        public Task DeleteChannelAsync(DiscordChannel channel, string reason = null) => this._rest_client.InternalDeleteChannelAsync(channel.Id, reason);
 
         /// <summary>
         /// Gets a message
@@ -777,22 +771,14 @@ namespace DSharpPlus
         /// <param name="channel"></param>
         /// <param name="message_id"></param>
         /// <returns></returns>
-        public Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong message_id) => this._rest_client.InternalGetMessage(channel.Id, message_id);
-
-        /// <summary>
-        /// Gets a message
-        /// </summary>
-        /// <param name="channel_id"></param>
-        /// <param name="message_id"></param>
-        /// <returns></returns>
-        public Task<DiscordMessage> GetMessageAsync(ulong channel_id, ulong message_id) => this._rest_client.InternalGetMessage(channel_id, message_id);
+        public Task<DiscordMessage> GetMessageAsync(DiscordChannel channel, ulong message_id) => this._rest_client.InternalGetMessageAsync(channel.Id, message_id);
 
         /// <summary>
         /// Gets a channel
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<DiscordChannel> GetChannelAsync(ulong id) => this._rest_client.InternalGetChannel(id);
+        public Task<DiscordChannel> GetChannelAsync(ulong id) => this._rest_client.InternalGetChannelAsync(id);
 
         /// <summary>
         /// Sends a message
@@ -803,7 +789,7 @@ namespace DSharpPlus
         /// <param name="embed"></param>
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(ulong channel_id, string content, bool tts = false, DiscordEmbed embed = null) =>
-            this._rest_client.InternalCreateMessage(channel_id, content, tts, embed);
+            this._rest_client.InternalCreateMessageAsync(channel_id, content, tts, embed);
 
         /// <summary>
         /// Sends a message
@@ -814,7 +800,7 @@ namespace DSharpPlus
         /// <param name="embed"></param>
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content, bool tts = false, DiscordEmbed embed = null) =>
-            this._rest_client.InternalCreateMessage(channel.Id, content, tts, embed);
+            this._rest_client.InternalCreateMessageAsync(channel.Id, content, tts, embed);
 
         /// <summary>
         /// Sends a message
@@ -825,7 +811,7 @@ namespace DSharpPlus
         /// <param name="embed"></param>
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(DiscordDmChannel channel, string content, bool tts = false, DiscordEmbed embed = null) =>
-            this._rest_client.InternalCreateMessage(channel.Id, content, tts, embed);
+            this._rest_client.InternalCreateMessageAsync(channel.Id, content, tts, embed);
 
         /// <summary>
         /// Creates a guild. Only for whitelisted bots
@@ -836,8 +822,20 @@ namespace DSharpPlus
         /// <param name="verification_level"></param>
         /// <param name="default_message_notifications"></param>
         /// <returns></returns>
-        public Task<DiscordGuild> CreateGuildAsync(string name, string region, string icon, VerificationLevel verification_level, DefaultMessageNotifications default_message_notifications) =>
-            this._rest_client.InternalCreateGuildAsync(name, region, icon, (int)verification_level, (int)default_message_notifications);
+        public async Task<DiscordGuild> CreateGuildAsync(string name, string region, Stream icon = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null)
+        {
+            string iconb64 = null;
+            if (icon != null)
+            {
+                using (var ms = new MemoryStream((int)(icon.Length - icon.Position)))
+                {
+                    await icon.CopyToAsync(ms);
+                    iconb64 = Convert.ToBase64String(ms.ToArray());
+                }
+            }
+
+            return await this._rest_client.InternalCreateGuildAsync(name, region, iconb64, verification_level, default_message_notifications);
+        }
 
         /// <summary>
         /// Gets a guild
@@ -849,23 +847,16 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a guild
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public Task<DiscordGuild> DeleteGuildAsync(ulong id) => this._rest_client.InternalDeleteGuild(id);
-
-        /// <summary>
-        /// Deletes a guild
-        /// </summary>
         /// <param name="guild"></param>
         /// <returns></returns>
-        public Task<DiscordGuild> DeleteGuildAsync(DiscordGuild guild) => this._rest_client.InternalDeleteGuild(guild.Id);
+        public Task DeleteGuildAsync(DiscordGuild guild) => this._rest_client.InternalDeleteGuildAsync(guild.Id);
 
         /// <summary>
         /// Gets a channel
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<DiscordChannel> GetChannelByIdAsync(ulong id) => this._rest_client.InternalGetChannel(id);
+        public Task<DiscordChannel> GetChannelByIdAsync(ulong id) => this._rest_client.InternalGetChannelAsync(id);
 
         /// <summary>
         /// Gets an invite
@@ -878,20 +869,20 @@ namespace DSharpPlus
         /// Gets a list of connections
         /// </summary>
         /// <returns></returns>
-        public Task<List<DiscordConnection>> GetConnectionsAsync() => this._rest_client.InternalGetUsersConnections();
+        public Task<IReadOnlyCollection<DiscordConnection>> GetConnectionsAsync() => this._rest_client.InternalGetUsersConnectionsAsync();
 
         /// <summary>
         /// Gets a list of regions
         /// </summary>
         /// <returns></returns>
-        public Task<List<DiscordVoiceRegion>> ListRegionsAsync() => this._rest_client.InternalListVoiceRegions();
+        public Task<IReadOnlyCollection<DiscordVoiceRegion>> ListRegionsAsync() => this._rest_client.InternalListVoiceRegionsAsync();
 
         /// <summary>
         /// Gets a webhook
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<DiscordWebhook> GetWebhookAsync(ulong id) => this._rest_client.InternalGetWebhook(id);
+        public Task<DiscordWebhook> GetWebhookAsync(ulong id) => this._rest_client.InternalGetWebhookAsync(id);
 
         /// <summary>
         /// Gets a webhook
@@ -899,14 +890,14 @@ namespace DSharpPlus
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token) => this._rest_client.InternalGetWebhookWithToken(id, token);
+        public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token) => this._rest_client.InternalGetWebhookWithTokenAsync(id, token);
 
         /// <summary>
         /// Creates a dm
         /// </summary>
-        /// <param name="user_id"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
-        public Task<DiscordDmChannel> CreateDmAsync(ulong user_id) => this._rest_client.InternalCreateDM(user_id);
+        public Task<DiscordDmChannel> CreateDmAsync(DiscordUser user) => this._rest_client.InternalCreateDmAsync(user.Id);
 
         /// <summary>
         /// Updates current user's status
@@ -921,22 +912,22 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild member
         /// </summary>
-        /// <param name="guild_id">Guild's ID</param>
-        /// <param name="member_id">Member's ID</param>
+        /// <param name="member">Member to modify.</param>
         /// <param name="nickname">Member's (new) Nickname</param>
         /// <param name="roles">Member's roles</param>
         /// <param name="muted">Wether this member has been muted or not (voice)</param>
         /// <param name="deaf">Wether this member has been deafened or not (voice)</param>
         /// <param name="voicechannel_id">Voice channel ID for moving this user around</param>
+        /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task ModifyMemberAsync(ulong guild_id, ulong member_id, string nickname = null, List<ulong> roles = null, bool muted = false, bool deaf = false, ulong voicechannel_id = 0) =>
-            this._rest_client.InternalModifyGuildMember(guild_id, member_id, nickname, roles, muted, deaf, voicechannel_id);
+        public Task ModifyMemberAsync(DiscordMember member, string nickname = null, List<ulong> roles = null, bool? muted = null, bool? deaf = null, ulong? voicechannel_id = null, string reason = null) =>
+            this._rest_client.InternalModifyGuildMemberAsync(member.Guild.Id, member.Id, nickname, roles, muted, deaf, voicechannel_id, reason);
 
         /// <summary>
         /// Gets the current API appication.
         /// </summary>
         /// <returns></returns>
-        public Task<DiscordApplication> GetCurrentAppAsync() => this._rest_client.InternalGetApplicationInfo("@me");
+        public Task<DiscordApplication> GetCurrentAppAsync() => this._rest_client.InternalGetCurrentApplicationInfoAsync();
 
         /// <summary>
         /// Lists guild members
@@ -945,16 +936,33 @@ namespace DSharpPlus
         /// <param name="limit">limit of members to return</param>
         /// <param name="after">index to start from</param>
         /// <returns></returns>
-        public Task<List<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int limit, int after) => this._rest_client.InternalListGuildMembers(guild_id, limit, after);
+        public Task<IReadOnlyCollection<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit = null, ulong? after = null) => 
+            this._rest_client.InternalListGuildMembersAsync(guild_id, limit, after);
 
         /// <summary>
-        /// Sets bot avatar
+        /// Edits current user.
         /// </summary>
-        /// <param name="img">Stream with image data. Can contain a PNG, JPG, or GIF file.</param>
+        /// <param name="username">New username.</param>
+        /// <param name="avatar">New avatar.</param>
+        /// <param name="avatar_format">Image format of the passed avatar.</param>
         /// <returns></returns>
-        public Task SetAvatarAsync(Stream img) => this._rest_client.InternalSetAvatarAsync(img);
+        public async Task<DiscordUser> EditCurrentUserAsync(string username = null, Stream avatar = null, AvatarImageFormat? avatar_format = null)
+        {
+            string av64 = null;
+            if (avatar != null)
+            {
+                if (avatar_format == null)
+                    throw new ArgumentNullException("When specifying new avatar, you must specify its format.");
 
-        public void WithAuditReason(string reason) { this._rest_client.Rest._reason = reason; this._rest_client.Rest._using_reason = true; }
+                using (var ms = new MemoryStream((int)(avatar.Length - avatar.Position)))
+                {
+                    await avatar.CopyToAsync(ms);
+                    av64 = string.Concat("data:image/", avatar_format.Value.ToString().ToLower(), ";base64,", Convert.ToBase64String(ms.ToArray()));
+                }
+            }
+
+            return await this._rest_client.InternalModifyCurrentUserAsync(username, av64);
+        }
         #endregion
 
         #region Websocket
@@ -1927,9 +1935,9 @@ namespace DSharpPlus
 
             var usr = null as DiscordUser;
             if (channel.Guild != null)
-                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.InternalGetGuildMember(channel.Guild.Id, user_id);
+                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.InternalGetGuildMemberAsync(channel.Guild.Id, user_id);
             else
-                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUser(user_id);
+                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUserAsync(user_id);
 
             DiscordMessage msg = null;
             if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
@@ -1951,9 +1959,9 @@ namespace DSharpPlus
 
             var usr = null as DiscordUser;
             if (channel.Guild != null)
-                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.InternalGetGuildMember(channel.Guild.Id, user_id);
+                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.InternalGetGuildMemberAsync(channel.Guild.Id, user_id);
             else
-                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUser(user_id);
+                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUserAsync(user_id);
 
             DiscordMessage msg = null;
             if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
@@ -2222,8 +2230,11 @@ namespace DSharpPlus
                 guild._members.AddRange(_m);
             }
 
-            guild._presences.Clear();
-            guild._presences.AddRange(new_guild._presences);
+            if (new_guild._presences != null)
+            {
+                guild._presences.Clear();
+                guild._presences.AddRange(new_guild._presences);
+            }
 
             var _r = new_guild._roles.Where(xr => !guild._roles.Any(xxr => xxr.Id == xr.Id));
             guild._roles.AddRange(_r);

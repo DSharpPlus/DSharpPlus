@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Web;
-using Newtonsoft.Json.Linq;
-using System.Globalization;
 
 namespace DSharpPlus
 {
@@ -21,10 +18,6 @@ namespace DSharpPlus
         private static UTF8Encoding utf8 = new UTF8Encoding(false);
         private HttpClient _http;
         private DiscordClient _discord;
-
-        // Audit logs
-        public string _reason = "";
-        public bool _using_reason = false;
 
         public RestClient(DiscordClient client)
         {
@@ -70,13 +63,9 @@ namespace DSharpPlus
         internal async Task<WebResponse> WithoutPayloadAsync(WebRequest request)
         {
             var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
-            foreach (var kvp in request.Headers)
-                req.Headers.Add(kvp.Key, kvp.Value);
-            if (_using_reason)
-            {
-                req.Headers.Add("x-audit-log-reason", _reason);
-                _using_reason = false;
-            }
+            if (request.Headers != null)
+                foreach (var kvp in request.Headers)
+                    req.Headers.Add(kvp.Key, kvp.Value);
 
             WebResponse response = new WebResponse();
             try
@@ -119,14 +108,9 @@ namespace DSharpPlus
         internal async Task<WebResponse> WithPayloadAsync(WebRequest request)
         {
             var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
-            foreach (var kvp in request.Headers)
-                req.Headers.Add(kvp.Key, kvp.Value);
-
-            if (_using_reason)
-            {
-                req.Headers.Add("x-audit-log-reason", _reason);
-                _using_reason = false;
-            }
+            if (request.Headers != null)
+                foreach (var kvp in request.Headers)
+                    req.Headers.Add(kvp.Key, kvp.Value);
 
             if (request.ContentType == ContentType.Json)
             {
@@ -152,22 +136,6 @@ namespace DSharpPlus
                         content.Add(new StreamContent(f.Value), $"file{i}", f.Key);
                         i++;
                     }
-                }
-                if(request.MultipartEmbed != null)
-                {
-                    JObject embed = JObject.FromObject(request.MultipartEmbed);
-                    if (request.MultipartEmbed.Timestamp == new DateTime())
-                    {
-                        embed.Remove("timestamp");
-                    }
-                    else
-                    {
-                        embed["timestamp"] = request.MultipartEmbed.Timestamp.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture);
-                    }
-
-                    JObject j = new JObject();
-                    j.Add("embed", embed);
-                    content.Add(new StringContent(j.ToString()), "payload_json");
                 }
 
                 req.Content = content;

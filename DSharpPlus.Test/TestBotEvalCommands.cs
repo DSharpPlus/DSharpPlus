@@ -36,7 +36,7 @@ namespace DSharpPlus.Test
 
             try
             {
-                var globals = new TestVariables(ctx.Message, ctx.Client);
+                var globals = new TestVariables(ctx.Message, ctx.Client, ctx);
 
                 var sopts = ScriptOptions.Default;
                 sopts = sopts.WithImports("System", "System.Collections.Generic", "System.Linq", "System.Text", "System.Threading.Tasks", "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Interactivity");
@@ -107,13 +107,14 @@ namespace DSharpPlus.Test
 
     public class TestVariables
     {
-        public DiscordMessage Message;
-        public DiscordChannel Channel;
-        public DiscordGuild Guild;
-        public DiscordUser User;
-        public DiscordMember Member;
+        public DiscordMessage Message { get; set; }
+        public DiscordChannel Channel { get; set; }
+        public DiscordGuild Guild { get; set; }
+        public DiscordUser User { get; set; }
+        public DiscordMember Member { get; set; }
+        public CommandContext Context { get; set; }
 
-        public TestVariables(DiscordMessage msg, DiscordClient client)
+        public TestVariables(DiscordMessage msg, DiscordClient client, CommandContext ctx)
         {
             this.Client = client;
 
@@ -122,6 +123,7 @@ namespace DSharpPlus.Test
             this.Guild = this.Channel.Guild;
             this.User = this.Message.Author;
             this.Member = this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult();
+            this.Context = ctx;
         }
 
         public DiscordClient Client;

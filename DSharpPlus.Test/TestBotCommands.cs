@@ -14,7 +14,7 @@ namespace DSharpPlus.Test
 {
     public sealed class TestBotCommands
     {
-        [Command("testreason")]
+        /*[Command("testreason")]
         public async Task TestReason(CommandContext e, DiscordMember m)
         {
             e.Client.WithAuditReason("testing");
@@ -22,7 +22,7 @@ namespace DSharpPlus.Test
             await m.ModifyAsync("test");
             await Task.Delay(1000);
             await m.ModifyAsync(oldnick);
-        }
+        }*/
 
         [Command("namecolor")]
         public async Task NameColor(CommandContext e, DiscordMember m)
@@ -309,7 +309,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
         [Command("modifyme")]
         public async Task ModifyMe(CommandContext e) =>
-            await e.Client.ModifyMemberAsync(e.Guild.Id, e.User.Id, "Tests D#+ instead of going outside");
+            await e.Client.ModifyMemberAsync(e.Member, "Tests D#+ instead of going outside", null, null, null, null, "D#+ Testing");
 
         [Group("voice"), Description("Provides voice commands."), Aliases("audio")]
         public class VoiceCommands

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus
@@ -46,7 +48,7 @@ namespace DSharpPlus
         /// Gets the guild's owner.
         /// </summary>
         [JsonIgnore]
-        public DiscordMember Owner => this.Members.FirstOrDefault(xm => xm.Id == this.OwnerId) ?? this.Discord._rest_client.InternalGetGuildMember(this.Id, this.OwnerId).GetAwaiter().GetResult();
+        public DiscordMember Owner => this.Members.FirstOrDefault(xm => xm.Id == this.OwnerId) ?? this.Discord._rest_client.InternalGetGuildMemberAsync(this.Id, this.OwnerId).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets the guild's voice region ID.
@@ -221,101 +223,173 @@ namespace DSharpPlus
         }
 
         #region Guild Methods
-        public Task<DiscordGuild> DeleteAsync() =>
-            this.Discord._rest_client.InternalDeleteGuild(Id);
+        public Task DeleteAsync() =>
+            this.Discord._rest_client.InternalDeleteGuildAsync(this.Id);
 
-        public Task<DiscordGuild> ModifyAsync(string name = "", string region = "", VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null, ulong afk_channel_id = 0, int afk_timeout = -1, ulong owner_id = 0, string splash = "") =>
-            this.Discord._rest_client.InternalModifyGuild(Id, name, region, (int)(verification_level != null ? verification_level.Value : this.VerificationLevel), (int)(default_message_notifications != null ? default_message_notifications.Value : this.DefaultMessageNotifications), afk_channel_id, afk_timeout, "", owner_id);
+        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null, ulong? afk_channel_id = null, int? afk_timeout = null, ulong? owner_id = null, Stream splash = null, string reason = null)
+        {
+            string iconb64 = null;
+            if (icon != null)
+            {
+                using (var ms = new MemoryStream((int)(icon.Length - icon.Position)))
+                {
+                    await icon.CopyToAsync(ms);
+                    iconb64 = Convert.ToBase64String(ms.ToArray());
+                }
+            }
 
-        public Task BanMemberAsync(DiscordMember member) =>
-            this.Discord._rest_client.InternalCreateGuildBan(Id, member.Id);
+            string splashb64 = null;
+            if (splash != null)
+            {
+                using (var ms = new MemoryStream((int)(splash.Length - splash.Position)))
+                {
+                    await splash.CopyToAsync(ms);
+                    splashb64 = Convert.ToBase64String(ms.ToArray());
+                }
+            }
 
-        public Task UnbanMemberAsync(DiscordMember member) =>
-            this.Discord._rest_client.InternalRemoveGuildBan(Id, member.Id);
+            return await this.Discord._rest_client.InternalModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, afk_channel_id, afk_timeout, iconb64, owner_id, splashb64, reason);
+        }
+
+        public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null) =>
+            this.Discord._rest_client.InternalCreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
+
+        public Task UnbanMemberAsync(DiscordUser user, string reason = null) =>
+            this.Discord._rest_client.InternalRemoveGuildBanAsync(this.Id, user.Id, reason);
 
         public Task LeaveAsync() =>
-            this.Discord._rest_client.InternalLeaveGuild(Id);
+            this.Discord._rest_client.InternalLeaveGuildAsync(Id);
 
-        public Task<List<DiscordMember>> GetBansAsync() =>
-            this.Discord._rest_client.InternalGetGuildBans(Id);
+        public Task<IReadOnlyCollection<DiscordUser>> GetBansAsync() =>
+            this.Discord._rest_client.InternalGetGuildBansAsync(Id);
 
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, int bitrate = 0, int user_limit = 0) =>
-            this.Discord._rest_client.InternalCreateChannel(Id, name, type, bitrate, user_limit);
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, string reason = null) =>
+            this.Discord._rest_client.InternalCreateGuildChannelAsync(this.Id, name, type, bitrate, user_limit, overwrites, reason);
 
         public Task<int> GetPruneCountAsync(int days) =>
-            this.Discord._rest_client.InternalGetGuildPruneCount(Id, days);
+            this.Discord._rest_client.InternalGetGuildPruneCountAsync(this.Id, days);
 
-        public Task<int> PruneAsync(int days) =>
-            this.Discord._rest_client.InternalBeginGuildPrune(Id, days);
+        public Task<int> PruneAsync(int days, string reason = null) =>
+            this.Discord._rest_client.InternalBeginGuildPruneAsync(this.Id, days, reason);
 
-        public Task<List<DiscordIntegration>> GetIntegrationsAsync() =>
-            this.Discord._rest_client.InternalGetGuildIntegrations(Id);
+        public Task<IReadOnlyCollection<DiscordIntegration>> GetIntegrationsAsync() =>
+            this.Discord._rest_client.InternalGetGuildIntegrationsAsync(this.Id);
 
         public Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration) =>
-            this.Discord._rest_client.InternalCreateGuildIntegration(Id, integration.Type, integration.Id);
+            this.Discord._rest_client.InternalCreateGuildIntegrationAsync(Id, integration.Type, integration.Id);
 
         public Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expire_behaviour, int expire_grace_period, bool enable_emoticons) =>
-            this.Discord._rest_client.InternalModifyGuildIntegration(Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
+            this.Discord._rest_client.InternalModifyGuildIntegrationAsync(Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
 
         public Task DeleteIntegrationAsync(DiscordIntegration integration) =>
-            this.Discord._rest_client.InternalDeleteGuildIntegration(Id, integration);
+            this.Discord._rest_client.InternalDeleteGuildIntegrationAsync(Id, integration);
 
         public Task SyncIntegrationAsync(DiscordIntegration integration) =>
-            this.Discord._rest_client.InternalSyncGuildIntegration(Id, integration.Id);
+            this.Discord._rest_client.InternalSyncGuildIntegrationAsync(Id, integration.Id);
 
         public Task<DiscordGuildEmbed> GetEmbedAsync() =>
-            this.Discord._rest_client.InternalGetGuildEmbed(Id);
+            this.Discord._rest_client.InternalGetGuildEmbedAsync(Id);
 
-        public Task<List<DiscordVoiceRegion>> GetVoiceRegionsAsync() =>
-            this.Discord._rest_client.InternalGetGuildVoiceRegions(Id);
+        public Task<IReadOnlyCollection<DiscordVoiceRegion>> GetVoiceRegionsAsync() =>
+            this.Discord._rest_client.InternalGetGuildVoiceRegionsAsync(this.Id);
 
-        public Task<List<DiscordInvite>> GetInvitesAsync() =>
-            this.Discord._rest_client.InternalGetGuildInvites(Id);
+        public Task<IReadOnlyCollection<DiscordInvite>> GetInvitesAsync() =>
+            this.Discord._rest_client.InternalGetGuildInvitesAsync(this.Id);
 
-        public Task<List<DiscordWebhook>> GetWebhooksAsync() =>
-            this.Discord._rest_client.InternalGetGuildWebhooks(Id);
+        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null) =>
+            this.Discord._rest_client.InternalCreateChannelInviteAsync(this.DefaultChannel.Id, max_age, max_uses, temporary, unique, reason);
+
+        public Task<IReadOnlyCollection<DiscordWebhook>> GetWebhooksAsync() =>
+            this.Discord._rest_client.InternalGetGuildWebhooksAsync(this.Id);
 
         public Task RemoveMemberAsync(DiscordUser user) =>
-            this.Discord._rest_client.InternalRemoveGuildMember(Id, user.Id);
+            this.Discord._rest_client.InternalRemoveGuildMemberAsync(Id, user.Id);
 
         public Task RemoveMemberAsync(ulong user_id) =>
-            this.Discord._rest_client.InternalRemoveGuildMember(Id, user_id);
+            this.Discord._rest_client.InternalRemoveGuildMemberAsync(Id, user_id);
 
         public Task<DiscordMember> GetMemberAsync(ulong user_id) =>
-            this.Discord._rest_client.InternalGetGuildMember(Id, user_id);
+            this.Discord._rest_client.InternalGetGuildMemberAsync(Id, user_id);
 
-        public Task<List<DiscordMember>> GetAllMembersAsync() =>
-            this.Discord._rest_client.InternalGetGuildMembers(Id, MemberCount);
+        public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
+        {
+            var recmbr = new List<DiscordMember>(this.MemberCount + 1);
 
-        public Task ModifyMemberAsync(ulong member_id, string nickname, List<ulong> roles, bool muted, bool deaf, ulong voicechannel_id) =>
-            this.Discord._rest_client.InternalModifyGuildMember(Id, member_id, nickname, roles, muted, deaf, voicechannel_id);
+            var recd = 1000;
+            var last = 0ul;
+            while (recd == 1000)
+            {
+                var mbrs = await this.Discord._rest_client.InternalListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
+                recd = mbrs.Count;
 
-        public Task<List<DiscordChannel>> GetChannelsAsync() =>
-            this.Discord._rest_client.InternalGetGuildChannels(Id);
+                var mbr = mbrs.LastOrDefault();
+                if (mbr != null)
+                    last = mbr.Id;
+                else
+                    last = 0;
 
-        public Task<List<DiscordMember>> ListMembersAsync(int limit, int after) =>
-            this.Discord._rest_client.InternalListGuildMembers(Id, limit, after);
+                recmbr.AddRange(mbrs);
+            }
 
-        public Task UpdateRoleAsync(DiscordRole role) =>
-            this.Discord._rest_client.InternalModifyGuildRole(Id, role.Id, role.Name, role.Permissions, role.Position, role.Color, false, role.Mentionable);
+            var recids = recmbr.Select(xm => xm.Id);
 
-        public Task UpdateRolePositionAsync(DiscordRole role, int position) =>
-            this.Discord._rest_client.InternalModifyGuildRolePosition(this.Id, role.Id, position);
+            // clear the cache of users who weren't received
+            for (int i = 0; i < this._members.Count; i++)
+                if (!recids.Contains(this._members[i].Id))
+                    this._members.RemoveAt(i--);
 
-        public Task<DiscordRole> CreateRoleAsync(string name = "", Permissions? permissions = null, int? color = null, bool? hoist = null, bool? mentionable = null) =>
-            this.Discord._rest_client.InternalCreateGuildRole(Id, name, permissions, color, hoist, mentionable);
+            var curids = this._members.Select(xm => xm.Id);
+
+            // ignore members who already exist in the cache
+            var newmbr = recmbr.Where(xm => !curids.Contains(xm.Id))
+                .Select(xm => { xm.Discord = this.Discord; xm._guild_id = this.Id; return xm; });
+
+            // add new members
+            this._members.AddRange(newmbr);
+            this.MemberCount = this._members.Count;
+
+            return this.Members;
+        }
+
+        public Task<IReadOnlyCollection<DiscordChannel>> GetChannelsAsync() =>
+            this.Discord._rest_client.InternalGetGuildChannelsAsync(this.Id);
+
+        public Task<IReadOnlyCollection<DiscordMember>> ListMembersAsync(int? limit = null, ulong? after = null) =>
+            this.Discord._rest_client.InternalListGuildMembersAsync(Id, limit, after);
+
+        public Task UpdateRoleAsync(DiscordRole role, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason = null) =>
+            this.Discord._rest_client.InternalModifyGuildRoleAsync(Id, role.Id, name, permissions, color, hoist, mentionable, reason);
+
+        public Task UpdateRolePositionAsync(DiscordRole role, int position, string reason = null)
+        {
+            var roles = this._roles.OrderByDescending(xr => xr.Position).ToArray();
+            var pmds = new RestGuildRoleReorderPayload[roles.Length];
+            for (var i = 0; i < roles.Length; i++)
+            {
+                pmds[i] = new RestGuildRoleReorderPayload
+                {
+                    RoleId = roles[i].Id,
+                    Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position
+                };
+            }
+
+            return this.Discord._rest_client.InternalModifyGuildRolePosition(this.Id, pmds, reason);
+        }
+
+        public Task<DiscordRole> CreateRoleAsync(string name = "", Permissions? permissions = null, int? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) =>
+            this.Discord._rest_client.InternalCreateGuildRole(this.Id, name, permissions, color, hoist, mentionable, reason);
 
         public Task DeleteRoleAsync(DiscordRole role) =>
-            this.Discord._rest_client.InternalDeleteRole(this.Id, role.Id);
+            this.Discord._rest_client.InternalDeleteRoleAsync(this.Id, role.Id);
 
         public DiscordRole GetRole(ulong id) =>
             this.Roles.FirstOrDefault(xr => xr.Id == id);
 
-        public Task AddRoleAsync(ulong user_id, ulong role_id) =>
-            this.Discord._rest_client.InternalAddGuildMemberRole(Id, user_id, role_id);
+        public Task AddRoleAsync(ulong user_id, ulong role_id, string reason = null) =>
+            this.Discord._rest_client.InternalAddGuildMemberRoleAsync(Id, user_id, role_id, reason);
 
-        public Task RemoveRoleAsync(ulong user_id, ulong role_id) =>
-            this.Discord._rest_client.InternalRemoveGuildMemberRole(Id, user_id, role_id);
+        public Task RemoveRoleAsync(ulong user_id, ulong role_id, string reason) =>
+            this.Discord._rest_client.InternalRemoveGuildMemberRoleAsync(Id, user_id, role_id, reason);
         #endregion
     }
 

@@ -77,6 +77,20 @@ namespace DSharpPlus
     public sealed class Game
     {
         /// <summary>
+        /// Creates a new, empty instance of a <see cref="Game"/>.
+        /// </summary>
+        public Game() { }
+
+        /// <summary>
+        /// Creates a new instance of a <see cref="Game"/> with specified name.
+        /// </summary>
+        /// <param name="name"></param>
+        public Game(string name)
+        {
+            this.Name = name;
+        }
+
+        /// <summary>
         /// Gets or sets the name of the game the user is playing.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Include)]

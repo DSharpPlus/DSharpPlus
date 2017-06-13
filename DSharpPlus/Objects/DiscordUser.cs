@@ -45,7 +45,13 @@ namespace DSharpPlus
         /// Gets the user's avatar URL.
         /// </summary>
         [JsonIgnore]
-        public string AvatarUrl => AvatarHash.StartsWith("a_")? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.gif" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.jpg";
+        public string AvatarUrl => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_")? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.gif" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.jpg") : this.DefaultAvatarUrl;
+
+        /// <summary>
+        /// Gets the URL of default avatar for this user.
+        /// </summary>
+        [JsonIgnore]
+        public string DefaultAvatarUrl => $"https://cdn.discordapp.com/embed/avatars/{this.DiscriminatorInt % 5}.png";
 
         /// <summary>
         /// Gets whether the user is a bot.

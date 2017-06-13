@@ -38,11 +38,11 @@ namespace DSharpPlus
             switch(config.DiscordBranch)
             {
                 case Branch.Canary:
-                    return Endpoints.CanaryBaseUri;
+                    return Endpoints.BaseUriCanary;
                 case Branch.PTB:
-                    return Endpoints.PTBBaseUri;
+                    return Endpoints.BaseUriPTB;
                 case Branch.Stable:
-                    return Endpoints.StableBaseUri;
+                    return Endpoints.BaseUriStable;
                 default:
                     throw new NotSupportedException("");
             }

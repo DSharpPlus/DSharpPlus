@@ -47,13 +47,13 @@ namespace DSharpPlus
         /// <param name="base64avatar"></param>
         /// <returns></returns>
         public Task<DiscordWebhook> ModifyAsync(string name = "", string base64avatar = "") =>
-            this.Discord._rest_client.InternalModifyWebhook(Id, name, base64avatar, Token);
+            this.Discord._rest_client.InternalModifyWebhookAsync(Id, name, base64avatar, Token);
         /// <summary>
         /// Delete the webhook permanently
         /// </summary>
         /// <returns></returns>
         public Task DeleteAsync() => 
-            this.Discord._rest_client.InternalDeleteWebhook(Id, Token);
+            this.Discord._rest_client.InternalDeleteWebhookAsync(Id, Token);
         /// <summary>
         /// 
         /// </summary>
@@ -64,20 +64,20 @@ namespace DSharpPlus
         /// <param name="embeds"></param>
         /// <returns></returns>
         public Task ExecuteAsync(string content = "", string username = "", string avatar_url = "", bool tts = false, List<DiscordEmbed> embeds = null) =>
-            this.Discord._rest_client.InternalExecuteWebhook(Id, Token, content, username, avatar_url, tts, embeds);
+            this.Discord._rest_client.InternalExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="json"></param>
         /// <returns></returns>
         public Task ExecuteSlackAsync(string json) =>
-            this.Discord._rest_client.InternalExecuteWebhookSlack(Id, Token, json);
+            this.Discord._rest_client.InternalExecuteWebhookSlackAsync(Id, Token, json);
         /// <summary>
         /// 
         /// </summary>
         /// <param name="json"></param>
         /// <returns></returns>
         public Task ExecuteGithubAsync(string json) =>
-            this.Discord._rest_client.InternalExecuteWebhookGithub(Id, Token, json);
+            this.Discord._rest_client.InternalExecuteWebhookGithubAsync(Id, Token, json);
     }
 }

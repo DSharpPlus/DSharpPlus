@@ -11,37 +11,44 @@ namespace DSharpPlus
         /// Role name
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string Name { get; internal set; }
+
         /// <summary>
         /// Integer representation of a hexadecimal color code
         /// </summary>
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-        public int Color { get; set; }
+        public int Color { get; internal set; }
+
         /// <summary>
         /// Whether this role is pinned
         /// </summary>
         [JsonProperty("hoist", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Hoist { get; set; }
+        public bool Hoist { get; internal set; }
+
         /// <summary>
         /// Position of this role
         /// </summary>
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
-        public int Position { get; set; }
+        public int Position { get; internal set; }
+
         /// <summary>
         /// Permission bit set
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-        public Permissions Permissions { get; set; }
+        public Permissions Permissions { get; internal set; }
+
         /// <summary>
         /// Whether this role is managed by an integration
         /// </summary>
         [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Managed { get; set; }
+        public bool Managed { get; internal set; }
+
         /// <summary>
         /// Whether this role is mentionable
         /// </summary>
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Mentionable { get; set; }
+        public bool Mentionable { get; internal set; }
+
         /// <summary>
         /// Mentions the role similar to how a client would, if the role is mentionable
         /// </summary>

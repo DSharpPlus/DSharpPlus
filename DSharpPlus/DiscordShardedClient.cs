@@ -605,7 +605,7 @@ namespace DSharpPlus
 
         private async Task<int> GetShardCountAsync()
         {
-            string url = $"{Utils.GetApiBaseUri(this.Config)}{Endpoints.Gateway}{Endpoints.Bot}";
+            string url = $"{Utils.GetApiBaseUri(this.Config)}{Endpoints.GATEWAY}{Endpoints.BOT}";
             var headers = Utils.GetBaseHeaders();
 
             var http = new HttpClient();
