@@ -2,7 +2,7 @@
 {
     internal static class Endpoints
     {
-        private const string internal_base_uri = "https://{0}discordapp.com/api";
+        private const string internal_base_uri = "https://{0}discordapp.com/api/v7";
         public static string CanaryBaseUri => string.Format(internal_base_uri, "canary.");
         public static string PTBBaseUri => string.Format(internal_base_uri, "ptb.");
         public static string StableBaseUri => string.Format(internal_base_uri, "");
