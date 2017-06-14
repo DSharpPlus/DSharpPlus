@@ -1104,6 +1104,11 @@ namespace DSharpPlus
 
         internal Task InternalExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds)
         {
+            if (embeds != null)
+                foreach (var embed in embeds)
+                    if (embed.Timestamp != null)
+                        embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
+
             var pld = new RestWebhookExecutePayload
             {
                 Content = content,
