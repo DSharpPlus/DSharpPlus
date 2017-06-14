@@ -1,11 +1,12 @@
-﻿using System.Net;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
     internal class DspUdpClient : BaseUdpClient
     {
+        public override int DataAvailable => this.Client.Available;
+
         private UdpClient Client { get; set; }
         private ConnectionEndpoint EndPoint { get; set; }
 
@@ -15,8 +16,10 @@ namespace DSharpPlus
         {
             this.EndPoint = endpoint;
             this.Client = new UdpClient();
-            // TODO: Solve later, this is possibly default behaviour (???)
-            //this.Client.AllowNatTraversal(true);
+            // TODO: Solve for .NET Standard, this is possibly default behaviour (???)
+#if HAS_NAT_TRAVERSAL
+            this.Client.AllowNatTraversal(true);
+#endif
         }
 
         public override async Task SendAsync(byte[] data, int data_length)

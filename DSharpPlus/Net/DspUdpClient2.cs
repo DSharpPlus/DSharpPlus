@@ -5,6 +5,8 @@ namespace DSharpPlus
 {
     internal class DspUdpClient : BaseUdpClient
     {
+        public override int DataAvailable => throw new PlatformNotSupportedException(".NET UDP client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
+
         public DspUdpClient()
         {
             throw new PlatformNotSupportedException(".NET UDP client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");

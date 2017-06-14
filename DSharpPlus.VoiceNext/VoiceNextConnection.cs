@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -48,6 +50,7 @@ namespace DSharpPlus.VoiceNext
         private DiscordClient Discord { get; set; }
         private DiscordGuild Guild { get; set; }
         private DiscordChannel Channel { get; set; }
+        private Dictionary<uint, ulong> SSRCMap { get; set; }
 
         private BaseUdpClient UdpClient { get; set; }
         private BaseWebSocketClient VoiceWs { get; set; }
@@ -64,7 +67,7 @@ namespace DSharpPlus.VoiceNext
         private VoiceNextConfiguration Configuration { get; set; }
         private OpusCodec Opus { get; set; }
         private SodiumCodec Sodium { get; set; }
-        private RtpCodec RTP { get; set; }
+        private RtpCodec Rtp { get; set; }
         private Stopwatch Synchronizer { get; set; }
         private TimeSpan UdpLatency { get; set; }
 
@@ -84,6 +87,10 @@ namespace DSharpPlus.VoiceNext
         private TaskCompletionSource<bool> PlayingWait { get; set; }
         private SemaphoreSlim PlaybackSemaphore { get; set; }
 
+#if !NETSTANDARD1_1
+        private Task ReceiverTask { get; set; }
+#endif
+
         /// <summary>
         /// Gets whether this connection is still playing audio.
         /// </summary>
@@ -94,6 +101,7 @@ namespace DSharpPlus.VoiceNext
             this.Discord = client;
             this.Guild = guild;
             this.Channel = channel;
+            this.SSRCMap = new Dictionary<uint, ulong>();
 
             this._user_speaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "USER_SPEAKING");
 #if !NETSTANDARD1_1
@@ -104,7 +112,7 @@ namespace DSharpPlus.VoiceNext
             this.Configuration = config;
             this.Opus = new OpusCodec(48000, 2, this.Configuration.VoiceApplication);
             this.Sodium = new SodiumCodec();
-            this.RTP = new RtpCodec();
+            this.Rtp = new RtpCodec();
             this.Synchronizer = new Stopwatch();
             this.UdpLatency = TimeSpan.FromMilliseconds(0.1);
 
@@ -198,11 +206,11 @@ namespace DSharpPlus.VoiceNext
 
             await this.PlaybackSemaphore.WaitAsync();
 
-            var rtp = this.RTP.Encode(this.Sequence, this.Timestamp, this.SSRC);
+            var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
 
             var dat = this.Opus.Encode(pcm, 0, pcm.Length, bitrate);
-            dat = this.Sodium.Encode(dat, this.RTP.MakeNonce(rtp), this.Key);
-            dat = this.RTP.Encode(rtp, dat);
+            dat = this.Sodium.Encode(dat, this.Rtp.MakeNonce(rtp), this.Key);
+            dat = this.Rtp.Encode(rtp, dat);
 
             await this.SendSpeakingAsync(true);
             await this.UdpClient.SendAsync(dat, dat.Length);
@@ -234,6 +242,39 @@ namespace DSharpPlus.VoiceNext
 
             this.PlaybackSemaphore.Release();
         }
+
+#if !NETSTANDARD1_1
+        private async Task VoiceReceiverTask()
+        {
+            var token = this.Token;
+            var client = this.UdpClient;
+            while (!token.IsCancellationRequested)
+            {
+                if (client.DataAvailable <= 0)
+                    continue;
+
+                var data = await client.ReceiveAsync();
+
+                var header = new byte[RtpCodec.SIZE_HEADER];
+
+                data = this.Rtp.Decode(data, header);
+
+                var nonce = this.Rtp.MakeNonce(header);
+                this.Rtp.Decode(header, out var seq, out var ts, out var ssrc);
+
+                data = this.Sodium.Decode(data, nonce, this.Key);
+                data = this.Opus.Decode(data, 0, data.Length);
+
+                await this._voice_received.InvokeAsync(new VoiceReceivedEventArgs(this.Discord)
+                {
+                    SSRC = ssrc,
+                    Voice = new ReadOnlyCollection<byte>(data),
+                    VoiceLength = 20,
+                    User = this.SSRCMap.ContainsKey(ssrc) ? this.Discord.InternalGetCachedUser(this.SSRCMap[ssrc]) : null
+                });
+            }
+        }
+#endif
 
         /// <summary>
         /// Sends a speaking status to the connected voice channel.
@@ -310,7 +351,7 @@ namespace DSharpPlus.VoiceNext
             this.Opus?.Dispose();
             this.Opus = null;
             this.Sodium = null;
-            this.RTP = null;
+            this.Rtp = null;
 
             if (this.VoiceDisconnected != null)
                 this.VoiceDisconnected(this.Guild);
@@ -387,6 +428,10 @@ namespace DSharpPlus.VoiceNext
             };
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
             this.VoiceWs.SendMessage(vsj);
+
+#if !NETSTANDARD1_1
+            this.ReceiverTask = Task.Run(this.VoiceReceiverTask, this.Token);
+#endif
         }
 
         private Task Stage2()
@@ -433,8 +478,9 @@ namespace DSharpPlus.VoiceNext
                     {
                         Speaking = spd.Speaking,
                         SSRC = spd.SSRC.Value,
-                        UserID = spd.UserId.Value
+                        User = this.Discord.InternalGetCachedUser(spd.UserId.Value)
                     };
+                    this.SSRCMap[spk.SSRC] = spk.User.Id;
                     await this._user_speaking.InvokeAsync(spk);
                     break;
 

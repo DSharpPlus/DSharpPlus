@@ -1369,6 +1369,7 @@ namespace DSharpPlus
             guild.Large = event_guild.Large;
             guild.MemberCount = Math.Max(event_guild.MemberCount, guild._members.Count);
             guild.Unavailable = event_guild.Unavailable;
+            guild._voice_states.AddRange(event_guild._voice_states);
 
             foreach (var xc in guild._channels)
             {

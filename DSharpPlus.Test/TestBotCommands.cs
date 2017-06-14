@@ -318,6 +318,22 @@ Serverowner: {e.Guild.Owner.DisplayName}
             private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
             private Task AudioLoopTask { get; set; }
 
+            private FileStream _fs;
+            private uint _ssrc;
+            private async Task OnUserSpeaking(VoiceReceivedEventArgs e)
+            {
+                if (this._ssrc == 0)
+                    this._ssrc = e.SSRC;
+
+                if (e.SSRC != this._ssrc)
+                    return;
+
+                e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data.", DateTime.Now);
+                var buff = e.Voice.ToArray();
+                await this._fs.WriteAsync(buff, 0, buff.Length);
+                await this._fs.FlushAsync();
+            }
+
             [Command("join")]
             public async Task VoiceJoin(CommandContext ctx)
             {
@@ -343,8 +359,11 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 }
 
                 await Task.Yield();
-                await voice.ConnectAsync(chn);
+                var vnc = await voice.ConnectAsync(chn);
                 await ctx.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})");
+
+                this._fs = File.Create("data.pcm");
+                vnc.VoiceReceived += this.OnUserSpeaking;
             }
 
             [Command("leave")]
@@ -363,6 +382,9 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     await ctx.Message.RespondAsync("Voice is not connected in this guild");
                     return;
                 }
+
+                vnc.VoiceReceived -= this.OnUserSpeaking;
+                this._fs.Dispose();
 
                 vnc.Disconnect();
                 await ctx.Message.RespondAsync("Disconnected");
