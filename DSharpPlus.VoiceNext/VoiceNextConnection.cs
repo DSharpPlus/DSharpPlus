@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +52,7 @@ namespace DSharpPlus.VoiceNext
         private DiscordClient Discord { get; set; }
         private DiscordGuild Guild { get; set; }
         private DiscordChannel Channel { get; set; }
-        private Dictionary<uint, ulong> SSRCMap { get; set; }
+        private ConcurrentDictionary<uint, ulong> SSRCMap { get; set; }
 
         private BaseUdpClient UdpClient { get; set; }
         private BaseWebSocketClient VoiceWs { get; set; }
@@ -101,7 +103,7 @@ namespace DSharpPlus.VoiceNext
             this.Discord = client;
             this.Guild = guild;
             this.Channel = channel;
-            this.SSRCMap = new Dictionary<uint, ulong>();
+            this.SSRCMap = new ConcurrentDictionary<uint, ulong>();
 
             this._user_speaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "USER_SPEAKING");
 #if !NETSTANDARD1_1
@@ -265,12 +267,27 @@ namespace DSharpPlus.VoiceNext
                 data = this.Sodium.Decode(data, nonce, this.Key);
                 data = this.Opus.Decode(data, 0, data.Length);
 
+                // TODO: wait for ssrc map?
+                DiscordUser user = null;
+                if (this.SSRCMap.ContainsKey(ssrc))
+                {
+                    var id = this.SSRCMap[ssrc];
+                    if (this.Guild != null)
+                        user = this.Guild._members.FirstOrDefault(xm => xm.Id == id) ?? await this.Guild.GetMemberAsync(id);
+
+                    if (user == null)
+                        user = this.Discord.InternalGetCachedUser(id);
+
+                    if (user == null)
+                        user = new DiscordUser { Discord = this.Discord, Id = id };
+                }
+
                 await this._voice_received.InvokeAsync(new VoiceReceivedEventArgs(this.Discord)
                 {
                     SSRC = ssrc,
                     Voice = new ReadOnlyCollection<byte>(data),
                     VoiceLength = 20,
-                    User = this.SSRCMap.ContainsKey(ssrc) ? this.Discord.InternalGetCachedUser(this.SSRCMap[ssrc]) : null
+                    User = user
                 });
             }
         }
@@ -480,7 +497,8 @@ namespace DSharpPlus.VoiceNext
                         SSRC = spd.SSRC.Value,
                         User = this.Discord.InternalGetCachedUser(spd.UserId.Value)
                     };
-                    this.SSRCMap[spk.SSRC] = spk.User.Id;
+                    if (!this.SSRCMap.ContainsKey(spk.SSRC))
+                        this.SSRCMap.AddOrUpdate(spk.SSRC, spk.User.Id, (k, v) => spk.User.Id);
                     await this._user_speaking.InvokeAsync(spk);
                     break;
 
