@@ -201,7 +201,13 @@ namespace DSharpPlus
         /// Gets the default channel for this guild.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel DefaultChannel => this.Channels.FirstOrDefault(xc => xc.Id == this.Id);
+        public DiscordChannel DefaultChannel => this._channels.FirstOrDefault(xc => xc.Id == this.Id);
+
+        /// <summary>
+        /// Gets the @everyone role for this guild.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordRole EveryoneRole => this._roles.FirstOrDefault(xr => xr.Id == this.Id);
 
         /// <summary>
         /// Gets a collection of all presences in this guild.

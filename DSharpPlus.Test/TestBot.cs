@@ -72,7 +72,8 @@ namespace DSharpPlus.Test
                     return -1;
                 },
                 EnableDms = true,
-                EnableMentionPrefix = true
+                EnableMentionPrefix = true,
+                CaseSensitive = true
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;

@@ -437,6 +437,12 @@ namespace DSharpPlus
         private DiscordUser _current_user;
 
         /// <summary>
+        /// Gets the current application.
+        /// </summary>
+        public DiscordApplication CurrentApplication => this._current_application;
+        private DiscordApplication _current_application;
+
+        /// <summary>
         /// Initializes new auto-sharding Discord client.
         /// </summary>
         /// <param name="config">Configuration to use.</param>
@@ -517,6 +523,9 @@ namespace DSharpPlus
                 if (this.CurrentUser != null)
                     client._current_user = this.CurrentUser;
 
+                if (this._current_application != null)
+                    client._current_application = this.CurrentApplication;
+
                 client.ClientError += this.Client_ClientError;
                 client.SocketOpened += this.Client_SocketOpened;
                 client.SocketClosed += this.Client_SocketClosed;
@@ -565,6 +574,9 @@ namespace DSharpPlus
 
                 if (this._current_user == null)
                     this._current_user = client.CurrentUser;
+
+                if (this._current_application == null)
+                    this._current_application = client.CurrentApplication;
             }
         }
 

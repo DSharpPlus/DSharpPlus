@@ -26,6 +26,10 @@
     public enum Permissions : ulong
     {
         /// <summary>
+        /// Indicates no permissions.
+        /// </summary>
+        None                    = 0x00000000,
+        /// <summary>
         /// Allow creation of instant invites
         /// </summary>
         CreateInstantInvite     = 0x00000001,

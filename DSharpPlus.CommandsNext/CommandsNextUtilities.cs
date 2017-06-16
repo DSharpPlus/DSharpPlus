@@ -255,7 +255,10 @@ namespace DSharpPlus.CommandsNext
                     if (!in_escape && !in_backtick && !in_triple_backtick)
                     {
                         in_escape = true;
-                        str = str.Remove(i, 1);
+                        if (str.IndexOf("\\`", i) == i || str.IndexOf("\\\"", i) == i || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
+                            str = str.Remove(i, 1);
+                        else
+                            i++;
                     }
                     else if ((in_backtick || in_triple_backtick) && str.IndexOf("\\`", i) == i)
                     {

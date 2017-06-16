@@ -326,6 +326,57 @@ namespace DSharpPlus
             if (Type == ChannelType.Voice)
                 await this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null, Id, null);
         }
+
+        public Permissions PermissionsFor(DiscordMember mbr)
+        {
+            // user > role > everyone
+            // allow > deny > undefined
+            // =>
+            // user allow > user deny > role allow > role deny > everyone allow > everyone deny
+            // thanks to meew0
+
+            if (this.IsPrivate || this.Guild == null)
+                return Permissions.None;
+
+            var prms = Permissions.None;
+
+            var ev1 = this.Guild.EveryoneRole;
+            var evo = this._permission_overwrites.FirstOrDefault(xo => xo.Id == ev1.Id);
+
+            prms = ev1.Permissions;
+            if (evo != null)
+            {
+                prms &= ~evo.Deny;
+                prms |= evo.Allow;
+            }
+
+            var rls = mbr.Roles.Where(xr => xr.Id != ev1.Id);
+            var rlo = rls.Select(xr => this._permission_overwrites.FirstOrDefault(xo => xo.Id == xr.Id)).Where(xo => xo != null);
+
+            var rdeny = Permissions.None;
+            var rallw = Permissions.None;
+            foreach (var xrl in rls)
+            {
+                rallw |= xrl.Permissions;
+            }
+            foreach (var xpo in rlo)
+            {
+                rdeny |= xpo.Deny;
+                rallw |= xpo.Allow;
+            }
+
+            prms &= ~rdeny;
+            prms |= rallw;
+
+            var rmo = this._permission_overwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
+            if (rmo != null)
+            {
+                prms &= ~rdeny;
+                prms |= rallw;
+            }
+
+            return prms;
+        }
         #endregion
 
     }

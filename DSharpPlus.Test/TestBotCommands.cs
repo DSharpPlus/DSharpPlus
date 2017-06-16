@@ -160,7 +160,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             await m.RespondAsync(reactions);
         }
 
-        [Command("kill")]
+        [Command("kill"), RequireOwner]
         public async Task Kill(CommandContext e)
         {
             await e.Channel.SendMessageAsync("kthxbai 👋");
@@ -168,7 +168,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             await Task.Delay(-1);
         }
 
-        [Command("reconnect")]
+        [Command("reconnect"), RequireOwner]
         public async Task Restart(CommandContext e) =>
             await e.Client.ReconnectAsync();
 
@@ -284,7 +284,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
         [Command("appinfo")]
         public async Task AppInfo(CommandContext e)
         {
-            var app = await e.Client.GetCurrentAppAsync();
+            var app = e.Client.CurrentApplication;
             var usrn = app.Owner.Username
                 .Replace(@"\", @"\\")
                 .Replace(@"*", @"\*")

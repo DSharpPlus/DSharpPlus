@@ -52,6 +52,8 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public IReadOnlyList<string> RawArguments { get; internal set; }
 
+        internal CommandsNextConfiguration Config { get; set; }
+
         internal CommandContext()
         {
             this._lazy_ass_member = new Lazy<DiscordMember>(() => this.Guild?.Members.FirstOrDefault(xm => xm.Id == this.User.Id) ?? this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult());

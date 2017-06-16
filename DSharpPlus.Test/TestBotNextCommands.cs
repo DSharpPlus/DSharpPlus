@@ -67,7 +67,7 @@ namespace DSharpPlus.Test
                 await ctx.RespondAsync("ill fukken bash ur head in i swer on me mum");
         }
 
-        [Command("setprefix"), Aliases("channelprefix"), Description("Sets custom command prefix for current channel. The bot will still respond to the default one.")]
+        [Command("setprefix"), Aliases("channelprefix"), Description("Sets custom command prefix for current channel. The bot will still respond to the default one."), RequireOwner]
         public async Task SetPrefix(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
         {
             if (string.IsNullOrWhiteSpace(prefix))
@@ -82,7 +82,7 @@ namespace DSharpPlus.Test
             }
         }
 
-        [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), SimpleCanTest]
+        [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
         public class InteractivityTest
         {
             [Command("collect"), Aliases("reactions"), Description("Collects reactions over given period of time.")]
@@ -105,7 +105,7 @@ namespace DSharpPlus.Test
         [Group("sub", CanInvokeWithoutSubcommand = true), Aliases("submodule"), Description("Copypasta things."), Hidden]
         public class SubGroup
         {
-            [Command("navyseal"), Aliases("navy_seal", "copypasta"), Description("Prints a modified Navy Seal copypasta."), SimpleCanTest]
+            [Command("navyseal"), Aliases("navy_seal", "copypasta"), Description("Prints a modified Navy Seal copypasta."), RequireOwner]
             public async Task NavySeal(CommandContext ctx)
             {
                 await ctx.RespondAsync("What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class on GitHub, and I've been involved in numerous pull requests for DSharpPlus, and I have over 30 confirmed commits. I am trained in C# programming and I'm the top coder in the Discord API. You are nothing to me but just another whitey. I will rewrite you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of DAPI mods across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your lib. You're fucking dead, kid. I can code anywhere, anytime, and I can commit in over seven hundred ways, and that's just with my laptop. Not only am I extensively trained in using Visual Studio, but I have access to the entire toolchain of the .NET Framework and I will use it to its full extent to rewrite your miserable lib off the face of the continent, you little shit. If only you could have known what unholy retribution your little \"clever\" comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will commit fury all over you and you will drown in it. You're fucking dead, kiddo.");
@@ -138,19 +138,6 @@ namespace DSharpPlus.Test
                 using (var fs = File.OpenRead(p))
                     await ctx.RespondAsync("", fs, Path.GetFileName(p));
             }
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class SimpleCanTestAttribute : ConditionBaseAttribute
-    {
-        private static readonly ulong[] specs = new[] { 181875147148361728u, 127408598010560513u };
-
-        public override Task<bool> CanExecute(CommandContext ctx)
-        {
-            if (specs.Contains(ctx.User.Id))
-                return Task.FromResult(true);
-            return Task.FromResult(false);
         }
     }
 }

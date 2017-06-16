@@ -10,10 +10,13 @@ using Microsoft.CodeAnalysis.Scripting;
 
 namespace DSharpPlus.Test
 {
-    [Group("eval"), Aliases("exec", "os", "env"), Hidden, Description("Provides evaluation and OS commands."), SimpleCanTest]
+    [Group("eval", CanInvokeWithoutSubcommand = true), Aliases("exec", "os", "env"), Hidden, Description("Provides evaluation and OS commands."), RequireOwner]
     public class TestBotEvalCommands
     {
-        [Command("csharp"), Aliases("eval", "evalcs", "cseval", "csharp", "roslyn"), Description("Evaluates C# code.")]
+        public Task ExecuteGroup(CommandContext ctx, params string[] code_input) =>
+            this.EvalCS(ctx, code_input);
+
+        [Command("csharp"), Aliases("eval", "evalcs", "cseval", "csharp", "roslyn"), Description("Evaluates C# code."), RequireOwner]
         public async Task EvalCS(CommandContext ctx, params string[] code_input)
         {
             var msg = ctx.Message;
@@ -57,7 +60,7 @@ namespace DSharpPlus.Test
             }
         }
 
-        [Command("exec"), Aliases("shell", "cmd", "system"), Description("Executes a shell command.")]
+        [Command("exec"), Aliases("shell", "cmd", "system"), Description("Executes a shell command."), RequireOwner]
         public async Task Exec(CommandContext ctx, string process, params string[] args)
         {
             try

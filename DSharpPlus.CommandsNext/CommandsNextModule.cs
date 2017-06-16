@@ -160,12 +160,16 @@ namespace DSharpPlus.CommandsNext
             var arg = CommandsNextUtilities.SplitArguments(rrg);
 
             var cmd = this.TopLevelCommands.ContainsKey(cms) ? this.TopLevelCommands[cms] : null;
+            if (cmd == null && !this.Config.CaseSensitive)
+                cmd = this.TopLevelCommands.FirstOrDefault(xkvp => xkvp.Key.ToLower() == cms.ToLower()).Value;
+
             var ctx = new CommandContext
             {
                 Client = this.Client,
                 Command = cmd,
                 Message = e.Message,
-                RawArguments = new ReadOnlyCollection<string>(arg.ToList())
+                RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
+                Config = this.Config
             };
 
             if (cmd == null)
@@ -451,7 +455,10 @@ namespace DSharpPlus.CommandsNext
                         break;
                     }
 
-                    cmd = search_in.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)));
+                    if (this.Config.CaseSensitive)
+                        cmd = search_in.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)));
+                    else
+                        cmd = search_in.FirstOrDefault(xc => xc.Name.ToLower() == c.ToLower() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLower()).Contains(c.ToLower())));
 
                     if (cmd == null)
                         break;

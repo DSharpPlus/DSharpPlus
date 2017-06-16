@@ -509,8 +509,9 @@ namespace DSharpPlus.VoiceNext
                     await this._user_speaking.InvokeAsync(spk);
                     break;
 
+                case 3:
                 case 6:
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 received", DateTime.Now);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 or OP6 received", DateTime.Now);
                     var dt = DateTime.Now;
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat).TotalMilliseconds.ToString("#,###")}ms", dt);
                     this.LastHeartbeat = dt;

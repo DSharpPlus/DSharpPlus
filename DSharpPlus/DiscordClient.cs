@@ -501,9 +501,15 @@ namespace DSharpPlus
 
         internal DiscordUser _current_user;
         /// <summary>
-        /// The current user
+        /// Gets the current user.
         /// </summary>
-        public DiscordUser CurrentUser => _current_user;
+        public DiscordUser CurrentUser => this._current_user;
+
+        internal DiscordApplication _current_application;
+        /// <summary>
+        /// Gets the current application.
+        /// </summary>
+        public DiscordApplication CurrentApplication => this._current_application;
 
         /// <summary>
         /// List of DM Channels
@@ -680,8 +686,11 @@ namespace DSharpPlus
 
             await InternalUpdateGatewayAsync();
 
-            if (_current_user == null)
-                _current_user = await this._rest_client.InternalGetCurrentUserAsync();
+            if (this._current_user == null)
+                this._current_user = await this._rest_client.InternalGetCurrentUserAsync();
+
+            if (this._current_application == null)
+                this._current_application = await this.GetCurrentAppAsync();
 
             _websocket_client = BaseWebSocketClient.Create();
 
