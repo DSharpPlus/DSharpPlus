@@ -65,6 +65,7 @@ namespace DSharpPlus.VoiceNext
 
         private VoiceServerUpdatePayload ServerData { get; set; }
         private VoiceStateUpdatePayload StateData { get; set; }
+        private bool Resume { get; set; }
 
         private VoiceNextConfiguration Configuration { get; set; }
         private OpusCodec Opus { get; set; }
@@ -172,17 +173,30 @@ namespace DSharpPlus.VoiceNext
         internal Task StartAsync()
         {
             // Let's announce our intentions to the server
-            var vdp = new VoiceDispatch
+            var vdp = new VoiceDispatch();
+
+            if (!this.Resume)
             {
-                OpCode = 0,
-                Payload = new VoiceIdentifyPayload
+                vdp.OpCode = 0;
+                vdp.Payload = new VoiceIdentifyPayload
                 {
                     ServerId = this.ServerData.GuildId,
                     UserId = this.StateData.UserId.Value,
                     SessionId = this.StateData.SessionId,
                     Token = this.ServerData.Token
-                }
-            };
+                };
+                this.Resume = true;
+            }
+            else
+            {
+                vdp.OpCode = 7;
+                vdp.Payload = new VoiceIdentifyPayload
+                {
+                    ServerId = this.ServerData.GuildId,
+                    SessionId = this.StateData.SessionId,
+                    Token = this.ServerData.Token
+                };
+            }
             var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
             this.VoiceWs.SendMessage(vdj);
 
@@ -507,6 +521,12 @@ namespace DSharpPlus.VoiceNext
                     // however opcodes don't match (8 != 10)
                     // so we suppress it so that users are not alerted
                     // HELLO
+                    break;
+
+                case 9:
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP9 received, starting new session", DateTime.Now);
+                    this.Resume = false;
+                    await this.StartAsync();
                     break;
 
                 default:
