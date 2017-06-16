@@ -82,7 +82,7 @@ namespace DSharpPlus.VoiceNext
         private IpEndpoint DiscoveredEndpoint { get; set; }
 #endif
         private ConnectionEndpoint ConnectionEndpoint { get; set; }
-        
+
         private TaskCompletionSource<bool> ReadyWait { get; set; }
         private bool IsInitialized { get; set; }
         private bool IsDisposed { get; set; }
@@ -246,7 +246,7 @@ namespace DSharpPlus.VoiceNext
             //   number of samples sent
             // time.time()
             //   DateTime.Now
-            
+
             this.Synchronizer.Stop();
             var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed - this.UdpLatency;
             if (ts.Ticks < 0)
@@ -536,11 +536,19 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private Task VoiceWS_SocketClosed(SocketDisconnectEventArgs e)
+        private async Task VoiceWS_SocketClosed(SocketDisconnectEventArgs e)
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice socket closed ({e.CloseCode}, '{e.CloseMessage}')", DateTime.Now);
             this.Dispose();
-            return Task.Delay(0);
+
+            if (!this.IsDisposed)
+            {
+                this.VoiceWs = BaseWebSocketClient.Create();
+                this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
+                this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
+                this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
+                await this.StartAsync();
+            }
         }
 
         private async Task VoiceWS_SocketMessage(WebSocketMessageEventArgs e)
