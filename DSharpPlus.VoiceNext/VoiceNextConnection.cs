@@ -166,7 +166,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns>A task representing the connection operation.</returns>
         internal async Task ConnectAsync()
         {
-            await Task.Run(() => this.VoiceWs.ConnectAsync($"wss://{this.ConnectionEndpoint.Hostname}")).ConfigureAwait(false);
+            await Task.Run(() => this.VoiceWs.ConnectAsync($"wss://{this.ConnectionEndpoint.Hostname}?encoding=json&v=3")).ConfigureAwait(false);
         }
 
         internal Task StartAsync()
@@ -385,7 +385,7 @@ namespace DSharpPlus.VoiceNext
                     this.Token.ThrowIfCancellationRequested();
 
                     var dt = DateTime.Now;
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "VoiceNext", "Sent heartbeat", dt);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "Sent heartbeat", dt);
 
                     var hbd = new VoiceDispatch
                     {
@@ -474,13 +474,6 @@ namespace DSharpPlus.VoiceNext
                     await this.Stage1();
                     break;
 
-                case 3:
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 received", DateTime.Now);
-                    var dt = DateTime.Now;
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat).TotalMilliseconds.ToString("#,###")}ms", dt);
-                    this.LastHeartbeat = dt;
-                    break;
-
                 case 4:
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP4 received", DateTime.Now);
                     var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
@@ -500,6 +493,20 @@ namespace DSharpPlus.VoiceNext
                     if (!this.SSRCMap.ContainsKey(spk.SSRC))
                         this.SSRCMap.AddOrUpdate(spk.SSRC, spk.User.Id, (k, v) => spk.User.Id);
                     await this._user_speaking.InvokeAsync(spk);
+                    break;
+
+                case 6:
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 received", DateTime.Now);
+                    var dt = DateTime.Now;
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat).TotalMilliseconds.ToString("#,###")}ms", dt);
+                    this.LastHeartbeat = dt;
+                    break;
+
+                case 8:
+                    // this sends a heartbeat interval that appears to be consistent with regular GW hello
+                    // however opcodes don't match (8 != 10)
+                    // so we suppress it so that users are not alerted
+                    // HELLO
                     break;
 
                 default:

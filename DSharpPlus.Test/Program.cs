@@ -100,13 +100,12 @@ namespace DSharpPlus.Test
                 case LogLevel.Debug:
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     break;
-
-                case LogLevel.Unnecessary:
+                    
                 default:
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     break;
             }
-            Console.Write("[{0}] ", e.Level.ToString().PadLeft(11));
+            Console.Write("[{0}] ", e.Level.ToString().PadLeft(8));
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(e.Message);

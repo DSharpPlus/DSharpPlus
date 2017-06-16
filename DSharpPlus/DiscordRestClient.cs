@@ -77,10 +77,13 @@ namespace DSharpPlus
             return guild;
         }
 
-        internal Task InternalDeleteGuildAsync(ulong id)
+        internal async Task InternalDeleteGuildAsync(ulong id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", id);
-            return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.DELETE);
+            var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.DELETE);
+
+            var gld = this.Discord._guilds[id];
+            await this.Discord.OnGuildDeleteEventAsync(gld, null);
         }
 
         internal async Task<DiscordGuild> InternalModifyGuildAsync(ulong guild_id, string name, string region, VerificationLevel? verification_level,
@@ -230,15 +233,26 @@ namespace DSharpPlus
             return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.PATCH, headers, JsonConvert.SerializeObject(pld));
         }
 
-        internal async Task InternalGetAuditLogsAsync(ulong guild_id)
+        internal async Task<AuditLog> InternalGetAuditLogsAsync(ulong guild_id, int limit, ulong? after, ulong? before, ulong? responsible, int? action_type)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.AUDIT_LOGS);
+            var urlparams = new Dictionary<string, string>();
+            if (after != null)
+                urlparams["after"] = after.Value.ToString();
+            if (before != null)
+                urlparams["before"] = before.Value.ToString();
+            if (responsible != null)
+                urlparams["user_id"] = responsible.Value.ToString();
+            if (action_type != null)
+                urlparams["action_type"] = action_type.Value.ToString();
+            if (urlparams.Count > 0)
+                url = string.Concat(url, BuildQueryString(urlparams));
+
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
+            
+            var audit_log_data_raw = JsonConvert.DeserializeObject<AuditLog>(res.Response);
 
-            var audit_log_data_raw = JsonConvert.DeserializeObject(res.Response);
-
-            #warning TODO: Finish audit logs
-            throw new NotImplementedException("Currently pending implementation");
+            return audit_log_data_raw;
         }
         #endregion
 

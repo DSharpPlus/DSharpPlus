@@ -60,7 +60,7 @@ namespace DSharpPlus.Net.Abstractions
 
 namespace DSharpPlus
 {
-    public enum AvatarImageFormat
+    public enum ImageFormat
     {
         Jpeg, Png, Gif
     }

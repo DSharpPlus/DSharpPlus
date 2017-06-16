@@ -19,46 +19,35 @@ namespace DSharpPlus
 
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
-            if (level >= this.Level)
+            if (level <= this.Level)
                 LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp });
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
         {
 #if !NETSTANDARD1_1
-            switch(e.Level)
+            switch (e.Level)
             {
-                case LogLevel.Unnecessary:
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        break;
-                    }
                 case LogLevel.Debug:
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkGreen;
-                        break;
-                    }
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    break;
+
                 case LogLevel.Info:
-                    {
-                        Console.ForegroundColor = ConsoleColor.White;
-                        break;
-                    }
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+
                 case LogLevel.Warning:
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                        break;
-                    }
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    break;
+
                 case LogLevel.Error:
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
-                        break;
-                    }
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    break;
+
                 case LogLevel.Critical:
-                    {
-                        Console.BackgroundColor = ConsoleColor.DarkRed;
-                        Console.ForegroundColor = ConsoleColor.Black;
-                        break;
-                    }
+                    Console.BackgroundColor = ConsoleColor.DarkRed;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    break;
             }
 
             Console.Write($"[{e.Timestamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{e.Application}] [{e.Level}]");

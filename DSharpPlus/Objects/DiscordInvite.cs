@@ -42,5 +42,14 @@ namespace DSharpPlus
         /// <returns></returns>
         [Obsolete("Using this method will get your account unverified.")]
         public Task<DiscordInvite> AcceptAsync() => this.Discord._rest_client.InternalAcceptInvite(Code);
+
+        /// <summary>
+        /// Converts this invite into an invite link.
+        /// </summary>
+        /// <returns>A discord.gg invite link.</returns>
+        public override string ToString()
+        {
+            return $"https://discord.gg/{this.Code}";
+        }
     }
 }

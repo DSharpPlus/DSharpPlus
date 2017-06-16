@@ -13,7 +13,7 @@ namespace DSharpPlus.Net.Abstractions
 
     internal class RestGuildCreatePayload
     {
-        [JsonProperty("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
 
         [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]

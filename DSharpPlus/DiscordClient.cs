@@ -819,18 +819,22 @@ namespace DSharpPlus
         /// <param name="name"></param>
         /// <param name="region"></param>
         /// <param name="icon"></param>
+        /// <param name="icon_format"></param>
         /// <param name="verification_level"></param>
         /// <param name="default_message_notifications"></param>
         /// <returns></returns>
-        public async Task<DiscordGuild> CreateGuildAsync(string name, string region, Stream icon = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null)
+        public async Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Stream icon = null, ImageFormat? icon_format = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null)
         {
             string iconb64 = null;
             if (icon != null)
             {
+                if (icon_format == null)
+                    throw new ArgumentNullException("When specifying new avatar, you must specify its format.");
+
                 using (var ms = new MemoryStream((int)(icon.Length - icon.Position)))
                 {
                     await icon.CopyToAsync(ms);
-                    iconb64 = Convert.ToBase64String(ms.ToArray());
+                    iconb64 = string.Concat("data:image/", icon_format.Value.ToString().ToLower(), ";base64,", Convert.ToBase64String(ms.ToArray()));
                 }
             }
 
@@ -946,7 +950,7 @@ namespace DSharpPlus
         /// <param name="avatar">New avatar.</param>
         /// <param name="avatar_format">Image format of the passed avatar.</param>
         /// <returns></returns>
-        public async Task<DiscordUser> EditCurrentUserAsync(string username = null, Stream avatar = null, AvatarImageFormat? avatar_format = null)
+        public async Task<DiscordUser> EditCurrentUserAsync(string username = null, Stream avatar = null, ImageFormat? avatar_format = null)
         {
             string av64 = null;
             if (avatar != null)
@@ -1926,8 +1930,8 @@ namespace DSharpPlus
 
         internal async Task OnUnknownEventAsync(GatewayPayload payload)
         {
-            UnknownEventArgs args = new UnknownEventArgs(this) { EventName = payload.EventName, Json = (payload.Data as JObject).ToString() };
-            await this._unknown_event.InvokeAsync(args);
+            var ea = new UnknownEventArgs(this) { EventName = payload.EventName, Json = (payload.Data as JObject)?.ToString() };
+            await this._unknown_event.InvokeAsync(ea);
         }
 
         internal async Task OnMessageReactionAddAsync(ulong user_id, ulong message_id, DiscordChannel channel, DiscordEmoji emoji)
@@ -2054,7 +2058,7 @@ namespace DSharpPlus
 
             this._sequence++;
             this.Ping = (int)(DateTime.Now - _last_heartbeat).TotalMilliseconds;
-            _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
             _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
             HeartBeatEventArgs args = new HeartBeatEventArgs(this)
             {
@@ -2068,7 +2072,7 @@ namespace DSharpPlus
         //internal async Task StartHeartbeatingAsync()
         internal void StartHeartbeating()
         {
-            _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Starting Heartbeat", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat", DateTime.Now);
             var token = this._cancel_token;
             try
             {
@@ -2118,7 +2122,7 @@ namespace DSharpPlus
                 await ReconnectAsync();
             }
 
-            _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Sending Heartbeat", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat", DateTime.Now);
             var heartbeat = new GatewayPayload
             {
                 OpCode = GatewayOpCode.Heartbeat,

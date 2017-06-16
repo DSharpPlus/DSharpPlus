@@ -6,7 +6,7 @@ namespace DSharpPlus
     /// <summary>
     /// 
     /// </summary>
-    public class SnowflakeObject
+    public abstract class SnowflakeObject
     {
         /// <summary>
         /// The ID of the current object

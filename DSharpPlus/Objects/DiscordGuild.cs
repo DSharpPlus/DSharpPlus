@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -30,13 +31,19 @@ namespace DSharpPlus
         /// Gets the guild icon's url.
         /// </summary>
         [JsonIgnore]
-        public string IconUrl => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{Id}/{IconHash}.jpg" : null;
+        public string IconUrl => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id}/{IconHash}.jpg" : null;
 
         /// <summary>
         /// Gets the guild splash's hash.
         /// </summary>
         [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
         public string SplashHash { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild splash's url.
+        /// </summary>
+        [JsonIgnore]
+        public string SplashUrl => !string.IsNullOrWhiteSpace(this.SplashHash) ? $"https://cdn.discordapp.com/splashes/{this.Id}/{SplashHash}.jpg" : null;
 
         /// <summary>
         /// Gets the ID of the guild's owner.
@@ -226,15 +233,18 @@ namespace DSharpPlus
         public Task DeleteAsync() =>
             this.Discord._rest_client.InternalDeleteGuildAsync(this.Id);
 
-        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null, ulong? afk_channel_id = null, int? afk_timeout = null, ulong? owner_id = null, Stream splash = null, string reason = null)
+        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, ImageFormat? icon_format = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null, ulong? afk_channel_id = null, int? afk_timeout = null, ulong? owner_id = null, Stream splash = null, string reason = null)
         {
             string iconb64 = null;
             if (icon != null)
             {
+                if (icon_format == null)
+                    throw new ArgumentNullException("When specifying new avatar, you must specify its format.");
+
                 using (var ms = new MemoryStream((int)(icon.Length - icon.Position)))
                 {
                     await icon.CopyToAsync(ms);
-                    iconb64 = Convert.ToBase64String(ms.ToArray());
+                    iconb64 = string.Concat("data:image/", icon_format.Value.ToString().ToLower(), ";base64,", Convert.ToBase64String(ms.ToArray()));
                 }
             }
 
@@ -390,6 +400,680 @@ namespace DSharpPlus
 
         public Task RemoveRoleAsync(ulong user_id, ulong role_id, string reason) =>
             this.Discord._rest_client.InternalRemoveGuildMemberRoleAsync(Id, user_id, role_id, reason);
+
+        public async Task<IReadOnlyCollection<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
+        {
+            var gms = this._members.ToDictionary(xm => xm.Id, xm => xm);
+
+            var alrs = new List<AuditLog>();
+            int ac = 1, tc = 0, rmn = 100;
+            ulong last = 0;
+            while (ac > 0)
+            {
+                rmn = limit != null ? limit.Value - tc : 100;
+                rmn = Math.Min(100, rmn);
+                if (rmn <= 0) break;
+
+                var alr = await this.Discord._rest_client.InternalGetAuditLogsAsync(this.Id, rmn, null, last == 0 ? null : (ulong?)last, by_member?.Id, (int?)action_type);
+                ac = alr.Entries.Count();
+                tc += ac;
+                if (ac > 0)
+                {
+                    last = alr.Entries.Last().Id;
+                    alrs.Add(alr);
+                }
+            }
+
+            var amr = alrs.SelectMany(xa => xa.Users)
+                .GroupBy(xu => xu.Id)
+                .Select(xgu => xgu.First());
+
+            var ahr = alrs.SelectMany(xa => xa.Webhooks)
+                .GroupBy(xh => xh.Id)
+                .Select(xgh => xgh.First());
+
+            var ams = amr.Select(xau => gms.ContainsKey(xau.Id) ? gms[xau.Id] : new DiscordMember { Discord = this.Discord, Username = xau.Username, DiscriminatorInt = int.Parse(xau.Discriminator), Id = xau.Id, _guild_id = this.Id });
+            var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
+
+            Dictionary<ulong, DiscordWebhook> ahd = null;
+            if (ahr.Any())
+            {
+                var whr = await this.GetWebhooksAsync();
+                var whs = whr.ToDictionary(xh => xh.Id, xh => xh);
+
+                var amh = ahr.Select(xah => whs.ContainsKey(xah.Id) ? whs[xah.Id] : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
+                ahd = amh.ToDictionary(xh => xh.Id, xh => xh);
+            }
+
+            var acs = alrs.SelectMany(xa => xa.Entries).OrderByDescending(xa => xa.Id);
+            var entries = new List<DiscordAuditLogEntry>();
+            foreach (var xac in acs)
+            {
+                DiscordAuditLogEntry entry = null;
+                ulong t1, t2;
+                int t3, t4;
+                bool p1, p2;
+                switch (xac.ActionType)
+                {
+                    case AuditLogActionType.GuildUpdate:
+                        entry = new DiscordAuditLogGuildEntry
+                        {
+                            Target = this
+                        };
+
+                        var entrygld = entry as DiscordAuditLogGuildEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLower())
+                            {
+                                case "name":
+                                    entrygld.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+
+                                case "owner_id":
+                                    entrygld.OwnerChange = new PropertyChange<DiscordMember>
+                                    {
+                                        Before = gms.ContainsKey(xc.OldValueUlong) ? gms[xc.OldValueUlong] : await this.GetMemberAsync(xc.OldValueUlong),
+                                        After = gms.ContainsKey(xc.NewValueUlong) ? gms[xc.NewValueUlong] : await this.GetMemberAsync(xc.NewValueUlong)
+                                    };
+                                    break;
+
+                                case "icon_hash":
+                                    entrygld.IconChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString != null ? $"https://cdn.discordapp.com/icons/{this.Id}/{xc.OldValueString}.webp" : null,
+                                        After = xc.OldValueString != null ? $"https://cdn.discordapp.com/icons/{this.Id}/{xc.NewValueString}.webp" : null
+                                    };
+                                    break;
+
+                                case "verification_level":
+                                    entrygld.VerificationLevelChange = new PropertyChange<VerificationLevel>
+                                    {
+                                        Before = (VerificationLevel)(long)xc.OldValue,
+                                        After = (VerificationLevel)(long)xc.NewValue
+                                    };
+                                    break;
+
+                                case "afk_channel_id":
+                                    ulong.TryParse(xc.NewValue as string, out t1);
+                                    ulong.TryParse(xc.OldValue as string, out t2);
+
+                                    entrygld.AfkChannelChange = new PropertyChange<DiscordChannel>
+                                    {
+                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
+                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                    };
+                                    break;
+
+                                case "widget_channel_id":
+                                    ulong.TryParse(xc.NewValue as string, out t1);
+                                    ulong.TryParse(xc.OldValue as string, out t2);
+
+                                    entrygld.EmbedChannelChange = new PropertyChange<DiscordChannel>
+                                    {
+                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
+                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                    };
+                                    break;
+
+                                case "splash_hash":
+                                    entrygld.SplashChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString != null ? $"https://cdn.discordapp.com/splashes/{this.Id}/{xc.OldValueString}.webp?size=2048" : null,
+                                        After = xc.NewValueString != null ? $"https://cdn.discordapp.com/splashes/{this.Id}/{xc.NewValueString}.webp?size=2048" : null
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in guild update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.ChannelCreate:
+                    case AuditLogActionType.ChannelDelete:
+                    case AuditLogActionType.ChannelUpdate:
+                        entry = new DiscordAuditLogChannelEntry
+                        {
+                            Target = this._channels.FirstOrDefault(xch => xch.Id == xac.TargetId.Value)
+                        };
+
+                        var entrychn = entry as DiscordAuditLogChannelEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLower())
+                            {
+                                case "name":
+                                    entrychn.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValue != null ? xc.OldValueString : null,
+                                        After = xc.NewValue != null ? xc.NewValueString : null
+                                    };
+                                    break;
+
+                                case "type":
+                                    p1 = ulong.TryParse(xc.NewValue as string, out t1);
+                                    p2 = ulong.TryParse(xc.OldValue as string, out t2);
+
+                                    entrychn.TypeChange = new PropertyChange<ChannelType?>
+                                    {
+                                        Before = p1 ? (ChannelType?)t1 : null,
+                                        After = p2 ? (ChannelType?)t2 : null
+                                    };
+                                    break;
+
+                                case "permission_overwrites":
+                                    var olds = xc.OldValues?.OfType<JObject>()
+                                        ?.Select(xjo => xjo.ToObject<DiscordOverwrite>())
+                                        ?.Select(xo => { xo.Discord = this.Discord; return xo; });
+
+                                    var news = xc.NewValues?.OfType<JObject>()
+                                        ?.Select(xjo => xjo.ToObject<DiscordOverwrite>())
+                                        ?.Select(xo => { xo.Discord = this.Discord; return xo; });
+
+                                    entrychn.OverwriteChange = new PropertyChange<IReadOnlyCollection<DiscordOverwrite>>
+                                    {
+                                        Before = olds != null ? new ReadOnlyCollection<DiscordOverwrite>(new List<DiscordOverwrite>(olds)) : null,
+                                        After = news != null ? new ReadOnlyCollection<DiscordOverwrite>(new List<DiscordOverwrite>(news)) : null
+                                    };
+                                    break;
+
+                                case "topic":
+                                    entrychn.TopicChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in channel update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.OverwriteCreate:
+                    case AuditLogActionType.OverwriteDelete:
+                    case AuditLogActionType.OverwriteUpdate:
+                        entry = new DiscordAuditLogOverwriteEntry
+                        {
+                            Target = this._channels.FirstOrDefault(xc => xc.Id == xac.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == xac.Options.Id),
+                            Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.TargetId.Value)
+                        };
+
+                        var entryovr = entry as DiscordAuditLogOverwriteEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLower())
+                            {
+                                case "deny":
+                                    p1 = ulong.TryParse(xc.OldValue as string, out t1);
+                                    p2 = ulong.TryParse(xc.OldValue as string, out t2);
+
+                                    entryovr.DenyChange = new PropertyChange<Permissions?>
+                                    {
+                                        Before = p1 ? (Permissions?)t1 : null,
+                                        After = p2 ? (Permissions?)t2 : null
+                                    };
+                                    break;
+
+                                case "allow":
+                                    p1 = ulong.TryParse(xc.OldValue as string, out t1);
+                                    p2 = ulong.TryParse(xc.OldValue as string, out t2);
+
+                                    entryovr.AllowChange = new PropertyChange<Permissions?>
+                                    {
+                                        Before = p1 ? (Permissions?)t1 : null,
+                                        After = p2 ? (Permissions?)t2 : null
+                                    };
+                                    break;
+
+                                case "type":
+                                    entryovr.TypeChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+
+                                case "id":
+                                    p1 = ulong.TryParse(xc.OldValue as string, out t1);
+                                    p2 = ulong.TryParse(xc.NewValue as string, out t2);
+
+                                    entryovr.TargetIdChange = new PropertyChange<ulong?>
+                                    {
+                                        Before = p1 ? (ulong?)t1 : null,
+                                        After = p2 ? (ulong?)t2 : null
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in overwrite update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.Kick:
+                        entry = new DiscordAuditLogKickEntry
+                        {
+                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null
+                        };
+                        break;
+
+                    case AuditLogActionType.Prune:
+                        entry = new DiscordAuditLogPruneEntry
+                        {
+                            Days = xac.Options.DeleteMemberDays,
+                            Toll = xac.Options.MembersRemoved
+                        };
+                        break;
+
+                    case AuditLogActionType.Ban:
+                    case AuditLogActionType.Unban:
+                        entry = new DiscordAuditLogBanEntry
+                        {
+                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null
+                        };
+                        break;
+
+                    case AuditLogActionType.MemberUpdate:
+                    case AuditLogActionType.MemberRoleUpdate:
+                        entry = new DiscordAuditLogMemberUpdateEntry
+                        {
+                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null
+                        };
+
+                        var entrymbu = entry as DiscordAuditLogMemberUpdateEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLower())
+                            {
+                                case "nick":
+                                    entrymbu.NicknameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+
+                                case "deaf":
+                                    entrymbu.DeafenChange = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "mute":
+                                    entrymbu.MuteChange = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "$add":
+                                    entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(xul => this._roles.FirstOrDefault(xr => xr.Id == xul)).ToList());
+                                    break;
+
+                                case "$remove":
+                                    entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(xul => this._roles.FirstOrDefault(xr => xr.Id == xul)).ToList());
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in member update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.RoleCreate:
+                    case AuditLogActionType.RoleDelete:
+                    case AuditLogActionType.RoleUpdate:
+                        entry = new DiscordAuditLogRoleUpdateEntry
+                        {
+                            Target = this._roles.FirstOrDefault(xr => xr.Id == xac.TargetId.Value)
+                        };
+
+                        var entryrol = entry as DiscordAuditLogRoleUpdateEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLower())
+                            {
+                                case "name":
+                                    entryrol.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+
+                                case "color":
+                                    p1 = int.TryParse(xc.OldValue as string, out t3);
+                                    p2 = int.TryParse(xc.NewValue as string, out t4);
+
+                                    entryrol.ColorChange = new PropertyChange<int?>
+                                    {
+                                        Before = p1 ? (int?)t3 : null,
+                                        After = p2 ? (int?)t4 : null
+                                    };
+                                    break;
+
+                                case "permissions":
+                                    entryrol.PermissionChange = new PropertyChange<Permissions?>
+                                    {
+                                        Before = xc.OldValue != null ? (Permissions?)(long)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (Permissions?)(long)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "position":
+                                    entryrol.PositionChange = new PropertyChange<int?>
+                                    {
+                                        Before = xc.OldValue != null ? (int?)(long)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (int?)(long)xc.NewValue : null,
+                                    };
+                                    break;
+
+                                case "mentionable":
+                                    entryrol.MentionableChange = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "hoist":
+
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in role update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.InviteCreate:
+                    case AuditLogActionType.InviteDelete:
+                    case AuditLogActionType.InviteUpdate:
+                        entry = new DiscordAuditLogInviteEntry();
+                        var inv = new DiscordInvite
+                        {
+                            Discord = this.Discord,
+                            Guild = new DiscordInviteGuild
+                            {
+                                Discord = this.Discord,
+                                Id = this.Id,
+                                Name = this.Name,
+                                SplashHash = this.SplashHash
+                            }
+                        };
+
+                        var entryinv = entry as DiscordAuditLogInviteEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLower())
+                            {
+                                case "max_age":
+                                    p1 = int.TryParse(xc.OldValue as string, out t3);
+                                    p2 = int.TryParse(xc.OldValue as string, out t4);
+
+                                    entryinv.MaxAgeChange = new PropertyChange<int?>
+                                    {
+                                        Before = p1 ? (int?)t3 : null,
+                                        After = p2 ? (int?)t4 : null
+                                    };
+                                    break;
+
+                                case "code":
+                                    inv.Code = xc.OldValueString ?? xc.NewValueString;
+
+                                    entryinv.CodeChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+
+                                case "temporary":
+                                    entryinv.TemporaryChange = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "inviter_id":
+                                    p1 = ulong.TryParse(xc.OldValue as string, out t1);
+                                    p2 = ulong.TryParse(xc.NewValue as string, out t2);
+
+                                    entryinv.InviterChange = new PropertyChange<DiscordMember>
+                                    {
+                                        Before = amd.ContainsKey(t1) ? amd[t1] : null,
+                                        After = amd.ContainsKey(t2) ? amd[t2] : null,
+                                    };
+                                    break;
+
+                                case "channel_id":
+                                    p1 = ulong.TryParse(xc.OldValue as string, out t1);
+                                    p2 = ulong.TryParse(xc.NewValue as string, out t2);
+
+                                    entryinv.ChannelChange = new PropertyChange<DiscordChannel>
+                                    {
+                                        Before = p1 ? this._channels.FirstOrDefault(xch => xch.Id == t1) : null,
+                                        After = p2 ? this._channels.FirstOrDefault(xch => xch.Id == t2) : null
+                                    };
+
+                                    var ch = entryinv.ChannelChange.Before ?? entryinv.ChannelChange.After;
+                                    var cht = ch?.Type;
+                                    inv.Channel = new DiscordInviteChannel
+                                    {
+                                        Discord = this.Discord,
+                                        Id = p1 ? t1 : t2,
+                                        Name = ch?.Name,
+                                        Type = cht != null ? cht.Value : ChannelType.Unknown
+                                    };
+                                    break;
+
+                                case "uses":
+                                    p1 = int.TryParse(xc.OldValue as string, out t3);
+                                    p2 = int.TryParse(xc.OldValue as string, out t4);
+
+                                    entryinv.UsesChange = new PropertyChange<int?>
+                                    {
+                                        Before = p1 ? (int?)t3 : null,
+                                        After = p2 ? (int?)t4 : null
+                                    };
+                                    break;
+
+                                case "max_uses":
+                                    p1 = int.TryParse(xc.OldValue as string, out t3);
+                                    p2 = int.TryParse(xc.OldValue as string, out t4);
+
+                                    entryinv.MaxUsesChange = new PropertyChange<int?>
+                                    {
+                                        Before = p1 ? (int?)t3 : null,
+                                        After = p2 ? (int?)t4 : null
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in invite update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+
+                        entryinv.Target = inv;
+                        break;
+
+                    case AuditLogActionType.WebhookCreate:
+                    case AuditLogActionType.WebhookDelete:
+                    case AuditLogActionType.WebhookUpdate:
+                        entry = new DiscordAuditLogWebhookEntry
+                        {
+                            Target = ahd.ContainsKey(xac.TargetId.Value) ? ahd[xac.TargetId.Value] : null
+                        };
+
+                        var entrywhk = entry as DiscordAuditLogWebhookEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLower())
+                            {
+                                case "name":
+                                    entrywhk.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+
+                                case "channel_id":
+                                    p1 = ulong.TryParse(xc.OldValue as string, out t1);
+                                    p2 = ulong.TryParse(xc.NewValue as string, out t2);
+
+                                    entrywhk.ChannelChange = new PropertyChange<DiscordChannel>
+                                    {
+                                        Before = p1 ? this._channels.FirstOrDefault(xch => xch.Id == t1) : null,
+                                        After = p2 ? this._channels.FirstOrDefault(xch => xch.Id == t2) : null
+                                    };
+                                    break;
+
+                                case "type": // ???
+                                    p1 = int.TryParse(xc.OldValue as string, out t3);
+                                    p2 = int.TryParse(xc.NewValue as string, out t4);
+
+                                    entrywhk.TypeChange = new PropertyChange<int?>
+                                    {
+                                        Before = p1 ? (int?)t3 : null,
+                                        After = p2 ? (int?)t4 : null
+                                    };
+                                    break;
+
+                                case "avatar_hash":
+                                    entrywhk.AvatarChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString != null ? $"https://cdn.discordapp.com/splashes/{entrywhk.Target.Id}/{xc.OldValueString}.png?size=1024" : null,
+                                        After = xc.NewValueString != null ? $"https://cdn.discordapp.com/splashes/{entrywhk.Target.Id}/{xc.NewValueString}.png?size=1024" : null
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in webhook update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.EmojiCreate:
+                    case AuditLogActionType.EmojiDelete:
+                    case AuditLogActionType.EmojiUpdate:
+                        entry = new DiscordAuditLogEmojiEntry
+                        {
+                            Target = this._emojis.FirstOrDefault(xe => xe.Id == xac.TargetId.Value)
+                        };
+
+                        var entryemo = entry as DiscordAuditLogEmojiEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLower())
+                            {
+                                case "name":
+                                    entryemo.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in member update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.MessageDelete:
+                        entry = new DiscordAuditLogMessageEntry
+                        {
+                            Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.Options?.Id),
+                            MessageCount = xac.Options?.MessageCount
+                        };
+
+                        var entrymsg = entry as DiscordAuditLogMessageEntry;
+
+                        if (entrymsg.Channel != null)
+                        {
+                            DiscordMessage msg = null;
+                            if (entrymsg.Channel.MessageCache?.TryGet(xm => xm.Id == xac.TargetId.Value, out msg) == true)
+                                entrymsg.Target = msg;
+                            else
+                                entrymsg.Target = new DiscordMessage { Discord = this.Discord, Id = xac.TargetId.Value };
+                        }
+                        break;
+
+                    default:
+                        this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown audit log action type: {(int)xac.ActionType}; this should be reported to devs", DateTime.Now);
+                        break;
+                }
+
+                if (entry == null)
+                    continue;
+
+                switch (xac.ActionType)
+                {
+                    case AuditLogActionType.ChannelCreate:
+                    case AuditLogActionType.EmojiCreate:
+                    case AuditLogActionType.InviteCreate:
+                    case AuditLogActionType.OverwriteCreate:
+                    case AuditLogActionType.RoleCreate:
+                    case AuditLogActionType.WebhookCreate:
+                        entry.ActionCategory = AuditLogActionCategory.Create;
+                        break;
+
+                    case AuditLogActionType.ChannelDelete:
+                    case AuditLogActionType.EmojiDelete:
+                    case AuditLogActionType.InviteDelete:
+                    case AuditLogActionType.MessageDelete:
+                    case AuditLogActionType.OverwriteDelete:
+                    case AuditLogActionType.RoleDelete:
+                    case AuditLogActionType.WebhookDelete:
+                        entry.ActionCategory = AuditLogActionCategory.Delete;
+                        break;
+
+                    case AuditLogActionType.ChannelUpdate:
+                    case AuditLogActionType.EmojiUpdate:
+                    case AuditLogActionType.InviteUpdate:
+                    case AuditLogActionType.MemberRoleUpdate:
+                    case AuditLogActionType.MemberUpdate:
+                    case AuditLogActionType.OverwriteUpdate:
+                    case AuditLogActionType.RoleUpdate:
+                    case AuditLogActionType.WebhookUpdate:
+                        entry.ActionCategory = AuditLogActionCategory.Update;
+                        break;
+
+                    default:
+                        entry.ActionCategory = AuditLogActionCategory.Other;
+                        break;
+                }
+
+                entry.Discord = this.Discord;
+                entry.ActionType = xac.ActionType;
+                entry.Id = xac.Id;
+                entry.Reason = xac.Reason;
+                entry.UserResponsible = amd[xac.UserId];
+                entries.Add(entry);
+            }
+
+            return new ReadOnlyCollection<DiscordAuditLogEntry>(entries);
+        }
         #endregion
     }
 

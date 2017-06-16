@@ -71,8 +71,12 @@ namespace DSharpPlus
             try
             {
                 var res = await _http.SendAsync(req, HttpCompletionOption.ResponseContentRead);
+
+                var bts = await res.Content.ReadAsByteArrayAsync();
+                var txt = utf8.GetString(bts, 0, bts.Length);
+
                 response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
-                response.Response = await res.Content.ReadAsStringAsync();
+                response.Response = txt;
                 response.ResponseCode = (int)res.StatusCode;
             }
             catch (HttpRequestException)
@@ -148,9 +152,13 @@ namespace DSharpPlus
             WebResponse response = new WebResponse();
             try
             {
-                var res = await _http.SendAsync(req);
+                var res = await _http.SendAsync(req, HttpCompletionOption.ResponseContentRead);
+
+                var bts = await res.Content.ReadAsByteArrayAsync();
+                var txt = utf8.GetString(bts, 0, bts.Length);
+
                 response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
-                response.Response = await res.Content.ReadAsStringAsync();
+                response.Response = txt;
                 response.ResponseCode = (int)res.StatusCode;
             }
             catch (HttpRequestException)
@@ -209,7 +217,7 @@ namespace DSharpPlus
             var clienttime = DateTimeOffset.UtcNow;
             var servertime = DateTimeOffset.Parse(response.Headers["Date"]).ToUniversalTime();
             double difference = clienttime.Subtract(servertime).TotalSeconds;
-            request.Discord.DebugLogger.LogMessage(LogLevel.Info, "Internal", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
+            request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
 
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
             if (rateLimit != null)

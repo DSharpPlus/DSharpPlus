@@ -291,7 +291,7 @@ namespace DSharpPlus
         /// <param name="avatar_format"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public async Task<DiscordWebhook> CreateWebhookAsync(string name, Stream avatar = null, AvatarImageFormat? avatar_format = null, string reason = null)
+        public async Task<DiscordWebhook> CreateWebhookAsync(string name, Stream avatar = null, ImageFormat? avatar_format = null, string reason = null)
         {
             string av64 = null;
             if (avatar != null)
