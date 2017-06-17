@@ -689,7 +689,7 @@ namespace DSharpPlus
             if (this._current_user == null)
                 this._current_user = await this._rest_client.InternalGetCurrentUserAsync();
 
-            if (this._current_application == null)
+            if (this._current_application == null && this.config.TokenType == TokenType.Bot)
                 this._current_application = await this.GetCurrentAppAsync();
 
             _websocket_client = BaseWebSocketClient.Create();
