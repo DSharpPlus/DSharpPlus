@@ -63,6 +63,11 @@
         /// <summary>
         /// Used to acknowledge a heartbeat.
         /// </summary>
-        HeartbeatAck = 11
+        HeartbeatAck = 11,
+
+        /// <summary>
+        /// Used to request guild synchronization.
+        /// </summary>
+        GuildSync = 12
     }
 }

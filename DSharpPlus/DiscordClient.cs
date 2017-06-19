@@ -1089,6 +1089,11 @@ namespace DSharpPlus
                     await OnGuildDeleteEventAsync(dat.ToObject<DiscordGuild>(), (JArray)dat["members"]);
                     break;
 
+                case "guild_sync":
+                    gid = (ulong)dat["guild_id"];
+                    await this.OnGuildSyncEventAsync(this._guilds[gid], (bool)dat["large"], (JArray)dat["members"], dat["presences"].ToObject<IEnumerable<DiscordPresence>>());
+                    break;
+
                 case "guild_ban_add":
                     usr = dat.ToObject<DiscordUser>();
                     gid = (ulong)dat["guild_id"];
@@ -1273,6 +1278,9 @@ namespace DSharpPlus
 
                     return xg;
                 }).ToDictionary(xg => xg.Id, xg => xg);
+
+            if (this.config.TokenType == TokenType.User)
+                await this.SendGuildSyncAsync();
 
             await this._ready.InvokeAsync(new ReadyEventArgs(this));
         }
@@ -1494,6 +1502,18 @@ namespace DSharpPlus
 
                 await this._guild_deleted.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = gld });
             }
+        }
+
+        internal async Task OnGuildSyncEventAsync(DiscordGuild guild, bool is_large, JArray raw_members, IEnumerable<DiscordPresence> presences)
+        {
+            guild.Large = is_large;
+
+            presences = presences.Select(xp => { xp.Discord = this; return xp; });
+            guild._presences.AddRange(presences);
+
+            this.UpdateCachedGuild(guild, raw_members);
+
+            await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild });
         }
 
         internal async Task OnPresenceUpdateEventAsync(DiscordPresence presence, PresenceUpdateEventArgs ea)
@@ -2209,6 +2229,19 @@ namespace DSharpPlus
             var resumestr = JsonConvert.SerializeObject(resume_payload);
 
             _websocket_client.SendMessage(resumestr);
+            return Task.Delay(0);
+        }
+
+        internal Task SendGuildSyncAsync()
+        {
+            var guild_sync = new GatewayPayload
+            {
+                OpCode = GatewayOpCode.GuildSync,
+                Data = this._guilds.Values.Where(xg => !xg.IsSynced)
+            };
+            var guild_syncstr = JsonConvert.SerializeObject(guild_sync);
+
+            this._websocket_client.SendMessage(guild_syncstr);
             return Task.Delay(0);
         }
 
