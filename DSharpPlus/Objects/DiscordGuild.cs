@@ -225,6 +225,8 @@ namespace DSharpPlus
         [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsOwner => this.OwnerId == this.Discord.CurrentUser.Id;
 
+        internal bool IsSynced { get; set; }
+
         public DiscordGuild()
         {
             this._roles_lazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._roles));

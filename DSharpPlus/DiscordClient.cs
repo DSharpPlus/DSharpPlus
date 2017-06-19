@@ -1119,6 +1119,8 @@ namespace DSharpPlus
 
                 case "guild_member_remove":
                     gid = (ulong)dat["guild_id"];
+                    if (!this._guilds.ContainsKey(gid))
+                    { this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Could not find {gid} in guild cache.", DateTime.Now); return; }
                     await OnGuildMemberRemoveEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid]);
                     break;
 

@@ -42,7 +42,8 @@ namespace DSharpPlus.CommandsNext
                     Client = ctx.Client,
                     Message = ctx.Message,
                     RawArguments = new ReadOnlyCollection<string>(ctx.RawArguments.Skip(1).ToList()),
-                    Command = cmd
+                    Command = cmd,
+                    Config = ctx.Config
                 };
                 
                 if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
