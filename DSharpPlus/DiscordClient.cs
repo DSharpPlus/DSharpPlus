@@ -686,7 +686,7 @@ namespace DSharpPlus
             }
 
             if (!s)
-                throw new Exception("Could not collect to Discord.");
+                throw new Exception("Could not connect to Discord.");
         }
 
         public Task ReconnectAsync(bool start_new_session = false)
