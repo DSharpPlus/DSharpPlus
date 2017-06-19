@@ -448,6 +448,9 @@ namespace DSharpPlus
         /// <param name="config">Configuration to use.</param>
         public DiscordShardedClient(DiscordConfig config)
         {
+            if (config.TokenType == TokenType.User)
+                throw new InvalidOperationException("You cannot shard using a user token.");
+
             this._client_error = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERROR");
             this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
             this._socket_closed = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");

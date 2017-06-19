@@ -39,11 +39,13 @@ namespace DSharpPlus.CommandsNext.Attributes
                 return this.IgnoreDms;
 
             var usr = ctx.Member;
-            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
-            if (bot == null || usr == null)
+            if (usr == null)
                 return false;
-
             var pusr = ctx.Channel.PermissionsFor(usr);
+
+            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+            if (bot == null)
+                return false;
             var pbot = ctx.Channel.PermissionsFor(bot);
 
             if ((pusr & this.Permissions) == this.Permissions && (pbot & this.Permissions) == this.Permissions)

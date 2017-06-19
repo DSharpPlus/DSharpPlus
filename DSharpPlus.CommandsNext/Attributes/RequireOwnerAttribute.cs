@@ -6,9 +6,9 @@ namespace DSharpPlus.CommandsNext.Attributes
     {
         public override Task<bool> CanExecute(CommandContext ctx)
         {
-            if (ctx.Client.CurrentApplication.Owner.Id == ctx.User.Id)
-                return Task.FromResult(true);
-            return Task.FromResult(false);
+            if (ctx.Config.SelfBot)
+                return Task.FromResult(ctx.Message.Author.Id == ctx.Client.CurrentUser.Id);
+            return Task.FromResult(ctx.Client.CurrentApplication?.Owner.Id == ctx.User.Id);
         }
     }
 }

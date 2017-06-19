@@ -664,7 +664,30 @@ namespace DSharpPlus
         /// Connects to the gateway
         /// </summary>
         /// <returns></returns>
-        public Task ConnectAsync() => InternalConnectAsync();
+        public async Task ConnectAsync()
+        {
+            var w = 1000;
+            var i = 5;
+            var s = false;
+
+            while (i-- > 0)
+            {
+                try
+                {
+                    await this.InternalConnectAsync();
+                    s = true;
+                    break;
+                }
+                catch (Exception)
+                {
+                    await Task.Delay(w);
+                    w *= 2;
+                }
+            }
+
+            if (!s)
+                throw new Exception("Could not collect to Discord.");
+        }
 
         public Task ReconnectAsync(bool start_new_session = false)
         {
@@ -674,7 +697,7 @@ namespace DSharpPlus
             return _websocket_client.InternalDisconnectAsync(null);
         }
 
-        internal Task InternalReconnectAsync() => InternalConnectAsync();
+        internal Task InternalReconnectAsync() => ConnectAsync();
 
         internal async Task InternalConnectAsync()
         {
@@ -689,7 +712,7 @@ namespace DSharpPlus
             if (this._current_user == null)
                 this._current_user = await this._rest_client.InternalGetCurrentUserAsync();
 
-            if (this._current_application == null && this.config.TokenType == TokenType.Bot)
+            if (this.config.TokenType != TokenType.User && this._current_application == null)
                 this._current_application = await this.GetCurrentAppAsync();
 
             _websocket_client = BaseWebSocketClient.Create();
@@ -712,6 +735,7 @@ namespace DSharpPlus
                 }
             };
             _websocket_client.OnMessage += e => HandleSocketMessageAsync(e.Message);
+
             await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={config.GatewayVersion}&encoding=json");
         }
 
@@ -949,7 +973,7 @@ namespace DSharpPlus
         /// <param name="limit">limit of members to return</param>
         /// <param name="after">index to start from</param>
         /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit = null, ulong? after = null) => 
+        public Task<IReadOnlyCollection<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit = null, ulong? after = null) =>
             this._rest_client.InternalListGuildMembersAsync(guild_id, limit, after);
 
         /// <summary>
