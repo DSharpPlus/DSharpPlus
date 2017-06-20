@@ -816,34 +816,12 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="channel_id"></param>
-        /// <param name="content"></param>
-        /// <param name="tts"></param>
-        /// <param name="embed"></param>
-        /// <returns></returns>
-        public Task<DiscordMessage> SendMessageAsync(ulong channel_id, string content, bool tts = false, DiscordEmbed embed = null) =>
-            this._rest_client.InternalCreateMessageAsync(channel_id, content, tts, embed);
-
-        /// <summary>
-        /// Sends a message
-        /// </summary>
         /// <param name="channel"></param>
         /// <param name="content"></param>
         /// <param name="tts"></param>
         /// <param name="embed"></param>
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content, bool tts = false, DiscordEmbed embed = null) =>
-            this._rest_client.InternalCreateMessageAsync(channel.Id, content, tts, embed);
-
-        /// <summary>
-        /// Sends a message
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="content"></param>
-        /// <param name="tts"></param>
-        /// <param name="embed"></param>
-        /// <returns></returns>
-        public Task<DiscordMessage> SendMessageAsync(DiscordDmChannel channel, string content, bool tts = false, DiscordEmbed embed = null) =>
             this._rest_client.InternalCreateMessageAsync(channel.Id, content, tts, embed);
 
         /// <summary>
@@ -947,34 +925,10 @@ namespace DSharpPlus
         public Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, long? idle_since = null, bool afk = false) => InternalUpdateStatusAsync(game, user_status, idle_since, afk);
 
         /// <summary>
-        /// Modifies a guild member
-        /// </summary>
-        /// <param name="member">Member to modify.</param>
-        /// <param name="nickname">Member's (new) Nickname</param>
-        /// <param name="roles">Member's roles</param>
-        /// <param name="muted">Wether this member has been muted or not (voice)</param>
-        /// <param name="deaf">Wether this member has been deafened or not (voice)</param>
-        /// <param name="voicechannel_id">Voice channel ID for moving this user around</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task ModifyMemberAsync(DiscordMember member, string nickname = null, List<ulong> roles = null, bool? muted = null, bool? deaf = null, ulong? voicechannel_id = null, string reason = null) =>
-            this._rest_client.InternalModifyGuildMemberAsync(member.Guild.Id, member.Id, nickname, roles, muted, deaf, voicechannel_id, reason);
-
-        /// <summary>
         /// Gets the current API appication.
         /// </summary>
         /// <returns></returns>
         public Task<DiscordApplication> GetCurrentAppAsync() => this._rest_client.InternalGetCurrentApplicationInfoAsync();
-
-        /// <summary>
-        /// Lists guild members
-        /// </summary>
-        /// <param name="guild_id">Guild's ID</param>
-        /// <param name="limit">limit of members to return</param>
-        /// <param name="after">index to start from</param>
-        /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit = null, ulong? after = null) =>
-            this._rest_client.InternalListGuildMembersAsync(guild_id, limit, after);
 
         /// <summary>
         /// Edits current user.
