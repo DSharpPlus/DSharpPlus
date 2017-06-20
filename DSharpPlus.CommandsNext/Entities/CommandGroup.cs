@@ -31,28 +31,28 @@ namespace DSharpPlus.CommandsNext
                 else
                     hascommands = this.Children.Any(xc => xc.Name.ToLower() == cn.ToLower() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLower()).Contains(cn.ToLower())));
 
-                if (!hascommands)
-                    return;
-
-                // pass the execution on
-                var cmd = this.Children.First(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));
-
-                var xctx = new CommandContext
+                if (hascommands)
                 {
-                    Client = ctx.Client,
-                    Message = ctx.Message,
-                    RawArguments = new ReadOnlyCollection<string>(ctx.RawArguments.Skip(1).ToList()),
-                    Command = cmd,
-                    Config = ctx.Config
-                };
-                
-                if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
-                    foreach (var ec in cmd.ExecutionChecks)
-                        if (!(await ec.CanExecute(xctx)))
-                            throw new ChecksFailedException("One or more execution pre-checks failed.", cmd, xctx);
+                    // pass the execution on
+                    var cmd = this.Children.First(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));
 
-                await cmd.Execute(xctx);
-                return;
+                    var xctx = new CommandContext
+                    {
+                        Client = ctx.Client,
+                        Message = ctx.Message,
+                        RawArguments = new ReadOnlyCollection<string>(ctx.RawArguments.Skip(1).ToList()),
+                        Command = cmd,
+                        Config = ctx.Config
+                    };
+
+                    if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
+                        foreach (var ec in cmd.ExecutionChecks)
+                            if (!(await ec.CanExecute(xctx)))
+                                throw new ChecksFailedException("One or more execution pre-checks failed.", cmd, xctx);
+
+                    await cmd.Execute(xctx);
+                    return;
+                }
             }
 
             if (this.Callable == null)
