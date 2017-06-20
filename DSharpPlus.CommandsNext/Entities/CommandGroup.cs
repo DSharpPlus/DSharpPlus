@@ -21,7 +21,18 @@ namespace DSharpPlus.CommandsNext
         
         internal override async Task Execute(CommandContext ctx)
         {
-            var cn = ctx.RawArguments.FirstOrDefault();
+            //var cn = ctx.RawArguments.FirstOrDefault();
+            var cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, out var x);
+
+            if (x != null)
+            {
+                var xi = 0;
+                for (; xi < x.Length; xi++)
+                    if (!char.IsWhiteSpace(x[xi]))
+                        break;
+                if (xi > 0)
+                    x = x.Substring(xi);
+            }
 
             if (cn != null)
             {
@@ -40,9 +51,9 @@ namespace DSharpPlus.CommandsNext
                     {
                         Client = ctx.Client,
                         Message = ctx.Message,
-                        RawArguments = new ReadOnlyCollection<string>(ctx.RawArguments.Skip(1).ToList()),
                         Command = cmd,
-                        Config = ctx.Config
+                        Config = ctx.Config,
+                        RawArgumentString = x
                     };
 
                     if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())

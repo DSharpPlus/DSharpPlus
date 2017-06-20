@@ -13,14 +13,13 @@ namespace DSharpPlus.Test
     [Group("eval", CanInvokeWithoutSubcommand = true), Aliases("exec", "os", "env"), Hidden, Description("Provides evaluation and OS commands."), RequireOwner]
     public class TestBotEvalCommands
     {
-        public Task ExecuteGroup(CommandContext ctx, params string[] code_input) =>
-            this.EvalCS(ctx, code_input);
+        public Task ExecuteGroup(CommandContext ctx, [RemainingText] string code) =>
+            this.EvalCS(ctx, code);
 
         [Command("csharp"), Aliases("eval", "evalcs", "cseval", "csharp", "roslyn"), Description("Evaluates C# code."), RequireOwner]
-        public async Task EvalCS(CommandContext ctx, params string[] code_input)
+        public async Task EvalCS(CommandContext ctx, [RemainingText] string code)
         {
             var msg = ctx.Message;
-            var code = string.Join(" ", code_input);
 
             var cs1 = code.IndexOf("```") + 3;
             cs1 = code.IndexOf('\n', cs1) + 1;
@@ -58,6 +57,13 @@ namespace DSharpPlus.Test
             {
                 await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = 0xFF0000 });
             }
+        }
+
+        [Command("csharpold"), Description("Evaluates C# code."), RequireOwner]
+        public Task EvalCSOld(CommandContext ctx, params string[] code_input)
+        {
+            var code = string.Join(" ", code_input);
+            return this.EvalCS(ctx, code);
         }
 
         [Command("exec"), Aliases("shell", "cmd", "system"), Description("Executes a shell command."), RequireOwner]

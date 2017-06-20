@@ -47,10 +47,15 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public Command Command { get; internal set; }
 
-        /// <summary>
+        /*/// <summary>
         /// Gets the list of raw arguments passed to the command.
         /// </summary>
-        public IReadOnlyList<string> RawArguments { get; internal set; }
+        public IReadOnlyList<string> RawArguments { get; internal set; }*/
+
+        /// <summary>
+        /// Gets the raw argument string passed to the command.
+        /// </summary>
+        public string RawArgumentString { get; internal set; }
 
         internal CommandsNextConfiguration Config { get; set; }
 

@@ -157,7 +157,7 @@ namespace DSharpPlus.CommandsNext
             var cmi = cnt.IndexOf(' ', mpos);
             var cms = cmi != -1 ? cnt.Substring(mpos, cmi - mpos) : cnt.Substring(mpos);
             var rrg = cmi != -1 ? cnt.Substring(cmi + 1) : "";
-            var arg = CommandsNextUtilities.SplitArguments(rrg);
+            //var arg = CommandsNextUtilities.SplitArguments(rrg);
 
             var cmd = this.TopLevelCommands.ContainsKey(cms) ? this.TopLevelCommands[cms] : null;
             if (cmd == null && !this.Config.CaseSensitive)
@@ -168,8 +168,9 @@ namespace DSharpPlus.CommandsNext
                 Client = this.Client,
                 Command = cmd,
                 Message = e.Message,
-                RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
-                Config = this.Config
+                //RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
+                Config = this.Config,
+                RawArgumentString = rrg
             };
 
             if (cmd == null)
@@ -377,8 +378,6 @@ namespace DSharpPlus.CommandsNext
                     IsOptional = xp.IsOptional,
                     DefaultValue = xp.IsOptional ? xp.DefaultValue : null
                 };
-                if (i > 1 && !ca.IsOptional && argsl[i - 2].IsOptional)
-                    throw new InvalidOperationException("Non-optional argument cannot appear after an optional one");
 
                 var attrs = xp.GetCustomAttributes();
                 foreach (var xa in attrs)
@@ -389,12 +388,20 @@ namespace DSharpPlus.CommandsNext
                             ca.Description = d.Description;
                             break;
 
+                        case RemainingTextAttribute r:
+                            ca.IsCatchAll = true;
+                            break;
+
                         case ParamArrayAttribute p:
                             ca.IsCatchAll = true;
                             ca.Type = xp.ParameterType.GetElementType();
+                            ca._is_array = true;
                             break;
                     }
                 }
+
+                if (i > 1 && !ca.IsOptional && !ca.IsCatchAll && argsl[i - 2].IsOptional)
+                    throw new InvalidOperationException("Non-optional argument cannot appear after an optional one");
 
                 argsl.Add(ca);
                 ea[i++] = Expression.Parameter(xp.ParameterType, xp.Name);

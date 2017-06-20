@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -86,6 +87,52 @@ namespace DSharpPlus.Test
         public async Task Sudo(CommandContext ctx, DiscordUser user, string content)
         {
             await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content);
+        }
+
+        [Command("argbind1"), Description("Tests old argument binding method.")]
+        public async Task ArgBind1(CommandContext ctx, [Description("An integer.")] int one = 1, [Description("A string.")] params string[] content)
+        {
+            await ctx.TriggerTypingAsync();
+
+            var embed = new DiscordEmbed
+            {
+                Title = "Results",
+                Fields = new List<DiscordEmbedField>
+                {
+                    new DiscordEmbedField
+                    {
+                        Name = "Integer", Value = one.ToString(), Inline = true
+                    },
+                    new DiscordEmbedField
+                    {
+                        Name = "String", Value = content != null ? string.Join(" ", content) : "`<null>`", Inline = true
+                    }
+                }
+            };
+            await ctx.RespondAsync("", embed: embed);
+        }
+
+        [Command("argbind2"), Description("Tests new argument binding method.")]
+        public async Task ArgBind2(CommandContext ctx, [Description("An integer.")] int one = 1, [Description("A string."), RemainingText] string content = null)
+        {
+            await ctx.TriggerTypingAsync();
+
+            var embed = new DiscordEmbed
+            {
+                Title = "Results",
+                Fields = new List<DiscordEmbedField>
+                {
+                    new DiscordEmbedField
+                    {
+                        Name = "Integer", Value = one.ToString(), Inline = true
+                    },
+                    new DiscordEmbedField
+                    {
+                        Name = "String", Value = content ?? "`<null>`", Inline = true
+                    }
+                }
+            };
+            await ctx.RespondAsync("", embed: embed);
         }
 
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]

@@ -13,6 +13,7 @@ namespace DSharpPlus.CommandsNext
         /// Gets this argument's type.
         /// </summary>
         public Type Type { get; internal set; }
+        internal bool _is_array = false;
 
         /// <summary>
         /// Gets whether this argument is optional.
