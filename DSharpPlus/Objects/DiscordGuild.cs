@@ -376,7 +376,7 @@ namespace DSharpPlus
         public Task<IReadOnlyCollection<DiscordMember>> ListMembersAsync(int? limit = null, ulong? after = null) =>
             this.Discord._rest_client.InternalListGuildMembersAsync(Id, limit, after);
 
-        public Task UpdateRoleAsync(DiscordRole role, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason = null) =>
+        public Task UpdateRoleAsync(DiscordRole role, string name = null, Permissions? permissions = null, int? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) =>
             this.Discord._rest_client.InternalModifyGuildRoleAsync(Id, role.Id, name, permissions, color, hoist, mentionable, reason);
 
         public Task UpdateRolePositionAsync(DiscordRole role, int position, string reason = null)

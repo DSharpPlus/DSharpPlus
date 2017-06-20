@@ -743,7 +743,7 @@ namespace DSharpPlus
             if (!string.IsNullOrWhiteSpace(reason))
                 headers[REASON_HEADER_NAME] = reason;
 
-            var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.ROLES, role_id);
+            var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.ROLES, "/", role_id);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.PATCH, headers, JsonConvert.SerializeObject(pld));
             
             var ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response);
