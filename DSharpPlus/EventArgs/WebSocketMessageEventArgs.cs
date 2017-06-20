@@ -2,8 +2,8 @@
 
 namespace DSharpPlus
 {
-    public class WebSocketMessageEventArgs : EventArgs
+    public class SocketMessageEventArgs : EventArgs
     {
-        public string Message { get; set; }
+        public string Message { get; internal set; }
     }
 }

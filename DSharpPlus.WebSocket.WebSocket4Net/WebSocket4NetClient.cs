@@ -16,7 +16,8 @@ namespace DSharpPlus
         {
             this._connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
             this._disconnect = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
-            this._message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
+            this._message = new AsyncEvent<SocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
+            this._error = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
         }
 
         public override Task<BaseWebSocketClient> ConnectAsync(string uri)
@@ -30,7 +31,7 @@ namespace DSharpPlus
                 else
                     _disconnect.InvokeAsync(new SocketDisconnectEventArgs(null) { CloseCode = -1, CloseMessage = "unknown" }).GetAwaiter().GetResult();
             };
-            _socket.MessageReceived += (sender, e) => _message.InvokeAsync(new WebSocketMessageEventArgs()
+            _socket.MessageReceived += (sender, e) => _message.InvokeAsync(new SocketMessageEventArgs()
             {
                 Message = e.Message
             }).GetAwaiter().GetResult();
@@ -47,7 +48,7 @@ namespace DSharpPlus
                     msg = UTF8.GetString(ms2.ToArray(), 0, (int)ms2.Length);
                 }
 
-                _message.InvokeAsync(new WebSocketMessageEventArgs()
+                _message.InvokeAsync(new SocketMessageEventArgs()
                 {
                     Message = msg
                 }).GetAwaiter().GetResult();
@@ -93,16 +94,26 @@ namespace DSharpPlus
         }
         private AsyncEvent<SocketDisconnectEventArgs> _disconnect;
 
-        public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
+        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
         {
             add { this._message.Register(value); }
             remove { this._message.Unregister(value); }
         }
-        private AsyncEvent<WebSocketMessageEventArgs> _message;
+        private AsyncEvent<SocketMessageEventArgs> _message;
+
+        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        {
+            add { this._error.Register(value); }
+            remove { this._error.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _error;
 
         private void EventErrorHandler(string evname, Exception ex)
         {
-            Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
+            if (evname.ToLower() == "ws_error")
+                Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
+            else
+                this._error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).GetAwaiter().GetResult();
         }
     }
 }

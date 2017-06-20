@@ -7,7 +7,8 @@ namespace DSharpPlus
     {
         public abstract event AsyncEventHandler OnConnect;
         public abstract event AsyncEventHandler<SocketDisconnectEventArgs> OnDisconnect;
-        public abstract event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage;
+        public abstract event AsyncEventHandler<SocketMessageEventArgs> OnMessage;
+        public abstract event AsyncEventHandler<SocketErrorEventArgs> OnError;
         internal static Type ClientType { get; set; } = typeof(WebSocketClient);
 
         /// <summary>

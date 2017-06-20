@@ -39,19 +39,27 @@ namespace DSharpPlus
         }
         private AsyncEvent<SocketDisconnectEventArgs> _on_disconnect;
 
-        public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
+        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
         {
             add { this._on_message.Register(value); }
             remove { this._on_message.Unregister(value); }
         }
-        private AsyncEvent<WebSocketMessageEventArgs> _on_message;
+        private AsyncEvent<SocketMessageEventArgs> _on_message;
+
+        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        {
+            add { this._on_error.Register(value); }
+            remove { this._on_error.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _on_error;
         #endregion
 
         public WebSocketClient()
         {
             this._on_connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
             this._on_disconnect = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
-            this._on_message = new AsyncEvent<WebSocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
+            this._on_message = new AsyncEvent<SocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
+            this._on_error = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
         }
 
         static WebSocketClient()
@@ -259,7 +267,7 @@ namespace DSharpPlus
 
         internal async Task CallOnMessageAsync(string result)
         {
-            await _on_message.InvokeAsync(new WebSocketMessageEventArgs() { Message = result });
+            await _on_message.InvokeAsync(new SocketMessageEventArgs() { Message = result });
         }
 
         internal Task CallOnDisconnectedAsync(SocketDisconnectEventArgs e)
@@ -281,7 +289,10 @@ namespace DSharpPlus
 
         private void EventErrorHandler(string evname, Exception ex)
         {
-            Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
+            if (evname.ToLower() == "ws_error")
+                Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
+            else
+                this._on_error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).GetAwaiter().GetResult();
         }
     }
 }

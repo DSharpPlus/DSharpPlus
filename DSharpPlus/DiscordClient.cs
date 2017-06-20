@@ -32,6 +32,16 @@ namespace DSharpPlus
         private AsyncEvent<ClientErrorEventArgs> _client_error;
 
         /// <summary>
+        /// Triggered whenever a WebSocket error occurs within the client.
+        /// </summary>
+        public event AsyncEventHandler<SocketErrorEventArgs> SocketError
+        {
+            add { this._socket_error.Register(value); }
+            remove { this._socket_error.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _socket_error;
+
+        /// <summary>
         /// Triggered whenever WebSocket connection is established.
         /// </summary>
         public event AsyncEventHandler SocketOpened
@@ -582,6 +592,7 @@ namespace DSharpPlus
         internal void InternalSetup()
         {
             this._client_error = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERROR");
+            this._socket_error = new AsyncEvent<SocketErrorEventArgs>(this.Goof, "SOCKET_ERROR");
             this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
             this._socket_closed = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
             this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
@@ -735,6 +746,7 @@ namespace DSharpPlus
                 }
             };
             _websocket_client.OnMessage += e => HandleSocketMessageAsync(e.Message);
+            _websocket_client.OnError += e => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
 
             await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={config.GatewayVersion}&encoding=json");
         }

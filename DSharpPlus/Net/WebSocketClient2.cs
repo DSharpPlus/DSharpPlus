@@ -20,12 +20,19 @@ namespace DSharpPlus
         }
         private AsyncEvent<SocketDisconnectEventArgs> _on_disconnect;
 
-        public override event AsyncEventHandler<WebSocketMessageEventArgs> OnMessage
+        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
         {
             add { this._on_message.Register(value); }
             remove { this._on_message.Unregister(value); }
         }
-        private AsyncEvent<WebSocketMessageEventArgs> _on_message;
+        private AsyncEvent<SocketMessageEventArgs> _on_message;
+
+        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        {
+            add { this._on_error.Register(value); }
+            remove { this._on_error.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _on_error;
 #pragma warning restore 649
 
         public WebSocketClient()

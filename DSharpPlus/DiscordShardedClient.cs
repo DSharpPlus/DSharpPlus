@@ -26,6 +26,16 @@ namespace DSharpPlus
         private AsyncEvent<ClientErrorEventArgs> _client_error;
 
         /// <summary>
+        /// Triggered whenever a WebSocket error occurs within the client.
+        /// </summary>
+        public event AsyncEventHandler<SocketErrorEventArgs> SocketError
+        {
+            add { this._socket_error.Register(value); }
+            remove { this._socket_error.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _socket_error;
+
+        /// <summary>
         /// 
         /// </summary>
         public event AsyncEventHandler SocketOpened
@@ -452,6 +462,7 @@ namespace DSharpPlus
                 throw new InvalidOperationException("You cannot shard using a user token.");
 
             this._client_error = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERROR");
+            this._socket_error = new AsyncEvent<SocketErrorEventArgs>(this.Goof, "SOCKET_ERROR");
             this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
             this._socket_closed = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
             this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
@@ -530,6 +541,7 @@ namespace DSharpPlus
                     client._current_application = this.CurrentApplication;
 
                 client.ClientError += this.Client_ClientError;
+                client.SocketError += this.Client_SocketError;
                 client.SocketOpened += this.Client_SocketOpened;
                 client.SocketClosed += this.Client_SocketClosed;
                 client.Ready += this.Client_Ready;
@@ -637,6 +649,9 @@ namespace DSharpPlus
         #region Event Dispatchers
         private Task Client_ClientError(ClientErrorEventArgs e) =>
             this._client_error.InvokeAsync(e);
+
+        private Task Client_SocketError(SocketErrorEventArgs e) =>
+            this._socket_error.InvokeAsync(e);
 
         private Task Client_SocketOpened() =>
             this._socket_opened.InvokeAsync();

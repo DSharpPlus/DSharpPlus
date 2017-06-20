@@ -43,6 +43,16 @@ namespace DSharpPlus.VoiceNext
         private AsyncEvent<VoiceReceivedEventArgs> _voice_received;
 #endif
 
+        /// <summary>
+        /// Triggered whenever voice WebSocket throws an exception.
+        /// </summary>
+        public event AsyncEventHandler<SocketErrorEventArgs> VoiceSocketError
+        {
+            add { this._voice_socket_error.Register(value); }
+            remove { this._voice_socket_error.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _voice_socket_error;
+
         internal event VoiceDisconnectedEventHandler VoiceDisconnected;
 
         private const string VOICE_MODE = "xsalsa20_poly1305";
@@ -149,6 +159,7 @@ namespace DSharpPlus.VoiceNext
             this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
             this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
             this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
+            this.VoiceWs.OnError += this.VoiceWs_SocketErrored;
         }
 
         static VoiceNextConnection()
@@ -551,7 +562,7 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private async Task VoiceWS_SocketMessage(WebSocketMessageEventArgs e)
+        private async Task VoiceWS_SocketMessage(SocketMessageEventArgs e)
         {
             await this.HandleDispatch(JObject.Parse(e.Message));
         }
@@ -560,6 +571,9 @@ namespace DSharpPlus.VoiceNext
         {
             await this.StartAsync();
         }
+
+        private Task VoiceWs_SocketErrored(SocketErrorEventArgs e) =>
+            this._voice_socket_error.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
 
         private static uint UnixTimestamp(DateTime dt)
         {
