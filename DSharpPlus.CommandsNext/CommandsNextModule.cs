@@ -604,5 +604,61 @@ namespace DSharpPlus.CommandsNext
             await ctx.RespondAsync("", embed: embed);
         }
         #endregion
+
+        #region Sudo
+        /// <summary>
+        /// Creates a fake message and executes a command using said message as context. Note that any command that looks the message up might throw.
+        /// </summary>
+        /// <param name="user">User to execute as.</param>
+        /// <param name="channel">Channel to execute in.</param>
+        /// <param name="message">Contents of the fake message.</param>
+        /// <returns></returns>
+        public async Task SudoAsync(DiscordUser user, DiscordChannel channel, string message)
+        {
+            var eph = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            var dtn = DateTimeOffset.UtcNow;
+            var ts = (ulong)(eph - dtn).TotalMilliseconds;
+
+            // create fake message
+            var msg = new DiscordMessage
+            {
+                Author = user,
+                ChannelId = channel.Id,
+                Content = message,
+                Id = ts << 22,
+                Pinned = false,
+                MentionEveryone = message.Contains("@everyone"),
+                TTS = false,
+                _attachments = new List<DiscordAttachment>(),
+                _embeds = new List<DiscordEmbed>(),
+                TimestampRaw = dtn.ToString("yyyy-MM-ddTHH:mm:sszzz"),
+                _reactions = new List<DiscordReaction>()
+            };
+
+            var mentioned_users = new List<DiscordUser>();
+            var mentioned_roles = msg.Channel.Guild != null ? new List<DiscordRole>() : null;
+            var mentioned_channels = msg.Channel.Guild != null ? new List<DiscordChannel>() : null;
+
+            if (!string.IsNullOrWhiteSpace(msg.Content))
+            {
+                if (msg.Channel.Guild != null)
+                {
+                    mentioned_users = Utils.GetUserMentions(msg).Select(xid => msg.Channel.Guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_roles = Utils.GetRoleMentions(msg).Select(xid => msg.Channel.Guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
+                    mentioned_channels = Utils.GetChannelMentions(msg).Select(xid => msg.Channel.Guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
+                }
+                else
+                {
+                    mentioned_users = Utils.GetUserMentions(msg).Select(xid => this.Client.InternalGetCachedUser(xid)).ToList();
+                }
+            }
+
+            msg._mentioned_users = mentioned_users;
+            msg._mentioned_roles = mentioned_roles;
+            msg._mentioned_channels = mentioned_channels;
+
+            await this.HandleCommands(new MessageCreateEventArgs(this.Client) { Message = msg });
+        }
+        #endregion
     }
 }
