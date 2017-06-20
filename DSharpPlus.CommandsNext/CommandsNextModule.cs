@@ -615,7 +615,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns></returns>
         public async Task SudoAsync(DiscordUser user, DiscordChannel channel, string message)
         {
-            var eph = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            var eph = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
             var dtn = DateTimeOffset.UtcNow;
             var ts = (ulong)(eph - dtn).TotalMilliseconds;
 
