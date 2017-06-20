@@ -120,6 +120,7 @@ namespace DSharpPlus.VoiceNext
 #if !NETSTANDARD1_1
             this._voice_received = new AsyncEvent<VoiceReceivedEventArgs>(this.Discord.EventErrorHandler, "VOICE_RECEIVED");
 #endif
+            this._voice_socket_error = new AsyncEvent<SocketErrorEventArgs>(this.Discord.EventErrorHandler, "VOICE_WS_ERROR");
             this.TokenSource = new CancellationTokenSource();
 
             this.Configuration = config;
