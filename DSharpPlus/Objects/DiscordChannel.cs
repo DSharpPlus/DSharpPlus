@@ -40,7 +40,7 @@ namespace DSharpPlus
                         return ChannelType.Text;
 
                     case "voice":
-                        return ChannelType.Unknown;
+                        return ChannelType.Voice;
                 }
 
                 return ChannelType.Unknown;
