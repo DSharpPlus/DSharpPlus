@@ -226,92 +226,6 @@ namespace DSharpPlus.CommandsNext
             return t.Name;
         }
 
-        /*/// <summary>
-        /// Parses given argument string into individual strings.
-        /// </summary>
-        /// <param name="str">String to parse.</param>
-        /// <returns>Enumerator of parsed strings.</returns>
-        public static IEnumerable<string> SplitArguments(string str)
-        {
-            if (string.IsNullOrWhiteSpace(str))
-                yield break;
-
-            var in_backtick = false;
-            var in_triple_backtick = false;
-            var in_quote = false;
-            var in_escape = false;
-            var sp = -1;
-            var ep = -1;
-            for (int i = 0; i < str.Length; i++)
-            {
-                if (char.IsWhiteSpace(str[i]) && !in_quote && !in_triple_backtick && !in_backtick && !in_escape)
-                    ep = i;
-
-                if (sp == -1)
-                    sp = i;
-
-                if (str[i] == '\\')
-                {
-                    if (!in_escape && !in_backtick && !in_triple_backtick)
-                    {
-                        in_escape = true;
-                        if (str.IndexOf("\\`", i) == i || str.IndexOf("\\\"", i) == i || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
-                            str = str.Remove(i, 1);
-                        else
-                            i++;
-                    }
-                    else if ((in_backtick || in_triple_backtick) && str.IndexOf("\\`", i) == i)
-                    {
-                        in_escape = true;
-                        str = str.Remove(i, 1);
-                    }
-                }
-
-                if (str[i] == '`' && !in_escape)
-                {
-                    if (in_triple_backtick && str.IndexOf("```", i) == i)
-                    {
-                        in_triple_backtick = false;
-                        i += 2;
-                    }
-                    else if (!in_backtick && str.IndexOf("```", i) == i)
-                    {
-                        in_triple_backtick = true;
-                        i += 2;
-                    }
-
-                    if (in_backtick && str.IndexOf("```", i) != i)
-                        in_backtick = false;
-                    else if (!in_triple_backtick && str.IndexOf("```", i) == i)
-                        in_backtick = true;
-                }
-
-                if (str[i] == '"' && !in_escape && !in_backtick && !in_triple_backtick)
-                {
-                    str = str.Remove(i, 1);
-                    i--;
-
-                    if (!in_quote)
-                        in_quote = true;
-                    else
-                        in_quote = false;
-                }
-
-                if (in_escape)
-                    in_escape = false;
-
-                if (sp != -1 && ep != -1 && sp < ep)
-                {
-                    yield return str.Substring(sp, ep - sp);
-                    ep = -1;
-                    sp = -1;
-                }
-            }
-
-            if (sp != -1)
-                yield return str.Substring(sp);
-        }*/
-
         internal static string ExtractNextArgument(string str, out string remainder)
         {
             remainder = null;
@@ -404,31 +318,6 @@ namespace DSharpPlus.CommandsNext
 
             var args = new object[cmd.Arguments.Count + 1];
             args[0] = ctx;
-
-            /*if (ctx.RawArguments.Count < cmd.Arguments.Count(xa => !xa.IsOptional && !xa.IsCatchAll))
-                throw new ArgumentException("Not enough arguments were supplied.");
-
-            if (ctx.RawArguments.Count > cmd.Arguments.Count && ((cmd.Arguments.Any() && !cmd.Arguments.Last().IsCatchAll) || cmd.Arguments.Count == 0))
-                throw new ArgumentException("Too many arguments were supplied.");
-
-
-            for (int i = 0; i < ctx.RawArguments.Count; i++)
-                if (!cmd.Arguments[i].IsCatchAll)
-                    args[i + 1] = ConvertArgument(ctx.RawArguments[i], ctx, cmd.Arguments[i].Type);
-                else
-                {
-                    args[i + 1] = Array.CreateInstance(cmd.Arguments[i].Type, ctx.RawArguments.Count - i);
-                    var t = ctx.RawArguments.Skip(i).Select(xs => ConvertArgument(xs, ctx, cmd.Arguments[i].Type)).ToArray();
-                    Array.Copy(t, (Array)args[i + 1], t.Length);
-                    break;
-                }
-
-            if (ctx.RawArguments.Count < args.Length - 1)
-                for (int i = ctx.RawArguments.Count; i < cmd.Arguments.Count; i++)
-                    if (cmd.Arguments[i].IsOptional)
-                        args[i + 1] = cmd.Arguments[i].DefaultValue;
-                    else if (cmd.Arguments[i].IsCatchAll)
-                        args[i + 1] = Array.CreateInstance(cmd.Arguments[i].Type, 0);*/
 
             var argstr = ctx.RawArgumentString;
             var argrmd = "";
