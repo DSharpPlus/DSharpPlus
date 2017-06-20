@@ -22,12 +22,30 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
+        
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        private string _type;
 
         /// <summary>
         /// Gets the type of this channel.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ChannelType Type { get; internal set; }
+        [JsonIgnore]
+        public ChannelType Type
+        {
+            get
+            {
+                switch (this._type.ToLower())
+                {
+                    case "text":
+                        return ChannelType.Text;
+
+                    case "voice":
+                        return ChannelType.Unknown;
+                }
+
+                return ChannelType.Unknown;
+            }
+        }
 
         /// <summary>
         /// Gets the position of this channel.
