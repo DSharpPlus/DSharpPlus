@@ -23,7 +23,9 @@ For events without arguments, following methods are acceptable: ::
 	client.Event += async () =>
 	{
 		await Task.Yield();
+		
 		// do something non-async
+		client.SomethingNonAsync();
 	};
 	
 	client.Event += () =>
@@ -49,7 +51,9 @@ For events without arguments, following methods are acceptable: ::
 	public async Task MyHandler()
 	{
 		await Task.Yield();
+		
 		// do something non-async
+		client.SomethingNonAsync();
 	}
 	
 	public Task MyHandler()
@@ -75,7 +79,9 @@ Handlers in VB.NET can only be functions, but the rest still appplies: ::
 	Public Async Function OnEvent() As Task Handles Client.Event
 	
 		Await Task.Yield()
+		
 		' do something non-async
+		Client.SomethingNonAsync()
 	
 	End Function
 	
@@ -101,7 +107,9 @@ For events that take arguments, you need to make your handler take arguments too
 	client.Event += async e =>
 	{
 		await Task.Yield();
+		
 		// do something non-async
+		e.SomethingNonAsync();
 	};
 	
 	client.Event += e =>
@@ -127,7 +135,9 @@ For events that take arguments, you need to make your handler take arguments too
 	public async Task MyHandler(EventEventArgs e)
 	{
 		await Task.Yield();
+		
 		// do something non-async
+		e.SomethingNonAsync();
 	}
 	
 	public Task MyHandler(EventEventArgs e)
@@ -150,7 +160,9 @@ Similarly, in Visual Basic: ::
 	Public Async Function OnEvent(ByVal e As EventEventArgs) As Task Handles Client.Event
 	
 		Await Task.Yield()
+		
 		' do something non-async
+		e.SomethingNonAsync()
 	
 	End Function
 	

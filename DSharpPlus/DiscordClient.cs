@@ -504,9 +504,13 @@ namespace DSharpPlus
 
         internal int _shardCount = 1;
         /// <summary>
-        /// Number of shards the bot is connected with
+        /// Gets the total number of shards the bot is connected to.
         /// </summary>
         public int ShardCount => this.config.ShardCount;
+
+        /// <summary>
+        /// Gets the currently connected shard ID.
+        /// </summary>
         public int ShardId => this.config.ShardId;
 
         internal DiscordUser _current_user;
@@ -867,13 +871,6 @@ namespace DSharpPlus
         /// <param name="guild"></param>
         /// <returns></returns>
         public Task DeleteGuildAsync(DiscordGuild guild) => this._rest_client.InternalDeleteGuildAsync(guild.Id);
-
-        /// <summary>
-        /// Gets a channel
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public Task<DiscordChannel> GetChannelByIdAsync(ulong id) => this._rest_client.InternalGetChannelAsync(id);
 
         /// <summary>
         /// Gets an invite
@@ -1533,7 +1530,7 @@ namespace DSharpPlus
             var ea = new GuildEmojisUpdateEventArgs(this)
             {
                 Guild = guild,
-                Emojis = guild.Emojis,
+                EmojisAfter = guild.Emojis,
                 EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old_emojis)
             };
             await this._guild_emojis_update.InvokeAsync(ea);
