@@ -15,5 +15,7 @@ Bot guides
 	:maxdepth: 1
 	
 	First-bot
+	Alternate-socket-providers
 	Commands
+	Interactivity
 	Voice

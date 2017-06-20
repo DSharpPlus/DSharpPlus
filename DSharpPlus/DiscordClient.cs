@@ -551,16 +551,6 @@ namespace DSharpPlus
         #endregion
 
         /// <summary>
-        /// Intializes a new instance of DiscordClient
-        /// </summary>
-        public DiscordClient()
-        {
-            this.config = new DiscordConfig();
-
-            InternalSetup();
-        }
-
-        /// <summary>
         /// Initializes a new instance of DiscordClient
         /// </summary>
         /// <param name="config">Overwrites the default config</param>
