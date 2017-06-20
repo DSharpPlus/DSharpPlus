@@ -352,7 +352,7 @@ namespace DSharpPlus
                 values["payload_json"] = JsonConvert.SerializeObject(pld);
 
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", channel_id, Endpoints.MESSAGES);
-            var res = await this.DoMultipartAsync(this.Discord, url, HttpRequestMethod.POST, values, files: file);
+            var res = await this.DoMultipartAsync(this.Discord, url, HttpRequestMethod.POST, values: values, files: file);
 
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
             ret.Discord = this.Discord;
@@ -376,7 +376,7 @@ namespace DSharpPlus
                 values["payload_json"] = JsonConvert.SerializeObject(pld);
 
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", channel_id, Endpoints.MESSAGES);
-            var res = await this.DoMultipartAsync(this.Discord, url, HttpRequestMethod.POST, values, files: files);
+            var res = await this.DoMultipartAsync(this.Discord, url, HttpRequestMethod.POST, values: values, files: files);
 
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
             ret.Discord = this.Discord;

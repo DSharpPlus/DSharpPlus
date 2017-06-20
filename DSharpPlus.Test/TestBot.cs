@@ -52,6 +52,7 @@ namespace DSharpPlus.Test
             Discord.MessageReactionAdd += this.Discord_MessageReactionAdd;
             Discord.MessageReactionRemoveAll += this.Discord_MessageReactionRemoveAll;
             Discord.PresenceUpdate += this.Discord_PresenceUpdate;
+            Discord.SocketError += this.Discord_SocketError;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -187,6 +188,12 @@ namespace DSharpPlus.Test
             return Task.Delay(0);
 
             //await e.Message.DeleteAllReactions();
+        }
+
+        private Task Discord_SocketError(SocketErrorEventArgs e)
+        {
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "WebSocket", $"WS threw an exception: {e.Exception.GetType()}", DateTime.Now);
+            return Task.Delay(0);
         }
 
         private async Task CommandsNextService_CommandErrored(CommandErrorEventArgs e)
