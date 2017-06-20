@@ -196,9 +196,13 @@ namespace DSharpPlus
             {
                 pmds[i] = new RestGuildChannelReorderPayload
                 {
-                    ChannelId = chns[i].Id,
-                    Position = chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position
+                    ChannelId = chns[i].Id
                 };
+
+                if (chns[i].Id == this.Id)
+                    pmds[i].Position = position;
+                else
+                    pmds[i].Position = chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position;
             }
 
             return this.Discord._rest_client.InternalModifyGuildChannelPosition(this.Guild.Id, pmds, reason);
