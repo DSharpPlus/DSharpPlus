@@ -332,7 +332,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            DiscordMessage m = await _client.SendMessageAsync(channel.Id, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
+            DiscordMessage m = await _client.SendMessageAsync(channel, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
 
             PaginatedMessage pm = new PaginatedMessage()
             {

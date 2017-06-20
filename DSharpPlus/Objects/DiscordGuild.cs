@@ -395,7 +395,7 @@ namespace DSharpPlus
             return this.Discord._rest_client.InternalModifyGuildRolePosition(this.Id, pmds, reason);
         }
 
-        public Task<DiscordRole> CreateRoleAsync(string name = "", Permissions? permissions = null, int? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) =>
+        public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, int? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) =>
             this.Discord._rest_client.InternalCreateGuildRole(this.Id, name, permissions, color, hoist, mentionable, reason);
 
         public Task DeleteRoleAsync(DiscordRole role) =>

@@ -57,7 +57,7 @@ namespace DSharpPlus.Test
         public async Task Testerino(CommandContext e)
         {
             await e.Client.SendMessageAsync(e.Channel, "ill bash ur head in i sweak on me fkin mum");
-            await e.Client.SendMessageAsync(e.Message.Channel.Id, $@"```
+            await e.Client.SendMessageAsync(e.Message.Channel, $@"```
 Servername: {e.Guild.Name}
 Serverowner: {e.Guild.Owner.DisplayName}
 ```");
@@ -309,7 +309,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
         [Command("modifyme")]
         public async Task ModifyMe(CommandContext e) =>
-            await e.Client.ModifyMemberAsync(e.Member, "Tests D#+ instead of going outside", null, null, null, null, "D#+ Testing");
+            await e.Member.ModifyAsync("Tests D#+ instead of going outside", null, null, null, null, "D#+ Testing");
 
         [Group("voice"), Description("Provides voice commands."), Aliases("audio")]
         public class VoiceCommands

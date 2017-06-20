@@ -52,7 +52,6 @@ namespace DSharpPlus.Test
             Discord.MessageReactionAdd += this.Discord_MessageReactionAdd;
             Discord.MessageReactionRemoveAll += this.Discord_MessageReactionRemoveAll;
             Discord.PresenceUpdate += this.Discord_PresenceUpdate;
-            Discord.ClientError += this.Discord_ClientError;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -188,53 +187,6 @@ namespace DSharpPlus.Test
             return Task.Delay(0);
 
             //await e.Message.DeleteAllReactions();
-        }
-
-        private async Task Discord_ClientError(ClientErrorEventArgs e)
-        {
-            var exs = new List<Exception>();
-            if (e.Exception is AggregateException ae)
-                exs.AddRange(ae.InnerExceptions);
-            else
-                exs.Add(e.Exception);
-
-            foreach (var ex in exs)
-            {
-                var ms = ex.Message;
-                var st = ex.StackTrace;
-
-                ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
-                st = st.Length > 1000 ? st.Substring(0, 1000) : st;
-
-                var embed = new DiscordEmbed
-                {
-                    Color = 0xFF0000,
-                    Title = "An exception occured within the client",
-                    Description = $"Event `{e.EventName}` threw an exception.",
-                    Footer = new DiscordEmbedFooter
-                    {
-                        IconUrl = Discord.CurrentUser.AvatarUrl,
-                        Text = Discord.CurrentUser.Username
-                    },
-                    Timestamp = DateTime.UtcNow,
-                    Fields = new List<DiscordEmbedField>()
-                {
-                    new DiscordEmbedField
-                    {
-                        Name = "Message",
-                        Value = ms,
-                        Inline = false
-                    },
-                    new DiscordEmbedField
-                    {
-                        Name = "Stack trace",
-                        Value = $"```cs\n{st}\n```",
-                        Inline = false
-                    }
-                }
-                };
-                await e.Client.SendMessageAsync(186565646161674240u, "\u200b", embed: embed);
-            }
         }
 
         private async Task CommandsNextService_CommandErrored(CommandErrorEventArgs e)

@@ -24,7 +24,7 @@ namespace DSharpPlus
         public string Name { get; internal set; }
         
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        private string _type;
+        internal string _type;
 
         /// <summary>
         /// Gets the type of this channel.

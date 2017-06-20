@@ -1290,7 +1290,7 @@ namespace DSharpPlus
                     _permission_overwrites = channel_new._permission_overwrites,
                     Position = channel_new.Position,
                     Topic = channel_new.Topic,
-                    Type = channel_new.Type,
+                    _type = channel_new._type,
                     UserLimit = channel_new.UserLimit
                 };
             else
