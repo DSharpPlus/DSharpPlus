@@ -622,6 +622,7 @@ namespace DSharpPlus.CommandsNext
             // create fake message
             var msg = new DiscordMessage
             {
+                Discord = this.Client,
                 Author = user,
                 ChannelId = channel.Id,
                 Content = message,

@@ -82,6 +82,12 @@ namespace DSharpPlus.Test
             }
         }
 
+        [Command("sudo"), Description("Run a command as another user."), RequireOwner]
+        public async Task Sudo(CommandContext ctx, DiscordUser user, string content)
+        {
+            await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content);
+        }
+
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
         public class InteractivityTest
         {
