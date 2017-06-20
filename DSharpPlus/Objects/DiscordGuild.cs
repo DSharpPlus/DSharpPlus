@@ -381,15 +381,16 @@ namespace DSharpPlus
 
         public Task UpdateRolePositionAsync(DiscordRole role, int position, string reason = null)
         {
-            var roles = this._roles.OrderByDescending(xr => xr.Position).ToArray();
+            var roles = this._roles.Where(xr => xr.Id != this.Id).OrderByDescending(xr => xr.Position).ToArray();
             var pmds = new RestGuildRoleReorderPayload[roles.Length];
             for (var i = 0; i < roles.Length; i++)
             {
-                pmds[i] = new RestGuildRoleReorderPayload
-                {
-                    RoleId = roles[i].Id,
-                    Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position
-                };
+                pmds[i] = new RestGuildRoleReorderPayload { RoleId = roles[i].Id };
+
+                if (roles[i].Id == role.Id)
+                    pmds[i].Position = position;
+                else
+                    pmds[i].Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position;
             }
 
             return this.Discord._rest_client.InternalModifyGuildRolePosition(this.Id, pmds, reason);
