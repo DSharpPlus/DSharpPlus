@@ -134,7 +134,8 @@ namespace DSharpPlus
 
         public Task SetDeafAsync(bool deaf, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(_guild_id, this.Id, null, null, null, deaf, null, reason);
 
-        public Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, ulong? voice_channel_id = null, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles.Select(xr => xr.Id), mute, deaf, voice_channel_id, reason);
+        public Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, ulong? voice_channel_id = null, string reason = null) => 
+            this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel_id, reason);
 
         public Task GrantRoleAsync(DiscordRole role, string reason = null) =>
             this.Discord._rest_client.InternalAddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
