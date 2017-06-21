@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -133,6 +134,23 @@ namespace DSharpPlus.Test
                 }
             };
             await ctx.RespondAsync("", embed: embed);
+        }
+
+        [Command("gibemoji"), Aliases("echoemoji"), Description("Echo back some emoji.")]
+        public async Task GibEmoji(CommandContext ctx, [Description("Emoji to echo back.")] params DiscordEmoji[] args)
+        {
+            await ctx.TriggerTypingAsync();
+
+            var sb = new StringBuilder();
+            foreach (var xe in args)
+            {
+                if (xe.Id == 0ul) // unicode
+                    sb.Append(xe.ToString()).AppendLine(" (unicode)");
+                else // custom
+                    sb.Append(xe.ToString()).Append(" (guild; name=`").Append(xe.Name).Append("`; id=").Append(xe.Id).AppendLine(")");
+            }
+
+            await ctx.RespondAsync(sb.ToString());
         }
 
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]

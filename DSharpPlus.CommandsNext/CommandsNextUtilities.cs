@@ -44,7 +44,8 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordRole)] = new DiscordRoleConverter(),
                 [typeof(DiscordChannel)] = new DiscordChannelConverter(),
                 [typeof(DiscordGuild)] = new DiscordGuildConverter(),
-                [typeof(DiscordMessage)] = new DiscordMessageConverter()
+                [typeof(DiscordMessage)] = new DiscordMessageConverter(),
+                [typeof(DiscordEmoji)] = new DiscordEmojiConverter()
             };
 
             var t = typeof(CommandsNextUtilities);
@@ -75,7 +76,8 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordRole)] = "role",
                 [typeof(DiscordChannel)] = "channel",
                 [typeof(DiscordGuild)] = "guild",
-                [typeof(DiscordMessage)] = "message"
+                [typeof(DiscordMessage)] = "message",
+                [typeof(DiscordEmoji)] = "emoji"
             };
         }
 

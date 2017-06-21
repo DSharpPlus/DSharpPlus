@@ -183,4 +183,34 @@ namespace DSharpPlus.CommandsNext.Converters
             return false;
         }
     }
+
+    public class DiscordEmojiConverter : IArgumentConverter<DiscordEmoji>
+    {
+        private static Regex EmoteRegex { get; set; }
+
+        static DiscordEmojiConverter()
+        {
+            EmoteRegex = new Regex(@"<:([a-zA-Z0-9_]+?):(\d+?)>");
+        }
+
+        public bool TryConvert(string value, CommandContext ctx, out DiscordEmoji result)
+        {
+            if (DiscordEmoji.UnicodeEmojiList.Contains(value))
+            {
+                result = DiscordEmoji.FromUnicode(ctx.Client, value);
+                return true;
+            }
+
+            var m = EmoteRegex.Match(value);
+            if (m.Success)
+            {
+                var id = ulong.Parse(m.Groups[2].Value);
+                result = DiscordEmoji.FromGuildEmote(ctx.Client, id);
+                return true;
+            }
+
+            result = null;
+            return false;
+        }
+    }
 }

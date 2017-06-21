@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace DSharpPlus
 {
     public partial class DiscordEmoji : SnowflakeObject
     {
         private static IReadOnlyDictionary<string, string> UnicodeEmojis { get; set; }
+        internal static IReadOnlyList<string> UnicodeEmojiList { get; set; }
 
         static DiscordEmoji()
         {
@@ -1934,6 +1936,9 @@ namespace DSharpPlus
                 ["X-)"] = "😆"
             };
             UnicodeEmojis = new ReadOnlyDictionary<string, string>(edict);
+
+            var el = edict.Values.Distinct().OrderBy(xs => xs);
+            UnicodeEmojiList = new ReadOnlyCollection<string>(new List<string>(el));
         }
     }
 }
