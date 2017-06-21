@@ -15,6 +15,8 @@ Here you will find complete reference for all of DSharpPlus' API. Look through t
 	DiscordUser
 	DiscordRole
 	DiscordMessage
+	DiscordEmoji
+	audit-logs/index.rst
 	entities/index.rst
 	commands/index.rst
 	voice/index.rst

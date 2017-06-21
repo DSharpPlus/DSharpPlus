@@ -636,7 +636,7 @@ namespace DSharpPlus.CommandsNext
                 Id = ts << 22,
                 Pinned = false,
                 MentionEveryone = message.Contains("@everyone"),
-                TTS = false,
+                IsTTS = false,
                 _attachments = new List<DiscordAttachment>(),
                 _embeds = new List<DiscordEmbed>(),
                 TimestampRaw = dtn.ToString("yyyy-MM-ddTHH:mm:sszzz"),

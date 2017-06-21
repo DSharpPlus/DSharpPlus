@@ -580,7 +580,7 @@ Methods
 	Edits the current user.
 	
 	:param username: New username to set. Optional, defaults to ``null``.
-	:param avatar: Stream containing avatar data for the user. Optional, defaults to ``null``. If this is specified, ``avatar_format`` must also be specified.
+	:param avatar: Stream containing avatar data for the user. Must be valid PNG, JPG, or GIF image. Optional, defaults to ``null``. If this is specified, ``avatar_format`` must also be specified.
 	:param avatar_format: Instance of :doc:`ImageFormat </reference/misc/ImageFormat>` specifying the format of attached data. Optional, defaults to ``null``.
 
 Additional notes

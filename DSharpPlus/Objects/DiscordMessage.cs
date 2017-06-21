@@ -63,7 +63,7 @@ namespace DSharpPlus
         /// Gets whether the message is a text-to-speech message.
         /// </summary>
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
-        public bool TTS { get; internal set; }
+        public bool IsTTS { get; internal set; }
 
         /// <summary>
         /// Gets whether the message mentions everyone.
@@ -198,7 +198,7 @@ namespace DSharpPlus
         /// <param name="tts"></param>
         /// <param name="embed"></param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool tts = false, DiscordEmbed embed = null) => 
+        public Task<DiscordMessage> RespondAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) => 
             this.Discord._rest_client.InternalUploadFileAsync(ChannelId, file_data, file_name, content, tts, embed);
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace DSharpPlus
         /// <param name="tts"></param>
         /// <param name="embed"></param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content, Dictionary<string, Stream> files, bool tts = false, DiscordEmbed embed = null) =>
+        public Task<DiscordMessage> RespondAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null) =>
             this.Discord._rest_client.InternalUploadFilesAsync(ChannelId, files, content, tts, embed);
 
         /// <summary>
@@ -217,36 +217,26 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
         /// <returns></returns>
-        public Task CreateReactionAsync(string emoji) =>
-            this.Discord._rest_client.InternalCreateReactionAsync(ChannelId, Id, emoji);
+        public Task CreateReactionAsync(DiscordEmoji emoji) =>
+            this.Discord._rest_client.InternalCreateReactionAsync(this.ChannelId, this.Id, emoji.ToString());
 
         /// <summary>
         /// Deletes your own reaction
         /// </summary>
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
         /// <returns></returns>
-        public Task DeleteOwnReactionAsync(string emoji) =>
-            this.Discord._rest_client.InternalDeleteOwnReactionAsync(ChannelId, Id, emoji);
+        public Task DeleteOwnReactionAsync(DiscordEmoji emoji) =>
+            this.Discord._rest_client.InternalDeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToString());
 
         /// <summary>
         /// Deletes another user's reaction.
         /// </summary>
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
-        /// <param name="member">Member you want to remove the reaction for</param>
+        /// <param name="user">Member you want to remove the reaction for</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteReactionAsync(string emoji, DiscordMember member, string reason = null) =>
-            this.Discord._rest_client.InternalDeleteUserReactionAsync(ChannelId, Id, member.Id, emoji, reason);
-
-        /// <summary>
-        /// Deletes another user's reaction.
-        /// </summary>
-        /// <param name="emoji">Emoji to react with.</param>
-        /// <param name="user_id">User ID of the member you want to remove the reaction for</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task DeleteReactionAsync(DiscordEmoji emoji, ulong user_id, string reason = null) =>
-            this.Discord._rest_client.InternalDeleteUserReactionAsync(ChannelId, Id, user_id, emoji.ToString(), reason);
+        public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null) =>
+            this.Discord._rest_client.InternalDeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToString(), reason);
 
         /// <summary>
         /// Gets users that reacted with this emoji

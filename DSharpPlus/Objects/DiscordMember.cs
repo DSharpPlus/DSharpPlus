@@ -92,7 +92,7 @@ namespace DSharpPlus
         /// Date the user joined the guild
         /// </summary>
         [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime JoinedAt { get; internal set; }
+        public DateTimeOffset JoinedAt { get; internal set; }
 
         /// <summary>
         /// If the user is deafened
@@ -128,14 +128,19 @@ namespace DSharpPlus
         /// </summary>
         public DiscordGuild Guild => this.Discord.Guilds[_guild_id];
 
-        public Task<DiscordDmChannel> SendDmAsync() => this.Discord._rest_client.InternalCreateDmAsync(this.Id);
+        public Task<DiscordDmChannel> CreateDmChannelAsync() => this.Discord._rest_client.InternalCreateDmAsync(this.Id);
 
         public Task SetMuteAsync(bool mute, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(_guild_id, this.Id, null, null, mute, null, null, reason);
 
         public Task SetDeafAsync(bool deaf, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(_guild_id, this.Id, null, null, null, deaf, null, reason);
 
-        public Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, ulong? voice_channel_id = null, string reason = null) => 
-            this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel_id, reason);
+        public Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, DiscordChannel voice_channel = null, string reason = null)
+        {
+            if (voice_channel != null && voice_channel.Type != ChannelType.Voice)
+                throw new ArgumentException("Given channel is not a voice channel.", nameof(voice_channel));
+
+            return this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason);
+        }
 
         public Task GrantRoleAsync(DiscordRole role, string reason = null) =>
             this.Discord._rest_client.InternalAddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);

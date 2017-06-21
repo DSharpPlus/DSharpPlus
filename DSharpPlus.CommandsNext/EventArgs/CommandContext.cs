@@ -82,8 +82,8 @@ namespace DSharpPlus.CommandsNext
         /// <param name="file_name">Name of the file to send.</param>
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content, Stream file_data, string file_name, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.RespondAsync(content, file_data, file_name, is_tts, embed);
+        public Task<DiscordMessage> RespondAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
+            this.Message.RespondAsync(file_data, file_name, content, is_tts, embed);
 
         /// <summary>
         /// Quickly respond with multiple files to the message that triggered the command.
@@ -92,8 +92,8 @@ namespace DSharpPlus.CommandsNext
         /// <param name="files">Files to send.</param>
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content, Dictionary<string, Stream> files, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.RespondAsync(content, files, is_tts, embed);
+        public Task<DiscordMessage> RespondAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
+            this.Message.RespondAsync(files, content, is_tts, embed);
 
         /// <summary>
         /// Triggers typing in the channel containing the message that triggered the command.

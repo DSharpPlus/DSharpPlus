@@ -6,6 +6,10 @@ Represents a role that can be assigned to members in a :doc:`DiscordGuild </refe
 Members
 -------
 
+.. attribute:: Id
+
+	This role's ID.
+
 .. attribute:: Name
 
 	This role's name.
@@ -30,7 +34,7 @@ Members
 
 	.. note::
 	
-		If this value is true, this role's properties cannot be modified.
+		If this value is true, this role's properties other than color and permissions cannot be modified.
 
 	Whether or not this role is managed by integrations.
 
@@ -51,15 +55,3 @@ Methods
 	enum. Value is ``Allowed`` if the permission is present, otherwise ``Unset`` is returned.
 	
 	:param permission: An instance of :doc:`Permission </reference/misc/Permission>` enum to check for. Note that this method may not work on combined permissions.
-
-.. function:: AddPermission(permission)
-
-	Adds a specified permission to this role's permission list.
-
-	:param permission: An instance of :doc:`Permission </reference/misc/Permission>` enum to add. Note that this method may not work on combined permissions.
-
-.. function:: RemovePermission(permission)
-
-	Removes a specified permission from this role's permission list.
-	
-	:param permission: An instance of :doc:`Permission </reference/misc/Permission>` enum to remove. Note that this method may not work on combined permissions.

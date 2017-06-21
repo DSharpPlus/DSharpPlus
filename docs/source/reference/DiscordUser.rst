@@ -8,7 +8,7 @@ If you want to get a user associated to a guild, check out :doc:`DiscordGuild </
 Members
 -------
 
-.. attribute:: ID
+.. attribute:: Id
 
 	This user's ID.
 
@@ -22,17 +22,21 @@ Members
 
 .. attribute:: AvatarHash
 
-	This user's avatar hash. Used to get avatar url.
+	Hash of this user's avatar image.
 
 .. attribute:: AvatarUrl
 
-	This user's avatar url.
+	URL of this user's avatar.
+
+.. attribute:: DefaultAvatarUrl
+
+	URL of default avatar for this user.
 
 .. attribute:: IsBot
 
 	Whether or not this user is a bot.
 
-.. attribute:: MFAEnabled
+.. attribute:: MfaEnabled
 
 	Whether or not this user has mutli-factor authentication enabled. This value can be ``null``.
 

@@ -1345,7 +1345,7 @@ namespace DSharpPlus
             var exists = this._guilds.ContainsKey(guild.Id);
 
             guild.Discord = this;
-            guild.Unavailable = false;
+            guild.IsUnavailable = false;
             var event_guild = guild;
             if (exists)
                 guild = this._guilds[event_guild.Id];
@@ -1366,9 +1366,9 @@ namespace DSharpPlus
             this.UpdateCachedGuild(event_guild, raw_members);
 
             guild.JoinedAt = event_guild.JoinedAt;
-            guild.Large = event_guild.Large;
+            guild.IsLarge = event_guild.IsLarge;
             guild.MemberCount = Math.Max(event_guild.MemberCount, guild._members.Count);
-            guild.Unavailable = event_guild.Unavailable;
+            guild.IsUnavailable = event_guild.IsUnavailable;
             guild._voice_states.AddRange(event_guild._voice_states);
 
             foreach (var xc in guild._channels)
@@ -1399,7 +1399,7 @@ namespace DSharpPlus
                 return;
 
             guild.Discord = this;
-            guild.Unavailable = false;
+            guild.IsUnavailable = false;
             var event_guild = guild;
             guild = this._guilds[event_guild.Id];
 
@@ -1443,9 +1443,9 @@ namespace DSharpPlus
                 return;
 
             var gld = this._guilds[guild.Id];
-            if (guild.Unavailable)
+            if (guild.IsUnavailable)
             {
-                gld.Unavailable = true;
+                gld.IsUnavailable = true;
 
                 await this._guild_unavailable.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = guild, Unavailable = true });
             }
@@ -1459,7 +1459,7 @@ namespace DSharpPlus
 
         internal async Task OnGuildSyncEventAsync(DiscordGuild guild, bool is_large, JArray raw_members, IEnumerable<DiscordPresence> presences)
         {
-            guild.Large = is_large;
+            guild.IsLarge = is_large;
 
             presences = presences.Select(xp => { xp.Discord = this; return xp; });
             guild._presences.AddRange(presences);
@@ -1756,7 +1756,7 @@ namespace DSharpPlus
                 message._embeds.Clear();
                 message._embeds.AddRange(event_message._embeds);
                 message.Pinned = event_message.Pinned;
-                message.TTS = event_message.TTS;
+                message.IsTTS = event_message.IsTTS;
             }
 
             var mentioned_users = new List<DiscordUser>();

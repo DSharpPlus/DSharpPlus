@@ -147,19 +147,19 @@ namespace DSharpPlus
         /// Gets this guild's join date.
         /// </summary>
         [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime JoinedAt { get; internal set; }
+        public DateTimeOffset JoinedAt { get; internal set; }
 
         /// <summary>
         /// Gets whether this guild is considered to be a large guild.
         /// </summary>
         [JsonProperty("large", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Large { get; internal set; }
+        public bool IsLarge { get; internal set; }
 
         /// <summary>
         /// Gets whether this guild is unavailable.
         /// </summary>
         [JsonProperty("unavailable", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Unavailable { get; internal set; }
+        public bool IsUnavailable { get; internal set; }
 
         /// <summary>
         /// Gets the total number of members in this guild.
@@ -242,13 +242,18 @@ namespace DSharpPlus
         public Task DeleteAsync() =>
             this.Discord._rest_client.InternalDeleteGuildAsync(this.Id);
 
-        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, ImageFormat? icon_format = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null, ulong? afk_channel_id = null, int? afk_timeout = null, ulong? owner_id = null, Stream splash = null, string reason = null)
+        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, ImageFormat? icon_format = null, VerificationLevel? verification_level = null, 
+            DefaultMessageNotifications? default_message_notifications = null, DiscordChannel afk_channel = null, int? afk_timeout = null, DiscordMember owner = null, Stream splash = null, 
+            ImageFormat? splash_format = null, string reason = null)
         {
+            if (afk_channel != null && afk_channel.Type != ChannelType.Voice)
+                throw new ArgumentException("AFK channel needs to be a voice channel.");
+
             string iconb64 = null;
             if (icon != null)
             {
                 if (icon_format == null)
-                    throw new ArgumentNullException("When specifying new avatar, you must specify its format.");
+                    throw new ArgumentNullException("When specifying new icon, you must specify its format.");
 
                 using (var ms = new MemoryStream((int)(icon.Length - icon.Position)))
                 {
@@ -260,14 +265,17 @@ namespace DSharpPlus
             string splashb64 = null;
             if (splash != null)
             {
+                if (splash_format == null)
+                    throw new ArgumentNullException("When specifying new splash, you must specify its format.");
+
                 using (var ms = new MemoryStream((int)(splash.Length - splash.Position)))
                 {
                     await splash.CopyToAsync(ms);
-                    splashb64 = Convert.ToBase64String(ms.ToArray());
+                    splashb64 = string.Concat("data:image/", splash_format.Value.ToString(), ";base64,", Convert.ToBase64String(ms.ToArray()));
                 }
             }
 
-            return await this.Discord._rest_client.InternalModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, afk_channel_id, afk_timeout, iconb64, owner_id, splashb64, reason);
+            return await this.Discord._rest_client.InternalModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, afk_channel?.Id, afk_timeout, iconb64, owner?.Id, splashb64, reason);
         }
 
         public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null) =>
@@ -321,11 +329,8 @@ namespace DSharpPlus
         public Task<IReadOnlyCollection<DiscordWebhook>> GetWebhooksAsync() =>
             this.Discord._rest_client.InternalGetGuildWebhooksAsync(this.Id);
 
-        public Task RemoveMemberAsync(DiscordUser user) =>
-            this.Discord._rest_client.InternalRemoveGuildMemberAsync(Id, user.Id);
-
-        public Task RemoveMemberAsync(ulong user_id) =>
-            this.Discord._rest_client.InternalRemoveGuildMemberAsync(Id, user_id);
+        public Task RemoveMemberAsync(DiscordMember member, string reason = null) =>
+            this.Discord._rest_client.InternalRemoveGuildMemberAsync(this.Id, member.Id, reason);
 
         public Task<DiscordMember> GetMemberAsync(ulong user_id) =>
             this.Discord._rest_client.InternalGetGuildMemberAsync(Id, user_id);
@@ -399,17 +404,17 @@ namespace DSharpPlus
         public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, int? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) =>
             this.Discord._rest_client.InternalCreateGuildRole(this.Id, name, permissions, color, hoist, mentionable, reason);
 
-        public Task DeleteRoleAsync(DiscordRole role) =>
-            this.Discord._rest_client.InternalDeleteRoleAsync(this.Id, role.Id);
+        public Task DeleteRoleAsync(DiscordRole role, string reason = null) =>
+            this.Discord._rest_client.InternalDeleteRoleAsync(this.Id, role.Id, reason);
 
         public DiscordRole GetRole(ulong id) =>
             this.Roles.FirstOrDefault(xr => xr.Id == id);
 
-        public Task AddRoleAsync(ulong user_id, ulong role_id, string reason = null) =>
-            this.Discord._rest_client.InternalAddGuildMemberRoleAsync(Id, user_id, role_id, reason);
+        public Task AddRoleAsync(DiscordMember member, DiscordRole role, string reason = null) =>
+            this.Discord._rest_client.InternalAddGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
 
-        public Task RemoveRoleAsync(ulong user_id, ulong role_id, string reason) =>
-            this.Discord._rest_client.InternalRemoveGuildMemberRoleAsync(Id, user_id, role_id, reason);
+        public Task RemoveRoleAsync(DiscordMember member, DiscordRole role, string reason) =>
+            this.Discord._rest_client.InternalRemoveGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
 
         public async Task<IReadOnlyCollection<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
         {
