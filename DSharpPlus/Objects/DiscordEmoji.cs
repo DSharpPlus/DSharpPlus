@@ -8,7 +8,7 @@ namespace DSharpPlus
     /// <summary>
     /// 
     /// </summary>
-    public class DiscordEmoji : SnowflakeObject
+    public partial class DiscordEmoji : SnowflakeObject
     {
         /// <summary>
         /// Emoji Name
@@ -74,6 +74,34 @@ namespace DSharpPlus
                 throw new ArgumentOutOfRangeException(nameof(id), "Given emote was not found.");
 
             return ed[id];
+        }
+
+        /// <summary>
+        /// Creates a DiscordEmoji from emote name that includes colons (eg. :thinking:). This method also supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji (still specified by :name:).
+        /// </summary>
+        /// <param name="client"><see cref="DiscordClient"/> to attach to the object.</param>
+        /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
+        /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
+        public static DiscordEmoji FromName(DiscordClient client, string name)
+        {
+            if (client == null)
+                throw new ArgumentNullException(nameof(client), "Client cannot be null.");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
+
+            if (UnicodeEmojis.ContainsKey(name))
+                return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name] };
+
+            var ed = client.Guilds.Values.SelectMany(xg => xg.Emojis)
+                .OrderBy(xe => xe.Name)
+                .ToDictionary(xe => xe.Name, xe => xe);
+            var ek = name.Substring(1, name.Length - 2);
+
+            if (ed.ContainsKey(ek))
+                return ed[ek];
+
+            throw new ArgumentException(nameof(name), "Invalid emoji name specified.");
         }
     }
 }

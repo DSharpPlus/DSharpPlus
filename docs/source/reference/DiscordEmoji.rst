@@ -56,3 +56,14 @@ Methods
 	
 	:param client: :doc:`DiscordClient </reference/DiscordClient>` to attach the emote to.
 	:param id: ID of the emote to return.
+
+.. function:: FromName(client, name)
+
+	.. note::
+	
+		This method is static.
+	
+	Returns a ``DiscordEmoji`` of any kind from given emoji name.
+	
+	:param client: :doc:`DiscordClient </reference/DiscordClient>` to attach the emote to.
+	:param name: Name of the emoji, including colons. Examples: ``:thinking:``, ``:ok_hand::skin-tone-2:``, ``:D``, ``:FeelsBadMan:``.
