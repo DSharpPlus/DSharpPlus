@@ -419,15 +419,17 @@ namespace DSharpPlus.Interactivity
 
         public async Task GeneratePaginationReactions(DiscordMessage m)
         {
-            await m.CreateReactionAsync("⏮");
+            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮"));
             await Task.Delay(500);
-            await m.CreateReactionAsync("◀");
+            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀"));
             await Task.Delay(500);
-            await m.CreateReactionAsync("⏹");
+            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹"));
+            //await Task.Delay(500);
+            //await m.CreateReaction("🔢");
             await Task.Delay(500);
-            await m.CreateReactionAsync("▶");
+            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "▶"));
             await Task.Delay(500);
-            await m.CreateReactionAsync("⏭");
+            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏭"));
         }
 
         public async Task DoPagination(DiscordEmoji emoji, DiscordMessage m, PaginatedMessage pm, CancellationTokenSource ct)

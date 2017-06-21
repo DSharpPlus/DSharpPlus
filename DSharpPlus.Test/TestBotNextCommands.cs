@@ -189,7 +189,7 @@ namespace DSharpPlus.Test
 
                 var p = Path.Combine(p1, p2);
                 using (var fs = File.OpenRead(p))
-                    await ctx.RespondAsync("", fs, Path.GetFileName(p));
+                    await ctx.RespondAsync(fs, Path.GetFileName(p));
             }
         }
     }

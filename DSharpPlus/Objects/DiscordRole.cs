@@ -59,9 +59,5 @@ namespace DSharpPlus
                 return PermissionLevel.Allowed;
             return PermissionLevel.Unset;
         }
-
-        public void AddPermission(Permissions permission) { Permissions = DiscordClient.InternalAddPermission(Permissions, permission); }
-
-        public void RemovePermission(Permissions permission) { Permissions = DiscordClient.InternalRemovePermission(Permissions, permission); }
     }
 }

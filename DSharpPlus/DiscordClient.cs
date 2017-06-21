@@ -504,9 +504,13 @@ namespace DSharpPlus
 
         internal int _shardCount = 1;
         /// <summary>
-        /// Number of shards the bot is connected with
+        /// Gets the total number of shards the bot is connected to.
         /// </summary>
         public int ShardCount => this.config.ShardCount;
+
+        /// <summary>
+        /// Gets the currently connected shard ID.
+        /// </summary>
         public int ShardId => this.config.ShardId;
 
         internal DiscordUser _current_user;
@@ -867,13 +871,6 @@ namespace DSharpPlus
         /// <param name="guild"></param>
         /// <returns></returns>
         public Task DeleteGuildAsync(DiscordGuild guild) => this._rest_client.InternalDeleteGuildAsync(guild.Id);
-
-        /// <summary>
-        /// Gets a channel
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public Task<DiscordChannel> GetChannelByIdAsync(ulong id) => this._rest_client.InternalGetChannelAsync(id);
 
         /// <summary>
         /// Gets an invite
@@ -1355,7 +1352,7 @@ namespace DSharpPlus
             var exists = this._guilds.ContainsKey(guild.Id);
 
             guild.Discord = this;
-            guild.Unavailable = false;
+            guild.IsUnavailable = false;
             var event_guild = guild;
             if (exists)
                 guild = this._guilds[event_guild.Id];
@@ -1376,9 +1373,9 @@ namespace DSharpPlus
             this.UpdateCachedGuild(event_guild, raw_members);
 
             guild.JoinedAt = event_guild.JoinedAt;
-            guild.Large = event_guild.Large;
+            guild.IsLarge = event_guild.IsLarge;
             guild.MemberCount = Math.Max(event_guild.MemberCount, guild._members.Count);
-            guild.Unavailable = event_guild.Unavailable;
+            guild.IsUnavailable = event_guild.IsUnavailable;
             guild._voice_states.AddRange(event_guild._voice_states);
 
             foreach (var xc in guild._channels)
@@ -1409,7 +1406,7 @@ namespace DSharpPlus
                 return;
 
             guild.Discord = this;
-            guild.Unavailable = false;
+            guild.IsUnavailable = false;
             var event_guild = guild;
             guild = this._guilds[event_guild.Id];
 
@@ -1453,9 +1450,9 @@ namespace DSharpPlus
                 return;
 
             var gld = this._guilds[guild.Id];
-            if (guild.Unavailable)
+            if (guild.IsUnavailable)
             {
-                gld.Unavailable = true;
+                gld.IsUnavailable = true;
 
                 await this._guild_unavailable.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = guild, Unavailable = true });
             }
@@ -1541,7 +1538,7 @@ namespace DSharpPlus
             var ea = new GuildEmojisUpdateEventArgs(this)
             {
                 Guild = guild,
-                Emojis = guild.Emojis,
+                EmojisAfter = guild.Emojis,
                 EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old_emojis)
             };
             await this._guild_emojis_update.InvokeAsync(ea);
@@ -1767,7 +1764,7 @@ namespace DSharpPlus
                 message._embeds.Clear();
                 message._embeds.AddRange(event_message._embeds);
                 message.Pinned = event_message.Pinned;
-                message.TTS = event_message.TTS;
+                message.IsTTS = event_message.IsTTS;
             }
 
             var mentioned_users = new List<DiscordUser>();

@@ -6,11 +6,18 @@ Here you will find complete reference for miscellaneous entites in DSharpPlus' A
 .. toctree::
 	:maxdepth: 1
 	
+	DiscordApplication
+	IModule
+	DebugLogger
+	DiscordConfig
+	Game
 	TokenType
-	Permission
+	Branch
+	Permissions
 	MentionType
 	LogLevel
 	ChannelType
-	Branch
-	DiscordConfig
-	DebugLogger
+	VerificationLevel
+	DefaultMessageNotifications
+	ImageFormat
+	UserStatus

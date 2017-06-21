@@ -644,10 +644,15 @@ namespace DSharpPlus
             };
         }
 
-        internal Task InternalRemoveGuildMemberAsync(ulong guild_id, ulong user_id)
+        internal Task InternalRemoveGuildMemberAsync(ulong guild_id, ulong user_id, string reason)
         {
+            var pld = new RestGuildBanRemovePayload
+            {
+                Reason = reason
+            };
+
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.MEMBERS, "/", user_id);
-            return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.DELETE);
+            return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.DELETE, payload: JsonConvert.SerializeObject(pld));
         }
 
         internal async Task<DiscordUser> InternalModifyCurrentUserAsync(string username, string base64_avatar)
@@ -752,10 +757,14 @@ namespace DSharpPlus
             return ret;
         }
 
-        internal Task InternalDeleteRoleAsync(ulong guild_id, ulong role_id)
+        internal Task InternalDeleteRoleAsync(ulong guild_id, ulong role_id, string reason)
         {
+            var headers = Utils.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.ROLES, "/", role_id);
-            return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.DELETE);
+            return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.DELETE, headers);
         }
 
         internal async Task<DiscordRole> InternalCreateGuildRole(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)

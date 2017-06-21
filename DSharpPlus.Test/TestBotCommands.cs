@@ -193,7 +193,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 { "file2.jpeg", File.OpenRead("file2.jpeg") }
             };
 
-            await e.Message.RespondAsync("multiple images?", files);
+            await e.Message.RespondAsync(files, "multiple images?");
         }
 
         [Command("guild")]
