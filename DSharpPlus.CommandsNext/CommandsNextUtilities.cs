@@ -349,7 +349,10 @@ namespace DSharpPlus.CommandsNext
                     else
                     {
                         if (argstr == null)
+                        {
+                            args[i + 1] = arg.DefaultValue;
                             break;
+                        }
 
                         var j = 0;
                         for (; j < argstr.Length; j++)
@@ -357,7 +360,7 @@ namespace DSharpPlus.CommandsNext
                                 break;
                         if (j > 0)
                             argstr = argstr.Substring(i);
-
+                        
                         argv = argstr;
                         args[i + 1] = ConvertArgument(argv, ctx, arg.Type);
 
@@ -372,9 +375,14 @@ namespace DSharpPlus.CommandsNext
                 if (argv == null && !arg.IsOptional && !arg.IsCatchAll)
                     throw new ArgumentException("Not enough arguments supplied to the command.");
                 else if (argv == null)
-                    break;
-
-                args[i + 1] = ConvertArgument(argv, ctx, arg.Type);
+                {
+                    //break;
+                    args[i + 1] = arg.DefaultValue;
+                }
+                else
+                {
+                    args[i + 1] = ConvertArgument(argv, ctx, arg.Type);
+                }
                 argstr = argrmd;
             }
 
