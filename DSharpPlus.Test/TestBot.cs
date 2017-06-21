@@ -201,7 +201,7 @@ namespace DSharpPlus.Test
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                 return;
 
-            Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"{e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"An exception occured during {e.Context.User.Username}'s invocation of '{e.Context.Command.QualifiedName}': {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
 
             var exs = new List<Exception>();
             if (e.Exception is AggregateException ae)
@@ -218,13 +218,13 @@ namespace DSharpPlus.Test
                 var st = ex.StackTrace;
 
                 ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
-                st = st.Length > 1000 ? st.Substring(0, 1000) : st;
+                st = !string.IsNullOrWhiteSpace(st) ? (st.Length > 1000 ? st.Substring(0, 1000) : st) : "<no stack trace>";
 
                 var embed = new DiscordEmbed
                 {
                     Color = 0xFF0000,
                     Title = "An exception occured when executing a command",
-                    Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.Name}`.",
+                    Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.QualifiedName}`.",
                     Footer = new DiscordEmbedFooter
                     {
                         IconUrl = Discord.CurrentUser.AvatarUrl,
@@ -253,7 +253,7 @@ namespace DSharpPlus.Test
 
         private Task CommandsNextService_CommandExecuted(CommandExecutedEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "CommandsNext", $"{e.Context.User.Username} executed {e.Command.Name} in {e.Context.Channel.Name}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Info, "CommandsNext", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}", DateTime.Now);
             return Task.Delay(0);
         }
 

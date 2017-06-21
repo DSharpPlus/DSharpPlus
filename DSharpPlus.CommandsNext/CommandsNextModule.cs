@@ -189,8 +189,12 @@ namespace DSharpPlus.CommandsNext
                             if (!(await ec.CanExecute(ctx)))
                                 throw new ChecksFailedException("One or more execution pre-checks failed.", cmd, ctx);
 
-                    await cmd.Execute(ctx);
-                    await this._executed.InvokeAsync(new CommandExecutedEventArgs { Context = ctx });
+                    var res = await cmd.Execute(ctx);
+                    
+                    if (res.IsSuccessful)
+                        await this._executed.InvokeAsync(new CommandExecutedEventArgs { Context = res.Context });
+                    else
+                        await this._error.InvokeAsync(new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception });
                 }
                 catch (Exception ex)
                 {

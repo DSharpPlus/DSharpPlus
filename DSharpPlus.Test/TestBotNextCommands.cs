@@ -85,7 +85,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("sudo"), Description("Run a command as another user."), RequireOwner]
-        public async Task Sudo(CommandContext ctx, DiscordUser user, string content)
+        public async Task Sudo(CommandContext ctx, DiscordUser user, [RemainingText] string content)
         {
             await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content);
         }

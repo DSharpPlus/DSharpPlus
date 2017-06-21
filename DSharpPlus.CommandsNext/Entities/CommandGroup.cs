@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandsNext
 
         internal CommandGroup() : base() { }
         
-        internal override async Task Execute(CommandContext ctx)
+        internal override async Task<CommandResult> Execute(CommandContext ctx)
         {
             //var cn = ctx.RawArguments.FirstOrDefault();
             var cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, out var x);
@@ -59,20 +59,26 @@ namespace DSharpPlus.CommandsNext
                     if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
                         foreach (var ec in cmd.ExecutionChecks)
                             if (!(await ec.CanExecute(xctx)))
-                                throw new ChecksFailedException("One or more execution pre-checks failed.", cmd, xctx);
-
-                    await cmd.Execute(xctx);
-                    return;
+                                return new CommandResult
+                                {
+                                    IsSuccessful = false,
+                                    Exception = new ChecksFailedException("One or more execution pre-checks failed.", cmd, xctx),
+                                    Context = xctx
+                                };
+                    
+                    return await cmd.Execute(xctx);
                 }
             }
 
             if (this.Callable == null)
-                throw new NotSupportedException("No matching subcommands were found, and this group is not executable.");
+                return new CommandResult
+                {
+                    IsSuccessful = false,
+                    Exception = new NotSupportedException("No matching subcommands were found, and this group is not executable."),
+                    Context = ctx
+                };
 
-            var args = CommandsNextUtilities.BindArguments(ctx);
-
-            var ret = (Task)this.Callable.DynamicInvoke(args);
-            await ret;
+            return await base.Execute(ctx);
         }
     }
 }

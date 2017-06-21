@@ -57,12 +57,30 @@ namespace DSharpPlus.CommandsNext
 
         internal Command() { }
 
-        internal virtual async Task Execute(CommandContext ctx)
+        internal virtual async Task<CommandResult> Execute(CommandContext ctx)
         {
             var args = CommandsNextUtilities.BindArguments(ctx);
-            
-            var ret = (Task)this.Callable.DynamicInvoke(args);
-            await ret;
+
+            try
+            {
+                var ret = (Task)this.Callable.DynamicInvoke(args);
+                await ret;
+            }
+            catch (Exception ex)
+            {
+                return new CommandResult
+                {
+                    IsSuccessful = false,
+                    Exception = ex,
+                    Context = ctx
+                };
+            }
+
+            return new CommandResult
+            {
+                IsSuccessful = true,
+                Context = ctx
+            };
         }
 
         /// <summary>
