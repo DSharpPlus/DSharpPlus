@@ -424,8 +424,6 @@ namespace DSharpPlus.Interactivity
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀"));
             await Task.Delay(500);
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹"));
-            //await Task.Delay(500);
-            //await m.CreateReaction("🔢");
             await Task.Delay(500);
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "▶"));
             await Task.Delay(500);
