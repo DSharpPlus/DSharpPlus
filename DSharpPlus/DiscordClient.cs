@@ -1467,7 +1467,7 @@ namespace DSharpPlus
         internal async Task OnGuildSyncEventAsync(DiscordGuild guild, bool is_large, JArray raw_members, IEnumerable<DiscordPresence> presences)
         {
             guild.IsSynced = true;
-            guild.Large = is_large;
+            guild.IsLarge = is_large;
 
             presences = presences.Select(xp => { xp.Discord = this; return xp; });
             guild._presences.AddRange(presences);
