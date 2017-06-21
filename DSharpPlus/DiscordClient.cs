@@ -2193,7 +2193,7 @@ namespace DSharpPlus
             var guild_sync = new GatewayPayload
             {
                 OpCode = GatewayOpCode.GuildSync,
-                Data = this._guilds.Values.Where(xg => !xg.IsSynced)
+                Data = this._guilds.Values.Where(xg => !xg.IsSynced).Select(xg => xg.Id)
             };
             var guild_syncstr = JsonConvert.SerializeObject(guild_sync);
 
