@@ -77,7 +77,6 @@ namespace DSharpPlus.Interactivity
         public void Setup(DiscordClient client)
         {
             this._client = client;
-            // hook events 'n shit
         }
 
         #region Message
@@ -321,10 +320,11 @@ namespace DSharpPlus.Interactivity
         }
         #endregion
 
-        // ⏮ ◀ ⏹ (🔢) ▶ ⏭
+        #region Pagination
         public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> message_pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour)
         {
             List<Page> pages = message_pages.ToList();
+
             if (pages.Count() == 0)
                 throw new ArgumentException("You need to provide at least 1 page!");
 
@@ -333,7 +333,6 @@ namespace DSharpPlus.Interactivity
             ct.Token.Register(() => tsc.TrySetResult(null));
 
             DiscordMessage m = await _client.SendMessageAsync(channel, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
-
             PaginatedMessage pm = new PaginatedMessage()
             {
                 CurrentIndex = 0,
@@ -343,39 +342,30 @@ namespace DSharpPlus.Interactivity
 
             await this.GeneratePaginationReactions(m);
 
-            AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler1 = async e =>
+            AsyncEventHandler<MessageReactionRemoveAllEventArgs> _reaction_removed_all = async e =>
             {
                 await this.GeneratePaginationReactions(m);
             };
+            _client.MessageReactionRemoveAll += _reaction_removed_all;
 
-            _client.MessageReactionRemoveAll += handler1;
-
-            AsyncEventHandler<MessageReactionAddEventArgs> handler2 = async e =>
+            AsyncEventHandler<MessageReactionAddEventArgs> _reaction_added = async e =>
             {
                 if (e.Message.Id == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
                 {
-                    /*
-                     * THIS REQUIRES MANAGE_MESSAGES, WHICH MIGHT BREAK THE PAGINATOR. WE'LL HOOK ADD/REMOVE INSTEAD.
-                     * 
-                     * if (e.Emoji.Id == 0)
-                     *     await m.DeleteReactionAsync(e.Emoji.Name, e.User.Id);
-                     * else
-                     *     await m.DeleteReactionAsync(e.Emoji.Name + ":" + e.Emoji.Id, e.User.Id);
-                     */
-
                     await this.DoPagination(e.Emoji, m, pm, ct);
                 }
             };
-            AsyncEventHandler<MessageReactionRemoveEventArgs> handler3 = async e =>
+            _client.MessageReactionAdd += _reaction_added;
+
+            AsyncEventHandler<MessageReactionRemoveEventArgs> _reaction_removed = async e =>
             {
                 if (e.Message.Id == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
                     await this.DoPagination(e.Emoji, m, pm, ct);
             };
-
-            _client.MessageReactionAdd += handler2;
-            _client.MessageReactionRemove += handler3;
+            _client.MessageReactionRemove += _reaction_removed;
 
             await tsc.Task;
+
             switch (timeout_behaviour)
             {
                 case TimeoutBehaviour.Default:
@@ -391,10 +381,11 @@ namespace DSharpPlus.Interactivity
                     break;
             }
 
-            _client.MessageReactionRemoveAll -= handler1;
-            _client.MessageReactionAdd -= handler2;
-            _client.MessageReactionRemove -= handler3;
+            _client.MessageReactionRemoveAll -= _reaction_removed_all;
+            _client.MessageReactionAdd -= _reaction_added;
+            _client.MessageReactionRemove -= _reaction_removed;
         }
+
         public IEnumerable<Page> GeneratePagesInEmbeds(string input)
         {
             List<Page> result = new List<Page>();
@@ -411,6 +402,7 @@ namespace DSharpPlus.Interactivity
             }
             return result;
         }
+
         public IEnumerable<Page> GeneratePagesInStrings(string input)
         {
             List<Page> result = new List<Page>();
@@ -432,8 +424,6 @@ namespace DSharpPlus.Interactivity
             await m.CreateReactionAsync("◀");
             await Task.Delay(500);
             await m.CreateReactionAsync("⏹");
-            //await Task.Delay(500);
-            //await m.CreateReaction("🔢");
             await Task.Delay(500);
             await m.CreateReactionAsync("▶");
             await Task.Delay(500);
@@ -458,16 +448,6 @@ namespace DSharpPlus.Interactivity
                     ct.Cancel();
                     return;
 
-                /*
-                case "🔢":
-                    var m1 = await e.Channel.SendMessage("Enter page number..");
-                    var m2 = await WaitForMessageAsync(x => x.ChannelID == channel_id && x.Author.ID == user_id, TimeSpan.FromSeconds(10));
-                    int i = int.Parse(m2.Content);
-                    if (i < pm.Pages.Count() - 1)
-                        pm.CurrentIndex = i;
-                    break;
-                */
-
                 case "▶":
                     if (pm.CurrentIndex != pm.Pages.Count() - 1)
                         pm.CurrentIndex++;
@@ -485,6 +465,7 @@ namespace DSharpPlus.Interactivity
                 embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? null);
             #endregion
         }
+        #endregion
     }
 
     public enum TimeoutBehaviour

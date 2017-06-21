@@ -1198,6 +1198,7 @@ namespace DSharpPlus
 
                     if (xg._channels == null)
                         xg._channels = new List<DiscordChannel>();
+
                     foreach (var xc in xg.Channels)
                     {
                         xc.GuildId = xg.Id;
@@ -1208,6 +1209,7 @@ namespace DSharpPlus
 
                     if (xg._roles == null)
                         xg._roles = new List<DiscordRole>();
+
                     foreach (var xr in xg.Roles)
                         xr.Discord = this;
 
@@ -1219,16 +1221,19 @@ namespace DSharpPlus
 
                     if (xg._emojis == null)
                         xg._emojis = new List<DiscordEmoji>();
+
                     foreach (var xe in xg.Emojis)
                         xe.Discord = this;
 
                     if (xg._presences == null)
                         xg._presences = new List<DiscordPresence>();
+
                     foreach (var xp in xg.Presences)
                         xp.Discord = this;
 
                     if (xg._voice_states == null)
                         xg._voice_states = new List<DiscordVoiceState>();
+
                     foreach (var xvs in xg.VoiceStates)
                         xvs.Discord = this;
 
@@ -1250,6 +1255,7 @@ namespace DSharpPlus
         internal async Task OnChannelCreateEventAsync(DiscordChannel channel)
         {
             channel.Discord = this;
+
             if (this.config.MessageCacheSize > 0)
                 channel.MessageCache = new RingBuffer<DiscordMessage>(this.config.MessageCacheSize);
 
@@ -1274,6 +1280,7 @@ namespace DSharpPlus
         internal async Task OnChannelUpdateEventAsync(DiscordChannel channel)
         {
             channel.Discord = this;
+
             var gld = channel.Guild;
 
             var channel_new = this.InternalGetCachedChannel(channel.Id);

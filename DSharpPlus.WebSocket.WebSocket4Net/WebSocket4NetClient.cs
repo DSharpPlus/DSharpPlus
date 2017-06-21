@@ -23,7 +23,9 @@ namespace DSharpPlus
         public override Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
             _socket = new ws4net.WebSocket(uri);
+
             _socket.Opened += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
+
             _socket.Closed += (sender, e) =>
             {
                 if (e is ws4net.ClosedEventArgs ea)
@@ -31,10 +33,12 @@ namespace DSharpPlus
                 else
                     _disconnect.InvokeAsync(new SocketDisconnectEventArgs(null) { CloseCode = -1, CloseMessage = "unknown" }).GetAwaiter().GetResult();
             };
+
             _socket.MessageReceived += (sender, e) => _message.InvokeAsync(new SocketMessageEventArgs()
             {
                 Message = e.Message
             }).GetAwaiter().GetResult();
+
             _socket.DataReceived += (sender, e) =>
             {
                 var msg = "";
@@ -53,7 +57,9 @@ namespace DSharpPlus
                     Message = msg
                 }).GetAwaiter().GetResult();
             };
+
             _socket.Open();
+
             return Task.FromResult<BaseWebSocketClient>(this);
         }
 

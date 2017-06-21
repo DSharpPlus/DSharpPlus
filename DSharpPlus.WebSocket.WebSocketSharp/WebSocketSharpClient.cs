@@ -26,8 +26,11 @@ namespace DSharpPlus
         public override Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
             _socket = new wss.WebSocket(uri);
+
             _socket.OnOpen += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
+
             _socket.OnClose += (sender, e) => _disconnect.InvokeAsync(new SocketDisconnectEventArgs(null) { CloseCode = e.Code, CloseMessage = e.Reason }).GetAwaiter().GetResult();
+
             _socket.OnMessage += (sender, e) =>
             {
                 var msg = "";
@@ -51,7 +54,9 @@ namespace DSharpPlus
                     Message = msg
                 }).GetAwaiter().GetResult();
             };
+
             _socket.Connect();
+
             return Task.FromResult<BaseWebSocketClient>(this);
         }
 
