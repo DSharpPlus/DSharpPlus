@@ -95,11 +95,12 @@ namespace DSharpPlus
 
             var ed = client.Guilds.Values.SelectMany(xg => xg.Emojis)
                 .OrderBy(xe => xe.Name)
-                .ToDictionary(xe => xe.Name, xe => xe);
+                .GroupBy(xe => xe.Name)
+                .ToDictionary(xg => xg.Key, xg => xg);
             var ek = name.Substring(1, name.Length - 2);
 
             if (ed.ContainsKey(ek))
-                return ed[ek];
+                return ed[ek].First();
 
             throw new ArgumentException(nameof(name), "Invalid emoji name specified.");
         }
