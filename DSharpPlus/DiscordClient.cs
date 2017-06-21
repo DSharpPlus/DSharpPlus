@@ -924,7 +924,7 @@ namespace DSharpPlus
         public Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, long? idle_since = null, bool afk = false) => InternalUpdateStatusAsync(game, user_status, idle_since, afk);
 
         /// <summary>
-        /// Gets the current API appication.
+        /// Gets the current API application.
         /// </summary>
         /// <returns></returns>
         public Task<DiscordApplication> GetCurrentAppAsync() => this._rest_client.InternalGetCurrentApplicationInfoAsync();
