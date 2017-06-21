@@ -1046,7 +1046,7 @@ namespace DSharpPlus
                     break;
 
                 case "guild_sync":
-                    gid = (ulong)dat["guild_id"];
+                    gid = (ulong)dat["id"];
                     await this.OnGuildSyncEventAsync(this._guilds[gid], (bool)dat["large"], (JArray)dat["members"], dat["presences"].ToObject<IEnumerable<DiscordPresence>>());
                     break;
 
@@ -1469,6 +1469,7 @@ namespace DSharpPlus
 
         internal async Task OnGuildSyncEventAsync(DiscordGuild guild, bool is_large, JArray raw_members, IEnumerable<DiscordPresence> presences)
         {
+            guild.IsSynced = true;
             guild.Large = is_large;
 
             presences = presences.Select(xp => { xp.Discord = this; return xp; });
