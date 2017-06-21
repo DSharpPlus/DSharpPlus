@@ -467,7 +467,7 @@ namespace DSharpPlus
         internal CancellationTokenSource _cancel_token_source;
         internal CancellationToken _cancel_token;
 
-        internal DiscordConfig config;
+        internal DiscordConfig _config;
 
         internal List<IModule> _modules = new List<IModule>();
 
@@ -479,16 +479,17 @@ namespace DSharpPlus
         internal int _heartbeat_interval;
         internal Task _heartbeat_task;
         internal DateTime _last_heartbeat;
-        internal bool _waiting_for_ack = false;
+        internal int _skipped_heartbeats = 0;
+        internal bool _guild_download_completed = false;
         internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
         #endregion
 
         #region Public Variables
-        internal DebugLogger _debugLogger;
+        internal DebugLogger _debug_logger;
         /// <summary>
         /// 
         /// </summary>
-        public DebugLogger DebugLogger => _debugLogger;
+        public DebugLogger DebugLogger => _debug_logger;
 
         internal int _gateway_version;
         /// <summary>
@@ -506,12 +507,12 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the total number of shards the bot is connected to.
         /// </summary>
-        public int ShardCount => this.config.ShardCount;
+        public int ShardCount => this._config.ShardCount;
 
         /// <summary>
         /// Gets the currently connected shard ID.
         /// </summary>
-        public int ShardId => this.config.ShardId;
+        public int ShardId => this._config.ShardId;
 
         internal DiscordUser _current_user;
         /// <summary>
@@ -560,7 +561,7 @@ namespace DSharpPlus
         /// <param name="config">Overwrites the default config</param>
         public DiscordClient(DiscordConfig config)
         {
-            this.config = config;
+            this._config = config;
 
             InternalSetup();
         }
@@ -630,7 +631,7 @@ namespace DSharpPlus
             this._heartbeated = new AsyncEvent<HeartBeatEventArgs>(this.EventErrorHandler, "HEART_BEATED");
 
             this._rest_client = new DiscordRestClient(this);
-            this._debugLogger = new DebugLogger(this);
+            this._debug_logger = new DebugLogger(this);
 
             this._private_channels = new List<DiscordDmChannel>();
             this._guilds = new Dictionary<ulong, DiscordGuild>();
@@ -639,7 +640,7 @@ namespace DSharpPlus
             this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
             this._presences_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
 
-            if (config.UseInternalLogHandler)
+            if (_config.UseInternalLogHandler)
                 DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
         }
 
@@ -717,7 +718,7 @@ namespace DSharpPlus
             if (this._current_user == null)
                 this._current_user = await this._rest_client.InternalGetCurrentUserAsync();
 
-            if (this.config.TokenType != TokenType.User && this._current_application == null)
+            if (this._config.TokenType != TokenType.User && this._current_application == null)
                 this._current_application = await this.GetCurrentAppAsync();
 
             _websocket_client = BaseWebSocketClient.Create();
@@ -730,10 +731,10 @@ namespace DSharpPlus
             {
                 _cancel_token_source.Cancel();
 
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed", DateTime.Now);
+                _debug_logger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed", DateTime.Now);
                 await this._socket_closed.InvokeAsync(new SocketDisconnectEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage });
 
-                if (config.AutoReconnect)
+                if (_config.AutoReconnect)
                 {
                     DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode}, '{e.CloseMessage}'). Reconnecting", DateTime.Now);
                     await ConnectAsync();
@@ -742,7 +743,7 @@ namespace DSharpPlus
             _websocket_client.OnMessage += e => HandleSocketMessageAsync(e.Message);
             _websocket_client.OnError += e => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
 
-            await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={config.GatewayVersion}&encoding=json");
+            await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={_config.GatewayVersion}&encoding=json");
         }
 
         internal Task InternalUpdateGuildAsync(DiscordGuild guild)
@@ -758,7 +759,7 @@ namespace DSharpPlus
         {
             string url = Utils.GetApiBaseUri(this) + Endpoints.GATEWAY;
             var headers = Utils.GetBaseHeaders();
-            if (config.TokenType == TokenType.Bot)
+            if (_config.TokenType == TokenType.Bot)
                 url += Endpoints.BOT;
 
             WebRequest request = WebRequest.CreateRequest(this, url, HttpRequestMethod.GET, headers);
@@ -776,7 +777,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<bool> DisconnectAsync()
         {
-            config.AutoReconnect = false;
+            _config.AutoReconnect = false;
             await _websocket_client.InternalDisconnectAsync(null);
             return true;
         }
@@ -1184,7 +1185,7 @@ namespace DSharpPlus
 
             this._gateway_version = ready.GatewayVersion;
             this._current_user = ready.CurrentUser;
-            this._private_channels = ready.DmChannels.Select(xdc => { xdc.Discord = this; if (this.config.MessageCacheSize > 0) xdc.MessageCache = new RingBuffer<DiscordMessage>(this.config.MessageCacheSize); return xdc; }).ToList();
+            this._private_channels = ready.DmChannels.Select(xdc => { xdc.Discord = this; if (this._config.MessageCacheSize > 0) xdc.MessageCache = new RingBuffer<DiscordMessage>(this._config.MessageCacheSize); return xdc; }).ToList();
             this._session_id = ready.SessionId;
 
             var raw_guild_index = raw_guilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
@@ -1201,7 +1202,7 @@ namespace DSharpPlus
                         xc.GuildId = xg.Id;
                         xc.Discord = this;
                         if (xc.Type == ChannelType.Text)
-                            xc.MessageCache = xc.MessageCache ?? (this.config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this.config.MessageCacheSize) : null);
+                            xc.MessageCache = xc.MessageCache ?? (this._config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this._config.MessageCacheSize) : null);
                     }
 
                     if (xg._roles == null)
@@ -1237,7 +1238,7 @@ namespace DSharpPlus
                     return xg;
                 }).ToDictionary(xg => xg.Id, xg => xg);
 
-            if (this.config.TokenType == TokenType.User)
+            if (this._config.TokenType == TokenType.User)
                 await this.SendGuildSyncAsync();
 
             await this._ready.InvokeAsync(new ReadyEventArgs(this));
@@ -1253,8 +1254,8 @@ namespace DSharpPlus
         {
             channel.Discord = this;
 
-            if (this.config.MessageCacheSize > 0)
-                channel.MessageCache = new RingBuffer<DiscordMessage>(this.config.MessageCacheSize);
+            if (this._config.MessageCacheSize > 0)
+                channel.MessageCache = new RingBuffer<DiscordMessage>(this._config.MessageCacheSize);
 
             if (channel.IsPrivate)
             {
@@ -1383,7 +1384,7 @@ namespace DSharpPlus
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
                 if (xc.Type == ChannelType.Text)
-                    xc.MessageCache = xc.MessageCache ?? (this.config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this.config.MessageCacheSize) : null);
+                    xc.MessageCache = xc.MessageCache ?? (this._config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this._config.MessageCacheSize) : null);
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
@@ -1393,6 +1394,9 @@ namespace DSharpPlus
                 xvs.Discord = this;
             foreach (var xr in guild._roles)
                 xr.Discord = this;
+
+            var dcompl = this._guilds.Values.All(xg => !xg.IsUnavailable);
+            Volatile.Write(ref this._guild_download_completed, dcompl);
 
             if (exists)
                 await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild });
@@ -1430,7 +1434,7 @@ namespace DSharpPlus
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
                 if (xc.Type == ChannelType.Text)
-                    xc.MessageCache = xc.MessageCache ?? (this.config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this.config.MessageCacheSize) : null);
+                    xc.MessageCache = xc.MessageCache ?? (this._config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this._config.MessageCacheSize) : null);
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
@@ -1473,6 +1477,9 @@ namespace DSharpPlus
             guild._presences.AddRange(presences);
 
             this.UpdateCachedGuild(guild, raw_members);
+
+            var dcompl = this._guilds.Values.All(xg => xg.IsSynced);
+            Volatile.Write(ref this._guild_download_completed, dcompl);
 
             await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild });
         }
@@ -1717,7 +1724,7 @@ namespace DSharpPlus
             foreach (var xr in message._reactions)
                 xr.Emoji.Discord = this;
 
-            if (this.config.MessageCacheSize > 0 && message.Channel != null)
+            if (this._config.MessageCacheSize > 0 && message.Channel != null)
                 message.Channel.MessageCache.Add(message);
 
             MessageCreateEventArgs ea = new MessageCreateEventArgs(this)
@@ -1738,7 +1745,7 @@ namespace DSharpPlus
             message.Discord = this;
             var event_message = message;
 
-            if (this.config.MessageCacheSize > 0 && message.Channel?.MessageCache.TryGet(xm => xm.Id == event_message.Id, out message) != true)
+            if (this._config.MessageCacheSize > 0 && message.Channel?.MessageCache.TryGet(xm => xm.Id == event_message.Id, out message) != true)
             {
                 message = event_message;
                 guild = message.Channel?.Guild;
@@ -1802,11 +1809,11 @@ namespace DSharpPlus
 
         internal async Task OnMessageDeleteEventAsync(ulong message_id, DiscordChannel channel)
         {
-            if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out var msg))
+            if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out var msg))
             {
                 msg = new DiscordMessage { Id = message_id, Discord = this };
             }
-            if (this.config.MessageCacheSize > 0)
+            if (this._config.MessageCacheSize > 0)
                 channel.MessageCache.Remove(xm => xm.Id == msg.Id);
 
             var ea = new MessageDeleteEventArgs(this)
@@ -1823,11 +1830,11 @@ namespace DSharpPlus
             foreach (var message_id in message_ids)
             {
                 DiscordMessage msg = null;
-                if (this.config.MessageCacheSize > 0 && !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+                if (this._config.MessageCacheSize > 0 && !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
                 {
                     msg = new DiscordMessage { Id = message_id, Discord = this };
                 }
-                if (this.config.MessageCacheSize > 0)
+                if (this._config.MessageCacheSize > 0)
                     channel.MessageCache.Remove(xm => xm.Id == msg.Id);
                 msgs.Add(msg);
             }
@@ -1961,7 +1968,7 @@ namespace DSharpPlus
                 usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUserAsync(user_id);
 
             DiscordMessage msg = null;
-            if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+            if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
                 msg = new DiscordMessage { Id = message_id, Discord = this };
 
             var ea = new MessageReactionAddEventArgs(this)
@@ -1985,7 +1992,7 @@ namespace DSharpPlus
                 usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUserAsync(user_id);
 
             DiscordMessage msg = null;
-            if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+            if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
                 msg = new DiscordMessage { Id = message_id, Discord = this };
 
             var ea = new MessageReactionRemoveEventArgs(this)
@@ -2001,7 +2008,7 @@ namespace DSharpPlus
         internal async Task OnMessageReactionRemoveAllAsync(ulong message_id, DiscordChannel channel)
         {
             DiscordMessage msg = null;
-            if (this.config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+            if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
                 msg = new DiscordMessage { Id = message_id, Discord = this };
 
             var ea = new MessageReactionRemoveAllEventArgs(this)
@@ -2025,13 +2032,13 @@ namespace DSharpPlus
 
         internal async Task OnHeartbeatAsync(long seq)
         {
-            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
+            _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
             await SendHeartbeatAsync(seq);
         }
 
         internal async Task OnReconnectAsync()
         {
-            _debugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect. ", DateTime.Now);
+            _debug_logger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect. ", DateTime.Now);
 
             await ReconnectAsync();
         }
@@ -2040,13 +2047,13 @@ namespace DSharpPlus
         {
             if (data)
             {
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a few second and sending resume again.", DateTime.Now);
+                _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a few second and sending resume again.", DateTime.Now);
                 await Task.Delay(6000);
                 await SendResumeAsync();
             }
             else
             {
-                _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
+                _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _session_id = "";
                 await SendIdentifyAsync();
             }
@@ -2054,8 +2061,9 @@ namespace DSharpPlus
 
         internal async Task OnHelloAsync(GatewayHello hello)
         {
-            this._debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify", DateTime.Now);
-            this._waiting_for_ack = false;
+            this._debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify", DateTime.Now);
+            //this._waiting_for_ack = false;
+            Interlocked.CompareExchange(ref this._skipped_heartbeats, 0, 0);
             this._heartbeat_interval = hello.HeartbeatInterval;
             this._heartbeat_task = new Task(StartHeartbeating, _cancel_token, TaskCreationOptions.LongRunning);
             this._heartbeat_task.Start();
@@ -2070,12 +2078,13 @@ namespace DSharpPlus
 
         internal async Task OnHeartbeatAckAsync()
         {
-            _waiting_for_ack = false;
+            //_waiting_for_ack = false;
+            Interlocked.Decrement(ref this._skipped_heartbeats);
 
             this._sequence++;
             this.Ping = (int)(DateTime.Now - _last_heartbeat).TotalMilliseconds;
-            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
-            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
+            _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
+            _debug_logger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
             HeartBeatEventArgs args = new HeartBeatEventArgs(this)
             {
                 Ping = this.Ping,
@@ -2088,7 +2097,7 @@ namespace DSharpPlus
         //internal async Task StartHeartbeatingAsync()
         internal void StartHeartbeating()
         {
-            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat", DateTime.Now);
+            _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat", DateTime.Now);
             var token = this._cancel_token;
             try
             {
@@ -2132,13 +2141,25 @@ namespace DSharpPlus
 
         internal async Task SendHeartbeatAsync(long seq)
         {
-            if (_waiting_for_ack)
+            //if (_waiting_for_ack)
+            //{
+            //    _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
+            //    await ReconnectAsync();
+            //}
+            var more_than_5 = Volatile.Read(ref this._skipped_heartbeats) > 5;
+            var guilds_comp = Volatile.Read(ref this._guild_download_completed);
+            if (guilds_comp && more_than_5)
             {
-                _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
+                this._debug_logger.LogMessage(LogLevel.Critical, "DSharpPlus", "More than 5 heartbeats were skipped. Issuing reconnect.", DateTime.Now);
                 await ReconnectAsync();
+                return;
+            }
+            else if (!guilds_comp && more_than_5)
+            {
+                this._debug_logger.LogMessage(LogLevel.Warning, "DSharpPlus", "More than 5 heartbeats were skipped while the guild download is running.", DateTime.Now);
             }
 
-            _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat", DateTime.Now);
+            _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat", DateTime.Now);
             var heartbeat = new GatewayPayload
             {
                 OpCode = GatewayOpCode.Heartbeat,
@@ -2148,7 +2169,8 @@ namespace DSharpPlus
             _websocket_client.SendMessage(heartbeat_str);
 
             _last_heartbeat = DateTime.Now;
-            _waiting_for_ack = true;
+            //_waiting_for_ack = true;
+            Interlocked.Increment(ref this._skipped_heartbeats);
         }
 
         internal Task SendIdentifyAsync()
@@ -2156,12 +2178,12 @@ namespace DSharpPlus
             var identify = new GatewayIdentify
             {
                 Token = Utils.GetFormattedToken(this),
-                Compress = this.config.EnableCompression,
-                LargeThreshold = this.config.LargeThreshold,
+                Compress = this._config.EnableCompression,
+                LargeThreshold = this._config.LargeThreshold,
                 ShardInfo = new ShardInfo
                 {
-                    ShardId = this.config.ShardId,
-                    ShardCount = this.config.ShardCount
+                    ShardId = this._config.ShardId,
+                    ShardCount = this._config.ShardCount
                 }
             };
             var payload = new GatewayPayload

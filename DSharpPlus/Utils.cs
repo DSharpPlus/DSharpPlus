@@ -30,7 +30,7 @@ namespace DSharpPlus
 
         internal static string GetApiBaseUri(DiscordClient client)
         {
-            return GetApiBaseUri(client.config);
+            return GetApiBaseUri(client._config);
         }
         
         internal static string GetApiBaseUri(DiscordConfig config)
@@ -50,7 +50,7 @@ namespace DSharpPlus
 
         internal static string GetFormattedToken(DiscordClient client)
         {
-            return GetFormattedToken(client.config);
+            return GetFormattedToken(client._config);
         }
 
         internal static string GetFormattedToken(DiscordConfig config)

@@ -9,7 +9,7 @@ namespace DSharpPlus
 
         internal DebugLogger(DiscordClient client)
         {
-            this.Level = client.config.LogLevel;
+            this.Level = client._config.LogLevel;
         }
 
         internal DebugLogger(LogLevel level)

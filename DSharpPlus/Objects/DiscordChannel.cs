@@ -173,7 +173,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordMessage> GetMessageAsync(ulong id)
         {
-            if (this.Discord.config.MessageCacheSize > 0 && this.MessageCache.TryGet(xm => xm.Id == id, out var msg))
+            if (this.Discord._config.MessageCacheSize > 0 && this.MessageCache.TryGet(xm => xm.Id == id, out var msg))
                 return msg;
 
             return await this.Discord._rest_client.InternalGetMessageAsync(Id, id);
