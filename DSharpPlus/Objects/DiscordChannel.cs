@@ -180,6 +180,19 @@ namespace DSharpPlus
         }
 
         /// <summary>
+        /// Modifies the current channel.
+        /// </summary>
+        /// <param name="name">New name for the channel.</param>
+        /// <param name="position">New position for the channel.</param>
+        /// <param name="topic">New topic for the channel.</param>
+        /// <param name="bitrate">New voice bitrate for the channel.</param>
+        /// <param name="user_limit">New user limit for the channel.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task ModifyAsync(string name = null, int? position = null, string topic = null, int? bitrate = null, int? user_limit = null, string reason = null) =>
+            this.Discord._rest_client.InternalModifyChannelAsync(this.Id, name, position, topic, bitrate, user_limit, reason);
+
+        /// <summary>
         /// Updates the channel position
         /// </summary>
         /// <param name="position"></param>

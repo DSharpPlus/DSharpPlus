@@ -281,6 +281,25 @@ namespace DSharpPlus
             return ret;
         }
 
+        internal Task InternalModifyChannelAsync(ulong id, string name, int? position, string topic, int? bitrate, int? user_limit, string reason)
+        {
+            var pld = new RestChannelModifyPayload
+            {
+                Name = name,
+                Position = position,
+                Topic = topic,
+                Bitrate = bitrate,
+                UserLimit = user_limit
+            };
+
+            var headers = Utils.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
+            var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", id);
+            return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.PATCH, headers, JsonConvert.SerializeObject(pld));
+        }
+
         internal async Task<DiscordChannel> InternalGetChannelAsync(ulong id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", id);

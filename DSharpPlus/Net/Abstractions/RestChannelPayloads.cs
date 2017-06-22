@@ -24,6 +24,24 @@ namespace DSharpPlus.Net.Abstractions
         public IEnumerable<DiscordOverwrite> PermissionOverwrites { get; set; }
     }
 
+    internal sealed class RestChannelModifyPayload
+    {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Position { get; set; }
+
+        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
+        public string Topic { get; set; }
+
+        [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Bitrate { get; set; }
+
+        [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
+        public int? UserLimit { get; set; }
+    }
+
     internal class RestChannelMessageEditPayload
     {
         [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
