@@ -42,6 +42,13 @@ namespace DSharpPlus
             return this.Name;
         }
 
+        internal string ToReactionString()
+        {
+            if (this.Id != 0)
+                return $"{this.Name}:{this.Id}";
+            return this.Name;
+        }
+
         /// <summary>
         /// Creates an emoji object from a unicode entity.
         /// </summary>

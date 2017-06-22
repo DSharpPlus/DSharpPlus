@@ -218,7 +218,7 @@ namespace DSharpPlus
         /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
         /// <returns></returns>
         public Task CreateReactionAsync(DiscordEmoji emoji) =>
-            this.Discord._rest_client.InternalCreateReactionAsync(this.ChannelId, this.Id, emoji.ToString());
+            this.Discord._rest_client.InternalCreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         /// <summary>
         /// Deletes your own reaction
@@ -226,7 +226,7 @@ namespace DSharpPlus
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
         /// <returns></returns>
         public Task DeleteOwnReactionAsync(DiscordEmoji emoji) =>
-            this.Discord._rest_client.InternalDeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToString());
+            this.Discord._rest_client.InternalDeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         /// <summary>
         /// Deletes another user's reaction.
@@ -236,7 +236,7 @@ namespace DSharpPlus
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null) =>
-            this.Discord._rest_client.InternalDeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToString(), reason);
+            this.Discord._rest_client.InternalDeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
 
         /// <summary>
         /// Gets users that reacted with this emoji
@@ -244,7 +244,7 @@ namespace DSharpPlus
         /// <param name="emoji">Emoji to react with.</param>
         /// <returns></returns>
         public Task<IReadOnlyCollection<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji) =>
-            this.Discord._rest_client.InternalGetReactionsAsync(this.Channel.Id, this.Id, emoji.ToString());
+            this.Discord._rest_client.InternalGetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString());
 
         /// <summary>
         /// Deletes all reactions for this message
