@@ -7,8 +7,8 @@ namespace DSharpPlus.VoiceNext.VoiceEntities
         [JsonProperty("server_id")]
         public ulong ServerId { get; set; }
 
-        [JsonProperty("user_id")]
-        public ulong UserId { get; set; }
+        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? UserId { get; set; }
 
         [JsonProperty("session_id")]
         public string SessionId { get; set; }

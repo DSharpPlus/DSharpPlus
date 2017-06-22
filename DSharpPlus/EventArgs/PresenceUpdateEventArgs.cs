@@ -1,33 +1,57 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
-    public class PresenceUpdateEventArgs : EventArgs
+    public class PresenceUpdateEventArgs : DiscordEventArgs
     {
-        public DiscordUser User => DiscordClient._guilds[GuildID].Members.Find(x => x.User.ID == UserID)?.User;
-
         [JsonProperty("user")]
         internal DiscordUser InternalUser { get; set; }
 
-        public ulong UserID => InternalUser == null ? 0 : InternalUser.ID;
+        /// <summary>
+        /// Member whose presence was updated
+        /// </summary>
+        [JsonIgnore]
+        public DiscordMember Member => this.Client._guilds[this.GuildId].Members.FirstOrDefault(xm => xm.Id == this.InternalUser.Id);
 
+        /// <summary>
+        /// Member's new game
+        /// </summary>
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
-        internal JObject InternalGame { get; set; }
+        public Game Game { get; internal set; }
 
-        public string Game => (InternalGame == null) ? "" : InternalGame["name"].ToString();
-
+        /// <summary>
+        /// Member's status
+        /// </summary>
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
         public string Status { get; internal set; }
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong GuildID { get; internal set; }
+        internal ulong GuildId { get; set; }
+
+        /// <summary>
+        /// Guild this member belongs to
+        /// </summary>
+        [JsonIgnore]
+        public DiscordGuild Guild => this.Client._guilds[this.GuildId];
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyList<ulong> RoleIDs { get; internal set; }
+        internal IReadOnlyList<ulong> RoleIds { get; set; }
 
+        /// <summary>
+        /// Roles this member has
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<DiscordRole> Roles => this.RoleIds.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+
+        /// <summary>
+        /// Member's old presence
+        /// </summary>
+        [JsonIgnore]
         public DiscordPresence PresenceBefore { get; internal set; }
+
+        public PresenceUpdateEventArgs() : base(null) { }
+        public PresenceUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

@@ -1,58 +1,85 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace DSharpPlus
 {
     public static class Utils
     {
+        /// <summary>
+        /// Gets the version of the library
+        /// </summary>
+        public static Version LibraryVersion { get; private set; }
+        private static string VersionHeader { get; set; }
 
-        internal static string GetAPIBaseUri()
+        static Utils()
         {
-            switch(DiscordClient.config.DiscordBranch)
+            var a = typeof(Utils).GetTypeInfo().Assembly;
+            var n = a.GetName();
+            LibraryVersion = n.Version;
+            VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, ", n.Version.ToString(2) , ")");
+        }
+
+        internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
+        {
+            Random r = new Random();
+            return r.Next(ping, int.MaxValue);
+        }
+
+        internal static string GetApiBaseUri(DiscordClient client)
+        {
+            return GetApiBaseUri(client._config);
+        }
+        
+        internal static string GetApiBaseUri(DiscordConfig config)
+        { 
+            switch(config.DiscordBranch)
             {
                 case Branch.Canary:
-                    return Endpoints.CanaryBaseUri;
+                    return Endpoints.BaseUriCanary;
                 case Branch.PTB:
-                    return Endpoints.PTBBaseUri;
+                    return Endpoints.BaseUriPTB;
                 case Branch.Stable:
-                    return Endpoints.StableBaseUri;
+                    return Endpoints.BaseUriStable;
                 default:
                     throw new NotSupportedException("");
             }
         }
 
-        internal static string GetFormattedToken()
+        internal static string GetFormattedToken(DiscordClient client)
         {
-            switch (DiscordClient.config.TokenType)
+            return GetFormattedToken(client._config);
+        }
+
+        internal static string GetFormattedToken(DiscordConfig config)
+        { 
+            switch (config.TokenType)
             {
                 case TokenType.Bearer:
                     {
-                        return $"Bearer {DiscordClient.config.Token}";
+                        return $"Bearer {config.Token}";
                     }
                 case TokenType.Bot:
                     {
-                        return $"Bot {DiscordClient.config.Token}";
+                        return $"Bot {config.Token}";
                     }
                 default:
                     {
-                        return DiscordClient.config.Token;
+                        return config.Token;
                     }
             }
         }
 
-        public static WebHeaderCollection GetBaseHeaders()
+        public static Dictionary<string, string> GetBaseHeaders()
         {
-            return new WebHeaderCollection
-            {
-                { "Authorization", GetFormattedToken() }
-            };
+            return new Dictionary<string, string>();
         }
 
         public static string GetUserAgent()
         {
-            return "DiscordBot (https://github.com/NaamloosDT/DSharpPlus, 1.1)";
+            return VersionHeader;
         }
 
         public static bool ContainsUserMentions(string message)
@@ -92,75 +119,62 @@ namespace DSharpPlus
 
         public static List<ulong> GetUserMentions(DiscordMessage message)
         {
-            List<ulong> result = new List<ulong>();
-
-            string pattern = @"<@(\d+)>";
-            Regex regex = new Regex(pattern);
-
+            var result = new List<ulong>();
+            
+            var regex = new Regex(@"<@!?(\d+)>");
             var matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
-            }
-
-            pattern = @"<@!(\d+)>";
-            regex = new Regex(pattern);
-
-            matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(3, match.ToString().Length - 4)));
-            }
+            foreach (Match match in matches)
+                result.Add(ulong.Parse(match.Groups[1].Value));
 
             return result;
         }
 
         public static List<ulong> GetRoleMentions(DiscordMessage message)
         {
-            List<ulong> result = new List<ulong>();
-
-            string pattern = @"<@&(\d+)>";
-            Regex regex = new Regex(pattern);
-
+            var result = new List<ulong>();
+            
+            var regex = new Regex(@"<@&(\d+)>");
             var matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(3, match.ToString().Length - 4)));
-            }
+            foreach (Match match in matches)
+                result.Add(ulong.Parse(match.Groups[1].Value));
 
             return result;
         }
 
         public static List<ulong> GetChannelMentions(DiscordMessage message)
         {
-            List<ulong> result = new List<ulong>();
+            var result = new List<ulong>();
 
-            string pattern = @"<#(\d+)>";
-            Regex regex = new Regex(pattern);
-
+            var regex = new Regex(@"<#(\d+)>");
             var matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
-            }
+            foreach (Match match in matches)
+                result.Add(ulong.Parse(match.Groups[1].Value));
 
             return result;
         }
 
         public static List<ulong> GetEmojis(DiscordMessage message)
         {
-            List<ulong> result = new List<ulong>();
-
-            string pattern = @"<:(.*):(\d+)>";
-            Regex regex = new Regex(pattern);
-
+            var result = new List<ulong>();
+            
+            var regex = new Regex(@"<:([a-zA-Z0-9_]+):(\d+)>");
             var matches = regex.Matches(message.Content);
-            foreach (var match in matches)
-            {
-                result.Add(ulong.Parse(match.ToString().Substring(2, match.ToString().Length - 3)));
-            }
+            foreach (Match match in matches)
+                result.Add(ulong.Parse(match.Groups[2].Value));
 
             return result;
+        }
+
+        public static DateTimeOffset GetTimestamp(long unixtime)
+        {
+#if !(NETSTANDARD1_1 || NET45)
+            return DateTimeOffset.FromUnixTimeSeconds(unixtime);
+#else
+            // below constant taken from 
+            // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
+            var ticks = unixtime * TimeSpan.TicksPerSecond + 621_355_968_000_000_000;
+            return new DateTimeOffset(ticks, TimeSpan.Zero);
+#endif
         }
     }
 }

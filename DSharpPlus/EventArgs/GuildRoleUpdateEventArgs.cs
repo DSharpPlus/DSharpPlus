@@ -1,12 +1,20 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class GuildRoleUpdateEventArgs : EventArgs
+    public class GuildRoleUpdateEventArgs : DiscordEventArgs
     {
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
-        public DiscordRole Role { get; internal set; }
+        /// <summary>
+        /// Guild that has its roles updated
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+        /// <summary>
+        /// New role list
+        /// </summary>
+        public DiscordRole RoleAfter { get; internal set; }
+        /// <summary>
+        /// Old role list
+        /// </summary>
         public DiscordRole RoleBefore { get; internal set; }
+
+        public GuildRoleUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

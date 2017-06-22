@@ -1,11 +1,16 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class GuildMemberAddEventArgs : EventArgs
+    public class GuildMemberAddEventArgs : DiscordEventArgs
     {
+        /// <summary>
+        /// Member that got added
+        /// </summary>
         public DiscordMember Member { get; internal set; }
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
+        /// <summary>
+        /// Guild member was added to
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+
+        public GuildMemberAddEventArgs(DiscordClient client) : base(client) { }
     }
 }

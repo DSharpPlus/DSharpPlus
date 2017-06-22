@@ -9,18 +9,34 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
+    /// <summary>
+    /// Represents an asynchronous event handler.
+    /// </summary>
+    /// <returns>Event handling task.</returns>
     public delegate Task AsyncEventHandler();
+
+    /// <summary>
+    /// Represents an asynchronous event handler.
+    /// </summary>
+    /// <typeparam name="T">Type of EventArgs for the event.</typeparam>
+    /// <returns>Event handling task.</returns>
     public delegate Task AsyncEventHandler<T>(T e) where T : EventArgs;
 
-    internal sealed class AsyncEvent
+    /// <summary>
+    /// Represents an asynchronously-handled event.
+    /// </summary>
+    public sealed class AsyncEvent
     {
         private readonly object _lock = new object();
-        internal static readonly object _synclock = new object();
-        private List<AsyncEventHandler> Handlers { get; set; }
+        private List<AsyncEventHandler> Handlers { get; }
+        private Action<string, Exception> ErrorHandler { get; }
+        private string EventName { get; }
 
-        public AsyncEvent()
+        public AsyncEvent(Action<string, Exception> errhandler, string event_name)
         {
             this.Handlers = new List<AsyncEventHandler>();
+            this.ErrorHandler = errhandler;
+            this.EventName = event_name;
         }
 
         public void Register(AsyncEventHandler handler)
@@ -43,31 +59,47 @@ namespace DSharpPlus
 
         public async Task InvokeAsync()
         {
-            if (!this.Handlers.Any())
+            var handlers = (AsyncEventHandler[])null;
+            lock (this._lock)
+                handlers = this.Handlers.ToArray();
+
+            if (!handlers.Any())
                 return;
 
-            var task = (Task)null;
-            lock (_synclock)
+            var exs = new List<Exception>(handlers.Length);
+            for (var i = 0; i < handlers.Length; i++)
             {
-                var sc = SynchronizationContext.Current;
-                SynchronizationContext.SetSynchronizationContext(null);
-
-                task = Task.WhenAll(this.Handlers.Select(xh => xh()));
-
-                SynchronizationContext.SetSynchronizationContext(sc);
+                try
+                {
+                    await handlers[i]().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    exs.Add(ex);
+                }
             }
-            await task;
+
+            if (exs.Any())
+                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
         }
     }
 
-    internal sealed class AsyncEvent<T> where T : EventArgs
+    /// <summary>
+    /// Represents an asynchronously-handled event.
+    /// </summary>
+    /// <typeparam name="T">Type of EventArgs for this event.</typeparam>
+    public sealed class AsyncEvent<T> where T : EventArgs
     {
         private readonly object _lock = new object();
-        private List<AsyncEventHandler<T>> Handlers { get; set; }
+        private List<AsyncEventHandler<T>> Handlers { get; }
+        private Action<string, Exception> ErrorHandler { get; }
+        private string EventName { get; }
 
-        public AsyncEvent()
+        public AsyncEvent(Action<string, Exception> errhandler, string event_name)
         {
             this.Handlers = new List<AsyncEventHandler<T>>();
+            this.ErrorHandler = errhandler;
+            this.EventName = event_name;
         }
 
         public void Register(AsyncEventHandler<T> handler)
@@ -90,20 +122,28 @@ namespace DSharpPlus
 
         public async Task InvokeAsync(T e)
         {
-            if (!this.Handlers.Any())
+            var handlers = (AsyncEventHandler<T>[])null;
+            lock (this._lock)
+                handlers = this.Handlers.ToArray();
+
+            if (!handlers.Any())
                 return;
 
-            var task = (Task)null;
-            lock (AsyncEvent._synclock)
+            var exs = new List<Exception>(handlers.Length);
+            for (var i = 0; i < handlers.Length; i++)
             {
-                var sc = SynchronizationContext.Current;
-                SynchronizationContext.SetSynchronizationContext(null);
-
-                task = Task.WhenAll(this.Handlers.Select(xh => xh(e)));
-
-                SynchronizationContext.SetSynchronizationContext(sc);
+                try
+                {
+                    await handlers[i](e).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    exs.Add(ex);
+                }
             }
-            await task;
+
+            if (exs.Any())
+                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
         }
     }
 }

@@ -1,11 +1,16 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class GuildBanAddEventArgs : EventArgs
+    public class GuildBanAddEventArgs : DiscordEventArgs
     {
-        public DiscordUser User { get; internal set; }
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
+        /// <summary>
+        /// Member that got banned
+        /// </summary>
+        public DiscordMember Member { get; internal set; }
+        /// <summary>
+        /// Guild this member was banned in
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+
+        public GuildBanAddEventArgs(DiscordClient client) : base(client) { }
     }
 }

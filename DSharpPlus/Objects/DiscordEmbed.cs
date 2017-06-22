@@ -9,6 +9,10 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordEmbed
     {
+        public DiscordEmbed()
+        {
+            Fields = new List<DiscordEmbedField>();
+        }
         /// <summary>
         /// Title of the embed
         /// </summary>
@@ -33,7 +37,7 @@ namespace DSharpPlus
         /// Timestamp of the embed content
         /// </summary>
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
         /// <summary>
         /// Color code of the embed
         /// </summary>

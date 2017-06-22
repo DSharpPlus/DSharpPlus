@@ -1,11 +1,16 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class GuildRoleCreateEventArgs : EventArgs
+    public class GuildRoleCreateEventArgs : DiscordEventArgs
     {
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
+        /// <summary>
+        /// Guild that got a new role
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+        /// <summary>
+        /// Role that got created
+        /// </summary>
         public DiscordRole Role { get; internal set; }
+
+        public GuildRoleCreateEventArgs(DiscordClient client) : base(client) { }
     }
 }

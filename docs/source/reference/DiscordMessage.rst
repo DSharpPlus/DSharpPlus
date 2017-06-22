@@ -6,17 +6,13 @@ Represents a message sent in a message channel.
 Members
 -------
 
-.. attribute:: ID
+.. attribute:: Id
 
 	This message's ID.
 
-.. attribute:: ChannelID
+.. attribute:: Channel
 
-	ID of the channel this message was sent in.
-
-.. attribute:: Parent
-
-	The :doc:`DiscordChannel </reference/DiscordChannel>` this message was sent in.
+	Channel this message was sent in.
 
 .. attribute:: Author
 
@@ -26,23 +22,15 @@ Members
 
 	This message's contents.
 
-.. attribute:: TimestampRaw
-
-	This message's raw timestamp, as sent by the Discord API.
-
 .. attribute:: Timestamp
 
 	This message's timestamp.
-
-.. attribute:: EditedTimestampRaw
-
-	This message's raw last edit timestamp, as sent by the Discord API.
 
 .. attribute:: EditedTimestamp
 
 	This message's last edit timestamp.
 
-.. attribute:: TTS
+.. attribute:: IsTTS
 
 	Whether this message is to be spoken aloud.
 
@@ -50,7 +38,7 @@ Members
 
 	Whether this message mentions @everyone.
 
-.. attribute:: Mentions
+.. attribute:: MentionedUsers
 
 	List of :doc:`DiscordUser </reference/DiscordUser>` this message mentions, if any.
 
@@ -78,107 +66,79 @@ Members
 
 	Whether or not this message is pinned.
 
-.. attribute:: WebhookID
+.. attribute:: WebhookId
 
 	ID of the :doc:`DiscordWebhook </reference/entities/DiscordWebhook>` used to send this message.
 
 Methods
 -------
 
-.. function:: Edit(contents = null, embed = null)
-
-	.. note:: 
-	
-		This method is asynchronous. It needs to be awaited.
+.. function:: EditAsync(contents, embed)
 	
 	Edits the contents of this message.
 	
-	:param contents: New contents of the message.
-	:param embed: New embed of the message.
+	:param contents: New contents of the message. Optional, defaults to ``null``.
+	:param embed: New embed of the message. Optional, defaults to ``null``.
 
-.. function:: Delete()
-
-	.. note:: 
-	
-		This method is asynchronous. It needs to be awaited.
+.. function:: DeleteAsync(reason)
 	
 	Deletes this message.
-
-.. function:: Pin()
-
-	.. note:: 
 	
-		This method is asynchronous. It needs to be awaited.
+	:param reason: Reason for audit logs. Optional, defaults to ``null``.
+
+.. function:: PinAsync()
 	
 	Pins this message in its channel.
 
-.. function:: Unpin()
-
-	.. note:: 
-	
-		This method is asynchronous. It needs to be awaited.
+.. function:: UnpinAsync()
 	
 	Unpins this message in its channel.
 
-.. function:: Respond(content, tts, embed)
-
-	.. note:: 
+.. function:: RespondAsync(content, tts, embed)
+              RespondAsync(file_data, file_name, content, tts, embed)
+			  RespondAsync(files, content, tts, embed)
 	
-		This method is asynchronous. It needs to be awaited.
+	.. note::
+	
+		This method will not rewind the data streams before sending. Make sure the streams' positions are correct before you pass them.
 	
 	Posts a reply to this message in the channel it came from.
 	
-	:param content: Contents of the message to send.
+	:param content: Contents of the message to send. For file overloads, this parameter is optional and defaults to ``null``.
+	:param file_data: Stream containing the data to send.
+	:param file_name: Name of the file to send. This is used by discord to display the file name.
+	:param files: A ``Dictionary<string, Stream>``, where file names are the keys, and data streams are the keys.
 	:param tts: Whether this message is to be spoken using TTS. Optional, defaults to ``false``.
 	:param embed: Embed to attach to this message. Optional, defaults to ``null``.
 
-.. function:: CreateReaction(emoji)
-
-	.. note:: 
-	
-		This method is asynchronous. It needs to be awaited.
+.. function:: CreateReactionAsync(emoji)
 	
 	Reacts to this message using specified emoji.
 	
-	:param emoji: Emoji to react with. When using standard emoji, this needs to be the unicode entity (such as 👍 or 🤔). When using guild emoji, this needs to be a formatted emoji string (such as ``<:FeelsBadMan:229765516204441600>``).
+	:param emoji: Emoji (instance of :doc:`DiscordEmoji </reference/DiscordEmoji>`) to react with.
 
-.. function:: DeleteOwnReaction(emoji)
-
-	.. note:: 
-	
-		This method is asynchronous. It needs to be awaited.
+.. function:: DeleteOwnReactionAsync(emoji)
 	
 	Removes your reaction from this message.
 	
-	:param emoji: Reaction to remove. When using standard emoji, this needs to be the unicode entity (such as 👍 or 🤔). When using guild emoji, this needs to be a formatted emoji string (such as ``<:FeelsBadMan:229765516204441600>``).
+	:param emoji: Emoji (instance of :doc:`DiscordEmoji </reference/DiscordEmoji>`) to remove reaction for.
 
-.. function:: DeleteReaction(emoji, member)
-.. function:: DeleteReaction(emoji, user_id)
-
-	.. note:: 
-	
-		This method is asynchronous. It needs to be awaited.
+.. function:: DeleteReactionAsync(emoji, user, reason)
 	
 	Removes another member's reaction from this message.
 	
-	:param emoji: Reaction to remove. When using standard emoji, this needs to be the unicode entity (such as 👍 or 🤔). When using guild emoji, this needs to be a formatted emoji string (such as ``<:FeelsBadMan:229765516204441600>``).
+	:param emoji: Emoji (instance of :doc:`DiscordEmoji </reference/DiscordEmoji>`) to remove reaction for.
 	:param member: Member whose reaction to remove.
-	:param user_id: ID of a user whose reaction to remove.
+	:param reason: Reason for audit logs. Optional, defaults to ``null``.
 
-.. function:: GetReactions(emoji)
-
-	.. note:: 
-	
-		This method is asynchronous. It needs to be awaited.
+.. function:: GetReactionsAsync(emoji)
 	
 	Gets all users who reacted with specified emoji. Returns a list of :doc:`DiscordUser </reference/DiscordUser>`.
 	
-	:param emoji: Reaction to check for. When using standard emoji, this needs to be the unicode entity (such as 👍 or 🤔). When using guild emoji, this needs to be a formatted emoji string (such as ``<:FeelsBadMan:229765516204441600>``).
+	:param emoji: Emoji (instance of :doc:`DiscordEmoji </reference/DiscordEmoji>`) to check for.
 
-.. function:: DeleteAllReactions()
-
-	.. note:: 
-	
-		This method is asynchronous. It needs to be awaited.
+.. function:: DeleteAllReactionsAsync(reason)
 	
 	Deletes all reactions from this message.
+	
+	:param reason: Reason for audit logs. Optional, defaults to ``null``.

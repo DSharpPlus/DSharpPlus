@@ -1,9 +1,12 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class DMChannelDeleteEventArgs : EventArgs
+    public class DmChannelDeleteEventArgs : DiscordEventArgs
     {
-        public DiscordDMChannel Channel { get; internal set; }
+        /// <summary>
+        /// DM Channel that just got deleted
+        /// </summary>
+        public DiscordDmChannel Channel { get; internal set; }
+
+        public DmChannelDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

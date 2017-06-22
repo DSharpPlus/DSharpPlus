@@ -1,11 +1,20 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class MessageDeleteEventArgs : EventArgs
+    public class MessageDeleteEventArgs : DiscordEventArgs
     {
-        public ulong MessageID { get; internal set; }
-        public ulong ChannelID { get; internal set; }
-        public DiscordChannel Channel => DiscordClient.InternalGetChannel(ChannelID).Result;
+        /// <summary>
+        /// Message that got deleted
+        /// </summary>
+        public DiscordMessage Message { get; internal set; }
+        /// <summary>
+        /// Channel this message belonged to
+        /// </summary>
+        public DiscordChannel Channel { get; internal set; }
+        /// <summary>
+        /// Guild this message was sent in
+        /// </summary>
+        public DiscordGuild Guild => this.Channel.Guild;
+
+        public MessageDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

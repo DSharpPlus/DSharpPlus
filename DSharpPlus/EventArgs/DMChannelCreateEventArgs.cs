@@ -1,9 +1,12 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class DMChannelCreateEventArgs : EventArgs
+    public class DmChannelCreateEventArgs : DiscordEventArgs
     {
-        public DiscordDMChannel Channel { get; internal set; }
+        /// <summary>
+        /// DM Channel that just got created
+        /// </summary>
+        public DiscordDmChannel Channel { get; internal set; }
+
+        public DmChannelCreateEventArgs(DiscordClient client) : base(client) { }
     }
 }

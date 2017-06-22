@@ -6,16 +6,32 @@ namespace DSharpPlus.VoiceNext.Codec
 {
     public sealed class OpusCodec : IDisposable
     {
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_create")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_create")]
         private static extern IntPtr CreateEncoder(int samplerate, int channels, int application, out OpusError error);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_destroy")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_destroy")]
         private static extern void DestroyEncoder(IntPtr encoder);
 
-        [DllImport("libopus.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encode")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encode")]
         private static extern int Encode(IntPtr encoder, byte[] pcm, int frame_size, IntPtr data, int max_data_bytes);
 
+#if !NETSTANDARD1_1
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_create")]
+        private static extern IntPtr CreateDecoder(int samplerate, int channels, out OpusError error);
+
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_destroy")]
+        private static extern void DestroyDecoder(IntPtr decoder);
+
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decode")]
+        private static extern int Decode(IntPtr decoder, byte[] opus, int frame_size, IntPtr data, int max_data_bytes, int decode_fec);
+
+        public const int PCM_SAMPLE_SIZE = 3840;
+#endif
+
         private IntPtr Encoder { get; set; }
+#if !NETSTANDARD1_1
+        private IntPtr Decoder { get; set; }
+#endif
         private OpusError Errors { get; set; }
         private bool IsDisposed { get; set; }
 
@@ -43,6 +59,13 @@ namespace DSharpPlus.VoiceNext.Codec
             this.Errors = err;
             if (this.Errors != OpusError.OPUS_OK)
                 throw new Exception(this.Errors.ToString());
+
+#if !NETSTANDARD1_1
+            this.Decoder = CreateDecoder(this.SampleRate, this.Channels, out err);
+            this.Errors = err;
+            if (this.Errors != OpusError.OPUS_OK)
+                throw new Exception(this.Errors.ToString());
+#endif
         }
 
         ~OpusCodec()
@@ -82,6 +105,32 @@ namespace DSharpPlus.VoiceNext.Codec
             return enc;
         }
 
+#if !NETSTANDARD1_1
+        public unsafe byte[] Decode(byte[] opus_input, int offset, int count, int bitrate = 16)
+        {
+            if (this.IsDisposed)
+                throw new ObjectDisposedException(nameof(this.Decoder), "Decoder is disposed");
+
+            var frame = new byte[PCM_SAMPLE_SIZE];
+            
+            var frame_size = this.FrameCount(frame.Length, bitrate);
+            var decdata = IntPtr.Zero;
+            var len = 0;
+
+            fixed (byte* decptr = frame)
+            {
+                decdata = new IntPtr(decptr);
+                len = Decode(this.Decoder, opus_input, frame_size, decdata, frame.Length, 0);
+            }
+
+            if (len < 0)
+                throw new Exception(string.Concat("OPUS decoding failed (", (OpusError)len, ")"));
+
+            Array.Resize(ref frame, len * this.Channels * 2);
+            return frame;
+        }
+#endif
+
         public void Dispose()
         {
             if (this.IsDisposed)
@@ -89,8 +138,14 @@ namespace DSharpPlus.VoiceNext.Codec
             
             if (this.Encoder != IntPtr.Zero)
                 DestroyEncoder(this.Encoder);
-
             this.Encoder = IntPtr.Zero;
+
+#if !NETSTANDARD1_1
+            if (this.Decoder != IntPtr.Zero)
+                DestroyDecoder(this.Decoder);
+            this.Decoder = IntPtr.Zero;
+#endif
+
             this.IsDisposed = true;
         }
 

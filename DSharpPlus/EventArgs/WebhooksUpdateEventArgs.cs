@@ -1,12 +1,16 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class WebhooksUpdateEventArgs : EventArgs
+    public class WebhooksUpdateEventArgs : DiscordEventArgs
     {
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
-        public ulong ChannelID { get; internal set; }
-        public DiscordChannel Channel => DiscordClient.InternalGetChannel(ChannelID).Result;
+        /// <summary>
+        /// Guild that got its webhooks updated
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+        /// <summary>
+        /// Channel new webhook belongs to
+        /// </summary>
+        public DiscordChannel Channel { get; internal set; }
+
+        public WebhooksUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

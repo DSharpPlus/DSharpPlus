@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace DSharpPlus
 {
-    public class GuildMembersChunkEventArgs : EventArgs
+    public class GuildMembersChunkEventArgs : DiscordEventArgs
     {
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
+        /// <summary>
+        /// Guild whose members were requested
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+        /// <summary>
+        /// New member list
+        /// </summary>
         public IReadOnlyList<DiscordMember> Members { get; internal set; }
+
+        public GuildMembersChunkEventArgs(DiscordClient client) : base(client) { }
     }
 }

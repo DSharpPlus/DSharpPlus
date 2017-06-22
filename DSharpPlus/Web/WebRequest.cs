@@ -1,6 +1,6 @@
-﻿using System.Collections.Specialized;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.IO;
+using DSharpPlus.Web;
 
 namespace DSharpPlus
 {
@@ -12,25 +12,27 @@ namespace DSharpPlus
 
     public class WebRequest
     {
+        internal DiscordClient Discord { get; set; }
+
         public string URL { get; private set; }
-        public WebRequestMethod Method { get; private set; }
-        public WebHeaderCollection Headers { get; private set; }
+        public HttpRequestMethod Method { get; private set; }
+        public IDictionary<string, string> Headers { get; private set; }
         
         // Regular request
         public string Payload { get; private set; }
 
         // Multipart
-        public NameValueCollection Values { get; private set; }
-        public string FilePath { get; private set; }
-        public string FileName { get; private set; } 
+        public IDictionary<string, string> Values { get; private set; }
+        public IDictionary<string, Stream> Files { get; private set; }
         public ContentType ContentType { get; set; }
 
         private WebRequest() { }
 
-        public static WebRequest CreateRequest(string url, WebRequestMethod method = WebRequestMethod.GET, WebHeaderCollection headers = null, string payload = "")
+        public static WebRequest CreateRequest(DiscordClient client, string url, HttpRequestMethod method = HttpRequestMethod.GET, IDictionary<string, string> headers = null, string payload = "")
         {
             return new WebRequest
             {
+                Discord = client,
                 URL = url,
                 Method = method,
                 Headers = headers,
@@ -39,21 +41,19 @@ namespace DSharpPlus
             };
         }
 
-        public static WebRequest CreateMultipartRequest(string url, WebRequestMethod method = WebRequestMethod.GET, WebHeaderCollection headers = null,
-            NameValueCollection values = null, string filepath = "", string filename = "")
+        public static WebRequest CreateMultipartRequest(DiscordClient client, string url, HttpRequestMethod method = HttpRequestMethod.GET, IDictionary<string, string> headers = null,
+            IDictionary<string, string> values = null, IDictionary<string, Stream> files = null)
         {
             return new WebRequest
             {
+                Discord = client,
                 URL = url,
                 Method = method,
                 Headers = headers,
                 Values = values,
-                FilePath = filepath,
-                FileName = filename,
+                Files = files,
                 ContentType = ContentType.Multipart
             };
         }
-
-        public async Task<WebResponse> HandleRequestAsync() => await WebWrapper.HandleRequestAsync(this);
     }
 }

@@ -1,11 +1,16 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class GuildRoleDeleteEventArgs : EventArgs
+    public class GuildRoleDeleteEventArgs : DiscordEventArgs
     {
-        public ulong GuildID { get; internal set; }
-        public DiscordGuild Guild => DiscordClient.InternalGetGuild(GuildID).Result;
-        public ulong RoleID { get; internal set; }
+        /// <summary>
+        /// Guild that got a role deleted
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+        /// <summary>
+        /// Role that got deleted
+        /// </summary>
+        public DiscordRole Role { get; internal set; }
+
+        public GuildRoleDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

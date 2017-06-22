@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace DSharpPlus
 {
-    public class MessageBulkDeleteEventArgs : EventArgs
+    public class MessageBulkDeleteEventArgs : DiscordEventArgs
     {
-        public IReadOnlyList<ulong> MessageIDs { get; internal set; }
-        public ulong ChannelID { get; internal set; }
-        public DiscordChannel Channel => DiscordClient.InternalGetChannel(ChannelID).Result;
+        /// <summary>
+        /// Messages that got deleted
+        /// </summary>
+        public IReadOnlyList<DiscordMessage> Messages { get; internal set; }
+        /// <summary>
+        /// Channel that had its messages deleted
+        /// </summary>
+        public DiscordChannel Channel { get; internal set; }
+
+        public MessageBulkDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

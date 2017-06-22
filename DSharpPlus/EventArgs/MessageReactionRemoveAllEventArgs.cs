@@ -1,12 +1,16 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
-    public class MessageReactionRemoveAllEventArgs : EventArgs
+    public class MessageReactionRemoveAllEventArgs : DiscordEventArgs
     {
-        public ulong ChannelID { get; internal set; }
-        public ulong MessageID { get; internal set; }
-        public DiscordMessage Message => DiscordClient.InternalGetMessage(ChannelID, MessageID).Result;
-        public DiscordChannel Channel => DiscordClient.InternalGetChannel(ChannelID).Result;
+        /// <summary>
+        /// Message that got its reactions removed
+        /// </summary>
+        public DiscordMessage Message { get; internal set; }
+        /// <summary>
+        /// Channel this message belongs to
+        /// </summary>
+        public DiscordChannel Channel { get; internal set; }
+
+        public MessageReactionRemoveAllEventArgs(DiscordClient client) : base(client) { }
     }
 }

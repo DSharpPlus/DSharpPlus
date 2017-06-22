@@ -6,22 +6,22 @@ namespace DSharpPlus
     /// <summary>
     /// 
     /// </summary>
-    public class DiscordDMChannel : DiscordChannel
+    public class DiscordDmChannel : DiscordChannel
     {
         /// <summary>
         /// The recipient of the DM.
         /// </summary>
         [JsonProperty("recipient", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser Recipient { get; internal set; }
-
-
+        
         /// <summary>
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token
         /// </summary>
-        public async Task AddDMRecipient(ulong user_id, string accesstoken) => await DiscordClient.InternalGroupDMAddRecipient(ID, user_id, accesstoken);
+        public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname) => this.Discord._rest_client.InternalGroupDmAddRecipientAsync(this.Id, user_id, accesstoken, nickname);
+
         /// <summary>
         /// Only use for Group DMs!
         /// </summary>
-        public async Task RemoveDMRecipient(ulong user_id, string accesstoken) => await DiscordClient.InternalGroupDMRemoveRecipient(ID, user_id);
+        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken) => this.Discord._rest_client.InternalGroupDmRemoveRecipientAsync(this.Id, user_id);
     }
 }

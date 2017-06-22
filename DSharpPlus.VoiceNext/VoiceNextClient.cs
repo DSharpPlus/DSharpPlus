@@ -53,56 +53,56 @@ namespace DSharpPlus.VoiceNext
             if (channel.Type != ChannelType.Voice)
                 throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be voice channel");
 
-            if (channel.Parent == null)
+            if (channel.Guild == null)
                 throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be guild channel");
 
-            var gld = channel.Parent;
-            if (ActiveConnections.ContainsKey(gld.ID))
+            var gld = channel.Guild;
+            if (ActiveConnections.ContainsKey(gld.Id))
                 throw new InvalidOperationException("This guild already has a voice connection");
 
             var vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
             var vsrut = new TaskCompletionSource<VoiceServerUpdateEventArgs>();
-            this.VoiceStateUpdates[gld.ID] = vstut;
-            this.VoiceServerUpdates[gld.ID] = vsrut;
+            this.VoiceStateUpdates[gld.Id] = vstut;
+            this.VoiceServerUpdates[gld.Id] = vsrut;
 
             var vsd = new VoiceDispatch
             {
                 OpCode = 4,
                 Payload = new VoiceStateUpdatePayload
                 {
-                    GuildId = gld.ID,
-                    ChannelId = channel.ID,
+                    GuildId = gld.Id,
+                    ChannelId = channel.Id,
                     Deafened = false,
                     Muted = false
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            DiscordClient._websocketClient.SendMessage(vsj);
+            channel.Discord._websocket_client.SendMessage(vsj);
             
             var vstu = await vstut.Task;
             var vstup = new VoiceStateUpdatePayload
             {
-                SessionId = vstu.SessionID,
-                UserId = vstu.UserID
+                SessionId = vstu.SessionId,
+                UserId = vstu.User.Id
             };
             var vsru = await vsrut.Task;
             var vsrup = new VoiceServerUpdatePayload
             {
                 Endpoint = vsru.Endpoint,
-                GuildId = vsru.GuildID,
+                GuildId = vsru.Guild.Id,
                 Token = vsru.VoiceToken
             };
 
             var d1 = (TaskCompletionSource<VoiceStateUpdateEventArgs>)null;
             var d2 = (TaskCompletionSource<VoiceServerUpdateEventArgs>)null;
-            this.VoiceStateUpdates.TryRemove(gld.ID, out d1);
-            this.VoiceServerUpdates.TryRemove(gld.ID, out d2);
+            this.VoiceStateUpdates.TryRemove(gld.Id, out d1);
+            this.VoiceServerUpdates.TryRemove(gld.Id, out d2);
             
             var vnc = new VoiceNextConnection(this.Client, gld, channel, this.Configuration, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
             await vnc.ConnectAsync();
             await vnc.WaitForReady();
-            this.ActiveConnections[gld.ID] = vnc;
+            this.ActiveConnections[gld.Id] = vnc;
             return vnc;
         }
 
@@ -113,8 +113,8 @@ namespace DSharpPlus.VoiceNext
         /// <returns>VoiceNext connection for the specified guild.</returns>
         public VoiceNextConnection GetConnection(DiscordGuild guild)
         {
-            if (this.ActiveConnections.ContainsKey(guild.ID))
-                return this.ActiveConnections[guild.ID];
+            if (this.ActiveConnections.ContainsKey(guild.Id))
+                return this.ActiveConnections[guild.Id];
 
             return null;
         }
@@ -122,39 +122,42 @@ namespace DSharpPlus.VoiceNext
         private void Vnc_VoiceDisconnected(DiscordGuild guild)
         {
             var vnc = (VoiceNextConnection)null;
-            if (this.ActiveConnections.ContainsKey(guild.ID))
-                this.ActiveConnections.TryRemove(guild.ID, out vnc);
+            if (this.ActiveConnections.ContainsKey(guild.Id))
+                this.ActiveConnections.TryRemove(guild.Id, out vnc);
 
             var vsd = new VoiceDispatch
             {
                 OpCode = 4,
                 Payload = new VoiceStateUpdatePayload
                 {
-                    GuildId = guild.ID,
+                    GuildId = guild.Id,
                     ChannelId = null
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            DiscordClient._websocketClient.SendMessage(vsj);
+            guild.Discord._websocket_client.SendMessage(vsj);
         }
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
         {
-            var gid = e.GuildID;
-            if (gid == 0)
+            var gld = e.Guild;
+            if (gld == null)
                 return Task.Delay(0);
 
-            if (this.VoiceStateUpdates.ContainsKey(gid))
-                this.VoiceStateUpdates[gid].SetResult(e);
+            if (this.VoiceStateUpdates.ContainsKey(gld.Id))
+                this.VoiceStateUpdates[gld.Id].SetResult(e);
 
             return Task.Delay(0);
         }
 
         private Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
         {
-            var gid = e.GuildID;
-            if (this.VoiceServerUpdates.ContainsKey(gid))
-                this.VoiceServerUpdates[gid].SetResult(e);
+            var gld = e.Guild;
+            if (gld == null)
+                return Task.Delay(0);
+
+            if (this.VoiceServerUpdates.ContainsKey(gld.Id))
+                this.VoiceServerUpdates[gld.Id].SetResult(e);
 
             return Task.Delay(0);
         }

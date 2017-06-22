@@ -13,27 +13,37 @@ namespace DSharpPlus
         /// The guild id this webhook is for
         /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong GuildID { get; internal set; }
+        public ulong GuildId { get; internal set; }
+
         /// <summary>
         /// The channel id this webhook is for
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong ChannelID { get; internal set; }
+        public ulong ChannelId { get; internal set; }
+
         /// <summary>
         /// The user this webhook was created by
         /// </summary>
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser User { get; internal set; }
+
         /// <summary>
         /// The default name of webhook
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
+
         /// <summary>
         /// The default avatar of webhook
         /// </summary>
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
-        public string Avatar { get; internal set; }
+        internal string AvatarHash { get; set; }
+
+        /// <summary>
+        /// Gets the default avatar URL for this webhook.
+        /// </summary>
+        public string AvatarUrl => $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024";
+
         /// <summary>
         /// The secure token of the webhook
         /// </summary>
@@ -46,12 +56,16 @@ namespace DSharpPlus
         /// <param name="name"></param>
         /// <param name="base64avatar"></param>
         /// <returns></returns>
-        public async Task<DiscordWebhook> Modify(string name = "", string base64avatar = "") => await DiscordClient.InternalModifyWebhook(ID, name, base64avatar, Token);
+        public Task<DiscordWebhook> ModifyAsync(string name = "", string base64avatar = "") =>
+            this.Discord._rest_client.InternalModifyWebhookAsync(Id, name, base64avatar, Token);
+
         /// <summary>
         /// Delete the webhook permanently
         /// </summary>
         /// <returns></returns>
-        public async Task Delete() => await DiscordClient.InternalDeleteWebhook(ID, Token);
+        public Task DeleteAsync() => 
+            this.Discord._rest_client.InternalDeleteWebhookAsync(Id, Token);
+
         /// <summary>
         /// 
         /// </summary>
@@ -61,19 +75,24 @@ namespace DSharpPlus
         /// <param name="tts"></param>
         /// <param name="embeds"></param>
         /// <returns></returns>
-        public async Task Execute(string content = "", string username = "", string avatar_url = "", bool tts = false, List<DiscordEmbed> embeds = null)
-            => await DiscordClient.InternalExecuteWebhook(ID, Token, content, username, avatar_url, tts, embeds);
+        public Task ExecuteAsync(string content = "", string username = "", string avatar_url = "", bool tts = false, List<DiscordEmbed> embeds = null) =>
+            this.Discord._rest_client.InternalExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="json"></param>
         /// <returns></returns>
-        public async Task ExecuteSlack(string json) => await DiscordClient.InternalExecuteWebhookSlack(ID, Token, json);
+        public Task ExecuteSlackAsync(string json) =>
+            this.Discord._rest_client.InternalExecuteWebhookSlackAsync(Id, Token, json);
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="json"></param>
         /// <returns></returns>
-        public async Task ExecuteGithub(string json) => await DiscordClient.InternalExecuteWebhookGithub(ID, Token, json);
+        public Task ExecuteGithubAsync(string json) =>
+            this.Discord._rest_client.InternalExecuteWebhookGithubAsync(Id, Token, json);
+
     }
 }
