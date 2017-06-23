@@ -136,7 +136,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("", embed: embed);
         }
 
-        [Command("gibemoji"), Aliases("echoemoji"), Description("Echo back some emoji.")]
+        [Command("gibemoji"), Aliases("echoemoji"), Description("Echo back some emoji."), RequirePermissions(Permissions.ManageEmojis)]
         public async Task GibEmoji(CommandContext ctx, [Description("Emoji to echo back.")] params DiscordEmoji[] args)
         {
             await ctx.TriggerTypingAsync();

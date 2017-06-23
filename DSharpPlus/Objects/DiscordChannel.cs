@@ -406,8 +406,8 @@ namespace DSharpPlus
             var rmo = this._permission_overwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
             if (rmo != null)
             {
-                prms &= ~rdeny;
-                prms |= rallw;
+                prms &= ~rmo.Deny;
+                prms |= rmo.Allow;
             }
 
             return prms;
