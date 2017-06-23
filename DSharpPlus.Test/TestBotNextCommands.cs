@@ -192,6 +192,16 @@ namespace DSharpPlus.Test
             {
                 await ctx.RespondAsync("I'm a proud ethnic Kekistani. For centuries my people bled under Normie oppression. But no more. We have suffered enough under your Social Media Tyranny. It is time to strike back. I hereby declare a meme jihad on all Normies. Normies, GET OUT! RRRÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ﻿");
             }
+
+            [Group("sub2")]
+            public class SubSubGroup
+            {
+                [Command("test")]
+                public async Task Test(CommandContext ctx)
+                {
+                    await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:").ToString());
+                }
+            }
         }
 
         [Group("actualtesting"), Aliases("testing"), Description("This is for actually testing the bot.")]

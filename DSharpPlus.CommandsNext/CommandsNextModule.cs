@@ -275,7 +275,7 @@ namespace DSharpPlus.CommandsNext
                     Description = mdl_desc,
                     ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(mdl_chks),
                     IsHidden = mdl_hidden,
-                    Parent = null,
+                    Parent = currentparent,
                     Callable = mdl_cbl,
                     Arguments = mdl_args,
                     Children = null
