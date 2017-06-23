@@ -684,6 +684,10 @@ namespace DSharpPlus
                     s = true;
                     break;
                 }
+                catch (UnauthorizedException e)
+                {
+                    throw e;
+                }
                 catch (Exception)
                 {
                     await Task.Delay(w);
