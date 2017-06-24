@@ -157,8 +157,7 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-
-        public async Task<DiscordEmoji> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, TimeSpan timeout)
+        public async Task<DiscordEmoji> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, TimeSpan timeout, ulong user_id = 0)
         {
             var message_id = msg.Id;
             var tsc = new TaskCompletionSource<DiscordEmoji>();
@@ -172,8 +171,11 @@ namespace DSharpPlus.Interactivity
                 {
                     if (e.Message.Id == message_id)
                     {
-                        tsc.TrySetResult(e.Emoji);
-                        return;
+                        if (user_id == 0 || e.User.Id == user_id)
+                        {
+                            tsc.TrySetResult(e.Emoji);
+                            return;
+                        }
                     }
                 }
             };
@@ -186,7 +188,7 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task<DiscordEmoji> WaitForMessageReactionAsync(DiscordMessage msg, TimeSpan timeout)
+        public async Task<DiscordEmoji> WaitForMessageReactionAsync(DiscordMessage msg, TimeSpan timeout, ulong user_id = 0)
         {
             var message_id = msg.Id;
             var tsc = new TaskCompletionSource<DiscordEmoji>();
@@ -198,8 +200,11 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (e.Message.Id == message_id)
                 {
-                    tsc.TrySetResult(e.Emoji);
-                    return;
+                    if (user_id == 0 || e.User.Id == user_id)
+                    {
+                        tsc.TrySetResult(e.Emoji);
+                        return;
+                    }
                 }
             };
 
