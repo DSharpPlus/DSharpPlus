@@ -728,6 +728,8 @@ namespace DSharpPlus
             if (this._config.TokenType != TokenType.User && this._current_application == null)
                 this._current_application = await this.GetCurrentAppAsync();
 
+            Volatile.Write(ref this._skipped_heartbeats, 0);
+
             _websocket_client = BaseWebSocketClient.Create();
 
             _cancel_token_source = new CancellationTokenSource();
