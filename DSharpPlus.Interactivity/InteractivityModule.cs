@@ -216,10 +216,10 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task<ConcurrentDictionary<string, int>> CollectReactionsAsync(DiscordMessage m, TimeSpan timeout)
+        public async Task<ConcurrentDictionary<DiscordEmoji, int>> CollectReactionsAsync(DiscordMessage m, TimeSpan timeout)
         {
-            ConcurrentDictionary<string, int> Reactions = new ConcurrentDictionary<string, int>();
-            var tsc = new TaskCompletionSource<ConcurrentDictionary<string, int>>();
+            ConcurrentDictionary<DiscordEmoji, int> Reactions = new ConcurrentDictionary<DiscordEmoji, int>();
+            var tsc = new TaskCompletionSource<ConcurrentDictionary<DiscordEmoji, int>>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(Reactions));
             AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
@@ -227,10 +227,10 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (e.Message.Id == m.Id)
                 {
-                    if (Reactions.ContainsKey(e.Emoji.ToString()))
-                        Reactions[e.Emoji.ToString()]++;
+                    if (Reactions.ContainsKey(e.Emoji))
+                        Reactions[e.Emoji]++;
                     else
-                        Reactions.TryAdd(e.Emoji.ToString(), 1);
+                        Reactions.TryAdd(e.Emoji, 1);
                 }
             };
 
@@ -241,11 +241,11 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (e.Message.Id == m.Id)
                 {
-                    if (Reactions.ContainsKey(e.Emoji.ToString()))
+                    if (Reactions.ContainsKey(e.Emoji))
                     {
-                        Reactions[e.Emoji.ToString()]--;
-                        if (Reactions[e.Emoji.ToString()] == 0)
-                            Reactions.TryRemove(e.Emoji.ToString(), out int something);
+                        Reactions[e.Emoji]--;
+                        if (Reactions[e.Emoji] == 0)
+                            Reactions.TryRemove(e.Emoji, out int something);
                     }
                 }
             };
@@ -257,7 +257,7 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (e.Message.Id == m.Id)
                 {
-                    Reactions = new ConcurrentDictionary<string, int>();
+                    Reactions = new ConcurrentDictionary<DiscordEmoji, int>();
                 }
             };
 
