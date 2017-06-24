@@ -131,11 +131,13 @@ namespace DSharpPlus
         [JsonIgnore]
         private Lazy<IReadOnlyList<DiscordReaction>> _reactions_lazy;
 
+        /*
         /// <summary>
         /// Gets the nonce sent with the message, if the message was sent by the client.
         /// </summary>
         [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? Nonce { get; internal set; }
+        */
 
         /// <summary>
         /// Gets whether the message is pinned.

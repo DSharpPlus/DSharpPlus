@@ -33,7 +33,7 @@ namespace DSharpPlus.Test
                 LargeThreshold = 250,
                 LogLevel = LogLevel.Debug,
                 Token = this.Config.Token,
-                TokenType = TokenType.Bot,
+                TokenType = TokenType.User,
                 UseInternalLogHandler = false,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
@@ -148,9 +148,9 @@ namespace DSharpPlus.Test
             return Task.Delay(0);
         }
 
-        private async Task Discord_GuildBanAdd(GuildBanAddEventArgs e)
+        private Task Discord_GuildBanAdd(GuildBanAddEventArgs e)
         {
-            var usrn = e.Member.Username
+            /*var usrn = e.Member.Username?
                 .Replace(@"\", @"\\")
                 .Replace(@"*", @"\*")
                 .Replace(@"_", @"\_")
@@ -159,7 +159,9 @@ namespace DSharpPlus.Test
 
             var ch = e.Guild.Channels.FirstOrDefault(xc => xc.Name.Contains("logs"));
             if (ch != null)
-                await ch.SendMessageAsync($"**{usrn}#{e.Member.Discriminator} got bent**");
+                await ch.SendMessageAsync($"**{usrn}#{e.Member.Discriminator} got bent**");*/
+
+            return Task.Delay(0);
         }
 
         private Task Discord_PresenceUpdate(PresenceUpdateEventArgs e)

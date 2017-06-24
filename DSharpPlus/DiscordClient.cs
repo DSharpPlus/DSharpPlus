@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -473,15 +474,16 @@ namespace DSharpPlus
 
         internal BaseWebSocketClient _websocket_client;
         internal DiscordRestClient _rest_client;
-        internal long _sequence = 0;
         internal string _session_token = "";
         internal string _session_id = "";
         internal int _heartbeat_interval;
         internal Task _heartbeat_task;
-        internal DateTime _last_heartbeat;
+        internal DateTimeOffset _last_heartbeat;
+        internal long _last_sequence;
         internal int _skipped_heartbeats = 0;
         internal bool _guild_download_completed = false;
         internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
+        internal static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
         #endregion
 
         #region Public Variables
@@ -543,7 +545,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the WS latency for this client.
         /// </summary>
-        public int Ping { get; internal set; }
+        public int Ping => Volatile.Read(ref this._ping);
+        private int _ping;
 
         public IReadOnlyDictionary<ulong, DiscordPresence> Presences => this._presences_lazy.Value;
         internal Dictionary<ulong, DiscordPresence> _presences = new Dictionary<ulong, DiscordPresence>();
@@ -748,15 +751,6 @@ namespace DSharpPlus
             _websocket_client.OnError += e => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
 
             await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={_config.GatewayVersion}&encoding=json");
-        }
-
-        internal Task InternalUpdateGuildAsync(DiscordGuild guild)
-        {
-            if (Guilds[guild.Id] == null)
-                this._guilds.Add(guild.Id, guild);
-            else
-                this._guilds[guild.Id] = guild;
-            return Task.Delay(0);
         }
 
         internal async Task InternalUpdateGatewayAsync()
@@ -2085,10 +2079,14 @@ namespace DSharpPlus
             //_waiting_for_ack = false;
             Interlocked.Decrement(ref this._skipped_heartbeats);
 
-            this._sequence++;
-            this.Ping = (int)(DateTime.Now - _last_heartbeat).TotalMilliseconds;
+            var ping = Volatile.Read(ref this._ping);
+            ping = (int)(DateTime.Now - this._last_heartbeat).TotalMilliseconds;
+
             _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
-            _debug_logger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {this.Ping}ms", DateTime.Now);
+            _debug_logger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {ping}ms", DateTime.Now);
+
+            Volatile.Write(ref this._ping, ping);
+
             HeartBeatEventArgs args = new HeartBeatEventArgs(this)
             {
                 Ping = this.Ping,
@@ -2107,7 +2105,7 @@ namespace DSharpPlus
             {
                 while (true)
                 {
-                    SendHeartbeatAsync(this._sequence).GetAwaiter().GetResult();
+                    SendHeartbeatAsync().GetAwaiter().GetResult();
                     Task.Delay(_heartbeat_interval, _cancel_token).GetAwaiter().GetResult();
                     token.ThrowIfCancellationRequested();
                 }
@@ -2140,6 +2138,9 @@ namespace DSharpPlus
 
         internal Task SendHeartbeatAsync()
         {
+            var _last_heartbeat = DateTimeOffset.Now;
+            var _sequence = (long)(_last_heartbeat - DiscordEpoch).TotalMilliseconds;
+
             return this.SendHeartbeatAsync(_sequence);
         }
 
@@ -2163,6 +2164,8 @@ namespace DSharpPlus
                 this._debug_logger.LogMessage(LogLevel.Warning, "DSharpPlus", "More than 5 heartbeats were skipped while the guild download is running.", DateTime.Now);
             }
 
+            Volatile.Write(ref this._last_sequence, seq);
+            var _last_heartbeat = DateTimeOffset.Now;
             _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat", DateTime.Now);
             var heartbeat = new GatewayPayload
             {
@@ -2172,7 +2175,8 @@ namespace DSharpPlus
             var heartbeat_str = JsonConvert.SerializeObject(heartbeat);
             _websocket_client.SendMessage(heartbeat_str);
 
-            _last_heartbeat = DateTime.Now;
+            this._last_heartbeat = DateTimeOffset.Now;
+
             //_waiting_for_ack = true;
             Interlocked.Increment(ref this._skipped_heartbeats);
         }
@@ -2206,7 +2210,7 @@ namespace DSharpPlus
             {
                 Token = Utils.GetFormattedToken(this),
                 SessionId = this._session_id,
-                SequenceNumber = this._sequence
+                SequenceNumber = Volatile.Read(ref this._last_sequence)
             };
             var resume_payload = new GatewayPayload
             {

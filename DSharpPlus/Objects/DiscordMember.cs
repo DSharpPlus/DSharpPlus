@@ -29,6 +29,7 @@ namespace DSharpPlus
             this.MfaEnabled = user.MfaEnabled;
             this.Username = user.Username;
             this.Verified = user.Verified;
+            this._role_ids = new List<ulong>();
 
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
@@ -40,7 +41,7 @@ namespace DSharpPlus
             this.IsMuted = mbr.IsMuted;
             this.JoinedAt = mbr.JoinedAt;
             this.Nickname = mbr.Nickname;
-            this._role_ids = mbr.Roles;
+            this._role_ids = mbr.Roles ?? new List<ulong>();
 
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
