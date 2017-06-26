@@ -33,7 +33,7 @@ namespace DSharpPlus.Test
                 LargeThreshold = 250,
                 LogLevel = LogLevel.Debug,
                 Token = this.Config.Token,
-                TokenType = TokenType.User,
+                TokenType = TokenType.Bot,
                 UseInternalLogHandler = false,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,

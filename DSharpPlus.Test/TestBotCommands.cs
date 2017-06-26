@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -317,21 +319,30 @@ Serverowner: {e.Guild.Owner.DisplayName}
             private CancellationTokenSource AudioLoopCancelTokenSource { get; set; }
             private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
             private Task AudioLoopTask { get; set; }
-
-            private FileStream _fs;
-            private uint _ssrc;
-            private async Task OnUserSpeaking(VoiceReceivedEventArgs e)
+            
+            private ConcurrentDictionary<uint, ulong> _ssrc_map;
+            private ConcurrentDictionary<uint, FileStream> _ssrc_filemap;
+            private async Task OnVoiceReceived(VoiceReceivedEventArgs e)
             {
-                if (this._ssrc == 0)
-                    this._ssrc = e.SSRC;
+                if (!this._ssrc_filemap.ContainsKey(e.SSRC))
+                    this._ssrc_filemap[e.SSRC] = File.Create($"{e.SSRC}.pcm");
+                var fs = this._ssrc_filemap[e.SSRC];
 
-                if (e.SSRC != this._ssrc)
-                    return;
-
-                e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data.", DateTime.Now);
+                //e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data.", DateTime.Now);
                 var buff = e.Voice.ToArray();
-                await this._fs.WriteAsync(buff, 0, buff.Length);
-                await this._fs.FlushAsync();
+                await fs.WriteAsync(buff, 0, buff.Length);
+                await fs.FlushAsync();
+            }
+            private Task OnUserSpeaking(UserSpeakingEventArgs e)
+            {
+                if (this._ssrc_map.ContainsKey(e.SSRC))
+                    return Task.Delay(0);
+
+                if (e.User == null)
+                    return Task.Delay(0);
+
+                this._ssrc_map[e.SSRC] = e.User.Id;
+                return Task.Delay(0);
             }
 
             [Command("join")]
@@ -362,8 +373,10 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 var vnc = await voice.ConnectAsync(chn);
                 await ctx.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})");
 
-                this._fs = File.Create("data.pcm");
-                vnc.VoiceReceived += this.OnUserSpeaking;
+                this._ssrc_map = new ConcurrentDictionary<uint, ulong>();
+                this._ssrc_filemap = new ConcurrentDictionary<uint, FileStream>();
+                vnc.VoiceReceived += this.OnVoiceReceived;
+                vnc.UserSpeaking += this.OnUserSpeaking;
             }
 
             [Command("leave")]
@@ -383,10 +396,18 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     return;
                 }
 
-                vnc.VoiceReceived -= this.OnUserSpeaking;
-                this._fs.Dispose();
+                vnc.UserSpeaking -= this.OnUserSpeaking;
+                vnc.VoiceReceived -= this.OnVoiceReceived;
 
-                vnc.Disconnect();
+                foreach (var kvp in this._ssrc_filemap)
+                    kvp.Value.Dispose();
+
+                using (var fs = File.Create("index.txt"))
+                using (var sw = new StreamWriter(fs, new UTF8Encoding(false)))
+                    foreach (var kvp in this._ssrc_map)
+                        await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value));
+
+                    vnc.Disconnect();
                 await ctx.Message.RespondAsync("Disconnected");
             }
 
