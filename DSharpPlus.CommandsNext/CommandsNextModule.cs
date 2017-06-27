@@ -148,7 +148,7 @@ namespace DSharpPlus.CommandsNext
                 mpos = e.Message.GetStringPrefixLength(this.Config.StringPrefix);
 
             if (mpos == -1 && this.Config.CustomPrefixPredicate != null)
-                mpos = this.Config.CustomPrefixPredicate(e.Message);
+                mpos = await this.Config.CustomPrefixPredicate(e.Message);
 
             if (mpos == -1)
                 return;

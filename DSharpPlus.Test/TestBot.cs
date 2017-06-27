@@ -68,8 +68,8 @@ namespace DSharpPlus.Test
                 CustomPrefixPredicate = msg =>
                 {
                     if (TestBotNextCommands.Prefixes.ContainsKey(msg.Channel.Id) && TestBotNextCommands.Prefixes.TryGetValue(msg.Channel.Id, out var pfix))
-                        return msg.GetStringPrefixLength(pfix);
-                    return -1;
+                        return Task.FromResult(msg.GetStringPrefixLength(pfix));
+                    return Task.FromResult(-1);
                 },
                 EnableDms = true,
                 EnableMentionPrefix = true,

@@ -1,11 +1,13 @@
-﻿namespace DSharpPlus.CommandsNext
+﻿using System.Threading.Tasks;
+
+namespace DSharpPlus.CommandsNext
 {
     /// <summary>
     /// Represents a delegate for a function that takes a message, and returns the position of the start of command invocation in the message. It has to return -1 if prefix is not present.
     /// </summary>
     /// <param name="msg">Message to check for prefix.</param>
     /// <returns>Position of the command invocation or -1 if not present.</returns>
-    public delegate int CustomPrefixPredicate(DiscordMessage msg);
+    public delegate Task<int> CustomPrefixPredicate(DiscordMessage msg);
 
     /// <summary>
     /// Represents a configuration for <see cref="CommandsNextModule"/>.
