@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -752,7 +751,7 @@ namespace DSharpPlus
             _websocket_client.OnMessage += e => HandleSocketMessageAsync(e.Message);
             _websocket_client.OnError += e => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
 
-            await _websocket_client.ConnectAsync(_gatewayUrl + $"?v={_config.GatewayVersion}&encoding=json");
+            await _websocket_client.ConnectAsync(_gatewayUrl + $"?v=6&encoding=json");
         }
 
         internal async Task InternalUpdateGatewayAsync()

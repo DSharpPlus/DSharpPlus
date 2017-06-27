@@ -51,11 +51,6 @@
         public int ShardCount { internal get; set; } = 1;
 
         /// <summary>
-        /// Sets the gateway version to connect to. Currently available versions are v4, v5, and v6. Note that while this value can be set to anything, certain values may cause anomalous behaviour.
-        /// </summary>
-        public int GatewayVersion { internal get; set; } = 5;
-
-        /// <summary>
         /// Sets whether to enable compression for gateway communication. Disabling this option will increase size of certain dispatches, and might increase login time.
         /// </summary>
         public bool EnableCompression { internal get; set; } = true;
