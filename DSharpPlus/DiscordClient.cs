@@ -864,7 +864,13 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<DiscordGuild> GetGuildAsync(ulong id) => this._rest_client.InternalGetGuildAsync(id);
+        public async Task<DiscordGuild> GetGuildAsync(ulong id)
+        {
+            if (this._guilds.ContainsKey(id))
+                return this._guilds[id];
+
+            return await this._rest_client.InternalGetGuildAsync(id);
+        }
 
         /// <summary>
         /// Deletes a guild
@@ -2320,6 +2326,7 @@ namespace DSharpPlus
             guild.VerificationLevel = new_guild.VerificationLevel;
 
             // fields not sent for update:
+            // - guild.Channels
             // - voice states
             // - guild.JoinedAt = new_guild.JoinedAt;
             // - guild.Large = new_guild.Large;

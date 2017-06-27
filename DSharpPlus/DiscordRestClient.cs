@@ -749,7 +749,7 @@ namespace DSharpPlus
             var guild_rest = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
 
             await this.Discord.OnGuildUpdateEventAsync(guild_rest, raw_members);
-            return guild_rest;
+            return this.Discord._guilds[guild_rest.Id];
         }
 
         internal async Task<DiscordRole> InternalModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
