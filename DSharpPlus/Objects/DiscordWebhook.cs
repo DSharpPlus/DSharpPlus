@@ -75,7 +75,7 @@ namespace DSharpPlus
         /// <param name="tts"></param>
         /// <param name="embeds"></param>
         /// <returns></returns>
-        public Task ExecuteAsync(string content = "", string username = "", string avatar_url = "", bool tts = false, List<DiscordEmbed> embeds = null) =>
+        public Task ExecuteAsync(string content = "", string username = "", string avatar_url = "", bool tts = false, IEnumerable<DiscordEmbed> embeds = null) =>
             this.Discord._rest_client.InternalExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
 
         /// <summary>
