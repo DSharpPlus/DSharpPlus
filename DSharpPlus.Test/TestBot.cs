@@ -37,7 +37,6 @@ namespace DSharpPlus.Test
                 UseInternalLogHandler = false,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
-                GatewayVersion = 5,
                 EnableCompression = true,
                 MessageCacheSize = 50
             };

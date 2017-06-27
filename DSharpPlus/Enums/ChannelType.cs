@@ -11,12 +11,22 @@
         Text    = 0,
 
         /// <summary>
-        /// Indicates that this is a voice channel.
+        /// Indicates that this is a private channel.
         /// </summary>
-        Voice   = 1,
+        Private = 3,
 
         /// <summary>
-        /// Indicates the world is ǎ͙ͪ̎̄̈́ͧ̑b̖͕̩̳͙̍̅̉̓͂ͣͮ̀o̳͖̎ͭuͧ̆t͂̏ͥͧ͆̐ t̳̄̊̐͠o̷̢͍̜̠͙͎̜̎͆ͫ͛̌̒̊͘ e̴̶̘̯͔̦̫̜̠̥̼͇̫̳͈̣̬̠͖̭̙͐̊̆ͫ̆ͦ͒̋ͦ͐̒ͫ͗̕n̛̰̤̯̥͎̗̭͍̹̖͇̯̗̥ͮ͌ͩ͋͒̕͝͝d̷̼̙͈̮̫͓͎̅̐͑ͥ̽̾̓̀́.
+        /// Indicates that this is a voice channel.
+        /// </summary>
+        Voice   = 2,
+
+        /// <summary>
+        /// Indicates that this is a group direct message channel.
+        /// </summary>
+        Group   = 3,
+
+        /// <summary>
+        /// Indicates unknown channel type.
         /// </summary>
         Unknown = int.MaxValue
     }

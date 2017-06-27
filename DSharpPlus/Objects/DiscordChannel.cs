@@ -23,29 +23,11 @@ namespace DSharpPlus
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
         
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        internal string _type;
-
         /// <summary>
         /// Gets the type of this channel.
         /// </summary>
-        [JsonIgnore]
-        public ChannelType Type
-        {
-            get
-            {
-                switch (this._type.ToLower())
-                {
-                    case "text":
-                        return ChannelType.Text;
-
-                    case "voice":
-                        return ChannelType.Voice;
-                }
-
-                return ChannelType.Unknown;
-            }
-        }
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public ChannelType Type { get; internal set; }
 
         /// <summary>
         /// Gets the position of this channel.
@@ -413,6 +395,5 @@ namespace DSharpPlus
             return prms;
         }
         #endregion
-
     }
 }

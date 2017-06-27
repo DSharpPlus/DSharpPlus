@@ -152,6 +152,12 @@ namespace DSharpPlus
         public ulong? WebhookId { get; internal set; }
 
         /// <summary>
+        /// Gets the type of the message.
+        /// </summary>
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public MessageType? MessageType { get; internal set; }
+
+        /// <summary>
         /// Edits the message.
         /// </summary>
         /// <param name="content"></param>
@@ -255,5 +261,41 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) =>
             this.Discord._rest_client.InternalDeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
+    }
+
+    /// <summary>
+    /// Indicates the type of the message.
+    /// </summary>
+    public enum MessageType : int
+    {
+        /// <summary>
+        /// Indicates a regular message.
+        /// </summary>
+        Default = 0,
+
+        /// <summary>
+        /// Message indicating a recipient was added to a group direct message.
+        /// </summary>
+        RecipientAdd = 1,
+
+        /// <summary>
+        /// Message indicating a recipient was removed from a group direct message.
+        /// </summary>
+        RecipientRemove = 2,
+
+        /// <summary>
+        /// Message indicating a call.
+        /// </summary>
+        Call = 3,
+
+        /// <summary>
+        /// Message indicating a group direct message channel rename.
+        /// </summary>
+        ChannelNameChange = 4,
+
+        /// <summary>
+        /// Message indicating a group direct message channel icon change.
+        /// </summary>
+        ChannelIconChange = 5,
     }
 }

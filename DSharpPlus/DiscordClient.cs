@@ -1010,7 +1010,8 @@ namespace DSharpPlus
             {
                 case "ready":
                     var glds = (JArray)dat["guilds"];
-                    await OnReadyEventAsync(dat.ToObject<ReadyPayload>(), glds);
+                    var dmcs = (JArray)dat["private_channels"];
+                    await OnReadyEventAsync(dat.ToObject<ReadyPayload>(), glds, dmcs);
                     break;
 
                 case "resumed":
@@ -1019,7 +1020,7 @@ namespace DSharpPlus
 
                 case "channel_create":
                     chn = dat.ToObject<DiscordChannel>();
-                    await OnChannelCreateEventAsync(chn.IsPrivate ? dat.ToObject<DiscordDmChannel>() : chn);
+                    await OnChannelCreateEventAsync(chn.IsPrivate ? dat.ToObject<DiscordDmChannel>() : chn, dat["recipients"] as JArray);
                     break;
 
                 case "channel_update":
@@ -1184,16 +1185,32 @@ namespace DSharpPlus
         }
 
         #region Events
-        internal async Task OnReadyEventAsync(ReadyPayload ready, JArray raw_guilds)
+        internal async Task OnReadyEventAsync(ReadyPayload ready, JArray raw_guilds, JArray raw_dm_channels)
         {
             ready.CurrentUser.Discord = this;
 
             this._gateway_version = ready.GatewayVersion;
             this._current_user = ready.CurrentUser;
-            this._private_channels = ready.DmChannels.Select(xdc => { xdc.Discord = this; if (this._config.MessageCacheSize > 0) xdc.MessageCache = new RingBuffer<DiscordMessage>(this._config.MessageCacheSize); return xdc; }).ToList();
             this._session_id = ready.SessionId;
-
             var raw_guild_index = raw_guilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
+
+            this._private_channels = raw_dm_channels
+                .Select(xjt =>
+                {
+                    var xdc = xjt.ToObject<DiscordDmChannel>();
+
+                    xdc.Discord = this;
+
+                    if (this._config.MessageCacheSize > 0)
+                        xdc.MessageCache = new RingBuffer<DiscordMessage>(this._config.MessageCacheSize);
+
+                    xdc._recipients = xjt["recipients"].ToObject<IEnumerable<TransportUser>>()
+                        .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
+                        .ToList();
+
+                    return xdc;
+                }).ToList();
+            
             this._guilds = ready.Guilds
                 .Select(xg =>
                 {
@@ -1242,6 +1259,7 @@ namespace DSharpPlus
 
                     return xg;
                 }).ToDictionary(xg => xg.Id, xg => xg);
+            this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
 
             if (this._config.TokenType == TokenType.User)
                 await this.SendGuildSyncAsync();
@@ -1255,16 +1273,21 @@ namespace DSharpPlus
             return Task.Delay(0);
         }
 
-        internal async Task OnChannelCreateEventAsync(DiscordChannel channel)
+        internal async Task OnChannelCreateEventAsync(DiscordChannel channel, JArray raw_recipients)
         {
             channel.Discord = this;
 
             if (this._config.MessageCacheSize > 0)
                 channel.MessageCache = new RingBuffer<DiscordMessage>(this._config.MessageCacheSize);
 
-            if (channel.IsPrivate)
+            //if (channel.IsPrivate)
+            if (channel.Type == ChannelType.Group || channel.Type == ChannelType.Private)
             {
                 var chn = channel as DiscordDmChannel;
+
+                var recips = raw_recipients.ToObject<IEnumerable<TransportUser>>()
+                    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this });
+                chn._recipients = recips.ToList();
 
                 _private_channels.Add(chn);
 
@@ -1302,7 +1325,7 @@ namespace DSharpPlus
                     _permission_overwrites = channel_new._permission_overwrites,
                     Position = channel_new.Position,
                     Topic = channel_new.Topic,
-                    _type = channel_new._type,
+                    Type = channel_new.Type,
                     UserLimit = channel_new.UserLimit
                 };
             else
@@ -1322,7 +1345,8 @@ namespace DSharpPlus
         {
             channel.Discord = this;
 
-            if (channel.IsPrivate)
+            //if (channel.IsPrivate)
+            if (channel.Type == ChannelType.Group || channel.Type == ChannelType.Private)
             {
                 var chn = channel as DiscordDmChannel;
 
