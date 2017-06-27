@@ -10,7 +10,7 @@ namespace DSharpPlus.Net.Abstractions
         /// <summary>
         /// Gets or sets the unix millisecond timestamp of when the user went idle.
         /// </summary>
-        [JsonProperty("idle_since", NullValueHandling = NullValueHandling.Include)]
+        [JsonProperty("since", NullValueHandling = NullValueHandling.Include)]
         public long? IdleSince { get; set; }
 
         /// <summary>
@@ -22,9 +22,34 @@ namespace DSharpPlus.Net.Abstractions
         /// <summary>
         /// Gets or sets the status of the user.
         /// </summary>
-        [JsonProperty("status")]
+        [JsonIgnore]
         public UserStatus Status { get; set; } = UserStatus.Online;
-        
+
+        [JsonProperty("status")]
+        internal string StatusString
+        {
+            get
+            {
+                switch (this.Status)
+                {
+                    case UserStatus.Online:
+                        return "online";
+                        
+                    case UserStatus.Idle:
+                        return "idle";
+
+                    case UserStatus.DoNotDisturb:
+                        return "dnd";
+
+                    case UserStatus.Invisible:
+                    case UserStatus.Offline:
+                        return "invisible";
+                }
+
+                return "online";
+            }
+        }
+
         /// <summary>
         /// Gets or sets the game the user is playing.
         /// </summary>
@@ -54,11 +79,6 @@ namespace DSharpPlus
         /// User is idle.
         /// </summary>
         Idle = 2,
-
-        /// <summary>
-        /// User is away from keyboard.
-        /// </summary>
-        AFK = 3,
 
         /// <summary>
         /// User asked not to be disturbed.
