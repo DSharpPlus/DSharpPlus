@@ -785,7 +785,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a user
         /// </summary>
-        /// <param name="user">Id of the user</param>
+        /// <param name="user_id">Id of the user</param>
         /// <returns></returns>
         public Task<DiscordUser> GetUserAsync(ulong user_id) => this._rest_client.InternalGetUserAsync(user_id);
 
