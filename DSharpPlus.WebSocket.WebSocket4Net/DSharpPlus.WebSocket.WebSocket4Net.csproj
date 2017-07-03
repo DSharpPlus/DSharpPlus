@@ -3,6 +3,7 @@
 
   <PropertyGroup>
 	  <TargetFrameworks>net45;net46;net47</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591</NoWarn>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RootNamespace>DSharpPlus</RootNamespace>
