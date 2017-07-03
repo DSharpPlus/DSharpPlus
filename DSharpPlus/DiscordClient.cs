@@ -717,7 +717,6 @@ namespace DSharpPlus
             this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {an.Version.ToString(3)}, booting", DateTime.Now);
 
             await ConnectionSemaphore.WaitAsync();
-            await Task.Delay(6000);
 
             await InternalUpdateGatewayAsync();
 
@@ -810,7 +809,8 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<DiscordChannel> GetChannelAsync(ulong id) => this._rest_client.InternalGetChannelAsync(id);
+        public async Task<DiscordChannel> GetChannelAsync(ulong id) =>
+            this.InternalGetCachedChannel(id) ?? await this._rest_client.InternalGetChannelAsync(id);
 
         /// <summary>
         /// Sends a message
@@ -856,13 +856,8 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<DiscordGuild> GetGuildAsync(ulong id)
-        {
-            if (this._guilds.ContainsKey(id))
-                return this._guilds[id];
-
-            return await this._rest_client.InternalGetGuildAsync(id);
-        }
+        public async Task<DiscordGuild> GetGuildAsync(ulong id) =>
+            this._guilds.ContainsKey(id) ? this._guilds[id] : await this._rest_client.InternalGetGuildAsync(id);
 
         /// <summary>
         /// Deletes a guild
@@ -1203,7 +1198,7 @@ namespace DSharpPlus
 
                     return xdc;
                 }).ToList();
-            
+
             this._guilds = ready.Guilds
                 .Select(xg =>
                 {
@@ -2095,7 +2090,12 @@ namespace DSharpPlus
             else
                 await SendResumeAsync();
 
-            ConnectionSemaphore.Release();
+#pragma warning disable CS4014
+            Task.Delay(5100).ContinueWith(t =>
+            {
+                ConnectionSemaphore.Release();
+            }).ConfigureAwait(false);
+#pragma warning restore CS4014
         }
 
         internal async Task OnHeartbeatAckAsync()
