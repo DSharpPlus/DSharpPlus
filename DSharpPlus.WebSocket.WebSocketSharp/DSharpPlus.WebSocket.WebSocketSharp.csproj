@@ -5,7 +5,7 @@
 	  <TargetFrameworks>net45;net46;net47</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591</NoWarn>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <RootNamespace>DSharpPlus</RootNamespace>
     <PackageId>DSharpPlus.WebSocket.WebSocketSharp</PackageId>
     <Authors>Naamloos, afroraydude, DrCreo, Death, Axiom, Emzi0767, and contributors</Authors>
@@ -35,7 +35,6 @@ A WebSocket# WebSocket client for DSharpPlus, for platforms that do not support 
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <Optimize>False</Optimize>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
