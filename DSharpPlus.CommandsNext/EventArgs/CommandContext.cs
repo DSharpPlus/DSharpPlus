@@ -77,13 +77,41 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.
         /// </summary>
-        /// <param name="content">Message to respond with.</param>
-        /// <param name="file_data">File to send.</param>
+        /// <param name="file_data">Stream containing the data to attach as a file.</param>
         /// <param name="file_name">Name of the file to send.</param>
+        /// <param name="content">Message to respond with.</param>
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
-        /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.RespondAsync(file_data, file_name, content, is_tts, embed);
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>Message that was sent.</returns>
+        public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
+            this.Message.RespondWithFileAsync(file_data, file_name, content, is_tts, embed);
+
+#if !NETSTANDARD1_1
+        /// <summary>
+        /// Quickly respond with a file to the message that triggered the command.
+        /// </summary>
+        /// <param name="file_data">Stream containing the data to attach as a file.</param>
+        /// <param name="content">Message to respond with.</param>
+        /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>Message that was sent.</returns>
+        public Task<DiscordMessage> RespondWithFileAsync(FileStream file_data, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
+            this.Message.RespondWithFileAsync(file_data, content, is_tts, embed);
+
+        /// <summary>
+        /// Quickly respond with a file to the message that triggered the command.
+        /// </summary>
+        /// <param name="file_path">Path to the file to be attached to the message.</param>
+        /// <param name="content">Message to respond with.</param>
+        /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>Message that was sent.</returns>
+        public Task<DiscordMessage> RespondWithFileAsync(string file_path, string content = null, bool is_tts = false, DiscordEmbed embed = null)
+        {
+            using (var fs = File.OpenRead(file_path))
+                return this.RespondWithFileAsync(fs, content, is_tts, embed);
+        }
+#endif
 
         /// <summary>
         /// Quickly respond with multiple files to the message that triggered the command.
@@ -91,9 +119,10 @@ namespace DSharpPlus.CommandsNext
         /// <param name="content">Message to respond with.</param>
         /// <param name="files">Files to send.</param>
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
-        /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.RespondAsync(files, content, is_tts, embed);
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>Message that was sent.</returns>
+        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
+            this.Message.RespondWithFilesAsync(files, content, is_tts, embed);
 
         /// <summary>
         /// Triggers typing in the channel containing the message that triggered the command.

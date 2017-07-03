@@ -107,34 +107,62 @@ namespace DSharpPlus
 
         #region Methods
         /// <summary>
-        /// Posts a message
+        /// Sends a message to this channel.
         /// </summary>
-        /// <param name="content"></param>
-        /// <param name="tts"></param>
-        /// <param name="embed"></param>
-        /// <returns></returns>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendMessageAsync(string content, bool tts = false, DiscordEmbed embed = null) =>
             this.Discord._rest_client.InternalCreateMessageAsync(Id, content, tts, embed);
 
         /// <summary>
-        /// Posts a file
+        /// Sends a message containing an attached file to this channel.
         /// </summary>
-        /// <param name="file_data"></param>
-        /// <param name="file_name"></param>
-        /// <param name="content"></param>
-        /// <param name="tts"></param>
-        /// <param name="embed"></param>
-        /// <returns></returns>
-        public Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = "", bool tts = false, DiscordEmbed embed = null) =>
+        /// <param name="file_data">Stream containing the data to attach to the message as a file.</param>
+        /// <param name="file_name">Name of the file to attach to the message.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        public Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) =>
             this.Discord._rest_client.InternalUploadFileAsync(Id, file_data, file_name, content, tts, embed);
+
+#if !NETSTANDARD1_1
         /// <summary>
-        /// Posts a file
+        /// Sends a message containing an attached file to this channel.
         /// </summary>
-        /// <param name="files"></param>
-        /// <param name="content"></param>
-        /// <param name="tts"></param>
-        /// <param name="embed"></param>
-        /// <returns></returns>
+        /// <param name="file_data">Stream containing the data to attach to the message as a file.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        public Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null) =>
+            this.SendFileAsync(file_data, Path.GetFileName(file_data.Name), content, tts, embed);
+
+        /// <summary>
+        /// Sends a message containing an attached file to this channel.
+        /// </summary>
+        /// <param name="file_path">Path to the file to be attached to the message.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        public Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
+        {
+            using (var fs = File.OpenRead(file_path))
+                return this.SendFileAsync(fs, content, tts, embed);
+        }
+#endif
+
+        /// <summary>
+        /// Sends a message with several attached files to this channel.
+        /// </summary>
+        /// <param name="files">A filename to data stream mapping.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null) =>
             this.Discord._rest_client.InternalUploadFilesAsync(Id, files, content, tts, embed);
 

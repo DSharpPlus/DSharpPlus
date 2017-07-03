@@ -110,7 +110,7 @@ namespace DSharpPlus.CommandsNext
         /// Checks whether the message contains a specified mention prefix.
         /// </summary>
         /// <param name="msg">Message to check.</param>
-        /// <param name="str">User to check for.</param>
+        /// <param name="user">User to check for.</param>
         /// <returns>Positive number if the prefix is present, -1 otherwise.</returns>
         public static int GetMentionPrefixLength(this DiscordMessage msg, DiscordUser user)
         {
