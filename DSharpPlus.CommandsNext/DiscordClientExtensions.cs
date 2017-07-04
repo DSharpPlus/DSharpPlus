@@ -58,6 +58,8 @@ namespace DSharpPlus.CommandsNext
         {
             var modules = new Dictionary<int, CommandsNextModule>();
 
+            client.InitializeShardsAsync().GetAwaiter().GetResult();
+
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
                 var cnext = shard.GetModule<CommandsNextModule>();
@@ -88,6 +90,8 @@ namespace DSharpPlus.CommandsNext
         public static IReadOnlyDictionary<int, CommandsNextModule> GetCommandsNext(this DiscordShardedClient client)
         {
             var modules = new Dictionary<int, CommandsNextModule>();
+
+            client.InitializeShardsAsync().GetAwaiter().GetResult();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
                 modules.Add(shard.ShardId, shard.GetModule<CommandsNextModule>());

@@ -512,15 +512,12 @@ namespace DSharpPlus
                 DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
         }
 
-        /// <summary>
-        /// Initializes and connects all shards.
-        /// </summary>
-        /// <returns></returns>
-        public async Task StartAsync()
+        internal async Task<int> InitializeShardsAsync()
         {
-            var shardc = this.Config.ShardCount == 1 ? await this.GetShardCountAsync() : this.Config.ShardCount;
-            this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc} shards", DateTime.Now);
+            if (this.Shards.Count != 0)
+                return this.Shards.Count;
 
+            var shardc = this.Config.ShardCount == 1 ? await this.GetShardCountAsync() : this.Config.ShardCount;
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfig(this.Config)
@@ -533,6 +530,24 @@ namespace DSharpPlus
                 var client = new DiscordClient(cfg);
                 if (!this.Shards.TryAdd(i, client))
                     throw new Exception("Could not initialize shards.");
+            }
+
+            return shardc;
+        }
+
+        /// <summary>
+        /// Initializes and connects all shards.
+        /// </summary>
+        /// <returns></returns>
+        public async Task StartAsync()
+        {
+            var shardc = await this.InitializeShardsAsync();
+            this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc} shards", DateTime.Now);
+
+            for (var i = 0; i < shardc; i++)
+            {
+                if (!this.Shards.TryGetValue(i, out var client))
+                    throw new Exception("Could not initialize shards");
 
                 if (this.CurrentUser != null)
                     client._current_user = this.CurrentUser;

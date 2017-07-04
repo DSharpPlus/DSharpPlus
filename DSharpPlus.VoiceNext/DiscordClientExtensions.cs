@@ -1,4 +1,7 @@
-﻿using DSharpPlus.VoiceNext.Codec;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using DSharpPlus.VoiceNext.Codec;
 
 namespace DSharpPlus.VoiceNext
 {
@@ -25,6 +28,30 @@ namespace DSharpPlus.VoiceNext
             ClientInstance = new VoiceNextClient(config);
             client.AddModule(ClientInstance);
             return ClientInstance;
+        }
+
+        /// <summary>
+        /// Creates new VoiceNext clients on all shards in a given sharded client.
+        /// </summary>
+        /// <param name="client">Discord sharded client to create VoiceNext instances for.</param>
+        /// <param name="config">Configuration for the VoiceNext clients.</param>
+        /// <returns>A dictionary of created VoiceNext clients.</returns>
+        public static IReadOnlyDictionary<int, VoiceNextClient> UseVoiceNext(this DiscordShardedClient client, VoiceNextConfiguration config)
+        {
+            var modules = new Dictionary<int, VoiceNextClient>();
+
+            client.InitializeShardsAsync().GetAwaiter().GetResult();
+
+            foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
+            {
+                var cnext = shard.GetModule<VoiceNextClient>();
+                if (cnext == null)
+                    cnext = shard.UseVoiceNext(config);
+
+                modules.Add(shard.ShardId, cnext);
+            }
+
+            return new ReadOnlyDictionary<int, VoiceNextClient>(modules);
         }
 
         /// <summary>

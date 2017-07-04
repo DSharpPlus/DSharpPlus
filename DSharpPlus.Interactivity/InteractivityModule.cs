@@ -25,6 +25,8 @@ namespace DSharpPlus.Interactivity
         {
             var modules = new Dictionary<int, InteractivityModule>();
 
+            c.InitializeShardsAsync().GetAwaiter().GetResult();
+
             foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
             {
                 var m = shard.GetModule<InteractivityModule>();
@@ -45,6 +47,8 @@ namespace DSharpPlus.Interactivity
         public static IReadOnlyDictionary<int, InteractivityModule> GetInteractivityModule(this DiscordShardedClient c)
         {
             var modules = new Dictionary<int, InteractivityModule>();
+
+            c.InitializeShardsAsync().GetAwaiter().GetResult();
 
             foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
                 modules.Add(shard.ShardId, shard.GetModule<InteractivityModule>());
