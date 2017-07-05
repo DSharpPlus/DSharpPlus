@@ -37,10 +37,10 @@ namespace DSharpPlus
         /// <returns>Request task.</returns>
         public async Task<WebResponse> HandleRequestAsync(IWebRequest request)
         {
+            await DelayRequest(request);
             if (request.GetType() == typeof(WebRequest))
             {
                 var req = (WebRequest)request;
-                await DelayRequest(req);
                 switch (req.Method)
                 {
                     case HttpRequestMethod.GET:
@@ -234,7 +234,7 @@ namespace DSharpPlus
             return response;
         }
 
-        internal async Task DelayRequest(WebRequest request)
+        internal async Task DelayRequest(IWebRequest request)
         {
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
             DateTimeOffset time = DateTimeOffset.UtcNow;
@@ -290,3 +290,9 @@ namespace DSharpPlus
         }
     }
 }
+
+
+//       More useless comments, sorry..
+//  Was listening to this, felt like sharing.
+// https://www.youtube.com/watch?v=ePX5qgDe9s4
+//         ♫♪.ılılıll|̲̅̅●̲̅̅|̲̅̅=̲̅̅|̲̅̅●̲̅̅|llılılı.♫♪
