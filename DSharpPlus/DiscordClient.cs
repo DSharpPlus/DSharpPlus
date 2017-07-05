@@ -1102,6 +1102,10 @@ namespace DSharpPlus
                     await OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], this._guilds[gid]);
                     break;
 
+                case "message_ack":
+                    // Do we even need an event for this? Could be useful for custom clients, I guess.
+                    break;
+
                 case "message_create":
                     await OnMessageCreateEventAsync(dat.ToObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>());
                     break;
