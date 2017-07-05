@@ -5,6 +5,7 @@ using DSharpPlus.Objects.Transport;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace DSharpPlus
 {
@@ -119,7 +120,83 @@ namespace DSharpPlus
         /// </summary>
         public DiscordGuild Guild => this.Discord.Guilds[_guild_id];
 
+        /// <summary>
+        /// Creates a direct message channel to this member.
+        /// </summary>
+        /// <returns>Direct message channel to this member.</returns>
         public Task<DiscordDmChannel> CreateDmChannelAsync() => this.Discord._rest_client.InternalCreateDmAsync(this.Id);
+
+        /// <summary>
+        /// Sends a direct message to this member. Creates a direct message channel if one does not exist already.
+        /// </summary>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="is_tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        public async Task<DiscordMessage> SendMessageAsync(string content, bool is_tts = false, DiscordEmbed embed = null)
+        {
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendMessageAsync(content, is_tts, embed);
+        }
+
+        /// <summary>
+        /// Sends a direct message with a file attached to this member. Creates a direct message channel if one does not exist already.
+        /// </summary>
+        /// <param name="file_data">Stream containing the data to attach as a file.</param>
+        /// <param name="file_name">Name of the file to attach.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="is_tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        public async Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null)
+        {
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendFileAsync(file_data, file_name, content, is_tts, embed);
+        }
+
+#if !NETSTANDARD1_1
+        /// <summary>
+        /// Sends a direct message with a file attached to this member. Creates a direct message channel if one does not exist already.
+        /// </summary>
+        /// <param name="file_data">Stream containing the data to attach as a file.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="is_tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        public async Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool is_tts = false, DiscordEmbed embed = null)
+        {
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendFileAsync(file_data, content, is_tts, embed);
+        }
+
+        /// <summary>
+        /// Sends a direct message with a file attached to this member. Creates a direct message channel if one does not exist already.
+        /// </summary>
+        /// <param name="file_path">Path to the file to attach to the message.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="is_tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        public async Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool is_tts = false, DiscordEmbed embed = null)
+        {
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendFileAsync(file_path, content, is_tts, embed);
+        }
+#endif
+
+        /// <summary>
+        /// Sends a direct message with several files attached to this member. Creates a direct message channel if one does not exist already.
+        /// </summary>
+        /// <param name="files">Dictionary of filename to data stream containing the data to upload as files.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="is_tts">Whether the message is to be read using TTS.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        public async Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null)
+        {
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendMultipleFilesAsync(files, content, is_tts, embed);
+        }
 
         public Task SetMuteAsync(bool mute, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(_guild_id, this.Id, null, null, mute, null, null, reason);
 

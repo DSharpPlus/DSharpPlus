@@ -270,8 +270,14 @@ namespace DSharpPlus
         public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null) =>
             this.Discord._rest_client.InternalCreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
 
+        public Task BanMemberAsync(ulong user_id, int delete_message_days = 0, string reason = null) =>
+            this.Discord._rest_client.InternalCreateGuildBanAsync(this.Id, user_id, delete_message_days, reason);
+
         public Task UnbanMemberAsync(DiscordUser user, string reason = null) =>
             this.Discord._rest_client.InternalRemoveGuildBanAsync(this.Id, user.Id, reason);
+
+        public Task UnbanMemberAsync(ulong user_id, string reason = null) =>
+            this.Discord._rest_client.InternalRemoveGuildBanAsync(this.Id, user_id, reason);
 
         public Task LeaveAsync() =>
             this.Discord._rest_client.InternalLeaveGuildAsync(Id);
@@ -397,7 +403,10 @@ namespace DSharpPlus
             this.Discord._rest_client.InternalDeleteRoleAsync(this.Id, role.Id, reason);
 
         public DiscordRole GetRole(ulong id) =>
-            this.Roles.FirstOrDefault(xr => xr.Id == id);
+            this._roles.FirstOrDefault(xr => xr.Id == id);
+
+        public DiscordChannel GetChannel(ulong id) =>
+            this._channels.FirstOrDefault(xc => xc.Id == id);
 
         public Task AddRoleAsync(DiscordMember member, DiscordRole role, string reason = null) =>
             this.Discord._rest_client.InternalAddGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
