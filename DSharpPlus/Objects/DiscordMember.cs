@@ -112,16 +112,6 @@ namespace DSharpPlus
         /// </summary>
         public DiscordVoiceState VoiceState => this.Discord.Guilds[this._guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == this.Id);
 
-        /// <summary>
-        /// Gets this member's presence.
-        /// </summary>
-        public new DiscordPresence Presence => this.Guild._presences.FirstOrDefault(xp => xp.User.Id == this.Id) ?? base.Presence;
-
-        /// <summary>
-        /// Gets this user's presence.
-        /// </summary>
-        public DiscordPresence UserPresence => base.Presence;
-
         internal ulong _guild_id = 0;
 
         /// <summary>

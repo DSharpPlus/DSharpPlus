@@ -1233,12 +1233,6 @@ namespace DSharpPlus
                     foreach (var xe in xg.Emojis)
                         xe.Discord = this;
 
-                    if (xg._presences == null)
-                        xg._presences = new List<DiscordPresence>();
-
-                    foreach (var xp in xg.Presences)
-                        xp.Discord = this;
-
                     if (xg._voice_states == null)
                         xg._voice_states = new List<DiscordVoiceState>();
 
@@ -1381,8 +1375,6 @@ namespace DSharpPlus
                 guild._roles = new List<DiscordRole>();
             if (guild._emojis == null)
                 guild._emojis = new List<DiscordEmoji>();
-            if (guild._presences == null)
-                guild._presences = new List<DiscordPresence>();
             if (guild._voice_states == null)
                 guild._voice_states = new List<DiscordVoiceState>();
             if (guild._members == null)
@@ -1405,8 +1397,6 @@ namespace DSharpPlus
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
-            foreach (var xp in guild._presences)
-                xp.Discord = this;
             foreach (var xvs in guild._voice_states)
                 xvs.Discord = this;
             foreach (var xr in guild._roles)
@@ -1437,8 +1427,6 @@ namespace DSharpPlus
                 guild._roles = new List<DiscordRole>();
             if (guild._emojis == null)
                 guild._emojis = new List<DiscordEmoji>();
-            if (guild._presences == null)
-                guild._presences = new List<DiscordPresence>();
             if (guild._voice_states == null)
                 guild._voice_states = new List<DiscordVoiceState>();
             if (guild._members == null)
@@ -1455,8 +1443,6 @@ namespace DSharpPlus
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
-            foreach (var xp in guild._presences)
-                xp.Discord = this;
             foreach (var xvs in guild._voice_states)
                 xvs.Discord = this;
             foreach (var xr in guild._roles)
@@ -1491,8 +1477,7 @@ namespace DSharpPlus
             guild.IsLarge = is_large;
 
             presences = presences.Select(xp => { xp.Discord = this; return xp; });
-            guild._presences.AddRange(presences);
-
+            
             this.UpdateCachedGuild(guild, raw_members);
 
             var dcompl = this._guilds.Values.All(xg => xg.IsSynced);
@@ -1504,26 +1489,10 @@ namespace DSharpPlus
         internal async Task OnPresenceUpdateEventAsync(DiscordPresence presence, PresenceUpdateEventArgs ea)
         {
             presence.Discord = this;
-            var old = null as DiscordPresence;
+            DiscordPresence old = null;
 
-            if (presence.GuildId != 0)
-            {
-                // guild presence
-
-                var index = presence.Guild._presences.FindIndex(xp => xp.InternalUser.Id == presence.InternalUser.Id);
-                if (index > -1)
-                {
-                    old = presence.Guild._presences[index];
-                    presence.Guild._presences[index] = presence;
-                }
-                else
-                    presence.Guild._presences.Add(presence);
-            }
-            else
-            {
+            if (this._presences.ContainsKey(presence.InternalUser.Id))
                 old = this._presences[presence.InternalUser.Id];
-            }
-
             this._presences[presence.InternalUser.Id] = presence;
 
             ea.Client = this;
@@ -2316,12 +2285,6 @@ namespace DSharpPlus
                     .Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id })
                     .Where(xm => !guild._members.Any(xxm => xxm.Id == xm.Id));
                 guild._members.AddRange(_m);
-            }
-
-            if (new_guild._presences != null)
-            {
-                guild._presences.Clear();
-                guild._presences.AddRange(new_guild._presences);
             }
 
             var _r = new_guild._roles.Where(xr => !guild._roles.Any(xxr => xxr.Id == xr.Id));

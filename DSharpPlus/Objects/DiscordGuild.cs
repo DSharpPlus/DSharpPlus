@@ -210,16 +210,6 @@ namespace DSharpPlus
         public DiscordRole EveryoneRole => this._roles.FirstOrDefault(xr => xr.Id == this.Id);
 
         /// <summary>
-        /// Gets a collection of all presences in this guild.
-        /// </summary>
-        [JsonIgnore]
-        public IReadOnlyList<DiscordPresence> Presences => this._presences_lazy.Value;
-        [JsonProperty("presences", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordPresence> _presences;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordPresence>> _presences_lazy;
-
-        /// <summary>
         /// Gets whether the current user is the guild's owner.
         /// </summary>
         [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
@@ -235,7 +225,6 @@ namespace DSharpPlus
             this._voice_states_lazy = new Lazy<IReadOnlyList<DiscordVoiceState>>(() => new ReadOnlyCollection<DiscordVoiceState>(this._voice_states));
             this._channels_lazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._channels));
             this._members_lazy = new Lazy<IReadOnlyList<DiscordMember>>(() => new ReadOnlyCollection<DiscordMember>(this._members));
-            this._presences_lazy = new Lazy<IReadOnlyList<DiscordPresence>>(() => new ReadOnlyCollection<DiscordPresence>(this._presences));
         }
 
         #region Guild Methods
