@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus", "DSharpPlus\DSharpPlus.csproj", "{EB3D8310-DFAD-4295-97F9-82E253647583}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus", "DSharpPlus\DSharpPlus.csproj", "{EB3D8310-DFAD-4295-97F9-82E253647583}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Test", "DSharpPlus.Test\DSharpPlus.Test.csproj", "{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Test", "DSharpPlus.Test\DSharpPlus.Test.csproj", "{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.VoiceNext", "DSharpPlus.VoiceNext\DSharpPlus.VoiceNext.csproj", "{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.VoiceNext", "DSharpPlus.VoiceNext\DSharpPlus.VoiceNext.csproj", "{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4255B64D-92EC-46B3-BC3B-ED2C3A8073EE}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,13 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.WebSocket.WebSocketSharp", "DSharpPlus.WebSocket.WebSocketSharp\DSharpPlus.WebSocket.WebSocketSharp.csproj", "{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.WebSocket.WebSocketSharp", "DSharpPlus.WebSocket.WebSocketSharp\DSharpPlus.WebSocket.WebSocketSharp.csproj", "{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.WebSocket.WebSocket4Net", "DSharpPlus.WebSocket.WebSocket4Net\DSharpPlus.WebSocket.WebSocket4Net.csproj", "{0D7D2501-F929-4314-8F28-8A138E3A075E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.WebSocket.WebSocket4Net", "DSharpPlus.WebSocket.WebSocket4Net\DSharpPlus.WebSocket.WebSocket4Net.csproj", "{0D7D2501-F929-4314-8F28-8A138E3A075E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.CommandsNext", "DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj", "{C8ED55FB-E028-468D-955F-1534C20274EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.CommandsNext", "DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj", "{C8ED55FB-E028-468D-955F-1534C20274EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Interactivity", "DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj", "{DD32BEC3-0189-479F-86DC-CCF95E5634A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Interactivity", "DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj", "{DD32BEC3-0189-479F-86DC-CCF95E5634A9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F953F5D0-F0C9-41E6-ADBF-60A76D295899}"
 	ProjectSection(SolutionItems) = preProject
@@ -41,7 +41,6 @@ Global
 		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4E5AD259-70F1-48AD-A94E-0D1CABDB8AE6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
