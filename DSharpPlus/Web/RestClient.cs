@@ -35,29 +35,32 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="request">REST request to execute.</param>
         /// <returns>Request task.</returns>
-        public async Task<WebResponse> HandleRequestAsync(WebRequest request)
+        public async Task<WebResponse> HandleRequestAsync(IWebRequest request)
         {
-            if (request.ContentType == ContentType.Json)
+            if (request.GetType() == typeof(WebRequest))
             {
-                await DelayRequest(request);
-                switch (request.Method)
+                var req = (WebRequest)request;
+                await DelayRequest(req);
+                switch (req.Method)
                 {
                     case HttpRequestMethod.GET:
                     case HttpRequestMethod.DELETE:
                         {
-                            return await WithoutPayloadAsync(request);
+                            return await WithoutPayloadAsync(req);
                         }
                     case HttpRequestMethod.POST:
                     case HttpRequestMethod.PATCH:
                     case HttpRequestMethod.PUT:
                         {
-                            return await WithPayloadAsync(request);
+                            return await WithPayloadAsync(req);
                         }
                     default:
                         throw new NotSupportedException("");
                 }
-            }
-            return await WithPayloadAsync(request);
+            } else if (request.GetType() == typeof(MultipartWebRequest))
+                return await WithMultipartPayloadAsync((MultipartWebRequest)request);
+            else
+                throw new NotSupportedException("No such IWebRequest known!");
         }
 
         internal async Task<WebResponse> WithoutPayloadAsync(WebRequest request)
@@ -116,13 +119,58 @@ namespace DSharpPlus
                 foreach (var kvp in request.Headers)
                     req.Headers.Add(kvp.Key, kvp.Value);
 
-            if (request.ContentType == ContentType.Json)
+            req.Content = new StringContent(request.Payload);
+            req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            WebResponse response = new WebResponse();
+            try
             {
-                req.Content = new StringContent(request.Payload);
-                req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                var res = await _http.SendAsync(req, HttpCompletionOption.ResponseContentRead);
+
+                var bts = await res.Content.ReadAsByteArrayAsync();
+                var txt = utf8.GetString(bts, 0, bts.Length);
+
+                response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
+                response.Response = txt;
+                response.ResponseCode = (int)res.StatusCode;
             }
-            else if (request.ContentType == ContentType.Multipart)
+            catch (HttpRequestException)
             {
+                return new WebResponse
+                {
+                    Headers = null,
+                    Response = "",
+                    ResponseCode = 0
+                };
+            }
+
+            HandleRateLimit(request, response);
+
+            // Checking for Errors
+            switch (response.ResponseCode)
+            {
+                case 400:
+                case 405:
+                    throw new BadRequestException(request, response);
+                case 401:
+                case 403:
+                    throw new UnauthorizedException(request, response);
+                case 404:
+                    throw new NotFoundException(request, response);
+                case 429:
+                    throw new RateLimitException(request, response);
+            }
+
+            return response;
+        }
+
+        internal async Task<WebResponse> WithMultipartPayloadAsync(MultipartWebRequest request)
+        {
+            var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
+            if (request.Headers != null)
+                foreach (var kvp in request.Headers)
+                    req.Headers.Add(kvp.Key, kvp.Value);
+
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
 
                 req.Headers.Add("Connection", "keep-alive");
@@ -143,11 +191,6 @@ namespace DSharpPlus
                 }
 
                 req.Content = content;
-            }
-            else
-            {
-                throw new NotSupportedException("Content type not supported!");
-            }
 
             WebResponse response = new WebResponse();
             try
@@ -209,7 +252,7 @@ namespace DSharpPlus
             }
         }
 
-        internal void HandleRateLimit(WebRequest request, WebResponse response)
+        internal void HandleRateLimit(IWebRequest request, WebResponse response)
         {
             if (response.Headers == null || !response.Headers.ContainsKey("X-RateLimit-Reset") || !response.Headers.ContainsKey("X-RateLimit-Remaining") || !response.Headers.ContainsKey("X-RateLimit-Limit"))
                 return;

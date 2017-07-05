@@ -8,7 +8,7 @@ namespace DSharpPlus
         /// <summary>
         /// Request that caused the exception
         /// </summary>
-        public WebRequest WebRequest { get; internal set; }
+        public IWebRequest WebRequest { get; internal set; }
         /// <summary>
         /// Response from server
         /// </summary>
@@ -18,7 +18,7 @@ namespace DSharpPlus
         /// </summary>
         public string JsonMessage { get; internal set; }
 
-        public NotFoundException(WebRequest request, WebResponse response) : base("Not found: " + response.ResponseCode)
+        public NotFoundException(IWebRequest request, WebResponse response) : base("Not found: " + response.ResponseCode)
         {
             this.WebRequest = request;
             this.WebResponse = response;

@@ -49,7 +49,7 @@ namespace DSharpPlus
         private Task<WebResponse> DoMultipartAsync(DiscordClient client, string url, HttpRequestMethod method, IDictionary<string, string> headers = null, IDictionary<string, string> values = null,
             IDictionary<string, Stream> files = null)
         {
-            var req = WebRequest.CreateMultipartRequest(client, url, method, headers, values, files);
+            var req = MultipartWebRequest.CreateRequest(client, url, method, headers, values, files);
             return this.Rest.HandleRequestAsync(req);
         }
 
