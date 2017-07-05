@@ -59,5 +59,15 @@ namespace DSharpPlus
                 return PermissionLevel.Allowed;
             return PermissionLevel.Unset;
         }
+
+
+        /// <summary>
+        /// Returns a string representation of this role.
+        /// </summary>
+        /// <returns>String representation of this role.</returns>
+        public override string ToString()
+        {
+            return string.Concat("Role ", this.Id, "; ", this.Name);
+        }
     }
 }

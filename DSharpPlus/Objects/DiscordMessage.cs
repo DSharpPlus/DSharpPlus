@@ -288,6 +288,15 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) =>
             this.Discord._rest_client.InternalDeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
+
+        /// <summary>
+        /// Returns a string representation of this message.
+        /// </summary>
+        /// <returns>String representation of this message.</returns>
+        public override string ToString()
+        {
+            return string.Concat("Message ", this.Id, "; Attachment count: ", this._attachments.Count, "; Embed count: ", this._embeds.Count, "; Contents: ", this.Content)
+        }
     }
 
     /// <summary>

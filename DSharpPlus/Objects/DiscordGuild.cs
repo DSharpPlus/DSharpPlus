@@ -1089,6 +1089,15 @@ namespace DSharpPlus
 
             return new ReadOnlyCollection<DiscordAuditLogEntry>(entries);
         }
+
+        /// <summary>
+        /// Returns a string representation of this guild.
+        /// </summary>
+        /// <returns>String representation of this guild.</returns>
+        public override string ToString()
+        {
+            return string.Concat("Guild ", this.Id, "; ", this.Name);
+        }
         #endregion
     }
 

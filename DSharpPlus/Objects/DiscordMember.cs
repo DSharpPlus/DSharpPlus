@@ -151,5 +151,14 @@ namespace DSharpPlus
 
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) =>
             this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles.Select(xr => xr.Id), null, null, null, reason);
+        
+        /// <summary>
+        /// Returns a string representation of this member.
+        /// </summary>
+        /// <returns>String representation of this member.</returns>
+        public override string ToString()
+        {
+            return string.Concat("Member ", this.Id, "; ", this.Username, "#", this.Discriminator, " (", this.DisplayName, ")");
+        }
     }
 }

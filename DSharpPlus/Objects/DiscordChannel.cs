@@ -422,6 +422,19 @@ namespace DSharpPlus
 
             return prms;
         }
+
+        /// <summary>
+        /// Returns a string representation of this channel.
+        /// </summary>
+        /// <returns>String representation of this channel.</returns>
+        public override string ToString()
+        {
+            if (this.Type == ChannelType.Text)
+                return string.Concat("Channel #", this.Name, " (", this.Id, ")");
+            if (!string.IsNullOrWhiteSpace(this.Name))
+                return string.Concat("Channel ", this.Name, " (", this.Id, ")");
+            return string.Concat("Channel ", this.Id);
+        }
         #endregion
     }
 }

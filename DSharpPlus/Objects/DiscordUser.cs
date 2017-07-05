@@ -86,5 +86,14 @@ namespace DSharpPlus
         /// Gets this user's presence.
         /// </summary>
         public DiscordPresence Presence => this.Discord.Presences.ContainsKey(this.Id) ? this.Discord.Presences[this.Id] : null;
+
+        /// <summary>
+        /// Returns a string representation of this user.
+        /// </summary>
+        /// <returns>String representation of this user.</returns>
+        public override string ToString()
+        {
+            return string.Concat("Member ", this.Id, "; ", this.Username, "#", this.Discriminator);
+        }
     }
 }
