@@ -508,7 +508,8 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 case 5:
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP5 received", DateTime.Now);
+                    // Don't spam OP5
+                    //this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP5 received", DateTime.Now);
                     var spd = opp.ToObject<VoiceSpeakingPayload>();
                     var spk = new UserSpeakingEventArgs(this.Discord)
                     {
