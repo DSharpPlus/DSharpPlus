@@ -281,17 +281,24 @@ namespace DSharpPlus.VoiceNext
                 if (client.DataAvailable <= 0)
                     continue;
 
-                var data = await client.ReceiveAsync();
+                byte[] data = null, header = null;
+                ushort seq = 0;
+                uint ts = 0, ssrc = 0;
+                try
+                {
+                    data = await client.ReceiveAsync();
 
-                var header = new byte[RtpCodec.SIZE_HEADER];
+                    header = new byte[RtpCodec.SIZE_HEADER];
 
-                data = this.Rtp.Decode(data, header);
+                    data = this.Rtp.Decode(data, header);
 
-                var nonce = this.Rtp.MakeNonce(header);
-                this.Rtp.Decode(header, out var seq, out var ts, out var ssrc);
+                    var nonce = this.Rtp.MakeNonce(header);
+                    this.Rtp.Decode(header, out seq, out ts, out ssrc);
 
-                data = this.Sodium.Decode(data, nonce, this.Key);
-                data = this.Opus.Decode(data, 0, data.Length);
+                    data = this.Sodium.Decode(data, nonce, this.Key);
+                    data = this.Opus.Decode(data, 0, data.Length);
+                }
+                catch (Exception) { continue; }
 
                 // TODO: wait for ssrc map?
                 DiscordUser user = null;
