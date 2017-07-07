@@ -690,6 +690,10 @@ namespace DSharpPlus
                 {
                     throw e;
                 }
+                catch (PlatformNotSupportedException e)
+                {
+                    throw e;
+                }
                 catch (Exception)
                 {
                     await Task.Delay(w);
@@ -715,8 +719,6 @@ namespace DSharpPlus
         {
             var an = typeof(DiscordClient).GetTypeInfo().Assembly.GetName();
             this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {an.Version.ToString(3)}, booting", DateTime.Now);
-
-            await ConnectionSemaphore.WaitAsync();
 
             await InternalUpdateGatewayAsync();
 
@@ -749,7 +751,8 @@ namespace DSharpPlus
             };
             _websocket_client.OnMessage += e => HandleSocketMessageAsync(e.Message);
             _websocket_client.OnError += e => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
-
+            
+            await ConnectionSemaphore.WaitAsync();
             await _websocket_client.ConnectAsync(_gatewayUrl + $"?v=6&encoding=json");
         }
 
@@ -773,11 +776,11 @@ namespace DSharpPlus
         /// Disconnects from the gateway
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> DisconnectAsync()
+        public async Task DisconnectAsync()
         {
             _config.AutoReconnect = false;
-            await _websocket_client.InternalDisconnectAsync(null);
-            return true;
+            if (this._websocket_client != null)
+                await _websocket_client.InternalDisconnectAsync(null);
         }
 
         #region Public Functions
