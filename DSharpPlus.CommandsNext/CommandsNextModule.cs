@@ -80,7 +80,7 @@ namespace DSharpPlus.CommandsNext
 
             if (this.Config.EnableDefaultHelp)
             {
-                var dlg = new Func<CommandContext, string[], Task>(this.DefaultHelp);
+                var dlg = new Func<CommandContext, string[], Task>(this.DefaultHelpAsync);
                 var mi = dlg.GetMethodInfo();
                 this.MakeCallable(mi, dlg.Target, out var cbl, out var args);
 
@@ -170,7 +170,8 @@ namespace DSharpPlus.CommandsNext
                 Message = e.Message,
                 //RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
                 Config = this.Config,
-                RawArgumentString = rrg
+                RawArgumentString = rrg,
+                CommandsNext = this
             };
 
             if (cmd == null)
@@ -189,7 +190,7 @@ namespace DSharpPlus.CommandsNext
                             if (!(await ec.CanExecute(ctx)))
                                 throw new ChecksFailedException("One or more execution pre-checks failed.", cmd, ctx);
 
-                    var res = await cmd.Execute(ctx);
+                    var res = await cmd.ExecuteAsync(ctx);
                     
                     if (res.IsSuccessful)
                         await this._executed.InvokeAsync(new CommandExecutedEventArgs { Context = res.Context });
@@ -444,7 +445,7 @@ namespace DSharpPlus.CommandsNext
 
         #region Default Help
         [Command("help"), Description("Displays command help.")]
-        public async Task DefaultHelp(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
+        public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
             var toplevel = this.TopLevelCommands.Values.Distinct();
             var embed = new DiscordEmbed()

@@ -56,8 +56,13 @@ namespace DSharpPlus.CommandsNext
         internal Delegate Callable { get; set; }
 
         internal Command() { }
-
-        internal virtual async Task<CommandResult> Execute(CommandContext ctx)
+        
+        /// <summary>
+        /// Executes this command with specified context.
+        /// </summary>
+        /// <param name="ctx">Context to execute the command in.</param>
+        /// <returns>Command's execution results.</returns>
+        public virtual async Task<CommandResult> ExecuteAsync(CommandContext ctx)
         {
             var args = CommandsNextUtilities.BindArguments(ctx);
 

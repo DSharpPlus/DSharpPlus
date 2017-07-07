@@ -18,8 +18,13 @@ namespace DSharpPlus.CommandsNext
         public IReadOnlyCollection<Command> Children { get; internal set; }
 
         internal CommandGroup() : base() { }
-        
-        internal override async Task<CommandResult> Execute(CommandContext ctx)
+
+        /// <summary>
+        /// Executes this command or its subcommand with specified context.
+        /// </summary>
+        /// <param name="ctx">Context to execute the command in.</param>
+        /// <returns>Command's execution results.</returns>
+        public override async Task<CommandResult> ExecuteAsync(CommandContext ctx)
         {
             //var cn = ctx.RawArguments.FirstOrDefault();
             var cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, out var x);
@@ -53,7 +58,8 @@ namespace DSharpPlus.CommandsNext
                         Message = ctx.Message,
                         Command = cmd,
                         Config = ctx.Config,
-                        RawArgumentString = x
+                        RawArgumentString = x,
+                        CommandsNext = ctx.CommandsNext
                     };
 
                     if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
@@ -66,7 +72,7 @@ namespace DSharpPlus.CommandsNext
                                     Context = xctx
                                 };
                     
-                    return await cmd.Execute(xctx);
+                    return await cmd.ExecuteAsync(xctx);
                 }
             }
 
@@ -78,7 +84,7 @@ namespace DSharpPlus.CommandsNext
                     Context = ctx
                 };
 
-            return await base.Execute(ctx);
+            return await base.ExecuteAsync(ctx);
         }
     }
 }

@@ -43,6 +43,11 @@ namespace DSharpPlus.CommandsNext
         private Lazy<DiscordMember> _lazy_ass_member;
 
         /// <summary>
+        /// Gets the CommandsNext service instance that handled this command.
+        /// </summary>
+        public CommandsNextModule CommandsNext { get; internal set; }
+
+        /// <summary>
         /// Gets the command that is being executed.
         /// </summary>
         public Command Command { get; internal set; }
