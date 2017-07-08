@@ -634,13 +634,12 @@ namespace DSharpPlus
         /// <param name="game">Game to set.</param>
         /// <param name="user_status">Status of the user.</param>
         /// <param name="idle_since">Since when is the client idle.</param>
-        /// <param name="afk">Whether the user is away from keyboard.</param>
         /// <returns>Asynchronous operation.</returns>
-        public async Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, long? idle_since = null, bool afk = false)
+        public async Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null)
         {
             var tasks = new List<Task>();
             foreach (var client in this.ShardClients.Values)
-                tasks.Add(client.UpdateStatusAsync(game, user_status, idle_since, afk));
+                tasks.Add(client.UpdateStatusAsync(game, user_status, idle_since));
 
             await Task.WhenAll(tasks);
         }
