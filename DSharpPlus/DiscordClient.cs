@@ -916,7 +916,6 @@ namespace DSharpPlus
         /// <param name="game">Game you're playing</param>
         /// <param name="user_status"></param>
         /// <param name="idle_since"></param>
-        /// <param name="afk"></param>
         /// <returns></returns>
         public Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null) => InternalUpdateStatusAsync(game, user_status, idle_since);
 
