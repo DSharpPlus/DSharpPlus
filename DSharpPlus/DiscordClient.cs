@@ -918,7 +918,7 @@ namespace DSharpPlus
         /// <param name="idle_since"></param>
         /// <param name="afk"></param>
         /// <returns></returns>
-        public Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, long? idle_since = null, bool afk = false) => InternalUpdateStatusAsync(game, user_status, idle_since, afk);
+        public Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null) => InternalUpdateStatusAsync(game, user_status, idle_since);
 
         /// <summary>
         /// Gets the current API application.
@@ -1131,7 +1131,7 @@ namespace DSharpPlus
 
                 case "typing_start":
                     cid = (ulong)dat["channel_id"];
-                    await OnTypingStartEventAsync((ulong)dat["user_id"], this.InternalGetCachedChannel(cid), Utils.GetTimestamp((long)dat["timestamp"]));
+                    await OnTypingStartEventAsync((ulong)dat["user_id"], this.InternalGetCachedChannel(cid), Utils.GetDateTimeOffset((long)dat["timestamp"]));
                     break;
 
                 case "user_settings_update":
@@ -2113,16 +2113,18 @@ namespace DSharpPlus
             catch (OperationCanceledException) { }
         }
 
-        internal Task InternalUpdateStatusAsync(Game game, UserStatus? user_status, long? idle_since, bool afk)
+        internal Task InternalUpdateStatusAsync(Game game, UserStatus? user_status, DateTimeOffset? idle_since)
         {
             if (game != null && game.Name != null && game.Name.Length > 128)
                 throw new Exception("Game name can't be longer than 128 characters!");
 
+            var since_unix = idle_since != null ? (long?)Utils.GetUnixTime(idle_since.Value) : null;
+
             var status = new StatusUpdate
             {
                 Game = game ?? new Game(),
-                IdleSince = idle_since,
-                IsAFK = afk,
+                IdleSince = since_unix,
+                IsAFK = idle_since != null,
                 Status = user_status ?? UserStatus.Online
             };
             var status_update = new GatewayPayload
