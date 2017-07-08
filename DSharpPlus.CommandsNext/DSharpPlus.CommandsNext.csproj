@@ -16,7 +16,7 @@
     <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Commands</PackageTags>
+    <PackageTags>Discord, Discord API, Bots, Discord Bots, Chat, DSharp, DSharpPlus, C#, .NET, VB.NET, VB, F#, Commands, CommandsNext</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">

@@ -18,7 +18,7 @@ A WebSocket4Net WebSocket client for DSharpPlus, for platforms that do not suppo
     <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, WebSocket, WebSocket4Net, WS4Net, Windows 7, Mono</PackageTags>
+    <PackageTags>Discord, Discord API, Bots, Discord Bots, Chat, DSharp, DSharpPlus, C#, .NET, VB.NET, VB, F#, WebSocket, WebSocket4Net, Windows, Windows 7</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">

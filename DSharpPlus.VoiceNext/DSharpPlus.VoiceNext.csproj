@@ -19,7 +19,7 @@
     <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageTags>Discord, Discord API, Discord Bots, Chat, DSharp, DSharpPlus, Voice</PackageTags>
+    <PackageTags>Discord, Discord API, Bots, Discord Bots, Chat, DSharp, DSharpPlus, C#, .NET, VB.NET, VB, F#, Audio, Voice, Radio, Music</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">
