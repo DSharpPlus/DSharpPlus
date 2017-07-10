@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Threading.Tasks;
-using DSharpPlus.Web;
-using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -272,6 +271,16 @@ namespace DSharpPlus
         private AsyncEvent<GuildRoleDeleteEventArgs> _guild_role_delete;
 
         /// <summary>
+        /// Sent when message is acknowledged by the user.
+        /// </summary>
+        public event AsyncEventHandler<MessageAckEventArgs> MessageAck
+        {
+            add { this._message_ack.Register(value); }
+            remove { this._message_ack.Unregister(value); }
+        }
+        private AsyncEvent<MessageAckEventArgs> _message_ack;
+
+        /// <summary>
         /// Sent when a message is updated.
         /// </summary>
         public event AsyncEventHandler<MessageUpdateEventArgs> MessageUpdate
@@ -488,6 +497,7 @@ namespace DSharpPlus
             this._guild_role_create = new AsyncEvent<GuildRoleCreateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_CREATE");
             this._guild_role_update = new AsyncEvent<GuildRoleUpdateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_UPDATE");
             this._guild_role_delete = new AsyncEvent<GuildRoleDeleteEventArgs>(this.EventErrorHandler, "GUILD_ROLE_DELETE");
+            this._message_ack = new AsyncEvent<MessageAckEventArgs>(this.EventErrorHandler, "MESSAGE_ACK");
             this._message_update = new AsyncEvent<MessageUpdateEventArgs>(this.EventErrorHandler, "MESSAGE_UPDATE");
             this._message_delete = new AsyncEvent<MessageDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_DELETE");
             this._message_bulk_delete = new AsyncEvent<MessageBulkDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_BULK_DELETE");
@@ -582,6 +592,7 @@ namespace DSharpPlus
                 client.GuildRoleCreate += this.Client_GuildRoleCreate;
                 client.GuildRoleUpdate += this.Client_GuildRoleUpdate;
                 client.GuildRoleDelete += this.Client_GuildRoleDelete;
+                client.MessageAck += this.Client_MessageAck;
                 client.MessageUpdate += this.Client_MessageUpdate;
                 client.MessageDelete += this.Client_MessageDelete;
                 client.MessageBulkDelete += this.Client_MessageBulkDelete;
@@ -741,6 +752,9 @@ namespace DSharpPlus
 
         private Task Client_GuildRoleDelete(GuildRoleDeleteEventArgs e) =>
             this._guild_role_delete.InvokeAsync(e);
+
+        private Task Client_MessageAck(MessageAckEventArgs e) =>
+            this._message_ack.InvokeAsync(e);
 
         private Task Client_MessageUpdate(MessageUpdateEventArgs e) =>
             this._message_update.InvokeAsync(e);

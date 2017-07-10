@@ -699,7 +699,7 @@ namespace DSharpPlus
                 }
                 catch (UnauthorizedException e)
                 {
-                    throw e;
+                    throw new Exception("Authentication failed. Check your token and try again.", e);
                 }
                 catch (PlatformNotSupportedException e)
                 {
@@ -1115,7 +1115,7 @@ namespace DSharpPlus
                     await OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], this._guilds[gid]);
                     break;
 
-                case "message_ack":
+                case "message_ack": // channel_id, message_id
                     await OnMessageAckEventAsync();
                     break;
 
