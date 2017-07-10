@@ -13,7 +13,13 @@
         /// <summary>
         /// Sets the token used to identify the client.
         /// </summary>
-        public string Token { internal get; set; } = "";
+        public string Token
+        {
+            internal get => this._token;
+
+            set => this._token = value.Trim();
+        }
+        private string _token = "";
 
         /// <summary>
         /// Sets the type of the token used to identify the client. This is typically <see cref="TokenType.Bot"/> for bots, and <see cref="TokenType.User"/> for selfbots and userbots.
