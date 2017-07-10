@@ -302,6 +302,16 @@ namespace DSharpPlus
         private AsyncEvent<GuildRoleDeleteEventArgs> _guild_role_delete;
 
         /// <summary>
+        /// Sent when message is acknowledged by the user.
+        /// </summary>
+        public event AsyncEventHandler<MessageAckEventArgs> MessageAck
+        {
+            add { this._message_ack.Register(value); }
+            remove { this._message_ack.Unregister(value); }
+        }
+        private AsyncEvent<MessageAckEventArgs> _message_ack;
+
+        /// <summary>
         /// Sent when a message is updated.
         /// </summary>
         public event AsyncEventHandler<MessageUpdateEventArgs> MessageUpdate
@@ -616,6 +626,7 @@ namespace DSharpPlus
             this._guild_role_create = new AsyncEvent<GuildRoleCreateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_CREATE");
             this._guild_role_update = new AsyncEvent<GuildRoleUpdateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_UPDATE");
             this._guild_role_delete = new AsyncEvent<GuildRoleDeleteEventArgs>(this.EventErrorHandler, "GUILD_ROLE_DELETE");
+            this._message_ack = new AsyncEvent<MessageAckEventArgs>(this.EventErrorHandler, "MESSAGE_ACK");
             this._message_update = new AsyncEvent<MessageUpdateEventArgs>(this.EventErrorHandler, "MESSAGE_UPDATE");
             this._message_delete = new AsyncEvent<MessageDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_DELETE");
             this._message_bulk_delete = new AsyncEvent<MessageBulkDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_BULK_DELETE");
@@ -1105,7 +1116,7 @@ namespace DSharpPlus
                     break;
 
                 case "message_ack":
-                    // Do we even need an event for this? Could be useful for custom clients, I guess.
+                    await OnMessageAckEventAsync();
                     break;
 
                 case "message_create":
@@ -1293,6 +1304,9 @@ namespace DSharpPlus
 
         internal async Task OnChannelUpdateEventAsync(DiscordChannel channel)
         {
+            if (channel == null)
+                return;
+
             channel.Discord = this;
 
             var gld = channel.Guild;
@@ -1307,7 +1321,7 @@ namespace DSharpPlus
                     Discord = this,
                     GuildId = channel_new.GuildId,
                     Id = channel_new.Id,
-                    IsPrivate = channel_new.IsPrivate,
+                    //IsPrivate = channel_new.IsPrivate,
                     LastMessageId = channel_new.LastMessageId,
                     Name = channel_new.Name,
                     _permission_overwrites = channel_new._permission_overwrites,
@@ -1331,6 +1345,9 @@ namespace DSharpPlus
 
         internal async Task OnChannelDeleteEventAsync(DiscordChannel channel)
         {
+            if (channel == null)
+                return;
+
             channel.Discord = this;
 
             //if (channel.IsPrivate)
@@ -1357,6 +1374,9 @@ namespace DSharpPlus
 
         internal async Task OnChannelPinsUpdate(DiscordChannel channel, DateTimeOffset last_pin_timestamp)
         {
+            if (channel == null)
+                return;
+
             var ea = new ChannelPinsUpdateEventArgs(this)
             {
                 Channel = channel,
@@ -1673,6 +1693,13 @@ namespace DSharpPlus
             await this._guild_role_delete.InvokeAsync(ea);
         }
 
+        internal async Task OnMessageAckEventAsync()
+        {
+#warning TODO
+
+            await this._message_ack.InvokeAsync(new MessageAckEventArgs(this) { });
+        }
+
         internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author)
         {
             message.Discord = this;
@@ -1841,6 +1868,9 @@ namespace DSharpPlus
 
         internal async Task OnTypingStartEventAsync(ulong user_id, DiscordChannel channel, DateTimeOffset started)
         {
+            if (channel == null)
+                return;
+
             var usr = channel.Guild != null ? channel.Guild.Members.FirstOrDefault(xm => xm.Id == user_id) : this.InternalGetCachedUser(user_id);
 
             var ea = new TypingStartEventArgs(this)

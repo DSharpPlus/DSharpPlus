@@ -13,7 +13,7 @@
         /// <summary>
         /// Indicates that this is a private channel.
         /// </summary>
-        Private = 3,
+        Private = 1,
 
         /// <summary>
         /// Indicates that this is a voice channel.

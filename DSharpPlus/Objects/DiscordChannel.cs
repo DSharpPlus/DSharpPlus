@@ -38,8 +38,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets whether this channel is a DM channel.
         /// </summary>
-        [JsonProperty("is_private", NullValueHandling = NullValueHandling.Ignore)]
-        public bool IsPrivate { get; internal set; }
+        [JsonIgnore]
+        public bool IsPrivate => this.Type == ChannelType.Private || this.Type == ChannelType.Group;
 
         /// <summary>
         /// Gets the guild to which this channel belongs.
