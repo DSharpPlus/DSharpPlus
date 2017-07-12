@@ -79,6 +79,14 @@ namespace DSharpPlus
             MdRegex.Replace(text, m => string.Concat("\\", m.Groups[1].Value));
 
         /// <summary>
+        /// Removes all markdown formatting from specified text.
+        /// </summary>
+        /// <param name="text">Text to strip of formatting.</param>
+        /// <returns>Formatting-stripped text.</returns>
+        public static string Strip(string text) =>
+            MdRegex.Replace(text, m => string.Empty);
+
+        /// <summary>
         /// Creates a mention for specified user or member. Can optionally specify to resolve nicknames.
         /// </summary>
         /// <param name="user">User to create mention for.</param>
