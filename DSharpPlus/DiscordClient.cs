@@ -2393,14 +2393,14 @@ namespace DSharpPlus
         /// <summary>
         /// Disposes your DiscordClient.
         /// </summary>
-        public async void Dispose()
+        public void Dispose()
         {
             if (disposed)
                 return;
 
             GC.SuppressFinalize(this);
 
-            await DisconnectAsync();
+            DisconnectAsync().GetAwaiter().GetResult();
 
             _cancel_token_source.Cancel();
             _guilds = null;
@@ -2408,7 +2408,7 @@ namespace DSharpPlus
             _current_user = null;
             _modules = null;
             _private_channels = null;
-            await _websocket_client.InternalDisconnectAsync(null);
+            _websocket_client.InternalDisconnectAsync(null).GetAwaiter().GetResult();
 
             disposed = true;
         }
