@@ -73,7 +73,7 @@ namespace DSharpPlus
             var raw_members = (JArray)json["members"];
             var guild = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
 
-            await this.Discord.OnGuildCreateEventAsync(guild, raw_members);
+            await this.Discord.OnGuildCreateEventAsync(guild, raw_members, null);
             return guild;
         }
 

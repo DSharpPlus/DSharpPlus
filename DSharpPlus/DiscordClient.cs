@@ -1040,7 +1040,7 @@ namespace DSharpPlus
                     break;
 
                 case "guild_create":
-                    await OnGuildCreateEventAsync(dat.ToObject<DiscordGuild>(), (JArray)dat["members"]);
+                    await OnGuildCreateEventAsync(dat.ToObject<DiscordGuild>(), (JArray)dat["members"], dat["presences"].ToObject<IEnumerable<DiscordPresence>>());
                     break;
 
                 case "guild_update":
@@ -1388,8 +1388,15 @@ namespace DSharpPlus
             await this._channel_pins_updated.InvokeAsync(ea);
         }
 
-        internal async Task OnGuildCreateEventAsync(DiscordGuild guild, JArray raw_members)
+        internal async Task OnGuildCreateEventAsync(DiscordGuild guild, JArray raw_members, IEnumerable<DiscordPresence> presences)
         {
+            if (presences != null)
+            {
+                presences = presences.Select(xp => { xp.Discord = this; return xp; });
+                foreach (var xp in presences)
+                    this._presences[xp.InternalUser.Id] = xp;
+            }
+
             var exists = this._guilds.ContainsKey(guild.Id);
 
             guild.Discord = this;
@@ -1502,10 +1509,12 @@ namespace DSharpPlus
 
         internal async Task OnGuildSyncEventAsync(DiscordGuild guild, bool is_large, JArray raw_members, IEnumerable<DiscordPresence> presences)
         {
+            presences = presences.Select(xp => { xp.Discord = this; return xp; });
+            foreach (var xp in presences)
+                this._presences[xp.InternalUser.Id] = xp;
+
             guild.IsSynced = true;
             guild.IsLarge = is_large;
-
-            presences = presences.Select(xp => { xp.Discord = this; return xp; });
             
             this.UpdateCachedGuild(guild, raw_members);
 
