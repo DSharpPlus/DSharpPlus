@@ -67,6 +67,11 @@
         public int MessageCacheSize { internal get; set; } = 50;
 
         /// <summary>
+        /// Sets whether guilds should be automatically synced for user tokens.
+        /// </summary>
+        public bool AutomaticGuildSync { internal get; set; } = true;
+
+        /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
         public DiscordConfig() { }

@@ -1263,7 +1263,7 @@ namespace DSharpPlus
                 }).ToDictionary(xg => xg.Id, xg => xg);
             this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
 
-            if (this._config.TokenType == TokenType.User)
+            if (this._config.TokenType == TokenType.User && this._config.AutomaticGuildSync)
                 await this.SendGuildSyncAsync();
 
             await this._ready.InvokeAsync(new ReadyEventArgs(this));
