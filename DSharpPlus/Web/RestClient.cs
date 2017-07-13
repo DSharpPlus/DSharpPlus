@@ -236,7 +236,16 @@ namespace DSharpPlus
 
         internal async Task DelayRequest(IWebRequest request)
         {
-            RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
+            string requesturl = request.URL;
+
+            // shitty temp fix for 2 issues
+            if (requesturl.Contains(Endpoints.REACTIONS))
+                requesturl = requesturl.Remove(requesturl.IndexOf(Endpoints.REACTIONS) + Endpoints.REACTIONS.Length);
+
+            if (requesturl.Contains("?"))
+                requesturl = requesturl.Remove(requesturl.IndexOf("?"));
+
+            RateLimit rateLimit = _rateLimits.Find(x => x.Url == requesturl);
             DateTimeOffset time = DateTimeOffset.UtcNow;
             if (rateLimit != null)
             {
@@ -262,7 +271,16 @@ namespace DSharpPlus
             double difference = clienttime.Subtract(servertime).TotalSeconds;
             request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
 
-            RateLimit rateLimit = _rateLimits.Find(x => x.Url == request.URL);
+            string requesturl = request.URL;
+
+            // shitty temp fix for 2 issues
+            if (requesturl.Contains(Endpoints.REACTIONS))
+                requesturl = requesturl.Remove(requesturl.IndexOf(Endpoints.REACTIONS) + Endpoints.REACTIONS.Length);
+
+            if (requesturl.Contains("?"))
+                requesturl = requesturl.Remove(requesturl.IndexOf("?"));
+
+            RateLimit rateLimit = _rateLimits.Find(x => x.Url == requesturl);
             if (rateLimit != null)
             {
                 response.Headers.TryGetValue("X-RateLimit-Limit", out var usesmax);
@@ -272,7 +290,7 @@ namespace DSharpPlus
                 rateLimit.Reset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset) + difference);
                 rateLimit.UsesLeft = int.Parse(usesleft);
                 rateLimit.UsesMax = int.Parse(usesmax);
-                _rateLimits[_rateLimits.FindIndex(x => x.Url == request.URL)] = rateLimit;
+                _rateLimits[_rateLimits.FindIndex(x => x.Url == requesturl)] = rateLimit;
             }
             else
             {
@@ -282,7 +300,7 @@ namespace DSharpPlus
                 _rateLimits.Add(new RateLimit
                 {
                     Reset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset) + difference),
-                    Url = request.URL,
+                    Url = requesturl,
                     UsesLeft = int.Parse(usesleft),
                     UsesMax = int.Parse(usesmax)
                 });
