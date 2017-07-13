@@ -48,6 +48,11 @@ namespace DSharpPlus.CommandsNext
         public CommandsNextModule CommandsNext { get; internal set; }
 
         /// <summary>
+        /// Gets the collection of dependencies for this CNext instance.
+        /// </summary>
+        public DependencyCollection Dependencies { get; internal set; }
+
+        /// <summary>
         /// Gets the command that is being executed.
         /// </summary>
         public Command Command { get; internal set; }

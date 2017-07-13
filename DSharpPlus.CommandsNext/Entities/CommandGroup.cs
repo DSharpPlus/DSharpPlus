@@ -1,9 +1,8 @@
-﻿using System;
+﻿using DSharpPlus.CommandsNext.Exceptions;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext.Exceptions;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -59,7 +58,8 @@ namespace DSharpPlus.CommandsNext
                         Command = cmd,
                         Config = ctx.Config,
                         RawArgumentString = x,
-                        CommandsNext = ctx.CommandsNext
+                        CommandsNext = ctx.CommandsNext,
+                        Dependencies = ctx.Dependencies
                     };
 
                     if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())

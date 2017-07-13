@@ -171,7 +171,8 @@ namespace DSharpPlus.CommandsNext
                 //RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
                 Config = this.Config,
                 RawArgumentString = rrg,
-                CommandsNext = this
+                CommandsNext = this,
+                Dependencies = this.Config.Dependencies
             };
 
             if (cmd == null)
@@ -211,10 +212,30 @@ namespace DSharpPlus.CommandsNext
         private Lazy<IReadOnlyDictionary<string, Command>> _registered_commands_lazy;
         public IReadOnlyDictionary<string, Command> RegisteredCommands => this._registered_commands_lazy.Value;
 
-        public void RegisterCommands<T>() where T : new()
+        public void RegisterCommands<T>() where T : class
         {
             var t = typeof(T);
-            RegisterCommands(t, new T(), null, out var tres, out var tcmds);
+            var ti = t.GetTypeInfo();
+            var cs = ti.DeclaredConstructors
+                .Where(xci => xci.IsPublic)
+                .ToArray();
+
+            if (cs.Length != 1)
+                throw new ArgumentException("Specified type does not contain a public constructor or contains more than one public constructor.");
+
+            var constr = cs[0];
+            var prms = constr.GetParameters();
+            var args = new object[prms.Length];
+            var deps = this.Config.Dependencies;
+
+            if (prms.Length != 0 && deps == null)
+                throw new InvalidOperationException("Dependency collection needs to be specified for parametered constructors.");
+
+            if (prms.Length != 0)
+                for (var i = 0; i < args.Length; i++)
+                    args[i] = deps.GetDependency(prms[i].ParameterType);
+            
+            RegisterCommands(t, Activator.CreateInstance(t, args), null, out var tres, out var tcmds);
             
             if (tres != null)
                 this.AddToCommandDictionary(tres);

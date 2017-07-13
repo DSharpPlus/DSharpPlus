@@ -60,6 +60,11 @@ namespace DSharpPlus.Test
             };
             this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 
+            // build a dependency collection for commandsnext
+            var depco = new DependencyCollectionBuilder();
+            depco.AddInstance("This is a dependency string.");
+            depco.Add<TestDependency>();
+
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
             {
@@ -72,7 +77,8 @@ namespace DSharpPlus.Test
                 },
                 EnableDms = true,
                 EnableMentionPrefix = true,
-                CaseSensitive = true
+                CaseSensitive = true,
+                Dependencies = depco.Build()
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
@@ -80,6 +86,7 @@ namespace DSharpPlus.Test
             this.CommandsNextService.RegisterCommands<TestBotCommands>();
             this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
             this.CommandsNextService.RegisterCommands<TestBotEvalCommands>();
+            this.CommandsNextService.RegisterCommands<TestBotDependentCommands>();
 
             // interactivity service
             this.InteractivityService = Discord.UseInteractivity();
