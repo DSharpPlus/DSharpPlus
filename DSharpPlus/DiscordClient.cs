@@ -1261,10 +1261,13 @@ namespace DSharpPlus
 
                     return xg;
                 }).ToDictionary(xg => xg.Id, xg => xg);
+
             this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
 
             if (this._config.TokenType == TokenType.User && this._config.AutomaticGuildSync)
                 await this.SendGuildSyncAsync();
+            else if (this._config.TokenType == TokenType.User)
+                Volatile.Write(ref this._guild_download_completed, true);
 
             await this._ready.InvokeAsync(new ReadyEventArgs(this));
         }
@@ -1518,8 +1521,11 @@ namespace DSharpPlus
             
             this.UpdateCachedGuild(guild, raw_members);
 
-            var dcompl = this._guilds.Values.All(xg => xg.IsSynced);
-            Volatile.Write(ref this._guild_download_completed, dcompl);
+            if (this._config.AutomaticGuildSync)
+            {
+                var dcompl = this._guilds.Values.All(xg => xg.IsSynced);
+                Volatile.Write(ref this._guild_download_completed, dcompl);
+            }
 
             await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild });
         }
