@@ -26,6 +26,18 @@ namespace DSharpPlus.Test
             await m.ModifyAsync(oldnick);
         }*/
 
+        // 🅱 🇷 🇴 🇰 🇪 🇳
+        [Command("ratelimit")]
+        public async Task RateLimit(CommandContext e)
+        {
+            await e.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(e.Client, "🅱"));
+            await e.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(e.Client, "🇷"));
+            await e.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(e.Client, "🇴"));
+            await e.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(e.Client, "🇰"));
+            await e.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(e.Client, "🇪"));
+            await e.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(e.Client, "🇳"));
+        }
+
         [Command("namecolor")]
         public async Task NameColor(CommandContext e, DiscordMember m)
         {
@@ -319,7 +331,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             private CancellationTokenSource AudioLoopCancelTokenSource { get; set; }
             private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
             private Task AudioLoopTask { get; set; }
-            
+
             private ConcurrentDictionary<uint, ulong> _ssrc_map;
             private ConcurrentDictionary<uint, FileStream> _ssrc_filemap;
             private async Task OnVoiceReceived(VoiceReceivedEventArgs e)
@@ -407,7 +419,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     foreach (var kvp in this._ssrc_map)
                         await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value));
 
-                    vnc.Disconnect();
+                vnc.Disconnect();
                 await ctx.Message.RespondAsync("Disconnected");
             }
 
