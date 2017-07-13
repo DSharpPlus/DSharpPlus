@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus
 {
     public sealed class MessageAckEventArgs : DiscordEventArgs
     {
-#warning TODO
+        public DiscordMessage Message { get; internal set; }
+        public DiscordChannel Channel => this.Message.Channel;
 
         public MessageAckEventArgs(DiscordClient client) : base(client) { }
     }

@@ -1005,6 +1005,7 @@ namespace DSharpPlus
             var chn = null as DiscordChannel;
             var gid = 0ul;
             var cid = 0ul;
+            var mid = 0ul;
             var usr = null as DiscordUser;
 
             switch (payload.EventName.ToLower())
@@ -1115,9 +1116,10 @@ namespace DSharpPlus
                     await OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], this._guilds[gid]);
                     break;
 
-                case "message_ack": // channel_id, message_id
-#warning TODO
-                    await OnMessageAckEventAsync();
+                case "message_ack":
+                    cid = (ulong)dat["channel_id"];
+                    mid = (ulong)dat["message_id"];
+                    await OnMessageAckEventAsync(this.InternalGetCachedChannel(cid), mid);
                     break;
 
                 case "message_create":
@@ -1694,11 +1696,18 @@ namespace DSharpPlus
             await this._guild_role_delete.InvokeAsync(ea);
         }
 
-        internal async Task OnMessageAckEventAsync()
+        internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong msgid)
         {
-#warning TODO
+            DiscordMessage msg = null;
+            if (chn?.MessageCache?.TryGet(xm => xm.Id == msgid, out msg) != true)
+                msg = new DiscordMessage
+                {
+                    Discord = this,
+                    Id = msgid,
+                    ChannelId = chn.Id
+                };
 
-            await this._message_ack.InvokeAsync(new MessageAckEventArgs(this) { });
+            await this._message_ack.InvokeAsync(new MessageAckEventArgs(this) { Message = msg });
         }
 
         internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author)
