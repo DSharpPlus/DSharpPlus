@@ -8,7 +8,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         {
             var cfg = ctx.Config;
             var app = ctx.Client.CurrentApplication;
-            var me = ctx.Client.CurrentApplication;
+            var me = ctx.Client.CurrentUser;
 
             if (cfg.SelfBot)
                 return Task.FromResult(ctx.User.Id == me.Id);
