@@ -960,6 +960,31 @@ namespace DSharpPlus
 
             return await this._rest_client.InternalModifyCurrentUserAsync(username, av64);
         }
+
+        /// <summary>
+        /// Requests guild sync for specified guilds. Guild sync sends information about members and presences for a given guild, and makes gateway dispatch additional events.
+        /// 
+        /// This can only be done for user tokens.
+        /// </summary>
+        /// <param name="guilds">Guilds to send a sync request for.</param>
+        /// <returns></returns>
+        public Task SyncGuildsAsync(params DiscordGuild[] guilds)
+        {
+            if (this._config.TokenType != TokenType.User)
+                throw new InvalidOperationException("This can only be done for user tokens.");
+
+            var to_sync = guilds.Where(xg => !xg.IsSynced).Select(xg => xg.Id);
+
+            var guild_sync = new GatewayPayload
+            {
+                OpCode = GatewayOpCode.GuildSync,
+                Data = to_sync
+            };
+            var guild_syncstr = JsonConvert.SerializeObject(guild_sync);
+
+            this._websocket_client.SendMessage(guild_syncstr);
+            return Task.Delay(0);
+        }
         #endregion
 
         #region Websocket
@@ -2281,15 +2306,7 @@ namespace DSharpPlus
 
         internal Task SendGuildSyncAsync()
         {
-            var guild_sync = new GatewayPayload
-            {
-                OpCode = GatewayOpCode.GuildSync,
-                Data = this._guilds.Values.Where(xg => !xg.IsSynced).Select(xg => xg.Id)
-            };
-            var guild_syncstr = JsonConvert.SerializeObject(guild_sync);
-
-            this._websocket_client.SendMessage(guild_syncstr);
-            return Task.Delay(0);
+            return this.SyncGuildsAsync(this._guilds.Values.ToArray());
         }
 
         internal Task SendVoiceStateUpdateAsync(DiscordGuild guild, DiscordChannel channel, bool mute = false, bool deaf = false)

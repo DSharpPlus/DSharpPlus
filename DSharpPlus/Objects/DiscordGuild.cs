@@ -1089,6 +1089,15 @@ namespace DSharpPlus
         }
 
         /// <summary>
+        /// Sends a guild sync request for this guild. This fills the guild's member and presence information, and starts dispatching additional events.
+        /// 
+        /// This can only be done for user tokens.
+        /// </summary>
+        /// <returns></returns>
+        public Task SyncAsync() =>
+            this.Discord.SyncGuildsAsync(this);
+
+        /// <summary>
         /// Returns a string representation of this guild.
         /// </summary>
         /// <returns>String representation of this guild.</returns>
