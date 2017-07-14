@@ -975,6 +975,9 @@ namespace DSharpPlus
 
             var to_sync = guilds.Where(xg => !xg.IsSynced).Select(xg => xg.Id);
 
+            if (!to_sync.Any())
+                return;
+
             var guild_sync = new GatewayPayload
             {
                 OpCode = GatewayOpCode.GuildSync,
