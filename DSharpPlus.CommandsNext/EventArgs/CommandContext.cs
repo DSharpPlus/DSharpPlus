@@ -118,8 +118,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Message that was sent.</returns>
         public Task<DiscordMessage> RespondWithFileAsync(string file_path, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
-            using (var fs = File.OpenRead(file_path))
-                return this.RespondWithFileAsync(fs, content, is_tts, embed);
+            return this.Message.RespondWithFileAsync(file_path, content, is_tts, embed);
         }
 #endif
 

@@ -148,10 +148,10 @@ namespace DSharpPlus
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             using (var fs = File.OpenRead(file_path))
-                return this.Discord._rest_client.InternalUploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed);
+                return await this.Discord._rest_client.InternalUploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed);
         }
 #endif
 

@@ -178,14 +178,14 @@ namespace DSharpPlus
         /// </summary>
         /// <returns></returns>
         public Task PinAsync() =>
-            this.Discord._rest_client.InternalPinMessageAsync(ChannelId, Id);
+            this.Discord._rest_client.InternalPinMessageAsync(this.ChannelId, Id);
 
         /// <summary>
         /// Unpins the message in its channel.
         /// </summary>
         /// <returns></returns>
         public Task UnpinAsync() =>
-            this.Discord._rest_client.InternalUnpinMessageAsync(ChannelId, Id);
+            this.Discord._rest_client.InternalUnpinMessageAsync(this.ChannelId, Id);
 
         /// <summary>
         /// Responds to the message.
@@ -195,7 +195,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> RespondAsync(string content, bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord._rest_client.InternalCreateMessageAsync(ChannelId, content, tts, embed);
+            this.Discord._rest_client.InternalCreateMessageAsync(this.ChannelId, content, tts, embed);
 
         /// <summary>
         /// Responds to the message with a file.
@@ -207,7 +207,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) => 
-            this.Discord._rest_client.InternalUploadFileAsync(ChannelId, file_data, file_name, content, tts, embed);
+            this.Discord._rest_client.InternalUploadFileAsync(this.ChannelId, file_data, file_name, content, tts, embed);
 
 #if !NETSTANDARD1_1
         /// <summary>
@@ -219,7 +219,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> RespondWithFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null) =>
-            this.RespondWithFileAsync(file_data, Path.GetFileName(file_data.Name), content, tts, embed);
+            this.Discord._rest_client.InternalUploadFileAsync(this.ChannelId, file_data, Path.GetFileName(file_data.Name), content, tts, embed);
 
         /// <summary>
         /// Responds to the message with a file.
@@ -229,10 +229,10 @@ namespace DSharpPlus
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> RespondWithFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             using (var fs = File.OpenRead(file_path))
-                return this.RespondWithFileAsync(fs, content, tts, embed);
+                return await this.Discord._rest_client.InternalUploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed);
         }
 #endif
 

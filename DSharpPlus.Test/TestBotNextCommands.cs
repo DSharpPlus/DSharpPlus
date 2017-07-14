@@ -153,6 +153,13 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(sb.ToString());
         }
 
+        [Command("uploadfile"), Description("Uploads a specified file."), RequireOwner]
+        public async Task UploadFile(CommandContext ctx, [RemainingText, Description("File to upload.")] string filepath)
+        {
+            await ctx.TriggerTypingAsync();
+            await ctx.RespondWithFileAsync(filepath, Formatter.InlineCode(filepath));
+        }
+
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
         public class InteractivityTest
         {
