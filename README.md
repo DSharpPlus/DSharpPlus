@@ -32,6 +32,6 @@ Come talk to us here:
 
 [![Discord Server ](https://discordapp.com/api/guilds/146044397861994496/embed.png?style=banner1)](https://discord.gg/0oZpaYcAjfvkDuE4)
 
-Or you could also join us in the Discord API chat at **#dotnet_dsharpplus**
+Alternatively, you could also join us in the Discord API chat at **#dotnet_dsharpplus**.
 
 [![Discord API Chat](https://discordapp.com/api/guilds/81384788765712384/embed.png?style=banner1)](https://discord.gg/N4WeVd)
