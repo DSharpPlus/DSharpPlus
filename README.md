@@ -1,6 +1,6 @@
 ![Logo of DSharpPlus](https://github.com/NaamloosDT/DSharpPlus/raw/master/logo/dsharp+_smaller.png)
 
-# DSharp+ Rewrite
+# DSharpPlus
 
 A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards
 
@@ -11,6 +11,8 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 
 # Use the lib:
 1. Download from [NuGet](http://nuget.org/packages/DSharpPlus)
+2. Download from [MyGet](https://www.myget.org/gallery/dsharpplus-nightly)
+3. Build from source using Visual Studio
 
 # Documentation
 The documentation can be found at ReadTheDocs, **[Here.](http://dsharpplus.readthedocs.io/)**
