@@ -19,7 +19,33 @@ namespace DSharpPlus
         public Game Game { get; internal set; }
 
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-        public string Status { get; internal set; }
+        internal string InternalStatus { get; set; }
+
+        [JsonIgnore]
+        public UserStatus Status
+        {
+            get
+            {
+                switch (this.InternalStatus.ToLower())
+                {
+                    case "online":
+                        return UserStatus.Online;
+
+                    case "idle":
+                        return UserStatus.Idle;
+
+                    case "dnd":
+                        return UserStatus.DoNotDisturb;
+
+                    case "invisible":
+                        return UserStatus.Invisible;
+
+                    case "offline":
+                    default:
+                        return UserStatus.Offline;
+                }
+            }
+        }
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong GuildId { get; set; }
