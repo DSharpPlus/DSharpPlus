@@ -812,6 +812,7 @@ namespace DSharpPlus
                 [":four_leaf_clover:"] = "🍀",
                 [":frame_photo:"] = "🖼",
                 [":free:"] = "🆓",
+                [":french_bread:"] = "🥖",
                 [":fried_shrimp:"] = "🍤",
                 [":fries:"] = "🍟",
                 [":frog:"] = "🐸",
