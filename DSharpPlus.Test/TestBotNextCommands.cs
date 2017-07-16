@@ -251,6 +251,23 @@ namespace DSharpPlus.Test
         {
             await ctx.RespondAsync(Formatter.BlockCode(this.Dependency.Dependency));
         }
+
+        [Group("depnest")]
+        public class TestBotNestedDependentCommands
+        {
+            private TestDependency Dependency { get; }
+
+            public TestBotNestedDependentCommands(TestDependency dep1)
+            {
+                this.Dependency = dep1;
+            }
+
+            [Command("test")]
+            public async Task NestTest1(CommandContext ctx)
+            {
+                await ctx.RespondAsync(Formatter.BlockCode(this.Dependency.Dependency));
+            }
+        }
     }
 
     public class TestDependency
