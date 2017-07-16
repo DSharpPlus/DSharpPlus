@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace DSharpPlus
 {
@@ -47,7 +48,7 @@ namespace DSharpPlus
         /// Gets the message's creation timestamp.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset Timestamp => DateTimeOffset.Parse(this.TimestampRaw);
+        public DateTimeOffset Timestamp => DateTimeOffset.Parse(this.TimestampRaw, CultureInfo.InvariantCulture);
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
         internal string TimestampRaw { get; set; }
 
@@ -55,9 +56,11 @@ namespace DSharpPlus
         /// Gets the message's edit timestamp.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset EditedTimestamp => DateTimeOffset.Parse(this.EditedTimestampRaw);
+        public DateTimeOffset EditedTimestamp => DateTimeOffset.Parse(this.EditedTimestampRaw, CultureInfo.InvariantCulture);
         [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         internal string EditedTimestampRaw { get; set; }
+        [JsonIgnore]
+        public bool IsEdited => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw);
 
         /// <summary>
         /// Gets whether the message is a text-to-speech message.
