@@ -215,27 +215,8 @@ namespace DSharpPlus.CommandsNext
         public void RegisterCommands<T>() where T : class
         {
             var t = typeof(T);
-            var ti = t.GetTypeInfo();
-            var cs = ti.DeclaredConstructors
-                .Where(xci => xci.IsPublic)
-                .ToArray();
 
-            if (cs.Length != 1)
-                throw new ArgumentException("Specified type does not contain a public constructor or contains more than one public constructor.");
-
-            var constr = cs[0];
-            var prms = constr.GetParameters();
-            var args = new object[prms.Length];
-            var deps = this.Config.Dependencies;
-
-            if (prms.Length != 0 && deps == null)
-                throw new InvalidOperationException("Dependency collection needs to be specified for parametered constructors.");
-
-            if (prms.Length != 0)
-                for (var i = 0; i < args.Length; i++)
-                    args[i] = deps.GetDependency(prms[i].ParameterType);
-            
-            RegisterCommands(t, Activator.CreateInstance(t, args), null, out var tres, out var tcmds);
+            RegisterCommands(t, CreateInstance(t), null, out var tres, out var tcmds);
             
             if (tres != null)
                 this.AddToCommandDictionary(tres);
@@ -362,7 +343,7 @@ namespace DSharpPlus.CommandsNext
                 .Where(xt => xt.DeclaredConstructors.Any(xc => !xc.GetParameters().Any() || xc.IsPublic));
             foreach (var xt in ts)
             {
-                this.RegisterCommands(xt.AsType(), Activator.CreateInstance(xt.AsType()), mdl, out var tmdl, out var tcmds);
+                this.RegisterCommands(xt.AsType(), this.CreateInstance(xt.AsType()), mdl, out var tmdl, out var tcmds);
 
                 if (tmdl != null)
                     cmds.Add(tmdl);
@@ -447,6 +428,31 @@ namespace DSharpPlus.CommandsNext
                 throw new MissingMethodException($"A group marked with CanExecute must have a method named {GROUP_COMMAND_METHOD_NAME}.");
 
             this.MakeCallable(mtd, inst, out cbl, out args);
+        }
+
+        private object CreateInstance(Type t)
+        {
+            var ti = t.GetTypeInfo();
+            var cs = ti.DeclaredConstructors
+                .Where(xci => xci.IsPublic)
+                .ToArray();
+
+            if (cs.Length != 1)
+                throw new ArgumentException("Specified type does not contain a public constructor or contains more than one public constructor.");
+
+            var constr = cs[0];
+            var prms = constr.GetParameters();
+            var args = new object[prms.Length];
+            var deps = this.Config.Dependencies;
+
+            if (prms.Length != 0 && deps == null)
+                throw new InvalidOperationException("Dependency collection needs to be specified for parametered constructors.");
+
+            if (prms.Length != 0)
+                for (var i = 0; i < args.Length; i++)
+                    args[i] = deps.GetDependency(prms[i].ParameterType);
+
+            return Activator.CreateInstance(t, args);
         }
 
         private void AddToCommandDictionary(Command cmd)

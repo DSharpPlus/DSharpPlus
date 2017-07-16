@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.Interactivity;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Test
 {
@@ -40,29 +38,6 @@ namespace DSharpPlus.Test
             }
             
             await Task.WhenAll(tskl);
-
-            /*var dcfg = new DiscordConfig
-            {
-                AutoReconnect = true,
-                DiscordBranch = Branch.Stable,
-                LargeThreshold = 250,
-                LogLevel = LogLevel.Unnecessary,
-                Token = cfg.Token,
-                TokenType = TokenType.Bot,
-                UseInternalLogHandler = false,
-                ShardCount = cfg.ShardCount
-            };
-            var bot = new DiscordShardedClient(dcfg);
-            bot.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
-            await bot.StartAsync();
-            bot.UseInteractivity();
-            var modules = bot.UseCommandsNext(new CommandsNextConfiguration { Prefix = cfg.CommandPrefix });
-            foreach (var m in modules.Values)
-            {
-                m.RegisterCommands<TestBotCommands>();
-                m.RegisterCommands<TestBotNextCommands>();
-                m.RegisterCommands<TestBotEvalCommands>();
-            }*/
 
             await Task.Delay(-1);
         }
