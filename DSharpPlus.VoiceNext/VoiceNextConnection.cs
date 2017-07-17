@@ -109,6 +109,12 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         public bool IsPlaying => this.PlaybackSemaphore.CurrentCount == 0 || (this.PlayingWait != null && !this.PlayingWait.Task.IsCompleted);
 
+        /// <summary>
+        /// Gets the websocket round-trip time in ms.
+        /// </summary>
+        public int Ping => Volatile.Read(ref this._ping);
+        private int _ping = 0;
+
         internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceNextConfiguration config, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
             this.Discord = client;
@@ -534,7 +540,9 @@ namespace DSharpPlus.VoiceNext
                 case 6:
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 or OP6 received", DateTime.Now);
                     var dt = DateTime.Now;
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {(dt - this.LastHeartbeat).TotalMilliseconds.ToString("#,###")}ms", dt);
+                    var ping = (int)(dt - this.LastHeartbeat).TotalMilliseconds;
+                    Volatile.Write(ref this._ping, ping);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {ping.ToString("#,###")}ms", dt);
                     this.LastHeartbeat = dt;
                     break;
 
