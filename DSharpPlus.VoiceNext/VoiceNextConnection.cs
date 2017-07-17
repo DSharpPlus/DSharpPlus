@@ -480,7 +480,8 @@ namespace DSharpPlus.VoiceNext
             this.VoiceWs.SendMessage(vsj);
 
 #if !NETSTANDARD1_1
-            this.ReceiverTask = Task.Run(this.VoiceReceiverTask, this.Token);
+            if (this.Configuration.EnableIncoming)
+                this.ReceiverTask = Task.Run(this.VoiceReceiverTask, this.Token);
 #endif
         }
 
