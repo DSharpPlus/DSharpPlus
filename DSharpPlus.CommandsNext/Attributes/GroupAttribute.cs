@@ -25,7 +25,11 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="name">Name of this group.</param>
         public GroupAttribute(string name)
         {
+#if !NETSTANDARD1_1
             if (name.Any(xc => char.IsWhiteSpace(xc)))
+#else
+            if (name.ToCharArray().Any(xc => char.IsWhiteSpace(xc)))
+#endif
                 throw new ArgumentException("Group names cannot contain whitespace characters.", nameof(name));
 
             this.Name = name;
