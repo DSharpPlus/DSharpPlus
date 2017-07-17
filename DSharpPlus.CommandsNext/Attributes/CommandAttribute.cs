@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace DSharpPlus.CommandsNext.Attributes
 {
@@ -19,6 +20,9 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="name">Name of this command.</param>
         public CommandAttribute(string name)
         {
+            if (name.Any(xc => char.IsWhiteSpace(xc)))
+                throw new ArgumentException("Command names cannot contain whitespace characters.", nameof(name));
+
             this.Name = name;
         }
     }

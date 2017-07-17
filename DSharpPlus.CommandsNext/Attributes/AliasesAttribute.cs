@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace DSharpPlus.CommandsNext.Attributes
 {
@@ -21,6 +22,9 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="aliases">Aliases to add to this command or group.</param>
         public AliasesAttribute(params string[] aliases)
         {
+            if (aliases.Any(xa => xa.Any(xc => char.IsWhiteSpace(xc))))
+                throw new ArgumentException("Aliases cannot contain whitespace characters.", nameof(aliases));
+
             this.Aliases = new ReadOnlyCollection<string>(aliases);
         }
     }
