@@ -1839,7 +1839,8 @@ namespace DSharpPlus
             {
                 guild = message.Channel?.Guild;
                 message.EditedTimestampRaw = event_message.EditedTimestampRaw;
-                message.Content = event_message.Content;
+                if (event_message.Content != null)
+                    message.Content = event_message.Content;
                 message._embeds.Clear();
                 message._embeds.AddRange(event_message._embeds);
                 message.Pinned = event_message.Pinned;
