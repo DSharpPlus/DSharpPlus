@@ -22,15 +22,15 @@ A WebSocket4Net WebSocket client for DSharpPlus, for platforms that do not suppo
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>2.5.0-beta-$(VersionSuffix)</Version>
-    <AssemblyVersion>2.5.0.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>2.5.0.$(VersionSuffix)</FileVersion>
+    <Version>2.5.1-beta-$(VersionSuffix)</Version>
+    <AssemblyVersion>2.5.1.$(VersionSuffix)</AssemblyVersion>
+    <FileVersion>2.5.1.$(VersionSuffix)</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>2.5.0</Version>
-    <AssemblyVersion>2.5.0.0</AssemblyVersion>
-    <FileVersion>2.5.0.0</FileVersion>
+    <Version>2.5.1</Version>
+    <AssemblyVersion>2.5.1.0</AssemblyVersion>
+    <FileVersion>2.5.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
