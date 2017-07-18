@@ -46,9 +46,9 @@ namespace DSharpPlus.CommandsNext
         public bool IsHidden { get; internal set; }
 
         /// <summary>
-        /// Gets a collection of execution pre-checks for this command.
+        /// Gets a collection of pre-execution checks for this command.
         /// </summary>
-        public IReadOnlyCollection<ConditionBaseAttribute> ExecutionChecks { get; internal set; }
+        public IReadOnlyCollection<CheckBaseAttribute> ExecutionChecks { get; internal set; }
 
         /// <summary>
         /// Gets this command's callable.

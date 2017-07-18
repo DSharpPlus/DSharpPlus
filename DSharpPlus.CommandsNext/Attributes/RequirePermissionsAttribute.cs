@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace DSharpPlus.CommandsNext.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public sealed class RequirePermissionsAttribute : ConditionBaseAttribute
+    public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     {
         private static Dictionary<string, int> PermissionOrder { get; set; }
 

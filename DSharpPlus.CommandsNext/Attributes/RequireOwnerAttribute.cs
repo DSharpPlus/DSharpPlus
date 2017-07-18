@@ -2,7 +2,7 @@
 
 namespace DSharpPlus.CommandsNext.Attributes
 {
-    public class RequireOwnerAttribute : ConditionBaseAttribute
+    public class RequireOwnerAttribute : CheckBaseAttribute
     {
         public override Task<bool> CanExecute(CommandContext ctx)
         {

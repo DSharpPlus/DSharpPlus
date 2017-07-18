@@ -68,7 +68,7 @@ namespace DSharpPlus.CommandsNext
                                 return new CommandResult
                                 {
                                     IsSuccessful = false,
-                                    Exception = new ChecksFailedException("One or more execution pre-checks failed.", cmd, xctx),
+                                    Exception = new ChecksFailedException("One or more pre-execution checks failed.", cmd, xctx),
                                     Context = xctx
                                 };
                     

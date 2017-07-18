@@ -90,7 +90,7 @@ namespace DSharpPlus.CommandsNext
 
                 var cmd = new Command();
 
-                var cbas = new List<ConditionBaseAttribute>();
+                var cbas = new List<CheckBaseAttribute>();
                 foreach (var xa in attrs)
                 {
                     switch (xa)
@@ -103,7 +103,7 @@ namespace DSharpPlus.CommandsNext
                             cmd.Aliases = a.Aliases;
                             break;
 
-                        case ConditionBaseAttribute p:
+                        case CheckBaseAttribute p:
                             cbas.Add(p);
                             break;
 
@@ -116,7 +116,7 @@ namespace DSharpPlus.CommandsNext
                             break;
                     }
                 }
-                cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
+                cmd.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(cbas);
                 cmd.Arguments = args;
                 cmd.Callable = cbl;
 
@@ -189,7 +189,7 @@ namespace DSharpPlus.CommandsNext
                     if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
                         foreach (var ec in cmd.ExecutionChecks)
                             if (!(await ec.CanExecute(ctx)))
-                                throw new ChecksFailedException("One or more execution pre-checks failed.", cmd, ctx);
+                                throw new ChecksFailedException("One or more pre-execution checks failed.", cmd, ctx);
 
                     var res = await cmd.ExecuteAsync(ctx);
                     
@@ -237,7 +237,7 @@ namespace DSharpPlus.CommandsNext
             var mdl_aliases = (IReadOnlyCollection<string>)null;
             var mdl_hidden = false;
             var mdl_desc = "";
-            var mdl_chks = new List<ConditionBaseAttribute>();
+            var mdl_chks = new List<CheckBaseAttribute>();
             var mdl_cbl = (Delegate)null;
             var mdl_args = (IReadOnlyList<CommandArgument>)null;
             var mdl = (CommandGroup)null;
@@ -264,7 +264,7 @@ namespace DSharpPlus.CommandsNext
                         mdl_desc = d.Description;
                         break;
 
-                    case ConditionBaseAttribute c:
+                    case CheckBaseAttribute c:
                         mdl_chks.Add(c);
                         break;
                 }
@@ -276,7 +276,7 @@ namespace DSharpPlus.CommandsNext
                     Name = mdl_name,
                     Aliases = mdl_aliases,
                     Description = mdl_desc,
-                    ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(mdl_chks),
+                    ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(mdl_chks),
                     IsHidden = mdl_hidden,
                     Parent = currentparent,
                     Callable = mdl_cbl,
@@ -303,7 +303,7 @@ namespace DSharpPlus.CommandsNext
 
                 var cmd = new Command();
 
-                var cbas = new List<ConditionBaseAttribute>();
+                var cbas = new List<CheckBaseAttribute>();
                 foreach (var xa in attrs)
                 {
                     switch (xa)
@@ -316,7 +316,7 @@ namespace DSharpPlus.CommandsNext
                             cmd.Aliases = a.Aliases;
                             break;
 
-                        case ConditionBaseAttribute p:
+                        case CheckBaseAttribute p:
                             cbas.Add(p);
                             break;
 
@@ -329,7 +329,7 @@ namespace DSharpPlus.CommandsNext
                             break;
                     }
                 }
-                cmd.ExecutionChecks = new ReadOnlyCollection<ConditionBaseAttribute>(cbas);
+                cmd.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(cbas);
                 cmd.Parent = mdl;
                 MakeCallable(m, inst, out var cbl, out var args);
                 cmd.Callable = cbl;
