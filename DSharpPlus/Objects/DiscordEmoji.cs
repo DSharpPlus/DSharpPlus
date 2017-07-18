@@ -92,6 +92,35 @@ namespace DSharpPlus
         }
 
         /// <summary>
+        /// Gets whether the two <see cref="DiscordEmoji"/> objects are equal.
+        /// </summary>
+        /// <param name="e1">First emoji to compare.</param>
+        /// <param name="e2">Second emoji to compare.</param>
+        /// <returns>Whether the two emoji are equal.</returns>
+        public static bool operator ==(DiscordEmoji e1, DiscordEmoji e2)
+        {
+            var o1 = e1 as object;
+            var o2 = e2 as object;
+
+            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+                return false;
+
+            if (o1 == null && o2 == null)
+                return true;
+
+            return e1.Id == e2.Id && e1.Name == e2.Name;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordEmoji"/> objects are not equal.
+        /// </summary>
+        /// <param name="e1">First emoji to compare.</param>
+        /// <param name="e2">Second emoji to compare.</param>
+        /// <returns>Whether the two emoji are not equal.</returns>
+        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2) =>
+            !(e1 == e2);
+
+        /// <summary>
         /// Creates an emoji object from a unicode entity.
         /// </summary>
         /// <param name="client"><see cref="DiscordClient"/> to attach to the object.</param>
@@ -153,34 +182,5 @@ namespace DSharpPlus
 
             throw new ArgumentException(nameof(name), "Invalid emoji name specified.");
         }
-
-        /// <summary>
-        /// Gets whether the two <see cref="DiscordEmoji"/> objects are equal.
-        /// </summary>
-        /// <param name="e1">First emoji to compare.</param>
-        /// <param name="e2">Second emoji to compare.</param>
-        /// <returns>Whether the two emoji are equal.</returns>
-        public static bool operator ==(DiscordEmoji e1, DiscordEmoji e2)
-        {
-            var o1 = e1 as object;
-            var o2 = e2 as object;
-
-            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-                return false;
-
-            if (o1 == null && o2 == null)
-                return true;
-
-            return e1.Id == e2.Id && e1.Name == e2.Name;
-        }
-
-        /// <summary>
-        /// Gets whether the two <see cref="DiscordEmoji"/> objects are not equal.
-        /// </summary>
-        /// <param name="e1">First emoji to compare.</param>
-        /// <param name="e2">Second emoji to compare.</param>
-        /// <returns>Whether the two emoji are not equal.</returns>
-        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2) => 
-            !(e1 == e2);
     }
 }

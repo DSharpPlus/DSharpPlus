@@ -11,7 +11,7 @@ namespace DSharpPlus
     /// <summary>
     /// Represents a Discord text message.
     /// </summary>
-    public class DiscordMessage : SnowflakeObject
+    public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     {
         public DiscordMessage()
         {
@@ -300,6 +300,75 @@ namespace DSharpPlus
         {
             return string.Concat("Message ", this.Id, "; Attachment count: ", this._attachments.Count, "; Embed count: ", this._embeds.Count, "; Contents: ", this.Content);
         }
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordMessage"/> is equal to another object.
+        /// </summary>
+        /// <param name="obj">Object to compare to.</param>
+        /// <returns>Whether the object is equal to this <see cref="DiscordMessage"/>.</returns>
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as DiscordMessage);
+        }
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordMessage"/> is equal to another <see cref="DiscordMessage"/>.
+        /// </summary>
+        /// <param name="e"><see cref="DiscordMessage"/> to compare to.</param>
+        /// <returns>Whether the <see cref="DiscordMessage"/> is equal to this <see cref="DiscordMessage"/>.</returns>
+        public bool Equals(DiscordMessage e)
+        {
+            if (ReferenceEquals(e, null))
+                return false;
+
+            if (ReferenceEquals(this, e))
+                return true;
+
+            return this.Id == e.Id && this.ChannelId == e.ChannelId;
+        }
+
+        /// <summary>
+        /// Gets the hash code for this <see cref="DiscordMessage"/>.
+        /// </summary>
+        /// <returns>The hash code for this <see cref="DiscordMessage"/>.</returns>
+        public override int GetHashCode()
+        {
+            int hash = 13;
+
+            hash = (hash * 7) + this.Id.GetHashCode();
+            hash = (hash * 7) + this.ChannelId.GetHashCode();
+
+            return hash;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordMessage"/> objects are equal.
+        /// </summary>
+        /// <param name="e1">First message to compare.</param>
+        /// <param name="e2">Second message to compare.</param>
+        /// <returns>Whether the two messages are equal.</returns>
+        public static bool operator ==(DiscordMessage e1, DiscordMessage e2)
+        {
+            var o1 = e1 as object;
+            var o2 = e2 as object;
+
+            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+                return false;
+
+            if (o1 == null && o2 == null)
+                return true;
+
+            return e1.Id == e2.Id && e1.ChannelId == e2.ChannelId;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordMessage"/> objects are not equal.
+        /// </summary>
+        /// <param name="e1">First message to compare.</param>
+        /// <param name="e2">Second message to compare.</param>
+        /// <returns>Whether the two messages are not equal.</returns>
+        public static bool operator !=(DiscordMessage e1, DiscordMessage e2) =>
+            !(e1 == e2);
     }
 
     /// <summary>

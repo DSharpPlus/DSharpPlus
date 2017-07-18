@@ -2397,20 +2397,6 @@ namespace DSharpPlus
             // - guild.Unavailable = new_guild.Unavailable;
         }
 
-        internal static Permissions InternalAddPermission(Permissions before, Permissions p)
-        {
-            Permissions after = before;
-            after |= p;
-            return after;
-        }
-
-        internal static Permissions InternalRemovePermission(Permissions before, Permissions p)
-        {
-            Permissions after = before;
-            after &= ~p;
-            return after;
-        }
-
         ~DiscordClient()
         {
             Dispose();

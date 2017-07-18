@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -7,7 +8,7 @@ namespace DSharpPlus
     /// <summary>
     /// 
     /// </summary>
-    public class DiscordWebhook : SnowflakeObject
+    public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     {
         /// <summary>
         /// The guild id this webhook is for
@@ -94,5 +95,68 @@ namespace DSharpPlus
         public Task ExecuteGithubAsync(string json) =>
             this.Discord._rest_client.InternalExecuteWebhookGithubAsync(Id, Token, json);
 
+        /// <summary>
+        /// Checks whether this <see cref="DiscordWebhook"/> is equal to another object.
+        /// </summary>
+        /// <param name="obj">Object to compare to.</param>
+        /// <returns>Whether the object is equal to this <see cref="DiscordWebhook"/>.</returns>
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as DiscordWebhook);
+        }
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordWebhook"/> is equal to another <see cref="DiscordWebhook"/>.
+        /// </summary>
+        /// <param name="e"><see cref="DiscordWebhook"/> to compare to.</param>
+        /// <returns>Whether the <see cref="DiscordWebhook"/> is equal to this <see cref="DiscordWebhook"/>.</returns>
+        public bool Equals(DiscordWebhook e)
+        {
+            if (ReferenceEquals(e, null))
+                return false;
+
+            if (ReferenceEquals(this, e))
+                return true;
+
+            return this.Id == e.Id;
+        }
+
+        /// <summary>
+        /// Gets the hash code for this <see cref="DiscordWebhook"/>.
+        /// </summary>
+        /// <returns>The hash code for this <see cref="DiscordWebhook"/>.</returns>
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordWebhook"/> objects are equal.
+        /// </summary>
+        /// <param name="e1">First webhook to compare.</param>
+        /// <param name="e2">Second webhook to compare.</param>
+        /// <returns>Whether the two webhooks are equal.</returns>
+        public static bool operator ==(DiscordWebhook e1, DiscordWebhook e2)
+        {
+            var o1 = e1 as object;
+            var o2 = e2 as object;
+
+            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+                return false;
+
+            if (o1 == null && o2 == null)
+                return true;
+
+            return e1.Id == e2.Id;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordWebhook"/> objects are not equal.
+        /// </summary>
+        /// <param name="e1">First webhook to compare.</param>
+        /// <param name="e2">Second webhook to compare.</param>
+        /// <returns>Whether the two webhooks are not equal.</returns>
+        public static bool operator !=(DiscordWebhook e1, DiscordWebhook e2) =>
+            !(e1 == e2);
     }
 }

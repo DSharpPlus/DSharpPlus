@@ -12,7 +12,7 @@ namespace DSharpPlus
     /// <summary>
     /// Represents a Discord guild member.
     /// </summary>
-    public class DiscordMember : DiscordUser
+    public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
     {
         internal DiscordMember()
         {
@@ -227,5 +227,74 @@ namespace DSharpPlus
         {
             return string.Concat("Member ", this.Id, "; ", this.Username, "#", this.Discriminator, " (", this.DisplayName, ")");
         }
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordMember"/> is equal to another object.
+        /// </summary>
+        /// <param name="obj">Object to compare to.</param>
+        /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as DiscordMember);
+        }
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordMember"/> is equal to another <see cref="DiscordMember"/>.
+        /// </summary>
+        /// <param name="e"><see cref="DiscordMember"/> to compare to.</param>
+        /// <returns>Whether the <see cref="DiscordMember"/> is equal to this <see cref="DiscordMember"/>.</returns>
+        public bool Equals(DiscordMember e)
+        {
+            if (ReferenceEquals(e, null))
+                return false;
+
+            if (ReferenceEquals(this, e))
+                return true;
+
+            return this.Id == e.Id && this._guild_id == e._guild_id;
+        }
+
+        /// <summary>
+        /// Gets the hash code for this <see cref="DiscordMember"/>.
+        /// </summary>
+        /// <returns>The hash code for this <see cref="DiscordMember"/>.</returns>
+        public override int GetHashCode()
+        {
+            int hash = 13;
+
+            hash = (hash * 7) + this.Id.GetHashCode();
+            hash = (hash * 7) + this._guild_id.GetHashCode();
+
+            return hash;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordMember"/> objects are equal.
+        /// </summary>
+        /// <param name="e1">First member to compare.</param>
+        /// <param name="e2">Second member to compare.</param>
+        /// <returns>Whether the two members are equal.</returns>
+        public static bool operator ==(DiscordMember e1, DiscordMember e2)
+        {
+            var o1 = e1 as object;
+            var o2 = e2 as object;
+
+            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+                return false;
+
+            if (o1 == null && o2 == null)
+                return true;
+
+            return e1.Id == e2.Id && e1._guild_id == e2._guild_id;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordMember"/> objects are not equal.
+        /// </summary>
+        /// <param name="e1">First member to compare.</param>
+        /// <param name="e2">Second member to compare.</param>
+        /// <returns>Whether the two members are not equal.</returns>
+        public static bool operator !=(DiscordMember e1, DiscordMember e2) =>
+            !(e1 == e2);
     }
 }

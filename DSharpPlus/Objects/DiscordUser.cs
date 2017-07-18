@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Objects.Transport;
+﻿using System;
+using DSharpPlus.Objects.Transport;
 using Newtonsoft.Json;
 
 namespace DSharpPlus
@@ -6,7 +7,7 @@ namespace DSharpPlus
     /// <summary>
     /// Represents a Discord user.
     /// </summary>
-    public class DiscordUser : SnowflakeObject
+    public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     {
         internal DiscordUser() { }
         internal DiscordUser(TransportUser transport)
@@ -95,5 +96,69 @@ namespace DSharpPlus
         {
             return string.Concat("Member ", this.Id, "; ", this.Username, "#", this.Discriminator);
         }
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordUser"/> is equal to another object.
+        /// </summary>
+        /// <param name="obj">Object to compare to.</param>
+        /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as DiscordUser);
+        }
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordUser"/> is equal to another <see cref="DiscordUser"/>.
+        /// </summary>
+        /// <param name="e"><see cref="DiscordUser"/> to compare to.</param>
+        /// <returns>Whether the <see cref="DiscordUser"/> is equal to this <see cref="DiscordUser"/>.</returns>
+        public bool Equals(DiscordUser e)
+        {
+            if (ReferenceEquals(e, null))
+                return false;
+
+            if (ReferenceEquals(this, e))
+                return true;
+
+            return this.Id == e.Id;
+        }
+
+        /// <summary>
+        /// Gets the hash code for this <see cref="DiscordUser"/>.
+        /// </summary>
+        /// <returns>The hash code for this <see cref="DiscordUser"/>.</returns>
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordUser"/> objects are equal.
+        /// </summary>
+        /// <param name="e1">First user to compare.</param>
+        /// <param name="e2">Second user to compare.</param>
+        /// <returns>Whether the two users are equal.</returns>
+        public static bool operator ==(DiscordUser e1, DiscordUser e2)
+        {
+            var o1 = e1 as object;
+            var o2 = e2 as object;
+
+            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+                return false;
+
+            if (o1 == null && o2 == null)
+                return true;
+
+            return e1.Id == e2.Id;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordUser"/> objects are not equal.
+        /// </summary>
+        /// <param name="e1">First user to compare.</param>
+        /// <param name="e2">Second user to compare.</param>
+        /// <returns>Whether the two users are not equal.</returns>
+        public static bool operator !=(DiscordUser e1, DiscordUser e2) =>
+            !(e1 == e2);
     }
 }
