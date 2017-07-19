@@ -25,7 +25,7 @@ The documentation can be found at our ReadTheDocs, located **[here.](http://dsha
 * [Example by Naamloos](https://github.com/NaamloosDT/DSharpPlus-example)
 
 ## Webhooks
-Use this to generate JSON for slack messages: http://www.nickstrohm.de/dsb/,
+Use this to generate a JSON for slack messages: http://www.nickstrohm.de/dsb/,
 
 # Questions?
 Come talk to us here:
