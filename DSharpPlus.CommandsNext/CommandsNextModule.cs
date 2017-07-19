@@ -186,10 +186,13 @@ namespace DSharpPlus.CommandsNext
             {
                 try
                 {
+                    var fchecks = new List<CheckBaseAttribute>();
                     if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
                         foreach (var ec in cmd.ExecutionChecks)
                             if (!(await ec.CanExecute(ctx)))
-                                throw new ChecksFailedException("One or more pre-execution checks failed.", cmd, ctx);
+                                fchecks.Add(ec);
+                    if (fchecks.Any())
+                        throw new ChecksFailedException("One or more pre-execution checks failed.", cmd, ctx, fchecks);
 
                     var res = await cmd.ExecuteAsync(ctx);
                     
@@ -501,16 +504,13 @@ namespace DSharpPlus.CommandsNext
 
                     if (cmd == null)
                         break;
-
-                    var ce = true;
+                    
+                    var cfl = new List<CheckBaseAttribute>();
                     foreach (var ec in cmd.ExecutionChecks)
-                    {
-                        ce &= await ec.CanExecute(ctx);
-                        if (!ce)
-                            break;
-                    }
-                    if (!ce)
-                        throw new ChecksFailedException("You cannot access that command!", cmd, ctx);
+                        if (!(await ec.CanExecute(ctx)))
+                            cfl.Add(ec);
+                    if (cfl.Any())
+                        throw new ChecksFailedException("You cannot access that command!", cmd, ctx, cfl);
 
                     if (cmd is CommandGroup)
                         search_in = (cmd as CommandGroup).Children;
@@ -587,14 +587,11 @@ namespace DSharpPlus.CommandsNext
                             continue;
                         }
 
-                        var ce = true;
+                        var cfl = new List<CheckBaseAttribute>();
                         foreach (var ec in sc.ExecutionChecks)
-                        {
-                            ce &= await ec.CanExecute(ctx);
-                            if (!ce)
-                                break;
-                        }
-                        if (ce)
+                            if (!(await ec.CanExecute(ctx)))
+                                cfl.Add(ec);
+                        if (!cfl.Any())
                             scs.Add(sc);
                     }
 
@@ -618,15 +615,12 @@ namespace DSharpPlus.CommandsNext
                         scs.Add(sc);
                         continue;
                     }
-
-                    var ce = true;
+                    
+                    var cfl = new List<CheckBaseAttribute>();
                     foreach (var ec in sc.ExecutionChecks)
-                    {
-                        ce &= await ec.CanExecute(ctx);
-                        if (!ce)
-                            break;
-                    }
-                    if (ce)
+                        if (!(await ec.CanExecute(ctx)))
+                            cfl.Add(ec);
+                    if (!cfl.Any())
                         scs.Add(sc);
                 }
 

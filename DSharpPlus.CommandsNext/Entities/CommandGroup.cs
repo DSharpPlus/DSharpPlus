@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.CommandsNext.Attributes;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -61,16 +62,19 @@ namespace DSharpPlus.CommandsNext
                         CommandsNext = ctx.CommandsNext,
                         Dependencies = ctx.Dependencies
                     };
-
+                    
+                    var fchecks = new List<CheckBaseAttribute>();
                     if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
                         foreach (var ec in cmd.ExecutionChecks)
                             if (!(await ec.CanExecute(xctx)))
-                                return new CommandResult
-                                {
-                                    IsSuccessful = false,
-                                    Exception = new ChecksFailedException("One or more pre-execution checks failed.", cmd, xctx),
-                                    Context = xctx
-                                };
+                                fchecks.Add(ec);
+                    if (fchecks.Any())
+                        return new CommandResult
+                        {
+                            IsSuccessful = false,
+                            Exception = new ChecksFailedException("One or more pre-execution checks failed.", cmd, xctx, fchecks),
+                            Context = xctx
+                        };
                     
                     return await cmd.ExecuteAsync(xctx);
                 }
