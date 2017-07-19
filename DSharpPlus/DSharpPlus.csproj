@@ -23,15 +23,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>2.5.2-beta-$(VersionSuffix)</Version>
-    <AssemblyVersion>2.5.2.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>2.5.2.$(VersionSuffix)</FileVersion>
+    <Version>2.5.3-beta-$(VersionSuffix)</Version>
+    <AssemblyVersion>2.5.3.$(VersionSuffix)</AssemblyVersion>
+    <FileVersion>2.5.3.$(VersionSuffix)</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>2.5.2</Version>
-    <AssemblyVersion>2.5.2.0</AssemblyVersion>
-    <FileVersion>2.5.2.0</FileVersion>
+    <Version>2.5.3</Version>
+    <AssemblyVersion>2.5.3.0</AssemblyVersion>
+    <FileVersion>2.5.3.0</FileVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
