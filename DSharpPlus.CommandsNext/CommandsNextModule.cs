@@ -307,6 +307,9 @@ namespace DSharpPlus.CommandsNext
                 var cmd = new Command();
 
                 var cbas = new List<CheckBaseAttribute>();
+                if (!is_mdl && mdl_chks.Any())
+                    cbas.AddRange(mdl_chks);
+
                 foreach (var xa in attrs)
                 {
                     switch (xa)
@@ -600,7 +603,7 @@ namespace DSharpPlus.CommandsNext
                         {
                             Inline = false,
                             Name = "Subcommands",
-                            Value = string.Join(", ", scs.Select(xc => string.Concat("`", xc.QualifiedName, "`")))
+                            Value = string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
                         });
                 }
             }
@@ -630,7 +633,7 @@ namespace DSharpPlus.CommandsNext
                     {
                         Inline = false,
                         Name = "Commands",
-                        Value = string.Join(", ", scs.Select(xc => string.Concat("`", xc.QualifiedName, "`")))
+                        Value = string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
                     });
             }
 

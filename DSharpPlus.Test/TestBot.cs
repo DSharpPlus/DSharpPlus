@@ -88,6 +88,7 @@ namespace DSharpPlus.Test
             this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
             this.CommandsNextService.RegisterCommands<TestBotEvalCommands>();
             this.CommandsNextService.RegisterCommands<TestBotDependentCommands>();
+            this.CommandsNextService.RegisterCommands<TestBotGroupInheritedChecksCommands>();
 
             // interactivity service
             this.InteractivityService = Discord.UseInteractivity();
