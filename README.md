@@ -34,4 +34,4 @@ Come talk to us here:
 
 Alternatively, you could also join us in the Discord API chat at **#dotnet_dsharpplus**.
 
-[![Discord API Chat](https://discordapp.com/api/guilds/81384788765712384/embed.png?style=banner1)](https://discord.gg/N4WeVd)
+[![Discord API Chat](https://discordapp.com/api/guilds/81384788765712384/embed.png?style=banner1)](https://discord.gg/discord-api)
