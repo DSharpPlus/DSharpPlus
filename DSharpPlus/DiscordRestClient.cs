@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Objects.Transport;
@@ -19,6 +20,9 @@ namespace DSharpPlus
 
         internal DiscordClient Discord { get; }
         internal RestClient Rest { get; }
+
+        private string LastAckToken { get; set; } = null;
+        private SemaphoreSlim TokenSemaphore { get; } = new SemaphoreSlim(1, 1);
 
         internal DiscordRestClient(DiscordClient client)
         {
@@ -1237,6 +1241,47 @@ namespace DSharpPlus
             app.Discord = this.Discord;
 
             return app;
+        }
+
+        internal async Task InternalAcknowledgeMessageAsync(ulong msg_id, ulong chn_id)
+        {
+            await this.TokenSemaphore.WaitAsync();
+
+            var pld = new AcknowledgePayload
+            {
+                Token = this.LastAckToken
+            };
+
+            var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", chn_id, Endpoints.MESSAGES, "/", msg_id, Endpoints.ACK);
+            var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.POST, payload: JsonConvert.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<AcknowledgePayload>(res.Response);
+            this.LastAckToken = ret.Token;
+
+            this.TokenSemaphore.Release();
+        }
+
+        internal async Task InternalAcknowledgeGuildAsync(ulong id)
+        {
+            await this.TokenSemaphore.WaitAsync();
+
+            var pld = new AcknowledgePayload
+            {
+                Token = this.LastAckToken
+            };
+
+            var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", id, Endpoints.ACK);
+            var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.POST, payload: JsonConvert.SerializeObject(pld));
+
+            if (res.ResponseCode != 204)
+            {
+                var ret = JsonConvert.DeserializeObject<AcknowledgePayload>(res.Response);
+                this.LastAckToken = ret.Token;
+            }
+            else
+                this.LastAckToken = null;
+
+            this.TokenSemaphore.Release();
         }
         #endregion
     }

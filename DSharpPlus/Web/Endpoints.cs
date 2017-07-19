@@ -42,5 +42,6 @@
         public const string BOT = "/bot";
         public const string VOICE = "/voice";
         public const string AUDIT_LOGS = "/audit-logs";
+        public const string ACK = "/ack";
     }
 }

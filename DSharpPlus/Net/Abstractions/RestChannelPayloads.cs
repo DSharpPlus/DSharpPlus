@@ -110,4 +110,10 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
         public string Nickname { get; set; }
     }
+
+    internal sealed class AcknowledgePayload
+    {
+        [JsonProperty("token", NullValueHandling = NullValueHandling.Include)]
+        public string Token { get; set; }
+    }
 }

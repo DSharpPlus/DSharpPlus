@@ -873,9 +873,7 @@ namespace DSharpPlus
         public async Task<DiscordGuild> GetGuildAsync(ulong id)
         {
             if (this._guilds.ContainsKey(id))
-            {
                 return this._guilds[id];
-            }
 
             var gld = await this._rest_client.InternalGetGuildAsync(id);
             var chns = await this._rest_client.InternalGetGuildChannelsAsync(gld.Id);

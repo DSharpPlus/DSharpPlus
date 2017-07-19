@@ -1098,6 +1098,14 @@ namespace DSharpPlus
             this.Discord.SyncGuildsAsync(this);
 
         /// <summary>
+        /// Acknowledges all the messages in this guild. This is available to user tokens only.
+        /// </summary>
+        /// <returns></returns>
+        public Task AcknowledgeAsync() =>
+            this.Discord._rest_client.InternalAcknowledgeGuildAsync(this.Id);
+        #endregion
+
+        /// <summary>
         /// Returns a string representation of this guild.
         /// </summary>
         /// <returns>String representation of this guild.</returns>
@@ -1105,7 +1113,6 @@ namespace DSharpPlus
         {
             return string.Concat("Guild ", this.Id, "; ", this.Name);
         }
-        #endregion
 
         /// <summary>
         /// Checks whether this <see cref="DiscordGuild"/> is equal to another object.

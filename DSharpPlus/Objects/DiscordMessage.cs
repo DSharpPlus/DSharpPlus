@@ -293,6 +293,13 @@ namespace DSharpPlus
             this.Discord._rest_client.InternalDeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
 
         /// <summary>
+        /// Acknowledges the message. This is available to user tokens only.
+        /// </summary>
+        /// <returns></returns>
+        public Task AcknowledgeAsync() =>
+            this.Discord._rest_client.InternalAcknowledgeMessageAsync(this.Id, this.Channel.Id);
+
+        /// <summary>
         /// Returns a string representation of this message.
         /// </summary>
         /// <returns>String representation of this message.</returns>
