@@ -31,6 +31,7 @@ namespace DSharpPlus.CommandsNext.Exceptions
         /// <param name="message">Message that describes the error.</param>
         /// <param name="command">Command that failed to execute.</param>
         /// <param name="ctx">Context in which the command was executed.</param>
+        /// <param name="failed_checks">A collection of checks that failed.</param>
         internal ChecksFailedException(string message, Command command, CommandContext ctx, IEnumerable<CheckBaseAttribute> failed_checks)
             : base(message)
         {
