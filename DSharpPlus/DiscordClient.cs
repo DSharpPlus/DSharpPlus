@@ -72,6 +72,16 @@ namespace DSharpPlus
         private AsyncEvent<ReadyEventArgs> _ready;
 
         /// <summary>
+        /// Triggered whenever a session is resumed.
+        /// </summary>
+        public event AsyncEventHandler<ReadyEventArgs> Resumed
+        {
+            add { this._resumed.Register(value); }
+            remove { this._resumed.Unregister(value); }
+        }
+        private AsyncEvent<ReadyEventArgs> _resumed;
+
+        /// <summary>
         /// Sent when a new channel is created.
         /// </summary>
         public event AsyncEventHandler<ChannelCreateEventArgs> ChannelCreated
@@ -603,6 +613,7 @@ namespace DSharpPlus
             this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
             this._socket_closed = new AsyncEvent<SocketDisconnectEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
             this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
+            this._resumed = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "RESUMED");
             this._channel_created = new AsyncEvent<ChannelCreateEventArgs>(this.EventErrorHandler, "CHANNEL_CREATED");
             this._dm_channel_created = new AsyncEvent<DmChannelCreateEventArgs>(this.EventErrorHandler, "DM_CHANNEL_CREATED");
             this._channel_updated = new AsyncEvent<ChannelUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_UPDATED");
@@ -1312,7 +1323,7 @@ namespace DSharpPlus
         internal Task OnResumedAsync()
         {
             this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", "Session resumed.", DateTime.Now);
-            return Task.Delay(0);
+            return this._resumed.InvokeAsync(new ReadyEventArgs(this));
         }
 
         internal async Task OnChannelCreateEventAsync(DiscordChannel channel, JArray raw_recipients)

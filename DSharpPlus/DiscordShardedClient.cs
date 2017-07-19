@@ -43,6 +43,7 @@ namespace DSharpPlus
             remove { this._socket_opened.Unregister(value); }
         }
         private AsyncEvent _socket_opened;
+
         /// <summary>
         /// 
         /// </summary>
@@ -52,6 +53,7 @@ namespace DSharpPlus
             remove { this._socket_closed.Unregister(value); }
         }
         private AsyncEvent<SocketDisconnectEventArgs> _socket_closed;
+
         /// <summary>
         /// The ready event is dispatched when a client completed the initial handshake.
         /// </summary>
@@ -61,6 +63,17 @@ namespace DSharpPlus
             remove { this._ready.Unregister(value); }
         }
         private AsyncEvent<ReadyEventArgs> _ready;
+
+        /// <summary>
+        /// Triggered whenever a session is resumed.
+        /// </summary>
+        public event AsyncEventHandler<ReadyEventArgs> Resumed
+        {
+            add { this._resumed.Register(value); }
+            remove { this._resumed.Unregister(value); }
+        }
+        private AsyncEvent<ReadyEventArgs> _resumed;
+
         /// <summary>
         /// Sent when a new channel is created.
         /// </summary>
@@ -70,6 +83,7 @@ namespace DSharpPlus
             remove { this._channel_created.Unregister(value); }
         }
         private AsyncEvent<ChannelCreateEventArgs> _channel_created;
+
         /// <summary>
         /// Sent when a new dm channel is created.
         /// </summary>
@@ -79,6 +93,7 @@ namespace DSharpPlus
             remove { this._dm_channel_created.Unregister(value); }
         }
         private AsyncEvent<DmChannelCreateEventArgs> _dm_channel_created;
+
         /// <summary>
         /// Sent when a channel is updated.
         /// </summary>
@@ -88,6 +103,7 @@ namespace DSharpPlus
             remove { this._channel_updated.Unregister(value); }
         }
         private AsyncEvent<ChannelUpdateEventArgs> _channel_updated;
+
         /// <summary>
         /// Sent when a channel is deleted
         /// </summary>
@@ -97,6 +113,7 @@ namespace DSharpPlus
             remove { this._channel_deleted.Unregister(value); }
         }
         private AsyncEvent<ChannelDeleteEventArgs> _channel_deleted;
+
         /// <summary>
         /// Sent when a dm channel is deleted
         /// </summary>
@@ -106,6 +123,7 @@ namespace DSharpPlus
             remove { this._dm_channel_deleted.Unregister(value); }
         }
         private AsyncEvent<DmChannelDeleteEventArgs> _dm_channel_deleted;
+
         /// <summary>
         /// Sent when the user joins a new guild.
         /// </summary>
@@ -115,6 +133,7 @@ namespace DSharpPlus
             remove { this._guild_created.Unregister(value); }
         }
         private AsyncEvent<GuildCreateEventArgs> _guild_created;
+
         /// <summary>
         /// Sent when a guild is becoming available.
         /// </summary>
@@ -124,6 +143,7 @@ namespace DSharpPlus
             remove { this._guild_available.Unregister(value); }
         }
         private AsyncEvent<GuildCreateEventArgs> _guild_available;
+
         /// <summary>
         /// Sent when a guild is updated.
         /// </summary>
@@ -133,6 +153,7 @@ namespace DSharpPlus
             remove { this._guild_updated.Unregister(value); }
         }
         private AsyncEvent<GuildUpdateEventArgs> _guild_updated;
+
         /// <summary>
         /// Sent when the user leaves or is removed from a guild.
         /// </summary>
@@ -142,6 +163,7 @@ namespace DSharpPlus
             remove { this._guild_deleted.Unregister(value); }
         }
         private AsyncEvent<GuildDeleteEventArgs> _guild_deleted;
+
         /// <summary>
         /// Sent when a guild becomes unavailable.
         /// </summary>
@@ -151,6 +173,7 @@ namespace DSharpPlus
             remove { this._guild_unavailable.Unregister(value); }
         }
         private AsyncEvent<GuildDeleteEventArgs> _guild_unavailable;
+
         /// <summary>
         /// Sent when a message is created.
         /// </summary>
@@ -220,6 +243,7 @@ namespace DSharpPlus
             remove { this._guild_member_add.Unregister(value); }
         }
         private AsyncEvent<GuildMemberAddEventArgs> _guild_member_add;
+
         /// <summary>
         /// Sent when a user is removed from a guild (leave/kick/ban).
         /// </summary>
@@ -570,6 +594,7 @@ namespace DSharpPlus
                 client.SocketOpened += this.Client_SocketOpened;
                 client.SocketClosed += this.Client_SocketClosed;
                 client.Ready += this.Client_Ready;
+                client.Resumed += this.Client_Resumed;
                 client.ChannelCreated += this.Client_ChannelCreated;
                 client.DmChannelCreated += this.Client_DMChannelCreated;
                 client.ChannelUpdated += this.Client_ChannelUpdated;
@@ -686,6 +711,9 @@ namespace DSharpPlus
 
         private Task Client_Ready(ReadyEventArgs e) =>
             this._ready.InvokeAsync(e);
+
+        private Task Client_Resumed(ReadyEventArgs e) =>
+            this._resumed.InvokeAsync(e);
 
         private Task Client_ChannelCreated(ChannelCreateEventArgs e) =>
             this._channel_created.InvokeAsync(e);
