@@ -296,9 +296,13 @@ namespace DSharpPlus
         /// Acknowledges the message. This is available to user tokens only.
         /// </summary>
         /// <returns></returns>
-        public Task AcknowledgeAsync() =>
-            this.Discord._rest_client.InternalAcknowledgeMessageAsync(this.Id, this.Channel.Id);
-
+        public Task AcknowledgeAsync()
+        {
+            if (this.Discord._config.TokenType == TokenType.User)
+                return this.Discord._rest_client.InternalAcknowledgeMessageAsync(this.Id, this.Channel.Id);
+            throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
+        }
+        
         /// <summary>
         /// Returns a string representation of this message.
         /// </summary>

@@ -1101,8 +1101,12 @@ namespace DSharpPlus
         /// Acknowledges all the messages in this guild. This is available to user tokens only.
         /// </summary>
         /// <returns></returns>
-        public Task AcknowledgeAsync() =>
-            this.Discord._rest_client.InternalAcknowledgeGuildAsync(this.Id);
+        public Task AcknowledgeAsync()
+        {
+            if (this.Discord._config.TokenType == TokenType.User)
+                return this.Discord._rest_client.InternalAcknowledgeGuildAsync(this.Id);
+            throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
+        }
         #endregion
 
         /// <summary>
