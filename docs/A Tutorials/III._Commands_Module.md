@@ -79,7 +79,7 @@ CreateCommands(DiscordClient _client) {
 ```
 Creating commands in another method isn't required, but it is what we will be using for this tutorial.
 
-Now, inside the CreateCommands method, lets add a command called "hello"
+Now, inside the CreateCommands method, let's add a command called "hello":
 ```cs
 void CreateCommands(DiscordClient _client)
 {
@@ -89,7 +89,7 @@ void CreateCommands(DiscordClient _client)
   });
 }
 ```
-Now, we can't just move the code from the MessageCreated event to the new command, there is a little change we need to make. Instead of `e.Channel.SendMessage` we must use `e.Message.Parent.SendMessage`. Yiur final code should look similar to this:
+Now, we can't just move the code from the MessageCreated event to the new command, there is a little change we need to make. Instead of `e.Channel.SendMessage` we must use `e.Message.Parent.SendMessage`. Your final code should look similar to this:
 ```cs
 void CreateCommands(DiscordClient _client)
 {
