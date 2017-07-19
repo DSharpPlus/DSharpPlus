@@ -870,8 +870,19 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<DiscordGuild> GetGuildAsync(ulong id) =>
-            this._guilds.ContainsKey(id) ? this._guilds[id] : await this._rest_client.InternalGetGuildAsync(id);
+        public async Task<DiscordGuild> GetGuildAsync(ulong id)
+        {
+            if (this._guilds.ContainsKey(id))
+            {
+                return this._guilds[id];
+            }
+
+            var gld = await this._rest_client.InternalGetGuildAsync(id);
+            var chns = await this._rest_client.InternalGetGuildChannelsAsync(gld.Id);
+            gld._channels.AddRange(chns);
+
+            return gld;
+        }
 
         /// <summary>
         /// Deletes a guild
