@@ -10,10 +10,9 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 [![MyGet](https://img.shields.io/myget/dsharpplus-nightly/vpre/DSharpPlus.svg)](https://www.myget.org/feed/Packages/dsharpplus-nightly) 
 
 # Use the lib:
-1. Download from [NuGet](http://nuget.org/packages/DSharpPlus)
-2. Download from [MyGet](https://www.myget.org/gallery/dsharpplus-nightly)
+1. Download from [NuGet](http://nuget.org/packages/DSharpPlus) (Stable Release)
+2. Download from [MyGet](https://www.myget.org/gallery/dsharpplus-nightly) (Development Builds)
 3. Build from source using Visual Studio
-
 # Documentation
 The documentation can be found at our ReadTheDocs, located **[here.](http://dsharpplus.readthedocs.io/)**
 
