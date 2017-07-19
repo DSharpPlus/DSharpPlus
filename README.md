@@ -15,7 +15,7 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 3. Build from source using Visual Studio
 
 # Documentation
-The documentation can be found at ReadTheDocs, **[Here.](http://dsharpplus.readthedocs.io/)**
+The documentation can be found at our ReadTheDocs, located **[here.](http://dsharpplus.readthedocs.io/)**
 
 # Tutorials
 [Making your first bot in C#](https://github.com/NaamloosDT/DSharpPlus/wiki/Making-your-first-bot-in-C%23)
