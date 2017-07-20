@@ -4,40 +4,44 @@ using System.Collections.Generic;
 
 namespace DSharpPlus
 {
+    /// <summary>
+    /// Represents an OAuth2 application.
+    /// </summary>
     public class DiscordApplication : SnowflakeObject, IEquatable<DiscordApplication>
     {
         /// <summary>
-        /// Application Description
+        /// Gets the application's description.
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; internal set; }
 
         /// <summary>
-        /// Application Icon
+        /// Gets the application's icon.
         /// </summary>
+        public string Icon => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id}/{this.IconHash}.png?size=1024" : null;
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        public string Icon { get; internal set; }
+        internal string IconHash { get; set; }
 
         /// <summary>
-        /// Aplication Name
+        /// Gets the application's name.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
 
         /// <summary>
-        /// RPC Origins
+        /// Gets the application's allowed RPC origins.
         /// </summary>
         [JsonProperty("rpc_origins", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyCollection<string> RpcOrigins { get; internal set; }
 
         /// <summary>
-        /// Application Flags
+        /// Gets the application's flags.
         /// </summary>
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public int Flags { get; internal set; }
 
         /// <summary>
-        /// Application Owner
+        /// Gets the application's owner.
         /// </summary>
         [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser Owner { get; internal set; }
