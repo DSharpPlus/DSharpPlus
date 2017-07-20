@@ -185,7 +185,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns>A task representing the connection operation.</returns>
         internal async Task ConnectAsync()
         {
-            await Task.Run(() => this.VoiceWs.ConnectAsync($"wss://{this.ConnectionEndpoint.Hostname}?encoding=json&v=3")).ConfigureAwait(false);
+            await Task.Run(() => this.VoiceWs.ConnectAsync($"wss://{this.ConnectionEndpoint.Hostname}/?encoding=json&v=3")).ConfigureAwait(false);
         }
 
         internal Task StartAsync()
