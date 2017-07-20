@@ -700,6 +700,9 @@ namespace DSharpPlus
             var i = 5;
             var s = false;
 
+            if (this._config.TokenType != TokenType.Bot)
+                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
+
             while (i-- > 0)
             {
                 try
