@@ -567,9 +567,33 @@ namespace DSharpPlus
         public int Ping => Volatile.Read(ref this._ping);
         private int _ping;
 
+        /// <summary>
+        /// Gets the collection of presences held by this client.
+        /// </summary>
         public IReadOnlyDictionary<ulong, DiscordPresence> Presences => this._presences_lazy.Value;
         internal Dictionary<ulong, DiscordPresence> _presences = new Dictionary<ulong, DiscordPresence>();
         private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presences_lazy;
+
+        /// <summary>
+        /// Gets the string representing the version of D#+.
+        /// </summary>
+        public string VersionString => this._version_string.Value;
+        private Lazy<string> _version_string = new Lazy<string>(() =>
+        {
+            var a = typeof(DiscordClient).GetTypeInfo().Assembly;
+
+            var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (iv != null)
+                return iv.InformationalVersion;
+
+            var v = a.GetName().Version;
+            var vs = v.ToString(3);
+
+            if (v.Revision > 0)
+                vs = $"{vs}, CI build {v.Revision}";
+
+            return vs;
+        });
         #endregion
 
         #region Connection semaphore
@@ -742,8 +766,7 @@ namespace DSharpPlus
 
         internal async Task InternalConnectAsync()
         {
-            var an = typeof(DiscordClient).GetTypeInfo().Assembly.GetName();
-            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {an.Version.ToString(3)}, booting", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}, booting", DateTime.Now);
 
             await InternalUpdateGatewayAsync();
 
