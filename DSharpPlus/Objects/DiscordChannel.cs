@@ -243,8 +243,15 @@ namespace DSharpPlus
         /// <param name="messages"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null) =>
-            this.Discord._rest_client.InternalDeleteMessagesAsync(this.Id, messages.Where(xm => xm.Channel.Id == this.Id).Select(xm => xm.Id), reason);
+        public Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
+        {
+            if (messages == null || !messages.Any())
+                throw new ArgumentException("You need to specify at least one message to delete.");
+
+            if (messages.Count() < 2)
+                return this.Discord._rest_client.InternalDeleteMessageAsync(this.Id, messages.Single().Id, reason);
+            return this.Discord._rest_client.InternalDeleteMessagesAsync(this.Id, messages.Where(xm => xm.Channel.Id == this.Id).Select(xm => xm.Id), reason);
+        }
 
         /// <summary>
         /// Deletes a message
