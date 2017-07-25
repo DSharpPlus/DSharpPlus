@@ -41,17 +41,15 @@ namespace DSharpPlus.CommandsNext
 
             if (cn != null)
             {
-                var hascommands = false;
+                Command cmd = null;
                 if (ctx.Config.CaseSensitive)
-                    hascommands = this.Children.Any(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));
+                    cmd = this.Children.FirstOrDefault(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));
                 else
-                    hascommands = this.Children.Any(xc => xc.Name.ToLower() == cn.ToLower() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLower()).Contains(cn.ToLower())));
+                    cmd = this.Children.FirstOrDefault(xc => xc.Name.ToLower() == cn.ToLower() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLower()).Contains(cn.ToLower())));
 
-                if (hascommands)
+                if (cmd != null)
                 {
                     // pass the execution on
-                    var cmd = this.Children.First(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));
-
                     var xctx = new CommandContext
                     {
                         Client = ctx.Client,
