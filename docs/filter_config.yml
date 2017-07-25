@@ -1,0 +1,5 @@
+apiRules:
+- exclude:
+    uidRegex: ^DSharpPlus\.Test.*$
+- exclude:
+    uidRegex: ^System\..*$

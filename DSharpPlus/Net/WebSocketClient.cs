@@ -132,16 +132,12 @@ namespace DSharpPlus
 
         internal async Task InternalConnectAsync(Uri uri)
         {
-            try
-            {
-                this.Socket = new ClientWebSocket();
-                this.Socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
+            this.Socket = new ClientWebSocket();
+            this.Socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
 
-                await Socket.ConnectAsync(uri, this.Token);
-                await CallOnConnectedAsync();
-                this.WsListener = Task.Run(this.Listen, this.Token);
-            }
-            catch (Exception) { }
+            await Socket.ConnectAsync(uri, this.Token);
+            await CallOnConnectedAsync();
+            this.WsListener = Task.Run(this.Listen, this.Token);
         }
 
         private bool close_requested = false;

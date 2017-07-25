@@ -788,7 +788,7 @@ namespace DSharpPlus
             {
                 _cancel_token_source.Cancel();
 
-                _debug_logger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed", DateTime.Now);
+                _debug_logger.LogMessage(LogLevel.Debug, "Websocket", "Connection closed", DateTime.Now);
                 await this._socket_closed.InvokeAsync(new SocketDisconnectEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage });
 
                 if (_config.AutoReconnect)
@@ -801,7 +801,7 @@ namespace DSharpPlus
             _websocket_client.OnError += e => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
             
             await ConnectionSemaphore.WaitAsync();
-            await _websocket_client.ConnectAsync(_gatewayUrl + $"?v=6&encoding=json");
+            await _websocket_client.ConnectAsync(_gatewayUrl + "?v=6&encoding=json");
         }
 
         internal async Task InternalUpdateGatewayAsync()

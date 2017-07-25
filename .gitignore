@@ -285,7 +285,9 @@ __pycache__/
 build/
 
 ### Built docs
-docs/build/
+docs/_site/
+
+### Test files
 config.json
 /DSharpPlus.Test/libsodium.dll
 /DSharpPlus.Test/libopus.dll
