@@ -730,6 +730,21 @@ namespace DSharpPlus
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.MEMBERS, "/", user_id);
             return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.PATCH, headers, payload: JsonConvert.SerializeObject(pld));
         }
+
+        internal Task InternalModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
+        {
+            var headers = Utils.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var pld = new RestGuildMemberModifyPayload
+            {
+                Nickname = nick
+            };
+
+            var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.MEMBERS, Endpoints.ME, Endpoints.NICK);
+            return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.PATCH, headers, payload: JsonConvert.SerializeObject(pld));
+        }
         #endregion
 
         #region Roles

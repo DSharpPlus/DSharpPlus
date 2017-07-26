@@ -202,12 +202,20 @@ namespace DSharpPlus
 
         public Task SetDeafAsync(bool deaf, string reason = null) => this.Discord._rest_client.InternalModifyGuildMemberAsync(_guild_id, this.Id, null, null, null, deaf, null, reason);
 
-        public Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, DiscordChannel voice_channel = null, string reason = null)
+        public async Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, DiscordChannel voice_channel = null, string reason = null)
         {
             if (voice_channel != null && voice_channel.Type != ChannelType.Voice)
                 throw new ArgumentException("Given channel is not a voice channel.", nameof(voice_channel));
 
-            return this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason);
+            if (nickname != null && this.Discord.CurrentUser.Id == this.Id)
+            {
+                await this.Discord._rest_client.InternalModifyCurrentMemberNicknameAsync(this.Guild.Id, nickname, reason);
+                await this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason);
+            }
+            else
+            {
+                await this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason);
+            }
         }
 
         public Task GrantRoleAsync(DiscordRole role, string reason = null) =>
