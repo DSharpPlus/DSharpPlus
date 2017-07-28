@@ -106,7 +106,7 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Gets whether the two <see cref="DiscordUser"/> objects are equal.
+        /// Gets whether the two <see cref="DiscordRole"/> objects are equal.
         /// </summary>
         /// <param name="e1">First role to compare.</param>
         /// <param name="e2">Second role to compare.</param>
