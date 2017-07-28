@@ -15,3 +15,8 @@ article p > img
 	border-radius: 3px;
 	border: 1px solid #222;
 }
+
+h1.delet-this
+{
+	display: none;
+}
