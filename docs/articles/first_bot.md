@@ -90,7 +90,7 @@ discord = new DiscordClient(new DiscordConfig
 });
 ```
 
-YOu have initialized your client instance, but it does nothing yet. Let's make it listen for incoming messages, and respond 
+You have initialized your client instance, but it does nothing yet. Let's make it listen for incoming messages, and respond 
 with "pong" to messages that start with "ping". For that, you need to utilize the [MessageCreated event](/api/DSharpPlus.DiscordClient.html#DSharpPlus_DiscordClient_MessageCreated) 
 of the client. Let's hook it then:
 
