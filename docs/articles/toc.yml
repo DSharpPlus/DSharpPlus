@@ -1,2 +1,26 @@
 - name: Introduction
   href: intro.md
+- name: Getting started
+  href: getting_started.md
+- name: Basic bot
+  href: first_bot.md
+- name: Alternate WebSocket clients
+  href: alt_ws.md
+- name: Events
+  href: events.md
+- name: Commands
+  href: commandsnext.md
+- name: Interactivity
+  href: interactivity.md
+- name: VoiceNext - setup
+  href: vnext_setup.md
+- name: VoiceNext - sending
+  href: voicenext.md
+- name: VoiceNext - receiving
+  href: voicenext_receive.md
+- name: Sharding
+  href: sharding.md
+- name: Nightly builds
+  href: nightly.md
+- name: Reporting issues
+  href: issues.md

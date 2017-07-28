@@ -1,2 +1,3 @@
-# PLACEHOLDER
-TODO: Add .NET projects to the *src* folder and run `docfx` to generate **REAL** *API Documentation*!
+# API Reference
+
+Welcome to DSharpPlus API reference. To begin, select a namespace, then a class, from the table of contents on the left.

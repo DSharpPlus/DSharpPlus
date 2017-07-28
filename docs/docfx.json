@@ -30,6 +30,7 @@
         "files": [
           "articles/**.md",
           "articles/**/toc.yml",
+		  "natives/**.md",
           "toc.yml",
           "*.md"
         ],
@@ -68,7 +69,7 @@
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
-      "default"
+      "dsplus"
     ],
     "postProcessors": [],
     "noLangKeyword": false,
