@@ -15,7 +15,7 @@ and the bot class.
 Before you connect, enable the module on your client: 
 
 ```cs
-discord.UseInteractivity();
+interactivity = discord.UseInteractivity();
 ```
 
 This will enable the module.

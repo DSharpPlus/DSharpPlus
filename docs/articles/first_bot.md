@@ -36,8 +36,8 @@ as your project template. Give it some name, in here it's **MyFirstBot**.
 ## 2. Adding the NuGet package
 
 Once you create your project, you will be presented with a blank project template, that only prints Hello World! to the console. 
-Before we embark on our journey, you need to add DSharpPlus package reference. Locate the Solution Explorer on the right side
-of the screen. 
+Before you embark on your journey, you need to add DSharpPlus package reference. Locate the Solution Explorer on the right 
+side of the screen. 
 
 ![Step 3](/images/02_04_solution_explorer.png "Finding the solution explorer")
 
@@ -90,8 +90,8 @@ discord = new DiscordClient(new DiscordConfig
 });
 ```
 
-We have initialized our client instance, but it does nothing yet. Let's make it listen for incoming messages, and respond 
-with "pong" to messages that start with "ping". For that, we need to utilize the [MessageCreated event](/api/DSharpPlus.DiscordClient.html#DSharpPlus_DiscordClient_MessageCreated) 
+YOu have initialized your client instance, but it does nothing yet. Let's make it listen for incoming messages, and respond 
+with "pong" to messages that start with "ping". For that, you need to utilize the [MessageCreated event](/api/DSharpPlus.DiscordClient.html#DSharpPlus_DiscordClient_MessageCreated) 
 of the client. Let's hook it then:
 
 ```cs
@@ -102,17 +102,17 @@ discord.MessageCreated += async e =>
 };
 ```
 
-Now, once we connect, our bot will respond with "pong!" to each message that starts with "ping".
+Now, once the bot connects, it will respond with "pong!" to each message that starts with "ping".
 
-But that will happen only once we connect, so how do we do that? We use the [ConnectAsync method](/api/DSharpPlus.DiscordClient.html#DSharpPlus_DiscordClient_ConnectAsync) 
-of the client. You will need to `await` it, which is why we had to make an asynchronous `Main` method.
+But that will happen only once you connect, so how do you do that? You use the [ConnectAsync method](/api/DSharpPlus.DiscordClient.html#DSharpPlus_DiscordClient_ConnectAsync) 
+of the client. You will need to `await` it, which is why you had to make an asynchronous `Main` method.
 
 ```cs
 await discord.ConnectAsync();
 ```
 
-This is not everything yet. If we start the bot now, it will just flash and quit. To prevent that, we need to add an 
-infinite wait at the end of our `MainAsync` method:
+This is not everything yet. If you start the bot now, it will just flash and quit. To prevent that, you need to add an 
+infinite wait at the end of your `MainAsync` method:
 
 ```cs
 await Task.Delay(-1);

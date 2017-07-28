@@ -1,5 +1,5 @@
 /* Copyright (c) Microsoft Corporation. All Rights Reserved. Licensed under the MIT License. See License.txt in the project root for license information. */
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700|Source+Code+Pro');
 
 html,
 body {
@@ -325,7 +325,7 @@ article section {
   padding: 10px;
 }
 .search-results-group-heading {
-  font-family: "Open Sans";
+  font-family: 'Roboto';
   padding-left: 10px;
   color: white;
 }
