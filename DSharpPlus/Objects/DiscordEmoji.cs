@@ -137,6 +137,16 @@ namespace DSharpPlus
         }
 
         /// <summary>
+        /// Creates an emoji object from a unicode entity.
+        /// </summary>
+        /// <param name="unicode_entity">Unicode entity to create the object from.</param>
+        /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
+        public static DiscordEmoji FromUnicode(string unicode_entity)
+        {
+            return new DiscordEmoji { Name = unicode_entity, Discord = null };
+        }
+
+        /// <summary>
         /// Creates an emoji object from a guild emote.
         /// </summary>
         /// <param name="client"><see cref="DiscordClient"/> to attach to the object.</param>
