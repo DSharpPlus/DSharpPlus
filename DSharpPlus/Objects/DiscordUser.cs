@@ -27,7 +27,7 @@ namespace DSharpPlus
         /// </summary>
         [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
         public string Username { get; internal set; }
-        
+
         /// <summary>
         /// Gets the user's 4-digit tag.
         /// </summary>
@@ -46,7 +46,7 @@ namespace DSharpPlus
         /// Gets the user's avatar URL.
         /// </summary>
         [JsonIgnore]
-        public string AvatarUrl => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_")? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+        public string AvatarUrl => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
 
         /// <summary>
         /// Gets the URL of default avatar for this user.
@@ -81,11 +81,13 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the user's mention string.
         /// </summary>
+        [JsonIgnore]
         public string Mention => Formatter.Mention(this, this is DiscordMember);
-        
+
         /// <summary>
         /// Gets this user's presence.
         /// </summary>
+        [JsonIgnore]
         public DiscordPresence Presence => this.Discord.Presences.ContainsKey(this.Id) ? this.Discord.Presences[this.Id] : null;
 
         /// <summary>

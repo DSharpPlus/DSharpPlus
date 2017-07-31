@@ -13,7 +13,7 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordMessage : SnowflakeObject, IEquatable<DiscordMessage>
     {
-        public DiscordMessage()
+        internal DiscordMessage()
         {
             this._attachments_lazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
             this._embeds_lazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));

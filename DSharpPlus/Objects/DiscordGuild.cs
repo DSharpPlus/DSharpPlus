@@ -198,10 +198,20 @@ namespace DSharpPlus
         private Lazy<IReadOnlyList<DiscordChannel>> _channels_lazy;
 
         /// <summary>
+        /// Gets the guild member for current user.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordMember CurrentMember => this._current_member_lazy.Value;
+        [JsonIgnore]
+        private Lazy<DiscordMember> _current_member_lazy;
+
+        /// <summary>
         /// Gets the default channel for this guild.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel DefaultChannel => this._channels.FirstOrDefault(xc => xc.Id == this.Id);
+        public DiscordChannel DefaultChannel => this._default_channel_lazy.Value;
+        [JsonIgnore]
+        private Lazy<DiscordChannel> _default_channel_lazy;
 
         /// <summary>
         /// Gets the @everyone role for this guild.
@@ -218,21 +228,29 @@ namespace DSharpPlus
         [JsonIgnore]
         internal bool IsSynced { get; set; }
 
-        public DiscordGuild()
+        internal DiscordGuild()
         {
             this._roles_lazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._roles));
             this._emojis_lazy = new Lazy<IReadOnlyList<DiscordEmoji>>(() => new ReadOnlyCollection<DiscordEmoji>(this._emojis));
             this._voice_states_lazy = new Lazy<IReadOnlyList<DiscordVoiceState>>(() => new ReadOnlyCollection<DiscordVoiceState>(this._voice_states));
             this._channels_lazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._channels));
             this._members_lazy = new Lazy<IReadOnlyList<DiscordMember>>(() => new ReadOnlyCollection<DiscordMember>(this._members));
+
+            this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.FirstOrDefault(xm => xm.Id == this.Discord.CurrentUser.Id));
+            this._default_channel_lazy = new Lazy<DiscordChannel>(() =>
+            {
+                return this._channels.Where(xc => xc.Type == ChannelType.Text)
+                      .OrderBy(xc => xc.Position)
+                      .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.ReadMessages) == Permissions.ReadMessages)
+            });
         }
 
         #region Guild Methods
         public Task DeleteAsync() =>
             this.Discord._rest_client.InternalDeleteGuildAsync(this.Id);
 
-        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, ImageFormat? icon_format = null, VerificationLevel? verification_level = null, 
-            DefaultMessageNotifications? default_message_notifications = null, DiscordChannel afk_channel = null, int? afk_timeout = null, DiscordMember owner = null, Stream splash = null, 
+        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, ImageFormat? icon_format = null, VerificationLevel? verification_level = null,
+            DefaultMessageNotifications? default_message_notifications = null, DiscordChannel afk_channel = null, int? afk_timeout = null, DiscordMember owner = null, Stream splash = null,
             ImageFormat? splash_format = null, string reason = null)
         {
             if (afk_channel != null && afk_channel.Type != ChannelType.Voice)

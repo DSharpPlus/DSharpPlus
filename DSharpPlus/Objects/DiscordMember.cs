@@ -111,13 +111,15 @@ namespace DSharpPlus
         /// <summary>
         /// Gets this member's voice state.
         /// </summary>
+        [JsonIgnore]
         public DiscordVoiceState VoiceState => this.Discord.Guilds[this._guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == this.Id);
-
+        [JsonIgnore]
         internal ulong _guild_id = 0;
 
         /// <summary>
         /// Gets the guild of which this member is a part of.
         /// </summary>
+        [JsonIgnore]
         public DiscordGuild Guild => this.Discord.Guilds[_guild_id];
 
         /// <summary>

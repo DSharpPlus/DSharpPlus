@@ -91,8 +91,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets whether this channel is an NSFW channel.
         /// </summary>
-        [JsonIgnore]
-        public bool IsNSFW => !this.IsPrivate && this.Type == ChannelType.Text && (this.Name == "nsfw" || this.Name.StartsWith("nsfw-"));
+        [JsonProperty("nsfw")]
+        public bool IsNSFW { get; internal set; }
         
         /// <summary>
         /// Gets or sets the internal message cache for this channel.
@@ -100,7 +100,7 @@ namespace DSharpPlus
         [JsonIgnore]
         internal RingBuffer<DiscordMessage> MessageCache { get; set; }
 
-        public DiscordChannel()
+        internal DiscordChannel()
         {
             this._permission_overwrites_lazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permission_overwrites));
         }
@@ -381,6 +381,11 @@ namespace DSharpPlus
                 await this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null, Id, null);
         }
 
+        /// <summary>
+        /// Calculates permissions for a given member.
+        /// </summary>
+        /// <param name="mbr">Member to calculate permissions for.</param>
+        /// <returns>Calculated permissions for a given member.</returns>
         public Permissions PermissionsFor(DiscordMember mbr)
         {
             // user > role > everyone
