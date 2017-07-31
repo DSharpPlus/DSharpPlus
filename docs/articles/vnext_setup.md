@@ -105,27 +105,27 @@ On FreeBSD installing the libraries is as simple as executing the following:
 
 `# pkg install opus libsodium`
 
-## 4. Optional: install FFMpeg
+## 4. Optional: install FFmpeg
 
 ### Windows
 
-Depending on whether your operating system is 32- or 64-bit, you will need x86 or x64 FFMpeg build respectively. I have 
-slimmed down FFMpeg distribution for Windows available for download [here](/natives/index.html).
+Depending on whether your operating system is 32- or 64-bit, you will need x86 or x64 FFmpeg build respectively. I have 
+slimmed down FFmpeg distribution for Windows available for download [here](/natives/index.html).
 
 ### GNU/Linux
 
-You will need to install `libopus` and `libsodium` from your distro repositories. Depending on your distribution, the package 
-names and installation method may vary.
+You will need to install `ffmpeg` from your distro repositories. Depending on your distribution, the package names and 
+installation method may vary.
 
 #### Debian, Devuan, Raspbian, Ubuntu, and derivatives
 
 Depending on your distro and version, you might need to install different packages.
 
-**NOTE**: The installation procedure for Debian Stable is experimental. I will not take any responsibility for any damage 
+**NOTE**: The installation procedure for Debian Oldstable is experimental. I will not take any responsibility for any damage 
 caused to your system.
 
-* **Debian/Devuan/Raspbian Stable**: `$ echo 'deb http://ftp.debian.org/debian jessie-backports main' | sudo tee -a /etc/apt/sources.list && sudo apt-get update && sudo apt-get install ffmpeg`
-* **Debian/Devuan/Raspbian Testing**: `$ sudo apt-get install ffmpeg`
+* **Debian/Devuan/Raspbian Oldstable**: `$ echo 'deb http://ftp.debian.org/debian jessie-backports main' | sudo tee -a /etc/apt/sources.list && sudo apt-get update && sudo apt-get install ffmpeg`
+* **Debian/Devuan/Raspbian Stable**: `$ sudo apt-get install ffmpeg`
 * **Ubuntu 14.04 LTS**: `$ sudo add-apt-repository ppa:mc3man/trusty-media && sudo apt-get update && sudo apt-get install ffmpeg`
 * **Ubuntu 16.04 LTS, 16.10, 17.04**: `$ sudo apt-get install ffmpeg`
 
@@ -155,6 +155,6 @@ caused to your system.
 
 ### FreeBSD
 
-On FreeBSD installing FFMpeg is as simple as executing the following:
+On FreeBSD installing FFmpeg is as simple as executing the following:
 
 `# pkg install ffmpeg`

@@ -34,6 +34,8 @@ namespace DSharpPlus
         [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
         public bool Managed { get; internal set; }
 
+        internal DiscordEmoji() { }
+
         /// <summary>
         /// Returns a string representation of this emoji.
         /// </summary>
