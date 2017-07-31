@@ -13,7 +13,7 @@ namespace DSharpPlus.Test
     [Group("eval", CanInvokeWithoutSubcommand = true), Aliases("exec", "os", "env"), Hidden, Description("Provides evaluation and OS commands."), RequireOwner]
     public class TestBotEvalCommands
     {
-        public Task ExecuteGroup(CommandContext ctx, [RemainingText] string code) =>
+        public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string code) =>
             this.EvalCS(ctx, code);
 
         [Command("csharp"), Aliases("eval", "evalcs", "cseval", "csharp", "roslyn"), Description("Evaluates C# code."), RequireOwner]

@@ -45,7 +45,7 @@ namespace DSharpPlus.CommandsNext
         #endregion
 
         private CommandsNextConfiguration Config { get; set; }
-        private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroup";
+        private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroupAsync";
 
         public CommandsNextModule(CommandsNextConfiguration cfg)
         {
@@ -76,7 +76,7 @@ namespace DSharpPlus.CommandsNext
             this._executed = new AsyncEvent<CommandExecutedEventArgs>(this.Client.EventErrorHandler, "COMMAND_EXECUTED");
             this._error = new AsyncEvent<CommandErrorEventArgs>(this.Client.EventErrorHandler, "COMMAND_ERRORED");
 
-            this.Client.MessageCreated += this.HandleCommands;
+            this.Client.MessageCreated += this.HandleCommandsAsync;
 
             if (this.Config.EnableDefaultHelp)
             {
@@ -126,7 +126,7 @@ namespace DSharpPlus.CommandsNext
         #endregion
 
         #region Command Handler
-        private async Task HandleCommands(MessageCreateEventArgs e)
+        public async Task HandleCommandsAsync(MessageCreateEventArgs e)
         {
             // Let the bot do its things
             await Task.Yield();
@@ -215,9 +215,43 @@ namespace DSharpPlus.CommandsNext
         private Lazy<IReadOnlyDictionary<string, Command>> _registered_commands_lazy;
         public IReadOnlyDictionary<string, Command> RegisteredCommands => this._registered_commands_lazy.Value;
 
+        /// <summary>
+        /// Registers all commands from a given assembly. The command classes need to be public to be considered for registration.
+        /// </summary>
+        /// <param name="assembly">Assembly to register commands from.</param>
+        public void RegisterCommands(Assembly assembly)
+        {
+            var types = assembly.ExportedTypes.Where(xt =>
+            {
+                var xti = xt.GetTypeInfo();
+                return xti.IsClass && xti.IsPublic && !xti.IsNested && !xti.IsAbstract;
+            });
+            foreach (var xt in types)
+                this.RegisterCommands(xt);
+        }
+
+        /// <summary>
+        /// Registers all commands from a given command class.
+        /// </summary>
+        /// <typeparam name="T">Class which holds commands to register.</typeparam>
         public void RegisterCommands<T>() where T : class
         {
             var t = typeof(T);
+            this.RegisterCommands(t);
+        }
+
+        /// <summary>
+        /// Registers all commands from a given command class.
+        /// </summary>
+        /// <param name="t">Type of the class which holds commands to register.</param>
+        public void RegisterCommands(Type t)
+        {
+            if (t == null)
+                throw new ArgumentNullException("Type cannot be null.", nameof(t));
+
+            var ti = t.GetTypeInfo();
+            if (!ti.IsClass || ti.IsAbstract)
+                throw new ArgumentNullException("Type must be a class, which cannot be abstract or static.", nameof(t));
 
             RegisterCommands(t, CreateInstance(t), null, out var tres, out var tcmds);
             
@@ -694,7 +728,7 @@ namespace DSharpPlus.CommandsNext
             msg._mentioned_roles = mentioned_roles;
             msg._mentioned_channels = mentioned_channels;
 
-            await this.HandleCommands(new MessageCreateEventArgs(this.Client) { Message = msg });
+            await this.HandleCommandsAsync(new MessageCreateEventArgs(this.Client) { Message = msg });
         }
         #endregion
     }
