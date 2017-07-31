@@ -50,7 +50,7 @@ Task MyEventHandlerMethod()
 }
 ```
 
-## Parametrised event handlers
+## Parameterized event handlers
 
 This is largely similar to parameter-less, except these event handlers take appropriate `EventArgs`, that are derived from 
 [DiscordEventArgs class](/api/DSharpPlus.DiscordEventArgs.html).
