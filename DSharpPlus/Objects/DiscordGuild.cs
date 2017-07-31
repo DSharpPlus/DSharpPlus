@@ -345,8 +345,8 @@ namespace DSharpPlus
         public Task RemoveMemberAsync(DiscordMember member, string reason = null) =>
             this.Discord._rest_client.InternalRemoveGuildMemberAsync(this.Id, member.Id, reason);
 
-        public Task<DiscordMember> GetMemberAsync(ulong user_id) =>
-            this.Discord._rest_client.InternalGetGuildMemberAsync(Id, user_id);
+        public async Task<DiscordMember> GetMemberAsync(ulong user_id) =>
+            this._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this.Discord._rest_client.InternalGetGuildMemberAsync(Id, user_id);
 
         public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
         {
