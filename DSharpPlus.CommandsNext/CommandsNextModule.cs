@@ -47,6 +47,11 @@ namespace DSharpPlus.CommandsNext
         private CommandsNextConfiguration Config { get; set; }
         private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroupAsync";
 
+        /// <summary>
+        /// Gets the dependency collection this CommandsNext module was configured with.
+        /// </summary>
+        public DependencyCollection Dependencies => this.Config.Dependencies;
+
         public CommandsNextModule(CommandsNextConfiguration cfg)
         {
             this.Config = cfg;
