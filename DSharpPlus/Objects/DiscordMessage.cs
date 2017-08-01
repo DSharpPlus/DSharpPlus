@@ -419,5 +419,15 @@ namespace DSharpPlus
         /// Message indicating a group direct message channel icon change.
         /// </summary>
         ChannelIconChange = 5,
+
+        /// <summary>
+        /// USER pinned a message to this channel.
+        /// </summary>
+        ChannelPinnedMessage = 6,
+
+        /// <summary>
+        /// Message when a guild member joins. Most frequently seen in newer, smaller guilds.
+        /// </summary>
+        GuildMemberJoin = 7
     }
 }
