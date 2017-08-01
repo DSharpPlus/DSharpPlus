@@ -160,6 +160,9 @@ namespace DSharpPlus
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public MessageType? MessageType { get; internal set; }
 
+        [JsonIgnore]
+        public bool WebhookMessage => WebhookId != null;
+
         /// <summary>
         /// Edits the message.
         /// </summary>
