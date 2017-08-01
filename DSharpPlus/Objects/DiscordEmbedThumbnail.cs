@@ -16,16 +16,16 @@ namespace DSharpPlus
         /// A proxied url of the thumbnail
         /// </summary>
         [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
-        public string ProxyUrl { get; set; }
+        public string ProxyUrl { get; internal set; }
         /// <summary>
         /// Height of the thumbnail
         /// </summary>
         [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
-        public int Height { get; set; }
+        public int Height { get; internal set; }
         /// <summary>
         /// Width of the thumbnail
         /// </summary>
         [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
-        public int Width { get; set; }
+        public int Width { get; internal set; }
     }
 }

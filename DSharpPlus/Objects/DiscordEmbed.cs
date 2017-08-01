@@ -62,12 +62,12 @@ namespace DSharpPlus
         /// Video information
         /// </summary>
         [JsonProperty("video", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbedVideo Video { get; set; }
+        public DiscordEmbedVideo Video { get; internal set; }
         /// <summary>
         /// Provider information
         /// </summary>
         [JsonProperty("provider", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbedProvider Provider { get; set; }
+        public DiscordEmbedProvider Provider { get; internal set; }
         /// <summary>
         /// Author information
         /// </summary>

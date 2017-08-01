@@ -11,11 +11,11 @@ namespace DSharpPlus
         /// Name of the provider
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string Name { get; internal set; }
         /// <summary>
         /// Url of the provider
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; set; }
+        public string Url { get; internal set; }
     }
 }

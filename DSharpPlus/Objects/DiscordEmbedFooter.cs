@@ -21,6 +21,6 @@ namespace DSharpPlus
         /// A proxied url of the footer icon
         /// </summary>
         [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public string ProxyIconUrl { get; set; }
+        public string ProxyIconUrl { get; internal set; }
     }
 }
