@@ -8,12 +8,6 @@ namespace DSharpPlus
     public class DiscordOverwrite : SnowflakeObject
     {
         /// <summary>
-        /// Role or User ID
-        /// </summary>
-        [JsonProperty("id")]
-        public string Id { get; internal set; }
-
-        /// <summary>
         /// Gets the type of the overwrite. Either "role" or "member".
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
