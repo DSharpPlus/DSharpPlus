@@ -22,7 +22,7 @@ namespace DSharpPlus
         /// Type of the embed ("rich" for webhook embeds)
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public string Type { get; set; }
+        public string Type { get; internal set; }
         /// <summary>
         /// Description of the embed
         /// </summary>
