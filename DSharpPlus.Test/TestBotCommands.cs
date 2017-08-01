@@ -220,7 +220,6 @@ Serverowner: {e.Guild.Owner.DisplayName}
             {
                 Title = "Guild info",
                 Description = "ye boiii!",
-                Type = "rich",
                 Color = 0x007FFF,
                 Fields = new List<DiscordEmbedField>
                 {
@@ -265,7 +264,6 @@ Serverowner: {e.Guild.Owner.DisplayName}
             {
                 Title = "Testing embed",
                 Description = "It works!",
-                Type = "rich",
                 Url = "https://github.com/NaamloosDT/DSharpPlus",
                 Color = 8257469,
                 Fields = fields,
@@ -282,14 +280,10 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 Image = new DiscordEmbedImage()
                 {
                     Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                    Height = 50,
-                    Width = 50,
                 },
                 Thumbnail = new DiscordEmbedThumbnail()
                 {
                     Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                    Height = 10,
-                    Width = 10
                 }
             };
             await e.Message.RespondAsync("testing embed:", embed: embed);
