@@ -229,7 +229,8 @@ namespace DSharpPlus.CommandsNext
             var types = assembly.ExportedTypes.Where(xt =>
             {
                 var xti = xt.GetTypeInfo();
-                return xti.IsClass && xti.IsPublic && !xti.IsNested && !xti.IsAbstract;
+                return xti.IsClass && xti.IsPublic && !xti.IsNested && !xti.IsAbstract && xti.DeclaredMethods
+                .Any(xtim => xtim.IsDefined(typeof(CommandAttribute)) || xtim.Name == GROUP_COMMAND_METHOD_NAME);
             });
             foreach (var xt in types)
                 this.RegisterCommands(xt);
