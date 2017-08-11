@@ -52,6 +52,7 @@ namespace DSharpPlus.Test
             Discord.MessageReactionRemoveAll += this.Discord_MessageReactionRemoveAll;
             Discord.PresenceUpdate += this.Discord_PresenceUpdate;
             Discord.SocketError += this.Discord_SocketError;
+            Discord.GuildCreated += this.Discord_GuildCreated;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -153,6 +154,21 @@ namespace DSharpPlus.Test
         private Task Discord_GuildAvailable(GuildCreateEventArgs e)
         {
             Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Guild available: {e.Guild.Name}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.MemberCount: {e.Guild.MemberCount}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.Members.Count: {e.Guild.Members.Count}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].MemberCount: {Discord.Guilds[e.Guild.Id].MemberCount}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].Members.Count: {Discord.Guilds[e.Guild.Id].Members.Count}", DateTime.Now);
+            return Task.Delay(0);
+        }
+
+        private Task Discord_GuildCreated(GuildCreateEventArgs e)
+        {
+            // Tryna fix the "double guild member" bug
+            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Guild created: {e.Guild.Name}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.MemberCount: {e.Guild.MemberCount}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.Members.Count: {e.Guild.Members.Count}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].MemberCount: {Discord.Guilds[e.Guild.Id].MemberCount}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].Members.Count: {Discord.Guilds[e.Guild.Id].Members.Count}", DateTime.Now);
             return Task.Delay(0);
         }
 

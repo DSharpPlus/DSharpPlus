@@ -799,7 +799,7 @@ namespace DSharpPlus
             };
             _websocket_client.OnMessage += e => HandleSocketMessageAsync(e.Message);
             _websocket_client.OnError += e => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
-            
+
             await ConnectionSemaphore.WaitAsync();
             await _websocket_client.ConnectAsync(_gatewayUrl + "?v=6&encoding=json");
         }
@@ -1493,7 +1493,7 @@ namespace DSharpPlus
             if (guild._members == null)
                 guild._members = new List<DiscordMember>();
 
-            this.UpdateCachedGuild(event_guild, raw_members);
+            this.UpdateCachedGuild(event_guild, raw_members, !exists);
 
             guild.JoinedAt = event_guild.JoinedAt;
             guild.IsLarge = event_guild.IsLarge;
@@ -1592,7 +1592,7 @@ namespace DSharpPlus
 
             guild.IsSynced = true;
             guild.IsLarge = is_large;
-            
+
             this.UpdateCachedGuild(guild, raw_members);
 
             if (this._config.AutomaticGuildSync)
@@ -2393,7 +2393,7 @@ namespace DSharpPlus
                 .Concat(this._private_channels)
                 .FirstOrDefault(xc => xc.Id == channel_id);
 
-        internal void UpdateCachedGuild(DiscordGuild new_guild, JArray raw_members)
+        internal void UpdateCachedGuild(DiscordGuild new_guild, JArray raw_members, bool newguild = false)
         {
             if (!this._guilds.ContainsKey(new_guild.Id))
                 this._guilds[new_guild.Id] = new_guild;
@@ -2409,12 +2409,24 @@ namespace DSharpPlus
             var _e = new_guild._emojis.Where(xe => !guild._emojis.Any(xxe => xxe.Id == xe.Id));
             guild._emojis.AddRange(_e);
 
-            if (raw_members != null)
+            if (newguild)
             {
-                var _m = raw_members == null ? new List<DiscordMember>() : raw_members.ToObject<IEnumerable<TransportMember>>()
-                    .Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id })
-                    .Where(xm => !guild._members.Any(xxm => xxm.Id == xm.Id));
-                guild._members.AddRange(_m);
+                if (raw_members != null)
+                {
+                    var _m = raw_members.ToObject<IEnumerable<DiscordMember>>()
+                        .Where(xm => !guild._members.Any(xxm => xxm.Id == xm.Id));
+                    guild._members.AddRange(_m);
+                }
+            }
+            else
+            {
+                if (raw_members != null)
+                {
+                    var _m = raw_members == null ? new List<DiscordMember>() : raw_members.ToObject<IEnumerable<TransportMember>>()
+                        .Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id })
+                        .Where(xm => !guild._members.Any(xxm => xxm.Id == xm.Id));
+                    guild._members.AddRange(_m);
+                }
             }
 
             var _r = new_guild._roles.Where(xr => !guild._roles.Any(xxr => xxr.Id == xr.Id));
