@@ -837,7 +837,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="user_id">Id of the user</param>
         /// <returns></returns>
-        public Task<DiscordUser> GetUserAsync(ulong user_id) => this._rest_client.InternalGetUserAsync(user_id);
+        public async Task<DiscordUser> GetUserAsync(ulong user_id) => InternalGetCachedUser(user_id) ?? await _rest_client.InternalGetUserAsync(user_id);
 
         /// <summary>
         /// Deletes a channel
@@ -965,7 +965,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<DiscordDmChannel> CreateDmAsync(DiscordUser user) => this._rest_client.InternalCreateDmAsync(user.Id);
+        public async Task<DiscordDmChannel> CreateDmAsync(DiscordUser user) => this.PrivateChannels.ToList().Find(x => x.Recipients.First().Id == user.Id) ?? await _rest_client.InternalCreateDmAsync(user.Id);
 
         /// <summary>
         /// Updates current user's status
