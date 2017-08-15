@@ -78,7 +78,7 @@ namespace DSharpPlus
         {
             if (title.Length > 256)
                 throw new ArgumentException("Embed title only allows a max of 256 characters!");
-            embed.Title = title;
+            embed.Title = title ?? throw new ArgumentException("Null values are not allowed!");
             return this;
         }
 
@@ -86,7 +86,7 @@ namespace DSharpPlus
         {
             if (description.Length > 2048)
                 throw new ArgumentException("Embed description only allows a max of 2048 characters!");
-            embed.Description = description;
+            embed.Description = description ?? throw new ArgumentException("Null values are not allowed!");
             return this;
         }
 
@@ -94,15 +94,17 @@ namespace DSharpPlus
         {
             embed.Author = new DiscordEmbedAuthor()
             {
-                IconUrl = iconurl,
-                Name = name,
-                Url = url
+                IconUrl = iconurl ?? throw new ArgumentException("Null values are not allowed!"),
+                Name = name ?? throw new ArgumentException("Null values are not allowed!"),
+                Url = url ?? throw new ArgumentException("Null values are not allowed!")
             };
             return this;
         }
 
         public DiscordEmbedBuilder SetColor(string color)
         {
+            if (color == null)
+                throw new ArgumentException("Null values are not allowed!");
             string TrimmedColor = color.Trim('#');
             embed.Color = int.Parse(TrimmedColor, System.Globalization.NumberStyles.HexNumber);
             return this;
@@ -111,6 +113,14 @@ namespace DSharpPlus
         public DiscordEmbedBuilder SetColor(int color)
         {
             embed.Color = color;
+            return this;
+        }
+
+        public DiscordEmbedBuilder SetColor(int r, int g, int b)
+        {
+            if (r > 255 || g > 255 || b > 255 || r < 0 || g < 0 || b < 0)
+                throw new ArgumentException("R, G and B should each be under 255 and above -1!");
+            embed.Color = (r << 16) | (g << 8) | b;
             return this;
         }
 
@@ -127,8 +137,8 @@ namespace DSharpPlus
 
             embed.Fields.Add(new DiscordEmbedField()
             {
-                Name = name,
-                Value = value,
+                Name = name ?? throw new ArgumentException("Null values are not allowed!"),
+                Value = value ?? throw new ArgumentException("Null values are not allowed!"),
                 Inline = inline
             });
 
@@ -137,9 +147,11 @@ namespace DSharpPlus
 
         public DiscordEmbedBuilder SetFields(List<DiscordEmbedField> fields)
         {
+            if (fields == new List<DiscordEmbedField>() || fields.Count < 1)
+                throw new ArgumentException("Please use ClearFields() instead of an empty list!");
             if (fields.Count > 25)
                 throw new ArgumentException("Embed only allows a maximum of 25 fields!");
-            embed.Fields = fields;
+            embed.Fields = fields ?? throw new ArgumentException("Null values are not allowed!");
             return this;
         }
 
@@ -156,8 +168,8 @@ namespace DSharpPlus
 
             embed.Footer = new DiscordEmbedFooter()
             {
-                IconUrl = iconurl,
-                Text = text
+                IconUrl = iconurl ?? throw new ArgumentException("Null values are not allowed!"),
+                Text = text ?? throw new ArgumentException("Null values are not allowed!")
             };
             return this;
         }
@@ -166,7 +178,7 @@ namespace DSharpPlus
         {
             embed.Image = new DiscordEmbedImage()
             {
-                Url = imageurl
+                Url = imageurl ?? throw new ArgumentException("Null values are not allowed!")
             };
             return this;
         }
@@ -175,7 +187,7 @@ namespace DSharpPlus
         {
             embed.Thumbnail = new DiscordEmbedThumbnail()
             {
-                Url = imageurl
+                Url = imageurl ?? throw new ArgumentException("Null values are not allowed!")
             };
             return this;
         }
@@ -211,7 +223,7 @@ namespace DSharpPlus
 
         public DiscordEmbedBuilder SetUrl(string url = "")
         {
-            embed.Url = url;
+            embed.Url = url ?? throw new ArgumentException("Null values are not allowed!");
             return this;
         }
 

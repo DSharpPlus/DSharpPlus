@@ -30,7 +30,7 @@ namespace DSharpPlus.Test
         public async Task TestBuilder(CommandContext e)
         {
             var b = new DiscordEmbedBuilder();
-            b.SetTitle("testing builder").SetDescription("Just uhh.. testing the builder. yes.").SetColor("#7289DA");
+            b.SetTitle("testing builder").SetDescription("Just uhh.. testing the builder. yes.").SetColor(255, 0, 0);
             b.AddField("and a field", "hey. I'm just a field doing... fieldy things. yes. OH AND I'M INLINE (not that it matters)", true);
             await e.RespondAsync("testing builder?", embed: b.GetEmbed());
         }
