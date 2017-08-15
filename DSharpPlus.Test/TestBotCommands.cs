@@ -26,6 +26,15 @@ namespace DSharpPlus.Test
             await m.ModifyAsync(oldnick);
         }*/
 
+        [Command("testbuilder")]
+        public async Task TestBuilder(CommandContext e)
+        {
+            var b = new DiscordEmbedBuilder();
+            b.SetTitle("testing builder").SetDescription("Just uhh.. testing the builder. yes.").SetColor("#7289DA");
+            b.AddField("and a field", "hey. I'm just a field doing... fieldy things. yes. OH AND I'M INLINE (not that it matters)", true);
+            await e.RespondAsync("testing builder?", embed: b.GetEmbed());
+        }
+
         [Command("testnewshits")]
         public async Task TestNewShits(CommandContext e)
         {
