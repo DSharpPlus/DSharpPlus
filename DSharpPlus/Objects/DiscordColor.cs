@@ -10,6 +10,31 @@ namespace DSharpPlus
     {
         internal int _color;
 
+        public int Color {
+            get { return _color; }
+            set { _color = value; }
+        }
+
+        //(rgb >> 16) & 0xff, (rgb >> 8) & 0xff, (rgb >> 0) & 0xff
+
+        public int R
+        {
+            get { return (_color >> 16); }
+            set { _color = (value << 16) | (G << 8) | (B << 0); }
+        }
+
+        public int G
+        {
+            get { return (_color >> 8); }
+            set { _color = (R << 16) | (value << 8) | (B << 0); }
+        }
+
+        public int B
+        {
+            get { return (_color >> 0); }
+            set { _color = (R << 16) | (G << 8) | (value << 0); }
+        }
+
         public DiscordColor()
         {
             _color = 0;
