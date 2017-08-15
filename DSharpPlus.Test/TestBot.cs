@@ -248,7 +248,7 @@ namespace DSharpPlus.Test
 
                 var embed = new DiscordEmbed
                 {
-                    Color = 0xFF0000,
+                    Color = new DiscordColor("#FF0000"),
                     Title = "An exception occured when executing a command",
                     Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.QualifiedName}`.",
                     Footer = new DiscordEmbedFooter

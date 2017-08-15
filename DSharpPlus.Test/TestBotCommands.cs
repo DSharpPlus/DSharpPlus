@@ -30,9 +30,11 @@ namespace DSharpPlus.Test
         public async Task TestBuilder(CommandContext e)
         {
             var b = new DiscordEmbedBuilder();
-            b.SetTitle("testing builder").SetDescription("Just uhh.. testing the builder. yes.").SetColor(255, 0, 0);
+            b.SetTitle("testing builder").SetDescription("Just uhh.. testing the builder. yes.").SetColor(new DiscordColor(255, 0, 0));
             b.AddField("and a field", "hey. I'm just a field doing... fieldy things. yes. OH AND I'M INLINE (not that it matters)", true);
             await e.RespondAsync("testing builder?", embed: b.GetEmbed());
+            var b2 = new DiscordEmbedBuilder().SetColor(e.Member.Color).SetTitle("Your color").SetDescription("<----------------");
+            await e.RespondAsync("Also testing member colors..", embed: b2.GetEmbed());
         }
 
         [Command("testnewshits")]
@@ -236,7 +238,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             {
                 Title = "Guild info",
                 Description = "ye boiii!",
-                Color = 0x007FFF,
+                Color = new DiscordColor("#007FFF"),
                 Fields = new List<DiscordEmbedField>
                 {
                     new DiscordEmbedField
@@ -281,7 +283,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 Title = "Testing embed",
                 Description = "It works!",
                 Url = "https://github.com/NaamloosDT/DSharpPlus",
-                Color = 8257469,
+                Color = new DiscordColor(8257469),
                 Fields = fields,
                 Author = new DiscordEmbedAuthor()
                 {
@@ -319,7 +321,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             var embed = new DiscordEmbed
             {
                 Title = "Application info",
-                Color = 0x007FFF,
+                Color = new DiscordColor("#007FFF"),
                 Fields = new List<DiscordEmbedField>()
             };
             embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Name", Value = app.Name });

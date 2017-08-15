@@ -18,7 +18,13 @@ namespace DSharpPlus
         /// Integer representation of a hexadecimal color code
         /// </summary>
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-        public int Color { get; internal set; }
+        internal int _color { get; set; }
+
+        public DiscordColor Color
+        {
+            get { return new DiscordColor(_color); }
+            set { _color = value._color; }
+        }
 
         /// <summary>
         /// Whether this role is pinned

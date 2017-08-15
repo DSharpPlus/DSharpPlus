@@ -32,7 +32,7 @@ namespace DSharpPlus.Test
 
             msg = await ctx.RespondAsync("", embed: new DiscordEmbed
             {
-                Color = 0xFF007F,
+                Color = new DiscordColor("#FF007F"),
                 Description = "Evaluating..."
             });
 
@@ -49,13 +49,13 @@ namespace DSharpPlus.Test
                 var result = await script.RunAsync(globals);
 
                 if (result != null && result.ReturnValue != null && !string.IsNullOrWhiteSpace(result.ReturnValue.ToString()))
-                    await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = 0x007FFF });
+                    await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") });
                 else
-                    await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Successful", Description = "No result was returned.", Color = 0x007FFF });
+                    await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") });
             }
             catch (Exception ex)
             {
-                await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = 0xFF0000 });
+                await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") });
             }
         }
 
@@ -109,7 +109,7 @@ namespace DSharpPlus.Test
             }
             catch (Exception ex)
             {
-                await ctx.RespondAsync("", embed: new DiscordEmbed { Title = "Execution failed", Description = $"`{ex.GetType()}: {ex.Message}`", Color = 0xFF0000 });
+                await ctx.RespondAsync("", embed: new DiscordEmbed { Title = "Execution failed", Description = $"`{ex.GetType()}: {ex.Message}`", Color = new DiscordColor("#FF0000") });
             }
         }
     }

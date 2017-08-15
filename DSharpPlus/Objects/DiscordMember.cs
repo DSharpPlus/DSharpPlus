@@ -79,14 +79,14 @@ namespace DSharpPlus
         /// Gets the color associated with this user's top color-giving role, otherwise 0 (no color).
         /// </summary>
         [JsonIgnore]
-        public int Color
+        public DiscordColor Color
         {
             get
             {
-                var role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color != 0);
+                var role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color.ToInt() != 0);
                 if (role != null)
                     return role.Color;
-                return 0;
+                return new DiscordColor();
             }
         }
 

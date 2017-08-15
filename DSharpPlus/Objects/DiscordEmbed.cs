@@ -42,7 +42,12 @@ namespace DSharpPlus
         /// Color code of the embed
         /// </summary>
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-        public int Color { get; set; }
+        internal int _color { get; set; }
+
+        public DiscordColor Color {
+            get { return new DiscordColor(_color); }
+            set { _color = value._color; }
+        }
         /// <summary>
         /// Footer information
         /// </summary>

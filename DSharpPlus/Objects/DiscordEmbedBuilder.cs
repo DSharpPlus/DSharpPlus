@@ -49,7 +49,7 @@ namespace DSharpPlus
             }
         }
 
-        public int Color
+        public DiscordColor Color
         {
             get => embed.Color;
             set
@@ -101,26 +101,9 @@ namespace DSharpPlus
             return this;
         }
 
-        public DiscordEmbedBuilder SetColor(string color)
-        {
-            if (color == null)
-                throw new ArgumentException("Null values are not allowed!");
-            string TrimmedColor = color.Trim('#');
-            embed.Color = int.Parse(TrimmedColor, System.Globalization.NumberStyles.HexNumber);
-            return this;
-        }
-
-        public DiscordEmbedBuilder SetColor(int color)
+        public DiscordEmbedBuilder SetColor(DiscordColor color)
         {
             embed.Color = color;
-            return this;
-        }
-
-        public DiscordEmbedBuilder SetColor(int r, int g, int b)
-        {
-            if (r > 255 || g > 255 || b > 255 || r < 0 || g < 0 || b < 0)
-                throw new ArgumentException("R, G and B should each be under 255 and above -1!");
-            embed.Color = (r << 16) | (g << 8) | b;
             return this;
         }
 
