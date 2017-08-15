@@ -522,7 +522,7 @@ namespace DSharpPlus.CommandsNext
             var toplevel = this.TopLevelCommands.Values.Distinct();
             var embed = new DiscordEmbed()
             {
-                Color = new DiscordColor("#007FFF"),
+                Color = ctx.Config.HelpColor,
                 Title = "Help",
                 Fields = new List<DiscordEmbedField>()
             };

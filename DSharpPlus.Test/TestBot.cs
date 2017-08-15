@@ -80,7 +80,8 @@ namespace DSharpPlus.Test
                 EnableDms = true,
                 EnableMentionPrefix = true,
                 CaseSensitive = true,
-                Dependencies = depco.Build()
+                Dependencies = depco.Build(),
+                HelpColor = new DiscordColor("#ffccff")
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;

@@ -44,6 +44,8 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public bool EnableDefaultHelp { internal get; set; } = true;
 
+        public DiscordColor HelpColor { internal get; set; } = new DiscordColor("#007FFF");
+
         /// <summary>
         /// Gets or sets whether to enable commands via direct messages. Defaults to true.
         /// </summary>
