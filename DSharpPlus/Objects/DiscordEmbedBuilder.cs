@@ -63,7 +63,7 @@ namespace DSharpPlus
             get => embed.Fields;
             set
             {
-                if (Fields.Count > 25)
+                if (Fields?.Count > 25)
                     throw new ArgumentException("Embed only allows a maximum of 25 fields!");
                 embed.Fields = Fields;
             }
@@ -76,7 +76,7 @@ namespace DSharpPlus
 
         public DiscordEmbedBuilder SetTitle(string title)
         {
-            if (title.Length > 256)
+            if (title?.Length > 256)
                 throw new ArgumentException("Embed title only allows a max of 256 characters!");
             embed.Title = title ?? throw new ArgumentException("Null values are not allowed!");
             return this;
@@ -84,7 +84,7 @@ namespace DSharpPlus
 
         public DiscordEmbedBuilder SetDescription(string description)
         {
-            if (description.Length > 2048)
+            if (description?.Length > 2048)
                 throw new ArgumentException("Embed description only allows a max of 2048 characters!");
             embed.Description = description ?? throw new ArgumentException("Null values are not allowed!");
             return this;
@@ -126,9 +126,9 @@ namespace DSharpPlus
 
         public DiscordEmbedBuilder AddField(string name, string value, bool inline = false)
         {
-            if (name.Length > 256)
+            if (name?.Length > 256)
                 throw new ArgumentException("Embed Field Name only allows a max of 256 characters!");
-            if (value.Length > 1024)
+            if (value?.Length > 1024)
                 throw new ArgumentException("Embed Field Value only allows a max of 1024 characters!");
             if (embed.Fields == null)
                 embed.Fields = new List<DiscordEmbedField>();
@@ -147,9 +147,9 @@ namespace DSharpPlus
 
         public DiscordEmbedBuilder SetFields(List<DiscordEmbedField> fields)
         {
-            if (fields == new List<DiscordEmbedField>() || fields.Count < 1)
+            if (fields == new List<DiscordEmbedField>() || fields?.Count < 1)
                 throw new ArgumentException("Please use ClearFields() instead of an empty list!");
-            if (fields.Count > 25)
+            if (fields?.Count > 25)
                 throw new ArgumentException("Embed only allows a maximum of 25 fields!");
             embed.Fields = fields ?? throw new ArgumentException("Null values are not allowed!");
             return this;
@@ -163,7 +163,7 @@ namespace DSharpPlus
 
         public DiscordEmbedBuilder SetFooter(string text = "", string iconurl = "")
         {
-            if (text.Length > 2048)
+            if (text?.Length > 2048)
                 throw new ArgumentException("Footer Text only allows a max of 2048 characters!");
 
             embed.Footer = new DiscordEmbedFooter()
