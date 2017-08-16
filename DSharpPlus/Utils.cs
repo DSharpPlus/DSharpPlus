@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -11,9 +12,24 @@ namespace DSharpPlus
         /// Gets the version of the library
         /// </summary>
         private static string VersionHeader { get; set; }
+        private static Dictionary<Permissions, string> PermissionStrings { get; set; }
 
         static Utils()
         {
+            PermissionStrings = new Dictionary<Permissions, string>();
+            var t = typeof(Permissions);
+            var ti = t.GetTypeInfo();
+            var vals = Enum.GetValues(t).Cast<Permissions>();
+
+            foreach (var xv in vals)
+            {
+                var xsv = xv.ToString();
+                var xmv = ti.DeclaredMembers.FirstOrDefault(xm => xm.Name == xsv);
+                var xav = xmv.GetCustomAttribute<PermissionStringAttribute>();
+
+                PermissionStrings[xv] = xav.String;
+            }
+
             var a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
             var vs = "";
@@ -192,6 +208,23 @@ namespace DSharpPlus
             var millis = dto.Ticks / TimeSpan.TicksPerMillisecond;
             return millis - 62_135_596_800_000;
 #endif
+        }
+        
+        /// <summary>
+        /// Converts this <see cref="Permissions"/> into human-readable format.
+        /// </summary>
+        /// <param name="perm">Permissions enumeration to convert.</param>
+        /// <returns>Human-readable permissions.</returns>
+        public static string ToPermissionString(this Permissions perm)
+        {
+            if (perm == Permissions.None)
+                return PermissionStrings[perm];
+
+            var strs = PermissionStrings
+                .Where(xkvp => xkvp.Key != Permissions.None && (perm & xkvp.Key) == xkvp.Key)
+                .Select(xkvp => xkvp.Value);
+
+            return string.Join(", ", strs);
         }
     }
 }
