@@ -89,7 +89,7 @@ namespace DSharpPlus
                 if (value == null)
                     this._image_uri = null;
                 else
-                    this._image_uri = new Uri(null);
+                    this._image_uri = new Uri(value);
             }
         }
         private Uri _image_uri;
@@ -105,7 +105,7 @@ namespace DSharpPlus
                 if (value == null)
                     this._thumbnail_uri = null;
                 else
-                    this._thumbnail_uri = new Uri(null);
+                    this._thumbnail_uri = new Uri(value);
             }
         }
         private Uri _thumbnail_uri;
@@ -124,7 +124,7 @@ namespace DSharpPlus
         /// Gets the embed's fields.
         /// </summary>
         public IReadOnlyList<DiscordEmbedField> Fields { get; }
-        public List<DiscordEmbedField> _fields;
+        private List<DiscordEmbedField> _fields;
 
         /// <summary>
         /// Constructs a new empty embed builder.
