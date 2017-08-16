@@ -8,7 +8,8 @@ namespace DSharpPlus
     /// </summary>
     public static class Formatter
     {
-        private static Regex MdRegex { get; } = new Regex(@"([`\*_~<>\[\]\(\)""@\!\&#:])");
+        private static Regex MdSanitizeRegex { get; } = new Regex(@"([`\*_~<>\[\]\(\)""@\!\&#:])");
+        private static Regex MdStripRegex { get; } = new Regex(@"([`\*_~\[\]\(\)""]|<@\!?\d+>|<#\d+>|<@\&\d+>|<:[a-zA-Z0-9_\-]:\d+>)");
 
         /// <summary>
         /// Creates a block of code.
@@ -76,7 +77,7 @@ namespace DSharpPlus
         /// <param name="text">Text to sanitize.</param>
         /// <returns>Sanitized text.</returns>
         public static string Sanitize(string text) =>
-            MdRegex.Replace(text, m => string.Concat("\\", m.Groups[1].Value));
+            MdSanitizeRegex.Replace(text, m => string.Concat("\\", m.Groups[1].Value));
 
         /// <summary>
         /// Removes all markdown formatting from specified text.
@@ -84,7 +85,7 @@ namespace DSharpPlus
         /// <param name="text">Text to strip of formatting.</param>
         /// <returns>Formatting-stripped text.</returns>
         public static string Strip(string text) =>
-            MdRegex.Replace(text, m => string.Empty);
+            MdStripRegex.Replace(text, m => string.Empty);
 
         /// <summary>
         /// Creates a mention for specified user or member. Can optionally specify to resolve nicknames.
