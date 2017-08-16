@@ -1,71 +1,105 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
-    public class DiscordColor
+    /// <summary>
+    /// Represents a color used in a discord embed.
+    /// </summary>
+    public struct DiscordColor
     {
-        internal int _color;
+        private static readonly char[] HexAlphabet = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-        public int Color {
-            get { return _color; }
-            set { _color = value; }
-        }
+        /// <summary>
+        /// Gets the integer representation of this color.
+        /// </summary>
+        public int Value { get; }
 
-        public int R
-        {
-            get { return (_color >> 16); }
-            set { _color = (value << 16) | (G << 8) | (B << 0); }
-        }
+        /// <summary>
+        /// Gets the red component of this color as an 8-bit integer.
+        /// </summary>
+        public int R => (this.Value >> 16) & 0xFF;
 
-        public int G
-        {
-            get { return (_color >> 8); }
-            set { _color = (R << 16) | (value << 8) | (B << 0); }
-        }
+        /// <summary>
+        /// Gets the green component of this color as an 8-bit integer.
+        /// </summary>
+        public int G => (this.Value >> 8) & 0xFF;
 
-        public int B
-        {
-            get { return (_color >> 0); }
-            set { _color = (R << 16) | (G << 8) | (value << 0); }
-        }
+        /// <summary>
+        /// Gets the blue component of this color as an 8-bit integer.
+        /// </summary>
+        public int B => this.Value & 0xFF;
 
-        public DiscordColor()
-        {
-            _color = 0;
-        }
-
+        /// <summary>
+        /// Creates a new color with specified value.
+        /// </summary>
+        /// <param name="color">Value of the color.</param>
         public DiscordColor(int color)
         {
-            _color = color;
+            this.Value = color;
         }
 
-        public DiscordColor(int r, int g, int b)
+        /// <summary>
+        /// Creates a new color with specified values for red, green, and blue components.
+        /// </summary>
+        /// <param name="r">Value of the red component.</param>
+        /// <param name="g">Value of the green component.</param>
+        /// <param name="b">Value of the blue component.</param>
+        public DiscordColor(byte r, byte g, byte b)
         {
-            if (r > 255 || g > 255 || b > 255 || r < 0 || g < 0 || b < 0)
-                throw new ArgumentException("R, G and B should each be under 255 and above -1!");
-            _color = (r << 16) | (g << 8) | b;
+            this.Value = r << 16 | g << 8 | b;
         }
 
+        /// <summary>
+        /// Creates a new color with specified values for red, green, and blue components.
+        /// </summary>
+        /// <param name="r">Value of the red component.</param>
+        /// <param name="g">Value of the green component.</param>
+        /// <param name="b">Value of the blue component.</param>
+        public DiscordColor(float r, float g, float b)
+        {
+            if (r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1)
+                throw new ArgumentOutOfRangeException("Each component must be between 0.0 and 1.0 inclusive.");
+
+            var rb = (byte)(r * 255);
+            var gb = (byte)(g * 255);
+            var bb = (byte)(b * 255);
+
+            this.Value = rb << 16 | gb << 8 | bb;
+        }
+
+        /// <summary>
+        /// Creates a new color from specified string representation.
+        /// </summary>
+        /// <param name="color">String representation of the color. Must be 6 hexadecimal characters, optionally with # prefix.</param>
         public DiscordColor(string color)
         {
-            if (color == null)
-                throw new ArgumentException("Null values are not allowed!");
-            string TrimmedColor = color.Trim('#');
-            _color = int.Parse(TrimmedColor, System.Globalization.NumberStyles.HexNumber);
+            if (string.IsNullOrWhiteSpace(color))
+                throw new ArgumentNullException(nameof(color), "Null or empty values are not allowed!");
+
+            if (color.Length != 6 && color.Length != 7)
+                throw new ArgumentException(nameof(color), "Color must be 6 or 7 characters in length.");
+
+            color = color.ToUpper();
+            if (color.Length == 7 && color[0] != '#')
+                throw new ArgumentException(nameof(color), "7-character colors must begin with #.");
+            else if (color.Length == 7)
+                color = color.Substring(1);
+
+            if (color.ToCharArray().Any(xc => !HexAlphabet.Contains(xc)))
+                throw new ArgumentException(nameof(color), "Colors must consist of hexadecimal characters only.");
+
+            this.Value = int.Parse(color, NumberStyles.HexNumber);
         }
 
-        public int ToInt()
-        {
-            return _color;
-        }
-
+        /// <summary>
+        /// Gets a string representation of this color.
+        /// </summary>
+        /// <returns>String representation of this color.</returns>
         public override string ToString()
         {
-            return Convert.ToString(_color, 16);
+            return $"#{this.Value.ToString("X6")}";
         }
     }
 }

@@ -520,11 +520,10 @@ namespace DSharpPlus.CommandsNext
         public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
             var toplevel = this.TopLevelCommands.Values.Distinct();
-            var embed = new DiscordEmbed()
+            var embed = new DiscordEmbedBuilder()
             {
-                Color = ctx.Config.HelpColor,
-                Title = "Help",
-                Fields = new List<DiscordEmbedField>()
+                Color = ctx.Config.HelpEmbedColor,
+                Title = "Help"
             };
 
             if (command != null && command.Any())
@@ -569,12 +568,7 @@ namespace DSharpPlus.CommandsNext
                     embed.Description = string.Concat(embed.Description, "\n\nThis group can be executed as a standalone command.");
 
                 if (cmd.Aliases != null && cmd.Aliases.Any())
-                    embed.Fields.Add(new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Aliases",
-                        Value = string.Join(", ", cmd.Aliases.Select(xs => string.Concat("`", xs, "`")))
-                    });
+                    embed.AddField("Aliases", string.Join(", ", cmd.Aliases.Select(xs => string.Concat("`", xs, "`"))), false);
 
                 if (cmd.Arguments != null && cmd.Arguments.Any())
                 {
@@ -609,12 +603,7 @@ namespace DSharpPlus.CommandsNext
                     }
                     args = sb.ToString();
 
-                    embed.Fields.Add(new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Arguments",
-                        Value = args
-                    });
+                    embed.AddField("Arguments", args, false);
                 }
 
                 if (cmd is CommandGroup gx)
@@ -638,12 +627,7 @@ namespace DSharpPlus.CommandsNext
                     }
 
                     if (scs.Any())
-                        embed.Fields.Add(new DiscordEmbedField
-                        {
-                            Inline = false,
-                            Name = "Subcommands",
-                            Value = string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
-                        });
+                        embed.AddField("Subcommands", string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`"))), false);
                 }
             }
             else
@@ -668,15 +652,10 @@ namespace DSharpPlus.CommandsNext
 
                 embed.Description = "Listing all top-level commands and groups. Specify a command to see more information.";
                 if (scs.Any())
-                    embed.Fields.Add(new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Commands",
-                        Value = string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
-                    });
+                    embed.AddField("Commands", string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`"))), false);
             }
 
-            await ctx.RespondAsync("", embed: embed);
+            await ctx.RespondAsync("", embed: embed.Build());
         }
         #endregion
 

@@ -1,26 +1,31 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    /// Represents a video inside an embed.
     /// </summary>
-    public class DiscordEmbedVideo
+    public sealed class DiscordEmbedVideo
     {
         /// <summary>
-        /// Source url of the video
+        /// Gets the source url of the video.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; internal set; }
+        public Uri Url { get; internal set; }
+
         /// <summary>
-        /// Height of video
+        /// Gets the height of the video.
         /// </summary>
         [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
         public int Height { get; internal set; }
+
         /// <summary>
-        /// Width of video
+        /// Gets the width of the video.
         /// </summary>
         [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
         public int Width { get; internal set; }
+
+        internal DiscordEmbedVideo() { }
     }
 }

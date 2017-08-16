@@ -5,83 +5,95 @@ using Newtonsoft.Json;
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    /// Represents a discord embed.
     /// </summary>
-    public class DiscordEmbed
+    public sealed class DiscordEmbed
     {
-        public DiscordEmbed()
+        internal DiscordEmbed()
         {
-            Fields = new List<DiscordEmbedField>();
+            this._color_lazy = new Lazy<DiscordColor>(() => new DiscordColor(this._color));
         }
+
         /// <summary>
-        /// Title of the embed
+        /// Gets the embed's title.
         /// </summary>
         [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
-        public string Title { get; set; }
+        public string Title { get; internal set; }
+
         /// <summary>
-        /// Type of the embed ("rich" for webhook embeds)
+        /// Gets the embed's type.
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public string Type { get; internal set; }
+
         /// <summary>
-        /// Description of the embed
+        /// Gets the embed's description.
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string Description { get; set; }
+        public string Description { get; internal set; }
+
         /// <summary>
-        /// Url of the embed
+        /// Gets the embed's url.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; set; }
+        public Uri Url { get; internal set; }
+
         /// <summary>
-        /// Timestamp of the embed content
+        /// Gets the embed's timestamp.
         /// </summary>
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset? Timestamp { get; set; }
-        /// <summary>
-        /// Color code of the embed
-        /// </summary>
-        [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-        internal int _color { get; set; }
+        public DateTimeOffset? Timestamp { get; internal set; }
 
-        public DiscordColor Color {
-            get { return new DiscordColor(_color); }
-            set { _color = value._color; }
-        }
         /// <summary>
-        /// Footer information
+        /// Gets the embed's color.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordColor Color => this._color_lazy.Value;
+        [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
+        internal int _color;
+        [JsonIgnore]
+        private Lazy<DiscordColor> _color_lazy;
+
+        /// <summary>
+        /// Gets the embed's footer.
         /// </summary>
         [JsonProperty("footer", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbedFooter Footer { get; set; }
+        public DiscordEmbedFooter Footer { get; internal set; }
+
         /// <summary>
-        /// Image information
+        /// Gets the embed's image.
         /// </summary>
         [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbedImage Image { get; set; }
+        public DiscordEmbedImage Image { get; internal set; }
+
         /// <summary>
-        /// Thumbnail information
+        /// Gets the embed's thumbnail.
         /// </summary>
         [JsonProperty("thumbnail", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbedThumbnail Thumbnail { get; set; }
+        public DiscordEmbedThumbnail Thumbnail { get; internal set; }
+
         /// <summary>
-        /// Video information
+        /// Gets the embed's video.
         /// </summary>
         [JsonProperty("video", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbedVideo Video { get; internal set; }
+
         /// <summary>
-        /// Provider information
+        /// Gets the embed's provider.
         /// </summary>
         [JsonProperty("provider", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbedProvider Provider { get; internal set; }
+
         /// <summary>
-        /// Author information
+        /// Gets the embed's author.
         /// </summary>
         [JsonProperty("author", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbedAuthor Author { get; set; }
+        public DiscordEmbedAuthor Author { get; internal set; }
+
         /// <summary>
-        /// Fields information
+        /// Gets the embed's fields.
         /// </summary>
         [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
-        public List<DiscordEmbedField> Fields { get; set; }
+        public IReadOnlyCollection<DiscordEmbedField> Fields { get; internal set; }
     }
 }

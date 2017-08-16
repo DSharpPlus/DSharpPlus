@@ -1,214 +1,471 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus
 {
-    public class DiscordEmbedBuilder
+    /// <summary>
+    /// Constructs embeds.
+    /// </summary>
+    public sealed class DiscordEmbedBuilder
     {
-        DiscordEmbed embed;
-
-        public DiscordEmbedBuilder()
-        {
-            embed = new DiscordEmbed();
-        }
-
-        public DiscordEmbedBuilder(DiscordEmbed original)
-        {
-            embed = original;
-        }
-
+        /// <summary>
+        /// Gets or sets the embed's title.
+        /// </summary>
         public string Title
         {
-            get => embed.Title;
+            get { return this._title; }
             set
             {
-                if (value?.Length > 256) throw new ArgumentException("Embed title only allows a max of 256 characters!");
-                embed.Title = value;
+                if (value != null && value.Length > 256)
+                    throw new ArgumentException("Title length cannot exceed 256 characters of length.", nameof(value));
+                this._title = value;
             }
         }
+        private string _title;
 
+        /// <summary>
+        /// Gets or sets the embed's description.
+        /// </summary>
         public string Description
         {
-            get => embed.Description;
+            get { return this._description; }
             set
             {
-                if (value?.Length > 2048) throw new ArgumentException("Embed description only allows a max of 2048 characters!");
-                embed.Description = value;
+                if (value != null && value.Length > 2048)
+                    throw new ArgumentException("Description length cannot exceed 2048 characters of length.", nameof(value));
+                this._description = value;
             }
         }
+        private string _description;
 
+        /// <summary>
+        /// Gets or sets the url for the embed's title.
+        /// </summary>
         public string Url
         {
-            get => embed.Url;
+            get { return this._url.ToString(); }
             set
             {
-                embed.Url = value;
+                if (value == null)
+                    this._url = null;
+                else
+                    this._url = new Uri(value);
             }
         }
+        private Uri _url;
 
+        /// <summary>
+        /// Gets or sets the embed's color.
+        /// </summary>
         public DiscordColor Color
         {
-            get => embed.Color;
+            get { return this._color; }
+            set { this._color = value; }
+        }
+        private DiscordColor _color;
+
+        /// <summary>
+        /// Gets or sets the embed's timestamp.
+        /// </summary>
+        public DateTimeOffset? Timestamp
+        {
+            get { return this._timestamp; }
+            set { this._timestamp = value; }
+        }
+        private DateTimeOffset? _timestamp;
+
+        /// <summary>
+        /// Gets or sets the embed's image url.
+        /// </summary>
+        public string ImageUrl
+        {
+            get { return this._image_uri.ToString(); }
             set
             {
-                embed.Color = value;
+                if (value == null)
+                    this._image_uri = null;
+                else
+                    this._image_uri = new Uri(null);
             }
         }
+        private Uri _image_uri;
 
-        public List<DiscordEmbedField> Fields
+        /// <summary>
+        /// Gets or sets the thumbnail's image url.
+        /// </summary>
+        public string ThumbnailUrl
         {
-            get => embed.Fields;
+            get { return this._thumbnail_uri.ToString(); }
             set
             {
-                if (Fields?.Count > 25)
-                    throw new ArgumentException("Embed only allows a maximum of 25 fields!");
-                embed.Fields = Fields;
+                if (value == null)
+                    this._thumbnail_uri = null;
+                else
+                    this._thumbnail_uri = new Uri(null);
             }
         }
+        private Uri _thumbnail_uri;
 
-        public DiscordEmbed GetEmbed()
+        /// <summary>
+        /// Gets the embed's author.
+        /// </summary>
+        public DiscordEmbedAuthor Author { get; internal set; }
+
+        /// <summary>
+        /// Gets the embed's footer.
+        /// </summary>
+        public DiscordEmbedFooter Footer { get; internal set; }
+
+        /// <summary>
+        /// Gets the embed's fields.
+        /// </summary>
+        public IReadOnlyList<DiscordEmbedField> Fields { get; }
+        public List<DiscordEmbedField> _fields;
+
+        /// <summary>
+        /// Constructs a new empty embed builder.
+        /// </summary>
+        public DiscordEmbedBuilder()
         {
-            return embed;
+            _fields = new List<DiscordEmbedField>();
+            this.Fields = new ReadOnlyCollection<DiscordEmbedField>(this._fields);
         }
 
-        public DiscordEmbedBuilder SetTitle(string title)
+        /// <summary>
+        /// Constructs a new embed builder using another embed as prototype.
+        /// </summary>
+        /// <param name="original">Embed to use as prototype.</param>
+        public DiscordEmbedBuilder(DiscordEmbed original)
         {
-            if (title?.Length > 256)
-                throw new ArgumentException("Embed title only allows a max of 256 characters!");
-            embed.Title = title ?? throw new ArgumentException("Null values are not allowed!");
+            this.Title = original.Title;
+            this.Description = original.Description;
+            this.Url = original.Url.ToString();
+            this.Color = original.Color;
+            this.Timestamp = original.Timestamp;
+
+            if (original.Author != null)
+                this.Author = new DiscordEmbedAuthor
+                {
+                    IconUrl = original.Author.IconUrl,
+                    Name = original.Author.Name,
+                    Url = original.Author.Url
+                };
+
+            if (original.Footer != null)
+                this.Footer = new DiscordEmbedFooter
+                {
+                    IconUrl = original.Footer.IconUrl,
+                    Text = original.Footer.Text
+                };
+
+            this._fields = original.Fields?.ToList() ?? new List<DiscordEmbedField>();
+            this.Fields = new ReadOnlyCollection<DiscordEmbedField>(this._fields);
+
+            while (this._fields.Count > 25)
+                this._fields.RemoveAt(this._fields.Count - 1);
+        }
+
+        /// <summary>
+        /// Sets the embed's title.
+        /// </summary>
+        /// <param name="title">Title to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithTitle(string title)
+        {
+            this.Title = title;
             return this;
         }
 
-        public DiscordEmbedBuilder SetDescription(string description)
+        /// <summary>
+        /// Sets the embed's description.
+        /// </summary>
+        /// <param name="description">Description to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithDescription(string description)
         {
-            if (description?.Length > 2048)
-                throw new ArgumentException("Embed description only allows a max of 2048 characters!");
-            embed.Description = description ?? throw new ArgumentException("Null values are not allowed!");
+            this.Description = description;
             return this;
         }
 
-        public DiscordEmbedBuilder SetAuthor(string name = "", string url = "", string iconurl = "")
+        /// <summary>
+        /// Sets the embed's title url.
+        /// </summary>
+        /// <param name="url">Title url to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithUrl(string url)
         {
-            embed.Author = new DiscordEmbedAuthor()
-            {
-                IconUrl = iconurl ?? throw new ArgumentException("Null values are not allowed!"),
-                Name = name ?? throw new ArgumentException("Null values are not allowed!"),
-                Url = url ?? throw new ArgumentException("Null values are not allowed!")
-            };
+            this.Url = url;
             return this;
         }
 
-        public DiscordEmbedBuilder SetColor(DiscordColor color)
+        /// <summary>
+        /// Sets the embed's title url.
+        /// </summary>
+        /// <param name="url">Title url to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithUrl(Uri url)
         {
-            embed.Color = color;
+            this._url = url;
             return this;
         }
 
+        /// <summary>
+        /// Sets the embed's color.
+        /// </summary>
+        /// <param name="color">Embed color to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithColor(DiscordColor color)
+        {
+            this.Color = color;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the embed's timestamp.
+        /// </summary>
+        /// <param name="timestamp">Timestamp to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithTimestamp(DateTimeOffset? timestamp)
+        {
+            this.Timestamp = timestamp;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the embed's timestamp.
+        /// </summary>
+        /// <param name="timestamp">Timestamp to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithTimestamp(DateTime? timestamp)
+        {
+            if (timestamp == null)
+                this.Timestamp = null;
+            else
+                this.Timestamp = new DateTimeOffset(timestamp.Value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the embed's timestamp based on a snowflake.
+        /// </summary>
+        /// <param name="snowflake">Snowflake to calculate timestamp from.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithTimestamp(ulong snowflake)
+        {
+            this.Timestamp = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(snowflake >> 22);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the embed's image url.
+        /// </summary>
+        /// <param name="url">Image url to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithImageUrl(string url)
+        {
+            this.ImageUrl = url;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the embed's image url.
+        /// </summary>
+        /// <param name="url">Image url to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithImageUrl(Uri url)
+        {
+            this._image_uri = url;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the embed's thumbnail url.
+        /// </summary>
+        /// <param name="url">Thumbnail url to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithThumbnailUrl(string url)
+        {
+            this.ThumbnailUrl = url;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the embed's thumbnail url.
+        /// </summary>
+        /// <param name="url">Thumbnail url to set.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithThumbnailUrl(Uri url)
+        {
+            this._thumbnail_uri = url;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the embed's author.
+        /// </summary>
+        /// <param name="name">Author's name.</param>
+        /// <param name="url">Author's url.</param>
+        /// <param name="icon_url">Author icon's url.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithAuthor(string name = null, string url = null, string icon_url = null)
+        {
+            var _url = url != null ? new Uri(url) : null;
+            var _icon_url = icon_url != null ? new Uri(icon_url) : null;
+
+            if (name == null && _url == null && _icon_url == null)
+                this.Author = null;
+            else
+                this.Author = new DiscordEmbedAuthor
+                {
+                    Name = name,
+                    Url = _url,
+                    IconUrl = _icon_url
+                };
+            return this;
+        }
+
+        /* Disabled for the time being, cause ambiguous calls.
+         * /// <summary>
+         * /// Sets the embed's author.
+         * /// </summary>
+         * /// <param name="name">Author's name.</param>
+         * /// <param name="url">Author's url.</param>
+         * /// <param name="icon_url">Author icon's url.</param>
+         * /// <returns>This embed builder.</returns>
+         * public DiscordEmbedBuilder WithAuthor(string name = null, Uri url = null, Uri icon_url = null)
+         * {
+         *     if (name == null && url == null && icon_url == null)
+         *         this.Author = null;
+         *     else
+         *         this.Author = new DiscordEmbedAuthor
+         *         {
+         *             Name = name,
+         *             Url = url,
+         *             IconUrl = icon_url
+         *         };
+         *     return this;
+         * }
+         */
+
+        /// <summary>
+        /// Sets the embed's footer.
+        /// </summary>
+        /// <param name="text">Footer's text.</param>
+        /// <param name="icon_url">Footer icon's url.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithFooter(string text = null, string icon_url = null)
+        {
+            if (text != null && text.Length > 2048)
+                throw new ArgumentException("Footer text cannot exceed 2048 characters of length.");
+
+            var _icon_url = icon_url != null ? new Uri(icon_url) : null;
+
+            if (text == null && _icon_url == null)
+                this.Footer = null;
+            else
+                this.Footer = new DiscordEmbedFooter
+                {
+                    Text = text,
+                    IconUrl = _icon_url
+                };
+            return this;
+        }
+
+        /* Disabled for the time being, cause ambiguous calls.
+         * /// <summary>
+         * /// Sets the embed's footer.
+         * /// </summary>
+         * /// <param name="text">Footer's text.</param>
+         * /// <param name="icon_url">Footer icon's url.</param>
+         * /// <returns>This embed builder.</returns>
+         * public DiscordEmbedBuilder WithFooter(string text = null, Uri icon_url = null)
+         * {
+         *     if (text != null && text.Length > 2048)
+         *         throw new ArgumentException("Footer text cannot exceed 2048 characters of length.");
+         * 
+         *     if (text == null && icon_url == null)
+         *         this.Footer = null;
+         *     else
+         *         this.Footer = new DiscordEmbedFooter
+         *         {
+         *             Text = text,
+         *             IconUrl = icon_url
+         *         };
+         *     return this;
+         * }
+         */
+
+        /// <summary>
+        /// Adds a field to this embed.
+        /// </summary>
+        /// <param name="name">Name of the field to add.</param>
+        /// <param name="value">Value of the field to add.</param>
+        /// <param name="inline">Whether the field is to be inline or not.</param>
+        /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder AddField(string name, string value, bool inline = false)
         {
-            if (name?.Length > 256)
-                throw new ArgumentException("Embed Field Name only allows a max of 256 characters!");
-            if (value?.Length > 1024)
-                throw new ArgumentException("Embed Field Value only allows a max of 1024 characters!");
-            if (embed.Fields == null)
-                embed.Fields = new List<DiscordEmbedField>();
-            else if (embed.Fields.Count == 25)
-                throw new ArgumentException("Embed only allows a maximum of 25 fields!");
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException(nameof(value));
 
-            embed.Fields.Add(new DiscordEmbedField()
+            if (name.Length > 256)
+                throw new ArgumentException("Embed field name cannot exceet 256 characters of length.");
+            if (value.Length > 1024)
+                throw new ArgumentException("Embed field value cannot exceed 1024 characters of length.");
+
+            if (this._fields.Count >= 25)
+                throw new InvalidOperationException("Cannot add more than 25 fields.");
+
+            this._fields.Add(new DiscordEmbedField
             {
-                Name = name ?? throw new ArgumentException("Null values are not allowed!"),
-                Value = value ?? throw new ArgumentException("Null values are not allowed!"),
-                Inline = inline
+                Inline = inline,
+                Name = name,
+                Value = value
             });
-
             return this;
         }
 
-        public DiscordEmbedBuilder SetFields(List<DiscordEmbedField> fields)
-        {
-            if (fields == new List<DiscordEmbedField>() || fields?.Count < 1)
-                throw new ArgumentException("Please use ClearFields() instead of an empty list!");
-            if (fields?.Count > 25)
-                throw new ArgumentException("Embed only allows a maximum of 25 fields!");
-            embed.Fields = fields ?? throw new ArgumentException("Null values are not allowed!");
-            return this;
-        }
-
+        /// <summary>
+        /// Removes all fields from this embed.
+        /// </summary>
+        /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder ClearFields()
         {
-            embed.Fields = new List<DiscordEmbedField>();
+            this._fields.Clear();
             return this;
         }
 
-        public DiscordEmbedBuilder SetFooter(string text = "", string iconurl = "")
+        /// <summary>
+        /// Constructs a new embed from data supplied to this builder.
+        /// </summary>
+        /// <returns>New discord embed.</returns>
+        public DiscordEmbed Build()
         {
-            if (text?.Length > 2048)
-                throw new ArgumentException("Footer Text only allows a max of 2048 characters!");
-
-            embed.Footer = new DiscordEmbedFooter()
+            var embed = new DiscordEmbed
             {
-                IconUrl = iconurl ?? throw new ArgumentException("Null values are not allowed!"),
-                Text = text ?? throw new ArgumentException("Null values are not allowed!")
+                Title = this._title,
+                Description = this._description,
+                Url = this._url,
+                _color = this._color.Value,
+                Timestamp = this._timestamp,
+                Author = this.Author,
+                Footer = this.Footer
             };
-            return this;
-        }
 
-        public DiscordEmbedBuilder SetImage(string imageurl = "")
-        {
-            embed.Image = new DiscordEmbedImage()
-            {
-                Url = imageurl ?? throw new ArgumentException("Null values are not allowed!")
-            };
-            return this;
-        }
+            if (this._image_uri != null)
+                embed.Image = new DiscordEmbedImage { Url = this._image_uri };
+            if (this._thumbnail_uri != null)
+                embed.Thumbnail = new DiscordEmbedThumbnail { Url = this._thumbnail_uri };
 
-        public DiscordEmbedBuilder SetThumbnail(string imageurl = "")
-        {
-            embed.Thumbnail = new DiscordEmbedThumbnail()
-            {
-                Url = imageurl ?? throw new ArgumentException("Null values are not allowed!")
-            };
-            return this;
-        }
+            if (this._fields.Any())
+                embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(this._fields)); // copy the list, don't wrap it, prevents mutation
 
-        public DiscordEmbedBuilder SetTimestamp(DateTimeOffset timestamp)
-        {
-            embed.Timestamp = timestamp;
-            return this;
+            return embed;
         }
-
-        public DiscordEmbedBuilder SetTimestamp(DateTime timestamp)
-        {
-            embed.Timestamp = (DateTimeOffset)timestamp;
-            return this;
-        }
-
-        public DiscordEmbedBuilder SetTimestamp(ulong discordsnowflake)
-        {
-            embed.Timestamp = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(discordsnowflake >> 22);
-            return this;
-        }
-
-        public DiscordEmbedBuilder SetTimestamp(TimeSpan timespan, bool increase)
-        {
-            var dt = DateTimeOffset.Now;
-            if (increase)
-                dt = dt.Add(timespan);
-            else
-                dt = dt.Subtract(timespan);
-            embed.Timestamp = dt;
-            return this;
-        }
-
-        public DiscordEmbedBuilder SetUrl(string url = "")
-        {
-            embed.Url = url ?? throw new ArgumentException("Null values are not allowed!");
-            return this;
-        }
-
     }
 }

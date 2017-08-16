@@ -83,7 +83,7 @@ namespace DSharpPlus
         {
             get
             {
-                var role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color.ToInt() != 0);
+                var role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color.Value != 0);
                 if (role != null)
                     return role.Color;
                 return new DiscordColor();

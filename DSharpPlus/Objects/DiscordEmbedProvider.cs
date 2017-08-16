@@ -1,21 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    /// Represents an embed provider.
     /// </summary>
-    public class DiscordEmbedProvider
+    public sealed class DiscordEmbedProvider
     {
         /// <summary>
-        /// Name of the provider
+        /// Gets the name of the provider.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
+
         /// <summary>
-        /// Url of the provider
+        /// Gets the url of the provider.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; internal set; }
+        public Uri Url { get; internal set; }
+
+        internal DiscordEmbedProvider() { }
     }
 }

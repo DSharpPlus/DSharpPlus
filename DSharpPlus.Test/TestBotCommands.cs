@@ -30,11 +30,11 @@ namespace DSharpPlus.Test
         public async Task TestBuilder(CommandContext e)
         {
             var b = new DiscordEmbedBuilder();
-            b.SetTitle("testing builder").SetDescription("Just uhh.. testing the builder. yes.").SetColor(new DiscordColor(255, 0, 0));
+            b.WithTitle("testing builder").WithDescription("Just uhh.. testing the builder. yes.").WithColor(new DiscordColor(255, 0, 0));
             b.AddField("and a field", "hey. I'm just a field doing... fieldy things. yes. OH AND I'M INLINE (not that it matters)", true);
-            await e.RespondAsync("testing builder?", embed: b.GetEmbed());
-            var b2 = new DiscordEmbedBuilder().SetColor(e.Member.Color).SetTitle("Your color").SetDescription("<----------------");
-            await e.RespondAsync("Also testing member colors..", embed: b2.GetEmbed());
+            await e.RespondAsync("testing builder?", embed: b.Build());
+            var b2 = new DiscordEmbedBuilder().WithColor(e.Member.Color).WithTitle("Your color").WithDescription("<----------------");
+            await e.RespondAsync("Also testing member colors..", embed: b2.Build());
         }
 
         [Command("testnewshits")]
@@ -59,26 +59,22 @@ namespace DSharpPlus.Test
         [Command("namecolor")]
         public async Task NameColor(CommandContext e, DiscordMember m)
         {
-            DiscordEmbed embed = new DiscordEmbed()
+            var embed = new DiscordEmbedBuilder()
             {
                 Color = m.Color,
                 Title = "Color on the left m8"
             };
-            await e.RespondAsync("", embed: embed);
+            await e.RespondAsync("", embed: embed.Build());
         }
 
         [Command("uploadembed")]
         public async Task UplEm(CommandContext e)
         {
-            await e.Channel.SendFileAsync(new FileStream("file.png", FileMode.Open), "file.png", "test upload file to embed", false, new DiscordEmbed()
-            {
-                Title = "lil test",
-                Image = new DiscordEmbedImage()
-                {
-                    Url = "attachment://file.png"
-                },
-                Timestamp = DateTime.Now
-            });
+            await e.Channel.SendFileAsync(new FileStream("file.png", FileMode.Open), "file.png", "test upload file to embed", false, new DiscordEmbedBuilder()
+                .WithTitle("lil test")
+                .WithImageUrl("attachment://file.png")
+                .WithTimestamp(DateTime.Now)
+                .Build());
         }
 
         [Command("test")]
@@ -126,11 +122,10 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 new Page()
                 {
                     Content = "test 3",
-                    Embed = new DiscordEmbed()
-                    {
-                        Title = "yes!",
-                        Description = "this has embeds!!"
-                    }
+                    Embed = new DiscordEmbedBuilder()
+                        .WithTitle("yes!")
+                        .WithDescription("this has embeds!!")
+                        .Build()
                 },
                 new Page()
                 {
@@ -162,11 +157,10 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 new Page()
                 {
                     Content = "test 3",
-                    Embed = new DiscordEmbed()
-                    {
-                        Title = "yes!",
-                        Description = "this has embeds!!"
-                    }
+                    Embed = new DiscordEmbedBuilder()
+                        .WithTitle("yes!")
+                        .WithDescription("this has embeds!!")
+                        .Build()
                 },
                 new Page()
                 {
@@ -234,77 +228,39 @@ Serverowner: {e.Guild.Owner.DisplayName}
             var roles = e.Guild.Roles.Select(xr => xr.Mention);
             var overs = e.Channel.PermissionOverwrites.Select(xo => string.Concat("Principal: ", xo.Id, " (", xo.Type, "), Allow: ", (ulong)xo.Allow, "; Deny: ", (ulong)xo.Deny));
 
-            var embed = new DiscordEmbed
+            var embed = new DiscordEmbedBuilder
             {
                 Title = "Guild info",
                 Description = "ye boiii!",
-                Color = new DiscordColor("#007FFF"),
-                Fields = new List<DiscordEmbedField>
-                {
-                    new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Roles",
-                        Value = string.Join("\n", roles)
-                    },
-                    new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = string.Concat("Overrides for ", e.Channel.Mention),
-                        Value = string.Join("\n", overs)
-                    }
-                }
+                Color = new DiscordColor("#007FFF")
             };
 
-            await e.Message.RespondAsync("", embed: embed);
+            embed.AddField("Roles", string.Join("\n", roles), false);
+            embed.AddField(string.Concat("Overrides for ", e.Channel.Mention), string.Join("\n", overs), false);
+
+            await e.Message.RespondAsync("", embed: embed.Build());
         }
 
         [Command("embed")]
         public async Task Embed(CommandContext e)
         {
-            List<DiscordEmbedField> fields = new List<DiscordEmbedField>
-            {
-                new DiscordEmbedField()
-                {
-                    Name = "This is a field",
-                    Value = "it works :p",
-                    Inline = false
-                },
-                new DiscordEmbedField()
-                {
-                    Name = "Multiple fields",
-                    Value = "cool",
-                    Inline = false
-                }
-            };
-
-            DiscordEmbed embed = new DiscordEmbed
+            var embed = new DiscordEmbedBuilder
             {
                 Title = "Testing embed",
                 Description = "It works!",
                 Url = "https://github.com/NaamloosDT/DSharpPlus",
                 Color = new DiscordColor(8257469),
-                Fields = fields,
-                Author = new DiscordEmbedAuthor()
-                {
-                    Name = "DSharpPlus team",
-                    IconUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                    Url = "https://github.com/NaamloosDT/DSharpPlus"
-                },
-                Footer = new DiscordEmbedFooter()
-                {
-                    Text = "I am a footer"
-                },
-                Image = new DiscordEmbedImage()
-                {
-                    Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                },
-                Thumbnail = new DiscordEmbedThumbnail()
-                {
-                    Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                }
+                ImageUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                ThumbnailUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
             };
-            await e.Message.RespondAsync("testing embed:", embed: embed);
+
+            embed.WithAuthor("DSharpPlus team", "https://github.com/NaamloosDT/DSharpPlus", "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png")
+                .WithFooter("I am a footer");
+
+            embed.AddField("This is a field", "it works :p");
+            embed.AddField("Multiple fields", "cool");
+
+            await e.Message.RespondAsync("testing embed:", embed: embed.Build());
         }
 
         [Command("appinfo")]
@@ -318,19 +274,18 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 .Replace(@"~", @"\~")
                 .Replace(@"`", @"\`");
 
-            var embed = new DiscordEmbed
+            var embed = new DiscordEmbedBuilder
             {
                 Title = "Application info",
-                Color = new DiscordColor("#007FFF"),
-                Fields = new List<DiscordEmbedField>()
+                Color = new DiscordColor("#007FFF")
             };
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Name", Value = app.Name });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Description", Value = string.Concat("```\n", app.Description, "\n```") });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "ID", Value = app.Id.ToString() });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Created", Value = app.CreationDate.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Owner", Value = $"{usrn}#{app.Owner.Discriminator} ({app.Owner.Id})" });
+            embed.AddField("Name", app.Name, true);
+            embed.AddField("Description", string.Concat("```\n", app.Description, "\n```"), true);
+            embed.AddField("ID", app.Id.ToString(), true);
+            embed.AddField("Created", app.CreationDate.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss"), true);
+            embed.AddField("Owner", $"{usrn}#{app.Owner.Discriminator} ({app.Owner.Id})", true);
 
-            await e.Message.RespondAsync("", embed: embed);
+            await e.Message.RespondAsync("", embed: embed.Build());
         }
 
         [Command("modifyme")]

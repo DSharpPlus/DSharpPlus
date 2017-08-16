@@ -1,26 +1,31 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    /// Represents a footer in an embed.
     /// </summary>
-    public class DiscordEmbedFooter
+    public sealed class DiscordEmbedFooter
     {
         /// <summary>
-        /// Footer text
+        /// Gets the footer's text.
         /// </summary>
         [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
-        public string Text { get; set; }
+        public string Text { get; internal set; }
+
         /// <summary>
-        /// Url of the footer icon (https only)
+        /// Gets the url of the footer's icon.
         /// </summary>
         [JsonProperty("icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public string IconUrl { get; set; }
+        public Uri IconUrl { get; internal set; }
+
         /// <summary>
-        /// A proxied url of the footer icon
+        /// Gets the proxied url of the footer's icon.
         /// </summary>
         [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public string ProxyIconUrl { get; internal set; }
+        public Uri ProxyIconUrl { get; internal set; }
+
+        internal DiscordEmbedFooter() { }
     }
 }

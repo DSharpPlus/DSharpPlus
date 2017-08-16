@@ -1743,7 +1743,7 @@ namespace DSharpPlus
             var role_new = guild.Roles.FirstOrDefault(xr => xr.Id == role.Id);
             var role_old = new DiscordRole
             {
-                Color = role_new.Color,
+                _color = role_new._color,
                 Discord = this,
                 Hoist = role_new.Hoist,
                 Id = role_new.Id,
@@ -1754,7 +1754,7 @@ namespace DSharpPlus
                 Position = role_new.Position
             };
 
-            role_new.Color = role.Color;
+            role_new._color = role._color;
             role_new.Hoist = role.Hoist;
             role_new.Managed = role.Managed;
             role_new.Mentionable = role.Mentionable;

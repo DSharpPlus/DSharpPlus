@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -11,15 +10,21 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the version of the library
         /// </summary>
-        public static Version LibraryVersion { get; private set; }
         private static string VersionHeader { get; set; }
 
         static Utils()
         {
-            var a = typeof(Utils).GetTypeInfo().Assembly;
-            var n = a.GetName();
-            LibraryVersion = n.Version;
-            VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, ", n.Version.ToString(2) , ")");
+            var a = typeof(DiscordClient).GetTypeInfo().Assembly;
+
+            var vs = "";
+            var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (iv != null)
+                vs = iv.InformationalVersion;
+
+            var v = a.GetName().Version;
+            vs = v.ToString(3);
+
+            VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, ", vs, ")");
         }
 
         internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)

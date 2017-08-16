@@ -15,39 +15,43 @@ namespace DSharpPlus.CommandsNext
     public sealed class CommandsNextConfiguration
     {
         /// <summary>
-        /// Gets or sets the string prefix used for commands. By default has no value.
+        /// Sets the string prefix used for commands. By default has no value.
         /// </summary>
         public string StringPrefix { internal get; set; } = null;
 
         /// <summary>
-        /// Gets or sets the custom prefix predicate used for commands. By default is not specified.
+        /// Sets the custom prefix predicate used for commands. By default is not specified.
         /// </summary>
         public CustomPrefixPredicate CustomPrefixPredicate { internal get; set; } = null;
 
         /// <summary>
-        /// Gets or sets whether to allow bot's mention as command prefix. Defaults to true.
+        /// Sets whether to allow bot's mention as command prefix. Defaults to true.
         /// </summary>
         public bool EnableMentionPrefix { internal get; set; } = true;
 
         /// <summary>
-        /// Gets or sets whether the bot should only respond to messages from its own account. This is used for selfbots. Defaults to false.
+        /// Sets whether the bot should only respond to messages from its own account. This is used for selfbots. Defaults to false.
         /// </summary>
         public bool SelfBot { internal get; set; } = false;
 
         /// <summary>
-        /// Gets or sets whether the commands should be case-sensitive. Defaults to true.
+        /// Sets whether the commands should be case-sensitive. Defaults to true.
         /// </summary>
         public bool CaseSensitive { internal get; set; } = true;
 
         /// <summary>
-        /// Gets or sets whether to enable default help command. Disable this if you want to make your own help command. Defaults to true.
+        /// Sets whether to enable default help command. Disable this if you want to make your own help command. Defaults to true.
         /// </summary>
         public bool EnableDefaultHelp { internal get; set; } = true;
 
-        public DiscordColor HelpColor { internal get; set; } = new DiscordColor("#007FFF");
+        // naam pls :^)
+        /// <summary>
+        /// Sets the color of the default help embed.
+        /// </summary>
+        public DiscordColor HelpEmbedColor { internal get; set; } = new DiscordColor(0x007FFF);
 
         /// <summary>
-        /// Gets or sets whether to enable commands via direct messages. Defaults to true.
+        /// Sets whether to enable commands via direct messages. Defaults to true.
         /// </summary>
         public bool EnableDms { internal get; set; } = true;
 
