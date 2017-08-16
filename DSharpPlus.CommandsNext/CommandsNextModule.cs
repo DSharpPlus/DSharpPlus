@@ -397,7 +397,10 @@ namespace DSharpPlus.CommandsNext
 
             commands = new ReadOnlyCollection<Command>(cmds);
             if (mdl != null)
+            {
                 mdl.Children = commands;
+                commands = new ReadOnlyCollection<Command>(new List<Command>());
+            }
             result = mdl;
         }
 
