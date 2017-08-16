@@ -99,7 +99,10 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a new, empty instance of a <see cref="Game"/>.
         /// </summary>
-        public Game() { }
+        public Game()
+        {
+            this.StreamType = GameStreamType.NoStream;
+        }
 
         /// <summary>
         /// Creates a new instance of a <see cref="Game"/> with specified name.
@@ -108,6 +111,7 @@ namespace DSharpPlus
         public Game(string name)
         {
             this.Name = name;
+            this.StreamType = GameStreamType.NoStream;
         }
 
         /// <summary>
@@ -126,7 +130,7 @@ namespace DSharpPlus
         /// Gets or sets the livesteam type.
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public GameStreamType? StreamType { get; set; }
+        public GameStreamType StreamType { get; set; }
     }
 
     /// <summary>
