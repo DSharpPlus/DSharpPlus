@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -59,12 +58,11 @@ namespace DSharpPlus.VoiceNext
         private static DateTime UnixEpoch { get { return _unix_epoch.Value; } }
         private static Lazy<DateTime> _unix_epoch;
 
-        private DiscordClient Discord { get; set; }
-        private DiscordGuild Guild { get; set; }
-        private DiscordChannel Channel { get; set; }
-        private ConcurrentDictionary<uint, ulong> SSRCMap { get; set; }
+        private DiscordClient Discord { get; }
+        private DiscordGuild Guild { get; }
+        private ConcurrentDictionary<uint, ulong> SSRCMap { get; }
 
-        private BaseUdpClient UdpClient { get; set; }
+        private BaseUdpClient UdpClient { get; }
         private BaseWebSocketClient VoiceWs { get; set; }
         private Task HeartbeatTask { get; set; }
         private int HeartbeatInterval { get; set; }
@@ -77,12 +75,12 @@ namespace DSharpPlus.VoiceNext
         private VoiceStateUpdatePayload StateData { get; set; }
         private bool Resume { get; set; }
 
-        private VoiceNextConfiguration Configuration { get; set; }
+        private VoiceNextConfiguration Configuration { get; }
         private OpusCodec Opus { get; set; }
         private SodiumCodec Sodium { get; set; }
         private RtpCodec Rtp { get; set; }
-        private Stopwatch Synchronizer { get; set; }
-        private TimeSpan UdpLatency { get; set; }
+        private Stopwatch Synchronizer { get; }
+        private TimeSpan UdpLatency { get; }
 
         private ushort Sequence { get; set; }
         private uint Timestamp { get; set; }
@@ -114,6 +112,11 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         public int Ping => Volatile.Read(ref this._ping);
         private int _ping = 0;
+
+        /// <summary>
+        /// Gets the channel this voice client is connected to.
+        /// </summary>
+        public DiscordChannel Channel { get; private set; }
 
         internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceNextConfiguration config, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
