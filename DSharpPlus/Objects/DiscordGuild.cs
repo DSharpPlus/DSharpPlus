@@ -206,14 +206,6 @@ namespace DSharpPlus
         private Lazy<DiscordMember> _current_member_lazy;
 
         /// <summary>
-        /// Gets the default channel for this guild.
-        /// </summary>
-        [JsonIgnore]
-        public DiscordChannel DefaultChannel => this._default_channel_lazy.Value;
-        [JsonIgnore]
-        private Lazy<DiscordChannel> _default_channel_lazy;
-
-        /// <summary>
         /// Gets the @everyone role for this guild.
         /// </summary>
         [JsonIgnore]
@@ -237,12 +229,6 @@ namespace DSharpPlus
             this._members_lazy = new Lazy<IReadOnlyList<DiscordMember>>(() => new ReadOnlyCollection<DiscordMember>(this._members));
 
             this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.FirstOrDefault(xm => xm.Id == this.Discord.CurrentUser.Id));
-            this._default_channel_lazy = new Lazy<DiscordChannel>(() =>
-            {
-                return this._channels.Where(xc => xc.Type == ChannelType.Text)
-                      .OrderBy(xc => xc.Position)
-                      .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.ReadMessages) == Permissions.ReadMessages);
-            });
         }
 
         #region Guild Methods
@@ -1132,6 +1118,17 @@ namespace DSharpPlus
             if (this.Discord._config.TokenType == TokenType.User)
                 return this.Discord._rest_client.InternalAcknowledgeGuildAsync(this.Id);
             throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
+        }
+
+        /// <summary>
+        /// Gets the default channel for this member.
+        /// </summary>
+        /// <returns>This member's default channel.</returns>
+        public DiscordChannel GetDefaultChannel()
+        {
+            return this._channels.Where(xc => xc.Type == ChannelType.Text)
+                .OrderBy(xc => xc.Position)
+                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.ReadMessages) == Permissions.ReadMessages);
         }
         #endregion
 
