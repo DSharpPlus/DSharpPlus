@@ -720,12 +720,14 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task ConnectAsync()
         {
-            var w = 1000;
+            var w = 7500;
             var i = 5;
             var s = false;
+            Exception cex = null;
 
             if (this._config.TokenType != TokenType.Bot)
                 this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}, booting", DateTime.Now);
 
             while (i-- > 0)
             {
@@ -743,15 +745,19 @@ namespace DSharpPlus
                 {
                     throw e;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    cex = ex;
+                    if (i <= 0) break;
+
+                    this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Connection attempt failed, retrying in {w / 1000}s", DateTime.Now);
                     await Task.Delay(w);
                     w *= 2;
                 }
             }
 
-            if (!s)
-                throw new Exception("Could not connect to Discord.");
+            if (!s && cex != null)
+                throw new Exception("Could not connect to Discord.", cex);
         }
 
         public Task ReconnectAsync(bool start_new_session = false)
@@ -766,8 +772,6 @@ namespace DSharpPlus
 
         internal async Task InternalConnectAsync()
         {
-            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}, booting", DateTime.Now);
-
             await InternalUpdateGatewayAsync();
 
             if (this._current_user == null)
