@@ -4,7 +4,8 @@ namespace DSharpPlus.VoiceNext.Codec
 {
     public sealed class RtpCodec
     {
-        private const byte RTP_TYPE = 0x80;
+        private const byte RTP_TYPE_NO_EXTENSION = 0x80;
+        private const byte RTP_TYPE_EXTENSION = 0x90;
         private const byte RTP_VERSION = 0x78;
 
         private const int OFFSET_SEQUENCE = 2;
@@ -18,7 +19,7 @@ namespace DSharpPlus.VoiceNext.Codec
         {
             byte[] header = new byte[SIZE_HEADER];
 
-            header[0] = RTP_TYPE;
+            header[0] = RTP_TYPE_NO_EXTENSION;
             header[1] = RTP_VERSION;
 
             var flip = BitConverter.IsLittleEndian;
@@ -40,16 +41,17 @@ namespace DSharpPlus.VoiceNext.Codec
             return header;
         }
 
-        public void Decode(byte[] header, out ushort sequence, out uint timestamp, out uint ssrc)
+        public void Decode(byte[] header, out ushort sequence, out uint timestamp, out uint ssrc, out bool has_extension)
         {
             if (header.Length != SIZE_HEADER)
                 throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SIZE_HEADER, ")"));
 
-            if (header[0] != RTP_TYPE || header[1] != RTP_VERSION)
+            if ((header[0] != RTP_TYPE_NO_EXTENSION && header[0] != RTP_TYPE_EXTENSION) || header[1] != RTP_VERSION)
                 throw new ArgumentException(nameof(header), "Invalid header");
 
-            var flip = BitConverter.IsLittleEndian;
+            has_extension = header[0] == RTP_TYPE_EXTENSION;
 
+            var flip = BitConverter.IsLittleEndian;
             if (flip)
             {
                 Array.Reverse(header, 2, 2);
