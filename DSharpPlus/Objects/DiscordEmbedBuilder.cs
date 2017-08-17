@@ -467,5 +467,12 @@ namespace DSharpPlus
 
             return embed;
         }
+
+        /// <summary>
+        /// Implicitly converts this builder to an embed.
+        /// </summary>
+        /// <param name="builder">Builder to convert.</param>
+        public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder) =>
+            builder.Build();
     }
 }
