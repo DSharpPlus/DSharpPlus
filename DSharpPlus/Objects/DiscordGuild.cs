@@ -322,9 +322,6 @@ namespace DSharpPlus
         public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync() =>
             this.Discord._rest_client.InternalGetGuildInvitesAsync(this.Id);
 
-        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null) =>
-            this.Discord._rest_client.InternalCreateChannelInviteAsync(this.DefaultChannel.Id, max_age, max_uses, temporary, unique, reason);
-
         public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync() =>
             this.Discord._rest_client.InternalGetGuildWebhooksAsync(this.Id);
 
