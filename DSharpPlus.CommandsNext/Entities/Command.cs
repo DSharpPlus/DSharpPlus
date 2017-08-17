@@ -23,7 +23,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command's alises.
         /// </summary>
-        public IReadOnlyCollection<string> Aliases { get; internal set; }
+        public IReadOnlyList<string> Aliases { get; internal set; }
 
         /// <summary>
         /// Gets this command's arguments.
@@ -48,7 +48,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets a collection of pre-execution checks for this command.
         /// </summary>
-        public IReadOnlyCollection<CheckBaseAttribute> ExecutionChecks { get; internal set; }
+        public IReadOnlyList<CheckBaseAttribute> ExecutionChecks { get; internal set; }
 
         /// <summary>
         /// Gets this command's callable.

@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets all the commands that belong to this module.
         /// </summary>
-        public IReadOnlyCollection<Command> Children { get; internal set; }
+        public IReadOnlyList<Command> Children { get; internal set; }
 
         internal CommandGroup() : base() { }
 

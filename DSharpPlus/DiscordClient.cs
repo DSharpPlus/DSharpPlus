@@ -937,13 +937,13 @@ namespace DSharpPlus
         /// Gets a list of connections
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordConnection>> GetConnectionsAsync() => this._rest_client.InternalGetUsersConnectionsAsync();
+        public Task<IReadOnlyList<DiscordConnection>> GetConnectionsAsync() => this._rest_client.InternalGetUsersConnectionsAsync();
 
         /// <summary>
         /// Gets a list of regions
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordVoiceRegion>> ListRegionsAsync() => this._rest_client.InternalListVoiceRegionsAsync();
+        public Task<IReadOnlyList<DiscordVoiceRegion>> ListRegionsAsync() => this._rest_client.InternalListVoiceRegionsAsync();
 
         /// <summary>
         /// Gets a webhook

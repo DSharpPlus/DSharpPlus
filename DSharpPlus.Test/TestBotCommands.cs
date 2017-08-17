@@ -420,7 +420,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     await vnc.WaitForPlaybackFinishAsync();
                 }
 
-                var exc = (Exception)null;
+                Exception exc = null;
                 await ctx.Message.RespondAsync($"Playing `{snd}`");
                 await vnc.SendSpeakingAsync(true);
                 try
@@ -605,7 +605,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     return;
                 }
 
-                var exc = (Exception)null;
+                Exception exc = null;
                 await ctx.Message.RespondAsync($"Playing `{snd}`");
                 await vnc.SendSpeakingAsync(true);
                 try

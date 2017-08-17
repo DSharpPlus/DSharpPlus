@@ -14,7 +14,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets this group's aliases.
         /// </summary>
-        public IReadOnlyCollection<string> Aliases { get; private set; }
+        public IReadOnlyList<string> Aliases { get; private set; }
 
         /// <summary>
         /// Adds aliases to this command or group.

@@ -269,7 +269,7 @@ namespace DSharpPlus.CommandsNext
                     this.AddToCommandDictionary(xc);
         }
 
-        private void RegisterCommands(Type t, object inst, CommandGroup currentparent, out CommandGroup result, out IReadOnlyCollection<Command> commands)
+        private void RegisterCommands(Type t, object inst, CommandGroup currentparent, out CommandGroup result, out IReadOnlyList<Command> commands)
         {
             var ti = t.GetTypeInfo();
 
@@ -277,13 +277,13 @@ namespace DSharpPlus.CommandsNext
             var mdl_attrs = ti.GetCustomAttributes();
             var is_mdl = false;
             var mdl_name = "";
-            var mdl_aliases = (IReadOnlyCollection<string>)null;
+            IReadOnlyList<string> mdl_aliases = null;
             var mdl_hidden = false;
             var mdl_desc = "";
             var mdl_chks = new List<CheckBaseAttribute>();
-            var mdl_cbl = (Delegate)null;
-            var mdl_args = (IReadOnlyList<CommandArgument>)null;
-            var mdl = (CommandGroup)null;
+            Delegate mdl_cbl = null;
+            IReadOnlyList<CommandArgument> mdl_args = null;
+            CommandGroup mdl = null;
             foreach (var xa in mdl_attrs)
             {
                 switch (xa)
@@ -532,7 +532,7 @@ namespace DSharpPlus.CommandsNext
 
             if (command != null && command.Any())
             {
-                var cmd = (Command)null;
+                Command cmd = null;
                 var search_in = toplevel;
                 foreach (var c in command)
                 {

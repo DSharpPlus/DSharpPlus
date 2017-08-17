@@ -284,7 +284,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="emoji">Emoji to react with.</param>
         /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji) =>
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji) =>
             this.Discord._rest_client.InternalGetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString());
 
         /// <summary>

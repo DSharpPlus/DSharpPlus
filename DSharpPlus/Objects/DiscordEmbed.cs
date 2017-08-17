@@ -94,6 +94,6 @@ namespace DSharpPlus
         /// Gets the embed's fields.
         /// </summary>
         [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyCollection<DiscordEmbedField> Fields { get; internal set; }
+        public IReadOnlyList<DiscordEmbedField> Fields { get; internal set; }
     }
 }
