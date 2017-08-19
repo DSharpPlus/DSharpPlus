@@ -7,7 +7,7 @@ namespace DSharpPlus
     /// <summary>
     /// Represents a color used in a discord embed.
     /// </summary>
-    public struct DiscordColor
+    public partial struct DiscordColor
     {
         private static readonly char[] HexAlphabet = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 

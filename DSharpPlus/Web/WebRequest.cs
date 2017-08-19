@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using DSharpPlus.Web;
+﻿using System.Collections.Generic;
 
 namespace DSharpPlus
 {
