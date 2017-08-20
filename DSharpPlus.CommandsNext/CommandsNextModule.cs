@@ -230,7 +230,10 @@ namespace DSharpPlus.CommandsNext
             var types = assembly.ExportedTypes.Where(xt =>
             {
                 var xti = xt.GetTypeInfo();
-                return xti.IsClass && xti.IsPublic && !xti.IsNested && !xti.IsAbstract;
+                if (!xti.IsModuleCandidateType() || xti.IsNested)
+                    return false;
+
+                return xti.DeclaredMethods.Any(xmi => xmi.IsCommandCandidate(out _));
             });
             foreach (var xt in types)
                 this.RegisterCommands(xt);
@@ -255,8 +258,7 @@ namespace DSharpPlus.CommandsNext
             if (t == null)
                 throw new ArgumentNullException("Type cannot be null.", nameof(t));
 
-            var ti = t.GetTypeInfo();
-            if (!ti.IsClass || ti.IsAbstract)
+            if (!t.IsModuleCandidateType())
                 throw new ArgumentNullException("Type must be a class, which cannot be abstract or static.", nameof(t));
 
             RegisterCommands(t, CreateInstance(t), null, out var tres, out var tcmds);
@@ -386,7 +388,7 @@ namespace DSharpPlus.CommandsNext
 
             // candidate types
             var ts = ti.DeclaredNestedTypes
-                .Where(xt => xt.DeclaredConstructors.Any(xc => !xc.GetParameters().Any() || xc.IsPublic));
+                .Where(xt => xt.IsModuleCandidateType() && xt.DeclaredConstructors.Any(xc => xc.IsPublic));
             foreach (var xt in ts)
             {
                 this.RegisterCommands(xt.AsType(), this.CreateInstance(xt.AsType()), mdl, out var tmdl, out var tcmds);
@@ -407,15 +409,8 @@ namespace DSharpPlus.CommandsNext
 
         private void MakeCallable(MethodInfo mi, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
-            if (mi == null)
-                throw new MissingMethodException("Specified method does not exist.");
-
-            if (mi.IsStatic || !mi.IsPublic)
-                throw new InvalidOperationException("Specified method is invalid, static, or not public.");
-
-            var ps = mi.GetParameters();
-            if (!ps.Any() || ps.First().ParameterType != typeof(CommandContext) || mi.ReturnType != typeof(Task))
-                throw new InvalidOperationException("Specified method has an invalid signature.");
+            if (!mi.IsCommandCandidate(out var ps))
+                throw new MissingMethodException("Specified method is not suitable for a command.");
 
             var ei = Expression.Constant(inst);
 

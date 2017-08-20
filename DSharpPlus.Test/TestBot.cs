@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -80,16 +81,17 @@ namespace DSharpPlus.Test
                 EnableMentionPrefix = true,
                 CaseSensitive = true,
                 Dependencies = depco.Build(),
-                HelpEmbedColor = new DiscordColor("#ffccff")
+                HelpEmbedColor = DiscordColor.PhthaloBlue
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
             this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
-            this.CommandsNextService.RegisterCommands<TestBotCommands>();
-            this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
-            this.CommandsNextService.RegisterCommands<TestBotEvalCommands>();
-            this.CommandsNextService.RegisterCommands<TestBotDependentCommands>();
-            this.CommandsNextService.RegisterCommands<TestBotGroupInheritedChecksCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotEvalCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotDependentCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotGroupInheritedChecksCommands>();
+            this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
 
             // interactivity service
             this.InteractivityService = Discord.UseInteractivity();
