@@ -133,6 +133,9 @@ namespace DSharpPlus
 
         internal Task InternalCreateGuildBanAsync(ulong guild_id, ulong user_id, int delete_message_days, string reason)
         {
+            if (delete_message_days < 0 || delete_message_days > 7)
+                throw new ArgumentException("Delete message days must be a number between 0-7", nameof(delete_message_days));
+
             var pld = new RestGuildBanCreatePayload
             {
                 DeleteMessageDays = delete_message_days,
