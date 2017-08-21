@@ -17,3 +17,18 @@ You might need to restart Visual Studio for changes to take effect.
 
 If you find any problems in the MyGet versions of the packages, please follow the instructions in [Reporting issues](/articles/issues.html) 
 article.
+
+# But im running on linux!
+
+Even if your running on linux, you do have th follow the steps above and these. To get it working on linux simply do the following.
+### 1. Locate NuGet.config
+This file should be located in the .nuget/NuGet folder. This should be in your user folder. Once you find it, use commandline or copy the file to your computer to edit it. Inside the file should look something like this if its never been edited:
+![NuGet.config Example](https://i.imgur.com/qvbjJo8.png)
+
+### 2. Edit NuGet.config
+Now you simply want to add this anywhere between `<packageSources>`:
+
+`<add key="DSharpPlusNightly" value="https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json" protocolVersion="3" />`
+
+### 3. Finish Up
+Save the NuGet.config, Goto your project folder in terminal, run `dotnet restore`, then `dotnet build` and lastly `dotnet <PathToDLL>`
