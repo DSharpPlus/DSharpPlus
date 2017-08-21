@@ -307,24 +307,28 @@ namespace DSharpPlus.VoiceNext
                     // https://github.com/abalabahaha/eris/blob/master/lib/voice/VoiceConnection.js#L623
                     var doff = 0;
                     this.Rtp.Decode(header, out seq, out ts, out ssrc, out var has_ext);
-                    if (data[0] == 0xBE && data[1] == 0xDE) 
+                    if (has_ext)
                     {
-                        // RFC 5285, 4.2 One-Byte header
-                        // http://www.rfcreader.com/#rfc5285_line186
-
-                        var hlen = data[2] << 8 | data[3];
-                        var i = 4;
-                        for (; i < hlen + 4; i++)
+                        if (data[0] == 0xBE && data[1] == 0xDE)
                         {
-                            var b = data[i];
-                            // This is unused(?)
-                            //var id = (b >> 4) & 0x0F;
-                            var len = (b & 0x0F) + 1;
-                            i += len;
+                            // RFC 5285, 4.2 One-Byte header
+                            // http://www.rfcreader.com/#rfc5285_line186
+
+                            var hlen = data[2] << 8 | data[3];
+                            var i = 4;
+                            for (; i < hlen + 4; i++)
+                            {
+                                var b = data[i];
+                                // This is unused(?)
+                                //var id = (b >> 4) & 0x0F;
+                                var len = (b & 0x0F) + 1;
+                                i += len;
+                            }
+                            while (data[i] == 0)
+                                i++;
+                            doff = i;
                         }
-                        while (data[i] == 0)
-                            i++;
-                        doff = i;
+                        // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
                     }
 
                     data = this.Opus.Decode(data, doff, data.Length - doff);
