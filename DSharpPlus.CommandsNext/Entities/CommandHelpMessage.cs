@@ -8,12 +8,12 @@
         /// <summary>
         /// Gets the contents of the help message.
         /// </summary>
-        internal string Content { get; }
+        public string Content { get; }
 
         /// <summary>
         /// Gets the embed attached to the help message.
         /// </summary>
-        internal DiscordEmbed Embed { get; }
+        public DiscordEmbed Embed { get; }
 
         /// <summary>
         /// Creates a new instance of a help message.
