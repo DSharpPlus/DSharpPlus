@@ -33,8 +33,12 @@ namespace DSharpPlus.Test
             b.WithTitle("testing builder").WithDescription("Just uhh.. testing the builder. yes.").WithColor(new DiscordColor(255, 0, 0));
             b.AddField("and a field", "hey. I'm just a field doing... fieldy things. yes. OH AND I'M INLINE (not that it matters)", true);
             await e.RespondAsync("testing builder?", embed: b.Build());
+
             var b2 = new DiscordEmbedBuilder().WithColor(e.Member.Color).WithTitle("Your color").WithDescription("<----------------");
             await e.RespondAsync("Also testing member colors..", embed: b2.Build());
+
+            var b3 = new DiscordEmbedBuilder(b2);
+            await e.RespondAsync("Reconstructed embed", embed: b3);
         }
 
         [Command("testnewshits")]

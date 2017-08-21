@@ -143,7 +143,7 @@ namespace DSharpPlus
         {
             this.Title = original.Title;
             this.Description = original.Description;
-            this.Url = original.Url.ToString();
+            this.Url = original.Url?.ToString();
             this.Color = original.Color;
             this.Timestamp = original.Timestamp;
 
