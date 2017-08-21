@@ -223,7 +223,12 @@ namespace DSharpPlus.CommandsNext
             UserFriendlyTypeNames[typeof(T)] = value;
         }
 
-        internal static string ToUserFriendlyName(this Type t)
+        /// <summary>
+        /// Converts a type into user-friendly type name.
+        /// </summary>
+        /// <param name="t">Type to convert.</param>
+        /// <returns>User-friendly type name.</returns>
+        public static string ToUserFriendlyName(this Type t)
         {
             if (UserFriendlyTypeNames.ContainsKey(t))
                 return UserFriendlyTypeNames[t];
