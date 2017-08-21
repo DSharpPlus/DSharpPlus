@@ -4,9 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Exceptions;
 
 namespace DSharpPlus.CommandsNext
@@ -44,7 +44,8 @@ namespace DSharpPlus.CommandsNext
             await this._error.InvokeAsync(e).ConfigureAwait(false);
         #endregion
 
-        private CommandsNextConfiguration Config { get; set; }
+        private CommandsNextConfiguration Config { get; }
+        private Type HelpFormatterType { get; set; } = typeof(DefaultHelpFormatter);
         private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroupAsync";
 
         /// <summary>
@@ -52,11 +53,20 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public DependencyCollection Dependencies => this.Config.Dependencies;
 
-        public CommandsNextModule(CommandsNextConfiguration cfg)
+        internal CommandsNextModule(CommandsNextConfiguration cfg)
         {
             this.Config = cfg;
             this.TopLevelCommands = new Dictionary<string, Command>();
             this._registered_commands_lazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
+        }
+
+        /// <summary>
+        /// Sets the help formatter to use with the default help command.
+        /// </summary>
+        /// <typeparam name="T">Type of the formatter to use.</typeparam>
+        public void SetHelpFormatter<T>() where T : class, IHelpFormatter, new()
+        {
+            this.HelpFormatterType = typeof(T);
         }
 
         #region DiscordClient Registration
@@ -121,6 +131,10 @@ namespace DSharpPlus.CommandsNext
                             break;
                     }
                 }
+
+                if (this.Config.DefaultHelpChecks != null && this.Config.DefaultHelpChecks.Any())
+                    cbas.AddRange(this.Config.DefaultHelpChecks);
+
                 cmd.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(cbas);
                 cmd.Arguments = args;
                 cmd.Callable = cbl;
@@ -519,12 +533,8 @@ namespace DSharpPlus.CommandsNext
         public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
             var toplevel = this.TopLevelCommands.Values.Distinct();
-            var embed = new DiscordEmbedBuilder()
-            {
-                Color = ctx.Config.HelpEmbedColor,
-                Title = "Help"
-            };
-
+            var helpbuilder = Activator.CreateInstance(this.HelpFormatterType) as IHelpFormatter;
+            
             if (command != null && command.Any())
             {
                 Command cmd = null;
@@ -561,49 +571,16 @@ namespace DSharpPlus.CommandsNext
                 if (cmd == null)
                     throw new CommandNotFoundException("Specified command was not found!", string.Join(" ", command));
 
-                embed.Description = string.Concat("`", cmd.QualifiedName, "`: ", string.IsNullOrWhiteSpace(cmd.Description) ? "No description provided." : cmd.Description);
+                helpbuilder.WithCommandName(cmd.Name).WithDescription(cmd.Description);
 
                 if (cmd is CommandGroup g && g.Callable != null)
-                    embed.Description = string.Concat(embed.Description, "\n\nThis group can be executed as a standalone command.");
+                    helpbuilder.WithGroupExecutable();
 
                 if (cmd.Aliases != null && cmd.Aliases.Any())
-                    embed.AddField("Aliases", string.Join(", ", cmd.Aliases.Select(xs => string.Concat("`", xs, "`"))), false);
+                    helpbuilder.WithAliases(cmd.Aliases.OrderBy(xs => xs));
 
                 if (cmd.Arguments != null && cmd.Arguments.Any())
-                {
-                    var args = string.Empty;
-                    var sb = new StringBuilder();
-
-                    foreach (var arg in cmd.Arguments)
-                    {
-                        if (arg.IsOptional || arg.IsCatchAll)
-                            sb.Append("`[");
-                        else
-                            sb.Append("`<");
-
-                        sb.Append(arg.Name);
-
-                        if (arg.IsCatchAll)
-                            sb.Append("...");
-
-                        if (arg.IsOptional || arg.IsCatchAll)
-                            sb.Append("]: ");
-                        else
-                            sb.Append(">: ");
-
-                        sb.Append(arg.Type.ToUserFriendlyName()).Append("`: ");
-
-                        sb.Append(string.IsNullOrWhiteSpace(arg.Description) ? "No description provided." : arg.Description);
-
-                        if (arg.IsOptional)
-                            sb.Append(" Default value: ").Append(arg.DefaultValue);
-
-                        sb.AppendLine();
-                    }
-                    args = sb.ToString();
-
-                    embed.AddField("Arguments", args, false);
-                }
+                    helpbuilder.WithArguments(cmd.Arguments);
 
                 if (cmd is CommandGroup gx)
                 {
@@ -626,7 +603,7 @@ namespace DSharpPlus.CommandsNext
                     }
 
                     if (scs.Any())
-                        embed.AddField("Subcommands", string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`"))), false);
+                        helpbuilder.WithSubcommands(scs.OrderBy(xc => xc.QualifiedName));
                 }
             }
             else
@@ -649,12 +626,12 @@ namespace DSharpPlus.CommandsNext
                         scs.Add(sc);
                 }
 
-                embed.Description = "Listing all top-level commands and groups. Specify a command to see more information.";
                 if (scs.Any())
-                    embed.AddField("Commands", string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`"))), false);
+                    helpbuilder.WithSubcommands(scs.OrderBy(xc => xc.QualifiedName));
             }
 
-            await ctx.RespondAsync("", embed: embed.Build());
+            var hmsg = helpbuilder.Build();
+            await ctx.RespondAsync(hmsg.Content, embed: hmsg.Embed);
         }
         #endregion
 

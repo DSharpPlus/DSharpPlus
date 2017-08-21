@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Converters;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -44,11 +47,10 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public bool EnableDefaultHelp { internal get; set; } = true;
 
-        // naam pls :^)
         /// <summary>
-        /// Sets the color of the default help embed.
+        /// Sets the default pre-execution checks for the built-in help command. Only applicable if default help is enabled.
         /// </summary>
-        public DiscordColor HelpEmbedColor { internal get; set; } = new DiscordColor(0x007FFF);
+        public IEnumerable<CheckBaseAttribute> DefaultHelpChecks { internal get; set; } = null;
 
         /// <summary>
         /// Sets whether to enable commands via direct messages. Defaults to true.

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
@@ -81,7 +82,7 @@ namespace DSharpPlus.Test
                 EnableMentionPrefix = true,
                 CaseSensitive = true,
                 Dependencies = depco.Build(),
-                HelpEmbedColor = DiscordColor.PhthaloBlue
+                //DefaultHelpChecks = new List<CheckBaseAttribute>() { new RequireOwnerAttribute() }
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
@@ -92,6 +93,7 @@ namespace DSharpPlus.Test
             //this.CommandsNextService.RegisterCommands<TestBotDependentCommands>();
             //this.CommandsNextService.RegisterCommands<TestBotGroupInheritedChecksCommands>();
             this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
+            this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
 
             // interactivity service
             this.InteractivityService = Discord.UseInteractivity();
