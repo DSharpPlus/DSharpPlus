@@ -20,7 +20,7 @@ article.
 
 # But im running on linux!
 
-Even if you're running on linux, you will have to follow the following steps as well as those previously mentioned.
+Even if your running on linux, you will have to follow the following steps as well as those previously mentioned.
 
 ### 1. Locate NuGet.config
 The file should be located in the .nuget/NuGet folder, located in your user folder. Once you find it, use a commandline text editor or copy the file to your computer to edit it. Inside the file should look something like this if its never been edited:
