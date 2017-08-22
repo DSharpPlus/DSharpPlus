@@ -18,18 +18,23 @@ You might need to restart Visual Studio for changes to take effect.
 If you find any problems in the MyGet versions of the packages, please follow the instructions in [Reporting issues](/articles/issues.html) 
 article.
 
-# But I'm running Linux!
+## But I'm running GNU/Linux, Mac OS X, or BSD!
 
-If you're running Linux, you'll have to do the following to add the MyGet feed to your NuGet sources.
+If you're running on a non-Windows OS, you'll have to get your hands dirty. Prepare your text editor and file browser.
 
-### 1. Locate NuGet.config
-This file should be located in your .nuget/NuGet directory, found inside of your user folder. Once you find it, use your preferred text editor or download it to your computer (if you're on a VPS) to edit the file. The file should look similar to this:
-![NuGet.config Example](https://i.imgur.com/qvbjJo8.png)
+Inside `~/.nuget/NuGet` directory, there should be a file called `NuGet.config`. It should look more or less like this:
 
-### 2. Edit NuGet.config
-Now you'll simply want to add this somewhere between your `<packageSources>`:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+  </packageSources>
+</configuration>
+```
 
-`<add key="DSharpPlusNightly" value="https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json" protocolVersion="3" />`
+Inside the `packageSources` element, you will need to add the following:
 
-### 3. Finish Up
-Save NuGet.config, open your project directory with a terminal, run `dotnet restore`, `dotnet build` and at last `dotnet <PathToDLL>` to start your bot.
+`<add key="DSharpPlus MyGet" value="https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json" />`
+
+Once that's done, save the file. If you run `dotnet restore` right now, it should be able to restore the packages without problems.
