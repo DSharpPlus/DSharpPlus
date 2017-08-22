@@ -20,16 +20,16 @@ article.
 
 # But im running on linux!
 
-Even if your running on linux, you will have to follow the steps above along with these.
+Even if you're running on linux, you will have to follow the following steps as well as those previously mentioned.
 
 ### 1. Locate NuGet.config
-This file should be located in the .nuget/NuGet folder. This should be in your user folder. Once you find it, use commandline or copy the file to your computer to edit it. Inside the file should look something like this if its never been edited:
+The file should be located in the .nuget/NuGet folder, located in your user folder. Once you find it, use a commandline text editor or copy the file to your computer to edit it. Inside the file should look something like this if its never been edited:
 ![NuGet.config Example](https://i.imgur.com/qvbjJo8.png)
 
 ### 2. Edit NuGet.config
-Now you simply want to add this anywhere between `<packageSources>`:
+Now you simply want to add this somewhere between `<packageSources>`:
 
 `<add key="DSharpPlusNightly" value="https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json" protocolVersion="3" />`
 
 ### 3. Finish Up
-Save the NuGet.config, Goto your project folder in terminal, run `dotnet restore`, then `dotnet build` and lastly `dotnet <PathToDLL>`
+Save the NuGet.config, Goto your project folder in terminal, run `dotnet restore`, then `dotnet build` and lastly `dotnet <PathToDLL>` to start the bot.
