@@ -18,18 +18,18 @@ You might need to restart Visual Studio for changes to take effect.
 If you find any problems in the MyGet versions of the packages, please follow the instructions in [Reporting issues](/articles/issues.html) 
 article.
 
-# But im running on linux!
+# But I'm running Linux!
 
-Even if your running on linux, you will have to follow the following steps as well as those previously mentioned.
+If you're running on linux, you'll have to do the following to add the MyGet feed to your NuGet sources.
 
 ### 1. Locate NuGet.config
-The file should be located in the .nuget/NuGet folder, located in your user folder. Once you find it, use a commandline text editor or copy the file to your computer to edit it. Inside the file should look something like this if its never been edited:
+The file should be located in your .nuget/NuGet folder, found inside of your user folder. Once you find it, use your preferred text editor or download it to your computer (if you're on a VPS) to edit the file. The file should look similar to this:
 ![NuGet.config Example](https://i.imgur.com/qvbjJo8.png)
 
 ### 2. Edit NuGet.config
-Now you simply want to add this somewhere between `<packageSources>`:
+Now you'll simply want to add this somewhere between your `<packageSources>`:
 
 `<add key="DSharpPlusNightly" value="https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json" protocolVersion="3" />`
 
 ### 3. Finish Up
-Save the NuGet.config, Goto your project folder in terminal, run `dotnet restore`, then `dotnet build` and lastly `dotnet <PathToDLL>` to start the bot.
+Save NuGet.config, Go to your project folder in terminal, run `dotnet restore`, `dotnet build` and at last `dotnet <PathToDLL>` to start your bot.
