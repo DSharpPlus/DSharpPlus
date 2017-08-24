@@ -3,3 +3,9 @@ apiRules:
     uidRegex: ^DSharpPlus\.Test.*$
 - exclude:
     uidRegex: ^System\..*$
+- exclude:
+    uidRegex: ^DSharpPlus\.(AsyncEvent|RingBuffer).*$
+- exclude:
+    uidRegex: ^DSharpPlus\.Base(WebSocket|Udp)Client.*$
+- exclude:
+    uidRegex: ^DSharpPlus\.HttpRequestMethod.*$
