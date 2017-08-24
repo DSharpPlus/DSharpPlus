@@ -36,11 +36,13 @@ namespace DSharpPlus
             var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             if (iv != null)
                 vs = iv.InformationalVersion;
+            else
+            {
+                var v = a.GetName().Version;
+                vs = v.ToString(3);
+            }
 
-            var v = a.GetName().Version;
-            vs = v.ToString(3);
-
-            VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, ", vs, ")");
+            VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, v", vs, ")");
         }
 
         internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
