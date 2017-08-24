@@ -998,18 +998,22 @@ namespace DSharpPlus
             return ret;
         }
 
-        internal async Task<DiscordInvite> InternalAcceptInvite(string invite_code)
-        {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST API", "Invite accept endpoint was used; this account is now likely unverified", DateTime.Now);
-            
-            var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.INVITES, "/", invite_code);
-            var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.POST);
-            
-            var ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
-            ret.Discord = this.Discord;
-
-            return ret;
-        }
+        /* 
+         * Disabled due to API restrictions
+         * 
+         * internal async Task<DiscordInvite> InternalAcceptInvite(string invite_code)
+         * {
+         *     this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST API", "Invite accept endpoint was used; this account is now likely unverified", DateTime.Now);
+         *     
+         *     var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.INVITES, "/", invite_code);
+         *     var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.POST);
+         *     
+         *     var ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
+         *     ret.Discord = this.Discord;
+         * 
+         *     return ret;
+         * }
+         */
         #endregion
 
         #region Connections
