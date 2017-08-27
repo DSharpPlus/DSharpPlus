@@ -10,7 +10,7 @@ namespace DSharpPlus
     /// <summary>
     /// Constructs embeds.
     /// </summary>
-    public sealed class DiscordEmbedBuilder
+    public class DiscordEmbedBuilder
     {
         /// <summary>
         /// Gets or sets the embed's title.
