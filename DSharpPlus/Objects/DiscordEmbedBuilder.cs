@@ -473,6 +473,6 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="builder">Builder to convert.</param>
         public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder) =>
-            builder.Build();
+            builder?.Build();
     }
 }
