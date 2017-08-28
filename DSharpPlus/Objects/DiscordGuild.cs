@@ -206,14 +206,6 @@ namespace DSharpPlus
         private Lazy<DiscordMember> _current_member_lazy;
 
         /// <summary>
-        /// Gets the default channel for this guild.
-        /// </summary>
-        [JsonIgnore]
-        public DiscordChannel DefaultChannel => this._default_channel_lazy.Value;
-        [JsonIgnore]
-        private Lazy<DiscordChannel> _default_channel_lazy;
-
-        /// <summary>
         /// Gets the @everyone role for this guild.
         /// </summary>
         [JsonIgnore]
@@ -237,12 +229,6 @@ namespace DSharpPlus
             this._members_lazy = new Lazy<IReadOnlyList<DiscordMember>>(() => new ReadOnlyCollection<DiscordMember>(this._members));
 
             this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.FirstOrDefault(xm => xm.Id == this.Discord.CurrentUser.Id));
-            this._default_channel_lazy = new Lazy<DiscordChannel>(() =>
-            {
-                return this._channels.Where(xc => xc.Type == ChannelType.Text)
-                      .OrderBy(xc => xc.Position)
-                      .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.ReadMessages) == Permissions.ReadMessages);
-            });
         }
 
         #region Guild Methods
@@ -300,7 +286,7 @@ namespace DSharpPlus
         public Task LeaveAsync() =>
             this.Discord._rest_client.InternalLeaveGuildAsync(Id);
 
-        public Task<IReadOnlyCollection<DiscordUser>> GetBansAsync() =>
+        public Task<IReadOnlyList<DiscordUser>> GetBansAsync() =>
             this.Discord._rest_client.InternalGetGuildBansAsync(Id);
 
         public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, string reason = null) =>
@@ -312,7 +298,7 @@ namespace DSharpPlus
         public Task<int> PruneAsync(int days, string reason = null) =>
             this.Discord._rest_client.InternalBeginGuildPruneAsync(this.Id, days, reason);
 
-        public Task<IReadOnlyCollection<DiscordIntegration>> GetIntegrationsAsync() =>
+        public Task<IReadOnlyList<DiscordIntegration>> GetIntegrationsAsync() =>
             this.Discord._rest_client.InternalGetGuildIntegrationsAsync(this.Id);
 
         public Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration) =>
@@ -330,16 +316,13 @@ namespace DSharpPlus
         public Task<DiscordGuildEmbed> GetEmbedAsync() =>
             this.Discord._rest_client.InternalGetGuildEmbedAsync(Id);
 
-        public Task<IReadOnlyCollection<DiscordVoiceRegion>> GetVoiceRegionsAsync() =>
+        public Task<IReadOnlyList<DiscordVoiceRegion>> GetVoiceRegionsAsync() =>
             this.Discord._rest_client.InternalGetGuildVoiceRegionsAsync(this.Id);
 
-        public Task<IReadOnlyCollection<DiscordInvite>> GetInvitesAsync() =>
+        public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync() =>
             this.Discord._rest_client.InternalGetGuildInvitesAsync(this.Id);
 
-        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null) =>
-            this.Discord._rest_client.InternalCreateChannelInviteAsync(this.DefaultChannel.Id, max_age, max_uses, temporary, unique, reason);
-
-        public Task<IReadOnlyCollection<DiscordWebhook>> GetWebhooksAsync() =>
+        public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync() =>
             this.Discord._rest_client.InternalGetGuildWebhooksAsync(this.Id);
 
         public Task RemoveMemberAsync(DiscordMember member, string reason = null) =>
@@ -356,7 +339,7 @@ namespace DSharpPlus
             return mbr;
         }
 
-        public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
+        public async Task<IReadOnlyList<DiscordMember>> GetAllMembersAsync()
         {
             var recmbr = new List<DiscordMember>(this.MemberCount + 1);
 
@@ -396,10 +379,10 @@ namespace DSharpPlus
             return this.Members;
         }
 
-        public Task<IReadOnlyCollection<DiscordChannel>> GetChannelsAsync() =>
+        public Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync() =>
             this.Discord._rest_client.InternalGetGuildChannelsAsync(this.Id);
 
-        public Task<IReadOnlyCollection<DiscordMember>> ListMembersAsync(int? limit = null, ulong? after = null) =>
+        public Task<IReadOnlyList<DiscordMember>> ListMembersAsync(int? limit = null, ulong? after = null) =>
             this.Discord._rest_client.InternalListGuildMembersAsync(Id, limit, after);
 
         public Task UpdateRoleAsync(DiscordRole role, string name = null, Permissions? permissions = null, int? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) =>
@@ -440,7 +423,7 @@ namespace DSharpPlus
         public Task RemoveRoleAsync(DiscordMember member, DiscordRole role, string reason) =>
             this.Discord._rest_client.InternalRemoveGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
 
-        public async Task<IReadOnlyCollection<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
+        public async Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
         {
             var gms = this._members.ToDictionary(xm => xm.Id, xm => xm);
 
@@ -615,7 +598,7 @@ namespace DSharpPlus
                                         ?.Select(xjo => xjo.ToObject<DiscordOverwrite>())
                                         ?.Select(xo => { xo.Discord = this.Discord; return xo; });
 
-                                    entrychn.OverwriteChange = new PropertyChange<IReadOnlyCollection<DiscordOverwrite>>
+                                    entrychn.OverwriteChange = new PropertyChange<IReadOnlyList<DiscordOverwrite>>
                                     {
                                         Before = olds != null ? new ReadOnlyCollection<DiscordOverwrite>(new List<DiscordOverwrite>(olds)) : null,
                                         After = news != null ? new ReadOnlyCollection<DiscordOverwrite>(new List<DiscordOverwrite>(news)) : null
@@ -1132,6 +1115,17 @@ namespace DSharpPlus
             if (this.Discord._config.TokenType == TokenType.User)
                 return this.Discord._rest_client.InternalAcknowledgeGuildAsync(this.Id);
             throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
+        }
+
+        /// <summary>
+        /// Gets the default channel for this member.
+        /// </summary>
+        /// <returns>This member's default channel.</returns>
+        public DiscordChannel GetDefaultChannel()
+        {
+            return this._channels.Where(xc => xc.Type == ChannelType.Text)
+                .OrderBy(xc => xc.Position)
+                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.ReadMessages) == Permissions.ReadMessages);
         }
         #endregion
 

@@ -36,12 +36,16 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordInvite> DeleteAsync(string reason = null) => this.Discord._rest_client.InternalDeleteInvite(this.Code, reason);
 
-        /// <summary>
-        /// Accepts an invite. Not available to bot accounts. Requires "guilds.join" scope or user token. Please note that accepting these via the API will get your account unverified.
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("Using this method will get your account unverified.")]
-        public Task<DiscordInvite> AcceptAsync() => this.Discord._rest_client.InternalAcceptInvite(Code);
+        /*
+         * Disabled due to API restrictions.
+         * 
+         * /// <summary>
+         * /// Accepts an invite. Not available to bot accounts. Requires "guilds.join" scope or user token. Please note that accepting these via the API will get your account unverified.
+         * /// </summary>
+         * /// <returns></returns>
+         * [Obsolete("Using this method will get your account unverified.")]
+         * public Task<DiscordInvite> AcceptAsync() => this.Discord._rest_client.InternalAcceptInvite(Code);
+         */
 
         /// <summary>
         /// Converts this invite into an invite link.

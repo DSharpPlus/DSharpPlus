@@ -112,7 +112,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the description of channel permission overwrites' change.
         /// </summary>
-        public PropertyChange<IReadOnlyCollection<DiscordOverwrite>> OverwriteChange { get; internal set; }
+        public PropertyChange<IReadOnlyList<DiscordOverwrite>> OverwriteChange { get; internal set; }
 
         /// <summary>
         /// Gets the description of channel's topic change.
@@ -197,12 +197,12 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the roles that were removed from the member.
         /// </summary>
-        public IReadOnlyCollection<DiscordRole> RemovedRoles { get; internal set; }
+        public IReadOnlyList<DiscordRole> RemovedRoles { get; internal set; }
 
         /// <summary>
         /// Gets the roles that were added to the member.
         /// </summary>
-        public IReadOnlyCollection<DiscordRole> AddedRoles { get; internal set; }
+        public IReadOnlyList<DiscordRole> AddedRoles { get; internal set; }
 
         /// <summary>
         /// Gets the description of member's mute status change.

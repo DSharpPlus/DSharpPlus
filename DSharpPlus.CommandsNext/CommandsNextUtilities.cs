@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Converters;
 
 namespace DSharpPlus.CommandsNext
@@ -221,7 +223,12 @@ namespace DSharpPlus.CommandsNext
             UserFriendlyTypeNames[typeof(T)] = value;
         }
 
-        internal static string ToUserFriendlyName(this Type t)
+        /// <summary>
+        /// Converts a type into user-friendly type name.
+        /// </summary>
+        /// <param name="t">Type to convert.</param>
+        /// <returns>User-friendly type name.</returns>
+        public static string ToUserFriendlyName(this Type t)
         {
             if (UserFriendlyTypeNames.ContainsKey(t))
                 return UserFriendlyTypeNames[t];
@@ -389,6 +396,47 @@ namespace DSharpPlus.CommandsNext
             }
 
             return args;
+        }
+
+        internal static bool IsModuleCandidateType(this Type type) =>
+            type.GetTypeInfo().IsModuleCandidateType();
+
+        internal static bool IsModuleCandidateType(this TypeInfo ti)
+        {
+            // check if compiler-generated
+            if (ti.GetCustomAttribute<CompilerGeneratedAttribute>(false) != null)
+                return false;
+
+            // check if anonymous
+            if (ti.IsGenericType && ti.Name.Contains("AnonymousType") && (ti.Name.StartsWith("<>") || ti.Name.StartsWith("VB$")) && (ti.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic)
+                return false;
+
+            // check if abstract, static, or not a class
+            if (!ti.IsClass || ti.IsAbstract)
+                return false;
+
+            // qualifies
+            return true;
+        }
+
+        internal static bool IsCommandCandidate(this MethodInfo mi, out ParameterInfo[] ps)
+        {
+            ps = null;
+            // check if exists
+            if (mi == null)
+                return false;
+
+            // check if static or non-public
+            if (mi.IsStatic || !mi.IsPublic)
+                return false;
+
+            // check if appropriate return and arguments
+            ps = mi.GetParameters();
+            if (!ps.Any() || ps.First().ParameterType != typeof(CommandContext) || mi.ReturnType != typeof(Task))
+                return false;
+
+            // qualifies
+            return true;
         }
     }
 }

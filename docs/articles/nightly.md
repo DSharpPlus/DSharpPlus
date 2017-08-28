@@ -17,3 +17,24 @@ You might need to restart Visual Studio for changes to take effect.
 
 If you find any problems in the MyGet versions of the packages, please follow the instructions in [Reporting issues](/articles/issues.html) 
 article.
+
+## But I'm running GNU/Linux, Mac OS X, or BSD!
+
+If you're running on a non-Windows OS, you'll have to get your hands dirty. Prepare your text editor and file browser.
+
+Inside `~/.nuget/NuGet` directory, there should be a file called `NuGet.config`. It should look more or less like this:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+  </packageSources>
+</configuration>
+```
+
+Inside the `packageSources` element, you will need to add the following:
+
+`<add key="DSharpPlus MyGet" value="https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json" />`
+
+Once that's done, save the file. If you run `dotnet restore` right now, it should be able to restore the packages without problems.

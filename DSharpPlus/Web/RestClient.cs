@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.Web;
 
 namespace DSharpPlus
 {
@@ -238,13 +237,6 @@ namespace DSharpPlus
         {
             string requesturl = request.URL;
 
-            // shitty temp fix for 2 issues
-            if (requesturl.Contains(Endpoints.REACTIONS))
-                requesturl = requesturl.Remove(requesturl.IndexOf(Endpoints.REACTIONS) + Endpoints.REACTIONS.Length);
-
-            if (requesturl.Contains("?"))
-                requesturl = requesturl.Remove(requesturl.IndexOf("?"));
-
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == requesturl);
             DateTimeOffset time = DateTimeOffset.UtcNow;
             if (rateLimit != null)
@@ -272,13 +264,6 @@ namespace DSharpPlus
             request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
 
             string requesturl = request.URL;
-
-            // shitty temp fix for 2 issues
-            if (requesturl.Contains(Endpoints.REACTIONS))
-                requesturl = requesturl.Remove(requesturl.IndexOf(Endpoints.REACTIONS) + Endpoints.REACTIONS.Length);
-
-            if (requesturl.Contains("?"))
-                requesturl = requesturl.Remove(requesturl.IndexOf("?"));
 
             RateLimit rateLimit = _rateLimits.Find(x => x.Url == requesturl);
             if (rateLimit != null)

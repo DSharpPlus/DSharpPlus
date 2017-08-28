@@ -59,7 +59,7 @@ namespace DSharpPlus
 
         public async Task InvokeAsync()
         {
-            var handlers = (AsyncEventHandler[])null;
+            AsyncEventHandler[] handlers = null;
             lock (this._lock)
                 handlers = this.Handlers.ToArray();
 
@@ -122,7 +122,7 @@ namespace DSharpPlus
 
         public async Task InvokeAsync(T e)
         {
-            var handlers = (AsyncEventHandler<T>[])null;
+            AsyncEventHandler<T>[] handlers = null;
             lock (this._lock)
                 handlers = this.Handlers.ToArray();
 

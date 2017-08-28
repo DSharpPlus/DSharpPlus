@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Objects.Transport;
-using DSharpPlus.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -121,7 +120,7 @@ namespace DSharpPlus
             return guild;
         }
 
-        internal async Task<IReadOnlyCollection<DiscordUser>> InternalGetGuildBansAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordUser>> InternalGetGuildBansAsync(ulong guild_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.BANS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -134,6 +133,9 @@ namespace DSharpPlus
 
         internal Task InternalCreateGuildBanAsync(ulong guild_id, ulong user_id, int delete_message_days, string reason)
         {
+            if (delete_message_days < 0 || delete_message_days > 7)
+                throw new ArgumentException("Delete message days must be a number between 0-7", nameof(delete_message_days));
+
             var pld = new RestGuildBanCreatePayload
             {
                 DeleteMessageDays = delete_message_days,
@@ -180,7 +182,7 @@ namespace DSharpPlus
             return new DiscordMember(tm) { Discord = this.Discord, _guild_id = guild_id };
         }
 
-        internal async Task<IReadOnlyCollection<DiscordMember>> InternalListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
+        internal async Task<IReadOnlyList<DiscordMember>> InternalListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.MEMBERS);
             var urlparams = new Dictionary<string, string>();
@@ -407,7 +409,7 @@ namespace DSharpPlus
             return ret;
         }
 
-        internal async Task<IReadOnlyCollection<DiscordChannel>> InternalGetGuildChannelsAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordChannel>> InternalGetGuildChannelsAsync(ulong guild_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.CHANNELS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -417,7 +419,7 @@ namespace DSharpPlus
             return new ReadOnlyCollection<DiscordChannel>(new List<DiscordChannel>(channels_raw));
         }
 
-        internal async Task<IReadOnlyCollection<DiscordMessage>> InternalGetChannelMessagesAsync(ulong channel_id, int limit, ulong? before, ulong? after, ulong? around)
+        internal async Task<IReadOnlyList<DiscordMessage>> InternalGetChannelMessagesAsync(ulong channel_id, int limit, ulong? before, ulong? after, ulong? around)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", channel_id, Endpoints.MESSAGES);
             var urlparams = new Dictionary<string, string>();
@@ -495,7 +497,7 @@ namespace DSharpPlus
             return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.POST, headers, JsonConvert.SerializeObject(pld));
         }
 
-        internal async Task<IReadOnlyCollection<DiscordInvite>> InternalGetChannelInvitesAsync(ulong channel_id)
+        internal async Task<IReadOnlyList<DiscordInvite>> InternalGetChannelInvitesAsync(ulong channel_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", channel_id, Endpoints.INVITES);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -561,7 +563,7 @@ namespace DSharpPlus
             return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.POST);
         }
 
-        internal async Task<IReadOnlyCollection<DiscordMessage>> InternalGetPinnedMessagesAsync(ulong channel_id)
+        internal async Task<IReadOnlyList<DiscordMessage>> InternalGetPinnedMessagesAsync(ulong channel_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", channel_id, Endpoints.PINS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -695,7 +697,7 @@ namespace DSharpPlus
             return user;
         }
 
-        internal async Task<IReadOnlyCollection<DiscordGuild>> InternalGetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
+        internal async Task<IReadOnlyList<DiscordGuild>> InternalGetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
         {
             var pld = new RestUserGuildListPayload
             {
@@ -748,7 +750,7 @@ namespace DSharpPlus
         #endregion
 
         #region Roles
-        internal async Task<IReadOnlyCollection<DiscordRole>> InternalGetGuildRolesAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordRole>> InternalGetGuildRolesAsync(ulong guild_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.ROLES);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -867,7 +869,7 @@ namespace DSharpPlus
         #endregion
 
         #region GuildVarious
-        internal async Task<IReadOnlyCollection<DiscordIntegration>> InternalGetGuildIntegrationsAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordIntegration>> InternalGetGuildIntegrationsAsync(ulong guild_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.INTEGRATIONS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -948,7 +950,7 @@ namespace DSharpPlus
             return embed_rest;
         }
 
-        internal async Task<IReadOnlyCollection<DiscordVoiceRegion>> InternalGetGuildVoiceRegionsAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordVoiceRegion>> InternalGetGuildVoiceRegionsAsync(ulong guild_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.REGIONS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -958,7 +960,7 @@ namespace DSharpPlus
             return new ReadOnlyCollection<DiscordVoiceRegion>(new List<DiscordVoiceRegion>(regions_raw));
         }
 
-        internal async Task<IReadOnlyCollection<DiscordInvite>> InternalGetGuildInvitesAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordInvite>> InternalGetGuildInvitesAsync(ulong guild_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.INVITES);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -996,22 +998,26 @@ namespace DSharpPlus
             return ret;
         }
 
-        internal async Task<DiscordInvite> InternalAcceptInvite(string invite_code)
-        {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST API", "Invite accept endpoint was used; this account is now likely unverified", DateTime.Now);
-            
-            var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.INVITES, "/", invite_code);
-            var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.POST);
-            
-            var ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
-            ret.Discord = this.Discord;
-
-            return ret;
-        }
+        /* 
+         * Disabled due to API restrictions
+         * 
+         * internal async Task<DiscordInvite> InternalAcceptInvite(string invite_code)
+         * {
+         *     this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST API", "Invite accept endpoint was used; this account is now likely unverified", DateTime.Now);
+         *     
+         *     var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.INVITES, "/", invite_code);
+         *     var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.POST);
+         *     
+         *     var ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
+         *     ret.Discord = this.Discord;
+         * 
+         *     return ret;
+         * }
+         */
         #endregion
 
         #region Connections
-        internal async Task<IReadOnlyCollection<DiscordConnection>> InternalGetUsersConnectionsAsync()
+        internal async Task<IReadOnlyList<DiscordConnection>> InternalGetUsersConnectionsAsync()
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.USERS, Endpoints.ME, Endpoints.CONNECTIONS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -1023,7 +1029,7 @@ namespace DSharpPlus
         #endregion
 
         #region Voice
-        internal async Task<IReadOnlyCollection<DiscordVoiceRegion>> InternalListVoiceRegionsAsync()
+        internal async Task<IReadOnlyList<DiscordVoiceRegion>> InternalListVoiceRegionsAsync()
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.VOICE, Endpoints.REGIONS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -1056,7 +1062,7 @@ namespace DSharpPlus
             return ret;
         }
 
-        internal async Task<IReadOnlyCollection<DiscordWebhook>> InternalGetChannelWebhooksAsync(ulong channel_id)
+        internal async Task<IReadOnlyList<DiscordWebhook>> InternalGetChannelWebhooksAsync(ulong channel_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", channel_id, Endpoints.WEBHOOKS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -1066,7 +1072,7 @@ namespace DSharpPlus
             return new ReadOnlyCollection<DiscordWebhook>(new List<DiscordWebhook>(webhooks_raw));
         }
 
-        internal async Task<IReadOnlyCollection<DiscordWebhook>> InternalGetGuildWebhooksAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordWebhook>> InternalGetGuildWebhooksAsync(ulong guild_id)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.GUILDS, "/", guild_id, Endpoints.WEBHOOKS);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);
@@ -1219,7 +1225,7 @@ namespace DSharpPlus
             return this.DoRequestAsync(this.Discord, url, HttpRequestMethod.DELETE, headers);
         }
 
-        internal async Task<IReadOnlyCollection<DiscordUser>> InternalGetReactionsAsync(ulong channel_id, ulong message_id, string emoji)
+        internal async Task<IReadOnlyList<DiscordUser>> InternalGetReactionsAsync(ulong channel_id, ulong message_id, string emoji)
         {
             var url = string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.CHANNELS, "/", channel_id, Endpoints.MESSAGES, "/", message_id, Endpoints.REACTIONS, "/", emoji);
             var res = await this.DoRequestAsync(this.Discord, url, HttpRequestMethod.GET);

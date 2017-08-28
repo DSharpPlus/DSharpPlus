@@ -4,9 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Exceptions;
 
 namespace DSharpPlus.CommandsNext
@@ -44,7 +44,8 @@ namespace DSharpPlus.CommandsNext
             await this._error.InvokeAsync(e).ConfigureAwait(false);
         #endregion
 
-        private CommandsNextConfiguration Config { get; set; }
+        private CommandsNextConfiguration Config { get; }
+        private Type HelpFormatterType { get; set; } = typeof(DefaultHelpFormatter);
         private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroupAsync";
 
         /// <summary>
@@ -52,11 +53,20 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public DependencyCollection Dependencies => this.Config.Dependencies;
 
-        public CommandsNextModule(CommandsNextConfiguration cfg)
+        internal CommandsNextModule(CommandsNextConfiguration cfg)
         {
             this.Config = cfg;
             this.TopLevelCommands = new Dictionary<string, Command>();
             this._registered_commands_lazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
+        }
+
+        /// <summary>
+        /// Sets the help formatter to use with the default help command.
+        /// </summary>
+        /// <typeparam name="T">Type of the formatter to use.</typeparam>
+        public void SetHelpFormatter<T>() where T : class, IHelpFormatter, new()
+        {
+            this.HelpFormatterType = typeof(T);
         }
 
         #region DiscordClient Registration
@@ -121,6 +131,10 @@ namespace DSharpPlus.CommandsNext
                             break;
                     }
                 }
+
+                if (this.Config.DefaultHelpChecks != null && this.Config.DefaultHelpChecks.Any())
+                    cbas.AddRange(this.Config.DefaultHelpChecks);
+
                 cmd.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(cbas);
                 cmd.Arguments = args;
                 cmd.Callable = cbl;
@@ -158,10 +172,11 @@ namespace DSharpPlus.CommandsNext
             if (mpos == -1)
                 return;
 
-            var cnt = e.Message.Content;
-            var cmi = cnt.IndexOf(' ', mpos);
-            var cms = cmi != -1 ? cnt.Substring(mpos, cmi - mpos) : cnt.Substring(mpos);
-            var rrg = cmi != -1 ? cnt.Substring(cmi + 1) : "";
+            var cnt = e.Message.Content.Substring(mpos);
+            var cms = CommandsNextUtilities.ExtractNextArgument(cnt, out var rrg);
+            //var cmi = cnt.IndexOf(' ', mpos);
+            //var cms = cmi != -1 ? cnt.Substring(mpos, cmi - mpos) : cnt.Substring(mpos);
+            //var rrg = cmi != -1 ? cnt.Substring(cmi + 1) : "";
             //var arg = CommandsNextUtilities.SplitArguments(rrg);
 
             var cmd = this.TopLevelCommands.ContainsKey(cms) ? this.TopLevelCommands[cms] : null;
@@ -229,7 +244,10 @@ namespace DSharpPlus.CommandsNext
             var types = assembly.ExportedTypes.Where(xt =>
             {
                 var xti = xt.GetTypeInfo();
-                return xti.IsClass && xti.IsPublic && !xti.IsNested && !xti.IsAbstract;
+                if (!xti.IsModuleCandidateType() || xti.IsNested)
+                    return false;
+
+                return xti.DeclaredMethods.Any(xmi => xmi.IsCommandCandidate(out _));
             });
             foreach (var xt in types)
                 this.RegisterCommands(xt);
@@ -254,8 +272,7 @@ namespace DSharpPlus.CommandsNext
             if (t == null)
                 throw new ArgumentNullException("Type cannot be null.", nameof(t));
 
-            var ti = t.GetTypeInfo();
-            if (!ti.IsClass || ti.IsAbstract)
+            if (!t.IsModuleCandidateType())
                 throw new ArgumentNullException("Type must be a class, which cannot be abstract or static.", nameof(t));
 
             RegisterCommands(t, CreateInstance(t), null, out var tres, out var tcmds);
@@ -268,7 +285,7 @@ namespace DSharpPlus.CommandsNext
                     this.AddToCommandDictionary(xc);
         }
 
-        private void RegisterCommands(Type t, object inst, CommandGroup currentparent, out CommandGroup result, out IReadOnlyCollection<Command> commands)
+        private void RegisterCommands(Type t, object inst, CommandGroup currentparent, out CommandGroup result, out IReadOnlyList<Command> commands)
         {
             var ti = t.GetTypeInfo();
 
@@ -276,13 +293,13 @@ namespace DSharpPlus.CommandsNext
             var mdl_attrs = ti.GetCustomAttributes();
             var is_mdl = false;
             var mdl_name = "";
-            var mdl_aliases = (IReadOnlyCollection<string>)null;
+            IReadOnlyList<string> mdl_aliases = null;
             var mdl_hidden = false;
             var mdl_desc = "";
             var mdl_chks = new List<CheckBaseAttribute>();
-            var mdl_cbl = (Delegate)null;
-            var mdl_args = (IReadOnlyList<CommandArgument>)null;
-            var mdl = (CommandGroup)null;
+            Delegate mdl_cbl = null;
+            IReadOnlyList<CommandArgument> mdl_args = null;
+            CommandGroup mdl = null;
             foreach (var xa in mdl_attrs)
             {
                 switch (xa)
@@ -385,7 +402,7 @@ namespace DSharpPlus.CommandsNext
 
             // candidate types
             var ts = ti.DeclaredNestedTypes
-                .Where(xt => xt.DeclaredConstructors.Any(xc => !xc.GetParameters().Any() || xc.IsPublic));
+                .Where(xt => xt.IsModuleCandidateType() && xt.DeclaredConstructors.Any(xc => xc.IsPublic));
             foreach (var xt in ts)
             {
                 this.RegisterCommands(xt.AsType(), this.CreateInstance(xt.AsType()), mdl, out var tmdl, out var tcmds);
@@ -397,21 +414,17 @@ namespace DSharpPlus.CommandsNext
 
             commands = new ReadOnlyCollection<Command>(cmds);
             if (mdl != null)
+            {
                 mdl.Children = commands;
+                commands = new ReadOnlyCollection<Command>(new List<Command>());
+            }
             result = mdl;
         }
 
         private void MakeCallable(MethodInfo mi, object inst, out Delegate cbl, out IReadOnlyList<CommandArgument> args)
         {
-            if (mi == null)
-                throw new MissingMethodException("Specified method does not exist.");
-
-            if (mi.IsStatic || !mi.IsPublic)
-                throw new InvalidOperationException("Specified method is invalid, static, or not public.");
-
-            var ps = mi.GetParameters();
-            if (!ps.Any() || ps.First().ParameterType != typeof(CommandContext) || mi.ReturnType != typeof(Task))
-                throw new InvalidOperationException("Specified method has an invalid signature.");
+            if (!mi.IsCommandCandidate(out var ps))
+                throw new MissingMethodException("Specified method is not suitable for a command.");
 
             var ei = Expression.Constant(inst);
 
@@ -520,16 +533,11 @@ namespace DSharpPlus.CommandsNext
         public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
             var toplevel = this.TopLevelCommands.Values.Distinct();
-            var embed = new DiscordEmbed()
-            {
-                Color = 0x007FFF,
-                Title = "Help",
-                Fields = new List<DiscordEmbedField>()
-            };
-
+            var helpbuilder = Activator.CreateInstance(this.HelpFormatterType) as IHelpFormatter;
+            
             if (command != null && command.Any())
             {
-                var cmd = (Command)null;
+                Command cmd = null;
                 var search_in = toplevel;
                 foreach (var c in command)
                 {
@@ -563,59 +571,16 @@ namespace DSharpPlus.CommandsNext
                 if (cmd == null)
                     throw new CommandNotFoundException("Specified command was not found!", string.Join(" ", command));
 
-                embed.Description = string.Concat("`", cmd.QualifiedName, "`: ", string.IsNullOrWhiteSpace(cmd.Description) ? "No description provided." : cmd.Description);
+                helpbuilder.WithCommandName(cmd.Name).WithDescription(cmd.Description);
 
                 if (cmd is CommandGroup g && g.Callable != null)
-                    embed.Description = string.Concat(embed.Description, "\n\nThis group can be executed as a standalone command.");
+                    helpbuilder.WithGroupExecutable();
 
                 if (cmd.Aliases != null && cmd.Aliases.Any())
-                    embed.Fields.Add(new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Aliases",
-                        Value = string.Join(", ", cmd.Aliases.Select(xs => string.Concat("`", xs, "`")))
-                    });
+                    helpbuilder.WithAliases(cmd.Aliases.OrderBy(xs => xs));
 
                 if (cmd.Arguments != null && cmd.Arguments.Any())
-                {
-                    var args = string.Empty;
-                    var sb = new StringBuilder();
-
-                    foreach (var arg in cmd.Arguments)
-                    {
-                        if (arg.IsOptional || arg.IsCatchAll)
-                            sb.Append("`[");
-                        else
-                            sb.Append("`<");
-
-                        sb.Append(arg.Name);
-
-                        if (arg.IsCatchAll)
-                            sb.Append("...");
-
-                        if (arg.IsOptional || arg.IsCatchAll)
-                            sb.Append("]: ");
-                        else
-                            sb.Append(">: ");
-
-                        sb.Append(arg.Type.ToUserFriendlyName()).Append("`: ");
-
-                        sb.Append(string.IsNullOrWhiteSpace(arg.Description) ? "No description provided." : arg.Description);
-
-                        if (arg.IsOptional)
-                            sb.Append(" Default value: ").Append(arg.DefaultValue);
-
-                        sb.AppendLine();
-                    }
-                    args = sb.ToString();
-
-                    embed.Fields.Add(new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Arguments",
-                        Value = args
-                    });
-                }
+                    helpbuilder.WithArguments(cmd.Arguments);
 
                 if (cmd is CommandGroup gx)
                 {
@@ -638,12 +603,7 @@ namespace DSharpPlus.CommandsNext
                     }
 
                     if (scs.Any())
-                        embed.Fields.Add(new DiscordEmbedField
-                        {
-                            Inline = false,
-                            Name = "Subcommands",
-                            Value = string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
-                        });
+                        helpbuilder.WithSubcommands(scs.OrderBy(xc => xc.QualifiedName));
                 }
             }
             else
@@ -666,17 +626,12 @@ namespace DSharpPlus.CommandsNext
                         scs.Add(sc);
                 }
 
-                embed.Description = "Listing all top-level commands and groups. Specify a command to see more information.";
                 if (scs.Any())
-                    embed.Fields.Add(new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Commands",
-                        Value = string.Join(", ", scs.OrderBy(xc => xc.QualifiedName).Select(xc => string.Concat("`", xc.QualifiedName, "`")))
-                    });
+                    helpbuilder.WithSubcommands(scs.OrderBy(xc => xc.QualifiedName));
             }
 
-            await ctx.RespondAsync("", embed: embed);
+            var hmsg = helpbuilder.Build();
+            await ctx.RespondAsync(hmsg.Content, embed: hmsg.Embed);
         }
         #endregion
 

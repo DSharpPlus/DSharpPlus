@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -59,12 +58,11 @@ namespace DSharpPlus.VoiceNext
         private static DateTime UnixEpoch { get { return _unix_epoch.Value; } }
         private static Lazy<DateTime> _unix_epoch;
 
-        private DiscordClient Discord { get; set; }
-        private DiscordGuild Guild { get; set; }
-        private DiscordChannel Channel { get; set; }
-        private ConcurrentDictionary<uint, ulong> SSRCMap { get; set; }
+        private DiscordClient Discord { get; }
+        private DiscordGuild Guild { get; }
+        private ConcurrentDictionary<uint, ulong> SSRCMap { get; }
 
-        private BaseUdpClient UdpClient { get; set; }
+        private BaseUdpClient UdpClient { get; }
         private BaseWebSocketClient VoiceWs { get; set; }
         private Task HeartbeatTask { get; set; }
         private int HeartbeatInterval { get; set; }
@@ -77,12 +75,13 @@ namespace DSharpPlus.VoiceNext
         private VoiceStateUpdatePayload StateData { get; set; }
         private bool Resume { get; set; }
 
-        private VoiceNextConfiguration Configuration { get; set; }
+        private VoiceNextConfiguration Configuration { get; }
         private OpusCodec Opus { get; set; }
         private SodiumCodec Sodium { get; set; }
         private RtpCodec Rtp { get; set; }
-        private Stopwatch Synchronizer { get; set; }
-        private TimeSpan UdpLatency { get; set; }
+        private double SynchronizerTicks { get; set; }
+        private double SynchronizerResolution { get; set; }
+        private TimeSpan UdpLatency { get; }
 
         private ushort Sequence { get; set; }
         private uint Timestamp { get; set; }
@@ -115,6 +114,11 @@ namespace DSharpPlus.VoiceNext
         public int Ping => Volatile.Read(ref this._ping);
         private int _ping = 0;
 
+        /// <summary>
+        /// Gets the channel this voice client is connected to.
+        /// </summary>
+        public DiscordChannel Channel { get; private set; }
+
         internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceNextConfiguration config, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
             this.Discord = client;
@@ -133,7 +137,6 @@ namespace DSharpPlus.VoiceNext
             this.Opus = new OpusCodec(48000, 2, this.Configuration.VoiceApplication);
             this.Sodium = new SodiumCodec();
             this.Rtp = new RtpCodec();
-            this.Synchronizer = new Stopwatch();
             this.UdpLatency = TimeSpan.FromMilliseconds(0.1);
 
             this.ServerData = server;
@@ -239,6 +242,12 @@ namespace DSharpPlus.VoiceNext
                 throw new InvalidOperationException("The connection is not initialized");
 
             await this.PlaybackSemaphore.WaitAsync();
+            if (this.SynchronizerTicks == 0)
+            {
+                this.SynchronizerTicks = Stopwatch.GetTimestamp();
+                this.SynchronizerResolution = (Stopwatch.Frequency * 0.02);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0")}/{this.SynchronizerResolution} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
+            }
 
             var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
 
@@ -265,14 +274,9 @@ namespace DSharpPlus.VoiceNext
             // time.time()
             //   DateTime.Now
 
-            this.Synchronizer.Stop();
-            var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed - this.UdpLatency;
-            if (ts.Ticks < 0)
-                ts = TimeSpan.FromTicks(1);
-            var dt = DateTime.Now;
             //await Task.Delay(ts);
-            while (DateTime.Now - dt < ts) ;
-            this.Synchronizer.Restart();
+            while (Stopwatch.GetTimestamp() - this.SynchronizerTicks < this.SynchronizerResolution) ;
+            this.SynchronizerTicks += this.SynchronizerResolution;
 
             this.PlaybackSemaphore.Release();
         }
@@ -295,16 +299,42 @@ namespace DSharpPlus.VoiceNext
                     data = await client.ReceiveAsync();
 
                     header = new byte[RtpCodec.SIZE_HEADER];
-
                     data = this.Rtp.Decode(data, header);
 
                     var nonce = this.Rtp.MakeNonce(header);
-                    this.Rtp.Decode(header, out seq, out ts, out ssrc);
-
                     data = this.Sodium.Decode(data, nonce, this.Key);
-                    data = this.Opus.Decode(data, 0, data.Length);
+
+                    // following is thanks to code from Eris
+                    // https://github.com/abalabahaha/eris/blob/master/lib/voice/VoiceConnection.js#L623
+                    var doff = 0;
+                    this.Rtp.Decode(header, out seq, out ts, out ssrc, out var has_ext);
+                    if (has_ext)
+                    {
+                        if (data[0] == 0xBE && data[1] == 0xDE)
+                        {
+                            // RFC 5285, 4.2 One-Byte header
+                            // http://www.rfcreader.com/#rfc5285_line186
+
+                            var hlen = data[2] << 8 | data[3];
+                            var i = 4;
+                            for (; i < hlen + 4; i++)
+                            {
+                                var b = data[i];
+                                // This is unused(?)
+                                //var id = (b >> 4) & 0x0F;
+                                var len = (b & 0x0F) + 1;
+                                i += len;
+                            }
+                            while (data[i] == 0)
+                                i++;
+                            doff = i;
+                        }
+                        // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
+                    }
+
+                    data = this.Opus.Decode(data, doff, data.Length - doff);
                 }
-                catch (Exception) { continue; }
+                catch { continue; }
 
                 // TODO: wait for ssrc map?
                 DiscordUser user = null;
@@ -344,7 +374,7 @@ namespace DSharpPlus.VoiceNext
 
             if (!speaking)
             {
-                this.Synchronizer.Reset();
+                this.SynchronizerTicks = 0;
                 if (this.PlayingWait != null)
                     this.PlayingWait.SetResult(true);
             }

@@ -116,17 +116,19 @@ namespace DSharpPlus.VoiceNext.Codec
             var frame_size = this.FrameCount(frame.Length, bitrate);
             var decdata = IntPtr.Zero;
             var len = 0;
+            var opus = new byte[count];
+            Array.Copy(opus_input, offset, opus, 0, count);
 
             fixed (byte* decptr = frame)
             {
                 decdata = new IntPtr(decptr);
-                len = Decode(this.Decoder, opus_input, frame_size, decdata, frame.Length, 0);
+                len = Decode(this.Decoder, opus, frame_size, decdata, frame.Length, 0);
             }
 
             if (len < 0)
                 throw new Exception(string.Concat("OPUS decoding failed (", (OpusError)len, ")"));
 
-            Array.Resize(ref frame, len * this.Channels * 2);
+            //Array.Resize(ref frame, len * this.Channels * 2);
             return frame;
         }
 #endif

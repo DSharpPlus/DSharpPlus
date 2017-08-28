@@ -160,6 +160,9 @@ namespace DSharpPlus
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public MessageType? MessageType { get; internal set; }
 
+        [JsonIgnore]
+        public bool WebhookMessage => WebhookId != null;
+
         /// <summary>
         /// Edits the message.
         /// </summary>
@@ -281,7 +284,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="emoji">Emoji to react with.</param>
         /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji) =>
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji) =>
             this.Discord._rest_client.InternalGetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString());
 
         /// <summary>
@@ -416,5 +419,15 @@ namespace DSharpPlus
         /// Message indicating a group direct message channel icon change.
         /// </summary>
         ChannelIconChange = 5,
+
+        /// <summary>
+        /// USER pinned a message to this channel.
+        /// </summary>
+        ChannelPinnedMessage = 6,
+
+        /// <summary>
+        /// Message when a guild member joins. Most frequently seen in newer, smaller guilds.
+        /// </summary>
+        GuildMemberJoin = 7
     }
 }

@@ -32,7 +32,7 @@ namespace DSharpPlus
         /// Gets the application's allowed RPC origins.
         /// </summary>
         [JsonProperty("rpc_origins", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyCollection<string> RpcOrigins { get; internal set; }
+        public IReadOnlyList<string> RpcOrigins { get; internal set; }
 
         /// <summary>
         /// Gets the application's flags.

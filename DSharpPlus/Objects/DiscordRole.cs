@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus
 {
     /// <summary>
-    ///
+    /// Represents a discord role, to which users can be assigned.
     /// </summary>
     public class DiscordRole : SnowflakeObject, IEquatable<DiscordRole>
     {
@@ -15,10 +15,12 @@ namespace DSharpPlus
         public string Name { get; internal set; }
 
         /// <summary>
-        /// Integer representation of a hexadecimal color code
+        /// Gets the color of this role.
         /// </summary>
+        [JsonIgnore]
+        public DiscordColor Color => new DiscordColor(this._color);
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-        public int Color { get; internal set; }
+        internal int _color;
 
         /// <summary>
         /// Whether this role is pinned

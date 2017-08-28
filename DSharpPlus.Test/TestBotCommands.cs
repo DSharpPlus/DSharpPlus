@@ -26,6 +26,28 @@ namespace DSharpPlus.Test
             await m.ModifyAsync(oldnick);
         }*/
 
+        [Command("testbuilder")]
+        public async Task TestBuilder(CommandContext e)
+        {
+            var b = new DiscordEmbedBuilder();
+            b.WithTitle("testing builder").WithDescription("Just uhh.. testing the builder. yes.").WithColor(new DiscordColor(255, 0, 0));
+            b.AddField("and a field", "hey. I'm just a field doing... fieldy things. yes. OH AND I'M INLINE (not that it matters)", true);
+            await e.RespondAsync("testing builder?", embed: b.Build());
+
+            var b2 = new DiscordEmbedBuilder().WithColor(e.Member.Color).WithTitle("Your color").WithDescription("<----------------");
+            await e.RespondAsync("Also testing member colors..", embed: b2.Build());
+
+            var b3 = new DiscordEmbedBuilder(b2);
+            await e.RespondAsync("Reconstructed embed", embed: b3);
+        }
+
+        [Command("testnewshits")]
+        public async Task TestNewShits(CommandContext e)
+        {
+            await (await e.Client.CreateDmAsync(e.User)).SendMessageAsync("What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class on GitHub, and I've been involved in numerous pull requests for DSharpPlus, and I have over 30 confirmed commits. I am trained in C# programming and I'm the top coder in the Discord API. You are nothing to me but just another whitey. I will rewrite you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of DAPI mods across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your lib. You're fucking dead, kid. I can code anywhere, anytime, and I can commit in over seven hundred ways, and that's just with my laptop. Not only am I extensively trained in using Visual Studio, but I have access to the entire toolchain of the .NET Framework and I will use it to its full extent to rewrite your miserable lib off the face of the continent, you little shit. If only you could have known what unholy retribution your little \"clever\" comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will commit fury all over you and you will drown in it. You're fucking dead, kiddo.");
+            await e.Channel.SendMessageAsync((await e.Client.GetUserAsync(e.User.Id)).Mention);
+        }
+
         // 🅱 🇷 🇴 🇰 🇪 🇳
         [Command("ratelimit")]
         public async Task RateLimit(CommandContext e)
@@ -41,26 +63,22 @@ namespace DSharpPlus.Test
         [Command("namecolor")]
         public async Task NameColor(CommandContext e, DiscordMember m)
         {
-            DiscordEmbed embed = new DiscordEmbed()
+            var embed = new DiscordEmbedBuilder()
             {
                 Color = m.Color,
                 Title = "Color on the left m8"
             };
-            await e.RespondAsync("", embed: embed);
+            await e.RespondAsync("", embed: embed.Build());
         }
 
         [Command("uploadembed")]
         public async Task UplEm(CommandContext e)
         {
-            await e.Channel.SendFileAsync(new FileStream("file.png", FileMode.Open), "file.png", "test upload file to embed", false, new DiscordEmbed()
-            {
-                Title = "lil test",
-                Image = new DiscordEmbedImage()
-                {
-                    Url = "attachment://file.png"
-                },
-                Timestamp = DateTime.Now
-            });
+            await e.Channel.SendFileAsync(new FileStream("file.png", FileMode.Open), "file.png", "test upload file to embed", false, new DiscordEmbedBuilder()
+                .WithTitle("lil test")
+                .WithImageUrl("attachment://file.png")
+                .WithTimestamp(DateTime.Now)
+                .Build());
         }
 
         [Command("test")]
@@ -108,11 +126,10 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 new Page()
                 {
                     Content = "test 3",
-                    Embed = new DiscordEmbed()
-                    {
-                        Title = "yes!",
-                        Description = "this has embeds!!"
-                    }
+                    Embed = new DiscordEmbedBuilder()
+                        .WithTitle("yes!")
+                        .WithDescription("this has embeds!!")
+                        .Build()
                 },
                 new Page()
                 {
@@ -144,11 +161,10 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 new Page()
                 {
                     Content = "test 3",
-                    Embed = new DiscordEmbed()
-                    {
-                        Title = "yes!",
-                        Description = "this has embeds!!"
-                    }
+                    Embed = new DiscordEmbedBuilder()
+                        .WithTitle("yes!")
+                        .WithDescription("this has embeds!!")
+                        .Build()
                 },
                 new Page()
                 {
@@ -216,83 +232,39 @@ Serverowner: {e.Guild.Owner.DisplayName}
             var roles = e.Guild.Roles.Select(xr => xr.Mention);
             var overs = e.Channel.PermissionOverwrites.Select(xo => string.Concat("Principal: ", xo.Id, " (", xo.Type, "), Allow: ", (ulong)xo.Allow, "; Deny: ", (ulong)xo.Deny));
 
-            var embed = new DiscordEmbed
+            var embed = new DiscordEmbedBuilder
             {
                 Title = "Guild info",
                 Description = "ye boiii!",
-                Type = "rich",
-                Color = 0x007FFF,
-                Fields = new List<DiscordEmbedField>
-                {
-                    new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Roles",
-                        Value = string.Join("\n", roles)
-                    },
-                    new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = string.Concat("Overrides for ", e.Channel.Mention),
-                        Value = string.Join("\n", overs)
-                    }
-                }
+                Color = new DiscordColor("#007FFF")
             };
 
-            await e.Message.RespondAsync("", embed: embed);
+            embed.AddField("Roles", string.Join("\n", roles), false);
+            embed.AddField(string.Concat("Overrides for ", e.Channel.Mention), string.Join("\n", overs), false);
+
+            await e.Message.RespondAsync("", embed: embed.Build());
         }
 
         [Command("embed")]
         public async Task Embed(CommandContext e)
         {
-            List<DiscordEmbedField> fields = new List<DiscordEmbedField>
-            {
-                new DiscordEmbedField()
-                {
-                    Name = "This is a field",
-                    Value = "it works :p",
-                    Inline = false
-                },
-                new DiscordEmbedField()
-                {
-                    Name = "Multiple fields",
-                    Value = "cool",
-                    Inline = false
-                }
-            };
-
-            DiscordEmbed embed = new DiscordEmbed
+            var embed = new DiscordEmbedBuilder
             {
                 Title = "Testing embed",
                 Description = "It works!",
-                Type = "rich",
                 Url = "https://github.com/NaamloosDT/DSharpPlus",
-                Color = 8257469,
-                Fields = fields,
-                Author = new DiscordEmbedAuthor()
-                {
-                    Name = "DSharpPlus team",
-                    IconUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                    Url = "https://github.com/NaamloosDT/DSharpPlus"
-                },
-                Footer = new DiscordEmbedFooter()
-                {
-                    Text = "I am a footer"
-                },
-                Image = new DiscordEmbedImage()
-                {
-                    Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                    Height = 50,
-                    Width = 50,
-                },
-                Thumbnail = new DiscordEmbedThumbnail()
-                {
-                    Url = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
-                    Height = 10,
-                    Width = 10
-                }
+                Color = new DiscordColor(8257469),
+                ImageUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
+                ThumbnailUrl = "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png",
             };
-            await e.Message.RespondAsync("testing embed:", embed: embed);
+
+            embed.WithAuthor("DSharpPlus team", "https://github.com/NaamloosDT/DSharpPlus", "https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo_smaller.png")
+                .WithFooter("I am a footer");
+
+            embed.AddField("This is a field", "it works :p");
+            embed.AddField("Multiple fields", "cool");
+
+            await e.Message.RespondAsync("testing embed:", embed: embed.Build());
         }
 
         [Command("appinfo")]
@@ -306,19 +278,19 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 .Replace(@"~", @"\~")
                 .Replace(@"`", @"\`");
 
-            var embed = new DiscordEmbed
+            var embed = new DiscordEmbedBuilder
             {
                 Title = "Application info",
-                Color = 0x007FFF,
-                Fields = new List<DiscordEmbedField>()
+                Color = new DiscordColor("#007FFF")
             };
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Name", Value = app.Name });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Description", Value = string.Concat("```\n", app.Description, "\n```") });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "ID", Value = app.Id.ToString() });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Created", Value = app.CreationDate.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") });
-            embed.Fields.Add(new DiscordEmbedField { Inline = true, Name = "Owner", Value = $"{usrn}#{app.Owner.Discriminator} ({app.Owner.Id})" });
+            embed.AddField("Name", app.Name, true);
+            embed.AddField("Description", string.Concat("```\n", app.Description, "\n```"), true);
+            embed.AddField("ID", app.Id.ToString(), true);
+            embed.AddField("Created", app.CreationDate.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss"), true);
+            embed.AddField("Owner", $"{usrn}#{app.Owner.Discriminator} ({app.Owner.Id})", true);
+            embed.AddField("Anon", new { x = 1 }.ToString());
 
-            await e.Message.RespondAsync("", embed: embed);
+            await e.Message.RespondAsync("", embed: embed.Build());
         }
 
         [Command("modifyme")]
@@ -331,6 +303,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             private CancellationTokenSource AudioLoopCancelTokenSource { get; set; }
             private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
             private Task AudioLoopTask { get; set; }
+            private double Volume { get; set; } = 1.0;
 
             private ConcurrentDictionary<uint, ulong> _ssrc_map;
             private ConcurrentDictionary<uint, FileStream> _ssrc_filemap;
@@ -355,6 +328,26 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
                 this._ssrc_map[e.SSRC] = e.User.Id;
                 return Task.Delay(0);
+            }
+
+            private unsafe void RescaleVolume(byte[] data)
+            {
+                fixed (byte* ptr8 = data)
+                {
+                    var ptr16 = (short*)ptr8;
+                    for (var i = 0; i < data.Length / 2; i++)
+                        *(ptr16 + i) = (short)(*(ptr16 + i) * this.Volume);
+                }
+            }
+
+            [Command("volume"), RequireOwner]
+            public async Task VolumeAsync(CommandContext ctx, double vol = 1.0)
+            {
+                if (vol < 0 || vol > 5)
+                    throw new ArgumentOutOfRangeException(nameof(vol), "Volume needs to be between 0 and 500% inclusive.");
+
+                this.Volume = vol;
+                await ctx.RespondAsync($"Volume set to {(vol * 100).ToString("0.00")}%");
             }
 
             [Command("join")]
@@ -453,7 +446,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     await vnc.WaitForPlaybackFinishAsync();
                 }
 
-                var exc = (Exception)null;
+                Exception exc = null;
                 await ctx.Message.RespondAsync($"Playing `{snd}`");
                 await vnc.SendSpeakingAsync(true);
                 try
@@ -484,6 +477,9 @@ Serverowner: {e.Guild.Owner.DisplayName}
                             if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
                                 for (var i = br; i < buff.Length; i++)
                                     buff[i] = 0;
+
+                            if (this.Volume != 1.0)
+                                this.RescaleVolume(buff);
 
                             await vnc.SendAsync(buff, 20); // we're sending 20ms of data
                         }
@@ -638,7 +634,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     return;
                 }
 
-                var exc = (Exception)null;
+                Exception exc = null;
                 await ctx.Message.RespondAsync($"Playing `{snd}`");
                 await vnc.SendSpeakingAsync(true);
                 try

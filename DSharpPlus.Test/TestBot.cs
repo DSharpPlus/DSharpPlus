@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
@@ -52,6 +53,7 @@ namespace DSharpPlus.Test
             Discord.MessageReactionRemoveAll += this.Discord_MessageReactionRemoveAll;
             Discord.PresenceUpdate += this.Discord_PresenceUpdate;
             Discord.SocketError += this.Discord_SocketError;
+            Discord.GuildCreated += this.Discord_GuildCreated;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -79,16 +81,19 @@ namespace DSharpPlus.Test
                 EnableDms = true,
                 EnableMentionPrefix = true,
                 CaseSensitive = true,
-                Dependencies = depco.Build()
+                Dependencies = depco.Build(),
+                //DefaultHelpChecks = new List<CheckBaseAttribute>() { new RequireOwnerAttribute() }
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
             this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
-            this.CommandsNextService.RegisterCommands<TestBotCommands>();
-            this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
-            this.CommandsNextService.RegisterCommands<TestBotEvalCommands>();
-            this.CommandsNextService.RegisterCommands<TestBotDependentCommands>();
-            this.CommandsNextService.RegisterCommands<TestBotGroupInheritedChecksCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotEvalCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotDependentCommands>();
+            //this.CommandsNextService.RegisterCommands<TestBotGroupInheritedChecksCommands>();
+            this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
+            this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
 
             // interactivity service
             this.InteractivityService = Discord.UseInteractivity();
@@ -153,6 +158,21 @@ namespace DSharpPlus.Test
         private Task Discord_GuildAvailable(GuildCreateEventArgs e)
         {
             Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Guild available: {e.Guild.Name}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.MemberCount: {e.Guild.MemberCount}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.Members.Count: {e.Guild.Members.Count}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].MemberCount: {Discord.Guilds[e.Guild.Id].MemberCount}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].Members.Count: {Discord.Guilds[e.Guild.Id].Members.Count}", DateTime.Now);
+            return Task.Delay(0);
+        }
+
+        private Task Discord_GuildCreated(GuildCreateEventArgs e)
+        {
+            // Tryna fix the "double guild member" bug
+            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Guild created: {e.Guild.Name}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.MemberCount: {e.Guild.MemberCount}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.Members.Count: {e.Guild.Members.Count}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].MemberCount: {Discord.Guilds[e.Guild.Id].MemberCount}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].Members.Count: {Discord.Guilds[e.Guild.Id].Members.Count}", DateTime.Now);
             return Task.Delay(0);
         }
 
@@ -230,34 +250,17 @@ namespace DSharpPlus.Test
                 ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
                 st = !string.IsNullOrWhiteSpace(st) ? (st.Length > 1000 ? st.Substring(0, 1000) : st) : "<no stack trace>";
 
-                var embed = new DiscordEmbed
+                var embed = new DiscordEmbedBuilder
                 {
-                    Color = 0xFF0000,
+                    Color = new DiscordColor("#FF0000"),
                     Title = "An exception occured when executing a command",
                     Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.QualifiedName}`.",
-                    Footer = new DiscordEmbedFooter
-                    {
-                        IconUrl = Discord.CurrentUser.AvatarUrl,
-                        Text = Discord.CurrentUser.Username
-                    },
-                    Timestamp = DateTime.UtcNow,
-                    Fields = new List<DiscordEmbedField>()
-                    {
-                        new DiscordEmbedField
-                        {
-                            Name = "Message",
-                            Value = ms,
-                            Inline = false
-                        },
-                        new DiscordEmbedField
-                        {
-                            Name = "Stack trace",
-                            Value = $"```cs\n{st}\n```",
-                            Inline = false
-                        }
-                    }
+                    Timestamp = DateTime.UtcNow
                 };
-                await e.Context.Channel.SendMessageAsync("\u200b", embed: embed);
+                embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
+                    .AddField("Message", ms, false)
+                    .AddField("Stack trace", $"```cs\n{st}\n```", false);
+                await e.Context.Channel.SendMessageAsync("\u200b", embed: embed.Build());
             }
         }
 
@@ -271,7 +274,7 @@ namespace DSharpPlus.Test
         {
             try
             {
-                this.Discord.UpdateStatusAsync(new Game("gitting gud at API")).GetAwaiter().GetResult();
+                this.Discord.UpdateStatusAsync(new Game("gitting better at API")).GetAwaiter().GetResult();
             }
             catch (Exception) { }
         }

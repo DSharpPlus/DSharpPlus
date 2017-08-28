@@ -234,7 +234,7 @@ namespace DSharpPlus
         /// <summary>  
         /// Returns a list of messages.Only set ONE of the three parameters. They are Message ID's
         /// </summary> 
-        public Task<IReadOnlyCollection<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null) =>
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null) =>
             this.Discord._rest_client.InternalGetChannelMessagesAsync(this.Id, limit, before, after, around);
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace DSharpPlus
         /// Returns a list of invite objects
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordInvite>> GetInvitesAsync() =>
+        public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync() =>
             this.Discord._rest_client.InternalGetChannelInvitesAsync(Id);
 
         /// <summary>
@@ -334,7 +334,7 @@ namespace DSharpPlus
         /// Returns all pinned messages
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordMessage>> GetPinnedMessagesAsync() =>
+        public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync() =>
             this.Discord._rest_client.InternalGetPinnedMessagesAsync(this.Id);
 
         /// <summary>
@@ -367,7 +367,7 @@ namespace DSharpPlus
         /// Returns a list of webhooks
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyCollection<DiscordWebhook>> GetWebhooksAsync() =>
+        public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync() =>
             this.Discord._rest_client.InternalGetChannelWebhooksAsync(this.Id);
 
         /// <summary>

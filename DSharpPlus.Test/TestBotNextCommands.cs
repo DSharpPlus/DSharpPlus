@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -95,21 +94,11 @@ namespace DSharpPlus.Test
         {
             await ctx.TriggerTypingAsync();
 
-            var embed = new DiscordEmbed
-            {
-                Title = "Results",
-                Fields = new List<DiscordEmbedField>
-                {
-                    new DiscordEmbedField
-                    {
-                        Name = "Integer", Value = one.ToString(), Inline = true
-                    },
-                    new DiscordEmbedField
-                    {
-                        Name = "String", Value = content != null ? string.Join(" ", content) : "`<null>`", Inline = true
-                    }
-                }
-            };
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle("Results")
+                .AddField("Integer", one.ToString(), true)
+                .AddField("String", content != null ? string.Join(" ", content) : "`<null>`", true)
+                .Build();
             await ctx.RespondAsync("", embed: embed);
         }
 
@@ -118,22 +107,12 @@ namespace DSharpPlus.Test
         {
             await ctx.TriggerTypingAsync();
 
-            var embed = new DiscordEmbed
+            var embed = new DiscordEmbedBuilder
             {
-                Title = "Results",
-                Fields = new List<DiscordEmbedField>
-                {
-                    new DiscordEmbedField
-                    {
-                        Name = "Integer", Value = one.ToString(), Inline = true
-                    },
-                    new DiscordEmbedField
-                    {
-                        Name = "String", Value = content ?? "`<null>`", Inline = true
-                    }
-                }
+                Title = "Results"
             };
-            await ctx.RespondAsync("", embed: embed);
+            embed.AddField("Integer", one.ToString(), true).AddField("String", content ?? "`<null>`", true);
+            await ctx.RespondAsync("", embed: embed.Build());
         }
 
         [Command("gibemoji"), Aliases("echoemoji"), Description("Echo back some emoji."), RequirePermissions(Permissions.ManageEmojis)]
@@ -171,12 +150,12 @@ namespace DSharpPlus.Test
                 var msg = await ctx.RespondAsync($"m88 react spam here (timeout {timeout})");
                 var r = await m.CollectReactionsAsync(msg, timeout);
 
-                var embed = new DiscordEmbed
+                var embed = new DiscordEmbedBuilder()
                 {
-                    Color = 0x7F00FF,
+                    Color = new DiscordColor("#7F00FF"),
                     Description = string.Join("\n", r.Select(xkvp => $"{xkvp.Key}: {xkvp.Value}"))
                 };
-                await msg.RespondAsync("", embed: embed);
+                await msg.RespondAsync("", embed: embed.Build());
             }
         }
 

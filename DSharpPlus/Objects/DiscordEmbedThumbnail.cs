@@ -1,31 +1,37 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    /// Represents a thumbnail in an embed.
     /// </summary>
-    public class DiscordEmbedThumbnail
+    public sealed class DiscordEmbedThumbnail
     {
         /// <summary>
-        /// Source url of the thumbnail (only https)
+        /// Gets the source url of the thumbnail (only https).
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; set; }
+        public Uri Url { get; internal set; }
+
         /// <summary>
-        /// A proxied url of the thumbnail
+        /// Gets a proxied url of the thumbnail.
         /// </summary>
         [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
-        public string ProxyUrl { get; set; }
+        public Uri ProxyUrl { get; internal set; }
+
         /// <summary>
-        /// Height of the thumbnail
+        /// Gets the height of the thumbnail.
         /// </summary>
         [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
-        public int Height { get; set; }
+        public int Height { get; internal set; }
+
         /// <summary>
-        /// Width of the thumbnail
+        /// Gets the width of the thumbnail.
         /// </summary>
         [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
-        public int Width { get; set; }
+        public int Width { get; internal set; }
+
+        internal DiscordEmbedThumbnail() { }
     }
 }

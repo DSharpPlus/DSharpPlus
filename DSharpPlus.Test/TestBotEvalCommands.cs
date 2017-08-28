@@ -30,11 +30,10 @@ namespace DSharpPlus.Test
 
             var cs = code.Substring(cs1, cs2 - cs1);
 
-            msg = await ctx.RespondAsync("", embed: new DiscordEmbed
-            {
-                Color = 0xFF007F,
-                Description = "Evaluating..."
-            });
+            msg = await ctx.RespondAsync("", embed: new DiscordEmbedBuilder()
+                .WithColor(new DiscordColor("#FF007F"))
+                .WithDescription("Evaluating...")
+                .Build());
 
             try
             {
@@ -49,13 +48,13 @@ namespace DSharpPlus.Test
                 var result = await script.RunAsync(globals);
 
                 if (result != null && result.ReturnValue != null && !string.IsNullOrWhiteSpace(result.ReturnValue.ToString()))
-                    await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = 0x007FFF });
+                    await msg.EditAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") }.Build());
                 else
-                    await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Successful", Description = "No result was returned.", Color = 0x007FFF });
+                    await msg.EditAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") }.Build());
             }
             catch (Exception ex)
             {
-                await msg.EditAsync(embed: new DiscordEmbed { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = 0xFF0000 });
+                await msg.EditAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build());
             }
         }
 
@@ -83,33 +82,22 @@ namespace DSharpPlus.Test
                 var o1 = await proc.StandardOutput.ReadToEndAsync();
                 var o2 = await proc.StandardError.ReadToEndAsync();
 
-                var embed = new DiscordEmbed
+                var embed = new DiscordEmbedBuilder
                 {
                     Title = "Execution finished",
-                    Fields = new List<DiscordEmbedField>()
                 };
 
                 if (!string.IsNullOrWhiteSpace(o1))
-                    embed.Fields.Add(new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Output",
-                        Value = $"```\n{o1}\n```"
-                    });
+                    embed.AddField("Output", $"```\n{o1}\n```", false);
 
                 if (!string.IsNullOrWhiteSpace(o2))
-                    embed.Fields.Add(new DiscordEmbedField
-                    {
-                        Inline = false,
-                        Name = "Error",
-                        Value = $"```\n{o2}\n```"
-                    });
+                    embed.AddField("Error", $"```\n{o2}\n```", false);
 
-                await ctx.RespondAsync("", embed: embed);
+                await ctx.RespondAsync("", embed: embed.Build());
             }
             catch (Exception ex)
             {
-                await ctx.RespondAsync("", embed: new DiscordEmbed { Title = "Execution failed", Description = $"`{ex.GetType()}: {ex.Message}`", Color = 0xFF0000 });
+                await ctx.RespondAsync("", embed: new DiscordEmbedBuilder { Title = "Execution failed", Description = $"`{ex.GetType()}: {ex.Message}`", Color = new DiscordColor("#FF0000") }.Build());
             }
         }
     }

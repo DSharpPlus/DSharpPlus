@@ -1,31 +1,37 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace DSharpPlus
 {
     /// <summary>
-    /// 
+    /// Gets the author of a discord embed.
     /// </summary>
-    public class DiscordEmbedAuthor
+    public sealed class DiscordEmbedAuthor
     {
         /// <summary>
-        /// Name of the author
+        /// Gets the name of the author.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
+
         /// <summary>
-        /// Url of the author
+        /// Gets the url of the author.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; set; }
+        public Uri Url { get; set; }
+
         /// <summary>
-        /// Url of the author icon (https only)
+        /// Gets the url of the author's icon.
         /// </summary>
         [JsonProperty("icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public string IconUrl { get; set; }
+        public Uri IconUrl { get; set; }
+
         /// <summary>
-        /// A proxied url of the author icon
+        /// Gets the proxied url of the author's icon.
         /// </summary>
         [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public string ProxyIconUrl { get; set; }
+        public Uri ProxyIconUrl { get; internal set; }
+
+        internal DiscordEmbedAuthor() { }
     }
 }
