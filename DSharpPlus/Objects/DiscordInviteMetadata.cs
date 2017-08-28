@@ -6,6 +6,7 @@ namespace DSharpPlus
     /// <summary>
     /// 
     /// </summary>
+    [Obsolete("Moved to DiscordInvite object", true)]
     public class DiscordInviteMetadata
     {
         /// <summary>
