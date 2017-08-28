@@ -303,6 +303,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             private CancellationTokenSource AudioLoopCancelTokenSource { get; set; }
             private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
             private Task AudioLoopTask { get; set; }
+            private double Volume { get; set; } = 1.0;
 
             private ConcurrentDictionary<uint, ulong> _ssrc_map;
             private ConcurrentDictionary<uint, FileStream> _ssrc_filemap;
@@ -327,6 +328,26 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
                 this._ssrc_map[e.SSRC] = e.User.Id;
                 return Task.Delay(0);
+            }
+
+            private unsafe void RescaleVolume(byte[] data)
+            {
+                fixed (byte* ptr8 = data)
+                {
+                    var ptr16 = (short*)ptr8;
+                    for (var i = 0; i < data.Length / 2; i++)
+                        *(ptr16 + i) = (short)(*(ptr16 + i) * this.Volume);
+                }
+            }
+
+            [Command("volume"), RequireOwner]
+            public async Task VolumeAsync(CommandContext ctx, double vol = 1.0)
+            {
+                if (vol < 0 || vol > 5)
+                    throw new ArgumentOutOfRangeException(nameof(vol), "Volume needs to be between 0 and 500% inclusive.");
+
+                this.Volume = vol;
+                await ctx.RespondAsync($"Volume set to {(vol * 100).ToString("0.00")}%");
             }
 
             [Command("join")]
@@ -456,6 +477,9 @@ Serverowner: {e.Guild.Owner.DisplayName}
                             if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
                                 for (var i = br; i < buff.Length; i++)
                                     buff[i] = 0;
+
+                            if (this.Volume != 1.0)
+                                this.RescaleVolume(buff);
 
                             await vnc.SendAsync(buff, 20); // we're sending 20ms of data
                         }

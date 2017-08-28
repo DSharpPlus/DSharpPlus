@@ -79,7 +79,8 @@ namespace DSharpPlus.VoiceNext
         private OpusCodec Opus { get; set; }
         private SodiumCodec Sodium { get; set; }
         private RtpCodec Rtp { get; set; }
-        private Stopwatch Synchronizer { get; }
+        private double SynchronizerTicks { get; set; }
+        private double SynchronizerResolution { get; set; }
         private TimeSpan UdpLatency { get; }
 
         private ushort Sequence { get; set; }
@@ -136,7 +137,6 @@ namespace DSharpPlus.VoiceNext
             this.Opus = new OpusCodec(48000, 2, this.Configuration.VoiceApplication);
             this.Sodium = new SodiumCodec();
             this.Rtp = new RtpCodec();
-            this.Synchronizer = new Stopwatch();
             this.UdpLatency = TimeSpan.FromMilliseconds(0.1);
 
             this.ServerData = server;
@@ -242,6 +242,12 @@ namespace DSharpPlus.VoiceNext
                 throw new InvalidOperationException("The connection is not initialized");
 
             await this.PlaybackSemaphore.WaitAsync();
+            if (this.SynchronizerTicks == 0)
+            {
+                this.SynchronizerTicks = Stopwatch.GetTimestamp();
+                this.SynchronizerResolution = (Stopwatch.Frequency * 0.02);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0")}/{this.SynchronizerResolution} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
+            }
 
             var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
 
@@ -268,14 +274,9 @@ namespace DSharpPlus.VoiceNext
             // time.time()
             //   DateTime.Now
 
-            this.Synchronizer.Stop();
-            var ts = TimeSpan.FromMilliseconds(blocksize) - this.Synchronizer.Elapsed - this.UdpLatency;
-            if (ts.Ticks < 0)
-                ts = TimeSpan.FromTicks(1);
-            var dt = DateTime.Now;
             //await Task.Delay(ts);
-            while (DateTime.Now - dt < ts) ;
-            this.Synchronizer.Restart();
+            while (Stopwatch.GetTimestamp() - this.SynchronizerTicks < this.SynchronizerResolution) ;
+            this.SynchronizerTicks += this.SynchronizerResolution;
 
             this.PlaybackSemaphore.Release();
         }
@@ -373,7 +374,7 @@ namespace DSharpPlus.VoiceNext
 
             if (!speaking)
             {
-                this.Synchronizer.Reset();
+                this.SynchronizerTicks = 0;
                 if (this.PlayingWait != null)
                     this.PlayingWait.SetResult(true);
             }

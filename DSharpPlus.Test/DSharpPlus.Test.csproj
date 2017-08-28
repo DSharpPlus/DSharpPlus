@@ -8,6 +8,7 @@
     <RootNamespace>DSharpPlus.Test</RootNamespace>
     <AssemblyName>DSharpPlus.Test</AssemblyName>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">
