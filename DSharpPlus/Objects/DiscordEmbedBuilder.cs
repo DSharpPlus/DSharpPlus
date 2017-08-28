@@ -10,7 +10,7 @@ namespace DSharpPlus
     /// <summary>
     /// Constructs embeds.
     /// </summary>
-    public sealed class DiscordEmbedBuilder
+    public class DiscordEmbedBuilder
     {
         /// <summary>
         /// Gets or sets the embed's title.
@@ -473,6 +473,6 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="builder">Builder to convert.</param>
         public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder) =>
-            builder.Build();
+            builder?.Build();
     }
 }
