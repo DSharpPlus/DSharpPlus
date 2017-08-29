@@ -1,8 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Attributes
 {
-    public class RequireOwnerAttribute : CheckBaseAttribute
+    /// <summary>
+    /// Defines that usage of this command is restricted to the owner of the bot.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public sealed class RequireOwnerAttribute : CheckBaseAttribute
     {
         public override Task<bool> CanExecute(CommandContext ctx)
         {

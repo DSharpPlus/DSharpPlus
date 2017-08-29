@@ -1,36 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    /// <summary>
+    /// Defines that usage of this command is restricted to members with specified permissions.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     {
-        private static Dictionary<string, int> PermissionOrder { get; set; }
-
         /// <summary>
         /// Gets the permissions required by this attribute.
         /// </summary>
-        public Permissions Permissions { get; private set; }
+        public Permissions Permissions { get; }
 
         /// <summary>
         /// Gets or sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
         /// </summary>
-        public bool IgnoreDms { get; set; } = true;
+        public bool IgnoreDms { get; } = true;
 
+        /// <summary>
+        /// Defines that usage of this command is restricted to members with specified permissions.
+        /// </summary>
+        /// <param name="permissions">Permissions required to execute this command.</param>
         public RequirePermissionsAttribute(Permissions permissions)
         {
             this.Permissions = permissions;
-        }
-
-        static RequirePermissionsAttribute()
-        {
-            PermissionOrder = new Dictionary<string, int>()
-            {
-                { "role", 2 },
-                { "user", 1 }
-            };
         }
 
         public override async Task<bool> CanExecute(CommandContext ctx)
