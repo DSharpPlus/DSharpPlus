@@ -139,6 +139,13 @@ namespace DSharpPlus.Test
             await ctx.RespondWithFileAsync(filepath, Formatter.InlineCode(filepath));
         }
 
+        [Command("b1nzy")]
+        public async Task B1nzyAsync(CommandContext ctx)
+        {
+            for (var i = 0; i < 10; i++)
+                await ctx.RespondAsync("b1nzy'd");
+        }
+
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
         public class InteractivityTest
         {

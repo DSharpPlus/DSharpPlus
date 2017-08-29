@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus
@@ -11,285 +12,240 @@ namespace DSharpPlus
     /// <summary>
     /// Represents a client used to make REST requests.
     /// </summary>
-    public class RestClient
+    internal sealed class RestClient
     {
-        private static List<RateLimit> _rateLimits = new List<RateLimit>();
-        private static UTF8Encoding utf8 = new UTF8Encoding(false);
-        private HttpClient _http;
-        private DiscordClient _discord;
+        private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
-        public RestClient(DiscordClient client)
+        private DiscordClient Discord { get; }
+        private HttpClient HttpClient { get; }
+        private HashSet<RateLimitBucket> Buckets { get; }
+        private SemaphoreSlim RequestSemaphore { get; }
+
+        internal RestClient(DiscordClient client)
         {
-            _http = new HttpClient
+            this.Discord = client;
+
+            this.HttpClient = new HttpClient
             {
                 BaseAddress = new Uri(Utils.GetApiBaseUri(client))
             };
-            _http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utils.GetUserAgent());
-            _http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utils.GetFormattedToken(client));
-            _discord = client;
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utils.GetUserAgent());
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utils.GetFormattedToken(client));
+
+            this.Buckets = new HashSet<RateLimitBucket>();
+            this.RequestSemaphore = new SemaphoreSlim(1, 1);
         }
 
-        /// <summary>
-        /// Executes a REST request.
-        /// </summary>
-        /// <param name="request">REST request to execute.</param>
-        /// <returns>Request task.</returns>
-        public async Task<WebResponse> HandleRequestAsync(IWebRequest request)
+        public RateLimitBucket GetBucket(ulong parameter, MajorParameterType type, Uri url)
         {
-            await DelayRequest(request);
-            if (request.GetType() == typeof(WebRequest))
+            RateLimitBucket bucket = null;
+            if (type != MajorParameterType.Unbucketed)
             {
-                var req = (WebRequest)request;
-                switch (req.Method)
+                bucket = this.Buckets.FirstOrDefault(xb => xb.Parameter == parameter && xb.ParameterType == type);
+                if (bucket == null)
                 {
-                    case HttpRequestMethod.GET:
-                    case HttpRequestMethod.DELETE:
-                        {
-                            return await WithoutPayloadAsync(req);
-                        }
-                    case HttpRequestMethod.POST:
-                    case HttpRequestMethod.PATCH:
-                    case HttpRequestMethod.PUT:
-                        {
-                            return await WithPayloadAsync(req);
-                        }
-                    default:
-                        throw new NotSupportedException("");
+                    bucket = new RateLimitBucket
+                    {
+                        Parameter = parameter,
+                        ParameterType = type
+                    };
+                    this.Buckets.Add(bucket);
                 }
-            } else if (request.GetType() == typeof(MultipartWebRequest))
-                return await WithMultipartPayloadAsync((MultipartWebRequest)request);
+            }
             else
-                throw new NotSupportedException("No such IWebRequest known!");
+            {
+                bucket = this.Buckets.FirstOrDefault(xb => xb.Path == url.AbsolutePath);
+                if (bucket == null)
+                {
+                    bucket = new RateLimitBucket
+                    {
+                        Parameter = 0,
+                        ParameterType = MajorParameterType.Unbucketed,
+                        Path = url.AbsolutePath
+                    };
+                    this.Buckets.Add(bucket);
+                }
+            }
+
+            return bucket;
         }
 
-        internal async Task<WebResponse> WithoutPayloadAsync(WebRequest request)
+        public async Task ExecuteRequestAsync(BaseWebRequest request)
         {
-            var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
-            if (request.Headers != null)
-                foreach (var kvp in request.Headers)
-                    req.Headers.Add(kvp.Key, kvp.Value);
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
 
-            WebResponse response = new WebResponse();
+            await this.RequestSemaphore.WaitAsync();
+
+            var bucket = request.RateLimitBucket;
+            var now = DateTimeOffset.UtcNow;
+            if (bucket.Remaining <= 0 && now < bucket.Reset)
+            {
+                request.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered, waiting until {bucket.Reset.ToString("yyyy-MM-dd HH:mm:ss zzz")}", DateTime.Now);
+                _ = Task.Delay(bucket.Reset - now).ContinueWith(t => this.ExecuteRequestAsync(request));
+                this.RequestSemaphore.Release();
+                return;
+            }
+
+            var req = this.BuildRequest(request);
+            var response = new WebResponse();
             try
             {
-                var res = await _http.SendAsync(req, HttpCompletionOption.ResponseContentRead);
+                var res = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseContentRead);
 
                 var bts = await res.Content.ReadAsByteArrayAsync();
-                var txt = utf8.GetString(bts, 0, bts.Length);
+                var txt = UTF8.GetString(bts, 0, bts.Length);
 
                 response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
                 response.Response = txt;
                 response.ResponseCode = (int)res.StatusCode;
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException httpex)
             {
-                return new WebResponse
-                {
-                    Headers = null,
-                    Response = "",
-                    ResponseCode = 0
-                };
+                request.Discord.DebugLogger.LogMessage(LogLevel.Error, "REST", $"Request to {request.Url} triggered an HttpException: {httpex.Message}", DateTime.Now);
+                request.SetFaulted(httpex);
+                this.RequestSemaphore.Release();
+                return;
             }
 
-            HandleRateLimit(request, response);
-
-            // Checking for Errors
+            Exception ex = null;
             switch (response.ResponseCode)
             {
                 case 400:
                 case 405:
-                    throw new BadRequestException(request, response);
+                    ex = new BadRequestException(request, response);
+                    break;
+
                 case 401:
                 case 403:
-                    throw new UnauthorizedException(request, response);
+                    ex = new UnauthorizedException(request, response);
+                    break;
+
                 case 404:
-                    throw new NotFoundException(request, response);
+                    ex = new NotFoundException(request, response);
+                    break;
+
                 case 429:
-                    throw new RateLimitException(request, response);
+                    ex = new RateLimitException(request, response);
+
+                    // check the limit info, if more than one minute, fault, otherwise requeue
+                    this.Handle429(response, out var wait, out var global);
+                    if (wait != null)
+                    {
+                        wait = wait.ContinueWith(t => this.ExecuteRequestAsync(request));
+                        if (global)
+                        {
+                            request.Discord.DebugLogger.LogMessage(LogLevel.Error, "REST", $"Global ratelimit hit, cooling down", DateTime.Now);
+                            await wait;
+                        }
+                        else
+                            request.Discord.DebugLogger.LogMessage(LogLevel.Error, "REST", $"Ratelimit hit, requeueing request to {request.Url}", DateTime.Now);
+                        this.RequestSemaphore.Release();
+                        return;
+                    }
+                    break;
             }
 
-            return response;
+            this.UpdateBucket(request, response);
+            this.RequestSemaphore.Release();
+
+            if (ex != null)
+                request.SetFaulted(ex);
+            else
+                request.SetCompleted(response);
         }
 
-        internal async Task<WebResponse> WithPayloadAsync(WebRequest request)
+        private HttpRequestMessage BuildRequest(BaseWebRequest request)
         {
-            var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
-            if (request.Headers != null)
+            var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.Url);
+            if (request.Headers != null && request.Headers.Any())
                 foreach (var kvp in request.Headers)
                     req.Headers.Add(kvp.Key, kvp.Value);
 
-            req.Content = new StringContent(request.Payload);
-            req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            WebResponse response = new WebResponse();
-            try
+            if (request is WebRequest nmprequest && !string.IsNullOrWhiteSpace(nmprequest.Payload))
             {
-                var res = await _http.SendAsync(req, HttpCompletionOption.ResponseContentRead);
-
-                var bts = await res.Content.ReadAsByteArrayAsync();
-                var txt = utf8.GetString(bts, 0, bts.Length);
-
-                response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
-                response.Response = txt;
-                response.ResponseCode = (int)res.StatusCode;
-            }
-            catch (HttpRequestException)
-            {
-                return new WebResponse
-                {
-                    Headers = null,
-                    Response = "",
-                    ResponseCode = 0
-                };
+                req.Content = new StringContent(nmprequest.Payload);
+                req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             }
 
-            HandleRateLimit(request, response);
-
-            // Checking for Errors
-            switch (response.ResponseCode)
+            if (request is MultipartWebRequest mprequest)
             {
-                case 400:
-                case 405:
-                    throw new BadRequestException(request, response);
-                case 401:
-                case 403:
-                    throw new UnauthorizedException(request, response);
-                case 404:
-                    throw new NotFoundException(request, response);
-                case 429:
-                    throw new RateLimitException(request, response);
-            }
-
-            return response;
-        }
-
-        internal async Task<WebResponse> WithMultipartPayloadAsync(MultipartWebRequest request)
-        {
-            var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.URL);
-            if (request.Headers != null)
-                foreach (var kvp in request.Headers)
-                    req.Headers.Add(kvp.Key, kvp.Value);
-
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
 
                 req.Headers.Add("Connection", "keep-alive");
                 req.Headers.Add("Keep-Alive", "600");
 
                 var content = new MultipartFormDataContent(boundary);
-                if (request.Values != null)
-                    foreach (var kvp in request.Values)
+                if (mprequest.Values != null && mprequest.Values.Any())
+                    foreach (var kvp in mprequest.Values)
                         content.Add(new StringContent(kvp.Value), kvp.Key);
-                if (request.Files != null)
+
+                if (mprequest.Files != null && mprequest.Files.Any())
                 {
-                    int i = 1;
-                    foreach (var f in request.Files)
-                    {
-                        content.Add(new StreamContent(f.Value), $"file{i}", f.Key);
-                        i++;
-                    }
+                    var i = 1;
+                    foreach (var f in mprequest.Files)
+                        content.Add(new StreamContent(f.Value), $"file{i++}", f.Key);
                 }
 
                 req.Content = content;
-
-            WebResponse response = new WebResponse();
-            try
-            {
-                var res = await _http.SendAsync(req, HttpCompletionOption.ResponseContentRead);
-
-                var bts = await res.Content.ReadAsByteArrayAsync();
-                var txt = utf8.GetString(bts, 0, bts.Length);
-
-                response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
-                response.Response = txt;
-                response.ResponseCode = (int)res.StatusCode;
-            }
-            catch (HttpRequestException)
-            {
-                return new WebResponse
-                {
-                    Headers = null,
-                    Response = "",
-                    ResponseCode = 0
-                };
             }
 
-            HandleRateLimit(request, response);
-
-            // Checking for Errors
-            switch (response.ResponseCode)
-            {
-                case 400:
-                case 405:
-                    throw new BadRequestException(request, response);
-                case 401:
-                case 403:
-                    throw new UnauthorizedException(request, response);
-                case 404:
-                    throw new NotFoundException(request, response);
-                case 429:
-                    throw new RateLimitException(request, response);
-            }
-
-            return response;
+            return req;
         }
 
-        internal async Task DelayRequest(IWebRequest request)
+        private void Handle429(WebResponse response, out Task wait_task, out bool global)
         {
-            string requesturl = request.URL;
+            wait_task = null;
+            global = false;
 
-            RateLimit rateLimit = _rateLimits.Find(x => x.Url == requesturl);
-            DateTimeOffset time = DateTimeOffset.UtcNow;
-            if (rateLimit != null)
+            if (response.Headers == null)
+                return;
+            var hs = response.Headers;
+
+            // check if global b1nzy
+            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLower() == "true")
             {
-                if (rateLimit.UsesLeft == 0 && rateLimit.Reset > time)
-                {
-                    request.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Internal", $"Rate-limitted. Waiting till {rateLimit.Reset}", DateTime.Now);
-                    await Task.Delay((rateLimit.Reset - time));
-                }
-                else if (rateLimit.UsesLeft == 0 && rateLimit.Reset < time)
-                {
-                    _rateLimits.Remove(rateLimit);
-                }
+                // global
+
+                hs.TryGetValue("Retry-After", out var retry_after_raw);
+                var retry_after = int.Parse(retry_after_raw);
+
+                // handle the wait
+                wait_task = Task.Delay(retry_after);
+                global = true;
+                return;
             }
         }
 
-        internal void HandleRateLimit(IWebRequest request, WebResponse response)
+        private void UpdateBucket(BaseWebRequest request, WebResponse response)
         {
-            if (response.Headers == null || !response.Headers.ContainsKey("X-RateLimit-Reset") || !response.Headers.ContainsKey("X-RateLimit-Remaining") || !response.Headers.ContainsKey("X-RateLimit-Limit"))
+            if (response.Headers == null)
+                return;
+            var hs = response.Headers;
+
+            var bucket = request.RateLimitBucket;
+
+            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLower() == "true")
+                return;
+
+            var r1 = hs.TryGetValue("X-RateLimit-Limit", out var usesmax);
+            var r2 = hs.TryGetValue("X-RateLimit-Remaining", out var usesleft);
+            var r3 = hs.TryGetValue("X-RateLimit-Reset", out var reset);
+
+            if (!r1 || !r2 || !r3)
                 return;
 
             var clienttime = DateTimeOffset.UtcNow;
-            var servertime = DateTimeOffset.Parse(response.Headers["Date"]).ToUniversalTime();
-            double difference = clienttime.Subtract(servertime).TotalSeconds;
-            request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", "Difference between machine and server time in Ms: " + difference, DateTime.Now);
+            var servertime = clienttime;
+            if (hs.TryGetValue("Date", out var raw_date))
+                servertime = DateTimeOffset.Parse(raw_date).ToUniversalTime();
 
-            string requesturl = request.URL;
+            var difference = clienttime.Subtract(servertime);
+            request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00")}ms", DateTime.Now);
 
-            RateLimit rateLimit = _rateLimits.Find(x => x.Url == requesturl);
-            if (rateLimit != null)
-            {
-                response.Headers.TryGetValue("X-RateLimit-Limit", out var usesmax);
-                response.Headers.TryGetValue("X-RateLimit-Remaining", out var usesleft);
-                response.Headers.TryGetValue("X-RateLimit-Reset", out var reset);
-
-                rateLimit.Reset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset) + difference);
-                rateLimit.UsesLeft = int.Parse(usesleft);
-                rateLimit.UsesMax = int.Parse(usesmax);
-                _rateLimits[_rateLimits.FindIndex(x => x.Url == requesturl)] = rateLimit;
-            }
-            else
-            {
-                response.Headers.TryGetValue("X-RateLimit-Limit", out var usesmax);
-                response.Headers.TryGetValue("X-RateLimit-Remaining", out var usesleft);
-                response.Headers.TryGetValue("X-RateLimit-Reset", out var reset);
-                _rateLimits.Add(new RateLimit
-                {
-                    Reset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset) + difference),
-                    Url = requesturl,
-                    UsesLeft = int.Parse(usesleft),
-                    UsesMax = int.Parse(usesmax)
-                });
-            }
+            bucket.Maximum = int.Parse(usesmax);
+            bucket.Remaining = int.Parse(usesleft);
+            bucket.Reset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(long.Parse(reset) + difference.TotalSeconds);
         }
     }
 }

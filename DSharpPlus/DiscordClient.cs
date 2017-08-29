@@ -517,13 +517,13 @@ namespace DSharpPlus
         /// </summary>
         public int GatewayVersion => _gateway_version;
 
-        internal string _gatewayUrl = "";
+        internal string _gateway_url = "";
         /// <summary>
         /// Gateway url
         /// </summary>
-        public string GatewayUrl => _gatewayUrl;
+        public string GatewayUrl => _gateway_url;
 
-        internal int _shardCount = 1;
+        internal int _shard_count = 1;
         /// <summary>
         /// Gets the total number of shards the bot is connected to.
         /// </summary>
@@ -804,23 +804,26 @@ namespace DSharpPlus
             _websocket_client.OnError += e => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
 
             await ConnectionSemaphore.WaitAsync();
-            await _websocket_client.ConnectAsync(_gatewayUrl + "?v=6&encoding=json");
+            await _websocket_client.ConnectAsync(_gateway_url + "?v=6&encoding=json");
         }
 
         internal async Task InternalUpdateGatewayAsync()
         {
-            string url = Utils.GetApiBaseUri(this) + Endpoints.GATEWAY;
             var headers = Utils.GetBaseHeaders();
+
+            var url = new Uri(Utils.GetApiBaseUri(this) + Endpoints.GATEWAY);
             if (_config.TokenType == TokenType.Bot)
-                url += Endpoints.BOT;
+                url = new Uri(string.Concat(url, Endpoints.BOT));
 
-            WebRequest request = WebRequest.CreateRequest(this, url, HttpRequestMethod.GET, headers);
-            WebResponse response = await this._rest_client.Rest.HandleRequestAsync(request);
+            var bucket = this._rest_client.Rest.GetBucket(0, MajorParameterType.Unbucketed, url);
+            var request = new WebRequest(this, bucket, url, HttpRequestMethod.GET, headers);
+            _ = this._rest_client.Rest.ExecuteRequestAsync(request);
+            var response = await request.WaitForCompletionAsync();
 
-            JObject jObj = JObject.Parse(response.Response);
-            _gatewayUrl = jObj.Value<string>("url");
-            if (jObj["shards"] != null)
-                _shardCount = jObj.Value<int>("shards");
+            var jo = JObject.Parse(response.Response);
+            this._gateway_url = jo.Value<string>("url");
+            if (jo["shards"] != null)
+                _shard_count = jo.Value<int>("shards");
         }
 
         /// <summary>

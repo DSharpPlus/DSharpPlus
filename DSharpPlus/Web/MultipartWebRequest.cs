@@ -1,33 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace DSharpPlus
 {
-    public class MultipartWebRequest : IWebRequest
+    /// <summary>
+    /// Represents a multipart HTTP request.
+    /// </summary>
+    public sealed class MultipartWebRequest : BaseWebRequest
     {
-        public DiscordClient Discord { get; set; }
+        /// <summary>
+        /// Gets the dictionary of values attached to this request.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> Values { get; }
 
-        public string URL { get; set; }
-        public HttpRequestMethod Method { get; set; }
-        public IDictionary<string, string> Headers { get; set; }
+        /// <summary>
+        /// Gets the dictionary of files attached to this request.
+        /// </summary>
+        public IReadOnlyDictionary<string, Stream> Files { get; }
 
-        public IDictionary<string, string> Values { get; private set; }
-        public IDictionary<string, Stream> Files { get; private set; }
-
-        private MultipartWebRequest() { }
-
-        public static MultipartWebRequest CreateRequest(DiscordClient client, string url, HttpRequestMethod method = HttpRequestMethod.GET, IDictionary<string, string> headers = null,
-            IDictionary<string, string> values = null, IDictionary<string, Stream> files = null)
+        internal MultipartWebRequest(DiscordClient client, RateLimitBucket bucket, Uri url, HttpRequestMethod method, IDictionary<string, string> headers = null, IDictionary<string, string> values = null, 
+            IDictionary<string, Stream> files = null)
+            : base(client, bucket, url, method, headers)
         {
-            return new MultipartWebRequest
-            {
-                Discord = client,
-                URL = url,
-                Method = method,
-                Headers = headers,
-                Values = values,
-                Files = files
-            };
+            this.Values = values != null ? new ReadOnlyDictionary<string, string>(values) : null;
+            this.Files = files != null ? new ReadOnlyDictionary<string, Stream>(files) : null;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace DSharpPlus
         /// <summary>
         /// Request that caused the exception
         /// </summary>
-        public IWebRequest WebRequest { get; internal set; }
+        public BaseWebRequest WebRequest { get; internal set; }
         /// <summary>
         /// Response from server
         /// </summary>
@@ -18,7 +18,7 @@ namespace DSharpPlus
         /// </summary>
         public string JsonMessage { get; internal set; }
 
-        public UnauthorizedException(IWebRequest request, WebResponse response) : base("Unauthorized: " + response.ResponseCode)
+        public UnauthorizedException(BaseWebRequest request, WebResponse response) : base("Unauthorized: " + response.ResponseCode)
         {
             this.WebRequest = request;
             this.WebResponse = response;

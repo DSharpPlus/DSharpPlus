@@ -1,30 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DSharpPlus
 {
-    public class WebRequest : IWebRequest
+    /// <summary>
+    /// Represents a non-multipart HTTP request.
+    /// </summary>
+    public sealed class WebRequest : BaseWebRequest
     {
-        public DiscordClient Discord { get; set; }
+        /// <summary>
+        /// Gets the payload sent with this request.
+        /// </summary>
+        public string Payload { get; }
 
-        public string URL { get; set; }
-        public HttpRequestMethod Method { get; set; }
-        public IDictionary<string, string> Headers { get; set; }
-        
-        // Regular request
-        public string Payload { get; private set; }
-
-        private WebRequest() { }
-
-        public static WebRequest CreateRequest(DiscordClient client, string url, HttpRequestMethod method = HttpRequestMethod.GET, IDictionary<string, string> headers = null, string payload = "")
+        internal WebRequest(DiscordClient client, RateLimitBucket bucket, Uri url, HttpRequestMethod method, IDictionary<string, string> headers = null, string payload = null)
+            : base(client, bucket, url, method, headers)
         {
-            return new WebRequest
-            {
-                Discord = client,
-                URL = url,
-                Method = method,
-                Headers = headers,
-                Payload = payload
-            };
+            this.Payload = payload;
         }
     }
 }
