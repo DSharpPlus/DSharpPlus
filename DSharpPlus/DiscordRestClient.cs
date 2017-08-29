@@ -7,7 +7,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
-using DSharpPlus.Objects.Transport;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -1343,13 +1342,29 @@ namespace DSharpPlus
         private async Task<DiscordApplication> InternalGetApplicationInfoAsync(string id)
         {
             var url = new Uri(string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.OAUTH2, Endpoints.APPLICATIONS, "/", id));
-            var bucket = this.Rest.GetBucket(0, MajorParameterType.Unbucketed, url, HttpRequestMethod.POST);
+            var bucket = this.Rest.GetBucket(0, MajorParameterType.Unbucketed, url, HttpRequestMethod.GET);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, HttpRequestMethod.GET);
 
             var app = JsonConvert.DeserializeObject<DiscordApplication>(res.Response);
             app.Discord = this.Discord;
 
             return app;
+        }
+
+        internal async Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication app)
+        {
+            var url = new Uri(string.Concat(Utils.GetApiBaseUri(this.Discord), Endpoints.OAUTH2, Endpoints.APPLICATIONS, "/", app.Id, Endpoints.ASSETS));
+            var bucket = this.Rest.GetBucket(0, MajorParameterType.Unbucketed, url, HttpRequestMethod.GET);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, HttpRequestMethod.GET);
+
+            var assets = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationAsset>>(res.Response);
+            foreach (var asset in assets)
+            {
+                asset.Discord = app.Discord;
+                asset.Application = app;
+            }
+
+            return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
         }
 
         internal async Task InternalAcknowledgeMessageAsync(ulong msg_id, ulong chn_id)

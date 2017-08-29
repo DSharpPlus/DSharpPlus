@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using DSharpPlus.Objects.Transport;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus
@@ -16,7 +16,7 @@ namespace DSharpPlus
         public DiscordUser User => this.Guild != null ? this.Guild._members.FirstOrDefault(xm => xm.Id == this.InternalUser.Id) : this.Discord.InternalGetCachedUser(this.InternalUser.Id) ?? new DiscordUser(this.InternalUser) { Discord = this.Discord };
 
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
-        public Game Game { get; internal set; }
+        public TransportGame Game { get; internal set; }
 
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
         internal string InternalStatus { get; set; }

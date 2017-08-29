@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace DSharpPlus.Objects.Transport
+namespace DSharpPlus.Net.Abstractions
 {
     internal class TransportUser
     {

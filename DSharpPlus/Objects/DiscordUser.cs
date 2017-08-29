@@ -1,5 +1,5 @@
 ﻿using System;
-using DSharpPlus.Objects.Transport;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus

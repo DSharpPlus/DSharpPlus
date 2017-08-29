@@ -12,5 +12,8 @@ namespace DSharpPlus.Test
 
         [JsonProperty("shards")]
         public int ShardCount { get; private set; } = 1;
+
+        [JsonProperty("user")]
+        public bool UseUserToken { get; private set; } = false;
     }
 }

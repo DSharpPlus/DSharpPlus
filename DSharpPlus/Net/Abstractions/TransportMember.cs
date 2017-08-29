@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Objects.Transport
+namespace DSharpPlus.Net.Abstractions
 {
     internal class TransportMember
     {

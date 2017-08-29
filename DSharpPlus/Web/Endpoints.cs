@@ -44,5 +44,6 @@
         public const string AUDIT_LOGS = "/audit-logs";
         public const string ACK = "/ack";
         public const string NICK = "/nick";
+        public const string ASSETS = "/assets";
     }
 }

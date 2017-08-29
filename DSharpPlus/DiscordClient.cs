@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
-using DSharpPlus.Objects.Transport;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -2243,7 +2242,7 @@ namespace DSharpPlus
 
             var status = new StatusUpdate
             {
-                Game = game ?? new Game(),
+                Game = new TransportGame(game ?? new Game()),
                 IdleSince = since_unix,
                 IsAFK = idle_since != null,
                 Status = user_status ?? UserStatus.Online

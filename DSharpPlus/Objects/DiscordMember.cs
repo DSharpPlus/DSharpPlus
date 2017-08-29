@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DSharpPlus.Objects.Transport;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
+using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus
 {

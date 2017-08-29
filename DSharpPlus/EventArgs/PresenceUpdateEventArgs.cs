@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus
@@ -19,7 +20,7 @@ namespace DSharpPlus
         /// Member's new game
         /// </summary>
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
-        public Game Game { get; internal set; }
+        public TransportGame Game { get; internal set; }
 
         /// <summary>
         /// Member's status
