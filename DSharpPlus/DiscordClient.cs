@@ -776,7 +776,7 @@ namespace DSharpPlus
                 this._current_user = await this._rest_client.InternalGetCurrentUserAsync();
 
             if (this._config.TokenType != TokenType.User && this._current_application == null)
-                this._current_application = await this.GetCurrentAppAsync();
+                this._current_application = await this.GetCurrentApplicationAsync();
 
             Volatile.Write(ref this._skipped_heartbeats, 0);
 
@@ -969,9 +969,17 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the current API application.
         /// </summary>
-        /// <returns></returns>
-        public Task<DiscordApplication> GetCurrentAppAsync() => 
+        /// <returns>Current API application.</returns>
+        public Task<DiscordApplication> GetCurrentApplicationAsync() => 
             this._rest_client.InternalGetCurrentApplicationInfoAsync();
+
+        /// <summary>
+        /// Gets information about specified API application.
+        /// </summary>
+        /// <param name="id">ID of the application.</param>
+        /// <returns>Information about specified API application.</returns>
+        public Task<DiscordApplication> GetApplicationAsync(ulong id) =>
+            this._rest_client.InternalGetApplicationInfoAsync(id);
 
         /// <summary>
         /// Edits current user.
