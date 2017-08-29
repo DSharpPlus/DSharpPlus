@@ -63,7 +63,7 @@ namespace DSharpPlus
         /// When this invite was created
         /// </summary>
         [JsonProperty("created_at", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTime CreatedAt { get; internal set; }
+        public DateTimeOffset CreatedAt { get; internal set; }
         /// <summary>
         /// Whether this invite is revoked
         /// </summary>
