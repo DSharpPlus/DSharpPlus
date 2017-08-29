@@ -379,13 +379,10 @@ namespace DSharpPlus.Interactivity
             {
                 case TimeoutBehaviour.Default:
                 case TimeoutBehaviour.Ignore:
-                    await Task.Delay(100);
                     await m.DeleteAllReactionsAsync();
                     break;
                 case TimeoutBehaviour.Delete:
-                    await Task.Delay(100);
                     await m.DeleteAllReactionsAsync();
-                    await Task.Delay(100);
                     await m.DeleteAsync();
                     break;
             }
@@ -429,13 +426,9 @@ namespace DSharpPlus.Interactivity
         public async Task GeneratePaginationReactions(DiscordMessage m)
         {
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮"));
-            await Task.Delay(500);
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀"));
-            await Task.Delay(500);
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹"));
-            await Task.Delay(500);
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "▶"));
-            await Task.Delay(500);
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏭"));
         }
 
@@ -501,3 +494,5 @@ namespace DSharpPlus.Interactivity
 // send nudes
 
 // wait don't im not 18 yet
+
+// I mean I don't mind..
