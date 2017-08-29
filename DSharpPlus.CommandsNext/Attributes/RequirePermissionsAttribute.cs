@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace DSharpPlus.CommandsNext.Attributes
 {
     /// <summary>
-    /// Defines that usage of this command is restricted to members with specified permissions.
+    /// Defines that usage of this command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class RequirePermissionsAttribute : CheckBaseAttribute
@@ -20,7 +20,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         public bool IgnoreDms { get; } = true;
 
         /// <summary>
-        /// Defines that usage of this command is restricted to members with specified permissions.
+        /// Defines that usage of this command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
         /// </summary>
         /// <param name="permissions">Permissions required to execute this command.</param>
         public RequirePermissionsAttribute(Permissions permissions)
