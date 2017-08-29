@@ -23,6 +23,11 @@ namespace DSharpPlus
         public MajorParameterType ParameterType { get; internal set; }
 
         /// <summary>
+        /// Gets the HTTP request method.
+        /// </summary>
+        public HttpRequestMethod Method { get; internal set; }
+
+        /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
         /// </summary>
         public int Remaining { get; internal set; }
@@ -80,6 +85,7 @@ namespace DSharpPlus
         {
             var hash = 13;
             hash = (hash * 7) + this.ParameterType.GetHashCode();
+            hash = (hash * 7) + this.Method.GetHashCode();
             hash *= 7;
 
             if (this.ParameterType != MajorParameterType.Unbucketed)

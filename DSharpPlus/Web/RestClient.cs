@@ -36,32 +36,34 @@ namespace DSharpPlus
             this.RequestSemaphore = new SemaphoreSlim(1, 1);
         }
 
-        public RateLimitBucket GetBucket(ulong parameter, MajorParameterType type, Uri url)
+        public RateLimitBucket GetBucket(ulong parameter, MajorParameterType type, Uri url, HttpRequestMethod method)
         {
             RateLimitBucket bucket = null;
             if (type != MajorParameterType.Unbucketed)
             {
-                bucket = this.Buckets.FirstOrDefault(xb => xb.Parameter == parameter && xb.ParameterType == type);
+                bucket = this.Buckets.FirstOrDefault(xb => xb.Parameter == parameter && xb.ParameterType == type && xb.Method == method);
                 if (bucket == null)
                 {
                     bucket = new RateLimitBucket
                     {
                         Parameter = parameter,
-                        ParameterType = type
+                        ParameterType = type,
+                        Method = method
                     };
                     this.Buckets.Add(bucket);
                 }
             }
             else
             {
-                bucket = this.Buckets.FirstOrDefault(xb => xb.Path == url.AbsolutePath);
+                bucket = this.Buckets.FirstOrDefault(xb => xb.Path == url.AbsolutePath && xb.Method == method);
                 if (bucket == null)
                 {
                     bucket = new RateLimitBucket
                     {
                         Parameter = 0,
                         ParameterType = MajorParameterType.Unbucketed,
-                        Path = url.AbsolutePath
+                        Path = url.AbsolutePath,
+                        Method = method
                     };
                     this.Buckets.Add(bucket);
                 }

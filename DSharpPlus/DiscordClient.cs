@@ -815,7 +815,7 @@ namespace DSharpPlus
             if (_config.TokenType == TokenType.Bot)
                 url = new Uri(string.Concat(url, Endpoints.BOT));
 
-            var bucket = this._rest_client.Rest.GetBucket(0, MajorParameterType.Unbucketed, url);
+            var bucket = this._rest_client.Rest.GetBucket(0, MajorParameterType.Unbucketed, url, HttpRequestMethod.GET);
             var request = new WebRequest(this, bucket, url, HttpRequestMethod.GET, headers);
             _ = this._rest_client.Rest.ExecuteRequestAsync(request);
             var response = await request.WaitForCompletionAsync();
