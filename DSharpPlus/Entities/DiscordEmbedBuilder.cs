@@ -45,7 +45,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string Url
         {
-            get { return this._url.ToString(); }
+            get { return this._url?.ToString(); }
             set
             {
                 if (value == null)
@@ -81,7 +81,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string ImageUrl
         {
-            get { return this._image_uri.ToString(); }
+            get { return this._image_uri?.ToString(); }
             set
             {
                 if (value == null)
@@ -97,7 +97,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string ThumbnailUrl
         {
-            get { return this._thumbnail_uri.ToString(); }
+            get { return this._thumbnail_uri?.ToString(); }
             set
             {
                 if (value == null)
@@ -111,12 +111,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the embed's author.
         /// </summary>
-        public DiscordEmbedAuthor Author { get; internal set; }
+        public EmbedAuthor Author { get; internal set; }
 
         /// <summary>
         /// Gets the embed's footer.
         /// </summary>
-        public DiscordEmbedFooter Footer { get; internal set; }
+        public EmbedFooter Footer { get; internal set; }
 
         /// <summary>
         /// Gets the embed's fields.
@@ -146,17 +146,17 @@ namespace DSharpPlus.Entities
             this.Timestamp = original.Timestamp;
 
             if (original.Author != null)
-                this.Author = new DiscordEmbedAuthor
+                this.Author = new EmbedAuthor
                 {
-                    IconUrl = original.Author.IconUrl,
+                    IconUrl = original.Author.IconUrl.ToString(),
                     Name = original.Author.Name,
-                    Url = original.Author.Url
+                    Url = original.Author.Url.ToString()
                 };
 
             if (original.Footer != null)
-                this.Footer = new DiscordEmbedFooter
+                this.Footer = new EmbedFooter
                 {
-                    IconUrl = original.Footer.IconUrl,
+                    IconUrl = original.Footer.IconUrl.ToString(),
                     Text = original.Footer.Text
                 };
 
@@ -311,17 +311,14 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithAuthor(string name = null, string url = null, string icon_url = null)
         {
-            var _url = url != null ? new Uri(url) : null;
-            var _icon_url = icon_url != null ? new Uri(icon_url) : null;
-
-            if (name == null && _url == null && _icon_url == null)
+            if (name == null && url == null && icon_url == null)
                 this.Author = null;
             else
-                this.Author = new DiscordEmbedAuthor
+                this.Author = new EmbedAuthor
                 {
                     Name = name,
-                    Url = _url,
-                    IconUrl = _icon_url
+                    Url = url,
+                    IconUrl = icon_url
                 };
             return this;
         }
@@ -360,15 +357,13 @@ namespace DSharpPlus.Entities
             if (text != null && text.Length > 2048)
                 throw new ArgumentException("Footer text cannot exceed 2048 characters of length.");
 
-            var _icon_url = icon_url != null ? new Uri(icon_url) : null;
-
-            if (text == null && _icon_url == null)
+            if (text == null && icon_url == null)
                 this.Footer = null;
             else
-                this.Footer = new DiscordEmbedFooter
+                this.Footer = new EmbedFooter
                 {
                     Text = text,
-                    IconUrl = _icon_url
+                    IconUrl = icon_url
                 };
             return this;
         }
@@ -450,10 +445,23 @@ namespace DSharpPlus.Entities
                 Description = this._description,
                 Url = this._url,
                 _color = this._color.Value,
-                Timestamp = this._timestamp,
-                Author = this.Author,
-                Footer = this.Footer
+                Timestamp = this._timestamp
             };
+
+            if (this.Footer != null)
+                embed.Footer = new DiscordEmbedFooter
+                {
+                    Text = this.Footer.Text,
+                    IconUrl = this.Footer.IconUrl != null ? new Uri(this.Footer.IconUrl) : null
+                };
+
+            if (this.Author != null)
+                embed.Author = new DiscordEmbedAuthor
+                {
+                    Name = this.Author.Name,
+                    Url = this.Author.Url != null ? new Uri(this.Author.Url) : null,
+                    IconUrl = this.Author.IconUrl != null ? new Uri(this.Author.IconUrl) : null
+                };
 
             if (this._image_uri != null)
                 embed.Image = new DiscordEmbedImage { Url = this._image_uri };
@@ -472,5 +480,89 @@ namespace DSharpPlus.Entities
         /// <param name="builder">Builder to convert.</param>
         public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder) =>
             builder?.Build();
+
+        public class EmbedAuthor
+        {
+            /// <summary>
+            /// Gets or sets the name of the author.
+            /// </summary>
+            public string Name
+            {
+                get { return this._name; }
+                set
+                {
+                    if (value != null && value.Length > 256)
+                        throw new ArgumentException("Author name cannot exceed 256 characters of length.");
+                    this._name = value;
+                }
+            }
+            private string _name;
+
+            /// <summary>
+            /// Gets or sets the Url to which the author's link leads.
+            /// </summary>
+            public string Url
+            {
+                get { return this._uri?.ToString(); }
+                set
+                {
+                    if (value == null)
+                        this._uri = null;
+                    else
+                        this._uri = new Uri(value);
+                }
+            }
+            private Uri _uri;
+
+            /// <summary>
+            /// Gets or sets the Author's icon url.
+            /// </summary>
+            public string IconUrl
+            {
+                get { return this._icon_uri?.ToString(); }
+                set
+                {
+                    if (value == null)
+                        this._icon_uri = null;
+                    else
+                        this._icon_uri = new Uri(value);
+                }
+            }
+            private Uri _icon_uri;
+        }
+
+        public class EmbedFooter
+        {
+            /// <summary>
+            /// Gets or sets the text of the footer.
+            /// </summary>
+            public string Text
+            {
+                get { return this._text; }
+                set
+                {
+                    if (value != null && value.Length > 2048)
+                        throw new ArgumentException("Footer text cannot exceed 2048 characters of length.");
+                    this._text = value;
+                }
+            }
+            private string _text;
+
+            /// <summary>
+            /// Gets or sets the Url 
+            /// </summary>
+            public string IconUrl
+            {
+                get { return this._icon_uri?.ToString(); }
+                set
+                {
+                    if (value == null)
+                        this._icon_uri = null;
+                    else
+                        this._icon_uri = new Uri(value);
+                }
+            }
+            private Uri _icon_uri;
+        }
     }
 }
