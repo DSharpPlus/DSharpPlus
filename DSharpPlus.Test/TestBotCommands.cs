@@ -99,7 +99,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
         public async Task Cunt(CommandContext e)
         {
             await e.Message.RespondAsync("u wot");
-            DiscordMessage m = await e.Client.GetInteractivityModule().WaitForMessageAsync(xm => xm.Content.ToLower() == "no u", TimeSpan.FromSeconds(30));
+            var m = await e.Client.GetInteractivityModule().WaitForMessageAsync(xm => xm.Content.ToLower() == "no u", TimeSpan.FromSeconds(30));
             if (m == null)
                 await e.Message.RespondAsync("that's what i thought u lil basterd");
             else
@@ -183,7 +183,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             //await e.Message.DeleteAsync();
             var list = await e.Client.GetInteractivityModule().CollectReactionsAsync(m, TimeSpan.FromSeconds(30));
             string reactions = "We're done people!\n\nReactions:";
-            foreach (var collected in list)
+            foreach (var collected in list.Reactions)
             {
                 reactions += "\n" + collected.Key + ": " + collected.Value + "times!";
             }
