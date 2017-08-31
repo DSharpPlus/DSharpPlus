@@ -161,7 +161,7 @@ namespace DSharpPlus.Test
                 var embed = new DiscordEmbedBuilder()
                 {
                     Color = new DiscordColor("#7F00FF"),
-                    Description = string.Join("\n", r.Select(xkvp => $"{xkvp.Key}: {xkvp.Value}"))
+                    Description = string.Join("\n", r.Reactions.Select(xkvp => $"{xkvp.Key}: {xkvp.Value}"))
                 };
                 await msg.RespondAsync("", embed: embed.Build());
             }

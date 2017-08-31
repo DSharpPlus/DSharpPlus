@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.ObjectModel;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Interactivity
 {
@@ -73,25 +71,22 @@ namespace DSharpPlus.Interactivity
     }
     #endregion
 
-    public class InteractivityModule : BaseModule
+    public class InteractivityModule : IModule
     {
-        /// <summary>
-        /// DO NOT USE THIS MANUALLY.
-        /// </summary>
-        /// <param name="client">DO NOT USE THIS MANUALLY.</param>
-        /// <exception cref="InvalidOperationException"/>
-        protected internal override void Setup(DiscordClient client)
-        {
-            if (this.Client != null)
-                throw new InvalidOperationException("What did I tell you?");
+        #region fields n stuff
+        public DiscordClient Client { get { return this._client; } }
+        private DiscordClient _client;
+        #endregion
 
-            this.Client = client;
+        public void Setup(DiscordClient client)
+        {
+            this._client = client;
         }
 
         #region Message
-        public async Task<DiscordMessage> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, TimeSpan timeout)
+        public async Task<MessageContext> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, TimeSpan timeout)
         {
-            var tsc = new TaskCompletionSource<DiscordMessage>();
+            var tsc = new TaskCompletionSource<MessageContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
@@ -100,24 +95,29 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (predicate(e.Message))
                 {
-                    tsc.TrySetResult(e.Message);
+                    var mc = new MessageContext()
+                    {
+                        Interactivity = this,
+                        Message = e.Message
+                    };
+                    tsc.TrySetResult(mc);
                     return;
                 }
             };
 
-            this.Client.MessageCreated += handler;
+            _client.MessageCreated += handler;
 
-            DiscordMessage result = await tsc.Task;
+            var result = await tsc.Task;
 
-            this.Client.MessageCreated -= handler;
+            _client.MessageCreated -= handler;
             return result;
         }
         #endregion
 
         #region Reaction
-        public async Task<DiscordMessage> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, TimeSpan timeout)
+        public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, TimeSpan timeout)
         {
-            var tsc = new TaskCompletionSource<DiscordMessage>();
+            var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
             AsyncEventHandler<MessageReactionAddEventArgs> handler = async e =>
@@ -125,23 +125,31 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (predicate(e.Emoji))
                 {
-                    tsc.TrySetResult(e.Message);
+                    var rc = new ReactionContext()
+                    {
+                        Channel = e.Channel,
+                        Emoji = e.Emoji,
+                        Message = e.Message,
+                        User = e.User,
+                        Interactivity = this
+                    };
+                    tsc.TrySetResult(rc);
                     return;
                 }
             };
 
-            this.Client.MessageReactionAdded += handler;
+            _client.MessageReactionAdd += handler;
 
-            DiscordMessage result = await tsc.Task;
+            var result = await tsc.Task;
 
-            this.Client.MessageReactionAdded -= handler;
+            _client.MessageReactionAdd -= handler;
             return result;
         }
 
-        public async Task<DiscordMessage> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan timeout)
+        public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan timeout)
         {
             var user_id = user.Id;
-            var tsc = new TaskCompletionSource<DiscordMessage>();
+            var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
@@ -152,24 +160,32 @@ namespace DSharpPlus.Interactivity
                 {
                     if (e.User.Id == user_id)
                     {
-                        tsc.TrySetResult(e.Message);
+                        var rc = new ReactionContext()
+                        {
+                            Channel = e.Channel,
+                            Emoji = e.Emoji,
+                            Message = e.Message,
+                            User = e.User,
+                            Interactivity = this
+                        };
+                        tsc.TrySetResult(rc);
                         return;
                     }
                 }
             };
 
-            this.Client.MessageReactionAdded += handler;
+            _client.MessageReactionAdd += handler;
 
-            DiscordMessage result = await tsc.Task;
+            var result = await tsc.Task;
 
-            this.Client.MessageReactionAdded -= handler;
+            _client.MessageReactionAdd -= handler;
             return result;
         }
 
-        public async Task<DiscordEmoji> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, TimeSpan timeout, ulong user_id = 0)
+        public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, TimeSpan timeout, ulong user_id = 0)
         {
             var message_id = msg.Id;
-            var tsc = new TaskCompletionSource<DiscordEmoji>();
+            var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
@@ -182,25 +198,33 @@ namespace DSharpPlus.Interactivity
                     {
                         if (user_id == 0 || e.User.Id == user_id)
                         {
-                            tsc.TrySetResult(e.Emoji);
+                            var rc = new ReactionContext()
+                            {
+                                Channel = e.Channel,
+                                Emoji = e.Emoji,
+                                Message = e.Message,
+                                User = e.User,
+                                Interactivity = this
+                            };
+                            tsc.TrySetResult(rc);
                             return;
                         }
                     }
                 }
             };
 
-            this.Client.MessageReactionAdded += handler;
+            _client.MessageReactionAdd += handler;
 
-            DiscordEmoji result = await tsc.Task;
+            var result = await tsc.Task;
 
-            this.Client.MessageReactionAdded -= handler;
+            _client.MessageReactionAdd -= handler;
             return result;
         }
 
-        public async Task<DiscordEmoji> WaitForMessageReactionAsync(DiscordMessage msg, TimeSpan timeout, ulong user_id = 0)
+        public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, TimeSpan timeout, ulong user_id = 0)
         {
             var message_id = msg.Id;
-            var tsc = new TaskCompletionSource<DiscordEmoji>();
+            var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
@@ -211,82 +235,140 @@ namespace DSharpPlus.Interactivity
                 {
                     if (user_id == 0 || e.User.Id == user_id)
                     {
-                        tsc.TrySetResult(e.Emoji);
+                        var rc = new ReactionContext()
+                        {
+                            Channel = e.Channel,
+                            Emoji = e.Emoji,
+                            Message = e.Message,
+                            User = e.User,
+                            Interactivity = this
+                        };
+                        tsc.TrySetResult(rc);
                         return;
                     }
                 }
             };
 
-            this.Client.MessageReactionAdded += handler;
+            _client.MessageReactionAdd += handler;
 
-            DiscordEmoji result = await tsc.Task;
+            var result = await tsc.Task;
 
-            this.Client.MessageReactionAdded -= handler;
+            _client.MessageReactionAdd -= handler;
             return result;
         }
 
-        public async Task<ConcurrentDictionary<DiscordEmoji, int>> CollectReactionsAsync(DiscordMessage m, TimeSpan timeout)
+        public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, TimeSpan timeout, List<DiscordEmoji> Emojis)
         {
-            ConcurrentDictionary<DiscordEmoji, int> Reactions = new ConcurrentDictionary<DiscordEmoji, int>();
-            var tsc = new TaskCompletionSource<ConcurrentDictionary<DiscordEmoji, int>>();
+            foreach(var em in Emojis)
+            {
+                await m.CreateReactionAsync(em);
+            }
+
+            var rcc = new ReactionCollectionContext();
+            var tsc = new TaskCompletionSource<ReactionCollectionContext>();
             var ct = new CancellationTokenSource(timeout);
-            ct.Token.Register(() => tsc.TrySetResult(Reactions));
+            ct.Token.Register(() => tsc.TrySetResult(rcc));
+            AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
+                {
+                    rcc.AddReaction(e.Emoji, e.User.Id);
+                }
+            };
+
+            _client.MessageReactionAdd += handler1;
+
+            AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
+                {
+                    rcc.RemoveReaction(e.Emoji, e.User.Id);
+                }
+            };
+
+            _client.MessageReactionRemove += handler2;
+
+            AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler3 = async (e) =>
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id)
+                {
+                    rcc.ClearReactions();
+                    foreach (var em in Emojis)
+                    {
+                        await m.CreateReactionAsync(em);
+                    }
+                }
+            };
+
+            _client.MessageReactionRemoveAll += handler3;
+
+            var result = await tsc.Task;
+
+            _client.MessageReactionAdd -= handler1;
+            _client.MessageReactionRemove -= handler2;
+            _client.MessageReactionRemoveAll -= handler3;
+
+            return result;
+        }
+
+        public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage m, TimeSpan timeout)
+        {
+            var rcc = new ReactionCollectionContext();
+            var tsc = new TaskCompletionSource<ReactionCollectionContext>();
+            var ct = new CancellationTokenSource(timeout);
+            ct.Token.Register(() => tsc.TrySetResult(rcc));
             AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
             {
                 await Task.Yield();
                 if (e.Message.Id == m.Id)
                 {
-                    if (Reactions.ContainsKey(e.Emoji))
-                        Reactions[e.Emoji]++;
-                    else
-                        Reactions.TryAdd(e.Emoji, 1);
+                    rcc.AddReaction(e.Emoji);
                 }
             };
 
-            this.Client.MessageReactionAdded += handler1;
+            _client.MessageReactionAdd += handler1;
 
             AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
             {
                 await Task.Yield();
                 if (e.Message.Id == m.Id)
                 {
-                    if (Reactions.ContainsKey(e.Emoji))
-                    {
-                        Reactions[e.Emoji]--;
-                        if (Reactions[e.Emoji] == 0)
-                            Reactions.TryRemove(e.Emoji, out int something);
-                    }
+                    rcc.RemoveReaction(e.Emoji);
                 }
             };
 
-            this.Client.MessageReactionRemoved += handler2;
+            _client.MessageReactionRemove += handler2;
 
-            AsyncEventHandler<MessageReactionsClearEventArgs> handler3 = async (e) =>
+            AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler3 = async (e) =>
             {
                 await Task.Yield();
                 if (e.Message.Id == m.Id)
                 {
-                    Reactions = new ConcurrentDictionary<DiscordEmoji, int>();
+                    rcc.ClearReactions();
                 }
             };
 
-            this.Client.MessageReactionsCleared += handler3;
+            _client.MessageReactionRemoveAll += handler3;
 
             var result = await tsc.Task;
 
-            this.Client.MessageReactionAdded -= handler1;
-            this.Client.MessageReactionRemoved -= handler2;
-            this.Client.MessageReactionsCleared -= handler3;
+            _client.MessageReactionAdd -= handler1;
+            _client.MessageReactionRemove -= handler2;
+            _client.MessageReactionRemoveAll -= handler3;
 
             return result;
         }
         #endregion
 
         #region Typing
-        public async Task<DiscordUser> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan timeout)
+        // I don't really know anymore why I added this..
+        public async Task<TypingContext> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan timeout)
         {
             var channel_id = channel.Id;
-            var tsc = new TaskCompletionSource<DiscordUser>();
+            var tsc = new TaskCompletionSource<TypingContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
@@ -295,23 +377,30 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (e.Channel.Id == channel_id)
                 {
-                    tsc.TrySetResult(e.User);
+                    var tc = new TypingContext()
+                    {
+                        Channel = e.Channel,
+                        Interactivity = this,
+                        StartedAt = e.StartedAt,
+                        User = e.User
+                    };
+                    tsc.TrySetResult(tc);
                     return;
                 }
             };
 
-            this.Client.TypingStarted += handler;
+            _client.TypingStart += handler;
 
-            DiscordUser result = await tsc.Task;
+            var result = await tsc.Task;
 
-            this.Client.TypingStarted -= handler;
+            _client.TypingStart -= handler;
             return result;
         }
 
-        public async Task<DiscordChannel> WaitForTypingChannelAsync(DiscordUser user, TimeSpan timeout)
+        public async Task<TypingContext> WaitForTypingChannelAsync(DiscordUser user, TimeSpan timeout)
         {
             var user_id = user.Id;
-            var tsc = new TaskCompletionSource<DiscordChannel>();
+            var tsc = new TaskCompletionSource<TypingContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
@@ -320,16 +409,23 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (e.User.Id == user_id)
                 {
-                    tsc.TrySetResult(e.Channel);
+                    var tc = new TypingContext()
+                    {
+                        Channel = e.Channel,
+                        Interactivity = this,
+                        StartedAt = e.StartedAt,
+                        User = e.User
+                    };
+                    tsc.TrySetResult(tc);
                     return;
                 }
             };
 
-            this.Client.TypingStarted += handler;
+            _client.TypingStart += handler;
 
-            DiscordChannel result = await tsc.Task;
+            var result = await tsc.Task;
 
-            this.Client.TypingStarted -= handler;
+            _client.TypingStart -= handler;
             return result;
         }
         #endregion
@@ -346,7 +442,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            DiscordMessage m = await this.Client.SendMessageAsync(channel, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
+            DiscordMessage m = await _client.SendMessageAsync(channel, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
             PaginatedMessage pm = new PaginatedMessage()
             {
                 CurrentIndex = 0,
@@ -356,27 +452,27 @@ namespace DSharpPlus.Interactivity
 
             await this.GeneratePaginationReactions(m);
 
-            AsyncEventHandler<MessageReactionsClearEventArgs> _reaction_removed_all = async e =>
+            AsyncEventHandler<MessageReactionRemoveAllEventArgs> _reaction_removed_all = async e =>
             {
                 await this.GeneratePaginationReactions(m);
             };
-            this.Client.MessageReactionsCleared += _reaction_removed_all;
+            _client.MessageReactionRemoveAll += _reaction_removed_all;
 
             AsyncEventHandler<MessageReactionAddEventArgs> _reaction_added = async e =>
             {
-                if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
+                if (e.Message.Id == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
                 {
                     await this.DoPagination(e.Emoji, m, pm, ct);
                 }
             };
-            this.Client.MessageReactionAdded += _reaction_added;
+            _client.MessageReactionAdd += _reaction_added;
 
             AsyncEventHandler<MessageReactionRemoveEventArgs> _reaction_removed = async e =>
             {
-                if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
+                if (e.Message.Id == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
                     await this.DoPagination(e.Emoji, m, pm, ct);
             };
-            this.Client.MessageReactionRemoved += _reaction_removed;
+            _client.MessageReactionRemove += _reaction_removed;
 
             await tsc.Task;
 
@@ -392,9 +488,9 @@ namespace DSharpPlus.Interactivity
                     break;
             }
 
-            this.Client.MessageReactionsCleared -= _reaction_removed_all;
-            this.Client.MessageReactionAdded -= _reaction_added;
-            this.Client.MessageReactionRemoved -= _reaction_removed;
+            _client.MessageReactionRemoveAll -= _reaction_removed_all;
+            _client.MessageReactionAdd -= _reaction_added;
+            _client.MessageReactionRemove -= _reaction_removed;
         }
 
         public IEnumerable<Page> GeneratePagesInEmbeds(string input)
@@ -468,7 +564,7 @@ namespace DSharpPlus.Interactivity
                     return;
             }
 
-            await m.ModifyAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
+            await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
                 embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? null);
             #endregion
         }
