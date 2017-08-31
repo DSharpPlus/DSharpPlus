@@ -1,24 +1,30 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using DSharpPlus.Net;
 
-namespace DSharpPlus
+namespace DSharpPlus.Exceptions
 {
+    /// <summary>
+    /// Represents an exception thrown when requester doesn't have necessary permissions to complete the request.
+    /// </summary>
     public class UnauthorizedException : Exception
     {
         /// <summary>
-        /// Request that caused the exception
+        /// Gets the request that caused the exception.
         /// </summary>
-        public BaseWebRequest WebRequest { get; internal set; }
+        public BaseRestRequest WebRequest { get; internal set; }
+
         /// <summary>
-        /// Response from server
+        /// Gets the response to the request.
         /// </summary>
-        public WebResponse WebResponse { get; internal set; }
+        public RestResponse WebResponse { get; internal set; }
+
         /// <summary>
-        /// Received json error
+        /// Gets the JSON received.
         /// </summary>
         public string JsonMessage { get; internal set; }
 
-        public UnauthorizedException(BaseWebRequest request, WebResponse response) : base("Unauthorized: " + response.ResponseCode)
+        internal UnauthorizedException(BaseRestRequest request, RestResponse response) : base("Unauthorized: " + response.ResponseCode)
         {
             this.WebRequest = request;
             this.WebResponse = response;

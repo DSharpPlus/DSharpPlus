@@ -1,24 +1,32 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.MessageReactionRemoved"/> event.
+    /// </summary>
     public class MessageReactionRemoveEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Message that got one of its reactions removed
+        /// Gets the message for which the update occured.
         /// </summary>
         public DiscordMessage Message { get; internal set; }
+
         /// <summary>
-        /// Channel this message belongs to
+        /// Gets the channel to which this message belongs.
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
+
         /// <summary>
-        /// user whose reaction got removed
+        /// Gets the users whose reaction was removed.
         /// </summary>
         public DiscordUser User { get; internal set; }
+
         /// <summary>
-        /// Emoji user reacted with
+        /// Gets the emoji used for this reaction.
         /// </summary>
         public DiscordEmoji Emoji { get; internal set; }
 
-        public MessageReactionRemoveEventArgs(DiscordClient client) : base(client) { }
+        internal MessageReactionRemoveEventArgs(DiscordClient client) : base(client) { }
     }
 }

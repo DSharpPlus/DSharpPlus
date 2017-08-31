@@ -1,37 +1,43 @@
 ﻿using System.Collections.Generic;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildMemberUpdated"/> event.
+    /// </summary>
     public class GuildMemberUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Guild that just got one of its members updated
+        /// Gets the guild in which the update occured.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
         /// <summary>
-        /// Member's new roles
+        /// Gets a collection containing post-update roles.
         /// </summary>
         public IReadOnlyList<DiscordRole> RolesAfter { get; internal set; }
+
         /// <summary>
-        /// Member's old roles
+        /// Gets a collection containing pre-update roles.
         /// </summary>
         public IReadOnlyList<DiscordRole> RolesBefore { get; internal set; }
 
         /// <summary>
-        /// Member's new nickname
+        /// Gets the member's new nickname.
         /// </summary>
         public string NicknameAfter { get; internal set; }
+
         /// <summary>
-        /// Member's old nickname
+        /// Gets the member's old nickname.
         /// </summary>
         public string NicknameBefore { get; internal set; }
 
         /// <summary>
-        /// Member that got updated
+        /// Gets the member that was updated.
         /// </summary>
         public DiscordMember Member { get; internal set; }
 
-        public GuildMemberUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal GuildMemberUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

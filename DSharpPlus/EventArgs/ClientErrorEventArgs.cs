@@ -1,18 +1,22 @@
 ﻿using System;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.ClientErrored"/> event.
+    /// </summary>
     public class ClientErrorEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Exception thrown by client
+        /// Gets the exception thrown by the client.
         /// </summary>
         public Exception Exception { get; internal set; }
+
         /// <summary>
-        /// Event that threw the exception
+        /// Gets the name of the event that threw the exception.
         /// </summary>
         public string EventName { get; internal set; }
 
-        public ClientErrorEventArgs(DiscordClient client) : base(client) { }
+        internal ClientErrorEventArgs(DiscordClient client) : base(client) { }
     }
 }

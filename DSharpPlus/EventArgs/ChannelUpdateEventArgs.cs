@@ -1,20 +1,27 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.ChannelUpdated"/> event.
+    /// </summary>
     public class ChannelUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Channel after it got updated
+        /// Gets the post-update channel.
         /// </summary>
         public DiscordChannel ChannelAfter { get; internal set; }
+
         /// <summary>
-        /// Guild that just got a channel updated
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
-        /// <summary>
-        /// Channel before it got updated
+        /// Gets the pre-update channel.
         /// </summary>
         public DiscordChannel ChannelBefore { get; internal set; }
 
-        public ChannelUpdateEventArgs(DiscordClient client) : base(client) { }
+        /// <summary>
+        /// Gets the guild in which the update occured.
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+
+        internal ChannelUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

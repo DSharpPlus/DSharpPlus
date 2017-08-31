@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -143,8 +144,8 @@ namespace DSharpPlus.Net.Abstractions
             if (game.StartTimestamp != null || game.EndTimestamp != null)
                 this.Timestamps = new GameTimestamps
                 {
-                    _start = game.StartTimestamp != null ? (long?)(Utils.GetUnixTime(game.StartTimestamp.Value) / 1000) : null,
-                    _end = game.EndTimestamp != null ? (long?)(Utils.GetUnixTime(game.EndTimestamp.Value) / 1000) : null
+                    _start = game.StartTimestamp != null ? (long?)(Utilities.GetUnixTime(game.StartTimestamp.Value) / 1000) : null,
+                    _end = game.EndTimestamp != null ? (long?)(Utilities.GetUnixTime(game.EndTimestamp.Value) / 1000) : null
                 };
 
             if (game.JoinSecret != null || game.MatchSecret != null || game.SpectateSecret != null)
@@ -251,7 +252,7 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? Start =>
-                this._start != null ? (DateTimeOffset?)Utils.GetDateTimeOffset(this._start.Value * 1000) : null;
+                this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._start.Value * 1000) : null;
 
             [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
             internal long? _start;
@@ -261,7 +262,7 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? End =>
-                this._end != null ? (DateTimeOffset?)Utils.GetDateTimeOffset(this._end.Value * 1000) : null;
+                this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._end.Value * 1000) : null;
 
             [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
             internal long? _end;

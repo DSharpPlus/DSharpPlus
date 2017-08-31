@@ -1,12 +1,17 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.UserSettingsUpdated"/> event.
+    /// </summary>
     public class UserSettingsUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// User whose settings got updated
+        /// Gets the user whose settings were updated.
         /// </summary>
         public DiscordUser User { get; internal set; }
 
-        public UserSettingsUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal UserSettingsUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

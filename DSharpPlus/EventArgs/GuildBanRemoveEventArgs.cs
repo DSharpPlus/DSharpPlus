@@ -1,16 +1,22 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildBanRemoved"/> event.
+    /// </summary>
     public class GuildBanRemoveEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Member that just got unbanned
+        /// Gets the member that just got unbanned.
         /// </summary>
         public DiscordMember Member { get; internal set; }
+
         /// <summary>
-        /// Guild this member was unbanned in
+        /// Gets the guild this member was unbanned in.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
-        public GuildBanRemoveEventArgs(DiscordClient client) : base(client) { }
+        internal GuildBanRemoveEventArgs(DiscordClient client) : base(client) { }
     }
 }

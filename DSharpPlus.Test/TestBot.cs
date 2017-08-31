@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
 
@@ -29,7 +31,6 @@ namespace DSharpPlus.Test
             var dcfg = new DiscordConfig
             {
                 AutoReconnect = true,
-                DiscordBranch = Branch.Stable,
                 LargeThreshold = 250,
                 LogLevel = LogLevel.Debug,
                 Token = this.Config.Token,
@@ -47,12 +48,12 @@ namespace DSharpPlus.Test
             Discord.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
-            Discord.GuildBanAdd += this.Discord_GuildBanAdd;
+            Discord.GuildBanAdded += this.Discord_GuildBanAdd;
             Discord.MessageCreated += this.Discord_MessageCreated;
-            Discord.MessageReactionAdd += this.Discord_MessageReactionAdd;
-            Discord.MessageReactionRemoveAll += this.Discord_MessageReactionRemoveAll;
-            Discord.PresenceUpdate += this.Discord_PresenceUpdate;
-            Discord.SocketError += this.Discord_SocketError;
+            Discord.MessageReactionAdded += this.Discord_MessageReactionAdd;
+            Discord.MessageReactionsCleared += this.Discord_MessageReactionRemoveAll;
+            Discord.PresenceUpdated += this.Discord_PresenceUpdate;
+            Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
 
             // voice config and the voice service itself
@@ -215,7 +216,7 @@ namespace DSharpPlus.Test
             //await e.Message.DeleteAllReactions();
         }
 
-        private /*async*/ Task Discord_MessageReactionRemoveAll(MessageReactionRemoveAllEventArgs e)
+        private /*async*/ Task Discord_MessageReactionRemoveAll(MessageReactionsClearEventArgs e)
         {
             return Task.Delay(0);
 
@@ -266,7 +267,7 @@ namespace DSharpPlus.Test
             }
         }
 
-        private Task CommandsNextService_CommandExecuted(CommandExecutedEventArgs e)
+        private Task CommandsNextService_CommandExecuted(CommandExecutionEventArgs e)
         {
             Discord.DebugLogger.LogMessage(LogLevel.Info, "CommandsNext", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}", DateTime.Now);
             return Task.Delay(0);

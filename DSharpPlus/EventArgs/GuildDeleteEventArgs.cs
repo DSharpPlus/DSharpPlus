@@ -1,16 +1,22 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildDeleted"/> event.
+    /// </summary>
     public class GuildDeleteEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Guild that got deleted
+        /// Gets the guild that was deleted.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
+
         /// <summary>
-        /// Whether this guild is unavailable
+        /// Gets whether the guild is unavailable or not.
         /// </summary>
         public bool Unavailable { get; internal set; }
 
-        public GuildDeleteEventArgs(DiscordClient client) : base(client) { }
+        internal GuildDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
 
@@ -9,14 +11,8 @@ namespace DSharpPlus.VoiceNext
     /// <summary>
     /// VoiceNext client.
     /// </summary>
-    public sealed class VoiceNextClient : IModule
+    public sealed class VoiceNextClient : BaseModule
     {
-        /// <summary>
-        /// DiscordClient instance for this module.
-        /// </summary>
-        public DiscordClient Client { get { return this._client; } }
-        private DiscordClient _client;
-
         private VoiceNextConfiguration Configuration { get; set; }
 
         private ConcurrentDictionary<ulong, VoiceNextConnection> ActiveConnections { get; set; }
@@ -33,14 +29,19 @@ namespace DSharpPlus.VoiceNext
         }
 
         /// <summary>
-        /// DO NOT RUN THIS MANUALLY.
+        /// DO NOT USE THIS MANUALLY.
         /// </summary>
-        /// <param name="client"></param>
-        public void Setup(DiscordClient client)
+        /// <param name="client">DO NOT USE THIS MANUALLY.</param>
+        /// <exception cref="InvalidOperationException"/>
+        protected internal override void Setup(DiscordClient client)
         {
-            this._client = client;
-            this.Client.VoiceStateUpdate += this.Client_VoiceStateUpdate;
-            this.Client.VoiceServerUpdate += this.Client_VoiceServerUpdate;
+            if (this.Client != null)
+                throw new InvalidOperationException("What did I tell you?");
+
+            this.Client = client;
+            
+            this.Client.VoiceStateUpdated += this.Client_VoiceStateUpdate;
+            this.Client.VoiceServerUpdated += this.Client_VoiceServerUpdate;
         }
 
         /// <summary>

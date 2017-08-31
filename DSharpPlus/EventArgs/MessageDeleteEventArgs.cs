@@ -1,20 +1,27 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.MessageDeleted"/> event.
+    /// </summary>
     public class MessageDeleteEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Message that got deleted
+        /// Gets the message that was deleted.
         /// </summary>
         public DiscordMessage Message { get; internal set; }
+
         /// <summary>
-        /// Channel this message belonged to
+        /// Gets the channel this message belonged to.
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
+
         /// <summary>
-        /// Guild this message was sent in
+        /// Gets the guild this message belonged to.
         /// </summary>
         public DiscordGuild Guild => this.Channel.Guild;
 
-        public MessageDeleteEventArgs(DiscordClient client) : base(client) { }
+        internal MessageDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

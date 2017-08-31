@@ -9,6 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
 
@@ -286,7 +288,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             embed.AddField("Name", app.Name, true);
             embed.AddField("Description", string.Concat("```\n", app.Description, "\n```"), true);
             embed.AddField("ID", app.Id.ToString(), true);
-            embed.AddField("Created", app.CreationDate.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss"), true);
+            embed.AddField("Created", app.CreationTimestamp.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss"), true);
             embed.AddField("Owner", $"{usrn}#{app.Owner.Discriminator} ({app.Owner.Id})", true);
             embed.AddField("Anon", new { x = 1 }.ToString());
 
@@ -307,7 +309,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
             private ConcurrentDictionary<uint, ulong> _ssrc_map;
             private ConcurrentDictionary<uint, FileStream> _ssrc_filemap;
-            private async Task OnVoiceReceived(VoiceReceivedEventArgs e)
+            private async Task OnVoiceReceived(VoiceReceiveEventArgs e)
             {
                 if (!this._ssrc_filemap.ContainsKey(e.SSRC))
                     this._ssrc_filemap[e.SSRC] = File.Create($"{e.SSRC}.pcm");

@@ -8,24 +8,26 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.CommandsNext
 {
     /// <summary>
     /// This is the class which handles command registration, management, and execution. 
     /// </summary>
-    public class CommandsNextModule : IModule
+    public class CommandsNextModule : BaseModule
     {
         #region Events
         /// <summary>
         /// Triggered whenever a command executes successfully.
         /// </summary>
-        public event AsyncEventHandler<CommandExecutedEventArgs> CommandExecuted
+        public event AsyncEventHandler<CommandExecutionEventArgs> CommandExecuted
         {
             add { this._executed.Register(value); }
             remove { this._executed.Unregister(value); }
         }
-        private AsyncEvent<CommandExecutedEventArgs> _executed;
+        private AsyncEvent<CommandExecutionEventArgs> _executed;
 
         /// <summary>
         /// Triggered whenever a command throws an exception during execution.
@@ -37,7 +39,7 @@ namespace DSharpPlus.CommandsNext
         }
         private AsyncEvent<CommandErrorEventArgs> _error;
 
-        private async Task OnCommandExecuted(CommandExecutedEventArgs e) =>
+        private async Task OnCommandExecuted(CommandExecutionEventArgs e) =>
             await this._executed.InvokeAsync(e).ConfigureAwait(false);
 
         private async Task OnCommandErrored(CommandErrorEventArgs e) =>
@@ -71,24 +73,18 @@ namespace DSharpPlus.CommandsNext
 
         #region DiscordClient Registration
         /// <summary>
-        /// Gets the instance of <see cref="DiscordClient"/> for which this module is registered.
-        /// </summary>
-        public DiscordClient Client { get { return this._client; } }
-        private DiscordClient _client;
-
-        /// <summary>
         /// DO NOT USE THIS MANUALLY.
         /// </summary>
         /// <param name="client">DO NOT USE THIS MANUALLY.</param>
         /// <exception cref="InvalidOperationException"/>
-        public void Setup(DiscordClient client)
+        protected internal override void Setup(DiscordClient client)
         {
-            if (this._client != null)
+            if (this.Client != null)
                 throw new InvalidOperationException("What did I tell you?");
 
-            this._client = client;
+            this.Client = client;
 
-            this._executed = new AsyncEvent<CommandExecutedEventArgs>(this.Client.EventErrorHandler, "COMMAND_EXECUTED");
+            this._executed = new AsyncEvent<CommandExecutionEventArgs>(this.Client.EventErrorHandler, "COMMAND_EXECUTED");
             this._error = new AsyncEvent<CommandErrorEventArgs>(this.Client.EventErrorHandler, "COMMAND_ERRORED");
 
             this.Client.MessageCreated += this.HandleCommandsAsync;
@@ -201,8 +197,7 @@ namespace DSharpPlus.CommandsNext
                 return;
             }
 
-#pragma warning disable 4014
-            Task.Run(async () =>
+            _ = Task.Run(async () =>
             {
                 try
                 {
@@ -217,7 +212,7 @@ namespace DSharpPlus.CommandsNext
                     var res = await cmd.ExecuteAsync(ctx);
                     
                     if (res.IsSuccessful)
-                        await this._executed.InvokeAsync(new CommandExecutedEventArgs { Context = res.Context });
+                        await this._executed.InvokeAsync(new CommandExecutionEventArgs { Context = res.Context });
                     else
                         await this._error.InvokeAsync(new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception });
                 }
@@ -226,7 +221,6 @@ namespace DSharpPlus.CommandsNext
                     await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = ex });
                 }
             });
-#pragma warning restore 4014
         }
         #endregion
 
@@ -674,13 +668,13 @@ namespace DSharpPlus.CommandsNext
             {
                 if (msg.Channel.Guild != null)
                 {
-                    mentioned_users = Utils.GetUserMentions(msg).Select(xid => msg.Channel.Guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
-                    mentioned_roles = Utils.GetRoleMentions(msg).Select(xid => msg.Channel.Guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
-                    mentioned_channels = Utils.GetChannelMentions(msg).Select(xid => msg.Channel.Guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
+                    mentioned_users = Utilities.GetUserMentions(msg).Select(xid => msg.Channel.Guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_roles = Utilities.GetRoleMentions(msg).Select(xid => msg.Channel.Guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
+                    mentioned_channels = Utilities.GetChannelMentions(msg).Select(xid => msg.Channel.Guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
                 }
                 else
                 {
-                    mentioned_users = Utils.GetUserMentions(msg).Select(xid => this.Client.InternalGetCachedUser(xid)).ToList();
+                    mentioned_users = Utilities.GetUserMentions(msg).Select(xid => this.Client.InternalGetCachedUser(xid)).ToList();
                 }
             }
 

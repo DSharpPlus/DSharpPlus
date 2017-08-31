@@ -1,16 +1,22 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildRoleDeleted"/> event.
+    /// </summary>
     public class GuildRoleDeleteEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Guild that got a role deleted
+        /// Gets the guild in which the role was deleted.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
+
         /// <summary>
-        /// Role that got deleted
+        /// Gets the role that was deleted.
         /// </summary>
         public DiscordRole Role { get; internal set; }
 
-        public GuildRoleDeleteEventArgs(DiscordClient client) : base(client) { }
+        internal GuildRoleDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

@@ -1,16 +1,22 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildRoleCreated"/> event.
+    /// </summary>
     public class GuildRoleCreateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Guild that got a new role
+        /// Gets the guild in which the role was created.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
+
         /// <summary>
-        /// Role that got created
+        /// Gets the role that was created.
         /// </summary>
         public DiscordRole Role { get; internal set; }
 
-        public GuildRoleCreateEventArgs(DiscordClient client) : base(client) { }
+        internal GuildRoleCreateEventArgs(DiscordClient client) : base(client) { }
     }
 }

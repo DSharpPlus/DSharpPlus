@@ -1,16 +1,22 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments to <see cref="DiscordClient.WebhooksUpdated"/> event.
+    /// </summary>
     public class WebhooksUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Guild that got its webhooks updated
+        /// Gets the guild that had its webhooks updated.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
+
         /// <summary>
-        /// Channel new webhook belongs to
+        /// Gets the channel to which the webhook belongs to.
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
 
-        public WebhooksUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal WebhooksUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

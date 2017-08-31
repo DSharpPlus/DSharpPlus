@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents arguments for SocketDisconnect event.
+    /// Represents arguments for <see cref="DiscordClient.SocketClosed"/> event.
     /// </summary>
-    public class SocketDisconnectEventArgs : DiscordEventArgs
+    public class SocketCloseEventArgs : DiscordEventArgs
     {
         /// <summary>
         /// Gets the close code sent by remote host.
@@ -17,11 +17,11 @@ namespace DSharpPlus
         /// </summary>
         public string CloseMessage { get; internal set; }
         
-        internal SocketDisconnectEventArgs(DiscordClient client) : base(client) { }
+        internal SocketCloseEventArgs(DiscordClient client) : base(client) { }
     }
 
     /// <summary>
-    /// Represents arguments for SocketError event.
+    /// Represents arguments for <see cref="DiscordClient.SocketErrored"/> event.
     /// </summary>
     public class SocketErrorEventArgs : DiscordEventArgs
     {

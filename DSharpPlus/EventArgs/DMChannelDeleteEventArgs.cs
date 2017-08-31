@@ -1,12 +1,17 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.DmChannelDeleted"/> event.
+    /// </summary>
     public class DmChannelDeleteEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// DM Channel that just got deleted
+        /// Gets the direct message channel that was deleted.
         /// </summary>
         public DiscordDmChannel Channel { get; internal set; }
 
-        public DmChannelDeleteEventArgs(DiscordClient client) : base(client) { }
+        internal DmChannelDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

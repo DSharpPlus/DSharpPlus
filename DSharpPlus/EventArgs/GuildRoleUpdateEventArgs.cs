@@ -1,20 +1,27 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildRoleUpdated"/> event.
+    /// </summary>
     public class GuildRoleUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Guild that has its roles updated
+        /// Gets the guild in which the update occured.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
+
         /// <summary>
-        /// New role list
+        /// Gets the post-update role.
         /// </summary>
         public DiscordRole RoleAfter { get; internal set; }
+
         /// <summary>
-        /// Old role list
+        /// Gets the pre-update role.
         /// </summary>
         public DiscordRole RoleBefore { get; internal set; }
 
-        public GuildRoleUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal GuildRoleUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

@@ -1,22 +1,27 @@
 ﻿using System;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
-    public class HeartBeatEventArgs : DiscordEventArgs
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.Heartbeated"/> event.
+    /// </summary>
+    public class HeartbeatEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// heartbeat ping
+        /// Gets the round-trip time of the heartbeat.
         /// </summary>
         public int Ping { get; internal set; }
+
         /// <summary>
-        /// Heartbeat timestamp
+        /// Gets the timestamp of the heartbeat.
         /// </summary>
         public DateTimeOffset Timestamp { get; internal set; }
+
         /// <summary>
-        /// Checksum of heartbeat's integrity
+        /// Gets the checksum of heartbeat's integrity.
         /// </summary>
         public int IntegrityChecksum { get; internal set; }
 
-        public HeartBeatEventArgs(DiscordClient client) : base(client) { }
+        internal HeartbeatEventArgs(DiscordClient client) : base(client) { }
     }
 }

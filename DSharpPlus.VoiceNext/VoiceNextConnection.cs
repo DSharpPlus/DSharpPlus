@@ -6,6 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Net.Udp;
+using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
@@ -34,18 +38,18 @@ namespace DSharpPlus.VoiceNext
         /// <summary>
         /// Triggered whenever voice data is received from the connected voice channel.
         /// </summary>
-        public event AsyncEventHandler<VoiceReceivedEventArgs> VoiceReceived
+        public event AsyncEventHandler<VoiceReceiveEventArgs> VoiceReceived
         {
             add { this._voice_received.Register(value); }
             remove { this._voice_received.Unregister(value); }
         }
-        private AsyncEvent<VoiceReceivedEventArgs> _voice_received;
+        private AsyncEvent<VoiceReceiveEventArgs> _voice_received;
 #endif
 
         /// <summary>
         /// Triggered whenever voice WebSocket throws an exception.
         /// </summary>
-        public event AsyncEventHandler<SocketErrorEventArgs> VoiceSocketError
+        public event AsyncEventHandler<SocketErrorEventArgs> VoiceSocketErrored
         {
             add { this._voice_socket_error.Register(value); }
             remove { this._voice_socket_error.Unregister(value); }
@@ -128,7 +132,7 @@ namespace DSharpPlus.VoiceNext
 
             this._user_speaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "USER_SPEAKING");
 #if !NETSTANDARD1_1
-            this._voice_received = new AsyncEvent<VoiceReceivedEventArgs>(this.Discord.EventErrorHandler, "VOICE_RECEIVED");
+            this._voice_received = new AsyncEvent<VoiceReceiveEventArgs>(this.Discord.EventErrorHandler, "VOICE_RECEIVED");
 #endif
             this._voice_socket_error = new AsyncEvent<SocketErrorEventArgs>(this.Discord.EventErrorHandler, "VOICE_WS_ERROR");
             this.TokenSource = new CancellationTokenSource();
@@ -351,7 +355,7 @@ namespace DSharpPlus.VoiceNext
                         user = new DiscordUser { Discord = this.Discord, Id = id };
                 }
 
-                await this._voice_received.InvokeAsync(new VoiceReceivedEventArgs(this.Discord)
+                await this._voice_received.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
                 {
                     SSRC = ssrc,
                     Voice = new ReadOnlyCollection<byte>(data),
@@ -595,7 +599,7 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private async Task VoiceWS_SocketClosed(SocketDisconnectEventArgs e)
+        private async Task VoiceWS_SocketClosed(SocketCloseEventArgs e)
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice socket closed ({e.CloseCode}, '{e.CloseMessage}')", DateTime.Now);
             this.Dispose();

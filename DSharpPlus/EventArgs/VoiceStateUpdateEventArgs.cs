@@ -1,21 +1,32 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.VoiceStateUpdated"/> event.
+    /// </summary>
     public class VoiceStateUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// user whose voice state was updated
+        /// Gets the user whose voice state was updated.
         /// </summary>
         public DiscordUser User { get; internal set; }
+
         /// <summary>
-        /// Guild whose user's voice state got updated
+        /// Gets the guild in which the update occured.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
+
         /// <summary>
-        /// Voice channel
+        /// Gets the related voice channel.
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
+
+        /// <summary>
+        /// Gets the ID of voice session.
+        /// </summary>
         internal string SessionId { get; set; }
 
-        public VoiceStateUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal VoiceStateUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

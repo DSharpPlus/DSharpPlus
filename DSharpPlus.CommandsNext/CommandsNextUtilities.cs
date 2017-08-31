@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Converters;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext
 {

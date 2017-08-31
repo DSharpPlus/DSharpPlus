@@ -1,39 +1,48 @@
 ﻿using System.Collections.Generic;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.MessageCreated"/> event.
+    /// </summary>
     public class MessageCreateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// New message
+        /// Gets the message that was created.
         /// </summary>
         public DiscordMessage Message { get; internal set; }
+
         /// <summary>
-        /// Message's channel
+        /// Gets the channel this message belongs to.
         /// </summary>
         public DiscordChannel Channel => Message.Channel;
+
         /// <summary>
-        /// Message's Guild
+        /// Gets the guild this message belongs to.
         /// </summary>
         public DiscordGuild Guild => Channel.Guild;
+
         /// <summary>
-        /// Message's Author
+        /// Gets the author of the message.
         /// </summary>
         public DiscordUser Author => Message.Author;
 
         /// <summary>
-        /// Mentioned users
+        /// Gets the collection of mentioned users.
         /// </summary>
         public IReadOnlyList<DiscordUser> MentionedUsers { get; internal set; }
+
         /// <summary>
-        /// Mentioned roles
+        /// Gets the collection of mentioned roles.
         /// </summary>
         public IReadOnlyList<DiscordRole> MentionedRoles { get; internal set; }
+
         /// <summary>
-        /// Mentioned channels
+        /// Gets the collection of mentioned channels.
         /// </summary>
         public IReadOnlyList<DiscordChannel> MentionedChannels { get; internal set; }
 
-        public MessageCreateEventArgs(DiscordClient client) : base(client) { }
+        internal MessageCreateEventArgs(DiscordClient client) : base(client) { }
     }
 }

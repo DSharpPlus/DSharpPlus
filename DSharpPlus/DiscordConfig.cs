@@ -6,11 +6,6 @@
     public sealed class DiscordConfig
     {
         /// <summary>
-        /// Sets which branch of Discord API to use. Typically, you should not change this value.
-        /// </summary>
-        public Branch DiscordBranch { internal get; set; } = Branch.Stable;
-
-        /// <summary>
         /// Sets the token used to identify the client.
         /// </summary>
         public string Token
@@ -82,7 +77,6 @@
         /// <param name="other">Client configuration to clone.</param>
         public DiscordConfig(DiscordConfig other)
         {
-            this.DiscordBranch = other.DiscordBranch;
             this.Token = other.Token;
             this.TokenType = other.TokenType;
             this.LogLevel = other.LogLevel;

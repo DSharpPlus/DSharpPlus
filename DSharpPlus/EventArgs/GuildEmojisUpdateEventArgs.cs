@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildEmojisUpdated"/> event.
+    /// </summary>
     public class GuildEmojisUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
@@ -15,10 +19,10 @@ namespace DSharpPlus
         public IReadOnlyList<DiscordEmoji> EmojisBefore { get; internal set; }
 
         /// <summary>
-        /// Guild these emojis belong to
+        /// Gets the guild in which the update occured.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
-        public GuildEmojisUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal GuildEmojisUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

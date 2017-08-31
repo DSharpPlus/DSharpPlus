@@ -1,29 +1,33 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.PresenceUpdated"/> event.
+    /// </summary>
     public class PresenceUpdateEventArgs : DiscordEventArgs
     {
         [JsonProperty("user")]
         internal DiscordUser InternalUser { get; set; }
 
         /// <summary>
-        /// Member whose presence was updated
+        /// Gets the member whose presence was updated.
         /// </summary>
         [JsonIgnore]
         public DiscordMember Member => this.Client._guilds[this.GuildId].Members.FirstOrDefault(xm => xm.Id == this.InternalUser.Id);
 
         /// <summary>
-        /// Member's new game
+        /// Gets the member's new game.
         /// </summary>
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
         public TransportGame Game { get; internal set; }
 
         /// <summary>
-        /// Member's status
+        /// Gets the member's status.
         /// </summary>
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
         public string Status { get; internal set; }
@@ -32,7 +36,7 @@ namespace DSharpPlus
         internal ulong GuildId { get; set; }
 
         /// <summary>
-        /// Guild this member belongs to
+        /// Gets the guild for which this event occured.
         /// </summary>
         [JsonIgnore]
         public DiscordGuild Guild => this.Client._guilds[this.GuildId];
@@ -41,18 +45,18 @@ namespace DSharpPlus
         internal IReadOnlyList<ulong> RoleIds { get; set; }
 
         /// <summary>
-        /// Roles this member has
+        /// Gets the roles this member has.
         /// </summary>
         [JsonIgnore]
         public IEnumerable<DiscordRole> Roles => this.RoleIds.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
 
         /// <summary>
-        /// Member's old presence
+        /// Gets the member's old presence.
         /// </summary>
         [JsonIgnore]
         public DiscordPresence PresenceBefore { get; internal set; }
 
-        public PresenceUpdateEventArgs() : base(null) { }
-        public PresenceUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal PresenceUpdateEventArgs() : base(null) { }
+        internal PresenceUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

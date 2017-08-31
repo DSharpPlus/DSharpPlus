@@ -1,18 +1,23 @@
 ﻿using System;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.ChannelPinsUpdated"/> event.
+    /// </summary>
     public class ChannelPinsUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Channel that just got its pins updated
+        /// Gets the channel in which the update occured.
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
+
         /// <summary>
-        /// Timestamp of latest pin
+        /// Gets the timestamp of the latest pin.
         /// </summary>
         public DateTimeOffset LastPinTimestamp { get; internal set; }
 
-        public ChannelPinsUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal ChannelPinsUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

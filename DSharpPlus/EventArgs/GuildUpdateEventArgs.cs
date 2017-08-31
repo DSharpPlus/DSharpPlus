@@ -1,12 +1,17 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildUpdated"/> event.
+    /// </summary>
     public class GuildUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Guild that got updated
+        /// Gets the guild that was updated.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
-        public GuildUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal GuildUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

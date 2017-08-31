@@ -1,6 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters
 {

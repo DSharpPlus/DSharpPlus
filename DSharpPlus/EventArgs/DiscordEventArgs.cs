@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace DSharpPlus
+﻿namespace DSharpPlus.EventArgs
 {
-    public abstract class DiscordEventArgs : EventArgs
+    public abstract class DiscordEventArgs : System.EventArgs
     {
         /// <summary>
         /// Gets the client that triggered the event.

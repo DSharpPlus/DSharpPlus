@@ -1,39 +1,48 @@
 ﻿using System.Collections.Generic;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.MessageUpdated"/> event.
+    /// </summary>
     public class MessageUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Message that got updated
+        /// Gets the message that was updated.
         /// </summary>
         public DiscordMessage Message { get; internal set; }
+
         /// <summary>
-        /// Channel this message belongs to
+        /// Gets the channel this message belongs to.
         /// </summary>
         public DiscordChannel Channel => Message.Channel;
+
         /// <summary>
-        /// Guild this message was sent in
+        /// Gets the guild this message belongs to.
         /// </summary>
         public DiscordGuild Guild => Channel.Guild;
+
         /// <summary>
-        /// This message's author
+        /// Gets the author of the message.
         /// </summary>
         public DiscordUser Author => Message.Author;
 
         /// <summary>
-        /// Users that got mentioned
+        /// Gets the collection of mentioned users.
         /// </summary>
         public IReadOnlyList<DiscordUser> MentionedUsers { get; internal set; }
+
         /// <summary>
-        /// Roles that got mentioned
+        /// Gets the collection of mentioned roles.
         /// </summary>
         public IReadOnlyList<DiscordRole> MentionedRoles { get; internal set; }
+
         /// <summary>
-        /// Channels that got mentioned
+        /// Gets the collection of mentioned channels.
         /// </summary>
         public IReadOnlyList<DiscordChannel> MentionedChannels { get; internal set; }
 
-        public MessageUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal MessageUpdateEventArgs(DiscordClient client) : base(client) { }
     }
 }

@@ -1,17 +1,27 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for UserSpeaking event.
+    /// </summary>
     public class UserSpeakingEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// User that started/stopped speaking
+        /// Gets the users whose speaking state changed.
         /// </summary>
         public DiscordUser User { get; internal set; }
-        public uint SSRC { get; internal set; }
+
         /// <summary>
-        /// Whether this user is speaking
+        /// Gets the SSRC of the audio source.
+        /// </summary>
+        public uint SSRC { get; internal set; }
+
+        /// <summary>
+        /// Gets whether this user is speaking.
         /// </summary>
         public bool Speaking { get; internal set; }
 
-        public UserSpeakingEventArgs(DiscordClient client) : base(client) { }
+        internal UserSpeakingEventArgs(DiscordClient client) : base(client) { }
     }
 }

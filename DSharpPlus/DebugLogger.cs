@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.EventArgs;
 
 namespace DSharpPlus
 {
@@ -57,16 +58,37 @@ namespace DSharpPlus
         }
     }
 
-    public class DebugLogMessageEventArgs : EventArgs
+    namespace EventArgs
     {
-        public LogLevel Level { get; internal set; }
-        public string Application { get; internal set; }
-        public string Message { get; internal set; }
-        public DateTime Timestamp { get; internal set; }
-
-        public override string ToString()
+        /// <summary>
+        /// Represents arguments for <see cref="DebugLogger.LogMessageReceived"/> event.
+        /// </summary>
+        public class DebugLogMessageEventArgs : System.EventArgs
         {
-            return $"[{Timestamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}] {Message}";
+            /// <summary>
+            /// Gets the level of the message.
+            /// </summary>
+            public LogLevel Level { get; internal set; }
+
+            /// <summary>
+            /// Gets the name of the application which generated the message.
+            /// </summary>
+            public string Application { get; internal set; }
+
+            /// <summary>
+            /// Gets the sent message.
+            /// </summary>
+            public string Message { get; internal set; }
+
+            /// <summary>
+            /// Gets the timestamp of the message.
+            /// </summary>
+            public DateTime Timestamp { get; internal set; }
+
+            public override string ToString()
+            {
+                return $"[{Timestamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}] {Message}";
+            }
         }
     }
 }

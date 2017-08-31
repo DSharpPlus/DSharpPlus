@@ -1,24 +1,30 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using DSharpPlus.Net;
 
-namespace DSharpPlus
+namespace DSharpPlus.Exceptions
 {
+    /// <summary>
+    /// Represents an exception thrown when too many requests are sent.
+    /// </summary>
     public class RateLimitException : Exception
     {
         /// <summary>
-        /// Request that caused the exception
+        /// Gets the request that caused the exception.
         /// </summary>
-        public BaseWebRequest WebRequest { get; internal set; }
+        public BaseRestRequest WebRequest { get; internal set; }
+
         /// <summary>
-        /// Response from server
+        /// Gets the response to the request.
         /// </summary>
-        public WebResponse WebResponse { get; internal set; }
+        public RestResponse WebResponse { get; internal set; }
+
         /// <summary>
-        /// Received json error
+        /// Gets the JSON received.
         /// </summary>
         public string JsonMessage { get; internal set; }
 
-        public RateLimitException(BaseWebRequest request, WebResponse response) : base("Rate limited: " + response.ResponseCode)
+        internal RateLimitException(BaseRestRequest request, RestResponse response) : base("Rate limited: " + response.ResponseCode)
         {
             this.WebRequest = request;
             this.WebResponse = response;

@@ -1,12 +1,17 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.DmChannelCreated"/> event.
+    /// </summary>
     public class DmChannelCreateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// DM Channel that just got created
+        /// Gets the direct message channel that was created.
         /// </summary>
         public DiscordDmChannel Channel { get; internal set; }
 
-        public DmChannelCreateEventArgs(DiscordClient client) : base(client) { }
+        internal DmChannelCreateEventArgs(DiscordClient client) : base(client) { }
     }
 }

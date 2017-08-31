@@ -1,18 +1,23 @@
 ﻿using System.Collections.Generic;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.GuildMembersChunked"/> event.
+    /// </summary>
     public class GuildMembersChunkEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Guild whose members were requested
+        /// Gets the guild whose members were requested.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
+
         /// <summary>
-        /// New member list
+        /// Gets a collection containing the members in the received chunk.
         /// </summary>
         public IReadOnlyList<DiscordMember> Members { get; internal set; }
 
-        public GuildMembersChunkEventArgs(DiscordClient client) : base(client) { }
+        internal GuildMembersChunkEventArgs(DiscordClient client) : base(client) { }
     }
 }
