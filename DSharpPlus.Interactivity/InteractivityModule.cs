@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.ObjectModel;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Interactivity
 {
@@ -71,16 +72,11 @@ namespace DSharpPlus.Interactivity
     }
     #endregion
 
-    public class InteractivityModule : IModule
+    public class InteractivityModule : BaseModule
     {
-        #region fields n stuff
-        public DiscordClient Client { get { return this._client; } }
-        private DiscordClient _client;
-        #endregion
-
-        public void Setup(DiscordClient client)
+        protected internal override void Setup(DiscordClient client)
         {
-            this._client = client;
+            this.Client = client;
         }
 
         #region Message
@@ -105,11 +101,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageCreated += handler;
+            this.Client.MessageCreated += handler;
 
             var result = await tsc.Task;
 
-            _client.MessageCreated -= handler;
+            this.Client.MessageCreated -= handler;
             return result;
         }
         #endregion
@@ -138,11 +134,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionAdd += handler;
+            this.Client.MessageReactionAdded += handler;
 
             var result = await tsc.Task;
 
-            _client.MessageReactionAdd -= handler;
+            this.Client.MessageReactionAdded -= handler;
             return result;
         }
 
@@ -174,11 +170,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionAdd += handler;
+            this.Client.MessageReactionAdded += handler;
 
             var result = await tsc.Task;
 
-            _client.MessageReactionAdd -= handler;
+            this.Client.MessageReactionAdded -= handler;
             return result;
         }
 
@@ -213,11 +209,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionAdd += handler;
+            this.Client.MessageReactionAdded += handler;
 
             var result = await tsc.Task;
 
-            _client.MessageReactionAdd -= handler;
+            this.Client.MessageReactionAdded -= handler;
             return result;
         }
 
@@ -249,11 +245,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionAdd += handler;
+            this.Client.MessageReactionAdded += handler;
 
             var result = await tsc.Task;
 
-            _client.MessageReactionAdd -= handler;
+            this.Client.MessageReactionAdded -= handler;
             return result;
         }
 
@@ -277,7 +273,7 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionAdd += handler1;
+            this.Client.MessageReactionAdded += handler1;
 
             AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
             {
@@ -288,9 +284,9 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionRemove += handler2;
+            this.Client.MessageReactionRemoved += handler2;
 
-            AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler3 = async (e) =>
+            AsyncEventHandler<MessageReactionsClearEventArgs> handler3 = async (e) =>
             {
                 await Task.Yield();
                 if (e.Message.Id == m.Id)
@@ -303,13 +299,13 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionRemoveAll += handler3;
+            this.Client.MessageReactionsCleared += handler3;
 
             var result = await tsc.Task;
 
-            _client.MessageReactionAdd -= handler1;
-            _client.MessageReactionRemove -= handler2;
-            _client.MessageReactionRemoveAll -= handler3;
+            this.Client.MessageReactionAdded -= handler1;
+            this.Client.MessageReactionRemoved -= handler2;
+            this.Client.MessageReactionsCleared -= handler3;
 
             return result;
         }
@@ -329,7 +325,7 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionAdd += handler1;
+            this.Client.MessageReactionAdded += handler1;
 
             AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
             {
@@ -340,9 +336,9 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionRemove += handler2;
+            this.Client.MessageReactionRemoved += handler2;
 
-            AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler3 = async (e) =>
+            AsyncEventHandler<MessageReactionsClearEventArgs> handler3 = async (e) =>
             {
                 await Task.Yield();
                 if (e.Message.Id == m.Id)
@@ -351,20 +347,21 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.MessageReactionRemoveAll += handler3;
+            this.Client.MessageReactionsCleared += handler3;
 
             var result = await tsc.Task;
 
-            _client.MessageReactionAdd -= handler1;
-            _client.MessageReactionRemove -= handler2;
-            _client.MessageReactionRemoveAll -= handler3;
+            this.Client.MessageReactionAdded -= handler1;
+            this.Client.MessageReactionRemoved -= handler2;
+            this.Client.MessageReactionsCleared -= handler3;
 
             return result;
         }
         #endregion
 
         #region Typing
-        // I don't really know anymore why I added this..
+        // I don't really know anymore why I added this.. -Naam
+        // I think I told you it might be useful, but tbh I have no idea myself -Emzi
         public async Task<TypingContext> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan timeout)
         {
             var channel_id = channel.Id;
@@ -389,11 +386,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.TypingStart += handler;
+            this.Client.TypingStarted += handler;
 
             var result = await tsc.Task;
 
-            _client.TypingStart -= handler;
+            this.Client.TypingStarted -= handler;
             return result;
         }
 
@@ -421,11 +418,11 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            _client.TypingStart += handler;
+            this.Client.TypingStarted += handler;
 
             var result = await tsc.Task;
 
-            _client.TypingStart -= handler;
+            this.Client.TypingStarted -= handler;
             return result;
         }
         #endregion
@@ -442,7 +439,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            DiscordMessage m = await _client.SendMessageAsync(channel, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
+            DiscordMessage m = await this.Client.SendMessageAsync(channel, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
             PaginatedMessage pm = new PaginatedMessage()
             {
                 CurrentIndex = 0,
@@ -452,27 +449,27 @@ namespace DSharpPlus.Interactivity
 
             await this.GeneratePaginationReactions(m);
 
-            AsyncEventHandler<MessageReactionRemoveAllEventArgs> _reaction_removed_all = async e =>
+            AsyncEventHandler<MessageReactionsClearEventArgs> _reaction_removed_all = async e =>
             {
                 await this.GeneratePaginationReactions(m);
             };
-            _client.MessageReactionRemoveAll += _reaction_removed_all;
+            this.Client.MessageReactionsCleared += _reaction_removed_all;
 
             AsyncEventHandler<MessageReactionAddEventArgs> _reaction_added = async e =>
             {
-                if (e.Message.Id == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
+                if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
                 {
                     await this.DoPagination(e.Emoji, m, pm, ct);
                 }
             };
-            _client.MessageReactionAdd += _reaction_added;
+            this.Client.MessageReactionAdded += _reaction_added;
 
             AsyncEventHandler<MessageReactionRemoveEventArgs> _reaction_removed = async e =>
             {
-                if (e.Message.Id == m.Id && e.User.Id != _client.CurrentUser.Id && e.User.Id == user.Id)
+                if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
                     await this.DoPagination(e.Emoji, m, pm, ct);
             };
-            _client.MessageReactionRemove += _reaction_removed;
+            this.Client.MessageReactionRemoved += _reaction_removed;
 
             await tsc.Task;
 
@@ -488,9 +485,9 @@ namespace DSharpPlus.Interactivity
                     break;
             }
 
-            _client.MessageReactionRemoveAll -= _reaction_removed_all;
-            _client.MessageReactionAdd -= _reaction_added;
-            _client.MessageReactionRemove -= _reaction_removed;
+            this.Client.MessageReactionsCleared -= _reaction_removed_all;
+            this.Client.MessageReactionAdded -= _reaction_added;
+            this.Client.MessageReactionRemoved -= _reaction_removed;
         }
 
         public IEnumerable<Page> GeneratePagesInEmbeds(string input)
@@ -564,7 +561,7 @@ namespace DSharpPlus.Interactivity
                     return;
             }
 
-            await m.EditAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
+            await m.ModifyAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
                 embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? null);
             #endregion
         }

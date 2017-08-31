@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Interactivity
 {
-    public class ReactionContext
+    public class TypingContext
     {
-        public DiscordChannel Channel;
-
         public DiscordUser User;
 
-        public DiscordEmoji Emoji;
+        public DiscordChannel Channel;
 
-        public DiscordMessage Message;
+        public DateTimeOffset StartedAt;
 
         public DiscordGuild Guild => Channel.Guild;
 
