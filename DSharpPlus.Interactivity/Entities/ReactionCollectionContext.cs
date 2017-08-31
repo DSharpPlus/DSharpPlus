@@ -6,11 +6,11 @@ namespace DSharpPlus.Interactivity
 {
     public class ReactionCollectionContext
     {
-        public ConcurrentDictionary<DiscordEmoji, int> Reactions = new ConcurrentDictionary<DiscordEmoji, int>();
+        public ConcurrentDictionary<DiscordEmoji, int> Reactions { get; internal set; } = new ConcurrentDictionary<DiscordEmoji, int>();
 
         internal List<ulong> _membersvoted = new List<ulong>();
 
-        public InteractivityModule Interactivity;
+        public InteractivityModule Interactivity { get; internal set; }
 
         public DiscordClient Client => Interactivity.Client;
 

@@ -5,7 +5,7 @@ namespace DSharpPlus.Interactivity
 {
     public class MessageContext
     {
-        public DiscordMessage Message;
+        public DiscordMessage Message { get; internal set; }
 
         public DiscordUser User => Message.Author;
 
@@ -13,7 +13,7 @@ namespace DSharpPlus.Interactivity
 
         public DiscordGuild Guild => Channel.Guild;
 
-        public InteractivityModule Interactivity;
+        public InteractivityModule Interactivity { get; internal set; }
 
         public DiscordClient Client => Interactivity.Client;
 

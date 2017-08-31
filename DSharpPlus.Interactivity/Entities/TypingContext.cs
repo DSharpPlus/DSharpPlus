@@ -5,15 +5,15 @@ namespace DSharpPlus.Interactivity
 {
     public class TypingContext
     {
-        public DiscordUser User;
+        public DiscordUser User { get; internal set; }
 
-        public DiscordChannel Channel;
+        public DiscordChannel Channel { get; internal set; }
 
-        public DateTimeOffset StartedAt;
+        public DateTimeOffset StartedAt { get; internal set; }
 
         public DiscordGuild Guild => Channel.Guild;
 
-        public InteractivityModule Interactivity;
+        public InteractivityModule Interactivity { get; internal set; }
 
         public DiscordClient Client => Interactivity.Client;
     }

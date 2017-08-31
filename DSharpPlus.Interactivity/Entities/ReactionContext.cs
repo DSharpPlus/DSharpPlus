@@ -4,17 +4,17 @@ namespace DSharpPlus.Interactivity
 {
     public class ReactionContext
     {
-        public DiscordChannel Channel;
+        public DiscordChannel Channel { get; internal set; }
 
-        public DiscordUser User;
+        public DiscordUser User { get; internal set; }
 
-        public DiscordEmoji Emoji;
+        public DiscordEmoji Emoji { get; internal set; }
 
-        public DiscordMessage Message;
+        public DiscordMessage Message { get; internal set; }
 
         public DiscordGuild Guild => Channel.Guild;
 
-        public InteractivityModule Interactivity;
+        public InteractivityModule Interactivity { get; internal set; }
 
         public DiscordClient Client => Interactivity.Client;
     }
