@@ -257,6 +257,63 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
+        public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, TimeSpan timeout, List<DiscordEmoji> Emojis)
+        {
+            foreach(var em in Emojis)
+            {
+                await m.CreateReactionAsync(em);
+            }
+
+            var rcc = new ReactionCollectionContext();
+            var tsc = new TaskCompletionSource<ReactionCollectionContext>();
+            var ct = new CancellationTokenSource(timeout);
+            ct.Token.Register(() => tsc.TrySetResult(rcc));
+            AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
+                {
+                    rcc.AddReaction(e.Emoji, e.User.Id);
+                }
+            };
+
+            _client.MessageReactionAdd += handler1;
+
+            AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
+                {
+                    rcc.RemoveReaction(e.Emoji, e.User.Id);
+                }
+            };
+
+            _client.MessageReactionRemove += handler2;
+
+            AsyncEventHandler<MessageReactionRemoveAllEventArgs> handler3 = async (e) =>
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id)
+                {
+                    rcc.ClearReactions();
+                    foreach (var em in Emojis)
+                    {
+                        await m.CreateReactionAsync(em);
+                    }
+                }
+            };
+
+            _client.MessageReactionRemoveAll += handler3;
+
+            var result = await tsc.Task;
+
+            _client.MessageReactionAdd -= handler1;
+            _client.MessageReactionRemove -= handler2;
+            _client.MessageReactionRemoveAll -= handler3;
+
+            return result;
+        }
+
         public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage m, TimeSpan timeout)
         {
             var rcc = new ReactionCollectionContext();

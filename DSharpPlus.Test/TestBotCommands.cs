@@ -179,10 +179,15 @@ Serverowner: {e.Guild.Owner.DisplayName}
         [Command("poll")]
         public async Task Poll(CommandContext e)
         {
-            var m = await e.Message.RespondAsync("Hey everyone! Add some reactions to this message! you've got 30 seconds!");
+            var m = await e.Message.RespondAsync("Cool and good?");
             //await e.Message.DeleteAsync();
-            var list = await e.Client.GetInteractivityModule().CollectReactionsAsync(m, TimeSpan.FromSeconds(30));
-            string reactions = "We're done people!\n\nReactions:";
+            List<DiscordEmoji> Options = new List<DiscordEmoji>()
+            {
+                DiscordEmoji.FromUnicode("👍"),
+                DiscordEmoji.FromUnicode("👎")
+            };
+            var list = await e.Client.GetInteractivityModule().CreatePollAsync(m, TimeSpan.FromSeconds(30), Options);
+            string reactions = "We're done people!\n\nResults:";
             foreach (var collected in list.Reactions)
             {
                 reactions += "\n" + collected.Key + ": " + collected.Value + "times!";
