@@ -111,12 +111,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the embed's author.
         /// </summary>
-        public EmbedAuthor Author { get; internal set; }
+        public EmbedAuthor Author { get; set; }
 
         /// <summary>
         /// Gets the embed's footer.
         /// </summary>
-        public EmbedFooter Footer { get; internal set; }
+        public EmbedFooter Footer { get; set; }
 
         /// <summary>
         /// Gets the embed's fields.
