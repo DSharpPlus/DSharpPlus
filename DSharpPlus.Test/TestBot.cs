@@ -53,6 +53,7 @@ namespace DSharpPlus.Test
             Discord.MessageReactionAdded += this.Discord_MessageReactionAdd;
             Discord.MessageReactionsCleared += this.Discord_MessageReactionRemoveAll;
             Discord.PresenceUpdated += this.Discord_PresenceUpdate;
+            Discord.ClientErrored += this.Discord_ClientErrored;
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
 
@@ -221,6 +222,12 @@ namespace DSharpPlus.Test
             return Task.Delay(0);
 
             //await e.Message.DeleteAllReactions();
+        }
+
+        private Task Discord_ClientErrored(ClientErrorEventArgs e)
+        {
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now);
+            return Task.Delay(0);
         }
 
         private Task Discord_SocketError(SocketErrorEventArgs e)

@@ -45,11 +45,23 @@ namespace DSharpPlus.Net.Abstractions
 
     internal class RestChannelMessageEditPayload
     {
-        [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("content", NullValueHandling = NullValueHandling.Include)]
         public string Content { get; set; }
+
+        [JsonIgnore]
+        public bool HasContent { get; set; }
         
-        [JsonProperty("embed", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("embed", NullValueHandling = NullValueHandling.Include)]
         public DiscordEmbed Embed { get; set; }
+
+        [JsonIgnore]
+        public bool HasEmbed { get; set; }
+
+        public bool ShouldSerializeContent() =>
+            this.HasContent;
+
+        public bool ShouldSerializeEmbed() =>
+            this.HasEmbed;
     }
 
     internal sealed class RestChannelMessageCreatePayload : RestChannelMessageEditPayload

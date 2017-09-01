@@ -113,8 +113,8 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendMessageAsync(string content, bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord._rest_client.InternalCreateMessageAsync(Id, content, tts, embed);
+        public Task<DiscordMessage> SendMessageAsync(Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>)) =>
+            this.Discord._rest_client.CreateMessageAsync(Id, content, tts, embed);
 
         /// <summary>
         /// Sends a message containing an attached file to this channel.
@@ -126,7 +126,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord._rest_client.InternalUploadFileAsync(this.Id, file_data, file_name, content, tts, embed);
+            this.Discord._rest_client.UploadFileAsync(this.Id, file_data, file_name, content, tts, embed);
 
 #if !NETSTANDARD1_1
         /// <summary>
@@ -138,7 +138,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord._rest_client.InternalUploadFileAsync(this.Id, file_data, Path.GetFileName(file_data.Name), content, tts, embed);
+            this.Discord._rest_client.UploadFileAsync(this.Id, file_data, Path.GetFileName(file_data.Name), content, tts, embed);
 
         /// <summary>
         /// Sends a message containing an attached file to this channel.
@@ -151,7 +151,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             using (var fs = File.OpenRead(file_path))
-                return await this.Discord._rest_client.InternalUploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed);
+                return await this.Discord._rest_client.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed);
         }
 #endif
 
@@ -164,7 +164,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord._rest_client.InternalUploadFilesAsync(Id, files, content, tts, embed);
+            this.Discord._rest_client.UploadFilesAsync(Id, files, content, tts, embed);
 
         // Please send memes to Naamloos#2887 at discord <3 thank you
 
@@ -174,7 +174,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteAsync(string reason = null) =>
-            this.Discord._rest_client.InternalDeleteChannelAsync(Id, reason);
+            this.Discord._rest_client.DeleteChannelAsync(Id, reason);
 
         /// <summary>
         /// Returns a specific message
@@ -186,7 +186,7 @@ namespace DSharpPlus.Entities
             if (this.Discord._config.MessageCacheSize > 0 && this.MessageCache.TryGet(xm => xm.Id == id, out var msg))
                 return msg;
 
-            return await this.Discord._rest_client.InternalGetMessageAsync(Id, id);
+            return await this.Discord._rest_client.GetMessageAsync(Id, id);
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task ModifyAsync(string name = null, int? position = null, string topic = null, int? bitrate = null, int? user_limit = null, string reason = null) =>
-            this.Discord._rest_client.InternalModifyChannelAsync(this.Id, name, position, topic, bitrate, user_limit, reason);
+            this.Discord._rest_client.ModifyChannelAsync(this.Id, name, position, topic, bitrate, user_limit, reason);
 
         /// <summary>
         /// Updates the channel position
@@ -228,14 +228,14 @@ namespace DSharpPlus.Entities
                     pmds[i].Position = chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position;
             }
 
-            return this.Discord._rest_client.InternalModifyGuildChannelPosition(this.Guild.Id, pmds, reason);
+            return this.Discord._rest_client.ModifyGuildChannelPosition(this.Guild.Id, pmds, reason);
         }
 
         /// <summary>  
         /// Returns a list of messages.Only set ONE of the three parameters. They are Message ID's
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null) =>
-            this.Discord._rest_client.InternalGetChannelMessagesAsync(this.Id, limit, before, after, around);
+            this.Discord._rest_client.GetChannelMessagesAsync(this.Id, limit, before, after, around);
 
         /// <summary>
         /// Deletes multiple messages
@@ -249,8 +249,8 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("You need to specify at least one message to delete.");
 
             if (messages.Count() < 2)
-                return this.Discord._rest_client.InternalDeleteMessageAsync(this.Id, messages.Single().Id, reason);
-            return this.Discord._rest_client.InternalDeleteMessagesAsync(this.Id, messages.Where(xm => xm.Channel.Id == this.Id).Select(xm => xm.Id), reason);
+                return this.Discord._rest_client.DeleteMessageAsync(this.Id, messages.Single().Id, reason);
+            return this.Discord._rest_client.DeleteMessagesAsync(this.Id, messages.Where(xm => xm.Channel.Id == this.Id).Select(xm => xm.Id), reason);
         }
 
         /// <summary>
@@ -260,14 +260,14 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteMessageAsync(DiscordMessage message, string reason = null) =>
-            this.Discord._rest_client.InternalDeleteMessageAsync(this.Id, message.Id, reason);
+            this.Discord._rest_client.DeleteMessageAsync(this.Id, message.Id, reason);
 
         /// <summary>
         /// Returns a list of invite objects
         /// </summary>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync() =>
-            this.Discord._rest_client.InternalGetChannelInvitesAsync(Id);
+            this.Discord._rest_client.GetChannelInvitesAsync(Id);
 
         /// <summary>
         /// Create a new invite object
@@ -279,7 +279,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null) => 
-            this.Discord._rest_client.InternalCreateChannelInviteAsync(Id, max_age, max_uses, temporary, unique, reason);
+            this.Discord._rest_client.CreateChannelInviteAsync(Id, max_age, max_uses, temporary, unique, reason);
 
         /// <summary>
         /// Deletes a channel permission overwrite
@@ -288,7 +288,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteOverwriteAsync(DiscordOverwrite overwrite, string reason = null) =>
-            this.Discord._rest_client.InternalDeleteChannelPermissionAsync(this.Id, overwrite.Id, reason);
+            this.Discord._rest_client.DeleteChannelPermissionAsync(this.Id, overwrite.Id, reason);
 
         /// <summary>
         /// Updates a channel permission overwrite.
@@ -299,7 +299,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task UpdateOverwriteAsync(DiscordOverwrite overwrite, Permissions allow, Permissions deny, string reason = null) =>
-            this.Discord._rest_client.InternalEditChannelPermissionsAsync(this.Id, overwrite.Id, allow, deny, overwrite.Type, reason);
+            this.Discord._rest_client.EditChannelPermissionsAsync(this.Id, overwrite.Id, allow, deny, overwrite.Type, reason);
 
         /// <summary>
         /// Adds a channel permission overwrite for specified member.
@@ -310,7 +310,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task AddOverwriteAsync(DiscordMember member, Permissions allow, Permissions deny, string reason = null) =>
-            this.Discord._rest_client.InternalEditChannelPermissionsAsync(this.Id, member.Id, allow, deny, "member", reason);
+            this.Discord._rest_client.EditChannelPermissionsAsync(this.Id, member.Id, allow, deny, "member", reason);
 
         /// <summary>
         /// Adds a channel permission overwrite for specified role.
@@ -321,21 +321,21 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task AddOverwriteAsync(DiscordRole role, Permissions allow, Permissions deny, string reason = null) =>
-            this.Discord._rest_client.InternalEditChannelPermissionsAsync(this.Id, role.Id, allow, deny, "role", reason);
+            this.Discord._rest_client.EditChannelPermissionsAsync(this.Id, role.Id, allow, deny, "role", reason);
 
         /// <summary>
         /// Post a typing indicator
         /// </summary>
         /// <returns></returns>
         public Task TriggerTypingAsync() =>
-            this.Discord._rest_client.InternalTriggerTypingAsync(Id);
+            this.Discord._rest_client.TriggerTypingAsync(Id);
 
         /// <summary>
         /// Returns all pinned messages
         /// </summary>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync() =>
-            this.Discord._rest_client.InternalGetPinnedMessagesAsync(this.Id);
+            this.Discord._rest_client.GetPinnedMessagesAsync(this.Id);
 
         /// <summary>
         /// Create a new webhook
@@ -360,7 +360,7 @@ namespace DSharpPlus.Entities
                 }
             }
 
-            return await this.Discord._rest_client.InternalCreateWebhookAsync(this.Id, name, av64, reason);
+            return await this.Discord._rest_client.CreateWebhookAsync(this.Id, name, av64, reason);
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync() =>
-            this.Discord._rest_client.InternalGetChannelWebhooksAsync(this.Id);
+            this.Discord._rest_client.GetChannelWebhooksAsync(this.Id);
 
         /// <summary>
         /// Moves a member to this voice channel
@@ -378,7 +378,7 @@ namespace DSharpPlus.Entities
         public async Task PlaceMemberAsync(DiscordMember member)
         {
             if (Type == ChannelType.Voice)
-                await this.Discord._rest_client.InternalModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null, Id, null);
+                await this.Discord._rest_client.ModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null, Id, null);
         }
 
         /// <summary>

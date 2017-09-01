@@ -779,7 +779,7 @@ namespace DSharpPlus
             await InternalUpdateGatewayAsync();
 
             if (this._current_user == null)
-                this._current_user = await this._rest_client.InternalGetCurrentUserAsync();
+                this._current_user = await this._rest_client.GetCurrentUserAsync();
 
             if (this._config.TokenType != TokenType.User && this._current_application == null)
                 this._current_application = await this.GetCurrentApplicationAsync();
@@ -849,7 +849,7 @@ namespace DSharpPlus
         /// <param name="user_id">Id of the user</param>
         /// <returns></returns>
         public async Task<DiscordUser> GetUserAsync(ulong user_id) => 
-            this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUserAsync(user_id);
+            this.InternalGetCachedUser(user_id) ?? await this._rest_client.GetUserAsync(user_id);
 
         /// <summary>
         /// Gets a channel
@@ -857,7 +857,7 @@ namespace DSharpPlus
         /// <param name="id"></param>
         /// <returns></returns>
         public async Task<DiscordChannel> GetChannelAsync(ulong id) =>
-            this.InternalGetCachedChannel(id) ?? await this._rest_client.InternalGetChannelAsync(id);
+            this.InternalGetCachedChannel(id) ?? await this._rest_client.GetChannelAsync(id);
 
         /// <summary>
         /// Sends a message
@@ -867,8 +867,8 @@ namespace DSharpPlus
         /// <param name="tts"></param>
         /// <param name="embed"></param>
         /// <returns></returns>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content, bool tts = false, DiscordEmbed embed = null) =>
-            this._rest_client.InternalCreateMessageAsync(channel.Id, content, tts, embed);
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>)) =>
+            this._rest_client.CreateMessageAsync(channel.Id, content, tts, embed);
 
         /// <summary>
         /// Creates a guild. Only for whitelisted bots
@@ -895,7 +895,7 @@ namespace DSharpPlus
                 }
             }
 
-            return await this._rest_client.InternalCreateGuildAsync(name, region, iconb64, verification_level, default_message_notifications);
+            return await this._rest_client.CreateGuildAsync(name, region, iconb64, verification_level, default_message_notifications);
         }
 
         /// <summary>
@@ -908,8 +908,8 @@ namespace DSharpPlus
             if (this._guilds.ContainsKey(id))
                 return this._guilds[id];
 
-            var gld = await this._rest_client.InternalGetGuildAsync(id);
-            var chns = await this._rest_client.InternalGetGuildChannelsAsync(gld.Id);
+            var gld = await this._rest_client.GetGuildAsync(id);
+            var chns = await this._rest_client.GetGuildChannelsAsync(gld.Id);
             gld._channels.AddRange(chns);
 
             return gld;
@@ -921,21 +921,21 @@ namespace DSharpPlus
         /// <param name="code"></param>
         /// <returns></returns>
         public Task<DiscordInvite> GetInviteByCodeAsync(string code) => 
-            this._rest_client.InternalGetInvite(code);
+            this._rest_client.GetInvite(code);
 
         /// <summary>
         /// Gets a list of connections
         /// </summary>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordConnection>> GetConnectionsAsync() => 
-            this._rest_client.InternalGetUsersConnectionsAsync();
+            this._rest_client.GetUsersConnectionsAsync();
 
         /// <summary>
         /// Gets a list of regions
         /// </summary>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordVoiceRegion>> ListRegionsAsync() =>
-            this._rest_client.InternalListVoiceRegionsAsync();
+            this._rest_client.ListVoiceRegionsAsync();
 
         /// <summary>
         /// Gets a webhook
@@ -943,7 +943,7 @@ namespace DSharpPlus
         /// <param name="id"></param>
         /// <returns></returns>
         public Task<DiscordWebhook> GetWebhookAsync(ulong id) => 
-            this._rest_client.InternalGetWebhookAsync(id);
+            this._rest_client.GetWebhookAsync(id);
 
         /// <summary>
         /// Gets a webhook
@@ -952,7 +952,7 @@ namespace DSharpPlus
         /// <param name="token"></param>
         /// <returns></returns>
         public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token) => 
-            this._rest_client.InternalGetWebhookWithTokenAsync(id, token);
+            this._rest_client.GetWebhookWithTokenAsync(id, token);
 
         /// <summary>
         /// Creates a dm
@@ -960,7 +960,7 @@ namespace DSharpPlus
         /// <param name="user"></param>
         /// <returns></returns>
         public async Task<DiscordDmChannel> CreateDmAsync(DiscordUser user) => 
-            this.PrivateChannels.ToList().Find(x => x.Recipients.First().Id == user.Id) ?? await _rest_client.InternalCreateDmAsync(user.Id);
+            this.PrivateChannels.ToList().Find(x => x.Recipients.First().Id == user.Id) ?? await _rest_client.CreateDmAsync(user.Id);
 
         /// <summary>
         /// Updates current user's status
@@ -977,7 +977,7 @@ namespace DSharpPlus
         /// </summary>
         /// <returns>Current API application.</returns>
         public Task<DiscordApplication> GetCurrentApplicationAsync() => 
-            this._rest_client.InternalGetCurrentApplicationInfoAsync();
+            this._rest_client.GetCurrentApplicationInfoAsync();
 
         /// <summary>
         /// Gets information about specified API application.
@@ -985,7 +985,7 @@ namespace DSharpPlus
         /// <param name="id">ID of the application.</param>
         /// <returns>Information about specified API application.</returns>
         public Task<DiscordApplication> GetApplicationAsync(ulong id) =>
-            this._rest_client.InternalGetApplicationInfoAsync(id);
+            this._rest_client.GetApplicationInfoAsync(id);
 
         /// <summary>
         /// Edits current user.
@@ -1009,7 +1009,7 @@ namespace DSharpPlus
                 }
             }
 
-            return await this._rest_client.InternalModifyCurrentUserAsync(username, av64);
+            return await this._rest_client.ModifyCurrentUserAsync(username, av64);
         }
 
         /// <summary>
@@ -2090,9 +2090,9 @@ namespace DSharpPlus
 
             var usr = null as DiscordUser;
             if (channel.Guild != null)
-                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.InternalGetGuildMemberAsync(channel.Guild.Id, user_id);
+                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.GetGuildMemberAsync(channel.Guild.Id, user_id);
             else
-                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUserAsync(user_id);
+                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.GetUserAsync(user_id);
 
             DiscordMessage msg = null;
             if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
@@ -2114,9 +2114,9 @@ namespace DSharpPlus
 
             var usr = null as DiscordUser;
             if (channel.Guild != null)
-                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.InternalGetGuildMemberAsync(channel.Guild.Id, user_id);
+                usr = channel.Guild._members.FirstOrDefault(xm => xm.Id == user_id) ?? await this._rest_client.GetGuildMemberAsync(channel.Guild.Id, user_id);
             else
-                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.InternalGetUserAsync(user_id);
+                usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.GetUserAsync(user_id);
 
             DiscordMessage msg = null;
             if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
