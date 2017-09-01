@@ -100,7 +100,7 @@ namespace DSharpPlus.Net
     /// <summary>
     /// Represents the type of major parameter according to which requests are bucketed.
     /// </summary>
-    public enum MajorParameterType
+    internal enum MajorParameterType
     {
         /// <summary>
         /// Parameter type is unknown or parameter missing.

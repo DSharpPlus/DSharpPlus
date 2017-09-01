@@ -9,3 +9,5 @@ apiRules:
     uidRegex: ^DSharpPlus\.Base(WebSocket|Udp)Client.*$
 - exclude:
     uidRegex: ^DSharpPlus\.HttpRequestMethod.*$
+- exclude:
+    uidRegex: ^DSharpPlus\.VoiceNext\.Codec.*$

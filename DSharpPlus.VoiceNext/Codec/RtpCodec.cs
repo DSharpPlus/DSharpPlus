@@ -2,7 +2,7 @@
 
 namespace DSharpPlus.VoiceNext.Codec
 {
-    public sealed class RtpCodec
+    internal sealed class RtpCodec
     {
         private const byte RTP_TYPE_NO_EXTENSION = 0x80;
         private const byte RTP_TYPE_EXTENSION = 0x90;

@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 
 namespace DSharpPlus.VoiceNext.Codec
 {
-    public sealed class SodiumCodec
+    internal sealed class SodiumCodec
     {
         private const int KEY_BYTES = 32;
         private const int NONCE_BYTES = 24;

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace DSharpPlus.VoiceNext.Codec
 {
-    public sealed class OpusCodec : IDisposable
+    internal sealed class OpusCodec : IDisposable
     {
         [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_create")]
         private static extern IntPtr CreateEncoder(int samplerate, int channels, int application, out OpusError error);
