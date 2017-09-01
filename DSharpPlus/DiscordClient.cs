@@ -822,11 +822,12 @@ namespace DSharpPlus
         {
             var headers = Utilities.GetBaseHeaders();
 
-            var url = new Uri(Utilities.GetApiBaseUri() + Endpoints.GATEWAY);
+            var route = Endpoints.GATEWAY;
             if (_config.TokenType == TokenType.Bot)
-                url = new Uri(string.Concat(url, Endpoints.BOT));
+                route = string.Concat(route, Endpoints.BOT);
+            var bucket = this._rest_client.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
 
-            var bucket = this._rest_client.Rest.GetBucket(0, MajorParameterType.Unbucketed, url, RestRequestMethod.GET);
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var request = new RestRequest(this, bucket, url, RestRequestMethod.GET, headers);
             _ = this._rest_client.Rest.ExecuteRequestAsync(request);
             var response = await request.WaitForCompletionAsync();

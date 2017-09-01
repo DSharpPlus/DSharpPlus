@@ -8,24 +8,29 @@ namespace DSharpPlus.Net
     internal class RateLimitBucket : IEquatable<RateLimitBucket>
     {
         /// <summary>
-        /// Gets the value of the parameter by which the requests are bucketed.
+        /// Gets the Id of the guild bucket.
         /// </summary>
-        public ulong Parameter { get; internal set; }
+        public string GuildId { get; internal set; }
+
+        /// <summary>
+        /// Gets the Id of the channel bucket.
+        /// </summary>
+        public string ChannelId { get; internal set; }
 
         /// <summary>
         /// Gets the url by which the requests are bucketed.
         /// </summary>
-        public string Path { get; internal set; }
-
-        /// <summary>
-        /// Gets the type of the parameter by which the requests are bucketed.
-        /// </summary>
-        public MajorParameterType ParameterType { get; internal set; }
+        public string Route { get; internal set; }
 
         /// <summary>
         /// Gets the HTTP request method.
         /// </summary>
         public RestRequestMethod Method { get; internal set; }
+
+        /// <summary>
+        /// Gets the Id of the ratelimit bucket.
+        /// </summary>
+        public string BucketId => $"{this.Method}:{this.GuildId}:{this.ChannelId}:{this.Route}";
 
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
@@ -42,13 +47,32 @@ namespace DSharpPlus.Net
         /// </summary>
         public DateTimeOffset Reset { get; internal set; }
 
+        internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id)
+        {
+            this.Method = method;
+            this.Route = route;
+            this.ChannelId = channel_id;
+            this.GuildId = guild_id;
+        }
+
+        /// <summary>
+        /// Generates an ID for this request bucket.
+        /// </summary>
+        /// <param name="method">Method for this bucket.</param>
+        /// <param name="route">Route for this bucket.</param>
+        /// <param name="guild_id">Guild Id for this bucket.</param>
+        /// <param name="channel_id">Channel Id for this bucket.</param>
+        /// <returns>Bucket Id.</returns>
+        public static string GenerateId(RestRequestMethod method, string route, string guild_id, string channel_id) =>
+            $"{method}:{guild_id}:{channel_id}:{route}";
+
         /// <summary>
         /// Returns a string representation of this bucket.
         /// </summary>
         /// <returns>String representation of this bucket.</returns>
         public override string ToString()
         {
-            return $"Rate limit bucket [{this.Parameter}:{this.ParameterType}] [{Remaining}/{Maximum}] {Reset}";
+            return $"Rate limit bucket [{this.Method}:{this.GuildId}:{this.ChannelId}:{this.Route}] [{Remaining}/{Maximum}] {Reset}";
         }
 
         /// <summary>
@@ -74,7 +98,7 @@ namespace DSharpPlus.Net
             if (ReferenceEquals(this, e))
                 return true;
 
-            return this.ParameterType == e.ParameterType && ((this.ParameterType == MajorParameterType.Unbucketed && this.Path == e.Path) || (this.ParameterType != MajorParameterType.Unbucketed && this.Parameter == e.Parameter));
+            return this.BucketId == e.BucketId;
         }
 
         /// <summary>
@@ -83,43 +107,7 @@ namespace DSharpPlus.Net
         /// <returns>The hash code for this <see cref="RateLimitBucket"/>.</returns>
         public override int GetHashCode()
         {
-            var hash = 13;
-            hash = (hash * 7) + this.ParameterType.GetHashCode();
-            hash = (hash * 7) + this.Method.GetHashCode();
-            hash *= 7;
-
-            if (this.ParameterType != MajorParameterType.Unbucketed)
-                hash += this.Parameter.GetHashCode();
-            else
-                hash += this.Path.GetHashCode();
-
-            return hash;
+            return BucketId.GetHashCode();
         }
-    }
-
-    /// <summary>
-    /// Represents the type of major parameter according to which requests are bucketed.
-    /// </summary>
-    internal enum MajorParameterType
-    {
-        /// <summary>
-        /// Parameter type is unknown or parameter missing.
-        /// </summary>
-        Unknown = 0,
-
-        /// <summary>
-        /// Requests are bucketed per-channel.
-        /// </summary>
-        Channel = 1,
-
-        /// <summary>
-        /// Requests are bucketed per-guild.
-        /// </summary>
-        Guild = 2,
-
-        /// <summary>
-        /// Requests are bucketed per-path.
-        /// </summary>
-        Unbucketed = 3
     }
 }

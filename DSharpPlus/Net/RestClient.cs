@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
@@ -16,6 +18,7 @@ namespace DSharpPlus.Net
     internal sealed class RestClient
     {
         private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
+        private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
 
         private DiscordClient Discord { get; }
         private HttpClient HttpClient { get; }
@@ -37,39 +40,27 @@ namespace DSharpPlus.Net
             this.RequestSemaphore = new SemaphoreSlim(1, 1);
         }
 
-        public RateLimitBucket GetBucket(ulong parameter, MajorParameterType type, Uri url, RestRequestMethod method)
+        public RateLimitBucket GetBucket(RestRequestMethod method, string route, object route_params, out string url)
         {
+            var rparams = route_params.GetType()
+                .GetTypeInfo()
+                .DeclaredProperties
+                .ToDictionary(xp => xp.Name, xp => xp.GetValue(route_params) as string);
+
+            var guild_id = rparams.ContainsKey("guild_id") ? rparams["guild_id"] : "";
+            var channel_id = rparams.ContainsKey("channel_id") ? rparams["channel_id"] : "";
+
+            var id = RateLimitBucket.GenerateId(method, route, guild_id, channel_id);
+
             RateLimitBucket bucket = null;
-            if (type != MajorParameterType.Unbucketed)
+            bucket = this.Buckets.FirstOrDefault(xb => xb.BucketId == id);
+            if (bucket == null)
             {
-                bucket = this.Buckets.FirstOrDefault(xb => xb.Parameter == parameter && xb.ParameterType == type && xb.Method == method);
-                if (bucket == null)
-                {
-                    bucket = new RateLimitBucket
-                    {
-                        Parameter = parameter,
-                        ParameterType = type,
-                        Method = method
-                    };
-                    this.Buckets.Add(bucket);
-                }
-            }
-            else
-            {
-                bucket = this.Buckets.FirstOrDefault(xb => xb.Path == url.AbsolutePath && xb.Method == method);
-                if (bucket == null)
-                {
-                    bucket = new RateLimitBucket
-                    {
-                        Parameter = 0,
-                        ParameterType = MajorParameterType.Unbucketed,
-                        Path = url.AbsolutePath,
-                        Method = method
-                    };
-                    this.Buckets.Add(bucket);
-                }
+                bucket = new RateLimitBucket(method, route, guild_id, channel_id);
+                this.Buckets.Add(bucket);
             }
 
+            url = RouteArgumentRegex.Replace(route, xm => $"{rparams[xm.Groups[1].Value]}");
             return bucket;
         }
 
@@ -82,7 +73,7 @@ namespace DSharpPlus.Net
 
             var bucket = request.RateLimitBucket;
             var now = DateTimeOffset.UtcNow;
-            if (bucket.Remaining <= 0 && now < bucket.Reset)
+            if (bucket.Remaining <= 0 && bucket.Maximum > 0 && now < bucket.Reset)
             {
                 request.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered, waiting until {bucket.Reset.ToString("yyyy-MM-dd HH:mm:ss zzz")}", DateTime.Now);
                 _ = Task.Delay(bucket.Reset - now).ContinueWith(t => this.ExecuteRequestAsync(request));
