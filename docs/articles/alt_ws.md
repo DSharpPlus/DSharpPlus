@@ -1,4 +1,4 @@
-# Alternate WebSocket client implementations
+# Alternative WebSocket client implementations
 
 For operating systems and runtimes that do not support the native .NET WebSocket implementation, such as Windows 7 or Mono, 
 you need to use an alternative WebSocket client implementation.
@@ -41,5 +41,7 @@ Similarly, for WS#:
 client.SetWebSocketClient<WebSocketSharpClient>();
 ```
 
-For any other implementation, make sure it's a class that inherits from [BaseWebSocketClient class](/api/DSharpPlus.BaseWebSocketClient.html "BaseWebSocketClient") 
+For any other implementation, make sure it's a class that inherits from [BaseWebSocketClient class](/api/DSharpPlus.Net.WebSocket.BaseWebSocketClient.html "BaseWebSocketClient") 
 and has a public parameter-less constructor.
+
+Lastly, make sure you remember to add `using DSharpPlus.Net.WebSocket;` to your usings.

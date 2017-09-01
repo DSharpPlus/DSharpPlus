@@ -19,7 +19,7 @@ LogLevel = LogLevel.Debug
 
 Using the procedures in the previous article, install a NuGet package called `DSharpPlus.CommandsNext`.
 
-Now you need to enabled CommandsNext module on your DiscordClient. Add a new field to your bot's `Program` class: 
+Now you need to enable CommandsNext module on your DiscordClient. Add a new field to your bot's `Program` class: 
 `static CommandsNextModule commands;`
 
 Visual Studio will complain, you also need to add `using DSharpPlus.CommandsNext;` to your usings.
@@ -217,5 +217,5 @@ and 10 exclusive.
 
 ## 6. Advanced subjects
 
-Commands are covered more in-depth in Emzi0767's Example bot #2. If you want to check out all the cool things CommandsNext can 
+Commands are covered more in-depth in [Emzi0767's Example bot #2](https://github.com/Emzi0767/DSharpPlus-Example-Bot/tree/master/DSPlus.Examples.CSharp.Ex02 "Example Bot #2"). If you want to check out all the cool things CommandsNext can 
 do to make your life easier, make sure to check it out.

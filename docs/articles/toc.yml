@@ -10,6 +10,8 @@
     href: alt_ws.md
   - name: Events
     href: events.md
+  - name: Migrating from 2.x to 3.x
+    href: mig223.md
 - name: Commands
   items:
   - name: Introduction

@@ -8,7 +8,7 @@ Audio in Discord is a fairly complicated subject, but thankfully, DSharpPlus mak
 
 Using the procedures in the first bot article, install a NuGet package called `DSharpPlus.VoiceNext`.
 
-Now you need to enabled VoiceNext module on your DiscordClient. Add a new field to your bot's `Program` class: 
+Now you need to enable VoiceNext module on your DiscordClient. Add a new field to your bot's `Program` class: 
 `static VoiceNextClient voice;`
 
 Visual Studio will complain, you also need to add `using DSharpPlus.VoiceNext;` to your usings in both the command module 
@@ -140,7 +140,8 @@ public async Task Play(CommandContext ctx, [RemainingText] string file)
 	{
 		FileName = "ffmpeg",
 		Arguments = $@"-i ""{file}"" -ac 2 -f s16le -ar 48000 pipe:1",
-		RedirectStandardOutput = true
+		RedirectStandardOutput = true,
+		UseShellExecute = false
 	};
 	var ffmpeg = Process.Start(psi);
 	var ffout = ffmpeg.StandardOutput.BaseStream;

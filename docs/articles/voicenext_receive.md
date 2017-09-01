@@ -25,11 +25,13 @@ The first thing to do when you want to listen is hooking the appropriate events.
 First, in your command module, you will want to create a non-command method for this handler:
 
 ```cs
-public async Task OnVoiceReceived(VoiceReceivedEventArgs ea)
+public async Task OnVoiceReceived(VoiceReceiveEventArgs ea)
 {
 
 }
 ```
+
+Visual Studio will complain about missing classes, add `using DSharpPlus.EventArgs;` to your usings section.
 
 Then, in your `join` command, you will want to attach it to an appropriate event, and in the `leave` command, you will 
 want to detach it.
@@ -59,6 +61,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext;
 
 namespace MyFirstBot
@@ -111,7 +114,7 @@ namespace MyFirstBot
             await ctx.RespondAsync("👌");
         }
 
-        public async Task OnVoiceReceived(VoiceReceivedEventArgs ea)
+        public async Task OnVoiceReceived(VoiceReceiveEventArgs ea)
         {
             if (!this.ffmpegs.ContainsKey(ea.SSRC))
             {

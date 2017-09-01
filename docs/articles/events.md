@@ -53,7 +53,7 @@ Task MyEventHandlerMethod()
 ## Parameterized event handlers
 
 This is largely similar to parameter-less, except these event handlers take appropriate `EventArgs`, that are derived from 
-[DiscordEventArgs class](/api/DSharpPlus.DiscordEventArgs.html).
+[DiscordEventArgs class](/api/DSharpPlus.EventArgs.DiscordEventArgs.html).
 
 ```cs
 discord.MessageCreated += async e =>

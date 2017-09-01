@@ -6,7 +6,7 @@ Can bots feel? Well today you are going to find out.
 
 Using the procedures in the first bot article, install a NuGet package called `DSharpPlus.Interactivity`.
 
-Now you need to enabled Interactivity module on your DiscordClient. Add a new field to your bot's `Program` class: 
+Now you need to enable Interactivity module on your DiscordClient. Add a new field to your bot's `Program` class: 
 `static InteractivityModule interactivity;`
 
 Visual Studio will complain, you also need to add `using DSharpPlus.Interactivity;` to your usings in both the command module 
@@ -52,5 +52,5 @@ the difference?
 
 ## 4. Advanced subjects
 
-Interactivity is covered more in-depth in Emzi0767's Example bot #3. If you want to check out all the cool things Interactivity can 
+Interactivity is covered more in-depth in [Emzi0767's Example bot #3](https://github.com/Emzi0767/DSharpPlus-Example-Bot/tree/master/DSPlus.Examples.CSharp.Ex03 "Example Bot #3"). If you want to check out all the cool things Interactivity can 
 do, make sure to check it out.

@@ -2,7 +2,7 @@
 
 You're still with me - good! You have created an application and a user for your bot. Now we will focus on bringing it to life.
 
-In order for the bot to come to life, you need to make a program that connects to discord as your bot.
+In order for that to happen, you need to make a program that connects to discord as your bot.
 
 This guide requires you to have solid basics in C#. Open your IDE. If you don't have one installed, I recommend installing 
 one of the following:
@@ -19,8 +19,8 @@ IDEs (so long as they support .NET Core).
 
 ## Note for Windows 7 users
 
-If you're using Windows 7, create a regular .NET Framework project (make sure you're targeting at least .NET 4.5; 
-we recommend 4.7).
+If you're using Windows 7, create a regular .NET Framework project (it's required you target at least .NET 4.5; we recommend 
+4.7).
 
 Make sure you read the article about [Alternate WebSocket Client Implementations](/articles/alt_ws.html).
 
