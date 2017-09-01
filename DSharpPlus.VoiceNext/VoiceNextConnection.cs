@@ -246,12 +246,6 @@ namespace DSharpPlus.VoiceNext
                 throw new InvalidOperationException("The connection is not initialized");
 
             await this.PlaybackSemaphore.WaitAsync();
-            if (this.SynchronizerTicks == 0)
-            {
-                this.SynchronizerTicks = Stopwatch.GetTimestamp();
-                this.SynchronizerResolution = (Stopwatch.Frequency * 0.02);
-                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0")}/{this.SynchronizerResolution} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
-            }
 
             var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
 
@@ -259,28 +253,39 @@ namespace DSharpPlus.VoiceNext
             dat = this.Sodium.Encode(dat, this.Rtp.MakeNonce(rtp), this.Key);
             dat = this.Rtp.Encode(rtp, dat);
 
+            if (this.SynchronizerTicks == 0)
+            {
+                this.SynchronizerTicks = Stopwatch.GetTimestamp();
+                this.SynchronizerResolution = (Stopwatch.Frequency * 0.02);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0")}/{this.SynchronizerResolution} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
+            }
+            else
+            {
+                // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
+                // 
+                // delay = max(0, self.delay + ((start_time + self.delay * loops) + - time.time()))
+                // 
+                // self.delay
+                //   sample size
+                // start_time
+                //   time since streaming started
+                // loops
+                //   number of samples sent
+                // time.time()
+                //   DateTime.Now
+                
+                var cts = Stopwatch.GetTimestamp() - this.SynchronizerTicks;
+                if (cts < this.SynchronizerResolution)
+                    await Task.Delay(TimeSpan.FromTicks((long)(this.SynchronizerResolution - cts)));
+
+                this.SynchronizerTicks += this.SynchronizerResolution;
+            }
+
             await this.SendSpeakingAsync(true);
             await this.UdpClient.SendAsync(dat, dat.Length);
 
             this.Sequence++;
             this.Timestamp += 48 * (uint)blocksize;
-
-            // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
-            // 
-            // delay = max(0, self.delay + ((start_time + self.delay * loops) + - time.time()))
-            // 
-            // self.delay
-            //   sample size
-            // start_time
-            //   time since streaming started
-            // loops
-            //   number of samples sent
-            // time.time()
-            //   DateTime.Now
-
-            //await Task.Delay(ts);
-            while (Stopwatch.GetTimestamp() - this.SynchronizerTicks < this.SynchronizerResolution) ;
-            this.SynchronizerTicks += this.SynchronizerResolution;
 
             this.PlaybackSemaphore.Release();
         }
@@ -378,6 +383,10 @@ namespace DSharpPlus.VoiceNext
 
             if (!speaking)
             {
+                var nullpcm = new byte[3840];
+                for (var i = 0; i < 5; i++)
+                    await this.SendAsync(nullpcm, 20);
+
                 this.SynchronizerTicks = 0;
                 if (this.PlayingWait != null)
                     this.PlayingWait.SetResult(true);

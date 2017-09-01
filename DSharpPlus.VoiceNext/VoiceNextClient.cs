@@ -19,9 +19,15 @@ namespace DSharpPlus.VoiceNext
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; set; }
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; set; }
 
+        /// <summary>
+        /// Gets whether this connection has incoming voice enabled.
+        /// </summary>
+        public bool IsIncomingEnabled { get; }
+
         internal VoiceNextClient(VoiceNextConfiguration config)
         {
             this.Configuration = config;
+            this.IsIncomingEnabled = config.EnableIncoming;
 
             this.ActiveConnections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
             this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();

@@ -385,10 +385,13 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 var vnc = await voice.ConnectAsync(chn);
                 await ctx.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})");
 
-                this._ssrc_map = new ConcurrentDictionary<uint, ulong>();
-                this._ssrc_filemap = new ConcurrentDictionary<uint, FileStream>();
-                vnc.VoiceReceived += this.OnVoiceReceived;
-                vnc.UserSpeaking += this.OnUserSpeaking;
+                if (voice.IsIncomingEnabled)
+                {
+                    this._ssrc_map = new ConcurrentDictionary<uint, ulong>();
+                    this._ssrc_filemap = new ConcurrentDictionary<uint, FileStream>();
+                    vnc.VoiceReceived += this.OnVoiceReceived;
+                    vnc.UserSpeaking += this.OnUserSpeaking;
+                }
             }
 
             [Command("leave")]
@@ -408,16 +411,20 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     return;
                 }
 
-                vnc.UserSpeaking -= this.OnUserSpeaking;
-                vnc.VoiceReceived -= this.OnVoiceReceived;
 
-                foreach (var kvp in this._ssrc_filemap)
-                    kvp.Value.Dispose();
+                if (voice.IsIncomingEnabled)
+                {
+                    vnc.UserSpeaking -= this.OnUserSpeaking;
+                    vnc.VoiceReceived -= this.OnVoiceReceived;
 
-                using (var fs = File.Create("index.txt"))
-                using (var sw = new StreamWriter(fs, new UTF8Encoding(false)))
-                    foreach (var kvp in this._ssrc_map)
-                        await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value));
+                    foreach (var kvp in this._ssrc_filemap)
+                        kvp.Value.Dispose();
+
+                    using (var fs = File.Create("index.txt"))
+                    using (var sw = new StreamWriter(fs, new UTF8Encoding(false)))
+                        foreach (var kvp in this._ssrc_map)
+                            await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value));
+                }
 
                 vnc.Disconnect();
                 await ctx.Message.RespondAsync("Disconnected");

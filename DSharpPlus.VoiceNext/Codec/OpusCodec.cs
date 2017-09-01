@@ -15,6 +15,9 @@ namespace DSharpPlus.VoiceNext.Codec
         [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encode")]
         private static extern int Encode(IntPtr encoder, byte[] pcm, int frame_size, IntPtr data, int max_data_bytes);
 
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_ctl")]
+        private static extern OpusError EncoderControl(IntPtr encoder, OpusControl request, int value);
+
 #if !NETSTANDARD1_1
         [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_create")]
         private static extern IntPtr CreateDecoder(int samplerate, int channels, out OpusError error);
@@ -32,7 +35,6 @@ namespace DSharpPlus.VoiceNext.Codec
 #if !NETSTANDARD1_1
         private IntPtr Decoder { get; set; }
 #endif
-        private OpusError Errors { get; set; }
         private bool IsDisposed { get; set; }
 
         private int SampleRate { get; set; }
@@ -53,18 +55,37 @@ namespace DSharpPlus.VoiceNext.Codec
             this.SampleRate = samplerate;
             this.Channels = channels;
             this.Application = application;
+            
+            this.Encoder = CreateEncoder(this.SampleRate, this.Channels, (int)this.Application, out var err);
+            this.CheckForError(err);
 
-            var err = OpusError.OPUS_OK;
-            this.Encoder = CreateEncoder(this.SampleRate, this.Channels, (int)this.Application, out err);
-            this.Errors = err;
-            if (this.Errors != OpusError.OPUS_OK)
-                throw new Exception(this.Errors.ToString());
+            var sig = OpusSignal.Auto;
+            switch (application)
+            {
+                case VoiceApplication.Music:
+                    sig = OpusSignal.Music;
+                    break;
+
+                case VoiceApplication.Voice:
+                    sig = OpusSignal.Voice;
+                    break;
+            }
+
+            err = EncoderControl(this.Encoder, OpusControl.SetSignal, (int)sig);
+            this.CheckForError(err);
+
+            err = EncoderControl(this.Encoder, OpusControl.SetPacketLossPercent, 15);
+            this.CheckForError(err);
+
+            err = EncoderControl(this.Encoder, OpusControl.SetInBandFec, 1);
+            this.CheckForError(err);
+
+            err = EncoderControl(this.Encoder, OpusControl.SetBitrate, 131072);
+            this.CheckForError(err);
 
 #if !NETSTANDARD1_1
             this.Decoder = CreateDecoder(this.SampleRate, this.Channels, out err);
-            this.Errors = err;
-            if (this.Errors != OpusError.OPUS_OK)
-                throw new Exception(this.Errors.ToString());
+            this.CheckForError(err);
 #endif
         }
 
@@ -156,19 +177,42 @@ namespace DSharpPlus.VoiceNext.Codec
             int bps = (bitrate >> 3) << 1; // (bitrate / 8) * 2;
             return length / bps;
         }
+
+        private void CheckForError(OpusError err)
+        {
+            if (err < 0)
+                throw new Exception(string.Concat("Opus returned an error: ", err.ToString()));
+        }
     }
 
     [Flags]
     internal enum OpusError
     {
-        OPUS_OK = 0,
-        OPUS_BAD_ARG,
-        OPUS_BUFFER_TO_SMALL,
-        OPUS_INTERNAL_ERROR,
-        OPUS_INVALID_PACKET,
-        OPUS_UNIMPLEMENTED,
-        OPUS_INVALID_STATE,
-        OPUS_ALLOC_FAIL
+        Ok = 0,
+        BadArgument = -1,
+        BufferTooSmall = -2,
+        InternalError = -3,
+        InvalidPacket = -4,
+        Unimplemented = -5,
+        InvalidState = -6,
+        AllocationFailure = -7
+    }
+
+    internal enum OpusControl : int
+    {
+        SetBitrate = 4002,
+        SetBandwidth = 4008,
+        SetInBandFec = 4012,
+        SetPacketLossPercent = 4014,
+        SetSignal = 4024,
+        ResetState = 4028
+    }
+
+    internal enum OpusSignal : int
+    {
+        Auto = -1000,
+        Voice = 3001,
+        Music = 3002,
     }
 
     public enum VoiceApplication : int
