@@ -1509,6 +1509,7 @@
   "DSharpPlus.VoiceNext.VoiceNextClient": "DSharpPlus.VoiceNext.VoiceNextClient.yml",
   "DSharpPlus.VoiceNext.VoiceNextClient.ConnectAsync(DiscordChannel)": "DSharpPlus.VoiceNext.VoiceNextClient.yml",
   "DSharpPlus.VoiceNext.VoiceNextClient.GetConnection(DiscordGuild)": "DSharpPlus.VoiceNext.VoiceNextClient.yml",
+  "DSharpPlus.VoiceNext.VoiceNextClient.IsIncomingEnabled": "DSharpPlus.VoiceNext.VoiceNextClient.yml",
   "DSharpPlus.VoiceNext.VoiceNextClient.Setup(DSharpPlus.DiscordClient)": "DSharpPlus.VoiceNext.VoiceNextClient.yml",
   "DSharpPlus.VoiceNext.VoiceNextConfiguration": "DSharpPlus.VoiceNext.VoiceNextConfiguration.yml",
   "DSharpPlus.VoiceNext.VoiceNextConfiguration.EnableIncoming": "DSharpPlus.VoiceNext.VoiceNextConfiguration.yml",
