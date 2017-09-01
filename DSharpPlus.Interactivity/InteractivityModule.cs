@@ -494,15 +494,18 @@ namespace DSharpPlus.Interactivity
         {
             List<Page> result = new List<Page>();
             List<string> split = input.Split(2000).ToList();
+            int page = 1;
             foreach (string s in split)
             {
                 result.Add(new Page()
                 {
                     Embed = new DiscordEmbed()
                     {
+                        Title = $"Page {page}",
                         Description = s
                     }
                 });
+                page++;
             }
             return result;
         }
@@ -510,13 +513,15 @@ namespace DSharpPlus.Interactivity
         public IEnumerable<Page> GeneratePagesInStrings(string input)
         {
             List<Page> result = new List<Page>();
-            List<string> split = input.Split(2000).ToList();
+            List<string> split = input.Split(1900).ToList();
+            int page = 1;
             foreach (string s in split)
             {
                 result.Add(new Page()
                 {
-                    Content = s
+                    Content = $"**Page {page}:**\n\n" + s
                 });
+                page++;
             }
             return result;
         }
