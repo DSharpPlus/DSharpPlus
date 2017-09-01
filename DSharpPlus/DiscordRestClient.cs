@@ -151,8 +151,10 @@ namespace DSharpPlus
             if (delete_message_days < 0 || delete_message_days > 7)
                 throw new ArgumentException("Delete message days must be a number between 0-7", nameof(delete_message_days));
 
-            var urlparams = new Dictionary<string, string>();
-            urlparams["delete_message_days"] = delete_message_days.ToString();
+            var urlparams = new Dictionary<string, string>
+            {
+                ["delete-message-days"] = delete_message_days.ToString()
+            };
             if (reason != null)
                 urlparams["reason"] = reason;
 
