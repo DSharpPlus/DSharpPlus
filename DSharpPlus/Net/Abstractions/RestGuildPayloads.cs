@@ -64,13 +64,7 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("reason", NullValueHandling = NullValueHandling.Ignore)]
         public string Reason { get; set; }
     }
-
-    internal sealed class RestGuildBanCreatePayload : RestGuildBanRemovePayload
-    {
-        [JsonProperty("delete-message-days")]
-        public int DeleteMessageDays { get; set; }
-    }
-
+    
     internal sealed class RestGuildMemberAddPayload : IOAuth2Payload
     {
         [JsonProperty("access_token")]
