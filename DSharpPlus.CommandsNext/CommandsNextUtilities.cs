@@ -369,7 +369,7 @@ namespace DSharpPlus.CommandsNext
                             if (!char.IsWhiteSpace(argstr[j]))
                                 break;
                         if (j > 0)
-                            argstr = argstr.Substring(i);
+                            argstr = argstr.Substring(j);
                         
                         argv = argstr;
                         args[i + 1] = ConvertArgument(argv, ctx, arg.Type);

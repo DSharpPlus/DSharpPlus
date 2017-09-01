@@ -147,6 +147,17 @@ namespace DSharpPlus.Test
                 await ctx.RespondAsync("b1nzy'd");
         }
 
+        [Command("bark")]
+        public async Task BackAsync(CommandContext ctx, DiscordMember user, string infraction, [RemainingText] string action)
+        {
+            var eb = new DiscordEmbedBuilder()
+                .AddField("Member", user.Mention)
+                .AddField("Infraction", infraction)
+                .AddField("Action", action);
+
+            await ctx.RespondAsync(embed: eb);
+        }
+
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
         public class InteractivityTest
         {
