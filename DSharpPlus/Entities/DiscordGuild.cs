@@ -1242,7 +1242,7 @@ namespace DSharpPlus.Entities
                         if (entrymsg.Channel != null)
                         {
                             DiscordMessage msg = null;
-                            if (entrymsg.Channel.MessageCache?.TryGet(xm => xm.Id == xac.TargetId.Value, out msg) == true)
+                            if (this.Discord.MessageCache?.TryGet(xm => xm.Id == xac.TargetId.Value && xm.ChannelId == entrymsg.Channel.Id, out msg) == true)
                                 entrymsg.Target = msg;
                             else
                                 entrymsg.Target = new DiscordMessage { Discord = this.Discord, Id = xac.TargetId.Value };

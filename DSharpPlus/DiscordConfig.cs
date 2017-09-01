@@ -59,7 +59,7 @@
         /// <summary>
         /// Sets the size of the per-channel message cache. Setting this to 0 will disable message caching completely. Do note that large cache will increase RAM usage drastically.
         /// </summary>
-        public int MessageCacheSize { internal get; set; } = 50;
+        public int MessageCacheSize { internal get; set; } = 1024;
 
         /// <summary>
         /// Sets whether guilds should be automatically synced for user tokens.

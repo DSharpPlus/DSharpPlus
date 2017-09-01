@@ -488,6 +488,9 @@ namespace DSharpPlus
         #endregion
 
         #region Internal Variables
+        internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
+        internal static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
         internal CancellationTokenSource _cancel_token_source;
         internal CancellationToken _cancel_token;
 
@@ -505,8 +508,8 @@ namespace DSharpPlus
         internal long _last_sequence;
         internal int _skipped_heartbeats = 0;
         internal bool _guild_download_completed = false;
-        internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
-        internal static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+        internal RingBuffer<DiscordMessage> MessageCache { get; }
         #endregion
 
         #region Public Variables
@@ -612,6 +615,9 @@ namespace DSharpPlus
         public DiscordClient(DiscordConfig config)
         {
             this._config = config;
+
+            if (config.MessageCacheSize > 0)
+                this.MessageCache = new RingBuffer<DiscordMessage>(config.MessageCacheSize);
 
             InternalSetup();
         }
@@ -1288,9 +1294,6 @@ namespace DSharpPlus
 
                     xdc.Discord = this;
 
-                    if (this._config.MessageCacheSize > 0)
-                        xdc.MessageCache = new RingBuffer<DiscordMessage>(this._config.MessageCacheSize);
-
                     xdc._recipients = xjt["recipients"].ToObject<IEnumerable<TransportUser>>()
                         .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
                         .ToList();
@@ -1310,8 +1313,6 @@ namespace DSharpPlus
                     {
                         xc.GuildId = xg.Id;
                         xc.Discord = this;
-                        if (xc.Type == ChannelType.Text)
-                            xc.MessageCache = xc.MessageCache ?? (this._config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this._config.MessageCacheSize) : null);
                     }
 
                     if (xg._roles == null)
@@ -1361,10 +1362,6 @@ namespace DSharpPlus
         {
             channel.Discord = this;
 
-            if (this._config.MessageCacheSize > 0)
-                channel.MessageCache = new RingBuffer<DiscordMessage>(this._config.MessageCacheSize);
-
-            //if (channel.IsPrivate)
             if (channel.Type == ChannelType.Group || channel.Type == ChannelType.Private)
             {
                 var chn = channel as DiscordDmChannel;
@@ -1510,8 +1507,6 @@ namespace DSharpPlus
             {
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
-                if (xc.Type == ChannelType.Text)
-                    xc.MessageCache = xc.MessageCache ?? (this._config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this._config.MessageCacheSize) : null);
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
@@ -1556,8 +1551,6 @@ namespace DSharpPlus
             {
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
-                if (xc.Type == ChannelType.Text)
-                    xc.MessageCache = xc.MessageCache ?? (this._config.MessageCacheSize > 0 ? new RingBuffer<DiscordMessage>(this._config.MessageCacheSize) : null);
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
@@ -1793,7 +1786,7 @@ namespace DSharpPlus
         internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong msgid)
         {
             DiscordMessage msg = null;
-            if (chn?.MessageCache?.TryGet(xm => xm.Id == msgid, out msg) != true)
+            if (this.MessageCache?.TryGet(xm => xm.Id == msgid && xm.ChannelId == chn.Id, out msg) != true)
                 msg = new DiscordMessage
                 {
                     Discord = this,
@@ -1848,7 +1841,7 @@ namespace DSharpPlus
                 xr.Emoji.Discord = this;
 
             if (this._config.MessageCacheSize > 0 && message.Channel != null)
-                message.Channel.MessageCache.Add(message);
+                this.MessageCache.Add(message);
 
             MessageCreateEventArgs ea = new MessageCreateEventArgs(this)
             {
@@ -1868,7 +1861,7 @@ namespace DSharpPlus
             message.Discord = this;
             var event_message = message;
 
-            if (this._config.MessageCacheSize > 0 && message.Channel?.MessageCache.TryGet(xm => xm.Id == event_message.Id, out message) != true)
+            if (this._config.MessageCacheSize > 0 && this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message) != true)
             {
                 message = event_message;
                 guild = message.Channel?.Guild;
@@ -1933,12 +1926,12 @@ namespace DSharpPlus
 
         internal async Task OnMessageDeleteEventAsync(ulong message_id, DiscordChannel channel)
         {
-            if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out var msg))
+            if (this._config.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out var msg))
             {
                 msg = new DiscordMessage { Id = message_id, Discord = this };
             }
             if (this._config.MessageCacheSize > 0)
-                channel.MessageCache.Remove(xm => xm.Id == msg.Id);
+                this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channel.Id);
 
             var ea = new MessageDeleteEventArgs(this)
             {
@@ -1954,12 +1947,12 @@ namespace DSharpPlus
             foreach (var message_id in message_ids)
             {
                 DiscordMessage msg = null;
-                if (this._config.MessageCacheSize > 0 && !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+                if (this._config.MessageCacheSize > 0 && !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
                 {
                     msg = new DiscordMessage { Id = message_id, Discord = this };
                 }
                 if (this._config.MessageCacheSize > 0)
-                    channel.MessageCache.Remove(xm => xm.Id == msg.Id);
+                    this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channel.Id);
                 msgs.Add(msg);
             }
 
@@ -2095,7 +2088,7 @@ namespace DSharpPlus
                 usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.GetUserAsync(user_id);
 
             DiscordMessage msg = null;
-            if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+            if (this._config.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
                 msg = new DiscordMessage { Id = message_id, Discord = this };
 
             var ea = new MessageReactionAddEventArgs(this)
@@ -2119,7 +2112,7 @@ namespace DSharpPlus
                 usr = this.InternalGetCachedUser(user_id) ?? await this._rest_client.GetUserAsync(user_id);
 
             DiscordMessage msg = null;
-            if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+            if (this._config.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
                 msg = new DiscordMessage { Id = message_id, Discord = this };
 
             var ea = new MessageReactionRemoveEventArgs(this)
@@ -2135,7 +2128,7 @@ namespace DSharpPlus
         internal async Task OnMessageReactionRemoveAllAsync(ulong message_id, DiscordChannel channel)
         {
             DiscordMessage msg = null;
-            if (this._config.MessageCacheSize == 0 || !channel.MessageCache.TryGet(xm => xm.Id == message_id, out msg))
+            if (this._config.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
                 msg = new DiscordMessage { Id = message_id, Discord = this };
 
             var ea = new MessageReactionsClearEventArgs(this)

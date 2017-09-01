@@ -93,12 +93,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("nsfw")]
         public bool IsNSFW { get; internal set; }
-        
-        /// <summary>
-        /// Gets or sets the internal message cache for this channel.
-        /// </summary>
-        [JsonIgnore]
-        internal RingBuffer<DiscordMessage> MessageCache { get; set; }
 
         internal DiscordChannel()
         {
@@ -183,7 +177,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public async Task<DiscordMessage> GetMessageAsync(ulong id)
         {
-            if (this.Discord._config.MessageCacheSize > 0 && this.MessageCache.TryGet(xm => xm.Id == id, out var msg))
+            if (this.Discord._config.MessageCacheSize > 0 && this.Discord.MessageCache.TryGet(xm => xm.Id == id && xm.ChannelId == this.Id, out var msg))
                 return msg;
 
             return await this.Discord._rest_client.GetMessageAsync(Id, id);
