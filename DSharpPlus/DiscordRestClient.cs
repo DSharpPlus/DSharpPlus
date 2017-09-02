@@ -151,17 +151,18 @@ namespace DSharpPlus
             if (delete_message_days < 0 || delete_message_days > 7)
                 throw new ArgumentException("Delete message days must be a number between 0-7", nameof(delete_message_days));
 
-            var pld = new RestGuildBanCreatePayload
+            var urlparams = new Dictionary<string, string>
             {
-                DeleteMessageDays = delete_message_days,
-                Reason = reason
+                ["delete-message-days"] = delete_message_days.ToString()
             };
+            if (reason != null)
+                urlparams["reason"] = reason;
 
             var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.BANS, "/:user_id");
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id = guild_id.ToString(), user_id = user_id.ToString() }, out var path);
 
-            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, payload: JsonConvert.SerializeObject(pld));
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path, BuildQueryString(urlparams)));
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT);
         }
 
         internal Task RemoveGuildBanAsync(ulong guild_id, ulong user_id, string reason)
