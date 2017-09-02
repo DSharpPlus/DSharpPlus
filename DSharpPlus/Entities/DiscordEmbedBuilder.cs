@@ -148,15 +148,15 @@ namespace DSharpPlus.Entities
             if (original.Author != null)
                 this.Author = new EmbedAuthor
                 {
-                    IconUrl = original.Author.IconUrl.ToString(),
+                    IconUrl = original.Author.IconUrl?.ToString(),
                     Name = original.Author.Name,
-                    Url = original.Author.Url.ToString()
+                    Url = original.Author.Url?.ToString()
                 };
 
             if (original.Footer != null)
                 this.Footer = new EmbedFooter
                 {
-                    IconUrl = original.Footer.IconUrl.ToString(),
+                    IconUrl = original.Footer.IconUrl?.ToString(),
                     Text = original.Footer.Text
                 };
 
