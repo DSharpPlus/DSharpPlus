@@ -2,9 +2,9 @@ param
 (
     [parameter(Mandatory = $true)]
     [string] $docs_path,
-	
-	[parameter(Mandatory = $true)]
-	[string] $output_path
+    
+    [parameter(Mandatory = $true)]
+    [string] $output_path
 )
 
 # Backup the environment
@@ -26,7 +26,7 @@ function Restore-Environment()
 # Downloads and installs latest version of DocFX
 function Install-DocFX([string] $target_dir_path)
 {
-	Write-Host "Installing DocFX"
+    Write-Host "Installing DocFX"
 
     # Check if the target directory exists
     # If it does, remove it
@@ -72,10 +72,10 @@ function Install-DocFX([string] $target_dir_path)
 # Downloads and installs latest version of 7-zip CLI
 function Install-7zip([string] $target_dir_path)
 {
-	# First, download 7-zip 9.20 CLI to extract 16.04 CLI
-	# http://www.7-zip.org/a/7za920.zip
-	
-	Write-Host "Installing 7-zip"
+    # First, download 7-zip 9.20 CLI to extract 16.04 CLI
+    # http://www.7-zip.org/a/7za920.zip
+    
+    Write-Host "Installing 7-zip"
 
     # Check if the target directory exists
     # If it does, remove it
@@ -88,58 +88,58 @@ function Install-7zip([string] $target_dir_path)
     # Create target directory
     $target_dir = New-Item -type directory "$target_dir_path"
     $target_fn = "7za920.zip"
-	
-	# Form target path
+    
+    # Form target path
     $target_dir = $target_dir.FullName
-	$target_path = Join-Path "$target_dir" "v920"
-	$target_dir_920 = New-Item -type directory "$target_path"
-	
+    $target_path = Join-Path "$target_dir" "v920"
+    $target_dir_920 = New-Item -type directory "$target_path"
+    
     $target_dir_920 = $target_dir_920.FullName
-	$target_path = Join-Path "$target_dir_920" "$target_fn"
-	
-	# Download the 9.20 CLI
-	Write-Host "Downloading 7-zip 9.20 CLI to $target_path"
+    $target_path = Join-Path "$target_dir_920" "$target_fn"
+    
+    # Download the 9.20 CLI
+    Write-Host "Downloading 7-zip 9.20 CLI to $target_path"
     Invoke-WebRequest -uri "http://www.7-zip.org/a/7za920.zip" -outfile "$target_path"
     Set-Location -Path "$target_dir_920"
-	
-	# Extract the 9.20 CLI
-	Write-Host "Extracting 7-zip 16.04 CLI"
+    
+    # Extract the 9.20 CLI
+    Write-Host "Extracting 7-zip 16.04 CLI"
     Expand-Archive -path "$target_path" -destinationpath "$target_dir_920"
-	
-	# Temporarily add the 9.20 CLI to PATH
-	Write-Host "Adding 7-zip 9.20 CLI to PATH"
-	$old_path = $Env:PATH
-	$Env:PATH = "$target_dir_920;$old_path"
-	
-	# Next, download 16.04 CLI
-	# http://www.7-zip.org/a/7z1604-extra.7z
-	
-	# Form target path
+    
+    # Temporarily add the 9.20 CLI to PATH
+    Write-Host "Adding 7-zip 9.20 CLI to PATH"
+    $old_path = $Env:PATH
+    $Env:PATH = "$target_dir_920;$old_path"
+    
+    # Next, download 16.04 CLI
+    # http://www.7-zip.org/a/7z1604-extra.7z
+    
+    # Form target path
     $target_fn = "7z1604-extra.7z"
-	$target_path = Join-Path "$target_dir" "$target_fn"
-	
-	# Download the 16.04 CLI
-	Write-Host "Downloading 7-zip 16.04 CLI to $target_path"
+    $target_path = Join-Path "$target_dir" "$target_fn"
+    
+    # Download the 16.04 CLI
+    Write-Host "Downloading 7-zip 16.04 CLI to $target_path"
     Invoke-WebRequest -uri "http://www.7-zip.org/a/7z1604-extra.7z" -outfile "$target_path"
     Set-Location -Path "$target_dir"
-	
-	# Extract the 16.04 CLI
-	Write-Host "Extracting 7-zip 16.04 CLI"
+    
+    # Extract the 16.04 CLI
+    Write-Host "Extracting 7-zip 16.04 CLI"
     7za x "$target_path"
-	
-	# Remove the 9.20 CLI from PATH
-	Write-Host "Removing 7-zip 9.20 CLI from PATH"
-	$Env:PATH = "$old_path"
+    
+    # Remove the 9.20 CLI from PATH
+    Write-Host "Removing 7-zip 9.20 CLI from PATH"
+    $Env:PATH = "$old_path"
     
     # Remove temporary files and 9.20 CLI
     Write-Host "Removing temporary files"
     Remove-Item -recurse -force "$target_dir_920"
-	Remove-Item -recurse -force "$target_path"
-	
-	# Add the 16.04 CLI to PATH
-	Write-Host "Adding 7-zip 16.04 CLI to PATH"
-	$target_dir = Join-Path "$target_dir" "x64"
-	$Env:PATH = "$target_dir;$old_path"
+    Remove-Item -recurse -force "$target_path"
+    
+    # Add the 16.04 CLI to PATH
+    Write-Host "Adding 7-zip 16.04 CLI to PATH"
+    $target_dir = Join-Path "$target_dir" "x64"
+    $Env:PATH = "$target_dir;$old_path"
     Set-Location -path "$current_location"
 }
 
@@ -218,55 +218,55 @@ function Build-Docs([string] $target_dir_path)
     
     # Build new documentation site
     docfx build docfx.json
-	
-	# Exit back
+    
+    # Exit back
     Set-Location -path "$current_location"
 }
 
 # Packages the build site to a .tar.xz archive
 function Package-Docs([string] $target_dir_path, [string] $output_dir_path)
 {
-	# Form target path
-	$target_path = Get-Item "$target_dir_path"
+    # Form target path
+    $target_path = Get-Item "$target_dir_path"
     $target_path = $target_path.FullName
     $target_path = Join-Path "$target_path" "_site"
-	
-	# Form output path
-	$output_path_dir = Get-Item "$output_dir_path"
-	$output_path_dir = $output_path_dir.FullName
-	$output_path = Join-Path "$output_path_dir" "dsharpplus-docs"
-	
-	# Enter target path
-	Set-Location -path "$target_path"
-	
-	# Check if target .tar exists
-	# If it does, remove it
-	if (Test-Path "$output_path.tar")
-	{
-		Write-Host "$output_path.tar exists, deleting"
-		Remove-Item "$output_path.tar"
-	}
-	
-	# Package .tar archive
-	Write-Host "Packaging docs to $output_path.tar"
-	7za -r a "$output_path.tar" *
-	
-	# Go to package's location
-	Set-Location -path "$output_path_dir"
-	
-	# Check if target .tar.xz exists
-	# If it does, remove it
-	if (Test-Path "$output_path.tar.xz")
-	{
-		Write-Host "$output_path.tar.xz exists, deleting"
-		Remove-Item "$output_path.tar.xz"
-	}
-	
-	# Package .tar.xz
-	Write-Host "Packaging docs to $output_path.tar.xz"
-	7za -sdel -mx9 a dsharpplus-docs.tar.xz dsharpplus-docs.tar
-	
-	# Exit back
+    
+    # Form output path
+    $output_path_dir = Get-Item "$output_dir_path"
+    $output_path_dir = $output_path_dir.FullName
+    $output_path = Join-Path "$output_path_dir" "dsharpplus-docs"
+    
+    # Enter target path
+    Set-Location -path "$target_path"
+    
+    # Check if target .tar exists
+    # If it does, remove it
+    if (Test-Path "$output_path.tar")
+    {
+        Write-Host "$output_path.tar exists, deleting"
+        Remove-Item "$output_path.tar"
+    }
+    
+    # Package .tar archive
+    Write-Host "Packaging docs to $output_path.tar"
+    7za -r a "$output_path.tar" *
+    
+    # Go to package's location
+    Set-Location -path "$output_path_dir"
+    
+    # Check if target .tar.xz exists
+    # If it does, remove it
+    if (Test-Path "$output_path.tar.xz")
+    {
+        Write-Host "$output_path.tar.xz exists, deleting"
+        Remove-Item "$output_path.tar.xz"
+    }
+    
+    # Package .tar.xz
+    Write-Host "Packaging docs to $output_path.tar.xz"
+    7za -sdel -mx9 a dsharpplus-docs.tar.xz dsharpplus-docs.tar
+    
+    # Exit back
     Set-Location -path "$current_location"
 }
 
