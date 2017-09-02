@@ -1,10 +1,16 @@
+# Run as:
+# .\rebuild-docs.ps1 .\path\to\docfx\project .\path\to\output project-docs
+
 param
 (
     [parameter(Mandatory = $true)]
     [string] $docs_path,
     
     [parameter(Mandatory = $true)]
-    [string] $output_path
+    [string] $output_path,
+    
+    [parameter(Mandatory = $true)]
+    [string] $package_name
 )
 
 # Backup the environment
@@ -224,7 +230,7 @@ function Build-Docs([string] $target_dir_path)
 }
 
 # Packages the build site to a .tar.xz archive
-function Package-Docs([string] $target_dir_path, [string] $output_dir_path)
+function Package-Docs([string] $target_dir_path, [string] $output_dir_path, [string] $pack_name)
 {
     # Form target path
     $target_path = Get-Item "$target_dir_path"
@@ -234,7 +240,7 @@ function Package-Docs([string] $target_dir_path, [string] $output_dir_path)
     # Form output path
     $output_path_dir = Get-Item "$output_dir_path"
     $output_path_dir = $output_path_dir.FullName
-    $output_path = Join-Path "$output_path_dir" "dsharpplus-docs"
+    $output_path = Join-Path "$output_path_dir" "$pack_name"
     
     # Enter target path
     Set-Location -path "$target_path"
@@ -264,7 +270,7 @@ function Package-Docs([string] $target_dir_path, [string] $output_dir_path)
     
     # Package .tar.xz
     Write-Host "Packaging docs to $output_path.tar.xz"
-    7za -sdel -mx9 a dsharpplus-docs.tar.xz dsharpplus-docs.tar
+    7za -sdel -mx9 a "$pack_name.tar.xz" "$pack_name.tar"
     
     # Exit back
     Set-Location -path "$current_location"
@@ -273,7 +279,7 @@ function Package-Docs([string] $target_dir_path, [string] $output_dir_path)
 Install-DocFX "$docfx_path"
 Install-7zip "$sevenzip_path"
 Build-Docs "$docs_path"
-Package-Docs "$docs_path" "$output_path"
+Package-Docs "$docs_path" "$output_path" "$package_name"
 
 Write-Host "All operations completed"
 Restore-Environment
