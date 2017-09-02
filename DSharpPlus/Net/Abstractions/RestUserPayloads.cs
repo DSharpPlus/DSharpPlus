@@ -57,11 +57,3 @@ namespace DSharpPlus.Net.Abstractions
         public ulong? After { get; set; }
     }
 }
-
-namespace DSharpPlus
-{
-    public enum ImageFormat
-    {
-        Jpeg, Png, Gif
-    }
-}

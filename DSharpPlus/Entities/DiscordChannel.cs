@@ -25,7 +25,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
-        
+
         /// <summary>
         /// Gets the type of this channel.
         /// </summary>
@@ -209,7 +209,7 @@ namespace DSharpPlus.Entities
         {
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot modify order of non-guild channels.");
-            
+
             var chns = this.Guild._channels.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
             var pmds = new RestGuildChannelReorderPayload[chns.Length];
             for (var i = 0; i < chns.Length; i++)
@@ -275,7 +275,7 @@ namespace DSharpPlus.Entities
         /// <param name="unique"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null) => 
+        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null) =>
             this.Discord.ApiClient.CreateChannelInviteAsync(Id, max_age, max_uses, temporary, unique, reason);
 
         /// <summary>
@@ -339,23 +339,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name"></param>
         /// <param name="avatar"></param>
-        /// <param name="avatar_format"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public async Task<DiscordWebhook> CreateWebhookAsync(string name, Stream avatar = null, ImageFormat? avatar_format = null, string reason = null)
+        public async Task<DiscordWebhook> CreateWebhookAsync(string name, Stream avatar = null, string reason = null)
         {
             string av64 = null;
             if (avatar != null)
-            {
-                if (avatar_format == null)
-                    throw new ArgumentNullException("When specifying new avatar, you must specify its format.");
-
-                using (var ms = new MemoryStream((int)(avatar.Length - avatar.Position)))
-                {
-                    await avatar.CopyToAsync(ms);
-                    av64 = string.Concat("data:image/", avatar_format.Value.ToString().ToLower(), ";base64,", Convert.ToBase64String(ms.ToArray()));
-                }
-            }
+                using (var imgtool = new ImageTool(avatar))
+                    av64 = imgtool.GetBase64();
 
             return await this.Discord.ApiClient.CreateWebhookAsync(this.Id, name, av64, reason);
         }

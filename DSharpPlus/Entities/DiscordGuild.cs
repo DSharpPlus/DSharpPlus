@@ -245,48 +245,30 @@ namespace DSharpPlus.Entities
         /// <param name="name">New name.</param>
         /// <param name="region">New voice region.</param>
         /// <param name="icon">New icon.</param>
-        /// <param name="icon_format">The format of the new icon.</param>
         /// <param name="verification_level">New verification level.</param>
         /// <param name="default_message_notifications">New default notification settings.</param>
         /// <param name="afk_channel">New voice AFK channel.</param>
         /// <param name="afk_timeout">New timeout after users are going to be moved to the voice AFK channel in seconds.</param>
         /// <param name="owner">New owner. This can only be changed by current owner.</param>
         /// <param name="splash">New invite splash.</param>
-        /// <param name="splash_format">The format of the new invite splash.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, ImageFormat? icon_format = null, VerificationLevel? verification_level = null,
+        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, VerificationLevel? verification_level = null,
             DefaultMessageNotifications? default_message_notifications = null, DiscordChannel afk_channel = null, int? afk_timeout = null, DiscordMember owner = null, Stream splash = null,
-            ImageFormat? splash_format = null, string reason = null)
+            string reason = null)
         {
             if (afk_channel != null && afk_channel.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
             string iconb64 = null;
             if (icon != null)
-            {
-                if (icon_format == null)
-                    throw new ArgumentNullException("When specifying new icon, you must specify its format.");
-
-                using (var ms = new MemoryStream((int)(icon.Length - icon.Position)))
-                {
-                    await icon.CopyToAsync(ms);
-                    iconb64 = string.Concat("data:image/", icon_format.Value.ToString().ToLower(), ";base64,", Convert.ToBase64String(ms.ToArray()));
-                }
-            }
+                using (var imgtool = new ImageTool(icon))
+                    iconb64 = imgtool.GetBase64();
 
             string splashb64 = null;
             if (splash != null)
-            {
-                if (splash_format == null)
-                    throw new ArgumentNullException("When specifying new splash, you must specify its format.");
-
-                using (var ms = new MemoryStream((int)(splash.Length - splash.Position)))
-                {
-                    await splash.CopyToAsync(ms);
-                    splashb64 = string.Concat("data:image/", splash_format.Value.ToString(), ";base64,", Convert.ToBase64String(ms.ToArray()));
-                }
-            }
+                using (var imgtool = new ImageTool(splash))
+                    splashb64 = imgtool.GetBase64();
 
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, afk_channel?.Id, afk_timeout, iconb64, owner?.Id, splashb64, reason);
         }

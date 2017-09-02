@@ -812,24 +812,15 @@ namespace DSharpPlus
         /// <param name="name"></param>
         /// <param name="region"></param>
         /// <param name="icon"></param>
-        /// <param name="icon_format"></param>
         /// <param name="verification_level"></param>
         /// <param name="default_message_notifications"></param>
         /// <returns></returns>
-        public async Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Stream icon = null, ImageFormat? icon_format = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null)
+        public async Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Stream icon = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null)
         {
             string iconb64 = null;
             if (icon != null)
-            {
-                if (icon_format == null)
-                    throw new ArgumentNullException("When specifying new avatar, you must specify its format.");
-
-                using (var ms = new MemoryStream((int)(icon.Length - icon.Position)))
-                {
-                    await icon.CopyToAsync(ms);
-                    iconb64 = string.Concat("data:image/", icon_format.Value.ToString().ToLower(), ";base64,", Convert.ToBase64String(ms.ToArray()));
-                }
-            }
+                using (var imgtool = new ImageTool(icon))
+                    iconb64 = imgtool.GetBase64();
 
             return await this.ApiClient.CreateGuildAsync(name, region, iconb64, verification_level, default_message_notifications);
         }
@@ -921,22 +912,13 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="username">New username.</param>
         /// <param name="avatar">New avatar.</param>
-        /// <param name="avatar_format">Image format of the passed avatar.</param>
         /// <returns></returns>
-        public async Task<DiscordUser> EditCurrentUserAsync(string username = null, Stream avatar = null, ImageFormat? avatar_format = null)
+        public async Task<DiscordUser> EditCurrentUserAsync(string username = null, Stream avatar = null)
         {
             string av64 = null;
             if (avatar != null)
-            {
-                if (avatar_format == null)
-                    throw new ArgumentNullException("When specifying new avatar, you must specify its format.");
-
-                using (var ms = new MemoryStream((int)(avatar.Length - avatar.Position)))
-                {
-                    await avatar.CopyToAsync(ms);
-                    av64 = string.Concat("data:image/", avatar_format.Value.ToString().ToLower(), ";base64,", Convert.ToBase64String(ms.ToArray()));
-                }
-            }
+                using (var imgtool = new ImageTool(avatar))
+                    av64 = imgtool.GetBase64();
 
             return await this.ApiClient.ModifyCurrentUserAsync(username, av64);
         }
