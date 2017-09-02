@@ -287,6 +287,10 @@ build/
 ### Built docs
 docs/_site/
 
+# Docs build artifacts
+docfx/
+7zip/
+
 ### Test files
 config.json
 /DSharpPlus.Test/libsodium.dll

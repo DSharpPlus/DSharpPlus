@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents configuration for <see cref="DiscordClient"/> and <see cref="DiscordShardedClient"/>.
     /// </summary>
-    public sealed class DiscordConfig
+    public sealed class DiscordConfiguration
     {
         /// <summary>
         /// Sets the token used to identify the client.
@@ -69,13 +69,13 @@
         /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
-        public DiscordConfig() { }
+        public DiscordConfiguration() { }
 
         /// <summary>
         /// Creates a clone of another discord configuration.
         /// </summary>
         /// <param name="other">Client configuration to clone.</param>
-        public DiscordConfig(DiscordConfig other)
+        public DiscordConfiguration(DiscordConfiguration other)
         {
             this.Token = other.Token;
             this.TokenType = other.TokenType;

@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordInvite
     {
-        internal DiscordClient Discord { get; set; }
+        internal BaseDiscordClient Discord { get; set; }
 
         /// <summary>
         /// Gets the invite's code.
@@ -81,7 +81,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> DeleteAsync(string reason = null) => this.Discord._rest_client.DeleteInvite(this.Code, reason);
+        public Task<DiscordInvite> DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteInvite(this.Code, reason);
 
         /*
          * Disabled due to API restrictions.

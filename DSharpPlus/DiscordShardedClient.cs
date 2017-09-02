@@ -471,7 +471,7 @@ namespace DSharpPlus
         }
         #endregion
 
-        private DiscordConfig Config { get; }
+        private DiscordConfiguration Config { get; }
         private ConcurrentDictionary<int, DiscordClient> Shards { get; }
 
         /// <summary>
@@ -500,7 +500,7 @@ namespace DSharpPlus
         /// Initializes new auto-sharding Discord client.
         /// </summary>
         /// <param name="config">Configuration to use.</param>
-        public DiscordShardedClient(DiscordConfig config)
+        public DiscordShardedClient(DiscordConfiguration config)
         {
             if (config.TokenType == TokenType.User)
                 throw new InvalidOperationException("You cannot shard using a user token.");
@@ -566,7 +566,7 @@ namespace DSharpPlus
             var shardc = this.Config.ShardCount == 1 ? await this.GetShardCountAsync() : this.Config.ShardCount;
             for (var i = 0; i < shardc; i++)
             {
-                var cfg = new DiscordConfig(this.Config)
+                var cfg = new DiscordConfiguration(this.Config)
                 {
                     ShardId = i,
                     ShardCount = shardc,

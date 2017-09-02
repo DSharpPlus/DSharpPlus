@@ -28,7 +28,7 @@ namespace DSharpPlus.Test
             this.Config = cfg;
 
             // discord instance config and the instance itself
-            var dcfg = new DiscordConfig
+            var dcfg = new DiscordConfiguration
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,

@@ -42,11 +42,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token
         /// </summary>
-        public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname) => this.Discord._rest_client.GroupDmAddRecipientAsync(this.Id, user_id, accesstoken, nickname);
+        public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname) => this.Discord.ApiClient.GroupDmAddRecipientAsync(this.Id, user_id, accesstoken, nickname);
 
         /// <summary>
         /// Only use for Group DMs!
         /// </summary>
-        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken) => this.Discord._rest_client.GroupDmRemoveRecipientAsync(this.Id, user_id);
+        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken) => this.Discord.ApiClient.GroupDmRemoveRecipientAsync(this.Id, user_id);
     }
 }

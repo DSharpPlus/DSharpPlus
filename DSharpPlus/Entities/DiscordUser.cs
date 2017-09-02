@@ -88,7 +88,15 @@ namespace DSharpPlus.Entities
         /// Gets this user's presence.
         /// </summary>
         [JsonIgnore]
-        public DiscordPresence Presence => this.Discord.Presences.ContainsKey(this.Id) ? this.Discord.Presences[this.Id] : null;
+        public DiscordPresence Presence
+        {
+            get
+            {
+                if (this.Discord is DiscordClient dc)
+                    return dc.Presences.ContainsKey(this.Id) ? dc.Presences[this.Id] : null;
+                return null;
+            }
+        }
 
         /// <summary>
         /// Returns a string representation of this user.

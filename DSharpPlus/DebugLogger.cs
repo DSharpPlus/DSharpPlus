@@ -8,9 +8,9 @@ namespace DSharpPlus
         public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;
         private LogLevel Level { get; }
 
-        internal DebugLogger(DiscordClient client)
+        internal DebugLogger(BaseDiscordClient client)
         {
-            this.Level = client._config.LogLevel;
+            this.Level = client.Configuration.LogLevel;
         }
 
         internal DebugLogger(LogLevel level)

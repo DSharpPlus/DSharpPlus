@@ -55,7 +55,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild's owner.
         /// </summary>
         [JsonIgnore]
-        public DiscordMember Owner => this.Members.FirstOrDefault(xm => xm.Id == this.OwnerId) ?? this.Discord._rest_client.GetGuildMemberAsync(this.Id, this.OwnerId).GetAwaiter().GetResult();
+        public DiscordMember Owner => this.Members.FirstOrDefault(xm => xm.Id == this.OwnerId) ?? this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets the guild's voice region ID.
@@ -237,7 +237,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns></returns>
         public Task DeleteAsync() =>
-            this.Discord._rest_client.DeleteGuildAsync(this.Id);
+            this.Discord.ApiClient.DeleteGuildAsync(this.Id);
 
         /// <summary>
         /// Modifies this guild.
@@ -288,7 +288,7 @@ namespace DSharpPlus.Entities
                 }
             }
 
-            return await this.Discord._rest_client.ModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, afk_channel?.Id, afk_timeout, iconb64, owner?.Id, splashb64, reason);
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, afk_channel?.Id, afk_timeout, iconb64, owner?.Id, splashb64, reason);
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null) =>
-            this.Discord._rest_client.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
+            this.Discord.ApiClient.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
 
         /// <summary>
         /// Bans a specified user by ID. This doesn't require the user to be in this guild.
@@ -309,7 +309,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task BanMemberAsync(ulong user_id, int delete_message_days = 0, string reason = null) =>
-            this.Discord._rest_client.CreateGuildBanAsync(this.Id, user_id, delete_message_days, reason);
+            this.Discord.ApiClient.CreateGuildBanAsync(this.Id, user_id, delete_message_days, reason);
 
         /// <summary>
         /// Unbans a user from this guild.
@@ -318,7 +318,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task UnbanMemberAsync(DiscordUser user, string reason = null) =>
-            this.Discord._rest_client.RemoveGuildBanAsync(this.Id, user.Id, reason);
+            this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user.Id, reason);
 
         /// <summary>
         /// Unbans a user by ID.
@@ -327,21 +327,21 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task UnbanMemberAsync(ulong user_id, string reason = null) =>
-            this.Discord._rest_client.RemoveGuildBanAsync(this.Id, user_id, reason);
+            this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user_id, reason);
 
         /// <summary>
         /// Leaves this guild.
         /// </summary>
         /// <returns></returns>
         public Task LeaveAsync() =>
-            this.Discord._rest_client.LeaveGuildAsync(Id);
+            this.Discord.ApiClient.LeaveGuildAsync(Id);
 
         /// <summary>
         /// Gets the bans for this guild.
         /// </summary>
         /// <returns>Collection of bans in this guild.</returns>
         public Task<IReadOnlyList<DiscordUser>> GetBansAsync() =>
-            this.Discord._rest_client.GetGuildBansAsync(Id);
+            this.Discord.ApiClient.GetGuildBansAsync(Id);
 
         /// <summary>
         /// Creates a new channel in this guild.
@@ -354,7 +354,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, string reason = null) =>
-            this.Discord._rest_client.CreateGuildChannelAsync(this.Id, name, type, bitrate, user_limit, overwrites, reason);
+            this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, bitrate, user_limit, overwrites, reason);
 
         /// <summary>
         /// Estimates the number of users to be pruned.
@@ -362,7 +362,7 @@ namespace DSharpPlus.Entities
         /// <param name="days">Minimum number of inactivity days required for users to be pruned.</param>
         /// <returns>Number of users that will be pruned.</returns>
         public Task<int> GetPruneCountAsync(int days) =>
-            this.Discord._rest_client.GetGuildPruneCountAsync(this.Id, days);
+            this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days);
 
         /// <summary>
         /// Prunes inactive users from this guild.
@@ -371,14 +371,14 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>Number of users pruned.</returns>
         public Task<int> PruneAsync(int days, string reason = null) =>
-            this.Discord._rest_client.BeginGuildPruneAsync(this.Id, days, reason);
+            this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, reason);
 
         /// <summary>
         /// Gets integrations attached to this guild.
         /// </summary>
         /// <returns>Collection of integrations attached to this guild.</returns>
         public Task<IReadOnlyList<DiscordIntegration>> GetIntegrationsAsync() =>
-            this.Discord._rest_client.GetGuildIntegrationsAsync(this.Id);
+            this.Discord.ApiClient.GetGuildIntegrationsAsync(this.Id);
 
         /// <summary>
         /// Attaches an integration from current user to this guild.
@@ -386,7 +386,7 @@ namespace DSharpPlus.Entities
         /// <param name="integration">Integration to attach.</param>
         /// <returns>The integration after being attached to the guild.</returns>
         public Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration) =>
-            this.Discord._rest_client.CreateGuildIntegrationAsync(Id, integration.Type, integration.Id);
+            this.Discord.ApiClient.CreateGuildIntegrationAsync(Id, integration.Type, integration.Id);
 
         /// <summary>
         /// Modifies an integration in this guild.
@@ -397,7 +397,7 @@ namespace DSharpPlus.Entities
         /// <param name="enable_emoticons">Whether emotes should be synced from this integration.</param>
         /// <returns>The modified integration.</returns>
         public Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expire_behaviour, int expire_grace_period, bool enable_emoticons) =>
-            this.Discord._rest_client.ModifyGuildIntegrationAsync(Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
+            this.Discord.ApiClient.ModifyGuildIntegrationAsync(Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
 
         /// <summary>
         /// Removes an integration from this guild.
@@ -405,7 +405,7 @@ namespace DSharpPlus.Entities
         /// <param name="integration">Integration to remove.</param>
         /// <returns></returns>
         public Task DeleteIntegrationAsync(DiscordIntegration integration) =>
-            this.Discord._rest_client.DeleteGuildIntegrationAsync(Id, integration);
+            this.Discord.ApiClient.DeleteGuildIntegrationAsync(Id, integration);
 
         /// <summary>
         /// Forces re-synchronization of an integration for this guild.
@@ -413,35 +413,35 @@ namespace DSharpPlus.Entities
         /// <param name="integration">Integration to synchronize.</param>
         /// <returns></returns>
         public Task SyncIntegrationAsync(DiscordIntegration integration) =>
-            this.Discord._rest_client.SyncGuildIntegrationAsync(Id, integration.Id);
+            this.Discord.ApiClient.SyncGuildIntegrationAsync(Id, integration.Id);
 
         /// <summary>
         /// Gets the guild widget.
         /// </summary>
         /// <returns>This guild's widget.</returns>
         public Task<DiscordGuildEmbed> GetEmbedAsync() =>
-            this.Discord._rest_client.GetGuildEmbedAsync(Id);
+            this.Discord.ApiClient.GetGuildEmbedAsync(Id);
 
         /// <summary>
         /// Gets the voice regions for this guild.
         /// </summary>
         /// <returns>Voice regions available for this guild.</returns>
         public Task<IReadOnlyList<DiscordVoiceRegion>> GetVoiceRegionsAsync() =>
-            this.Discord._rest_client.GetGuildVoiceRegionsAsync(this.Id);
+            this.Discord.ApiClient.GetGuildVoiceRegionsAsync(this.Id);
 
         /// <summary>
         /// Gets all the invites created for all the channels in this guild.
         /// </summary>
         /// <returns>A collection of invites.</returns>
         public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync() =>
-            this.Discord._rest_client.GetGuildInvitesAsync(this.Id);
+            this.Discord.ApiClient.GetGuildInvitesAsync(this.Id);
 
         /// <summary>
         /// Gets all the webhooks created for all the channels in this guild.
         /// </summary>
         /// <returns>A collection of webhooks this guild has.</returns>
         public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync() =>
-            this.Discord._rest_client.GetGuildWebhooksAsync(this.Id);
+            this.Discord.ApiClient.GetGuildWebhooksAsync(this.Id);
 
         /// <summary>
         /// Kicks a member from this guild.
@@ -450,7 +450,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task RemoveMemberAsync(DiscordMember member, string reason = null) =>
-            this.Discord._rest_client.RemoveGuildMemberAsync(this.Id, member.Id, reason);
+            this.Discord.ApiClient.RemoveGuildMemberAsync(this.Id, member.Id, reason);
 
         /// <summary>
         /// Gets a member of this guild by his user ID.
@@ -463,7 +463,7 @@ namespace DSharpPlus.Entities
             if (mbr != null)
                 return mbr;
 
-            mbr = await this.Discord._rest_client.GetGuildMemberAsync(Id, user_id);
+            mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, user_id);
             this._members.Add(mbr);
             return mbr;
         }
@@ -480,7 +480,7 @@ namespace DSharpPlus.Entities
             var last = 0ul;
             while (recd == 1000)
             {
-                var mbrs = await this.Discord._rest_client.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
+                var mbrs = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
                 recd = mbrs.Count;
 
                 var mbr = mbrs.LastOrDefault();
@@ -517,7 +517,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns>A collection of this guild's channels.</returns>
         public Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync() =>
-            this.Discord._rest_client.GetGuildChannelsAsync(this.Id);
+            this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
 
         /// <summary>
         /// Requests a chunk of members from Discord.
@@ -526,7 +526,7 @@ namespace DSharpPlus.Entities
         /// <param name="after">ID of the last member in the previous chunk.</param>
         /// <returns>A collection of members in this chunk.</returns>
         public Task<IReadOnlyList<DiscordMember>> ListMembersAsync(int? limit = null, ulong? after = null) =>
-            this.Discord._rest_client.ListGuildMembersAsync(Id, limit, after);
+            this.Discord.ApiClient.ListGuildMembersAsync(Id, limit, after);
 
         /// <summary>
         /// Modifies a role in this guild.
@@ -540,7 +540,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task UpdateRoleAsync(DiscordRole role, string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) =>
-            this.Discord._rest_client.ModifyGuildRoleAsync(Id, role.Id, name, permissions, color?.Value, hoist, mentionable, reason);
+            this.Discord.ApiClient.ModifyGuildRoleAsync(Id, role.Id, name, permissions, color?.Value, hoist, mentionable, reason);
 
         /// <summary>
         /// Modifies position of the given role in the role hierarchy.
@@ -563,7 +563,7 @@ namespace DSharpPlus.Entities
                     pmds[i].Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position;
             }
 
-            return this.Discord._rest_client.ModifyGuildRolePosition(this.Id, pmds, reason);
+            return this.Discord.ApiClient.ModifyGuildRolePosition(this.Id, pmds, reason);
         }
 
         /// <summary>
@@ -577,7 +577,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created role.</returns>
         public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) =>
-            this.Discord._rest_client.CreateGuildRole(this.Id, name, permissions, color?.Value, hoist, mentionable, reason);
+            this.Discord.ApiClient.CreateGuildRole(this.Id, name, permissions, color?.Value, hoist, mentionable, reason);
 
         /// <summary>
         /// Deletes a role from this guild.
@@ -586,7 +586,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteRoleAsync(DiscordRole role, string reason = null) =>
-            this.Discord._rest_client.DeleteRoleAsync(this.Id, role.Id, reason);
+            this.Discord.ApiClient.DeleteRoleAsync(this.Id, role.Id, reason);
 
         /// <summary>
         /// Gets a role from this guild by its ID.
@@ -612,7 +612,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task GrantRoleAsync(DiscordMember member, DiscordRole role, string reason = null) =>
-            this.Discord._rest_client.AddGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
+            this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
 
         /// <summary>
         /// Revokes a role from a member. 
@@ -622,7 +622,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task RevokeRoleAsync(DiscordMember member, DiscordRole role, string reason) =>
-            this.Discord._rest_client.RemoveGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
+            this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
 
         /// <summary>
         /// Gets audit log entries for this guild.
@@ -644,7 +644,7 @@ namespace DSharpPlus.Entities
                 rmn = Math.Min(100, rmn);
                 if (rmn <= 0) break;
 
-                var alr = await this.Discord._rest_client.GetAuditLogsAsync(this.Id, rmn, null, last == 0 ? null : (ulong?)last, by_member?.Id, (int?)action_type);
+                var alr = await this.Discord.ApiClient.GetAuditLogsAsync(this.Id, rmn, null, last == 0 ? null : (ulong?)last, by_member?.Id, (int?)action_type);
                 ac = alr.Entries.Count();
                 tc += ac;
                 if (ac > 0)
@@ -1242,7 +1242,7 @@ namespace DSharpPlus.Entities
                         if (entrymsg.Channel != null)
                         {
                             DiscordMessage msg = null;
-                            if (this.Discord.MessageCache?.TryGet(xm => xm.Id == xac.TargetId.Value && xm.ChannelId == entrymsg.Channel.Id, out msg) == true)
+                            if (this.Discord is DiscordClient dc && dc.MessageCache?.TryGet(xm => xm.Id == xac.TargetId.Value && xm.ChannelId == entrymsg.Channel.Id, out msg) == true)
                                 entrymsg.Target = msg;
                             else
                                 entrymsg.Target = new DiscordMessage { Discord = this.Discord, Id = xac.TargetId.Value };
@@ -1312,7 +1312,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns></returns>
         public Task SyncAsync() =>
-            this.Discord.SyncGuildsAsync(this);
+            this.Discord is DiscordClient dc ? dc.SyncGuildsAsync(this) : Task.Delay(0);
 
         /// <summary>
         /// Acknowledges all the messages in this guild. This is available to user tokens only.
@@ -1320,8 +1320,8 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task AcknowledgeAsync()
         {
-            if (this.Discord._config.TokenType == TokenType.User)
-                return this.Discord._rest_client.AcknowledgeGuildAsync(this.Id);
+            if (this.Discord.Configuration.TokenType == TokenType.User)
+                return this.Discord.ApiClient.AcknowledgeGuildAsync(this.Id);
             throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
         }
 

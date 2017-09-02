@@ -10,7 +10,7 @@ namespace DSharpPlus.Net
     /// </summary>
     public abstract class BaseRestRequest
     {
-        protected internal DiscordClient Discord { get; }
+        protected internal BaseDiscordClient Discord { get; }
         protected internal TaskCompletionSource<RestResponse> RequestTaskSource { get; }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace DSharpPlus.Net
         /// <param name="url">Uri to which this request is going to be sent to.</param>
         /// <param name="method">Method to use for this request,</param>
         /// <param name="headers">Additional headers for this request.</param>
-        internal BaseRestRequest(DiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null)
+        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null)
         {
             this.Discord = client;
             this.RateLimitBucket = bucket;

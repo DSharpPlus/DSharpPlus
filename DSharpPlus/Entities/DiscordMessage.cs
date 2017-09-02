@@ -28,9 +28,13 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Channel =>
-            this.Discord.InternalGetCachedChannel(this.ChannelId);
+            (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId);
+
+        /// <summary>
+        /// Gets ID of the channel in which the message was sent.
+        /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong ChannelId { get; set; }
+        public ulong ChannelId { get; internal set; }
 
         /// <summary>
         /// Gets the user or member that sent the message.
@@ -173,28 +177,28 @@ namespace DSharpPlus.Entities
         /// <param name="embed">New embed.</param>
         /// <returns></returns>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content = default(Optional<string>), Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>)) =>
-            this.Discord._rest_client.EditMessageAsync(ChannelId, Id, content, embed);
+            this.Discord.ApiClient.EditMessageAsync(ChannelId, Id, content, embed);
 
         /// <summary>
         /// Deletes the message.
         /// </summary>
         /// <returns></returns>
         public Task DeleteAsync(string reason = null) =>
-            this.Discord._rest_client.DeleteMessageAsync(this.ChannelId, this.Id, reason);
+            this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
         /// Pins the message in its channel.
         /// </summary>
         /// <returns></returns>
         public Task PinAsync() =>
-            this.Discord._rest_client.PinMessageAsync(this.ChannelId, Id);
+            this.Discord.ApiClient.PinMessageAsync(this.ChannelId, Id);
 
         /// <summary>
         /// Unpins the message in its channel.
         /// </summary>
         /// <returns></returns>
         public Task UnpinAsync() =>
-            this.Discord._rest_client.UnpinMessageAsync(this.ChannelId, Id);
+            this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, Id);
 
         /// <summary>
         /// Responds to the message.
@@ -204,7 +208,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> RespondAsync(Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>)) =>
-            this.Discord._rest_client.CreateMessageAsync(this.ChannelId, content, tts, embed);
+            this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed);
 
         /// <summary>
         /// Responds to the message with a file.
@@ -216,7 +220,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) => 
-            this.Discord._rest_client.UploadFileAsync(this.ChannelId, file_data, file_name, content, tts, embed);
+            this.Discord.ApiClient.UploadFileAsync(this.ChannelId, file_data, file_name, content, tts, embed);
 
 #if !NETSTANDARD1_1
         /// <summary>
@@ -228,7 +232,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> RespondWithFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord._rest_client.UploadFileAsync(this.ChannelId, file_data, Path.GetFileName(file_data.Name), content, tts, embed);
+            this.Discord.ApiClient.UploadFileAsync(this.ChannelId, file_data, Path.GetFileName(file_data.Name), content, tts, embed);
 
         /// <summary>
         /// Responds to the message with a file.
@@ -241,7 +245,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> RespondWithFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             using (var fs = File.OpenRead(file_path))
-                return await this.Discord._rest_client.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed);
+                return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed);
         }
 #endif
 
@@ -254,7 +258,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord._rest_client.UploadFilesAsync(ChannelId, files, content, tts, embed);
+            this.Discord.ApiClient.UploadFilesAsync(ChannelId, files, content, tts, embed);
 
         /// <summary>
         /// Creates a reaction to this message
@@ -262,7 +266,7 @@ namespace DSharpPlus.Entities
         /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
         /// <returns></returns>
         public Task CreateReactionAsync(DiscordEmoji emoji) =>
-            this.Discord._rest_client.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+            this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         /// <summary>
         /// Deletes your own reaction
@@ -270,7 +274,7 @@ namespace DSharpPlus.Entities
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
         /// <returns></returns>
         public Task DeleteOwnReactionAsync(DiscordEmoji emoji) =>
-            this.Discord._rest_client.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+            this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         /// <summary>
         /// Deletes another user's reaction.
@@ -280,7 +284,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null) =>
-            this.Discord._rest_client.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
+            this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
 
         /// <summary>
         /// Gets users that reacted with this emoji
@@ -288,7 +292,7 @@ namespace DSharpPlus.Entities
         /// <param name="emoji">Emoji to react with.</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji) =>
-            this.Discord._rest_client.GetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString());
+            this.Discord.ApiClient.GetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString());
 
         /// <summary>
         /// Deletes all reactions for this message
@@ -296,7 +300,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) =>
-            this.Discord._rest_client.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
+            this.Discord.ApiClient.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
 
         /// <summary>
         /// Acknowledges the message. This is available to user tokens only.
@@ -304,8 +308,8 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task AcknowledgeAsync()
         {
-            if (this.Discord._config.TokenType == TokenType.User)
-                return this.Discord._rest_client.AcknowledgeMessageAsync(this.Id, this.Channel.Id);
+            if (this.Discord.Configuration.TokenType == TokenType.User)
+                return this.Discord.ApiClient.AcknowledgeMessageAsync(this.Id, this.Channel.Id);
             throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
         }
         

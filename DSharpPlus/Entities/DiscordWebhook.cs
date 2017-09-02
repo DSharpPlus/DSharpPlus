@@ -58,14 +58,14 @@ namespace DSharpPlus.Entities
         /// <param name="base64avatar"></param>
         /// <returns>The modified webhook.</returns>
         public Task<DiscordWebhook> ModifyAsync(string name = null, string base64avatar = null) =>
-            this.Discord._rest_client.ModifyWebhookAsync(this.Id, name, base64avatar, Token);
+            this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, base64avatar, Token);
 
         /// <summary>
         /// Permanently deletes this webhook.
         /// </summary>
         /// <returns></returns>
         public Task DeleteAsync() => 
-            this.Discord._rest_client.DeleteWebhookAsync(this.Id, Token);
+            this.Discord.ApiClient.DeleteWebhookAsync(this.Id, Token);
 
         /// <summary>
         /// Executes this webhook.
@@ -77,7 +77,7 @@ namespace DSharpPlus.Entities
         /// <param name="embeds">Embeds to attach to the message being sent.</param>
         /// <returns></returns>
         public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null) =>
-            this.Discord._rest_client.ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
+            this.Discord.ApiClient.ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.
@@ -85,7 +85,7 @@ namespace DSharpPlus.Entities
         /// <param name="json">JSON containing Slack-compatible payload for this webhook.</param>
         /// <returns></returns>
         public Task ExecuteSlackAsync(string json) =>
-            this.Discord._rest_client.ExecuteWebhookSlackAsync(Id, Token, json);
+            this.Discord.ApiClient.ExecuteWebhookSlackAsync(Id, Token, json);
 
         /// <summary>
         /// Executes this webhook in GitHub compatibility mode.
@@ -93,7 +93,7 @@ namespace DSharpPlus.Entities
         /// <param name="json">JSON containing GitHub-compatible payload for this webhook.</param>
         /// <returns></returns>
         public Task ExecuteGithubAsync(string json) =>
-            this.Discord._rest_client.ExecuteWebhookGithubAsync(Id, Token, json);
+            this.Discord.ApiClient.ExecuteWebhookGithubAsync(Id, Token, json);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordWebhook"/> is equal to another object.

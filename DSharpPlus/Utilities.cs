@@ -59,12 +59,12 @@ namespace DSharpPlus
         internal static string GetApiBaseUri() =>
             Endpoints.BASE_URI;
 
-        internal static string GetFormattedToken(DiscordClient client)
+        internal static string GetFormattedToken(BaseDiscordClient client)
         {
-            return GetFormattedToken(client._config);
+            return GetFormattedToken(client.Configuration);
         }
 
-        internal static string GetFormattedToken(DiscordConfig config)
+        internal static string GetFormattedToken(DiscordConfiguration config)
         { 
             switch (config.TokenType)
             {

@@ -20,12 +20,12 @@ namespace DSharpPlus.Net
         private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
 
-        private DiscordClient Discord { get; }
+        private BaseDiscordClient Discord { get; }
         private HttpClient HttpClient { get; }
         private HashSet<RateLimitBucket> Buckets { get; }
         private SemaphoreSlim RequestSemaphore { get; }
 
-        internal RestClient(DiscordClient client)
+        internal RestClient(BaseDiscordClient client)
         {
             this.Discord = client;
 

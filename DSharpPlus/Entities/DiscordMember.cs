@@ -126,7 +126,7 @@ namespace DSharpPlus.Entities
         /// Creates a direct message channel to this member.
         /// </summary>
         /// <returns>Direct message channel to this member.</returns>
-        public Task<DiscordDmChannel> CreateDmChannelAsync() => this.Discord._rest_client.CreateDmAsync(this.Id);
+        public Task<DiscordDmChannel> CreateDmChannelAsync() => this.Discord.ApiClient.CreateDmAsync(this.Id);
 
         /// <summary>
         /// Sends a direct message to this member. Creates a direct message channel if one does not exist already.
@@ -206,7 +206,7 @@ namespace DSharpPlus.Entities
         /// <param name="mute">Whether the member is to be muted.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task SetMuteAsync(bool mute, string reason = null) => this.Discord._rest_client.ModifyGuildMemberAsync(_guild_id, this.Id, null, null, mute, null, null, reason);
+        public Task SetMuteAsync(bool mute, string reason = null) => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, null, null, mute, null, null, reason);
         
         /// <summary>
         /// Sets this member's voice deaf status.
@@ -214,7 +214,7 @@ namespace DSharpPlus.Entities
         /// <param name="deaf">Whether the member is to be deafened.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task SetDeafAsync(bool deaf, string reason = null) => this.Discord._rest_client.ModifyGuildMemberAsync(_guild_id, this.Id, null, null, null, deaf, null, reason);
+        public Task SetDeafAsync(bool deaf, string reason = null) => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, null, null, null, deaf, null, reason);
 
         /// <summary>
         /// Modifies this member.
@@ -233,12 +233,12 @@ namespace DSharpPlus.Entities
 
             if (nickname != null && this.Discord.CurrentUser.Id == this.Id)
             {
-                await this.Discord._rest_client.ModifyCurrentMemberNicknameAsync(this.Guild.Id, nickname, reason);
-                await this.Discord._rest_client.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason);
+                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, nickname, reason);
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason);
             }
             else
             {
-                await this.Discord._rest_client.ModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason);
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason);
             }
         }
 
@@ -249,7 +249,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task GrantRoleAsync(DiscordRole role, string reason = null) =>
-            this.Discord._rest_client.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+            this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
         /// <summary>
         /// Revokes a role from a member.
@@ -258,7 +258,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task RevokeRoleAsync(DiscordRole role, string reason = null) =>
-            this.Discord._rest_client.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+            this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
         /// <summary>
         /// Sets the member's roles to ones specified.
@@ -267,7 +267,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) =>
-            this.Discord._rest_client.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles.Select(xr => xr.Id), null, null, null, reason);
+            this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles.Select(xr => xr.Id), null, null, null, reason);
         
         /// <summary>
         /// Returns a string representation of this member.
