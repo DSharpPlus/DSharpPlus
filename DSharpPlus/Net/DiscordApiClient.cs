@@ -136,7 +136,7 @@ namespace DSharpPlus.Net
             return guild;
         }
 
-        internal async Task<IReadOnlyList<DiscordUser>> GetGuildBansAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id)
         {
             var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.BANS);
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guild_id.ToString() }, out var path);
@@ -144,8 +144,12 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var bans_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response).Select(xtu => (this.Discord as DiscordClient)?.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this.Discord });
-            var bans = new ReadOnlyCollection<DiscordUser>(new List<DiscordUser>(bans_raw));
+            var bans_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response).Select(xb => 
+            {
+                xb.User = (this.Discord as DiscordClient)?.InternalGetCachedUser(xb.RawUser.Id) ?? new DiscordUser(xb.RawUser) { Discord = this.Discord };
+                return xb;
+            });
+            var bans = new ReadOnlyCollection<DiscordBan>(new List<DiscordBan>(bans_raw));
 
             return bans;
         }
