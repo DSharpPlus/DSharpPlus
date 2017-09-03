@@ -804,16 +804,15 @@ namespace DSharpPlus.Net
 
         internal Task RemoveGuildMemberAsync(ulong guild_id, ulong user_id, string reason)
         {
-            var pld = new RestGuildBanRemovePayload
-            {
-                Reason = reason
-            };
-            
+            var urlparams = new Dictionary<string, string>();
+            if (reason != null)
+                urlparams["reason"] = reason;
+
             var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.MEMBERS, "/:user_id");
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id = guild_id.ToString(), user_id = user_id.ToString() }, out var path);
 
-            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, payload: JsonConvert.SerializeObject(pld));
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path, BuildQueryString(urlparams)));
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE);
         }
 
         internal async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64_avatar)
