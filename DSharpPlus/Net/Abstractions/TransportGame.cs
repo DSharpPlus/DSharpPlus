@@ -121,7 +121,7 @@ namespace DSharpPlus.Net.Abstractions
             {
                 this.Party = new GameParty
                 {
-                    Id = game.PartyId
+                    Id = game.PartyId?.ToString()
                 };
 
                 if (game.CurrentPartySize != null && game.MaximumPartySize != null)
@@ -216,7 +216,7 @@ namespace DSharpPlus.Net.Abstractions
             /// Gets the game party ID.
             /// </summary>
             [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-            public ulong? Id { get; internal set; }
+            public string Id { get; internal set; }
 
             /// <summary>
             /// Gets the size of the party.
