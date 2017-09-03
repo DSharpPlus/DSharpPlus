@@ -58,12 +58,6 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public new IEnumerable<RestChannelCreatePayload> Channels { get; set; }
     }
-
-    internal class RestGuildBanRemovePayload : IReasonAction
-    {
-        [JsonProperty("reason", NullValueHandling = NullValueHandling.Ignore)]
-        public string Reason { get; set; }
-    }
     
     internal sealed class RestGuildMemberAddPayload : IOAuth2Payload
     {
