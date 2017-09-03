@@ -34,7 +34,7 @@ namespace DSharpPlus
             DefaultMessageNotifications? default_message_notifications, ulong? afk_channel_id, int? afk_timeout, string iconb64, ulong? owner_id, string splashb64, string reason)
             => await ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, afk_channel_id, afk_timeout, iconb64, owner_id, splashb64, reason);
 
-        public async Task<IReadOnlyList<DiscordUser>> GetGuildBansAsync(ulong guild_id) => await ApiClient.GetGuildBansAsync(guild_id);
+        public async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id) => await ApiClient.GetGuildBansAsync(guild_id);
 
         public Task CreateGuildBanAsync(ulong guild_id, ulong user_id, int delete_message_days, string reason) => ApiClient.CreateGuildBanAsync(guild_id, user_id, delete_message_days, reason);
 
