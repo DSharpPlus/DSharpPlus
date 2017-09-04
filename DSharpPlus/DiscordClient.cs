@@ -784,7 +784,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="user_id">Id of the user</param>
         /// <returns></returns>
-        public async Task<DiscordUser> GetUserAsync(ulong user_id) => 
+        public async Task<DiscordUser> GetUserAsync(ulong user_id) =>
             this.InternalGetCachedUser(user_id) ?? await this.ApiClient.GetUserAsync(user_id);
 
         /// <summary>
@@ -847,14 +847,14 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
-        public Task<DiscordInvite> GetInviteByCodeAsync(string code) => 
+        public Task<DiscordInvite> GetInviteByCodeAsync(string code) =>
             this.ApiClient.GetInvite(code);
 
         /// <summary>
         /// Gets a list of connections
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordConnection>> GetConnectionsAsync() => 
+        public Task<IReadOnlyList<DiscordConnection>> GetConnectionsAsync() =>
             this.ApiClient.GetUsersConnectionsAsync();
 
         /// <summary>
@@ -869,7 +869,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<DiscordWebhook> GetWebhookAsync(ulong id) => 
+        public Task<DiscordWebhook> GetWebhookAsync(ulong id) =>
             this.ApiClient.GetWebhookAsync(id);
 
         /// <summary>
@@ -878,7 +878,7 @@ namespace DSharpPlus
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token) => 
+        public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token) =>
             this.ApiClient.GetWebhookWithTokenAsync(id, token);
 
         /// <summary>
@@ -886,7 +886,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<DiscordDmChannel> CreateDmAsync(DiscordUser user) => 
+        public async Task<DiscordDmChannel> CreateDmAsync(DiscordUser user) =>
             this.PrivateChannels.ToList().Find(x => x.Recipients.First().Id == user.Id) ?? await ApiClient.CreateDmAsync(user.Id);
 
         /// <summary>
@@ -896,7 +896,7 @@ namespace DSharpPlus
         /// <param name="user_status"></param>
         /// <param name="idle_since"></param>
         /// <returns></returns>
-        public Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null) => 
+        public Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null) =>
             this.InternalUpdateStatusAsync(game, user_status, idle_since);
 
         /// <summary>
@@ -1400,7 +1400,7 @@ namespace DSharpPlus
             if (guild._members == null)
                 guild._members = new List<DiscordMember>();
 
-            this.UpdateCachedGuild(event_guild, raw_members, !exists);
+            this.UpdateCachedGuild(event_guild, raw_members);
 
             guild.JoinedAt = event_guild.JoinedAt;
             guild.IsLarge = event_guild.IsLarge;
@@ -2296,7 +2296,7 @@ namespace DSharpPlus
                 .Concat(this._private_channels)
                 .FirstOrDefault(xc => xc.Id == channel_id);
 
-        internal void UpdateCachedGuild(DiscordGuild new_guild, JArray raw_members, bool newguild = false)
+        internal void UpdateCachedGuild(DiscordGuild new_guild, JArray raw_members)
         {
             if (!this._guilds.ContainsKey(new_guild.Id))
                 this._guilds[new_guild.Id] = new_guild;
@@ -2312,24 +2312,13 @@ namespace DSharpPlus
             var _e = new_guild._emojis.Where(xe => !guild._emojis.Any(xxe => xxe.Id == xe.Id));
             guild._emojis.AddRange(_e);
 
-            if (newguild)
+            if (raw_members != null)
             {
-                if (raw_members != null)
-                {
-                    var _m = raw_members.ToObject<IEnumerable<DiscordMember>>()
-                        .Where(xm => !guild._members.Any(xxm => xxm.Id == xm.Id));
-                    guild._members.AddRange(_m);
-                }
-            }
-            else
-            {
-                if (raw_members != null)
-                {
-                    var _m = raw_members == null ? new List<DiscordMember>() : raw_members.ToObject<IEnumerable<TransportMember>>()
-                        .Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id })
-                        .Where(xm => !guild._members.Any(xxm => xxm.Id == xm.Id));
-                    guild._members.AddRange(_m);
-                }
+                guild._members.Clear();
+                var _m = raw_members == null ? new List<DiscordMember>() : raw_members.ToObject<IEnumerable<TransportMember>>()
+                    .Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id })
+                    .Where(xm => !guild._members.Any(xxm => xxm.Id == xm.Id));
+                guild._members.AddRange(_m);
             }
 
             var _r = new_guild._roles.Where(xr => !guild._roles.Any(xxr => xxr.Id == xr.Id));
