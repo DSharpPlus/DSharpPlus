@@ -322,7 +322,7 @@ namespace DSharpPlus.Entities
         /// Gets the bans for this guild.
         /// </summary>
         /// <returns>Collection of bans in this guild.</returns>
-        public Task<IReadOnlyList<DiscordUser>> GetBansAsync() =>
+        public Task<IReadOnlyList<DiscordBan>> GetBansAsync() =>
             this.Discord.ApiClient.GetGuildBansAsync(Id);
 
         /// <summary>
