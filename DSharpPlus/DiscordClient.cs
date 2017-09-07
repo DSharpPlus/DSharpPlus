@@ -2385,7 +2385,7 @@ namespace DSharpPlus
 
             DisconnectAsync().GetAwaiter().GetResult();
 
-            _cancel_token_source.Cancel();
+            _cancel_token_source?.Cancel();
             _guilds = null;
             _heartbeat_task = null;
             _current_user = null;
