@@ -28,13 +28,13 @@ namespace DSharpPlus.CommandsNext.Converters
                 return true;
             }
 
-            var di = value.IndexOf('#');
+            var di = value.ToLower().IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
             var us = ctx.Client.Guilds
                 .SelectMany(xkvp => xkvp.Value.Members)
-                .Where(xm => xm.Username == un && ((dv != null && xm.Discriminator == dv) || true));
+                .Where(xm => xm.Username.ToLower() == un && ((dv != null && xm.Discriminator == dv) || dv == null));
 
             if (us.Any())
             {
@@ -71,12 +71,12 @@ namespace DSharpPlus.CommandsNext.Converters
                 return true;
             }
 
-            var di = value.IndexOf('#');
+            var di = value.ToLower().IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
             var us = ctx.Guild.Members
-                .Where(xm => xm.Username == un && ((dv != null && xm.Discriminator == dv) || true));
+                .Where(xm => (xm.Username.ToLower() == un && ((dv != null && xm.Discriminator == dv) || dv == null)) || xm.Nickname?.ToLower() == value);
 
             if (us.Any())
             {
