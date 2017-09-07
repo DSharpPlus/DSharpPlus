@@ -84,7 +84,8 @@ namespace DSharpPlus.Test
                 EnableMentionPrefix = true,
                 CaseSensitive = true,
                 Dependencies = depco.Build(),
-                SelfBot = this.Config.UseUserToken
+                SelfBot = this.Config.UseUserToken,
+                IgnoreExtraArguments = false
                 //DefaultHelpChecks = new List<CheckBaseAttribute>() { new RequireOwnerAttribute() }
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);

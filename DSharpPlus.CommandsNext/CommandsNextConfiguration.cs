@@ -61,5 +61,10 @@ namespace DSharpPlus.CommandsNext
         /// Sets the dependency collection for this CommandsNext instance.
         /// </summary>
         public DependencyCollection Dependencies { internal get; set; } = null;
+
+        /// <summary>
+        /// Gets whether any extra arguments passed to commands should be ignored or not. If this is set to false, extra arguments will throw. Defaults to true.
+        /// </summary>
+        public bool IgnoreExtraArguments { internal get; set; } = true;
     }
 }

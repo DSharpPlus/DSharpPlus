@@ -64,7 +64,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Command's execution results.</returns>
         public virtual async Task<CommandResult> ExecuteAsync(CommandContext ctx)
         {
-            var args = CommandsNextUtilities.BindArguments(ctx);
+            var args = CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments);
 
             try
             {

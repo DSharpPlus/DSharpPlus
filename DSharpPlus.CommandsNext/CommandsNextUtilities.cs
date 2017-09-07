@@ -322,7 +322,7 @@ namespace DSharpPlus.CommandsNext
             return str;
         }
 
-        internal static object[] BindArguments(CommandContext ctx)
+        internal static object[] BindArguments(CommandContext ctx, bool ignore_surplus)
         {
             var cmd = ctx.Command;
 
@@ -395,6 +395,9 @@ namespace DSharpPlus.CommandsNext
                 }
                 argstr = argrmd;
             }
+
+            if (!ignore_surplus && !string.IsNullOrWhiteSpace(argstr))
+                throw new ArgumentException("Too many arguments were supplied to this command.");
 
             return args;
         }
