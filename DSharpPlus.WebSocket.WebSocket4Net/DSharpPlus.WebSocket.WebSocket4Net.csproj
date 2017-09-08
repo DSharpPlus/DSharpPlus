@@ -1,8 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-	  <TargetFrameworks>net45;net46;net47</TargetFrameworks>
+    <TargetFrameworks>net45;net46;net47;netstandard1.3;netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591</NoWarn>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -20,29 +19,23 @@ A WebSocket4Net WebSocket client for DSharpPlus, for platforms that do not suppo
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Bots, Discord Bots, Chat, DSharp, DSharpPlus, C#, .NET, VB.NET, VB, F#, WebSocket, WebSocket4Net, Windows, Windows 7</PackageTags>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">
     <Version>3.0.1-beta-$(VersionSuffix)</Version>
     <AssemblyVersion>3.0.1.$(VersionSuffix)</AssemblyVersion>
     <FileVersion>3.0.1.$(VersionSuffix)</FileVersion>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(VersionSuffix)' == ''">
     <Version>3.0.1</Version>
     <AssemblyVersion>3.0.1.0</AssemblyVersion>
     <FileVersion>3.0.1.0</FileVersion>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <Optimize>False</Optimize>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="WebSocket4Net" Version="0.14.1" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="WebSocket4Net" Version="0.15.0" />
+  </ItemGroup>
 </Project>
