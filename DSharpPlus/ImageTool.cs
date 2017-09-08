@@ -99,7 +99,7 @@ namespace DSharpPlus
             var sb = new StringBuilder();
 
             sb.Append("data:image/")
-                .Append(fmt.ToString().ToLower())
+                .Append(fmt.ToString().ToLowerInvariant())
                 .Append(";base64,");
 
             this.SourceStream.Seek(0, SeekOrigin.Begin);

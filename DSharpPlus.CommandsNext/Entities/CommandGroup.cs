@@ -45,7 +45,7 @@ namespace DSharpPlus.CommandsNext
                 if (ctx.Config.CaseSensitive)
                     cmd = this.Children.FirstOrDefault(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));
                 else
-                    cmd = this.Children.FirstOrDefault(xc => xc.Name.ToLower() == cn.ToLower() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLower()).Contains(cn.ToLower())));
+                    cmd = this.Children.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == cn.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(cn.ToLowerInvariant())));
 
                 if (cmd != null)
                 {

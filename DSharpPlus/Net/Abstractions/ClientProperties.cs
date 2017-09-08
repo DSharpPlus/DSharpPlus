@@ -26,7 +26,7 @@ namespace DSharpPlus.Net.Abstractions
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                     return "osx";
 
-                var plat = RuntimeInformation.OSDescription.ToLower();
+                var plat = RuntimeInformation.OSDescription.ToLowerInvariant();
 #else
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT || Environment.OSVersion.Platform == PlatformID.WinCE)
                     return "windows";
