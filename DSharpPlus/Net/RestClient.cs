@@ -197,7 +197,7 @@ namespace DSharpPlus.Net
             var hs = response.Headers;
 
             // check if global b1nzy
-            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLower() == "true")
+            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLowerInvariant() == "true")
             {
                 // global
 
@@ -219,7 +219,7 @@ namespace DSharpPlus.Net
 
             var bucket = request.RateLimitBucket;
 
-            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLower() == "true")
+            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLowerInvariant() == "true")
                 return;
 
             var r1 = hs.TryGetValue("X-RateLimit-Limit", out var usesmax);

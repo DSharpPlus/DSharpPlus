@@ -998,7 +998,7 @@ namespace DSharpPlus
             var mid = 0ul;
             var usr = null as DiscordUser;
 
-            switch (payload.EventName.ToLower())
+            switch (payload.EventName.ToLowerInvariant())
             {
                 case "ready":
                     var glds = (JArray)dat["guilds"];

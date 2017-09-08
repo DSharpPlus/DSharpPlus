@@ -38,7 +38,7 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                switch (this.InternalStatus.ToLower())
+                switch (this.InternalStatus.ToLowerInvariant())
                 {
                     case "online":
                         return UserStatus.Online;

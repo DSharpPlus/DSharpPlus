@@ -676,7 +676,7 @@ namespace DSharpPlus.Entities
                         var entrygld = entry as DiscordAuditLogGuildEntry;
                         foreach (var xc in xac.Changes)
                         {
-                            switch (xc.Key.ToLower())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "name":
                                     entrygld.NameChange = new PropertyChange<string>
@@ -758,7 +758,7 @@ namespace DSharpPlus.Entities
                         var entrychn = entry as DiscordAuditLogChannelEntry;
                         foreach (var xc in xac.Changes)
                         {
-                            switch (xc.Key.ToLower())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "name":
                                     entrychn.NameChange = new PropertyChange<string>
@@ -822,7 +822,7 @@ namespace DSharpPlus.Entities
                         var entryovr = entry as DiscordAuditLogOverwriteEntry;
                         foreach (var xc in xac.Changes)
                         {
-                            switch (xc.Key.ToLower())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "deny":
                                     p1 = ulong.TryParse(xc.OldValue as string, out t1);
@@ -905,7 +905,7 @@ namespace DSharpPlus.Entities
                         var entrymbu = entry as DiscordAuditLogMemberUpdateEntry;
                         foreach (var xc in xac.Changes)
                         {
-                            switch (xc.Key.ToLower())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "nick":
                                     entrymbu.NicknameChange = new PropertyChange<string>
@@ -957,7 +957,7 @@ namespace DSharpPlus.Entities
                         var entryrol = entry as DiscordAuditLogRoleUpdateEntry;
                         foreach (var xc in xac.Changes)
                         {
-                            switch (xc.Key.ToLower())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "name":
                                     entryrol.NameChange = new PropertyChange<string>
@@ -1032,7 +1032,7 @@ namespace DSharpPlus.Entities
                         var entryinv = entry as DiscordAuditLogInviteEntry;
                         foreach (var xc in xac.Changes)
                         {
-                            switch (xc.Key.ToLower())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "max_age":
                                     p1 = int.TryParse(xc.OldValue as string, out t3);
@@ -1137,7 +1137,7 @@ namespace DSharpPlus.Entities
                         var entrywhk = entry as DiscordAuditLogWebhookEntry;
                         foreach (var xc in xac.Changes)
                         {
-                            switch (xc.Key.ToLower())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "name":
                                     entrywhk.NameChange = new PropertyChange<string>
@@ -1195,7 +1195,7 @@ namespace DSharpPlus.Entities
                         var entryemo = entry as DiscordAuditLogEmojiEntry;
                         foreach (var xc in xac.Changes)
                         {
-                            switch (xc.Key.ToLower())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "name":
                                     entryemo.NameChange = new PropertyChange<string>
