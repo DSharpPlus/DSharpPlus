@@ -114,7 +114,7 @@ namespace DSharpPlus.Net.WebSocket
 
         private void EventErrorHandler(string evname, Exception ex)
         {
-            if (evname.ToLower() == "ws_error")
+            if (evname.ToLowerInvariant() == "ws_error")
                 Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
             else
                 this._error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).GetAwaiter().GetResult();

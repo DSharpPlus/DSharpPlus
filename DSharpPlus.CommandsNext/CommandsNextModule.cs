@@ -177,7 +177,7 @@ namespace DSharpPlus.CommandsNext
 
             var cmd = this.TopLevelCommands.ContainsKey(cms) ? this.TopLevelCommands[cms] : null;
             if (cmd == null && !this.Config.CaseSensitive)
-                cmd = this.TopLevelCommands.FirstOrDefault(xkvp => xkvp.Key.ToLower() == cms.ToLower()).Value;
+                cmd = this.TopLevelCommands.FirstOrDefault(xkvp => xkvp.Key.ToLowerInvariant() == cms.ToLowerInvariant()).Value;
 
             var ctx = new CommandContext
             {
@@ -544,7 +544,7 @@ namespace DSharpPlus.CommandsNext
                     if (this.Config.CaseSensitive)
                         cmd = search_in.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)));
                     else
-                        cmd = search_in.FirstOrDefault(xc => xc.Name.ToLower() == c.ToLower() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLower()).Contains(c.ToLower())));
+                        cmd = search_in.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == c.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(c.ToLowerInvariant())));
 
                     if (cmd == null)
                         break;
