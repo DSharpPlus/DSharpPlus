@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -756,7 +756,7 @@ namespace DSharpPlus
 
                 if (Configuration.AutoReconnect)
                 {
-                    DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode}, '{e.CloseMessage}'). Reconnecting", DateTime.Now);
+                    DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting", DateTime.Now);
                     await ConnectAsync();
                 }
             };
@@ -983,7 +983,7 @@ namespace DSharpPlus
                     break;
 
                 default:
-                    DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown OP-Code: {(int)payload.OpCode}\n{payload.Data}", DateTime.Now);
+                    DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown OP-Code: {((int)payload.OpCode).ToString(CultureInfo.InvariantCulture)}\n{payload.Data}", DateTime.Now);
                     break;
             }
         }
@@ -1026,7 +1026,7 @@ namespace DSharpPlus
 
                 case "channel_pins_update":
                     cid = (ulong)dat["channel_id"];
-                    await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), DateTimeOffset.Parse((string)dat["last_pin_timestamp"]));
+                    await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), DateTimeOffset.Parse((string)dat["last_pin_timestamp"], CultureInfo.InvariantCulture));
                     break;
 
                 case "guild_create":
@@ -1077,7 +1077,7 @@ namespace DSharpPlus
                 case "guild_member_remove":
                     gid = (ulong)dat["guild_id"];
                     if (!this._guilds.ContainsKey(gid))
-                    { this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Could not find {gid} in guild cache.", DateTime.Now); return; }
+                    { this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Could not find {gid.ToString(CultureInfo.InvariantCulture)} in guild cache.", DateTime.Now); return; }
                     await OnGuildMemberRemoveEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid]);
                     break;
 
@@ -2115,7 +2115,7 @@ namespace DSharpPlus
             ping = (int)(DateTime.Now - this._last_heartbeat).TotalMilliseconds;
 
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {ping}ms", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {ping.ToString(CultureInfo.InvariantCulture)}ms", DateTime.Now);
 
             Volatile.Write(ref this._ping, ping);
 

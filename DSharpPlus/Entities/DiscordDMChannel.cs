@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -37,7 +38,7 @@ namespace DSharpPlus.Entities
         /// Gets the URL of this channel's icon.
         /// </summary>
         [JsonIgnore]
-        public string IconUrl => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/channel-icons/{this.Id}/{this.IconHash}.png" : null;
+        public string IconUrl => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/channel-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png" : null;
         
         /// <summary>
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token

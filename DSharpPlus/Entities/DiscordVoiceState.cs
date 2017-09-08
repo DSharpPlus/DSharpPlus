@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -98,7 +99,7 @@ namespace DSharpPlus.Entities
 
         public override string ToString()
         {
-            return $"{this.UserId} in {this.GuildId}";
+            return $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {this.GuildId?.ToString(CultureInfo.InvariantCulture)}";
         }
     }
 }

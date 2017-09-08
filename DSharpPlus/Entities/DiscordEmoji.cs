@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -43,7 +44,7 @@ namespace DSharpPlus.Entities
         public override string ToString()
         {
             if (this.Id != 0)
-                return $"<:{this.Name}:{this.Id}>";
+                return $"<:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
             return this.Name;
         }
 
@@ -89,7 +90,7 @@ namespace DSharpPlus.Entities
         internal string ToReactionString()
         {
             if (this.Id != 0)
-                return $"{this.Name}:{this.Id}";
+                return $"{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}";
             return this.Name;
         }
 

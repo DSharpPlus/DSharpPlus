@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace DSharpPlus.CommandsNext.Converters
@@ -7,13 +7,13 @@ namespace DSharpPlus.CommandsNext.Converters
     public class DateTimeConverter : IArgumentConverter<DateTime>
     {
         public bool TryConvert(string value, CommandContext ctx, out DateTime result) =>
-            DateTime.TryParse(value, out result);
+            DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
     }
 
     public class DateTimeOffsetConverter : IArgumentConverter<DateTimeOffset>
     {
         public bool TryConvert(string value, CommandContext ctx, out DateTimeOffset result) =>
-            DateTimeOffset.TryParse(value, out result);
+            DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
     }
 
     public class TimeSpanConverter : IArgumentConverter<TimeSpan>
@@ -22,7 +22,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static TimeSpanConverter()
         {
-            TimeSpanRegex = new Regex(@"^(?<days>\d+d)?(?<hours>\d{1,2}h)?(?<minutes>\d{1,2}m)?(?<seconds>\d{1,2}s)?$");
+            TimeSpanRegex = new Regex(@"^(?<days>\d+d)?(?<hours>\d{1,2}h)?(?<minutes>\d{1,2}m)?(?<seconds>\d{1,2}s)?$", RegexOptions.ECMAScript);
         }
 
         public bool TryConvert(string value, CommandContext ctx, out TimeSpan result)
@@ -31,7 +31,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (value == "0")
                 return true;
 
-            if (TimeSpan.TryParse(value, out result))
+            if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out result))
                 return true;
             
             var gps = new string[] { "days", "hours", "minutes", "seconds" };
@@ -50,7 +50,7 @@ namespace DSharpPlus.CommandsNext.Converters
                     continue;
 
                 var gpt = gpc[gpc.Length - 1];
-                int.TryParse(gpc.Substring(0, gpc.Length - 1), out var val);
+                int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);
                 switch (gpt)
                 {
                     case 'd':

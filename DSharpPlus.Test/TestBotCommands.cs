@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -292,10 +293,9 @@ Serverowner: {e.Guild.Owner.DisplayName}
             };
             embed.AddField("Name", app.Name, true);
             embed.AddField("Description", string.Concat("```\n", app.Description, "\n```"), true);
-            embed.AddField("ID", app.Id.ToString(), true);
+            embed.AddField("ID", app.Id.ToString(CultureInfo.InvariantCulture), true);
             embed.AddField("Created", app.CreationTimestamp.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss"), true);
             embed.AddField("Owner", $"{usrn}#{app.Owner.Discriminator} ({app.Owner.Id})", true);
-            embed.AddField("Anon", new { x = 1 }.ToString());
 
             await e.Message.RespondAsync("", embed: embed.Build());
         }

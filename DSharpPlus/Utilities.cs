@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -96,68 +97,68 @@ namespace DSharpPlus
         internal static bool ContainsUserMentions(string message)
         {
             string pattern = @"<@(\d+)>";
-            Regex regex = new Regex(pattern);
+            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static bool ContainsNicknameMentions(string message)
         {
             string pattern = @"<@!(\d+)>";
-            Regex regex = new Regex(pattern);
+            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static bool ContainsChannelMentions(string message)
         {
             string pattern = @"<#(\d+)>";
-            Regex regex = new Regex(pattern);
+            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static bool ContainsRoleMentions(string message)
         {
             string pattern = @"<@&(\d+)>";
-            Regex regex = new Regex(pattern);
+            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static bool ContainsEmojis(string message)
         {
             string pattern = @"<:(.*):(\d+)>";
-            Regex regex = new Regex(pattern);
+            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static IEnumerable<ulong> GetUserMentions(DiscordMessage message)
         {
-            var regex = new Regex(@"<@!?(\d+)>");
+            var regex = new Regex(@"<@!?(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
-                yield return ulong.Parse(match.Groups[1].Value);
+                yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
         internal static IEnumerable<ulong> GetRoleMentions(DiscordMessage message)
         {
-            var regex = new Regex(@"<@&(\d+)>");
+            var regex = new Regex(@"<@&(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
-                yield return ulong.Parse(match.Groups[1].Value);
+                yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
         internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
         {
-            var regex = new Regex(@"<#(\d+)>");
+            var regex = new Regex(@"<#(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
-                yield return ulong.Parse(match.Groups[1].Value);
+                yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
         internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
         {
-            var regex = new Regex(@"<:([a-zA-Z0-9_]+):(\d+)>");
+            var regex = new Regex(@"<:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
-                yield return ulong.Parse(match.Groups[2].Value);
+                yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
 
         /// <summary>

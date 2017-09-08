@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace DSharpPlus.Entities
 {
@@ -19,7 +20,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the application's icon.
         /// </summary>
-        public string Icon => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id}/{this.IconHash}.png?size=1024" : null;
+        public string Icon => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         internal string IconHash { get; set; }
 
@@ -154,7 +155,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Url of this asset.
         /// </summary>
-        public Uri Url => new Uri($"https://cdn.discordapp.com/app-assets/{this.Application.Id}/{this.Id}.png");
+        public Uri Url => new Uri($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
 
         internal DiscordApplicationAsset() { }
 

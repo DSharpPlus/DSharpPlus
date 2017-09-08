@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -97,7 +98,7 @@ namespace DSharpPlus.Test
 
             var embed = new DiscordEmbedBuilder()
                 .WithTitle("Results")
-                .AddField("Integer", one.ToString(), true)
+                .AddField("Integer", one.ToString(CultureInfo.InvariantCulture), true)
                 .AddField("String", content != null ? string.Join(" ", content) : "`<null>`", true)
                 .Build();
             await ctx.RespondAsync("", embed: embed);
@@ -112,7 +113,7 @@ namespace DSharpPlus.Test
             {
                 Title = "Results"
             };
-            embed.AddField("Integer", one.ToString(), true).AddField("String", content ?? "`<null>`", true);
+            embed.AddField("Integer", one.ToString(CultureInfo.InvariantCulture), true).AddField("String", content ?? "`<null>`", true);
             await ctx.RespondAsync("", embed: embed.Build());
         }
 

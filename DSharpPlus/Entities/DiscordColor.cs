@@ -90,7 +90,7 @@ namespace DSharpPlus.Entities
             if (color.ToCharArray().Any(xc => !HexAlphabet.Contains(xc)))
                 throw new ArgumentException(nameof(color), "Colors must consist of hexadecimal characters only.");
 
-            this.Value = int.Parse(color, NumberStyles.HexNumber);
+            this.Value = int.Parse(color, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
