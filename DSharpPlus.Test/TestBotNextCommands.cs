@@ -158,6 +158,12 @@ namespace DSharpPlus.Test
 
             await ctx.RespondAsync(embed: eb);
         }
+        
+        [Command("datetime"), Description("Tests DateTimeOffset binding.")]
+        public async Task ConvertDate(CommandContext ctx, [Description("DateTimeOffset to bind")] DateTimeOffset dto)
+        {
+            await ctx.RespondAsync(dto.ToString("yyyy-MM-dd HH:mm:ss"));
+        }
 
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
         public class InteractivityTest
