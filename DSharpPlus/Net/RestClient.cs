@@ -60,7 +60,7 @@ namespace DSharpPlus.Net
                 this.Buckets.Add(bucket);
             }
 
-            url = RouteArgumentRegex.Replace(route, xm => $"{rparams[xm.Groups[1].Value]}");
+            url = RouteArgumentRegex.Replace(route, xm => rparams[xm.Groups[1].Value]);
             return bucket;
         }
 
