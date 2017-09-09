@@ -91,7 +91,7 @@ namespace DSharpPlus
 
         public Task<DiscordMessage> GetMessageAsync(ulong channel_id, ulong message_id) => ApiClient.GetMessageAsync(channel_id, message_id);
 
-        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Optional<string> content, bool? tts, Optional<DiscordEmbed> embed) =>
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed) =>
             ApiClient.CreateMessageAsync(channel_id, content, tts, embed);
 
         public Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed)
