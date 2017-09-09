@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+    /// <inheritdoc />
     /// <summary>
     /// Represents a direct message channel.
     /// </summary>
