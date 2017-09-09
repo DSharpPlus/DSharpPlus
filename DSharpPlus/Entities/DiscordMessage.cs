@@ -207,7 +207,7 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondAsync(Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>)) =>
+        public Task<DiscordMessage> RespondAsync(string content = null, bool tts = false, DiscordEmbed embed = null) =>
             this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed);
 
         /// <summary>
