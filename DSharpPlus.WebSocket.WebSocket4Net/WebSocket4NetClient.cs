@@ -43,31 +43,31 @@ namespace DSharpPlus.Net.WebSocket
 
         public WebSocket4NetClient()
         {
-            _connect = new AsyncEvent(EventErrorHandler, "WS_CONNECT");
-            _disconnect = new AsyncEvent<SocketCloseEventArgs>(EventErrorHandler, "WS_DISCONNECT");
-            _message = new AsyncEvent<SocketMessageEventArgs>(EventErrorHandler, "WS_MESSAGE");
-            _error = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
+            this._connect = new AsyncEvent(EventErrorHandler, "WS_CONNECT");
+            this._disconnect = new AsyncEvent<SocketCloseEventArgs>(EventErrorHandler, "WS_DISCONNECT");
+            this._message = new AsyncEvent<SocketMessageEventArgs>(EventErrorHandler, "WS_MESSAGE");
+            this._error = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
         }
 
         public override Task<BaseWebSocketClient> ConnectAsync(string uri)
         {
-            _socket = new WSS.WebSocket(uri);
+            this._socket = new WSS.WebSocket(uri);
 
-            _socket.Opened += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
+            this._socket.Opened += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
                 
-            _socket.Closed += (sender, e) =>
+            this._socket.Closed += (sender, e) =>
             {
                 if (e is WSS.ClosedEventArgs ea)
-                    _disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = ea.Code, CloseMessage = ea.Reason }).GetAwaiter().GetResult();
+                    this._disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = ea.Code, CloseMessage = ea.Reason }).GetAwaiter().GetResult();
                 else
-                    _disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = "unknown" }).GetAwaiter().GetResult();
+                    this._disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = "unknown" }).GetAwaiter().GetResult();
             };
 
-            _socket.MessageReceived += (sender, e) => _message.InvokeAsync(new SocketMessageEventArgs {
+            this._socket.MessageReceived += (sender, e) => _message.InvokeAsync(new SocketMessageEventArgs {
                 Message = e.Message
             }).GetAwaiter().GetResult();
 
-            _socket.DataReceived += (sender, e) =>
+            this._socket.DataReceived += (sender, e) =>
             {
                 string msg;
 
@@ -79,20 +79,20 @@ namespace DSharpPlus.Net.WebSocket
                     msg = Utf8.GetString(ms2.ToArray(), 0, (int)ms2.Length);
                 }
 
-                _message.InvokeAsync(new SocketMessageEventArgs {
+                this._message.InvokeAsync(new SocketMessageEventArgs {
                     Message = msg
                 }).GetAwaiter().GetResult();
             };
 
-            _socket.Open();
+            this._socket.Open();
 
             return Task.FromResult<BaseWebSocketClient>(this);
         }
 
         public override Task InternalDisconnectAsync(SocketCloseEventArgs e)
         {
-            if (_socket.State != WSS.WebSocketState.Closed)
-                _socket.Close();
+            if (this._socket.State != WSS.WebSocketState.Closed)
+                this._socket.Close();
             return Task.Delay(0);
         }
 
@@ -102,8 +102,8 @@ namespace DSharpPlus.Net.WebSocket
 
         public override void SendMessage(string message)
         {
-            if (_socket.State == WSS.WebSocketState.Open)
-                _socket.Send(message);
+            if (this._socket.State == WSS.WebSocketState.Open)
+                this._socket.Send(message);
         }
 
         private void EventErrorHandler(string evname, Exception ex)
@@ -111,7 +111,7 @@ namespace DSharpPlus.Net.WebSocket
             if (evname.ToLowerInvariant() == "ws_error")
                 Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
             else
-                _error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).GetAwaiter().GetResult();
+                this._error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).GetAwaiter().GetResult();
         }
     }
 }
