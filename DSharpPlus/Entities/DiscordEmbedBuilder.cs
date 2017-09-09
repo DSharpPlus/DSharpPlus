@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -48,6 +48,9 @@ namespace DSharpPlus.Entities
             get { return this._url?.ToString(); }
             set
             {
+                if (value == "") 
+                    throw new ArgumentException("Url can be null or a valid URI, but not an empty string.");
+                
                 if (value == null)
                     this._url = null;
                 else
@@ -513,6 +516,9 @@ namespace DSharpPlus.Entities
                 get { return this._uri?.ToString(); }
                 set
                 {
+                    if (value == "") 
+                        throw new ArgumentException("Url can be null or a valid URI, but not an empty string.");
+                    
                     if (value == null)
                         this._uri = null;
                     else
@@ -529,6 +535,9 @@ namespace DSharpPlus.Entities
                 get { return this._icon_uri?.ToString(); }
                 set
                 {
+                    if (value == "") 
+                        throw new ArgumentException("IconUrl can be null or a valid URI, but not an empty string.");
+                    
                     if (value == null)
                         this._icon_uri = null;
                     else
@@ -563,6 +572,9 @@ namespace DSharpPlus.Entities
                 get { return this._icon_uri?.ToString(); }
                 set
                 {
+                    if (value == "") 
+                        throw new ArgumentException("IconUrl can be null or a valid URI, but not an empty string.");
+                    
                     if (value == null)
                         this._icon_uri = null;
                     else
