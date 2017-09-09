@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -135,7 +135,7 @@ namespace DSharpPlus.Entities
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> SendMessageAsync(Optional<string> content = default(Optional<string>), bool is_tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>))
+        public async Task<DiscordMessage> SendMessageAsync(string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             var chn = await this.CreateDmChannelAsync();
             return await chn.SendMessageAsync(content, is_tts, embed);
