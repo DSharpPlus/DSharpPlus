@@ -407,30 +407,36 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Optional<string> content, bool? tts, Optional<DiscordEmbed> embed)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed)
         {
-            if (content.HasValue && content.Value.Length >= 2000) 
+            if (content != null && content.Length >= 2000)
                 throw new ArgumentException("Max message length is 2000");
-            if (content.HasValue && content.Value.Length == 0 && !embed.HasValue)
+            if (string.IsNullOrEmpty(content) && embed == null)
                 throw new ArgumentException("Cannot send empty message");
+            if (content == null && embed == null)
+                throw new ArgumentException("Message must have text or embed");
                 
-            if (embed.HasValue && embed.Value?.Timestamp != null)
-                embed.Value.Timestamp = embed.Value.Timestamp.Value.ToUniversalTime();
+            if (embed?.Timestamp != null)
+                embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageCreatePayload
             {
-                HasContent = content.HasValue,
-                Content = content.HasValue ? (string)content : null,
+                HasContent = content != null,
+                Content = content,
                 IsTTS = tts,
-                HasEmbed = embed.HasValue,
-                Embed = embed.HasValue ? (DiscordEmbed)embed : null
+                HasEmbed = embed != null,
+                Embed = embed
             };
 
             var route = string.Concat(Endpoints.CHANNELS, "/:channel_id", Endpoints.MESSAGES);
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id = channel_id.ToString(CultureInfo.InvariantCulture) }, out var path);
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: JsonConvert.SerializeObject(pld));
+            
+            var payload = JsonConvert.SerializeObject(pld);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "API client", payload, DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "API client", $"{url}", DateTime.Now);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: payload);
 
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
             ret.Discord = this.Discord;
@@ -442,7 +448,10 @@ namespace DSharpPlus.Net
         {
             var file = new Dictionary<string, Stream> { { file_name, file_data } };
 
-            if (embed != null && embed.Timestamp != null)
+            if (content != null && content.Length >= 2000) 
+                throw new ArgumentException("Max message length is 2000");
+            
+            if (embed?.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var values = new Dictionary<string, string>();
@@ -452,7 +461,8 @@ namespace DSharpPlus.Net
                 Content = content,
                 IsTTS = tts
             };
-            if (!string.IsNullOrWhiteSpace(content) || embed != null || tts == true)
+            
+            if (!string.IsNullOrEmpty(content) || embed != null || tts == true)
                 values["payload_json"] = JsonConvert.SerializeObject(pld);
 
             var route = string.Concat(Endpoints.CHANNELS, "/:channel_id", Endpoints.MESSAGES);
@@ -469,9 +479,14 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed)
         {
-            if (embed != null && embed.Timestamp != null)
+            if (embed?.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
+            if (content != null && content.Length >= 2000) 
+                throw new ArgumentException("Max message length is 2000");
+            if (files.Count == 0 && string.IsNullOrEmpty(content) && embed == null)
+                throw new ArgumentException("Must have one or more of <file, caption, embed> but none found");
+            
             var values = new Dictionary<string, string>();
             var pld = new RestChannelMessageCreateMultipartPayload
             {
