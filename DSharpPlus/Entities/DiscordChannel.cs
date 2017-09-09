@@ -27,6 +27,13 @@ namespace DSharpPlus.Entities
         public ulong? ParentId { get; internal set; }
 
         /// <summary>
+        /// Gets the category that contains this channel.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordChannel Parent =>
+            this.Guild.Channels.FirstOrDefault(xc => xc.Id == this.ParentId);
+
+        /// <summary>
         /// Gets the name of this channel.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
@@ -107,13 +114,13 @@ namespace DSharpPlus.Entities
         /// Gets this channel's children. This applies only to channel categories.
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<DiscordChannel> Children {
+        public IEnumerable<DiscordChannel> Children
+        {
             get
             {
                 if (!IsCategory)
-                {
                     throw new ArgumentException("Only channel categories contain children");
-                }
+
                 return Guild._channels.Where(e => e.ParentId == Id);
             }
         }
