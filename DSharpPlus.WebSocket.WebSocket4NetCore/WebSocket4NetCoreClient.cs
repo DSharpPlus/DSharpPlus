@@ -15,29 +15,29 @@ namespace DSharpPlus.Net.WebSocket
 
         public override event AsyncEventHandler OnConnect
         {
-            add => _connect.Register(value);
-            remove => _connect.Unregister(value);
+            add { _connect.Register(value);
+            remove { _connect.Unregister(value);
         }
         private readonly AsyncEvent _connect;
 
         public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
         {
-            add => _disconnect.Register(value);
-            remove => _disconnect.Unregister(value);
+            add { _disconnect.Register(value); }
+            remove { _disconnect.Unregister(value); }
         }
         private readonly AsyncEvent<SocketCloseEventArgs> _disconnect;
 
         public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
         {
-            add => _message.Register(value);
-            remove => _message.Unregister(value);
+            add { _message.Register(value); }
+            remove { _message.Unregister(value); }
         }
         private readonly AsyncEvent<SocketMessageEventArgs> _message;
 
         public override event AsyncEventHandler<SocketErrorEventArgs> OnError
         {
-            add => _error.Register(value);
-            remove => _error.Unregister(value);
+            add { _error.Register(value); }
+            remove { _error.Unregister(value); }
         }
         private readonly AsyncEvent<SocketErrorEventArgs> _error;
 
