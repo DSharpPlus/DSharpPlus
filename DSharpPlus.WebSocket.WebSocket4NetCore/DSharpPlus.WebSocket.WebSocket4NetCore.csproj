@@ -20,17 +20,17 @@ A WebSocket4Net WebSocket client for DSharpPlus, for Windows 7.</Description>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Discord, Discord API, Bots, Discord Bots, Chat, DSharp, DSharpPlus, C#, .NET, VB.NET, VB, F#, WebSocket, WebSocket4Net, Windows, Windows 7</PackageTags>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>3.0.1-beta-$(VersionSuffix)</Version>
-    <AssemblyVersion>3.0.1.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>3.0.1.$(VersionSuffix)</FileVersion>
+    <Version>3.1.0-beta-$(VersionSuffix)</Version>
+    <AssemblyVersion>3.1.0.$(VersionSuffix)</AssemblyVersion>
+    <FileVersion>3.1.0.$(VersionSuffix)</FileVersion>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>3.0.1</Version>
-    <AssemblyVersion>3.0.1.0</AssemblyVersion>
-    <FileVersion>3.0.1.0</FileVersion>
+    <Version>3.1.0</Version>
+    <AssemblyVersion>3.1.0.0</AssemblyVersion>
+    <FileVersion>3.1.0.0</FileVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
