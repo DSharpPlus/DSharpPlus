@@ -114,7 +114,7 @@ namespace DSharpPlus.Entities
                 {
                     throw new ArgumentException("Only channel categories contain children");
                 }
-                return Guild.Channels.Where(e => e.ParentId == Id);
+                return Guild._channels.Where(e => e.ParentId == Id);
             }
         }
 
