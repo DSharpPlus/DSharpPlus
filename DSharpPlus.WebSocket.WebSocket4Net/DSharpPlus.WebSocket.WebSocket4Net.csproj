@@ -4,6 +4,7 @@
   <PropertyGroup>
 	  <TargetFrameworks>net45;net46;net47</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>7.1</LangVersion>
     <NoWarn>1591</NoWarn>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <RootNamespace>DSharpPlus</RootNamespace>
