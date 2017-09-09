@@ -240,7 +240,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithTimestamp(DateTime? timestamp)
         {
-            if (string.IsNullOrEmpty(timestamp))
+            if (timestamp != null)
                 this.Timestamp = null;
             else
                 this.Timestamp = new DateTimeOffset(timestamp.Value);
