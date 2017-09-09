@@ -15,8 +15,8 @@ namespace DSharpPlus.Net.WebSocket
 
         public override event AsyncEventHandler OnConnect
         {
-            add { _connect.Register(value);
-            remove { _connect.Unregister(value);
+            add { _connect.Register(value); }
+            remove { _connect.Unregister(value); }
         }
         private readonly AsyncEvent _connect;
 
