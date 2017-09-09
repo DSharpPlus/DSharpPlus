@@ -409,7 +409,12 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Optional<string> content, bool? tts, Optional<DiscordEmbed> embed)
         {
-            if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
+            if (content.HasValue && content.Value.Length >= 2000) 
+                throw new ArgumentException("Max message length is 2000");
+            if (content.HasValue && content.Value.Length == 0)
+                throw new ArgumentException("Cannot send empty message");
+                
+            if (embed.HasValue && embed.Value?.Timestamp != null)
                 embed.Value.Timestamp = embed.Value.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageCreatePayload
