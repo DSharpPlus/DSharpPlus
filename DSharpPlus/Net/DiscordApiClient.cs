@@ -480,9 +480,9 @@ namespace DSharpPlus.Net
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             if (content != null && content.Length >= 2000) 
-                throw new ArgumentException("Max message length is 2000");
+                throw new ArgumentException("Message content length cannot exceed 2000 characters.");
             if (files.Count == 0 && string.IsNullOrEmpty(content) && embed == null)
-                throw new ArgumentException("Must have one or more of <file, caption, embed> but none found");
+                throw new ArgumentException("You must specify content, an embed, or at least one file.");
             
             var values = new Dictionary<string, string>();
             var pld = new RestChannelMessageCreateMultipartPayload

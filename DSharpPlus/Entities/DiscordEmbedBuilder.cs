@@ -19,7 +19,7 @@ namespace DSharpPlus.Entities
             set
             {
                 if (value != null && value.Length > 256)
-                    throw new ArgumentException("Title length cannot exceed 256 characters of length.", nameof(value));
+                    throw new ArgumentException("Title length cannot exceed 256 characters.", nameof(value));
                 this._title = value;
             }
         }
@@ -34,7 +34,7 @@ namespace DSharpPlus.Entities
             set
             {
                 if (value != null && value.Length > 2048)
-                    throw new ArgumentException("Description length cannot exceed 2048 characters of length.", nameof(value));
+                    throw new ArgumentException("Description length cannot exceed 2048 characters.", nameof(value));
                 this._description = value;
             }
         }
@@ -355,7 +355,7 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder WithFooter(string text = null, string icon_url = null)
         {
             if (text != null && text.Length > 2048)
-                throw new ArgumentException("Footer text cannot exceed 2048 characters of length.");
+                throw new ArgumentException("Footer text length cannot exceed 2048 characters.");
 
             if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(icon_url))
                 this.Footer = null;
@@ -407,9 +407,9 @@ namespace DSharpPlus.Entities
                 throw new ArgumentNullException(nameof(value));
 
             if (name.Length > 256)
-                throw new ArgumentException("Embed field name cannot exceet 256 characters of length.");
+                throw new ArgumentException("Embed field name length cannot exceet 256 characters.");
             if (value.Length > 1024)
-                throw new ArgumentException("Embed field value cannot exceed 1024 characters of length.");
+                throw new ArgumentException("Embed field value length cannot exceed 1024 characters.");
 
             if (this._fields.Count >= 25)
                 throw new InvalidOperationException("Cannot add more than 25 fields.");
@@ -499,7 +499,7 @@ namespace DSharpPlus.Entities
                 set
                 {
                     if (value != null && value.Length > 256)
-                        throw new ArgumentException("Author name cannot exceed 256 characters of length.");
+                        throw new ArgumentException("Author name length cannot exceed 256 characters.");
                     this._name = value;
                 }
             }
@@ -549,7 +549,7 @@ namespace DSharpPlus.Entities
                 set
                 {
                     if (value != null && value.Length > 2048)
-                        throw new ArgumentException("Footer text cannot exceed 2048 characters of length.");
+                        throw new ArgumentException("Footer text length cannot exceed 2048 characters.");
                     this._text = value;
                 }
             }
