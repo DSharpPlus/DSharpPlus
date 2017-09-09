@@ -144,10 +144,10 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendMessageAsync(Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>))
+        public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
-                throw new ArgumentException("Cannot send a file to a non-text channel");
+            if (!this.Type.IsText())
+                return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
 
             return this.Discord.ApiClient.CreateMessageAsync(Id, content, tts, embed);
         }
