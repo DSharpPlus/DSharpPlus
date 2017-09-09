@@ -7,8 +7,9 @@ you need to use an alternative WebSocket client implementation.
 
 Currently, there are 2 implementations available on NuGet:
 
-* `DSharpPlus.WebSocket.WebSocket4Net`: This implementation is recommended if you're targeting .NET Framework 4.5+, and using 
-  Windows 7 or Mono 4.4.2.
+* `DSharpPlus.WebSocket.WebSocket4Net`: This implementation is recommended if you're targeting .NET Framework 4.5+ or [.NET
+  Core](https://github.com/dotnet/standard) on Windows 7 or Mono 5.0.0+. It is compatible with Linux and Windows 8+, but you
+  should use the native implementation when possible.
 * `DSharpPlus.WebSocket.WebSocketSharp`: This implementation is recommended if you're targeting .NET Framework 4.5+, and using 
   Mono version higher than 4.4. This implementation will also work on Windows 7, however there are known issues with it and 
   the library.
