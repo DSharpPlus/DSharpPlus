@@ -803,7 +803,7 @@ namespace DSharpPlus
         /// <param name="tts"></param>
         /// <param name="embed"></param>
         /// <returns></returns>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>)) =>
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, bool tts = false, DiscordEmbed embed = null) =>
             this.ApiClient.CreateMessageAsync(channel.Id, content, tts, embed);
 
         /// <summary>
