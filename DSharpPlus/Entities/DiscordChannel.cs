@@ -146,8 +146,8 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (!this.Type.IsText())
-                return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+                throw new ArgumentException("Cannot send a file to a non-text channel");
 
             return this.Discord.ApiClient.CreateMessageAsync(Id, content, tts, embed);
         }
