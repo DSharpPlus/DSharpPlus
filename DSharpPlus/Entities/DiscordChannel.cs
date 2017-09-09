@@ -457,9 +457,7 @@ namespace DSharpPlus.Entities
         public async Task PlaceMemberAsync(DiscordMember member)
         {
             if (Type != ChannelType.Voice)
-            {
                 throw new ArgumentException("Cannot place member in a non-voice channel");
-            }
             
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null,
                 Id, null);
