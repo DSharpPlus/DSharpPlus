@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus", "DSharpPlus\DSharpPlus.csproj", "{EB3D8310-DFAD-4295-97F9-82E253647583}"
 EndProject
@@ -24,12 +24,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.CommandsNext", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Interactivity", "DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj", "{DD32BEC3-0189-479F-86DC-CCF95E5634A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Rest", "DSharpPlus.Rest\DSharpPlus.Rest.csproj", "{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Rest", "DSharpPlus.Rest\DSharpPlus.Rest.csproj", "{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F953F5D0-F0C9-41E6-ADBF-60A76D295899}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.config = .nuget\NuGet.config
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.WebSocket.WebSocket4NetCore", "DSharpPlus.WebSocket.WebSocket4NetCore\DSharpPlus.WebSocket.WebSocket4NetCore.csproj", "{C4C95487-628E-4E61-88D9-26BACE48380F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +70,10 @@ Global
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4C95487-628E-4E61-88D9-26BACE48380F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4C95487-628E-4E61-88D9-26BACE48380F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4C95487-628E-4E61-88D9-26BACE48380F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4C95487-628E-4E61-88D9-26BACE48380F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
