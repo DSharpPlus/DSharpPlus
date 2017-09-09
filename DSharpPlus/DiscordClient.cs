@@ -1996,7 +1996,23 @@ namespace DSharpPlus
 
             DiscordMessage msg = null;
             if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
-                msg = new DiscordMessage { Id = message_id, Discord = this };
+                msg = new DiscordMessage { Id = message_id, Discord = this, _reactions = new List<DiscordReaction>() };
+
+            var react = msg._reactions.FirstOrDefault(xr => xr.Emoji == emoji);
+            if (react == null)
+            {
+                msg._reactions.Add(react = new DiscordReaction
+                {
+                    Count = 1,
+                    Emoji = emoji,
+                    IsMe = this.CurrentUser.Id == user_id
+                });
+            }
+            else
+            {
+                react.Count++;
+                react.IsMe |= this.CurrentUser.Id == user_id;
+            }
 
             var ea = new MessageReactionAddEventArgs(this)
             {
@@ -2022,6 +2038,21 @@ namespace DSharpPlus
             if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
                 msg = new DiscordMessage { Id = message_id, Discord = this };
 
+            var react = msg._reactions?.FirstOrDefault(xr => xr.Emoji == emoji);
+            if (react != null)
+            {
+                react.Count--;
+                react.IsMe &= this.CurrentUser.Id != user_id;
+
+                if (msg._reactions != null && react.Count <= 0) // shit happens
+                    for (var i = 0; i < msg._reactions.Count; i++)
+                        if (msg._reactions[i].Emoji == emoji)
+                        {
+                            msg._reactions.RemoveAt(i);
+                            break;
+                        }
+            }
+
             var ea = new MessageReactionRemoveEventArgs(this)
             {
                 Message = msg,
@@ -2037,6 +2068,8 @@ namespace DSharpPlus
             DiscordMessage msg = null;
             if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
                 msg = new DiscordMessage { Id = message_id, Discord = this };
+
+            msg._reactions?.Clear();
 
             var ea = new MessageReactionsClearEventArgs(this)
             {
