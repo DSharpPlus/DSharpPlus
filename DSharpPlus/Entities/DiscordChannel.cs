@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -19,6 +19,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong GuildId { get; internal set; }
+
+        /// <summary>
+        /// Gets ID of the category that contains this channel.
+        /// </summary>
+        [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Include)]
+        public ulong? ParentId { get; internal set; }
 
         /// <summary>
         /// Gets the name of this channel.
@@ -43,6 +49,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public bool IsPrivate => this.Type == ChannelType.Private || this.Type == ChannelType.Group;
+
+        /// <summary>
+        /// Gets whether this channel is a channel category.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsCategory => this.Type == ChannelType.Category;
 
         /// <summary>
         /// Gets the guild to which this channel belongs.
@@ -90,6 +102,21 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string Mention => Formatter.Mention(this);
+        
+        /// <summary>
+        /// Gets this channel's children. This applies only to channel categories.
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<DiscordChannel> Children {
+            get
+            {
+                if (!IsCategory)
+                {
+                    throw new ArgumentException("Only channel categories contain children");
+                }
+                return Guild.Channels.Where(e => e.ParentId == Id);
+            }
+        }
 
         /// <summary>
         /// Gets whether this channel is an NSFW channel.
@@ -110,8 +137,14 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendMessageAsync(Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>)) =>
-            this.Discord.ApiClient.CreateMessageAsync(Id, content, tts, embed);
+        public Task<DiscordMessage> SendMessageAsync(Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>))
+        {
+            if (!this.Type.IsText())
+            {
+                return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
+            }
+            return this.Discord.ApiClient.CreateMessageAsync(Id, content, tts, embed);
+        }
 
         /// <summary>
         /// Sends a message containing an attached file to this channel.
@@ -122,8 +155,14 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord.ApiClient.UploadFileAsync(this.Id, file_data, file_name, content, tts, embed);
+        public Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null)
+        {
+            if (!this.Type.IsText())
+            {
+                return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
+            }
+            return this.Discord.ApiClient.UploadFileAsync(this.Id, file_data, file_name, content, tts, embed);
+        }
 
 #if !NETSTANDARD1_1
         /// <summary>
@@ -134,8 +173,15 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord.ApiClient.UploadFileAsync(this.Id, file_data, Path.GetFileName(file_data.Name), content, tts, embed);
+        public Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null)
+        {
+            if (!this.Type.IsText())
+            {
+                return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
+            }
+            return this.Discord.ApiClient.UploadFileAsync(this.Id, file_data, Path.GetFileName(file_data.Name), content,
+                tts, embed);
+        }
 
         /// <summary>
         /// Sends a message containing an attached file to this channel.
@@ -147,6 +193,10 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
+            if (!this.Type.IsText())
+            {
+                throw new ArgumentException("Cannot send a file to a non-text channel");
+            }
             using (var fs = File.OpenRead(file_path))
                 return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed);
         }
@@ -160,8 +210,14 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null) =>
-            this.Discord.ApiClient.UploadFilesAsync(Id, files, content, tts, embed);
+        public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null)
+        {
+            if (!this.Type.IsText())
+            {
+                return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
+            }
+            return this.Discord.ApiClient.UploadFilesAsync(Id, files, content, tts, embed);
+        }
 
         // Please send memes to Naamloos#2887 at discord <3 thank you
 
@@ -170,8 +226,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteAsync(string reason = null) =>
-            this.Discord.ApiClient.DeleteChannelAsync(Id, reason);
+        public Task DeleteAsync(string reason = null)
+        {
+            return this.Discord.ApiClient.DeleteChannelAsync(Id, reason);
+        }
 
         /// <summary>
         /// Returns a specific message
@@ -196,8 +254,11 @@ namespace DSharpPlus.Entities
         /// <param name="user_limit">New user limit for the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task ModifyAsync(string name = null, int? position = null, string topic = null, int? bitrate = null, int? user_limit = null, string reason = null) =>
-            this.Discord.ApiClient.ModifyChannelAsync(this.Id, name, position, topic, bitrate, user_limit, reason);
+        public Task ModifyAsync(string name = null, int? position = null, string topic = null, int? bitrate = null, int? user_limit = null, string reason = null)
+        {
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, name, position, topic, bitrate, user_limit,
+                reason);
+        }
 
         /// <summary>
         /// Updates the channel position
@@ -229,10 +290,16 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>  
-        /// Returns a list of messages.Only set ONE of the three parameters. They are Message ID's
+        /// Returns a list of messages. Only set ONE of the three parameters. They are Message ID's
         /// </summary> 
-        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null) =>
-            this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
+        {
+            if (!this.Type.IsText())
+            {
+                return new Task<IReadOnlyList<DiscordMessage>>(() => throw new ArgumentException("Cannot get the messages of a non-text channel"));
+            }
+            return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
+        }
 
         /// <summary>
         /// Deletes multiple messages
@@ -242,12 +309,14 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
         {
-            if (messages == null || !messages.Any())
+            // don't enumerate more than once
+            var msgs = messages as DiscordMessage[] ?? messages.ToArray();
+            if (messages == null || !msgs.Any())
                 throw new ArgumentException("You need to specify at least one message to delete.");
 
-            if (messages.Count() < 2)
-                return this.Discord.ApiClient.DeleteMessageAsync(this.Id, messages.Single().Id, reason);
-            return this.Discord.ApiClient.DeleteMessagesAsync(this.Id, messages.Where(xm => xm.Channel.Id == this.Id).Select(xm => xm.Id), reason);
+            if (msgs.Count() < 2)
+                return this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single().Id, reason);
+            return this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Where(xm => xm.Channel.Id == this.Id).Select(xm => xm.Id), reason);
         }
 
         /// <summary>
@@ -256,15 +325,23 @@ namespace DSharpPlus.Entities
         /// <param name="message"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteMessageAsync(DiscordMessage message, string reason = null) =>
-            this.Discord.ApiClient.DeleteMessageAsync(this.Id, message.Id, reason);
+        public Task DeleteMessageAsync(DiscordMessage message, string reason = null)
+        {
+            return this.Discord.ApiClient.DeleteMessageAsync(this.Id, message.Id, reason);
+        }
 
         /// <summary>
         /// Returns a list of invite objects
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync() =>
-            this.Discord.ApiClient.GetChannelInvitesAsync(Id);
+        public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
+        {
+            if (this.Guild == null)
+            {
+                return new Task<IReadOnlyList<DiscordInvite>>(() => throw new ArgumentException("Cannot get the invites of a channel that does not belong to a Guild"));
+            }
+            return this.Discord.ApiClient.GetChannelInvitesAsync(Id);
+        }
 
         /// <summary>
         /// Create a new invite object
@@ -275,8 +352,10 @@ namespace DSharpPlus.Entities
         /// <param name="unique"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null) =>
-            this.Discord.ApiClient.CreateChannelInviteAsync(Id, max_age, max_uses, temporary, unique, reason);
+        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null)
+        {
+            return this.Discord.ApiClient.CreateChannelInviteAsync(Id, max_age, max_uses, temporary, unique, reason);
+        }
 
         /// <summary>
         /// Deletes a channel permission overwrite
@@ -324,15 +403,27 @@ namespace DSharpPlus.Entities
         /// Post a typing indicator
         /// </summary>
         /// <returns></returns>
-        public Task TriggerTypingAsync() =>
-            this.Discord.ApiClient.TriggerTypingAsync(Id);
+        public Task TriggerTypingAsync()
+        {
+            if (!this.Type.IsText())
+            {
+                return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot start typing in a non-text channel"));
+            }
+            return this.Discord.ApiClient.TriggerTypingAsync(Id);
+        }
 
         /// <summary>
         /// Returns all pinned messages
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync() =>
-            this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
+        public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
+        {
+            if (!this.Type.IsText())
+            {
+                return new Task<IReadOnlyList<DiscordMessage>>(() => throw new ArgumentException("A non-text channel does not have pinned messages"));
+            }
+            return this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
+        }
 
         /// <summary>
         /// Create a new webhook
@@ -365,8 +456,13 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public async Task PlaceMemberAsync(DiscordMember member)
         {
-            if (Type == ChannelType.Voice)
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null, Id, null);
+            if (Type != ChannelType.Voice)
+            {
+                throw new ArgumentException("Cannot place member in a non-voice channel");
+            }
+            
+            await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null,
+                Id, null);
         }
 
         /// <summary>
@@ -398,14 +494,12 @@ namespace DSharpPlus.Entities
             }
 
             var rls = mbr.Roles.Where(xr => xr.Id != ev1.Id);
-            var rlo = rls.Select(xr => this._permission_overwrites.FirstOrDefault(xo => xo.Id == xr.Id)).Where(xo => xo != null);
+            // Avoid enumerating more than once
+            var aRoles = rls as DiscordRole[] ?? rls.ToArray();
+            var rlo = aRoles.Select(xr => this._permission_overwrites.FirstOrDefault(xo => xo.Id == xr.Id)).Where(xo => xo != null);
 
             var rdeny = Permissions.None;
-            var rallw = Permissions.None;
-            foreach (var xrl in rls)
-            {
-                rallw |= xrl.Permissions;
-            }
+            var rallw = aRoles.Aggregate(Permissions.None, (current, xrl) => current | xrl.Permissions);
             foreach (var xpo in rlo)
             {
                 rdeny |= xpo.Deny;
@@ -416,11 +510,9 @@ namespace DSharpPlus.Entities
             prms |= rallw;
 
             var rmo = this._permission_overwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
-            if (rmo != null)
-            {
-                prms &= ~rmo.Deny;
-                prms |= rmo.Allow;
-            }
+            if (rmo == null) return prms;
+            prms &= ~rmo.Deny;
+            prms |= rmo.Allow;
 
             return prms;
         }
@@ -431,6 +523,8 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this channel.</returns>
         public override string ToString()
         {
+            if (this.Type == ChannelType.Category)
+                return string.Concat("Channel Category ", this.Name, " (", this.Id, ")");
             if (this.Type == ChannelType.Text)
                 return string.Concat("Channel #", this.Name, " (", this.Id, ")");
             if (!string.IsNullOrWhiteSpace(this.Name))
