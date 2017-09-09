@@ -1316,7 +1316,8 @@ namespace DSharpPlus
                     Position = channel_new.Position,
                     Topic = channel_new.Topic,
                     Type = channel_new.Type,
-                    UserLimit = channel_new.UserLimit
+                    UserLimit = channel_new.UserLimit,
+                    ParentId = channel_new.ParentId,
                 };
             else
                 gld._channels.Add(channel);
@@ -1327,6 +1328,7 @@ namespace DSharpPlus
             channel_new.Position = channel.Position;
             channel_new.Topic = channel.Topic;
             channel_new.UserLimit = channel.UserLimit;
+            channel_new.ParentId = channel.ParentId;
 
             await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs(this) { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old });
         }
