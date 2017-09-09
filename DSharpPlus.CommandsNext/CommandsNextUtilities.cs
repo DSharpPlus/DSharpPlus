@@ -355,6 +355,7 @@ namespace DSharpPlus.CommandsNext
                         (lst as System.Collections.IList).CopyTo(arr, 0);
                         args[i + 1] = arr;
 
+                        argstr = string.Empty;
                         break;
                     }
                     else
@@ -375,6 +376,7 @@ namespace DSharpPlus.CommandsNext
                         argv = argstr;
                         args[i + 1] = ConvertArgument(argv, ctx, arg.Type);
 
+                        argstr = string.Empty;
                         break;
                     }
                 }

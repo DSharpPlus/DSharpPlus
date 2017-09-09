@@ -160,7 +160,7 @@ namespace DSharpPlus.Test
         }
         
         [Command("datetime"), Description("Tests DateTimeOffset binding.")]
-        public async Task ConvertDate(CommandContext ctx, [Description("DateTimeOffset to bind")] DateTimeOffset dto)
+        public async Task ConvertDate(CommandContext ctx, [RemainingText, Description("DateTimeOffset to bind")] DateTimeOffset dto)
         {
             await ctx.RespondAsync(dto.ToString("yyyy-MM-dd HH:mm:ss"));
         }
