@@ -82,7 +82,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <param name="embed">Embed to attach.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(Optional<string> content = default(Optional<string>), bool is_tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>)) =>
+        public Task<DiscordMessage> RespondAsync(string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
             this.Message.RespondAsync(content, is_tts, embed);
 
         /// <summary>
