@@ -1,0 +1,54 @@
+language: csharp
+mono: none
+solution: DSharpPlus.sln
+
+git:
+  depth: 6
+  submodules: false
+
+# Travis doesn't provide build matrix for .NET Core installations, but 2.0.0 is good enough
+#matrix: 
+#  - DOTNETVER=1.0.0
+#  - DOTNETVER=1.0.1
+#  - DOTNETVER=2.0.0
+
+dotnet: 2.0.0
+
+# Travis doesn't provide multi-dimensional build matrix for .NET so this hack is the only way
+env: 
+  matrix:
+   - COREBTYP=Debug COREAPPTYP=netstandard1.1
+   - COREBTYP=Debug COREAPPTYP=netstandard1.3
+   - COREBTYP=Debug COREAPPTYP=netstandard2.0
+   
+   - COREBTYP=Release COREAPPTYP=netstandard1.1
+   - COREBTYP=Release COREAPPTYP=netstandard1.3
+   - COREBTYP=Release COREAPPTYP=netstandard2.0
+   
+# Self-contained package builds, this is what I run on my server (~SSG)
+   - CORESC="-r linux-x64" COREBTYP=Debug COREAPPTYP=netstandard1.1
+   - CORESC="-r linux-x64" COREBTYP=Debug COREAPPTYP=netstandard1.3
+   - CORESC="-r linux-x64" COREBTYP=Debug COREAPPTYP=netstandard2.0
+   
+   - CORESC="-r linux-x64" COREBTYP=Release COREAPPTYP=netstandard1.1
+   - CORESC="-r linux-x64" COREBTYP=Release COREAPPTYP=netstandard1.3
+   - CORESC="-r linux-x64" COREBTYP=Release COREAPPTYP=netstandard2.0
+   
+   - CORESC="-r ubuntu.14.04-x64" COREBTYP=Debug COREAPPTYP=netstandard1.1
+   - CORESC="-r ubuntu.14.04-x64" COREBTYP=Debug COREAPPTYP=netstandard1.3
+   - CORESC="-r ubuntu.14.04-x64" COREBTYP=Debug COREAPPTYP=netstandard2.0
+   
+   - CORESC="-r ubuntu.14.04-x64" COREBTYP=Release COREAPPTYP=netstandard1.1
+   - CORESC="-r ubuntu.14.04-x64" COREBTYP=Release COREAPPTYP=netstandard1.3
+   - CORESC="-r ubuntu.14.04-x64" COREBTYP=Release COREAPPTYP=netstandard2.0
+
+before_install:
+# Disable .NET Telemetry since it sometimes causes weird build errors
+  - export DOTNET_CLI_TELEMETRY_OPTOUT=1
+# Copy the NuGet config file from the VS directory to the root for .NET CLI
+  - cp .nuget/NuGet.config ./NuGet.config
+
+# dotnet restore isn't needed for 2.0.0 and newer but let's leave it there in case we get proper build matrix support
+script:
+  - dotnet restore
+  - bash ./.travis.sh
