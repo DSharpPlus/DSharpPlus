@@ -433,10 +433,7 @@ namespace DSharpPlus.Net
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             
-            var payload = JsonConvert.SerializeObject(pld);
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "API client", payload, DateTime.Now);
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "API client", $"{url}", DateTime.Now);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: payload);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: JsonConvert.SerializeObject(pld));
 
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
             ret.Discord = this.Discord;
