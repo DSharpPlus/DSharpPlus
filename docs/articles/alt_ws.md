@@ -45,4 +45,4 @@ client.SetWebSocketClient<WebSocketSharpClient>();
 For any other implementation, make sure it's a class that inherits from [BaseWebSocketClient class](/api/DSharpPlus.Net.WebSocket.BaseWebSocketClient.html "BaseWebSocketClient") 
 and has a public parameter-less constructor.
 
-Lastly, make sure you remember to add `using DSharpPlus.Net.WebSocket;` to your usings.
+Lastly, don't forget to add `using DSharpPlus.Net.WebSocket;` at the top of your `.cs` file.
