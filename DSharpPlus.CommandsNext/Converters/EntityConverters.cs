@@ -36,15 +36,9 @@ namespace DSharpPlus.CommandsNext.Converters
             var us = ctx.Client.Guilds
                 .SelectMany(xkvp => xkvp.Value.Members)
                 .Where(xm => xm.Username.ToLowerInvariant() == un && ((dv != null && xm.Discriminator == dv) || dv == null));
-
-            if (us.Any())
-            {
-                result = us.First();
-                return true;
-            }
-
-            result = null;
-            return false;
+            
+            result = us.FirstOrDefault();
+            return result != null;
         }
     }
 
@@ -79,14 +73,8 @@ namespace DSharpPlus.CommandsNext.Converters
             var us = ctx.Guild.Members
                 .Where(xm => (xm.Username.ToLowerInvariant() == un && ((dv != null && xm.Discriminator == dv) || dv == null)) || xm.Nickname?.ToLowerInvariant() == value);
 
-            if (us.Any())
-            {
-                result = us.First();
-                return true;
-            }
-
-            result = null;
-            return false;
+            result = us.FirstOrDefault();
+            return result != null;
         }
     }
 
@@ -116,7 +104,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
             var chn = ctx.Guild.Channels.FirstOrDefault(xc => xc.Name == value);
             result = chn;
-            return true;
+            return result != null;
         }
     }
 
@@ -146,7 +134,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
             var rl = ctx.Guild.Roles.FirstOrDefault(xr => xr.Name == value);
             result = rl;
-            return true;
+            return result != null;
         }
     }
 
