@@ -411,7 +411,7 @@ namespace DSharpPlus.Net
         {
             if (content.HasValue && content.Value.Length >= 2000) 
                 throw new ArgumentException("Max message length is 2000");
-            if (content.HasValue && content.Value.Length == 0)
+            if (content.HasValue && content.Value.Length == 0 && !embed.HasValue)
                 throw new ArgumentException("Cannot send empty message");
                 
             if (embed.HasValue && embed.Value?.Timestamp != null)
