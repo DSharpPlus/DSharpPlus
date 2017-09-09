@@ -139,7 +139,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendMessageAsync(Optional<string> content = default(Optional<string>), bool tts = false, Optional<DiscordEmbed> embed = default(Optional<DiscordEmbed>))
         {
-            if (!this.Type.IsText())
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
             {
                 return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
             }
@@ -157,7 +157,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (!this.Type.IsText())
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
             {
                 return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
             }
@@ -175,7 +175,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (!this.Type.IsText())
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
             {
                 return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
             }
@@ -193,7 +193,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (!this.Type.IsText())
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
             {
                 throw new ArgumentException("Cannot send a file to a non-text channel");
             }
@@ -212,7 +212,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null)
         {
-            if (!this.Type.IsText())
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
             {
                 return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot send a file to a non-text channel"));
             }
@@ -294,7 +294,7 @@ namespace DSharpPlus.Entities
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
-            if (!this.Type.IsText())
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
             {
                 return new Task<IReadOnlyList<DiscordMessage>>(() => throw new ArgumentException("Cannot get the messages of a non-text channel"));
             }
@@ -405,7 +405,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task TriggerTypingAsync()
         {
-            if (!this.Type.IsText())
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
             {
                 return new Task<DiscordMessage>(() => throw new ArgumentException("Cannot start typing in a non-text channel"));
             }
@@ -418,7 +418,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
         {
-            if (!this.Type.IsText())
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
             {
                 return new Task<IReadOnlyList<DiscordMessage>>(() => throw new ArgumentException("A non-text channel does not have pinned messages"));
             }
