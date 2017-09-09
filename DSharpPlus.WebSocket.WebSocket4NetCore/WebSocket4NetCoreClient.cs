@@ -63,9 +63,7 @@ namespace DSharpPlus.Net.WebSocket
                     this._disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = "unknown" }).GetAwaiter().GetResult();
             };
 
-            this._socket.MessageReceived += (sender, e) => _message.InvokeAsync(new SocketMessageEventArgs {
-                Message = e.Message
-            }).GetAwaiter().GetResult();
+            this._socket.MessageReceived += (sender, e) => _message.InvokeAsync(new SocketMessageEventArgs { Message = e.Message }).GetAwaiter().GetResult();
 
             this._socket.DataReceived += (sender, e) =>
             {
@@ -79,9 +77,7 @@ namespace DSharpPlus.Net.WebSocket
                     msg = Utf8.GetString(ms2.ToArray(), 0, (int)ms2.Length);
                 }
 
-                this._message.InvokeAsync(new SocketMessageEventArgs {
-                    Message = msg
-                }).GetAwaiter().GetResult();
+                this._message.InvokeAsync(new SocketMessageEventArgs { Message = msg }).GetAwaiter().GetResult();
             };
 
             this._socket.Open();
