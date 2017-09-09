@@ -314,12 +314,13 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType? type, int? bitrate, int? user_limit, IEnumerable<DiscordOverwrite> overwrites, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwrite> overwrites, string reason)
         {
             var pld = new RestChannelCreatePayload
             {
                 Name = name,
                 Type = type,
+                Parent = parent,
                 Bitrate = bitrate,
                 UserLimit = user_limit,
                 PermissionOverwrites = overwrites
@@ -341,13 +342,15 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong id, string name, int? position, string topic, int? bitrate, int? user_limit, string reason)
+        internal Task ModifyChannelAsync(ulong id, string name, int? position, string topic, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
         {
             var pld = new RestChannelModifyPayload
             {
                 Name = name,
                 Position = position,
                 Topic = topic,
+                Parent = parent.HasValue ? parent.Value : null,
+                ParentSet = parent.HasValue,
                 Bitrate = bitrate,
                 UserLimit = user_limit
             };

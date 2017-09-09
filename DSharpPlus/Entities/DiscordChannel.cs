@@ -252,14 +252,15 @@ namespace DSharpPlus.Entities
         /// <param name="name">New name for the channel.</param>
         /// <param name="position">New position for the channel.</param>
         /// <param name="topic">New topic for the channel.</param>
+        /// <param name="parent">Category to put this channel in.</param>
         /// <param name="bitrate">New voice bitrate for the channel.</param>
         /// <param name="user_limit">New user limit for the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task ModifyAsync(string name = null, int? position = null, string topic = null, int? bitrate = null, int? user_limit = null, string reason = null)
+        public Task ModifyAsync(string name = null, int? position = null, string topic = null, Optional<DiscordChannel> parent = default(Optional<DiscordChannel>), int? bitrate = null, 
+            int? user_limit = null, string reason = null)
         {
-            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, name, position, topic, bitrate, user_limit,
-                reason);
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, name, position, topic, parent.HasValue ? parent.Value?.Id : default(Optional<ulong?>), bitrate, user_limit, reason);
         }
 
         /// <summary>

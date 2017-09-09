@@ -5,6 +5,7 @@ using DSharpPlus.Net.Abstractions;
 using System.IO;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System;
 
 namespace DSharpPlus
 {
@@ -73,11 +74,16 @@ namespace DSharpPlus
         #endregion
 
         #region Channel
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType? type, int? bitrate, int? user_limit, IEnumerable<DiscordOverwrite> overwrites, string reason)
-            => ApiClient.CreateGuildChannelAsync(id, name, type, bitrate, user_limit, overwrites, reason);
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwrite> overwrites, string reason)
+        {
+            if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice)
+                throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
 
-        public Task ModifyChannelAsync(ulong id, string name, int? position, string topic, int? bitrate, int? user_limit, string reason)
-            => ApiClient.ModifyChannelAsync(id, name, position, topic, bitrate, user_limit, reason);
+            return ApiClient.CreateGuildChannelAsync(id, name, type, parent, bitrate, user_limit, overwrites, reason);
+        }
+
+        public Task ModifyChannelAsync(ulong id, string name, int? position, string topic, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
+            => ApiClient.ModifyChannelAsync(id, name, position, topic, parent, bitrate, user_limit, reason);
 
         public Task<DiscordChannel> GetChannelAsync(ulong id) => ApiClient.GetChannelAsync(id);
 

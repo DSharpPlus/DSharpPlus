@@ -218,6 +218,13 @@ namespace DSharpPlus.Entities
         [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsOwner => this.OwnerId == this.Discord.CurrentUser.Id;
 
+        // /// <summary>
+        // /// Gets channels ordered in a manner in which they'd be ordered in the UI of the discord client.
+        // /// </summary>
+        // [JsonIgnore]
+        // public IEnumerable<DiscordChannel> OrderedChannels =>
+        //    this._channels.OrderBy(xc => xc.Parent?.Position).ThenBy(xc => xc.Type).ThenBy(xc => xc.Position);
+
         [JsonIgnore]
         internal bool IsSynced { get; set; }
 
@@ -331,13 +338,19 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name">Name of the new channel.</param>
         /// <param name="type">Type of the new channel.</param>
+        /// <param name="parent">Category to put this channel in.</param>
         /// <param name="bitrate">Bitrate of the channel. Applies to voice only.</param>
         /// <param name="user_limit">Maximum number of users in the channel. Applies to voice only.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, string reason = null) =>
-            this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, bitrate, user_limit, overwrites, reason);
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, string reason = null)
+        {
+            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category)
+                throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
+
+            return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, bitrate, user_limit, overwrites, reason);
+        }
 
         /// <summary>
         /// Estimates the number of users to be pruned.

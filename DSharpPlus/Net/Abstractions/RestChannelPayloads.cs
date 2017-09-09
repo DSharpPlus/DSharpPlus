@@ -9,11 +9,11 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonIgnore]
-        public ChannelType? Type { get; set; }
+        [JsonProperty("type")]
+        public ChannelType Type { get; set; }
 
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public string TypeString => this.Type != null ? (this.Type.Value == ChannelType.Text ? "text" : "voice") : null;
+        [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? Parent { get; set; }
 
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
         public int? Bitrate { get; set; }
@@ -36,11 +36,19 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
         public string Topic { get; set; }
 
+        [JsonProperty("parent_id")]
+        public ulong? Parent { get; set; }
+        [JsonIgnore]
+        internal bool ParentSet { get; set; } = false;
+
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
         public int? Bitrate { get; set; }
 
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
         public int? UserLimit { get; set; }
+
+        public bool ShouldSerializeParent() =>
+            this.ParentSet;
     }
 
     internal class RestChannelMessageEditPayload
