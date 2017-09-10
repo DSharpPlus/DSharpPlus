@@ -228,10 +228,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteAsync(string reason = null)
-        {
-            return this.Discord.ApiClient.DeleteChannelAsync(Id, reason);
-        }
+        public Task DeleteAsync(string reason = null) =>
+            this.Discord.ApiClient.DeleteChannelAsync(Id, reason);
 
         /// <summary>
         /// Returns a specific message
