@@ -1129,7 +1129,7 @@ namespace DSharpPlus
                     break;
 
                 case "presence_update":
-                    await OnPresenceUpdateEventAsync(dat.ToObject<DiscordPresence>(), dat.ToObject<PresenceUpdateEventArgs>());
+                    await OnPresenceUpdateEventAsync(dat.ToObject<DiscordPresence>(), (JObject)dat["user"], dat.ToObject<PresenceUpdateEventArgs>());
                     break;
 
                 case "typing_start":
@@ -1509,7 +1509,7 @@ namespace DSharpPlus
             await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild });
         }
 
-        internal async Task OnPresenceUpdateEventAsync(DiscordPresence presence, PresenceUpdateEventArgs ea)
+        internal async Task OnPresenceUpdateEventAsync(DiscordPresence presence, JObject raw_user, PresenceUpdateEventArgs ea)
         {
             presence.Discord = this;
             DiscordPresence old = null;
@@ -1517,6 +1517,27 @@ namespace DSharpPlus
             if (this._presences.ContainsKey(presence.InternalUser.Id))
                 old = this._presences[presence.InternalUser.Id];
             this._presences[presence.InternalUser.Id] = presence;
+
+            if (raw_user["username"] is object || raw_user["discriminator"] is object || raw_user["avatar"] is object)
+            {
+                var new_username = raw_user["username"] is object ? new Optional<string>((string)raw_user["username"]) : default;
+                var new_discrim = raw_user["discriminator"] is object ? new Optional<string>((string)raw_user["discriminator"]) : default;
+                var new_avatar = raw_user["avatar"] is object ? new Optional<string>((string)raw_user["avatar"]) : default;
+
+                var usrs = this._guilds.Values.SelectMany(xg => xg._members).Where(xm => xm.Id == presence.InternalUser.Id);
+
+                foreach (var usr in usrs)
+                {
+                    if (new_username.HasValue)
+                        usr.Username = new_username.Value;
+
+                    if (new_discrim.HasValue)
+                        usr.Discriminator = new_discrim.Value;
+
+                    if (new_avatar.HasValue)
+                        usr.AvatarHash = new_avatar.Value;
+                }
+            }
 
             ea.Client = this;
             ea.PresenceBefore = old;
@@ -1914,7 +1935,7 @@ namespace DSharpPlus
             {
                 AvatarHash = this._current_user.AvatarHash,
                 Discord = this,
-                DiscriminatorInt = this._current_user.DiscriminatorInt,
+                Discriminator = this._current_user.Discriminator,
                 Email = this._current_user.Email,
                 Id = this._current_user.Id,
                 IsBot = this._current_user.IsBot,
@@ -1924,7 +1945,7 @@ namespace DSharpPlus
             };
 
             this._current_user.AvatarHash = user.AvatarHash;
-            this._current_user.DiscriminatorInt = user.DiscriminatorInt;
+            this._current_user.Discriminator = user.Discriminator;
             this._current_user.Email = user.Email;
             this._current_user.Id = user.Id;
             this._current_user.IsBot = user.IsBot;

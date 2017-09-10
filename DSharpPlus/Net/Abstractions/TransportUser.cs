@@ -11,7 +11,7 @@ namespace DSharpPlus.Net.Abstractions
         public string Username { get; internal set; }
 
         [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
-        internal int DiscriminatorInt { get; set; }
+        internal string Discriminator { get; set; }
 
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public string AvatarHash { get; internal set; }

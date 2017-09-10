@@ -15,7 +15,7 @@ namespace DSharpPlus.Entities
         {
             this.Id = transport.Id;
             this.Username = transport.Username;
-            this.DiscriminatorInt = transport.DiscriminatorInt;
+            this.Discriminator = transport.Discriminator;
             this.AvatarHash = transport.AvatarHash;
             this.IsBot = transport.IsBot;
             this.MfaEnabled = transport.MfaEnabled;
@@ -32,10 +32,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the user's 4-digit discriminator.
         /// </summary>
-        [JsonIgnore]
-        public string Discriminator => this.DiscriminatorInt.ToString("0000");
         [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
-        internal int DiscriminatorInt { get; set; }
+        public string Discriminator { get; internal set; }
+
+        [JsonIgnore]
+        internal int DiscriminatorInt => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Gets the user's avatar hash.

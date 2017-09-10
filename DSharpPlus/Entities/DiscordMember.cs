@@ -23,7 +23,7 @@ namespace DSharpPlus.Entities
         {
             this.AvatarHash = user.AvatarHash;
             this.Discord = user.Discord;
-            this.DiscriminatorInt = user.DiscriminatorInt;
+            this.Discriminator = user.Discriminator;
             this.Email = user.Email;
             this.Id = user.Id;
             this.IsBot = user.IsBot;

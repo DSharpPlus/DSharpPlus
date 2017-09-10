@@ -658,7 +658,7 @@ namespace DSharpPlus.Entities
                 .GroupBy(xh => xh.Id)
                 .Select(xgh => xgh.First());
 
-            var ams = amr.Select(xau => gms.ContainsKey(xau.Id) ? gms[xau.Id] : new DiscordMember { Discord = this.Discord, Username = xau.Username, DiscriminatorInt = int.Parse(xau.Discriminator, CultureInfo.InvariantCulture), Id = xau.Id, _guild_id = this.Id });
+            var ams = amr.Select(xau => gms.ContainsKey(xau.Id) ? gms[xau.Id] : new DiscordMember { Discord = this.Discord, Username = xau.Username, Discriminator = xau.Discriminator, Id = xau.Id, _guild_id = this.Id });
             var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
 
             Dictionary<ulong, DiscordWebhook> ahd = null;
