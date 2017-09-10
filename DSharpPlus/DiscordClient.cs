@@ -1434,7 +1434,7 @@ namespace DSharpPlus
         internal async Task OnGuildUpdateEventAsync(DiscordGuild guild, JArray raw_members)
         {
             if (!this._guilds.ContainsKey(guild.Id))
-                return;
+                this._guilds[guild.Id] = guild;
 
             guild.Discord = this;
             guild.IsUnavailable = false;
