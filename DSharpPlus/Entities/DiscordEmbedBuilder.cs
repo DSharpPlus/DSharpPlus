@@ -407,7 +407,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentNullException(nameof(value));
 
             if (name.Length > 256)
-                throw new ArgumentException("Embed field name length cannot exceet 256 characters.");
+                throw new ArgumentException("Embed field name length cannot exceed 256 characters.");
             if (value.Length > 1024)
                 throw new ArgumentException("Embed field value length cannot exceed 1024 characters.");
 
