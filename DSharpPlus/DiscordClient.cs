@@ -2011,7 +2011,8 @@ namespace DSharpPlus
                 {
                     Id = message_id,
                     ChannelId = channel.Id,
-                    Discord = this
+                    Discord = this,
+                    _reactions = new List<DiscordReaction>()
                 };
             }
 
