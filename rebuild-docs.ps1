@@ -1,16 +1,26 @@
+# Rebuild-docs
+#
+# Rebuilds the documentation for DSharpPlus project, and places artifacts in specified directory.
+# 
+# Author:		Emzi0767
+# Version:		2017-09-11 14:20
+#
+# Arguments:
+#   .\rebuild-docs.ps1 <path to docfx> <output path> <docs project path>
+#
 # Run as:
-# .\rebuild-docs.ps1 .\path\to\docfx\project .\path\to\output project-docs
+#   .\rebuild-docs.ps1 .\path\to\docfx\project .\path\to\output project-docs
 
 param
 (
     [parameter(Mandatory = $true)]
-    [string] $docs_path,
+    [string] $DocsPath,
     
     [parameter(Mandatory = $true)]
-    [string] $output_path,
+    [string] $OutputPath,
     
     [parameter(Mandatory = $true)]
-    [string] $package_name
+    [string] $PackageName
 )
 
 # Backup the environment
@@ -27,6 +37,8 @@ function Restore-Environment()
     Write-Host "Restoring environment variables"
     $Env:PATH = $current_path
     Set-Location -path "$current_location"
+	Remove-Item -recurse -force $docfx_path
+	Remove-Item -recurse -force $sevenzip_path
 }
 
 # Downloads and installs latest version of DocFX
@@ -51,19 +63,40 @@ function Install-DocFX([string] $target_dir_path)
     $target_path = Join-Path "$target_dir" "$target_fn"
     
     # Download release info from GitHub
-    Write-Host "Getting latest DocFX release"
-    $release_json = Invoke-WebRequest -uri "https://api.github.com/repos/dotnet/docfx/releases" | ConvertFrom-JSON | Sort-Object published_at
-    $release = $release_json[0]             # Pick the top (latest release)
-    $release_asset = $release.assets[0]     # Pick the first file
+	try
+	{
+		Write-Host "Getting latest DocFX release"
+		$release_json = Invoke-WebRequest -uri "https://api.github.com/repos/dotnet/docfx/releases" | ConvertFrom-JSON | Sort-Object published_at
+		$release = $release_json[0]             # Pick the top (latest release)
+		$release_asset = $release.assets[0]     # Pick the first file
+	}
+	catch
+	{
+		Return 1
+	}
     
     # Download the release
-    Write-Host "Downloading DocFX to $target_path"
-    Invoke-WebRequest -uri "$($release_asset.browser_download_url)" -outfile "$target_path"
-    Set-Location -Path "$target_dir"
+	try
+	{
+		Write-Host "Downloading DocFX to $target_path"
+		Invoke-WebRequest -uri "$($release_asset.browser_download_url)" -outfile "$target_path"
+		Set-Location -Path "$target_dir"
+	}
+	catch
+	{
+		Return 1
+	}
     
     # Extract the release
-    Write-Host "Extracting DocFX"
-    Expand-Archive -path "$target_path" -destinationpath "$target_dir"
+	try
+	{
+		Write-Host "Extracting DocFX"
+		Expand-Archive -path "$target_path" -destinationpath "$target_dir"
+	}
+	catch 
+	{
+		Return 1
+	}
     
     # Remove the downloaded zip
     Write-Host "Removing temporary files"
@@ -73,6 +106,8 @@ function Install-DocFX([string] $target_dir_path)
     Write-Host "Adding DocFX to PATH"
     $Env:PATH = "$target_dir;$current_path"
     Set-Location -path "$current_location"
+	
+	Return 0
 }
 
 # Downloads and installs latest version of 7-zip CLI
@@ -104,13 +139,27 @@ function Install-7zip([string] $target_dir_path)
     $target_path = Join-Path "$target_dir_920" "$target_fn"
     
     # Download the 9.20 CLI
-    Write-Host "Downloading 7-zip 9.20 CLI to $target_path"
-    Invoke-WebRequest -uri "http://www.7-zip.org/a/7za920.zip" -outfile "$target_path"
-    Set-Location -Path "$target_dir_920"
+	try
+	{
+		Write-Host "Downloading 7-zip 9.20 CLI to $target_path"
+		Invoke-WebRequest -uri "http://www.7-zip.org/a/7za920.zip" -outfile "$target_path"
+		Set-Location -Path "$target_dir_920"
+	}
+	catch
+	{
+		Return 1
+	}
     
     # Extract the 9.20 CLI
-    Write-Host "Extracting 7-zip 16.04 CLI"
-    Expand-Archive -path "$target_path" -destinationpath "$target_dir_920"
+	try
+	{
+		Write-Host "Extracting 7-zip 16.04 CLI"
+		Expand-Archive -path "$target_path" -destinationpath "$target_dir_920"
+	}
+	catch 
+	{
+		Return 1
+	}
     
     # Temporarily add the 9.20 CLI to PATH
     Write-Host "Adding 7-zip 9.20 CLI to PATH"
@@ -125,13 +174,24 @@ function Install-7zip([string] $target_dir_path)
     $target_path = Join-Path "$target_dir" "$target_fn"
     
     # Download the 16.04 CLI
-    Write-Host "Downloading 7-zip 16.04 CLI to $target_path"
-    Invoke-WebRequest -uri "http://www.7-zip.org/a/7z1604-extra.7z" -outfile "$target_path"
-    Set-Location -Path "$target_dir"
+	try
+	{
+		Write-Host "Downloading 7-zip 16.04 CLI to $target_path"
+		Invoke-WebRequest -uri "http://www.7-zip.org/a/7z1604-extra.7z" -outfile "$target_path"
+		Set-Location -Path "$target_dir"
+	}
+	catch
+	{
+		Return 1
+	}
     
     # Extract the 16.04 CLI
     Write-Host "Extracting 7-zip 16.04 CLI"
-    7za x "$target_path"
+    & 7za x "$target_path" | Out-Host
+	if ($LastExitCode -ne 0)
+	{
+		Return $LastExitCode
+	}
     
     # Remove the 9.20 CLI from PATH
     Write-Host "Removing 7-zip 9.20 CLI from PATH"
@@ -147,6 +207,8 @@ function Install-7zip([string] $target_dir_path)
     $target_dir = Join-Path "$target_dir" "x64"
     $Env:PATH = "$target_dir;$old_path"
     Set-Location -path "$current_location"
+	
+	Return 0
 }
 
 # Builds the documentation using available DocFX
@@ -220,10 +282,10 @@ function Build-Docs([string] $target_dir_path)
     Set-Location -path "$target_path"
     
     # Generate new API documentation
-    docfx docfx.json
+    & docfx docfx.json | Out-Host
     
     # Build new documentation site
-    docfx build docfx.json
+    & docfx build docfx.json | Out-Host
     
     # Exit back
     Set-Location -path "$current_location"
@@ -255,7 +317,7 @@ function Package-Docs([string] $target_dir_path, [string] $output_dir_path, [str
     
     # Package .tar archive
     Write-Host "Packaging docs to $output_path.tar"
-    7za -r a "$output_path.tar" *
+    & 7za -r a "$output_path.tar" * | Out-Host
     
     # Go to package's location
     Set-Location -path "$output_path_dir"
@@ -270,16 +332,36 @@ function Package-Docs([string] $target_dir_path, [string] $output_dir_path, [str
     
     # Package .tar.xz
     Write-Host "Packaging docs to $output_path.tar.xz"
-    7za -sdel -mx9 a "$pack_name.tar.xz" "$pack_name.tar"
+    & 7za -sdel -mx9 a "$pack_name.tar.xz" "$pack_name.tar" | Out-Host
     
     # Exit back
     Set-Location -path "$current_location"
 }
 
-Install-DocFX "$docfx_path"
-Install-7zip "$sevenzip_path"
-Build-Docs "$docs_path"
-Package-Docs "$docs_path" "$output_path" "$package_name"
+# Install DocFX
+$result = Install-DocFX "$docfx_path"
+if ($result -ne 0)
+{
+	Write-Host "Installing DocFX failed"
+	Exit 1
+}
 
+# Install 7-zip
+$result = Install-7zip "$sevenzip_path"
+if ($result -ne 0)
+{
+	Write-Host "Installing 7-zip failed"
+	Exit 1
+}
+
+# Build and package docs
+# At this point nothing should fail as everything is already set up
+Build-Docs "$DocsPath"
+Package-Docs "$DocsPath" "$OutputPath" "$PackageName"
+
+# Restore the environment
 Write-Host "All operations completed"
 Restore-Environment
+
+# All was well, exit with success
+Exit 0
