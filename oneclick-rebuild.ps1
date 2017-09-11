@@ -22,8 +22,8 @@ $docs_path = ".\docs"
 $docs_pkgname = "dsharpplus-docs"
 
 # --------- Execute build ---------
-$result = & .\rebuild-all.ps1 -ArtifactLocation "$target" -VersionSuffix "$suffix" -DocsPath "$docs_path" -DocsPackageName "$docs_pkgname" | Out-Host
-if ($result -ne 0)
+& .\rebuild-all.ps1 -ArtifactLocation "$target" -VersionSuffix "$suffix" -DocsPath "$docs_path" -DocsPackageName "$docs_pkgname" | Out-Host
+if ($LastExitCode -ne 0)
 {
 	Write-Host "----------------------------------------------------------------"
 	Write-Host "                          BUILD FAILED"
@@ -32,4 +32,4 @@ if ($result -ne 0)
 
 Write-Host "Press any key to continue..."
 $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-Exit $result
+Exit $LastExitCode
