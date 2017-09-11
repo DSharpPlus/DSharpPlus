@@ -658,7 +658,7 @@ namespace DSharpPlus.Net
                 headers.Add(REASON_HEADER_NAME, reason);
 
             var route = string.Concat(Endpoints.CHANNELS, "/:channel_id", Endpoints.PERMISSIONS, "/:overwrite_id");
-            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id = channel_id.ToString(CultureInfo.InvariantCulture) }, out var path);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id = channel_id.ToString(CultureInfo.InvariantCulture), overwrite_id = overwrite_id.ToString(CultureInfo.InvariantCulture) }, out var path);
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers);
