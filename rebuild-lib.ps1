@@ -128,7 +128,7 @@ Restore-Environment
 if ($BuildResult -ne 0)
 {
 	Write-Host "Build failed with code $BuildResult"
-	#$host.SetShouldExit($BuildResult)
+	$host.SetShouldExit($BuildResult)
 	Exit $BuildResult
 }
 else

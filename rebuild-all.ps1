@@ -38,16 +38,16 @@ else
 	# Yup
 	Write-Host "Building beta packages"
 }
-	
+
 # Invoke the build script
-$result = & .\rebuild-lib.ps1 -artifactlocation "$ArtifactLocation" -versionsuffix "$VersionSuffix" | Out-Host
+& .\rebuild-lib.ps1 -artifactlocation "$ArtifactLocation" -versionsuffix "$VersionSuffix" | Out-Host
 
 # Check if it failed
-if ($result -and $result -ne 0)
+if ($LastExitCode -ne 0)
 {
-	Write-Host "Build failed with code $result"
-	#$host.SetShouldExit($result)
-	Exit $result
+	Write-Host "Build failed with code $LastExitCode"
+	$host.SetShouldExit($LastExitCode)
+	Exit $LastExitCode
 }
 
 # Check if we're building docs
@@ -55,14 +55,14 @@ if ($DocsPath -and $DocsPackageName)
 {
 	# Yup
 	Write-Host "Building documentation"
-	$result = & .\rebuild-docs.ps1 -docspath "$DocsPath" -outputpath "$ArtifactLocation" -packagename "$DocsPackageName"
+	& .\rebuild-docs.ps1 -docspath "$DocsPath" -outputpath "$ArtifactLocation" -packagename "$DocsPackageName"
 	
 	# Check if it failed
-	if ($result -and $result -ne 0)
+	if ($LastExitCode -ne 0)
 	{
-		Write-Host "Documentation build failed with code $result"
-		#$host.SetShouldExit($result)
-		Exit $result
+		Write-Host "Documentation build failed with code $LastExitCode"
+		$host.SetShouldExit($LastExitCode)
+		Exit $LastExitCode
 	}
 }
 else
@@ -70,5 +70,3 @@ else
 	# Nope
 	Write-Host "Not building documentation"
 }
-
-Exit 0

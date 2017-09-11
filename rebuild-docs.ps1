@@ -343,6 +343,8 @@ $result = Install-DocFX "$docfx_path"
 if ($result -ne 0)
 {
 	Write-Host "Installing DocFX failed"
+	Restore-Environment
+	$host.SetShouldExit(1)
 	Exit 1
 }
 
@@ -351,6 +353,8 @@ $result = Install-7zip "$sevenzip_path"
 if ($result -ne 0)
 {
 	Write-Host "Installing 7-zip failed"
+	Restore-Environment
+	$host.SetShouldExit(1)
 	Exit 1
 }
 
