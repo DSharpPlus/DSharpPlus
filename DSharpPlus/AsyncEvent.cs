@@ -24,7 +24,7 @@ namespace DSharpPlus
     /// <summary>
     /// Represents an asynchronously-handled event.
     /// </summary>
-    internal sealed class AsyncEvent
+    public sealed class AsyncEvent
     {
         private readonly object _lock = new object();
         private List<AsyncEventHandler> Handlers { get; }
@@ -87,7 +87,7 @@ namespace DSharpPlus
     /// Represents an asynchronously-handled event.
     /// </summary>
     /// <typeparam name="T">Type of EventArgs for this event.</typeparam>
-    internal sealed class AsyncEvent<T> where T : System.EventArgs
+    public sealed class AsyncEvent<T> where T : System.EventArgs
     {
         private readonly object _lock = new object();
         private List<AsyncEventHandler<T>> Handlers { get; }

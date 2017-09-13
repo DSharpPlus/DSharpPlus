@@ -20,6 +20,7 @@ Currently, there are 3 implementations available on NuGet:
 If none of these fit your criteria, you can make your own implementation, using the existing ones as a template:
 
 * [Source for WS4Net client implementation](https://github.com/NaamloosDT/DSharpPlus/blob/master/DSharpPlus.WebSocket.WebSocket4Net/WebSocket4NetClient.cs "WebSocket4Net Client")
+* [Source for WS4NetCore client implementation](https://github.com/NaamloosDT/DSharpPlus/blob/master/DSharpPlus.WebSocket.WebSocket4NetCore/WebSocket4NetCoreClient.cs "WebSocket4NetCore Client")
 * [Source for WS# client implementation](https://github.com/NaamloosDT/DSharpPlus/blob/master/DSharpPlus.WebSocket.WebSocketSharp/WebSocketSharpClient.cs "WebSocketSharp Client")
 
 ## Using alternative WebSocket client implementations
@@ -35,6 +36,12 @@ For example, for WS4Net client, you need to call it as:
 
 ```cs
 client.SetWebSocketClient<WebSocket4NetClient>();
+```
+
+For WS4NetCore:
+
+```cs
+client.SetWebSocketClient<WebSocket4NetCoreClient>();
 ```
 
 Similarly, for WS#:
