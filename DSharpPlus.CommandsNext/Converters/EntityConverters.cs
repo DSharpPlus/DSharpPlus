@@ -29,7 +29,8 @@ namespace DSharpPlus.CommandsNext.Converters
                 return true;
             }
 
-            var di = value.ToLowerInvariant().IndexOf('#');
+            value = value.ToLowerInvariant();
+            var di = value.IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
@@ -66,7 +67,8 @@ namespace DSharpPlus.CommandsNext.Converters
                 return true;
             }
 
-            var di = value.ToLowerInvariant().IndexOf('#');
+            value = value.ToLowerInvariant();
+            var di = value.IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
