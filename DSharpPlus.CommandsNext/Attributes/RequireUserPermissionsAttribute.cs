@@ -37,9 +37,17 @@ namespace DSharpPlus.CommandsNext.Attributes
             if (usr == null)
                 return Task.FromResult(false);
 
+            if (usr.Id == ctx.Guild.OwnerId)
+                return Task.FromResult(true);
+
             var pusr = ctx.Channel.PermissionsFor(usr);
+
+            if ((pusr & Permissions.Administrator) == Permissions.Administrator)
+                return Task.FromResult(true);
+
             if ((pusr & this.Permissions) == this.Permissions)
                 return Task.FromResult(true);
+
             return Task.FromResult(false);
         }
     }

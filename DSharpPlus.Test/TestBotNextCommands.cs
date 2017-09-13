@@ -165,6 +165,12 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(dto.ToString("yyyy-MM-dd HH:mm:ss"));
         }
 
+        [Command("adminonly"), Description("For admin's eyes only."), RequirePermissions(Permissions.Administrator)]
+        public async Task AdminOnly(CommandContext ctx)
+        {
+            await ctx.RespondAsync("u my boi");
+        }
+
         [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
         public class InteractivityTest
         {

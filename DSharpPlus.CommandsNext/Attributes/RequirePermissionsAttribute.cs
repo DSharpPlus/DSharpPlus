@@ -36,12 +36,19 @@ namespace DSharpPlus.CommandsNext.Attributes
             var usr = ctx.Member;
             if (usr == null)
                 return false;
+
+            if (usr.Id == ctx.Guild.OwnerId)
+                return true;
+
             var pusr = ctx.Channel.PermissionsFor(usr);
 
             var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
             if (bot == null)
                 return false;
             var pbot = ctx.Channel.PermissionsFor(bot);
+
+            if ((pusr & Permissions.Administrator) == Permissions.Administrator && (pbot & Permissions.Administrator) == Permissions.Administrator)
+                return true;
 
             if ((pusr & this.Permissions) == this.Permissions && (pbot & this.Permissions) == this.Permissions)
                 return true;
