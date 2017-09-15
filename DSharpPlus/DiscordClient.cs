@@ -1837,7 +1837,7 @@ namespace DSharpPlus
                 }
                 else
                 {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(xid => this.InternalGetCachedUser(xid)).ToList();
+                    mentioned_users = Utilities.GetUserMentions(message).Select(this.InternalGetCachedUser).ToList();
                 }
             }
 
