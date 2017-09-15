@@ -87,6 +87,12 @@ namespace DSharpPlus.Entities
         public string Mention => Formatter.Mention(this, this is DiscordMember);
 
         /// <summary>
+        /// Gets whether this user is the Client which created this object.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsCurrentClient => this.Id == this.Discord.CurrentUser.Id;
+
+        /// <summary>
         /// Gets this user's presence.
         /// </summary>
         [JsonIgnore]
