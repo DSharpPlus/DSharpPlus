@@ -123,6 +123,12 @@ namespace DSharpPlus.Entities
         public DiscordGuild Guild => this.Discord.Guilds[_guild_id];
 
         /// <summary>
+        /// Gets whether this member is the Guild owner.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsOwner => this.Id == this.Guild.OwnerId;
+
+        /// <summary>
         /// Creates a direct message channel to this member.
         /// </summary>
         /// <returns>Direct message channel to this member.</returns>
