@@ -705,9 +705,9 @@ namespace DSharpPlus
                 {
                     throw new Exception("Authentication failed. Check your token and try again.", e);
                 }
-                catch (PlatformNotSupportedException e)
+                catch (PlatformNotSupportedException)
                 {
-                    throw e;
+                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -996,7 +996,7 @@ namespace DSharpPlus
             ulong gid;
             ulong cid;
             DiscordUser usr;
-            
+
             switch (payload.EventName.ToLowerInvariant())
             {
                 case "ready":
@@ -1273,6 +1273,7 @@ namespace DSharpPlus
 
                 var recips = raw_recipients.ToObject<IEnumerable<TransportUser>>()
                     .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this });
+                // ReSharper disable once PossibleNullReferenceException
                 chn._recipients = recips.ToList();
 
                 _private_channels.Add(chn);
@@ -1302,6 +1303,7 @@ namespace DSharpPlus
             DiscordChannel channel_old = null;
 
             if (channel_new != null)
+            {
                 channel_old = new DiscordChannel
                 {
                     Bitrate = channel_new.Bitrate,
@@ -1318,8 +1320,11 @@ namespace DSharpPlus
                     UserLimit = channel_new.UserLimit,
                     ParentId = channel_new.ParentId
                 };
+            }
             else
+            {
                 gld._channels.Add(channel);
+            }
 
             channel_new.Bitrate = channel.Bitrate;
             channel_new.Name = channel.Name;
@@ -1784,7 +1789,7 @@ namespace DSharpPlus
 
         internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author)
         {
-            DiscordGuild guild = null;
+            DiscordGuild guild;
 
             message.Discord = this;
             var event_message = message;
