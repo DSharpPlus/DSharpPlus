@@ -274,6 +274,32 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) =>
             this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles.Select(xr => xr.Id), null, null, null, reason);
+
+        /// <summary>
+        /// Bans a this member from their guild.
+        /// </summary>
+        /// <param name="delete_message_days">How many days to remove messages from.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task BanAsync(int delete_message_days = 0, string reason = null) =>
+            this.Guild.BanMemberAsync(this, delete_message_days, reason);
+
+        /// <summary>
+        /// Kicks this member from their guild.
+        /// </summary>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task RemoveAsync(string reason = null) =>
+            this.Guild.RemoveMemberAsync(this, reason);
+
+        /// <summary>
+        /// Gets audit log entries for this member in their guild.
+        /// </summary>
+        /// <param name="limit">Maximum number of entries to fetch.</param>
+        /// <param name="action_type">Filter by action type.</param>
+        /// <returns>A collection of requested audit log entries.</returns>
+        public Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, AuditLogActionType? action_type = null) =>
+            this.Guild.GetAuditLogsAsync(limit, this, action_type);
         
         /// <summary>
         /// Returns a string representation of this member.
