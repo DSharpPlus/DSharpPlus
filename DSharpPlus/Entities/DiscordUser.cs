@@ -91,7 +91,7 @@ namespace DSharpPlus.Entities
         /// Gets whether this user is the Client which created this object.
         /// </summary>
         [JsonIgnore]
-        public bool IsCurrentClient => this.Id == this.Discord.CurrentUser.Id;
+        public bool IsCurrent => this.Id == this.Discord.CurrentUser.Id;
 
         /// <summary>
         /// Unbans this user from a guild.
