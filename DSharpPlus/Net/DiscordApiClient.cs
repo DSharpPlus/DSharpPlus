@@ -158,7 +158,7 @@ namespace DSharpPlus.Net
         internal Task CreateGuildBanAsync(ulong guild_id, ulong user_id, int delete_message_days, string reason)
         {
             if (delete_message_days < 0 || delete_message_days > 7)
-                throw new ArgumentException("Delete message days must be a number between 0-7", nameof(delete_message_days));
+                throw new ArgumentException("Delete message days must be a number between 0 and 7.", nameof(delete_message_days));
 
             var urlparams = new Dictionary<string, string>
             {
@@ -1042,16 +1042,19 @@ namespace DSharpPlus.Net
         #region Prune
         internal async Task<int> GetGuildPruneCountAsync(ulong guild_id, int days)
         {
-            var pld = new RestGuildPrunePayload
+            if (days < 0 || days > 30)
+                throw new ArgumentException("Prune inactivity days must be a number between 0 and 7.", nameof(days));
+
+            var urlparams = new Dictionary<string, string>
             {
-                Days = days
+                ["days"] = days.ToString(CultureInfo.InvariantCulture)
             };
 
             var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.PRUNE);
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guild_id.ToString(CultureInfo.InvariantCulture) }, out var path);
 
-            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, payload: JsonConvert.SerializeObject(pld));
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path, BuildQueryString(urlparams)));
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
 
@@ -1060,10 +1063,12 @@ namespace DSharpPlus.Net
         
         internal async Task<int> BeginGuildPruneAsync(ulong guild_id, int days, string reason)
         {
-            var pld = new RestGuildPrunePayload
+            var urlparams = new Dictionary<string, string>
             {
-                Days = days
+                ["days"] = days.ToString(CultureInfo.InvariantCulture)
             };
+            if (reason != null)
+                urlparams["reason"] = reason;
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
@@ -1072,8 +1077,8 @@ namespace DSharpPlus.Net
             var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.PRUNE);
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id = guild_id.ToString(CultureInfo.InvariantCulture) }, out var path);
 
-            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, headers, JsonConvert.SerializeObject(pld));
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path, BuildQueryString(urlparams)));
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
 

@@ -131,12 +131,6 @@ namespace DSharpPlus.Net.Abstractions
         public bool? Mentionable { get; set; }
     }
 
-    internal sealed class RestGuildPrunePayload
-    {
-        [JsonProperty("days")]
-        public int Days { get; set; }
-    }
-
     internal sealed class RestGuildPruneResultPayload
     {
         [JsonProperty("pruned")]

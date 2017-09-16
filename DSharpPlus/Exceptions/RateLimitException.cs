@@ -29,10 +29,14 @@ namespace DSharpPlus.Exceptions
             this.WebRequest = request;
             this.WebResponse = response;
 
-            JObject j = JObject.Parse(response.Response);
+            try
+            {
+                JObject j = JObject.Parse(response.Response);
 
-            if (j["message"] != null)
-                JsonMessage = j["message"].ToString();
+                if (j["message"] != null)
+                    JsonMessage = j["message"].ToString();
+            }
+            catch (Exception) { }
         }
     }
 }
