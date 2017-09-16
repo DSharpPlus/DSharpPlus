@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Messaging;
 using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities
@@ -300,7 +302,35 @@ namespace DSharpPlus.Entities
         /// <returns>A collection of requested audit log entries.</returns>
         public Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, AuditLogActionType? action_type = null) =>
             this.Guild.GetAuditLogsAsync(limit, this, action_type);
+
+        /// <summary>
+        /// Adds a channel permission overwrite this member.
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="allow"></param>
+        /// <param name="deny"></param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task AddOverwriteAsync(DiscordChannel channel, Permissions allow, Permissions deny, string reason = null) =>
+            channel.AddOverwriteAsync(this, allow, deny, reason);
+
+        /// <summary>
+        /// Moves this member to the specified voice channel
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        public Task PlaceInAsync(DiscordChannel channel) =>
+            channel.PlaceMemberAsync(this);
+
+        /// <summary>
+        /// Calculates permissions in a given channel for this member.
+        /// </summary>
+        /// <param name="channel">Channel to calculate permissions for.</param>
+        /// <returns>Calculated permissions for this member in the channel.</returns>
+        public Permissions PermissionsIn(DiscordChannel channel) =>
+            channel.PermissionsFor(this);
         
+
         /// <summary>
         /// Returns a string representation of this member.
         /// </summary>
