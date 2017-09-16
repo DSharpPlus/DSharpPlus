@@ -25,9 +25,9 @@ $docs_pkgname = "dsharpplus-docs"
 & .\rebuild-all.ps1 -ArtifactLocation "$target" -VersionSuffix "$suffix" -DocsPath "$docs_path" -DocsPackageName "$docs_pkgname" | Out-Host
 if ($LastExitCode -ne 0)
 {
-	Write-Host "----------------------------------------------------------------"
-	Write-Host "                          BUILD FAILED"
-	Write-Host "----------------------------------------------------------------"
+    Write-Host "----------------------------------------------------------------"
+    Write-Host "                          BUILD FAILED"
+    Write-Host "----------------------------------------------------------------"
 }
 
 Write-Host "Press any key to continue..."
