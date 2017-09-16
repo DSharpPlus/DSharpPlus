@@ -5,8 +5,6 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Messaging;
 using DSharpPlus.Net.Abstractions;
 
 namespace DSharpPlus.Entities
