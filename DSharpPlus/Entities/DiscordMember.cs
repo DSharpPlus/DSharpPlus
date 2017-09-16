@@ -293,26 +293,6 @@ namespace DSharpPlus.Entities
             this.Guild.RemoveMemberAsync(this, reason);
 
         /// <summary>
-        /// Gets audit log entries for this member in their guild.
-        /// </summary>
-        /// <param name="limit">Maximum number of entries to fetch.</param>
-        /// <param name="action_type">Filter by action type.</param>
-        /// <returns>A collection of requested audit log entries.</returns>
-        public Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, AuditLogActionType? action_type = null) =>
-            this.Guild.GetAuditLogsAsync(limit, this, action_type);
-
-        /// <summary>
-        /// Adds a channel permission overwrite this member.
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="allow"></param>
-        /// <param name="deny"></param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task AddOverwriteAsync(DiscordChannel channel, Permissions allow, Permissions deny, string reason = null) =>
-            channel.AddOverwriteAsync(this, allow, deny, reason);
-
-        /// <summary>
         /// Moves this member to the specified voice channel
         /// </summary>
         /// <param name="channel"></param>
@@ -327,7 +307,6 @@ namespace DSharpPlus.Entities
         /// <returns>Calculated permissions for this member in the channel.</returns>
         public Permissions PermissionsIn(DiscordChannel channel) =>
             channel.PermissionsFor(this);
-        
 
         /// <summary>
         /// Returns a string representation of this member.
