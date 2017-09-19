@@ -282,7 +282,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Bans a specified member this this guild.
+        /// Bans a specified member from this guild.
         /// </summary>
         /// <param name="member">Member to ban.</param>
         /// <param name="delete_message_days">How many days to remove messages from.</param>

@@ -123,6 +123,12 @@ namespace DSharpPlus.Entities
         public DiscordGuild Guild => this.Discord.Guilds[_guild_id];
 
         /// <summary>
+        /// Gets whether this member is the Guild owner.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsOwner => this.Id == this.Guild.OwnerId;
+
+        /// <summary>
         /// Creates a direct message channel to this member.
         /// </summary>
         /// <returns>Direct message channel to this member.</returns>
@@ -268,7 +274,40 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) =>
             this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles.Select(xr => xr.Id), null, null, null, reason);
-        
+
+        /// <summary>
+        /// Bans a this member from their guild.
+        /// </summary>
+        /// <param name="delete_message_days">How many days to remove messages from.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task BanAsync(int delete_message_days = 0, string reason = null) =>
+            this.Guild.BanMemberAsync(this, delete_message_days, reason);
+
+        /// <summary>
+        /// Kicks this member from their guild.
+        /// </summary>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task RemoveAsync(string reason = null) =>
+            this.Guild.RemoveMemberAsync(this, reason);
+
+        /// <summary>
+        /// Moves this member to the specified voice channel
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <returns></returns>
+        public Task PlaceInAsync(DiscordChannel channel) =>
+            channel.PlaceMemberAsync(this);
+
+        /// <summary>
+        /// Calculates permissions in a given channel for this member.
+        /// </summary>
+        /// <param name="channel">Channel to calculate permissions for.</param>
+        /// <returns>Calculated permissions for this member in the channel.</returns>
+        public Permissions PermissionsIn(DiscordChannel channel) =>
+            channel.PermissionsFor(this);
+
         /// <summary>
         /// Returns a string representation of this member.
         /// </summary>

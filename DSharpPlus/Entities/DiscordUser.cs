@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
@@ -85,6 +86,21 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string Mention => Formatter.Mention(this, this is DiscordMember);
+
+        /// <summary>
+        /// Gets whether this user is the Client which created this object.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsCurrent => this.Id == this.Discord.CurrentUser.Id;
+
+        /// <summary>
+        /// Unbans this user from a guild.
+        /// </summary>
+        /// <param name="guild">Guild to unban this user from.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task UnbanAsync(DiscordGuild guild, string reason = null) =>
+            guild.UnbanMemberAsync(this, reason);
 
         /// <summary>
         /// Gets this user's presence.
