@@ -1317,7 +1317,8 @@ namespace DSharpPlus
                     Topic = channel_new.Topic,
                     Type = channel_new.Type,
                     UserLimit = channel_new.UserLimit,
-                    ParentId = channel_new.ParentId
+                    ParentId = channel_new.ParentId,
+                    IsNSFW = channel_new.IsNSFW
                 };
             }
             else
