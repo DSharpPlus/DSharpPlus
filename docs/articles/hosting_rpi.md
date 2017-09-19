@@ -33,8 +33,8 @@ the OS.
     need to execute all Docker commands with `sudo`. After you do this, you will need to disconnect (or logout) and connect 
     again.
 4.  Go to `/tmp` (`cd /tmp`).
-5.  Download the prebuilt docker image from [here](http://dsharpplus.emzi0767.com/rpi/armhf-netcore2.0.tar.xz ".NET Core 2.0 ARM image") 
-    (`curl -LO http://dsharpplus.emzi0767.com/rpi/armhf-netcore2.0.tar.xz`).
+5.  Download the [prebuilt docker image](/rpi/armhf-netcore2.0.tar.xz ".NET Core 2.0 ARM image") 
+    (`curl -LO https://dsharpplus.emzi0767.com/rpi/armhf-netcore2.0.tar.xz`).
 6.  Extract the .xz file (`xz -dvv armhf-netcore2.0.tar.xz`).
 7.  Load the image (`cat armhf-netcore2.0.tar | docker load`).
 8   Remove the temporary file (`rm armhf-netcore2.0.tar`).
