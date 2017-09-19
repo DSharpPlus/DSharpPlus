@@ -80,7 +80,7 @@ than one .NET Core application on the device. To install the runtime, do the fol
 
 1. Login to your Pi via SSH or serial connection.
 2. Go to `/tmp` (`cd /tmp`).
-3. Download <https://dotnetcli.blob.core.windows.net/dotnet/Runtime/release/2.0.0/dotnet-runtime-latest-linux-arm.tar.gz> 
+3. Download [.NET Core 2.0 ARM runtime](https://dotnetcli.blob.core.windows.net/dotnet/Runtime/release/2.0.0/dotnet-runtime-latest-linux-arm.tar.gz ".NET Core 2.0 ARM runtime") 
    (`curl -LO https://dotnetcli.blob.core.windows.net/dotnet/Runtime/release/2.0.0/dotnet-runtime-latest-linux-arm.tar.gz`).
 4. Create a directory called `dotnet` in `/opt` (`sudo mkdir /opt/dotnet`).
 5. Extract the runtime to the directory (`sudo tar xzf dotnet-runtime-latest-linux-arm.tar.gz -C /opt/dotnet`).
