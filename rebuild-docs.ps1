@@ -37,8 +37,16 @@ function Restore-Environment()
     Write-Host "Restoring environment variables"
     $Env:PATH = $current_path
     Set-Location -path "$current_location"
-    Remove-Item -recurse -force $docfx_path
-    Remove-Item -recurse -force $sevenzip_path
+	
+	if (Test-Path "$docfx_path")
+	{
+		Remove-Item -recurse -force "$docfx_path"
+	}
+	
+	if (Test-Path "$sevenzip_path")
+	{
+		Remove-Item -recurse -force "$sevenzip_path"
+	}
 }
 
 # Downloads and installs latest version of DocFX
