@@ -86,6 +86,7 @@ namespace DSharpPlus.VoiceNext
         private RtpCodec Rtp { get; set; }
         private double SynchronizerTicks { get; set; }
         private double SynchronizerResolution { get; set; }
+        private double TickResolution { get; set; }
         private TimeSpan UdpLatency { get; }
 
         private ushort Sequence { get; set; }
@@ -258,6 +259,7 @@ namespace DSharpPlus.VoiceNext
             {
                 this.SynchronizerTicks = Stopwatch.GetTimestamp();
                 this.SynchronizerResolution = (Stopwatch.Frequency * 0.02);
+                this.TickResolution = 10_000_000.0 / Stopwatch.Frequency;
                 this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0", CultureInfo.InvariantCulture)}/{this.SynchronizerResolution.ToString(CultureInfo.InvariantCulture)} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
             }
             else
@@ -275,9 +277,9 @@ namespace DSharpPlus.VoiceNext
                 // time.time()
                 //   DateTime.Now
                 
-                var cts = Stopwatch.GetTimestamp() - this.SynchronizerTicks;
+                var cts = Math.Max(Stopwatch.GetTimestamp() - this.SynchronizerTicks, 0);
                 if (cts < this.SynchronizerResolution)
-                    await Task.Delay(TimeSpan.FromTicks((long)(this.SynchronizerResolution - cts)));
+                    await Task.Delay(TimeSpan.FromTicks((long)((this.SynchronizerResolution - cts) * this.TickResolution)));
 
                 this.SynchronizerTicks += this.SynchronizerResolution;
             }
