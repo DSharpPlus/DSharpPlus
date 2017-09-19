@@ -10,8 +10,6 @@
     href: alt_ws.md
   - name: Events
     href: events.md
-  - name: Migrating from 2.x to 3.x
-    href: mig223.md
 - name: Commands
   items:
   - name: Introduction
@@ -26,6 +24,14 @@
     href: voicenext.md
   - name: Receiving
     href: voicenext_receive.md
+- name: Hosting
+  items:
+  - name: Running your bot 24/7
+    href: hosting_options.md
+  - name: Hosting on Raspbery Pi
+    href: hosting_rpi.md
+- name: Migrating from 2.x to 3.x
+  href: mig223.md
 - name: Sharding
   href: sharding.md
 - name: Nightly builds
