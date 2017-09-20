@@ -140,7 +140,7 @@ namespace MyFirstBot
 
         static async Task MainAsync(string[] args)
         {
-            discord = new DiscordClient(new DiscordConfig
+            discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = "<your token here>",
                 TokenType = TokenType.Bot
