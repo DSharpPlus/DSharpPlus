@@ -31,9 +31,10 @@ namespace DSharpPlus
 
         public async Task DeleteGuildAsync(ulong id) => await ApiClient.DeleteGuildAsync(id);
 
-        public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, string name, string region, VerificationLevel? verification_level,
-            DefaultMessageNotifications? default_message_notifications, ulong? afk_channel_id, int? afk_timeout, string iconb64, ulong? owner_id, string splashb64, string reason)
-            => await ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, afk_channel_id, afk_timeout, iconb64, owner_id, splashb64, reason);
+        public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, string name, string region, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications, 
+            MfaLevel? mfa_level, ExplicitContentFilter? explicit_content_filter, ulong? afk_channel_id, int? afk_timeout, string iconb64, ulong? owner_id, string splashb64, string reason)
+            => await ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64, 
+                owner_id, splashb64, reason);
 
         public async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id) => await ApiClient.GetGuildBansAsync(guild_id);
 
