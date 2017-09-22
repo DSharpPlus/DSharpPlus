@@ -83,6 +83,26 @@ namespace DSharpPlus.Entities
         public PropertyChange<DiscordChannel> EmbedChannelChange { get; internal set; }
 
         /// <summary>
+        /// Gets the description of notification settings' change.
+        /// </summary>
+        public PropertyChange<DefaultMessageNotifications> NotificationSettingsChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of system message channel's change.
+        /// </summary>
+        public PropertyChange<DiscordChannel> SystemChannelChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of explicit content filter settings' change.
+        /// </summary>
+        public PropertyChange<ExplicitContentFilter> ExplicitContentFilterChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of guild's mfa level change.
+        /// </summary>
+        public PropertyChange<MfaLevel> MfaLevelChange { get; internal set; }
+
+        /// <summary>
         /// Gets the the description of invite splash's change.
         /// </summary>
         public PropertyChange<string> SplashChange { get; internal set; }
@@ -96,14 +116,24 @@ namespace DSharpPlus.Entities
         public DiscordChannel Target { get; internal set; }
 
         /// <summary>
-        /// Gets the description of channel name's change.
+        /// Gets the description of channel's name change.
         /// </summary>
         public PropertyChange<string> NameChange { get; internal set; }
 
         /// <summary>
-        /// Gets the description of channel type's change.
+        /// Gets the description of channel's type change.
         /// </summary>
         public PropertyChange<ChannelType?> TypeChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of channel's nsfw flag change.
+        /// </summary>
+        public PropertyChange<bool?> NsfwChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of channel's bitrate change.
+        /// </summary>
+        public PropertyChange<int?> BitrateChange { get; internal set; }
 
         /// <summary>
         /// Gets the description of channel permission overwrites' change.

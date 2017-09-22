@@ -103,7 +103,8 @@ namespace DSharpPlus.Net
         }
 
         internal async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, string name, string region, VerificationLevel? verification_level,
-            DefaultMessageNotifications? default_message_notifications, ulong? afk_channel_id, int? afk_timeout, string iconb64, ulong? owner_id, string splashb64, string reason)
+            DefaultMessageNotifications? default_message_notifications, MfaLevel? mfa_level, ExplicitContentFilter? explicit_content_filter, ulong? afk_channel_id, int? afk_timeout, string iconb64, 
+            ulong? owner_id, string splashb64, string reason)
         {
             var pld = new RestGuildModifyPayload
             {
@@ -111,6 +112,8 @@ namespace DSharpPlus.Net
                 RegionId = region,
                 VerificationLevel = verification_level,
                 DefaultMessageNotifications = default_message_notifications,
+                MfaLevel = mfa_level,
+                ExplicitContentFilter = explicit_content_filter,
                 AfkChannelId = afk_channel_id,
                 AfkTimeout = afk_timeout,
                 IconBase64 = iconb64,

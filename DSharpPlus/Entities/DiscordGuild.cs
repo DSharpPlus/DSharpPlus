@@ -113,6 +113,12 @@ namespace DSharpPlus.Entities
         public DefaultMessageNotifications DefaultMessageNotifications { get; internal set; }
 
         /// <summary>
+        /// Gets the guild's explicit content filter settings.
+        /// </summary>
+        [JsonProperty("explicit_content_filter")]
+        public ExplicitContentFilter ExplicitContentFilter { get; internal set; }
+
+        /// <summary>
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
@@ -255,6 +261,8 @@ namespace DSharpPlus.Entities
         /// <param name="icon">New icon.</param>
         /// <param name="verification_level">New verification level.</param>
         /// <param name="default_message_notifications">New default notification settings.</param>
+        /// <param name="mfa_level">New MFA requirement setting.</param>
+        /// <param name="explicit_content_filter">New explicit content filter setting.</param>
         /// <param name="afk_channel">New voice AFK channel.</param>
         /// <param name="afk_timeout">New timeout after users are going to be moved to the voice AFK channel in seconds.</param>
         /// <param name="owner">New owner. This can only be changed by current owner.</param>
@@ -262,8 +270,8 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
         public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, VerificationLevel? verification_level = null,
-            DefaultMessageNotifications? default_message_notifications = null, DiscordChannel afk_channel = null, int? afk_timeout = null, DiscordMember owner = null, Stream splash = null,
-            string reason = null)
+            DefaultMessageNotifications? default_message_notifications = null, MfaLevel? mfa_level = null, ExplicitContentFilter? explicit_content_filter = null, DiscordChannel afk_channel = null, 
+            int? afk_timeout = null, DiscordMember owner = null, Stream splash = null, string reason = null)
         {
             if (afk_channel != null && afk_channel.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
@@ -278,7 +286,7 @@ namespace DSharpPlus.Entities
                 using (var imgtool = new ImageTool(splash))
                     splashb64 = imgtool.GetBase64();
 
-            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, afk_channel?.Id, afk_timeout, iconb64, owner?.Id, splashb64, reason);
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel?.Id, afk_timeout, iconb64, owner?.Id, splashb64, reason);
         }
 
         /// <summary>
@@ -754,6 +762,41 @@ namespace DSharpPlus.Entities
                                     };
                                     break;
 
+                                case "default_message_notifications":
+                                    entrygld.NotificationSettingsChange = new PropertyChange<DefaultMessageNotifications>
+                                    {
+                                        Before = (DefaultMessageNotifications)(long)xc.OldValue,
+                                        After = (DefaultMessageNotifications)(long)xc.NewValue
+                                    };
+                                    break;
+
+                                case "system_channel_id":
+                                    ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
+                                    ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
+
+                                    entrygld.SystemChannelChange = new PropertyChange<DiscordChannel>
+                                    {
+                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
+                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                    };
+                                    break;
+
+                                case "explicit_content_filter":
+                                    entrygld.ExplicitContentFilterChange = new PropertyChange<ExplicitContentFilter>
+                                    {
+                                        Before = (ExplicitContentFilter)(long)xc.OldValue,
+                                        After = (ExplicitContentFilter)(long)xc.NewValue
+                                    };
+                                    break;
+
+                                case "mfa_level":
+                                    entrygld.MfaLevelChange = new PropertyChange<MfaLevel>
+                                    {
+                                        Before = (MfaLevel)(long)xc.OldValue,
+                                        After = (MfaLevel)(long)xc.NewValue
+                                    };
+                                    break;
+
                                 default:
                                     this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in guild update: {xc.Key}; this should be reported to devs", DateTime.Now);
                                     break;
@@ -814,6 +857,22 @@ namespace DSharpPlus.Entities
                                     {
                                         Before = xc.OldValueString,
                                         After = xc.NewValueString
+                                    };
+                                    break;
+
+                                case "nsfw":
+                                    entrychn.NsfwChange = new PropertyChange<bool?>
+                                    {
+                                        Before = (bool?)xc.OldValue,
+                                        After = (bool?)xc.NewValue
+                                    };
+                                    break;
+
+                                case "bitrate":
+                                    entrychn.BitrateChange = new PropertyChange<int?>
+                                    {
+                                        Before = (int?)(long?)xc.OldValue,
+                                        After = (int?)(long?)xc.NewValue
                                     };
                                     break;
 
@@ -1017,7 +1076,11 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 case "hoist":
-
+                                    entryrol.HoistChange = new PropertyChange<bool?>
+                                    {
+                                        Before = (bool?)xc.OldValue,
+                                        After = (bool?)xc.NewValue
+                                    };
                                     break;
 
                                 default:
@@ -1468,5 +1531,26 @@ namespace DSharpPlus.Entities
         /// Multi-factor authentication is required to use administrator functionality.
         /// </summary>
         Enabled = 1
+    }
+
+    /// <summary>
+    /// Represents the value of explicit content filter in a guild.
+    /// </summary>
+    public enum ExplicitContentFilter : int
+    {
+        /// <summary>
+        /// Explicit content filter is disabled.
+        /// </summary>
+        Disabled = 0,
+
+        /// <summary>
+        /// Only messages from members without any roles are scanned.
+        /// </summary>
+        MembersWithoutRoles = 1,
+
+        /// <summary>
+        /// Messages from all members are scanned.
+        /// </summary>
+        AllMembers = 2
     }
 }

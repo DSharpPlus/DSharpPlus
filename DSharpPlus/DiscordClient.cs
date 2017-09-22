@@ -691,7 +691,7 @@ namespace DSharpPlus
 
             if (this.Configuration.TokenType != TokenType.Bot)
                 this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
-            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}, booting", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}", DateTime.Now);
 
             while (i-- > 0)
             {
@@ -807,22 +807,23 @@ namespace DSharpPlus
             this.ApiClient.CreateMessageAsync(channel.Id, content, tts, embed);
 
         /// <summary>
-        /// Creates a guild. Only for whitelisted bots
+        /// Creates a guild. This requires the bot to be in less than 10 guilds total.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="region"></param>
-        /// <param name="icon"></param>
-        /// <param name="verification_level"></param>
-        /// <param name="default_message_notifications"></param>
-        /// <returns></returns>
-        public async Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Stream icon = null, VerificationLevel? verification_level = null, DefaultMessageNotifications? default_message_notifications = null)
+        /// <param name="name">Name of the guild.</param>
+        /// <param name="region">Voice region of the guild.</param>
+        /// <param name="icon">Stream containing the icon for the guild.</param>
+        /// <param name="verification_level">Verification level for the guild.</param>
+        /// <param name="default_message_notifications">Default message notification settings for the guild.</param>
+        /// <returns>The created guild.</returns>
+        public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Stream icon = null, VerificationLevel? verification_level = null, 
+            DefaultMessageNotifications? default_message_notifications = null)
         {
             string iconb64 = null;
             if (icon != null)
                 using (var imgtool = new ImageTool(icon))
                     iconb64 = imgtool.GetBase64();
 
-            return await this.ApiClient.CreateGuildAsync(name, region, iconb64, verification_level, default_message_notifications);
+            return this.ApiClient.CreateGuildAsync(name, region, iconb64, verification_level, default_message_notifications);
         }
 
         /// <summary>
@@ -2432,6 +2433,7 @@ namespace DSharpPlus
             guild.RegionId = new_guild.RegionId;
             guild.SplashHash = new_guild.SplashHash;
             guild.VerificationLevel = new_guild.VerificationLevel;
+            guild.ExplicitContentFilter = new_guild.ExplicitContentFilter;
 
             // fields not sent for update:
             // - guild.Channels

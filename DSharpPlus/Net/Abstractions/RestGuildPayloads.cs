@@ -50,6 +50,12 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("afk_timeout", NullValueHandling = NullValueHandling.Ignore)]
         public int? AfkTimeout { get; set; }
 
+        [JsonProperty("mfa_level", NullValueHandling = NullValueHandling.Ignore)]
+        public MfaLevel? MfaLevel { get; set; }
+
+        [JsonProperty("explicit_content_filter", NullValueHandling = NullValueHandling.Ignore)]
+        public ExplicitContentFilter? ExplicitContentFilter { get; set; }
+
         // we no want that here
         [JsonIgnore]
         public new IEnumerable<DiscordRole> Roles { get; set; }
