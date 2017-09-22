@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 
@@ -86,6 +87,22 @@ namespace DSharpPlus.CommandsNext
                 IsSuccessful = true,
                 Context = ctx
             };
+        }
+
+        /// <summary>
+        /// Runs pre-execution checks for this command and returns any that fail for given context.
+        /// </summary>
+        /// <param name="ctx">Context in which the command is executed.</param>
+        /// <returns>Pre-execution checks that fail for given context.</returns>
+        public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx)
+        {
+            var fchecks = new List<CheckBaseAttribute>();
+            if (this.ExecutionChecks != null && this.ExecutionChecks.Any())
+                foreach (var ec in this.ExecutionChecks)
+                    if (!(await ec.CanExecute(ctx)))
+                        fchecks.Add(ec);
+
+            return fchecks;
         }
 
         /// <summary>

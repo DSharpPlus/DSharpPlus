@@ -201,11 +201,7 @@ namespace DSharpPlus.CommandsNext
             {
                 try
                 {
-                    var fchecks = new List<CheckBaseAttribute>();
-                    if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
-                        foreach (var ec in cmd.ExecutionChecks)
-                            if (!(await ec.CanExecute(ctx)))
-                                fchecks.Add(ec);
+                    var fchecks = await cmd.RunChecksAsync(ctx);
                     if (fchecks.Any())
                         throw new ChecksFailedException("One or more pre-execution checks failed.", cmd, ctx, fchecks);
 
@@ -548,11 +544,8 @@ namespace DSharpPlus.CommandsNext
 
                     if (cmd == null)
                         break;
-                    
-                    var cfl = new List<CheckBaseAttribute>();
-                    foreach (var ec in cmd.ExecutionChecks)
-                        if (!(await ec.CanExecute(ctx)))
-                            cfl.Add(ec);
+
+                    var cfl = await cmd.RunChecksAsync(ctx);
                     if (cfl.Any())
                         throw new ChecksFailedException("You cannot access that command!", cmd, ctx, cfl);
 
@@ -588,10 +581,7 @@ namespace DSharpPlus.CommandsNext
                             continue;
                         }
 
-                        var cfl = new List<CheckBaseAttribute>();
-                        foreach (var ec in sc.ExecutionChecks)
-                            if (!(await ec.CanExecute(ctx)))
-                                cfl.Add(ec);
+                        var cfl = await sc.RunChecksAsync(ctx);
                         if (!cfl.Any())
                             scs.Add(sc);
                     }
@@ -611,11 +601,8 @@ namespace DSharpPlus.CommandsNext
                         scs.Add(sc);
                         continue;
                     }
-                    
-                    var cfl = new List<CheckBaseAttribute>();
-                    foreach (var ec in sc.ExecutionChecks)
-                        if (!(await ec.CanExecute(ctx)))
-                            cfl.Add(ec);
+
+                    var cfl = await sc.RunChecksAsync(ctx);
                     if (!cfl.Any())
                         scs.Add(sc);
                 }

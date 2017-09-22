@@ -1,9 +1,8 @@
-﻿using DSharpPlus.CommandsNext.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Exceptions;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -60,12 +59,8 @@ namespace DSharpPlus.CommandsNext
                         CommandsNext = ctx.CommandsNext,
                         Dependencies = ctx.Dependencies
                     };
-                    
-                    var fchecks = new List<CheckBaseAttribute>();
-                    if (cmd.ExecutionChecks != null && cmd.ExecutionChecks.Any())
-                        foreach (var ec in cmd.ExecutionChecks)
-                            if (!(await ec.CanExecute(xctx)))
-                                fchecks.Add(ec);
+
+                    var fchecks = await cmd.RunChecksAsync(xctx);
                     if (fchecks.Any())
                         return new CommandResult
                         {
