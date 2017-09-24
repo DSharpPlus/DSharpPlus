@@ -467,6 +467,12 @@ namespace DSharpPlus.Entities
         /// <returns>Calculated permissions for a given member.</returns>
         public Permissions PermissionsFor(DiscordMember mbr)
         {
+            // default permissions
+            const Permissions def = Permissions.None;
+            
+            // future note: might be able to simplify @everyone role checks to just check any role ... but i'm not sure
+            // xoxo, ~~uwx
+            
             // user > role > everyone
             // allow > deny > undefined
             // =>
@@ -474,42 +480,47 @@ namespace DSharpPlus.Entities
             // thanks to meew0
 
             if (this.IsPrivate || this.Guild == null)
-                return Permissions.None;
+                return def;
 
-            var prms = Permissions.None;
+            Permissions perms;
 
-            var ev1 = this.Guild.EveryoneRole;
-            var evo = this._permission_overwrites.FirstOrDefault(xo => xo.Id == ev1.Id);
+            // assign @everyone permissions
+            var everyoneRole = this.Guild.EveryoneRole;
+            perms = everyoneRole.Permissions;
 
-            prms = ev1.Permissions;
-            if (evo != null)
+            // roles that member is in
+            var mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
+            // channel overrides for roles that member is in
+            var mbRoleOverrides = mbRoles
+                .Select(xr => this._permission_overwrites.FirstOrDefault(xo => xo.Id == xr.Id))
+                .Where(xo => xo != null)
+                .ToList();
+
+            // assign permissions from member's roles (in order)
+            perms |= mbRoles.Aggregate(def, (c, role) => c | role.Permissions);
+            
+            // assign channel permission overwrites for @everyone pseudo-role
+            var everyoneOverwrites = this._permission_overwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);
+            if (everyoneOverwrites != null)
             {
-                prms &= ~evo.Deny;
-                prms |= evo.Allow;
+                perms &= ~everyoneOverwrites.Deny;
+                perms |= everyoneOverwrites.Allow;
             }
 
-            var rls = mbr.Roles.Where(xr => xr.Id != ev1.Id);
-            // Avoid enumerating more than once
-            var aRoles = rls as DiscordRole[] ?? rls.ToArray();
-            var rlo = aRoles.Select(xr => this._permission_overwrites.FirstOrDefault(xo => xo.Id == xr.Id)).Where(xo => xo != null);
+            // assign channel permission overwrites for member's roles (explicit deny)
+            perms &= ~mbRoleOverrides.Aggregate(def, (c, overs) => c | overs.Deny);
+            // assign channel permission overwrites for member's roles (explicit allow)
+            perms |= mbRoleOverrides.Aggregate(def, (c, overs) => c | overs.Allow);
 
-            var rdeny = Permissions.None;
-            var rallw = aRoles.Aggregate(Permissions.None, (current, xrl) => current | xrl.Permissions);
-            foreach (var xpo in rlo)
-            {
-                rdeny |= xpo.Deny;
-                rallw |= xpo.Allow;
-            }
+            // channel overrides for just this member
+            var mbOverrides = this._permission_overwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
+            if (mbOverrides == null) return perms;
+            
+            // assign channel permission overwrites for just this member
+            perms &= ~mbOverrides.Deny;
+            perms |= mbOverrides.Allow;
 
-            prms &= ~rdeny;
-            prms |= rallw;
-
-            var rmo = this._permission_overwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
-            if (rmo == null) return prms;
-            prms &= ~rmo.Deny;
-            prms |= rmo.Allow;
-
-            return prms;
+            return perms;
         }
 
         /// <summary>
