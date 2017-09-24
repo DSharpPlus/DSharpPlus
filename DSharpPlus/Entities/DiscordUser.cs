@@ -117,6 +117,60 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the user's avatar URL, in requested format and size.
+        /// </summary>
+        /// <param name="fmt">Format of the avatar to get.</param>
+        /// <param name="size">Maximum size of the avatar. Must be a power of two, minimum 16, maximum 2048.</param>
+        /// <returns>URL of the user's avatar.</returns>
+        public string GetAvatarUrl(ImageFormat fmt, ushort size = 1024)
+        {
+            if (fmt == ImageFormat.Unknown)
+                throw new ArgumentException("You must specify valid image format.", nameof(fmt));
+
+            if (size < 16 || size > 2048)
+                throw new ArgumentOutOfRangeException(nameof(size));
+
+            var log = Math.Log(size, 2);
+            if (log < 4 || log > 11 || log % 1 != 0)
+                throw new ArgumentOutOfRangeException(nameof(size));
+
+            var sfmt = "";
+            switch (fmt)
+            {
+                case ImageFormat.Gif:
+                    sfmt = "gif";
+                    break;
+
+                case ImageFormat.Jpeg:
+                    sfmt = "jpg";
+                    break;
+
+                case ImageFormat.Png:
+                    sfmt = "png";
+                    break;
+
+                case ImageFormat.WebP:
+                    sfmt = "webp";
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(fmt));
+            }
+
+            var ssize = size.ToString(CultureInfo.InvariantCulture);
+            if (!string.IsNullOrWhiteSpace(this.AvatarHash))
+            {
+                var id = this.Id.ToString(CultureInfo.InvariantCulture);
+                return $"https://cdn.discordapp.com/avatars/{id}/{this.AvatarHash}.{sfmt}?size={ssize}";
+            }
+            else
+            {
+                var type = (this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture);
+                return $"https://cdn.discordapp.com/embed/avatars/{type}.{sfmt}?size={ssize}";
+            }
+        }
+
+        /// <summary>
         /// Returns a string representation of this user.
         /// </summary>
         /// <returns>String representation of this user.</returns>
