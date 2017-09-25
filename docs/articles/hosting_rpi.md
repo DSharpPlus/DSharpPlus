@@ -79,14 +79,15 @@ This method will install a shared .NET Core 2.0 runtime on your device. This is 
 than one .NET Core application on the device. To install the runtime, do the following:
 
 1. Login to your Pi via SSH or serial connection.
-2. Go to `/tmp` (`cd /tmp`).
-3. Download [.NET Core 2.0 ARM runtime](https://dotnetcli.blob.core.windows.net/dotnet/Runtime/release/2.0.0/dotnet-runtime-latest-linux-arm.tar.gz ".NET Core 2.0 ARM runtime") 
+2. Install necessary prerequisites (`sudo apt-get install curl libunwind8 gettext`).
+3. Go to `/tmp` (`cd /tmp`).
+4. Download [.NET Core 2.0 ARM runtime](https://dotnetcli.blob.core.windows.net/dotnet/Runtime/release/2.0.0/dotnet-runtime-latest-linux-arm.tar.gz ".NET Core 2.0 ARM runtime") 
    (`curl -LO https://dotnetcli.blob.core.windows.net/dotnet/Runtime/release/2.0.0/dotnet-runtime-latest-linux-arm.tar.gz`).
-4. Create a directory called `dotnet` in `/opt` (`sudo mkdir /opt/dotnet`).
-5. Extract the runtime to the directory (`sudo tar xzf dotnet-runtime-latest-linux-arm.tar.gz -C /opt/dotnet`).
-6. Create a softlink for the `dotnet` binary in `/usr/local/bin` (`sudo ln -s /opt/dotnet/dotnet /usr/local/bin/dotnet`).
-7. Clean up (`rm dotnet-runtime-latest-linux-arm.tar.gz`).
-8. Verify that the installation was successful (`dotnet --info`).
+5. Create a directory called `dotnet` in `/opt` (`sudo mkdir /opt/dotnet`).
+6. Extract the runtime to the directory (`sudo tar xzf dotnet-runtime-latest-linux-arm.tar.gz -C /opt/dotnet`).
+7. Create a softlink for the `dotnet` binary in `/usr/local/bin` (`sudo ln -s /opt/dotnet/dotnet /usr/local/bin/dotnet`).
+8. Clean up (`rm dotnet-runtime-latest-linux-arm.tar.gz`).
+9. Verify that the installation was successful (`dotnet --info`).
 
 If you were successful, you should see something to this effect:
 

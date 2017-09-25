@@ -10,6 +10,9 @@ There are 2 (although really 3) options for that. Unfortunately, none of them is
 The simplest, and probably most hassle-free (and maybe cheapest in the long run) option is to find a provider that will 
 lend you their machine or a virtual host so you can run your bot in there.
 
+Generally, cheapest hosting options are all GNU/Linux-based, so it's highly recommended you familiarize yourself with the
+OS and its environment, particularly the shell (command line), and concepts such as SSH.
+
 There are several well-known, trusted, and cheap providers:
 
 * [**Scaleway**](https://www.scaleway.com/ "Scaleway"): Cheap, and powerful. Scalway is based in Europe, and has locations 
@@ -23,7 +26,8 @@ In addition to these, there are several hosting providers that offer free trials
 
 * [**Microsoft Azure**](https://azure.microsoft.com/en-us/free/?cdn=disable "Microsoft Azure"): $200 in-service credit, 
   to be used within month of registration. Requires credit or debit card for validation. Azure isn't cheap, but it supports 
-  both Windows and Linux-based servers. If you're enrolled in Microsoft Imagine, it's possible to get these cheaper or free.
+  both Windows and GNU/Linux-based servers. If you're enrolled in Microsoft Imagine, it's possible to get these cheaper or 
+  free.
 * [**Amazon Web Services**](https://aws.amazon.com/free/ "AWS"): Free for 12 months (with 750 compute hours per month). Not 
   cheap once the trial runs out, but it's also considered industry standard in cloud services.
 * [**Google Cloud Platform**](https://cloud.google.com/free/ "Google Cloud Platform"): $300 in-service credit, to be used 
