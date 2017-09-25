@@ -471,7 +471,10 @@ namespace DSharpPlus.Entities
             const Permissions def = Permissions.None;
             
             // future note: might be able to simplify @everyone role checks to just check any role ... but i'm not sure
-            // xoxo, ~~uwx
+            // xoxo, ~uwx
+            //
+            // you should use a single tilde
+            // ~emzi
             
             // user > role > everyone
             // allow > deny > undefined

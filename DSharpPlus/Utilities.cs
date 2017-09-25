@@ -209,7 +209,7 @@ namespace DSharpPlus
                 .Where(xkvp => xkvp.Key != Permissions.None && (perm & xkvp.Key) == xkvp.Key)
                 .Select(xkvp => xkvp.Value);
 
-            return string.Join(", ", strs);
+            return string.Join(", ", strs.OrderBy(xs => xs));
         }
     }
 }
