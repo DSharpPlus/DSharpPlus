@@ -84,10 +84,10 @@ namespace DSharpPlus
         ViewAuditLog = 0x0000000000000080u,
 
         /// <summary>
-        /// Allows reading messages. Disabling this permission hides channels.
+        /// Allows accessing text and voice channels. Disabling this permission hides channels.
         /// </summary>
         [PermissionString("Read messages")]
-        ReadMessages = 0x0000000000000400u,
+        AccessChannels = 0x0000000000000400u,
 
         /// <summary>
         /// Allows sending messages.

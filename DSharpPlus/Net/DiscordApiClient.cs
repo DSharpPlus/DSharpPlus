@@ -1220,7 +1220,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Invite
-        internal async Task<DiscordInvite> GetInvite(string invite_code)
+        internal async Task<DiscordInvite> GetInviteAsync(string invite_code)
         {
             var route = string.Concat(Endpoints.INVITES, "/:invite_code");
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { invite_code = invite_code }, out var path);
@@ -1234,7 +1234,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordInvite> DeleteInvite(string invite_code, string reason)
+        internal async Task<DiscordInvite> DeleteInviteAsync(string invite_code, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))

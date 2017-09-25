@@ -849,7 +849,7 @@ namespace DSharpPlus
         /// <param name="code"></param>
         /// <returns></returns>
         public Task<DiscordInvite> GetInviteByCodeAsync(string code) =>
-            this.ApiClient.GetInvite(code);
+            this.ApiClient.GetInviteAsync(code);
 
         /// <summary>
         /// Gets a list of connections

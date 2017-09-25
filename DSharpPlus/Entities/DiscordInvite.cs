@@ -81,7 +81,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteInvite(this.Code, reason);
+        public Task<DiscordInvite> DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);
 
         /*
          * Disabled due to API restrictions.

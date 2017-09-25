@@ -241,9 +241,9 @@ namespace DSharpPlus
         #endregion
 
         #region Invites
-        public Task<DiscordInvite> GetInvite(string invite_code) => ApiClient.GetInvite(invite_code);
+        public Task<DiscordInvite> GetInvite(string invite_code) => ApiClient.GetInviteAsync(invite_code);
 
-        public Task<DiscordInvite> DeleteInvite(string invite_code, string reason) => ApiClient.DeleteInvite(invite_code, reason);
+        public Task<DiscordInvite> DeleteInvite(string invite_code, string reason) => ApiClient.DeleteInviteAsync(invite_code, reason);
         #endregion
 
         #region Connections
