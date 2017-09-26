@@ -24,8 +24,12 @@
     <FileVersion>3.0.0.0</FileVersion>
   </PropertyGroup>
   
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0' Or '$(TargetFramework)' == 'netcoreapp1.1'">
+    <DefineConstants>NO_APPDOMAIN</DefineConstants>
   </PropertyGroup>
   
   <ItemGroup>

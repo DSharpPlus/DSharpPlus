@@ -37,7 +37,7 @@ the OS.
     (`curl -LO https://dsharpplus.emzi0767.com/rpi/armhf-netcore2.0.tar.xz`).
 6.  Extract the .xz file (`xz -dvv armhf-netcore2.0.tar.xz`).
 7.  Load the image (`cat armhf-netcore2.0.tar | docker load`).
-8.   Remove the temporary file (`rm armhf-netcore2.0.tar`).
+8.  Remove the temporary file (`rm armhf-netcore2.0.tar`).
 9.  Start a new container using the image (`docker run -dti --name=mybot armhf/netcore2.0`).
 10. Attach to the container (`docker attach mybot`).
 

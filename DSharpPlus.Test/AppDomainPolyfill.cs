@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿#if NO_APPDOMAIN
+using System.Linq;
 using System.Reflection;
 using Microsoft.DotNet.PlatformAbstractions;
 using Microsoft.Extensions.DependencyModel;
@@ -27,3 +28,4 @@ namespace System
         }
     }
 }
+#endif

@@ -103,6 +103,8 @@ namespace DSharpPlus.Net
                 return;
             }
 
+            this.UpdateBucket(request, response);
+
             Exception ex = null;
             switch (response.ResponseCode)
             {
@@ -134,14 +136,16 @@ namespace DSharpPlus.Net
                             await wait;
                         }
                         else
+                        {
                             request.Discord.DebugLogger.LogMessage(LogLevel.Error, "REST", $"Ratelimit hit, requeueing request to {request.Url}", DateTime.Now);
+                        }
+
                         this.RequestSemaphore.Release();
                         return;
                     }
                     break;
             }
 
-            this.UpdateBucket(request, response);
             this.RequestSemaphore.Release();
 
             if (ex != null)
@@ -197,18 +201,18 @@ namespace DSharpPlus.Net
                 return;
             var hs = response.Headers;
 
+            // handle the wait
+            if (hs.TryGetValue("Retry-After", out var retry_after_raw))
+            {
+                var retry_after = int.Parse(retry_after_raw, CultureInfo.InvariantCulture);
+                wait_task = Task.Delay(retry_after);
+            }
+
             // check if global b1nzy
             if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLowerInvariant() == "true")
             {
                 // global
-
-                hs.TryGetValue("Retry-After", out var retry_after_raw);
-                var retry_after = int.Parse(retry_after_raw, CultureInfo.InvariantCulture);
-
-                // handle the wait
-                wait_task = Task.Delay(retry_after);
                 global = true;
-                return;
             }
         }
 
