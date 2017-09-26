@@ -163,4 +163,19 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("enable_emoticons", NullValueHandling = NullValueHandling.Ignore)]
         public bool? EnableEmoticons { get; set; }
     }
+
+    internal class RestGuildEmojiModifyPayload
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong[] Roles { get; set; }
+    }
+
+    internal class RestGuildEmojiCreatePayload : RestGuildEmojiModifyPayload
+    {
+        [JsonProperty("image")]
+        public string ImageB64 { get; set; }
+    }
 }

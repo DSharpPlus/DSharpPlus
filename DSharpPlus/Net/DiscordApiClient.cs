@@ -1539,7 +1539,8 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response).Select(xtu => (this.Discord as DiscordClient)?.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this.Discord });
+            var reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response)
+                .Select(xtu => (this.Discord as DiscordClient)?.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this.Discord });
 
             return new ReadOnlyCollection<DiscordUser>(new List<DiscordUser>(reacters_raw));
         }
@@ -1552,6 +1553,143 @@ namespace DSharpPlus.Net
 
             var route = string.Concat(Endpoints.CHANNELS, "/:channel_id", Endpoints.MESSAGES, "/:message_id", Endpoints.REACTIONS);
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id = channel_id.ToString(CultureInfo.InvariantCulture), message_id = message_id.ToString(CultureInfo.InvariantCulture) }, out var path);
+
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers);
+        }
+        #endregion
+
+        #region Emoji
+        internal async Task<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync(ulong guild_id)
+        {
+            var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.EMOJIS);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guild_id.ToString(CultureInfo.InvariantCulture) }, out var path);
+            
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
+
+            var emojis_raw = JsonConvert.DeserializeObject<IEnumerable<JObject>>(res.Response);
+
+            this.Discord.Guilds.TryGetValue(guild_id, out var gld);
+            var users = new Dictionary<ulong, DiscordUser>();
+            var emojis = new List<DiscordGuildEmoji>();
+            foreach (var xj in emojis_raw)
+            {
+                var xge = xj.ToObject<DiscordGuildEmoji>();
+                xge.Guild = gld;
+
+                var xtu = xj["user"]?.ToObject<TransportUser>();
+                if (xtu != null)
+                {
+                    if (!users.ContainsKey(xtu.Id))
+                    {
+                        var xu = gld?.Members.FirstOrDefault(xm => xm.Id == xtu.Id) ?? new DiscordUser(xtu);
+                        users[xu.Id] = xu;
+                    }
+
+                    xge.User = users[xtu.Id];
+                }
+
+                emojis.Add(xge);
+            }
+
+            return new ReadOnlyCollection<DiscordGuildEmoji>(emojis);
+        }
+
+        internal async Task<DiscordGuildEmoji> GetGuildEmojiAsync(ulong guild_id, ulong emoji_id)
+        {
+            var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.EMOJIS, "/:emoji_id");
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guild_id.ToString(CultureInfo.InvariantCulture), emoji_id = emoji_id.ToString(CultureInfo.InvariantCulture) }, out var path);
+
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
+
+            this.Discord.Guilds.TryGetValue(guild_id, out var gld);
+
+            var emoji_raw = JObject.Parse(res.Response);
+            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            emoji.Guild = gld;
+
+            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            if (xtu != null)
+                emoji.User = gld?.Members.FirstOrDefault(xm => xm.Id == xtu.Id) ?? new DiscordUser(xtu);
+
+            return emoji;
+        }
+
+        internal async Task<DiscordGuildEmoji> CreateGuildEmojiAsync(ulong guild_id, string name, string imageb64, IEnumerable<ulong> roles, string reason)
+        {
+            var pld = new RestGuildEmojiCreatePayload
+            {
+                Name = name,
+                ImageB64 = imageb64,
+                Roles = roles?.ToArray()
+            };
+
+            var headers = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.EMOJIS);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id = guild_id.ToString(CultureInfo.InvariantCulture) }, out var path);
+
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, headers, JsonConvert.SerializeObject(pld));
+
+            this.Discord.Guilds.TryGetValue(guild_id, out var gld);
+
+            var emoji_raw = JObject.Parse(res.Response);
+            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            emoji.Guild = gld;
+
+            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            if (xtu != null)
+                emoji.User = gld?.Members.FirstOrDefault(xm => xm.Id == xtu.Id) ?? new DiscordUser(xtu);
+            else
+                emoji.User = this.Discord.CurrentUser;
+
+            return emoji;
+        }
+
+        internal async Task<DiscordGuildEmoji> ModifyGuildEmojiAsync(ulong guild_id, ulong emoji_id, string name, IEnumerable<ulong> roles, string reason)
+        {
+            var pld = new RestGuildEmojiModifyPayload
+            {
+                Name = name,
+                Roles = roles?.ToArray()
+            };
+
+            var headers = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.EMOJIS, "/:emoji_id");
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id = guild_id.ToString(CultureInfo.InvariantCulture), emoji_id = emoji_id.ToString(CultureInfo.InvariantCulture) }, out var path);
+
+            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, headers, JsonConvert.SerializeObject(pld));
+
+            this.Discord.Guilds.TryGetValue(guild_id, out var gld);
+
+            var emoji_raw = JObject.Parse(res.Response);
+            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            emoji.Guild = gld;
+
+            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            if (xtu != null)
+                emoji.User = gld?.Members.FirstOrDefault(xm => xm.Id == xtu.Id) ?? new DiscordUser(xtu);
+
+            return emoji;
+        }
+
+        internal Task DeleteGuildEmojiAsync(ulong guild_id, ulong emoji_id, string reason)
+        {
+            var headers = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.EMOJIS, "/:emoji_id");
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id = guild_id.ToString(CultureInfo.InvariantCulture), emoji_id = emoji_id.ToString(CultureInfo.InvariantCulture) }, out var path);
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers);

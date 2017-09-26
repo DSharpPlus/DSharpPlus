@@ -1385,6 +1385,91 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets all of this guild's custom emojis.
+        /// </summary>
+        /// <returns>All of this guild's custom emojis.</returns>
+        public Task<IReadOnlyList<DiscordGuildEmoji>> GetEmojisAsync() =>
+            this.Discord.ApiClient.GetGuildEmojisAsync(this.Id);
+
+        /// <summary>
+        /// Gets this guild's specified custom emoji.
+        /// </summary>
+        /// <param name="id">ID of the emoji to get.</param>
+        /// <returns>The requested custom emoji.</returns>
+        public Task<DiscordGuildEmoji> GetEmojiAsync(ulong id) =>
+            this.Discord.ApiClient.GetGuildEmojiAsync(this.Id, id);
+
+        /// <summary>
+        /// Creates a new custom emoji for this guild.
+        /// </summary>
+        /// <param name="name">Name of the new emoji.</param>
+        /// <param name="image">Image to use as the emoji.</param>
+        /// <param name="roles">Roles for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
+        /// <param name="reason">Reason for audit log.</param>
+        /// <returns>The newly-created emoji.</returns>
+        public Task<DiscordGuildEmoji> CreateEmojiAsync(string name, Stream image, IEnumerable<DiscordRole> roles = null, string reason = null)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+
+            name = name.Trim();
+            if (name.Length < 2 || name.Length > 50)
+                throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+
+            if (image == null)
+                throw new ArgumentNullException(nameof(image));
+
+            string image64 = null;
+            using (var imgtool = new ImageTool(image))
+                image64 = imgtool.GetBase64();
+
+            return this.Discord.ApiClient.CreateGuildEmojiAsync(this.Id, name, image64, roles?.Select(xr => xr.Id), reason);
+        }
+
+        /// <summary>
+        /// Modifies a this guild's custom emoji.
+        /// </summary>
+        /// <param name="emoji">Emoji to modify.</param>
+        /// <param name="name">New name for the emoji.</param>
+        /// <param name="roles">Roles for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
+        /// <param name="reason">Reason for audit log.</param>
+        /// <returns>The modified emoji.</returns>
+        public Task<DiscordGuildEmoji> ModifyEmojiAsync(DiscordGuildEmoji emoji, string name, IEnumerable<DiscordRole> roles = null, string reason = null)
+        {
+            if (emoji == null)
+                throw new ArgumentNullException(nameof(emoji));
+
+            if (emoji.Guild.Id != this.Id)
+                throw new ArgumentException("This emoji does not belong to this guild.");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+
+            name = name.Trim();
+            if (name.Length < 2 || name.Length > 50)
+                throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+
+            return this.Discord.ApiClient.ModifyGuildEmojiAsync(this.Id, emoji.Id, name, roles?.Select(xr => xr.Id), reason);
+        }
+
+        /// <summary>
+        /// Deletes this guild's custom emoji.
+        /// </summary>
+        /// <param name="emoji">Emoji to delete.</param>
+        /// <param name="reason">Reason for audit log.</param>
+        /// <returns></returns>
+        public Task DeleteEmojiAsync(DiscordGuildEmoji emoji, string reason = null)
+        {
+            if (emoji == null)
+                throw new ArgumentNullException(nameof(emoji));
+
+            if (emoji.Guild.Id != this.Id)
+                throw new ArgumentException("This emoji does not belong to this guild.");
+
+            return this.Discord.ApiClient.DeleteGuildEmojiAsync(this.Id, emoji.Id, reason);
+        }
+
+        /// <summary>
         /// Gets the default channel for this member.
         /// </summary>
         /// <returns>This member's default channel.</returns>
