@@ -996,7 +996,7 @@ namespace DSharpPlus
             DiscordChannel chn;
             ulong gid;
             ulong cid;
-            DiscordUser usr;
+            TransportUser usr;
 
             switch (payload.EventName.ToLowerInvariant())
             {
@@ -1047,13 +1047,13 @@ namespace DSharpPlus
                     break;
 
                 case "guild_ban_add":
-                    usr = dat.ToObject<DiscordUser>();
+                    usr = dat["user"].ToObject<TransportUser>();
                     gid = (ulong)dat["guild_id"];
                     await OnGuildBanAddEventAsync(usr, this._guilds[gid]);
                     break;
 
                 case "guild_ban_remove":
-                    usr = dat.ToObject<DiscordUser>();
+                    usr = dat["user"].ToObject<TransportUser>();
                     gid = (ulong)dat["guild_id"];
                     await OnGuildBanRemoveEventAsync(usr, this._guilds[gid]);
                     break;
@@ -1551,9 +1551,9 @@ namespace DSharpPlus
             await this._presence_update.InvokeAsync(ea);
         }
 
-        internal async Task OnGuildBanAddEventAsync(DiscordUser user, DiscordGuild guild)
+        internal async Task OnGuildBanAddEventAsync(TransportUser user, DiscordGuild guild)
         {
-            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(user) { Discord = this, _guild_id = guild.Id };
+            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(new DiscordUser(user)) { Discord = this, _guild_id = guild.Id };
             var ea = new GuildBanAddEventArgs(this)
             {
                 Guild = guild,
@@ -1562,9 +1562,9 @@ namespace DSharpPlus
             await this._guild_ban_add.InvokeAsync(ea);
         }
 
-        internal async Task OnGuildBanRemoveEventAsync(DiscordUser user, DiscordGuild guild)
+        internal async Task OnGuildBanRemoveEventAsync(TransportUser user, DiscordGuild guild)
         {
-            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(user) { Discord = this, _guild_id = guild.Id };
+            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(new DiscordUser(user)) { Discord = this, _guild_id = guild.Id };
             var ea = new GuildBanRemoveEventArgs(this)
             {
                 Guild = guild,
