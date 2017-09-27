@@ -19,7 +19,7 @@ namespace DSharpPlus.Net.Abstractions
         /// Gets the current user.
         /// </summary>
         [JsonProperty("user")]
-        public DiscordUser CurrentUser { get; private set; }
+        public TransportUser CurrentUser { get; private set; }
 
         /// <summary>
         /// Gets the private channels available for this shard.

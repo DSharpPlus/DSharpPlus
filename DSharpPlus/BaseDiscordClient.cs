@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
@@ -40,22 +38,25 @@ namespace DSharpPlus
             return vs;
         });
 
-        internal DiscordUser _current_user;
         /// <summary>
         /// Gets the current user.
         /// </summary>
-        public DiscordUser CurrentUser => this._current_user;
+        public DiscordUser CurrentUser { get; internal set; }
 
-        internal DiscordApplication _current_application;
         /// <summary>
         /// Gets the current application.
         /// </summary>
-        public DiscordApplication CurrentApplication => this._current_application;
+        public DiscordApplication CurrentApplication { get; internal set; }
 
         /// <summary>
         /// Gets the cached guilds for this client.
         /// </summary>
         public abstract IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
+
+        /// <summary>
+        /// Gets the cached users for this client.
+        /// </summary>
+        protected internal Dictionary<ulong, DiscordUser> UserCache { get; }
 
         /// <summary>
         /// Initializes this Discord API client.
@@ -66,6 +67,7 @@ namespace DSharpPlus
             this.Configuration = config;
             this.ApiClient = new DiscordApiClient(this);
             this.DebugLogger = new DebugLogger(this);
+            this.UserCache = new Dictionary<ulong, DiscordUser>();
         }
 
         /// <summary>
@@ -81,12 +83,18 @@ namespace DSharpPlus
         /// <returns></returns>
         public virtual async Task InitializeAsync()
         {
-            if (this._current_user == null)
-                this._current_user = await this.ApiClient.GetCurrentUserAsync();
+            if (this.CurrentUser == null)
+            {
+                this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
+                this.UserCache[this.CurrentUser.Id] = this.CurrentUser;
+            }
 
-            if (this.Configuration.TokenType != TokenType.User && this._current_application == null)
-                this._current_application = await this.GetCurrentApplicationAsync();
+            if (this.Configuration.TokenType != TokenType.User && this.CurrentApplication == null)
+                this.CurrentApplication = await this.GetCurrentApplicationAsync();
         }
+
+        internal DiscordUser InternalGetCachedUser(ulong user_id) =>
+            this.UserCache.TryGetValue(user_id, out var user) ? user : null;
 
         /// <summary>
         /// Disposes this client.

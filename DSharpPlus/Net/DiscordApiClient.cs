@@ -44,6 +44,57 @@ namespace DSharpPlus.Net
                 return vals;
         }
 
+        private DiscordMessage PrepareMessage(JToken msg_raw)
+        {
+            var author = msg_raw["author"].ToObject<TransportUser>();
+            var ret = msg_raw.ToObject<DiscordMessage>();
+            ret.Discord = this.Discord;
+
+            var guild = ret.Channel?.Guild;
+
+            if (!this.Discord.UserCache.TryGetValue(author.Id, out var usr))
+                this.Discord.UserCache[author.Id] = (usr = new DiscordUser(author) { Discord = this.Discord });
+
+            if (guild != null)
+            {
+                var mbr = guild.Members.FirstOrDefault(xm => xm.Id == author.Id) ?? new DiscordMember(usr) { Discord = this.Discord, _guild_id = guild.Id };
+                ret.Author = mbr;
+            }
+            else
+            {
+                ret.Author = usr;
+            }
+
+            var mentioned_users = new List<DiscordUser>();
+            var mentioned_roles = guild != null ? new List<DiscordRole>() : null;
+            var mentioned_channels = guild != null ? new List<DiscordChannel>() : null;
+
+            if (!string.IsNullOrWhiteSpace(ret.Content))
+            {
+                if (guild != null)
+                {
+                    mentioned_users = Utilities.GetUserMentions(ret).Select(xid => guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_roles = Utilities.GetRoleMentions(ret).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
+                    mentioned_channels = Utilities.GetChannelMentions(ret).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
+                }
+                else
+                {
+                    mentioned_users = Utilities.GetUserMentions(ret).Select(this.Discord.InternalGetCachedUser).ToList();
+                }
+            }
+
+            ret._mentioned_users = mentioned_users;
+            ret._mentioned_roles = mentioned_roles;
+            ret._mentioned_channels = mentioned_channels;
+
+            if (ret._reactions == null)
+                ret._reactions = new List<DiscordReaction>();
+            foreach (var xr in ret._reactions)
+                xr.Emoji.Discord = this.Discord;
+
+            return ret;
+        }
+
         private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, string payload = "")
         {
             var req = new RestRequest(client, bucket, url, method, headers, payload);
@@ -150,7 +201,11 @@ namespace DSharpPlus.Net
 
             var bans_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response).Select(xb => 
             {
-                xb.User = (this.Discord as DiscordClient)?.InternalGetCachedUser(xb.RawUser.Id) ?? new DiscordUser(xb.RawUser) { Discord = this.Discord };
+                var usr = this.Discord.InternalGetCachedUser(xb.RawUser.Id);
+                if (usr == null)
+                    this.Discord.UserCache[xb.RawUser.Id] = (usr = new DiscordUser(xb.RawUser) { Discord = this.Discord });
+
+                xb.User = usr;
                 return xb;
             });
             var bans = new ReadOnlyCollection<DiscordBan>(new List<DiscordBan>(bans_raw));
@@ -404,8 +459,7 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
-            ret.Discord = this.Discord;
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -435,11 +489,9 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id = channel_id.ToString(CultureInfo.InvariantCulture) }, out var path);
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: JsonConvert.SerializeObject(pld));
 
-            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
-            ret.Discord = this.Discord;
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -471,8 +523,7 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, values: values, files: file);
 
-            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
-            ret.Discord = this.Discord;
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -503,8 +554,7 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, values: values, files: files);
 
-            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
-            ret.Discord = this.Discord;
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -540,7 +590,10 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path, urlparams.Any() ? BuildQueryString(urlparams) : ""));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var msgs = JsonConvert.DeserializeObject<IEnumerable<DiscordMessage>>(res.Response).Select(xm => { xm.Discord = this.Discord; return xm; });
+            var msgs_raw = JArray.Parse(res.Response);
+            var msgs = new List<DiscordMessage>();
+            foreach (var xj in msgs_raw)
+                msgs.Add(this.PrepareMessage(xj));
 
             return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
         }
@@ -553,8 +606,7 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
-            ret.Discord = this.Discord;
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -578,8 +630,7 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, payload: JsonConvert.SerializeObject(pld));
 
-            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
-            ret.Discord = this.Discord;
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -704,9 +755,12 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var messages_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordMessage>>(res.Response).Select(xm => { xm.Discord = this.Discord; return xm; });
+            var msgs_raw = JArray.Parse(res.Response);
+            var msgs = new List<DiscordMessage>();
+            foreach (var xj in msgs_raw)
+                msgs.Add(this.PrepareMessage(xj));
 
-            return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(messages_raw));
+            return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
         }
 
         internal Task PinMessageAsync(ulong channel_id, ulong message_id)
@@ -822,6 +876,9 @@ namespace DSharpPlus.Net
 
             var tm = JsonConvert.DeserializeObject<TransportMember>(res.Response);
 
+            if (!this.Discord.UserCache.ContainsKey(tm.User.Id))
+                this.Discord.UserCache[tm.User.Id] = new DiscordUser(tm.User);
+
             return new DiscordMember(tm)
             {
                 Discord = this.Discord,
@@ -842,7 +899,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE);
         }
 
-        internal async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64_avatar)
+        internal async Task<TransportUser> ModifyCurrentUserAsync(string username, string base64_avatar)
         {
             var pld = new RestUserUpdateCurrentPayload
             {
@@ -857,9 +914,8 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, payload: JsonConvert.SerializeObject(pld));
 
             var user_raw = JsonConvert.DeserializeObject<TransportUser>(res.Response);
-            var user = new DiscordUser(user_raw) { Discord = this.Discord };
 
-            return user;
+            return user_raw;
         }
 
         internal async Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
@@ -1539,10 +1595,17 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response)
-                .Select(xtu => (this.Discord as DiscordClient)?.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this.Discord });
+            var reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response);
+            var reacters = new List<DiscordUser>();
+            foreach (var xr in reacters_raw)
+            {
+                if (!this.Discord.UserCache.ContainsKey(xr.Id))
+                    this.Discord.UserCache[xr.Id] = new DiscordUser(xr);
 
-            return new ReadOnlyCollection<DiscordUser>(new List<DiscordUser>(reacters_raw));
+                reacters.Add(this.Discord.UserCache[xr.Id]);
+            }
+
+            return new ReadOnlyCollection<DiscordUser>(new List<DiscordUser>(reacters));
         }
 
         internal Task DeleteAllReactionsAsync(ulong channel_id, ulong message_id, string reason)

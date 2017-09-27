@@ -28,13 +28,13 @@ namespace DSharpPlus.Entities
         /// Gets this user's username.
         /// </summary>
         [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
-        public string Username { get; internal set; }
+        public virtual string Username { get; internal set; }
 
         /// <summary>
         /// Gets the user's 4-digit discriminator.
         /// </summary>
         [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
-        public string Discriminator { get; internal set; }
+        public virtual string Discriminator { get; internal set; }
 
         [JsonIgnore]
         internal int DiscriminatorInt => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
@@ -43,7 +43,7 @@ namespace DSharpPlus.Entities
         /// Gets the user's avatar hash.
         /// </summary>
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
-        public string AvatarHash { get; internal set; }
+        public virtual string AvatarHash { get; internal set; }
 
         /// <summary>
         /// Gets the user's avatar URL.
@@ -61,25 +61,25 @@ namespace DSharpPlus.Entities
         /// Gets whether the user is a bot.
         /// </summary>
         [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
-        public bool IsBot { get; internal set; }
+        public virtual bool IsBot { get; internal set; }
 
         /// <summary>
         /// Gets whether the user has multi-factor authentication enabled.
         /// </summary>
         [JsonProperty("mfa_enabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? MfaEnabled { get; internal set; }
+        public virtual bool? MfaEnabled { get; internal set; }
 
         /// <summary>
         /// Gets whether the user is verified.
         /// </summary>
         [JsonProperty("verified", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Verified { get; internal set; }
+        public virtual bool? Verified { get; internal set; }
 
         /// <summary>
         /// Gets the user's email address.
         /// </summary>
         [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
-        public string Email { get; internal set; }
+        public virtual string Email { get; internal set; }
 
         /// <summary>
         /// Gets the user's mention string.
@@ -176,7 +176,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this user.</returns>
         public override string ToString()
         {
-            return string.Concat("Member ", this.Id, "; ", this.Username, "#", this.Discriminator);
+            return $"User {this.Id}; {this.Username}#{this.Discriminator}";
         }
 
         /// <summary>

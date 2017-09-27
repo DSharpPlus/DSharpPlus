@@ -597,10 +597,10 @@ namespace DSharpPlus
                     throw new Exception("Could not initialize shards");
 
                 if (this.CurrentUser != null)
-                    client._current_user = this.CurrentUser;
+                    client.CurrentUser = this.CurrentUser;
 
                 if (this._current_application != null)
-                    client._current_application = this.CurrentApplication;
+                    client.CurrentApplication = this.CurrentApplication;
 
                 client.ClientErrored += this.Client_ClientError;
                 client.SocketErrored += this.Client_SocketError;

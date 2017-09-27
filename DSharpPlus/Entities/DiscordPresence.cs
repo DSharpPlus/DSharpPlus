@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using DSharpPlus.Net.Abstractions;
+﻿using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -19,7 +18,7 @@ namespace DSharpPlus.Entities
         /// Gets the user that owns this presence.
         /// </summary>
         [JsonIgnore]
-        public DiscordUser User => this.Guild != null ? this.Guild._members.FirstOrDefault(xm => xm.Id == this.InternalUser.Id) : this.Discord.InternalGetCachedUser(this.InternalUser.Id) ?? new DiscordUser(this.InternalUser) { Discord = this.Discord };
+        public DiscordUser User => this.Discord.InternalGetCachedUser(this.InternalUser.Id);
 
         /// <summary>
         /// Gets the game this user is playing.

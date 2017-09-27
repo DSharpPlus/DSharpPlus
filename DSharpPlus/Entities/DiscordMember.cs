@@ -21,29 +21,23 @@ namespace DSharpPlus.Entities
 
         internal DiscordMember(DiscordUser user)
         {
-            this.AvatarHash = user.AvatarHash;
             this.Discord = user.Discord;
-            this.Discriminator = user.Discriminator;
-            this.Email = user.Email;
-            this.Id = user.Id;
-            this.IsBot = user.IsBot;
-            this.MfaEnabled = user.MfaEnabled;
-            this.Username = user.Username;
-            this.Verified = user.Verified;
-            this._role_ids = new List<ulong>();
 
+            this.Id = user.Id;
+
+            this._role_ids = new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
 
         internal DiscordMember(TransportMember mbr)
-            : base(mbr.User)
         {
+            this.Id = mbr.User.Id;
             this.IsDeafened = mbr.IsDeafened;
             this.IsMuted = mbr.IsMuted;
             this.JoinedAt = mbr.JoinedAt;
             this.Nickname = mbr.Nickname;
-            this._role_ids = mbr.Roles ?? new List<ulong>();
 
+            this._role_ids = mbr.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
 
@@ -127,6 +121,74 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public bool IsOwner => this.Id == this.Guild.OwnerId;
+
+        #region Overriden user properties
+        [JsonIgnore]
+        internal DiscordUser User => this.Discord.UserCache[this.Id];
+
+        /// <summary>
+        /// Gets this member's username.
+        /// </summary>
+        public override string Username
+        {
+            get { return this.User.Username; }
+            internal set { this.User.Username = value; }
+        }
+
+        /// <summary>
+        /// Gets the user's 4-digit discriminator.
+        /// </summary>
+        public override string Discriminator
+        {
+            get { return this.User.Discriminator; }
+            internal set { this.User.Username = value; }
+        }
+
+        /// <summary>
+        /// Gets the user's avatar hash.
+        /// </summary>
+        public override string AvatarHash
+        {
+            get { return this.User.AvatarHash; }
+            internal set { this.User.AvatarHash = value; }
+        }
+
+        /// <summary>
+        /// Gets whether the user is a bot.
+        /// </summary>
+        public override bool IsBot
+        {
+            get { return this.User.IsBot; }
+            internal set { this.User.IsBot = value; }
+        }
+
+        /// <summary>
+        /// Gets the user's email address.
+        /// </summary>
+        public override string Email
+        {
+            get { return this.User.Email; }
+            internal set { this.User.Email = value; }
+        }
+
+        /// <summary>
+        /// Gets whether the user has multi-factor authentication enabled.
+        /// </summary>
+        public override bool? MfaEnabled
+        {
+            get { return this.User.MfaEnabled; }
+            internal set { this.User.MfaEnabled = value; }
+        }
+
+        /// <summary>
+        /// Gets whether the user is verified.
+        /// </summary>
+        public override bool? Verified
+        {
+            get { return this.User.Verified; }
+            internal set { this.User.Verified = value; }
+        }
+        #endregion
 
         /// <summary>
         /// Creates a direct message channel to this member.
@@ -314,7 +376,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this member.</returns>
         public override string ToString()
         {
-            return string.Concat("Member ", this.Id, "; ", this.Username, "#", this.Discriminator, " (", this.DisplayName, ")");
+            return $"Member {this.Id}; {this.Username}#{this.Discriminator} ({this.DisplayName})";
         }
 
         /// <summary>
