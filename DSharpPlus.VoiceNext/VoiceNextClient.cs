@@ -99,11 +99,6 @@ namespace DSharpPlus.VoiceNext
                 GuildId = vsru.Guild.Id,
                 Token = vsru.VoiceToken
             };
-
-            TaskCompletionSource<VoiceStateUpdateEventArgs> d1 = null;
-            TaskCompletionSource<VoiceServerUpdateEventArgs> d2 = null;
-            this.VoiceStateUpdates.TryRemove(gld.Id, out d1);
-            this.VoiceServerUpdates.TryRemove(gld.Id, out d2);
             
             var vnc = new VoiceNextConnection(this.Client, gld, channel, this.Configuration, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
@@ -151,8 +146,11 @@ namespace DSharpPlus.VoiceNext
             if (gld == null)
                 return Task.Delay(0);
 
-            if (this.VoiceStateUpdates.ContainsKey(gld.Id))
-                this.VoiceStateUpdates[gld.Id].SetResult(e);
+            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Client.CurrentUser.Id && this.VoiceStateUpdates.ContainsKey(gld.Id))
+            {
+                this.VoiceStateUpdates.TryRemove(gld.Id, out var xe);
+                xe.SetResult(e);
+            }
 
             return Task.Delay(0);
         }
@@ -164,7 +162,10 @@ namespace DSharpPlus.VoiceNext
                 return Task.Delay(0);
 
             if (this.VoiceServerUpdates.ContainsKey(gld.Id))
-                this.VoiceServerUpdates[gld.Id].SetResult(e);
+            {
+                this.VoiceServerUpdates.TryRemove(gld.Id, out var xe);
+                xe.SetResult(e);
+            }
 
             return Task.Delay(0);
         }
