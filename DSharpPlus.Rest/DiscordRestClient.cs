@@ -173,7 +173,8 @@ namespace DSharpPlus
 
         public Task RemoveGuildMemberAsync(ulong guild_id, ulong user_id, string reason) => ApiClient.RemoveGuildMemberAsync(guild_id, user_id, reason);
 
-        public Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64_avatar) => ApiClient.ModifyCurrentUserAsync(username, base64_avatar);
+        public async Task<DiscordUser> ModifyCurrentUserAsync(string username, string base64_avatar) => 
+            new DiscordUser(await ApiClient.ModifyCurrentUserAsync(username, base64_avatar)) { Discord = this };
 
         public async Task<DiscordUser> EditCurrentUserAsync(string username = null, Stream avatar = null)
         {
@@ -182,7 +183,7 @@ namespace DSharpPlus
                 using (var imgtool = new ImageTool(avatar))
                     av64 = imgtool.GetBase64();
 
-            return await ApiClient.ModifyCurrentUserAsync(username, av64);
+            return new DiscordUser(await ApiClient.ModifyCurrentUserAsync(username, av64)) { Discord = this };
         }
 
         public Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
