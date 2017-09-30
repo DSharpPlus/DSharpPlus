@@ -98,8 +98,8 @@ If you run your bot now, join a voice channel, and call `;;join`, the bot should
 Your bot can now connect and disconnect, however it still cannot do the most important thing - broadcast audio.
 
 Let's change that. Create a new command called `play`. Give it a string argument called `file`, and mark it with 
-[RemainingText attribute](/api/DSharpPlus.CommandsNext.Attributes.RemainingTextAttribute.html) attribute. That will make 
-that argument capture all the text after the command's name.
+[RemainingText attribute](xref:DSharpPlus.CommandsNext.Attributes.RemainingTextAttribute). It will make that 
+argument capture all the text after the command's name.
 
 What you want to do right now, is something along these lines:
 

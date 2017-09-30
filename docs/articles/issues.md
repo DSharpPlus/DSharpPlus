@@ -6,7 +6,8 @@ that happen while we fix bugs or implement new issues.
 
 ## GitHub issue tracker
 
-If you find a bug, come up with a new idea, or just want to report something, you can open an issue on our [GitHub Issue Tracker](https://github.com/NaamloosDT/DSharpPlus/issues "DSharpPlus issues on GitHub").
+If you find a bug, come up with a new idea, or just want to report something, you can open an issue on our 
+[GitHub Issue Tracker](https://github.com/NaamloosDT/DSharpPlus/issues "DSharpPlus issues on GitHub").
 
 When opening an issue, make sure to include as much detail as possible. If at all possible, please include:
 

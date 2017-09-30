@@ -91,7 +91,7 @@ discord = new DiscordClient(new DiscordConfiguration
 ```
 
 You have initialized your client instance, but it does nothing yet. Let's make it listen for incoming messages, and respond 
-with "pong" to messages that start with "ping". For that, you need to utilize the [MessageCreated event](/api/DSharpPlus.DiscordClient.html#DSharpPlus_DiscordClient_MessageCreated) 
+with "pong" to messages that start with "ping". For that, you need to utilize the @DSharpPlus.DiscordClient.MessageCreated event.
 of the client. Let's hook it then:
 
 ```cs
@@ -104,7 +104,7 @@ discord.MessageCreated += async e =>
 
 Now, once the bot connects, it will respond with "pong!" to each message that starts with "ping".
 
-But that will happen only once you connect, so how do you do that? You use the [ConnectAsync method](/api/DSharpPlus.DiscordClient.html#DSharpPlus_DiscordClient_ConnectAsync) 
+But that will happen only once you connect, so how do you do that? You use the @DSharpPlus.DiscordClient.ConnectAsync method.
 of the client. You will need to `await` it, which is why you had to make an asynchronous `Main` method.
 
 ```cs

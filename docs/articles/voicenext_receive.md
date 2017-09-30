@@ -19,8 +19,7 @@ voice = discord.UseVoiceNext(new VoiceNextConfiguration
 ## 2. Hooking it up
 
 The first thing to do when you want to listen is hooking the appropriate events. `VoiceNextConnection` offers 2: 
-[UserSpeaking](/api/DSharpPlus.VoiceNext.VoiceNextConnection.html#DSharpPlus_VoiceNext_VoiceNextConnection_UserSpeaking) and 
-[VoiceReceived](/api/DSharpPlus.VoiceNext.VoiceNextConnection.html#DSharpPlus_VoiceNext_VoiceNextConnection_VoiceReceived).
+@DSharpPlus.VoiceNext.VoiceNextConnection.UserSpeaking and @DSharpPlus.VoiceNext.VoiceNextConnection.VoiceReceived.
 
 First, in your command module, you will want to create a non-command method for this handler:
 

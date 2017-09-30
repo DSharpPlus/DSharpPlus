@@ -12,12 +12,12 @@ Each shard gets a different set of guilds, and they only get events appropriate 
 
 ## How do I shard?
 
-In DSharpPlus there are 2 ways to shard. The easy way - using [DiscordShardedClient](/api/DSharpPlus.DiscordShardedClient.html "DiscordShardedClient"), 
-or the hard way, spawning multiple [DiscordClient](/api/DSharpPlus.DiscordClient.html) instances manually.
+In DSharpPlus there are 2 ways to shard. The easy way - using @DSharpPlus.DiscordShardedClient, or the hard way, spawning 
+multiple @DSharpPlus.DiscordClient instances manually.
 
 ### The easy way - DiscordShardedClient
 
-DiscordShardedClient will automatically handle spawning, handling and controlling the appropriate amount of shards for your 
+`DiscordShardedClient` will automatically handle spawning, handling and controlling the appropriate amount of shards for your 
 bot. Additionally, all the modules offer extensions that enable the modules on all of the sharded client's shards automatically.
 
 Sharded client is fairly transparent when it comes to handling events, and since all events expose the `DiscordClient` that 
@@ -25,7 +25,7 @@ emitted it, you can identify which shard did the event came from.
 
 ### The hard way - multiple DiscordClient instances
 
-This is basically operating much like DiscordShardedClient does internally, but you have to manually handle all the events 
+This is basically operating much like `DiscordShardedClient` does internally, but you have to manually handle all the events 
 and shards.
 
 This approach offers more control over your shards than the sharded client does, but it recommended for experiences developers 

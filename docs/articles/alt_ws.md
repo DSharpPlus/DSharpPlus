@@ -29,8 +29,8 @@ First, you need to install the desired WebSocket client implementation. If you'r
 same as for all other DSharpPlus packages.
 
 Then you need to indicate that DSharpPlus should use that specific WebSocket implementation. This is done by calling 
-[SetWebSocketClient method](/api/DSharpPlus.DiscordClient.html#DSharpPlus_DiscordClient_SetWebSocketClient__1) with appropriate 
-generic argument right after you instantiate your Discord client.
+@DSharpPlus.DiscordClient.SetWebSocketClient``1 method with appropriate generic argument right after you instantiate your 
+Discord client.
 
 For example, for WS4Net client, you need to call it as:
 
@@ -50,7 +50,7 @@ Similarly, for WS#:
 client.SetWebSocketClient<WebSocketSharpClient>();
 ```
 
-For any other implementation, make sure it's a class that inherits from [BaseWebSocketClient class](/api/DSharpPlus.Net.WebSocket.BaseWebSocketClient.html "BaseWebSocketClient") 
+For any other implementation, make sure it's a class that inherits from @DSharpPlus.Net.WebSocket.BaseWebSocketClient class 
 and has a public parameter-less constructor.
 
 Lastly, don't forget to add `using DSharpPlus.Net.WebSocket;` at the top of your `.cs` file.
