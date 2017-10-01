@@ -11,13 +11,12 @@
         public string Token
         {
             internal get => this._token;
-
             set => this._token = value.Trim();
         }
         private string _token = "";
 
         /// <summary>
-        /// Sets the type of the token used to identify the client. This is typically <see cref="TokenType.Bot"/> for bots, and <see cref="TokenType.User"/> for selfbots and userbots.
+        /// Sets the type of the token used to identify the client. Defaults to <see cref="TokenType.Bot"/>.
         /// </summary>
         public TokenType TokenType { internal get; set; } = TokenType.Bot;
 
@@ -32,37 +31,38 @@
         public bool UseInternalLogHandler { internal get; set; } = false;
 
         /// <summary>
-        /// Sets the member count threshold at which guilds are considered large.
+        /// Sets the member count threshold at which guilds are considered large. Defaults to 250.
         /// </summary>
         public int LargeThreshold { internal get; set; } = 250;
 
         /// <summary>
-        /// Sets whether to automatically reconnect in case a connection is lost.
+        /// Sets whether to automatically reconnect in case a connection is lost. Defaults to true.
         /// </summary>
         public bool AutoReconnect { internal get; set; } = true;
 
         /// <summary>
-        /// Sets the ID of the shard to connect to. If not sharding, or sharding automatically, this value should be left default.
+        /// Sets the ID of the shard to connect to. If not sharding, or sharding automatically, this value should be left with the default value of 0.
         /// </summary>
         public int ShardId { internal get; set; } = 0;
 
         /// <summary>
-        /// Sets the total number of shards the bot is on. If not sharding, this value should be left default. If sharding automatically, this value will indicate how many shards to boot. If left default for automatic sharding, the client will determine the shard count automatically.
+        /// Sets the total number of shards the bot is on. If not sharding, this value should be left with a default value of 1. If sharding automatically, this value will indicate how many shards 
+        /// to boot. If left default for automatic sharding, the client will determine the shard count automatically.
         /// </summary>
         public int ShardCount { internal get; set; } = 1;
 
         /// <summary>
-        /// Sets whether to enable compression for gateway communication. Disabling this option will increase size of certain dispatches, and might increase login time.
+        /// Sets whether to enable compression for gateway communication. Disabling this option will increase size of certain dispatches, and might increase login time. Defaults to true.
         /// </summary>
         public bool EnableCompression { internal get; set; } = true;
 
         /// <summary>
-        /// Sets the size of the per-channel message cache. Setting this to 0 will disable message caching completely. Do note that large cache will increase RAM usage drastically.
+        /// Sets the size of the global message cache. Setting this to 0 will disable message caching entirely. Defaults to 1024.
         /// </summary>
         public int MessageCacheSize { internal get; set; } = 1024;
 
         /// <summary>
-        /// Sets whether guilds should be automatically synced for user tokens.
+        /// Sets whether guilds should be automatically synced when logging in with a user token. Defaults to true.
         /// </summary>
         public bool AutomaticGuildSync { internal get; set; } = true;
 
