@@ -19,15 +19,13 @@ namespace DSharpPlus.Test
 {
     public sealed class TestBotCommands
     {
-        /*[Command("testreason")]
-        public async Task TestReason(CommandContext e, DiscordMember m)
+        [Command("testpermission")]
+        public async Task TestPermission(CommandContext e, DiscordMember m)
         {
-            e.Client.WithAuditReason("testing");
-            string oldnick = m.Nickname;
-            await m.ModifyAsync("test");
-            await Task.Delay(1000);
-            await m.ModifyAsync(oldnick);
-        }*/
+            var p = e.Channel.PermissionsFor(m);
+            var pl = p.HasPermission(Permissions.BanMembers);
+            await e.RespondAsync($"This member does {(pl ? "" : "not ")}have permission to ban.");
+        }
 
         [Command("testbuilder")]
         public async Task TestBuilder(CommandContext e)
