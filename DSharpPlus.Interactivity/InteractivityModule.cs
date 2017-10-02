@@ -526,12 +526,21 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.TypingStarted += handler;
+            try
+            {
+                this.Client.TypingStarted += handler;
 
-            var result = await tsc.Task;
-
-            this.Client.TypingStarted -= handler;
-            return result;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.TypingStarted -= handler;
+            }
         }
         #endregion
 
@@ -569,7 +578,6 @@ namespace DSharpPlus.Interactivity
             {
                 await this.GeneratePaginationReactions(m);
             };
-            this.Client.MessageReactionsCleared += _reaction_removed_all;
 
             AsyncEventHandler<MessageReactionAddEventArgs> _reaction_added = async e =>
             {
@@ -578,32 +586,43 @@ namespace DSharpPlus.Interactivity
                     await this.DoPagination(e.Emoji, m, pm, ct);
                 }
             };
-            this.Client.MessageReactionAdded += _reaction_added;
 
             AsyncEventHandler<MessageReactionRemoveEventArgs> _reaction_removed = async e =>
             {
                 if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
                     await this.DoPagination(e.Emoji, m, pm, ct);
             };
-            this.Client.MessageReactionRemoved += _reaction_removed;
 
-            await tsc.Task;
-
-            switch (timeout_behaviour)
+            try
             {
-                case TimeoutBehaviour.Default:
-                case TimeoutBehaviour.Ignore:
-                    await m.DeleteAllReactionsAsync();
-                    break;
-                case TimeoutBehaviour.Delete:
-                    await m.DeleteAllReactionsAsync();
-                    await m.DeleteAsync();
-                    break;
-            }
+                this.Client.MessageReactionsCleared += _reaction_removed_all;
+                this.Client.MessageReactionAdded += _reaction_added;
+                this.Client.MessageReactionRemoved += _reaction_removed;
 
-            this.Client.MessageReactionsCleared -= _reaction_removed_all;
-            this.Client.MessageReactionAdded -= _reaction_added;
-            this.Client.MessageReactionRemoved -= _reaction_removed;
+                await tsc.Task;
+
+                switch (timeout_behaviour)
+                {
+                    case TimeoutBehaviour.Default:
+                    case TimeoutBehaviour.Ignore:
+                        await m.DeleteAllReactionsAsync();
+                        break;
+                    case TimeoutBehaviour.Delete:
+                        await m.DeleteAllReactionsAsync();
+                        await m.DeleteAsync();
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionsCleared -= _reaction_removed_all;
+                this.Client.MessageReactionAdded -= _reaction_added;
+                this.Client.MessageReactionRemoved -= _reaction_removed;
+            }
         }
 
         public IEnumerable<Page> GeneratePagesInEmbeds(string input)
