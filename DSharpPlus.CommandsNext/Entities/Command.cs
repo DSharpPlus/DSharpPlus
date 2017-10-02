@@ -93,13 +93,14 @@ namespace DSharpPlus.CommandsNext
         /// Runs pre-execution checks for this command and returns any that fail for given context.
         /// </summary>
         /// <param name="ctx">Context in which the command is executed.</param>
+        /// <param name="help">Whether this check is being executed from help or not. This can be used to probe whether command can be run without setting off certain fail conditions (such as cooldowns).</param>
         /// <returns>Pre-execution checks that fail for given context.</returns>
-        public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx)
+        public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
         {
             var fchecks = new List<CheckBaseAttribute>();
             if (this.ExecutionChecks != null && this.ExecutionChecks.Any())
                 foreach (var ec in this.ExecutionChecks)
-                    if (!(await ec.CanExecute(ctx)))
+                    if (!(await ec.CanExecute(ctx, help)))
                         fchecks.Add(ec);
 
             return fchecks;

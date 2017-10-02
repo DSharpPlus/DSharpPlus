@@ -24,7 +24,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             this.RoleName = role_name;
         }
 
-        public override Task<bool> CanExecute(CommandContext ctx)
+        public override Task<bool> CanExecute(CommandContext ctx, bool help)
         {
             if (ctx.Guild == null || ctx.Member == null)
                 return Task.FromResult(false);

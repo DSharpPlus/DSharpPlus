@@ -124,6 +124,13 @@ namespace DSharpPlus.Entities
             !(e1 == e2);
 
         /// <summary>
+        /// Implicitly converts this emoji to its string representation.
+        /// </summary>
+        /// <param name="e1">Emoji to convert.</param>
+        public static implicit operator string(DiscordEmoji e1) =>
+            e1.ToString();
+
+        /// <summary>
         /// Creates an emoji object from a unicode entity.
         /// </summary>
         /// <param name="client"><see cref="DiscordClient"/> to attach to the object.</param>

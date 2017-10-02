@@ -201,7 +201,7 @@ namespace DSharpPlus.CommandsNext
             {
                 try
                 {
-                    var fchecks = await cmd.RunChecksAsync(ctx);
+                    var fchecks = await cmd.RunChecksAsync(ctx, false);
                     if (fchecks.Any())
                         throw new ChecksFailedException("One or more pre-execution checks failed.", cmd, ctx, fchecks);
 
@@ -545,7 +545,7 @@ namespace DSharpPlus.CommandsNext
                     if (cmd == null)
                         break;
 
-                    var cfl = await cmd.RunChecksAsync(ctx);
+                    var cfl = await cmd.RunChecksAsync(ctx, true);
                     if (cfl.Any())
                         throw new ChecksFailedException("You cannot access that command!", cmd, ctx, cfl);
 
@@ -581,7 +581,7 @@ namespace DSharpPlus.CommandsNext
                             continue;
                         }
 
-                        var cfl = await sc.RunChecksAsync(ctx);
+                        var cfl = await sc.RunChecksAsync(ctx, true);
                         if (!cfl.Any())
                             scs.Add(sc);
                     }
@@ -602,7 +602,7 @@ namespace DSharpPlus.CommandsNext
                         continue;
                     }
 
-                    var cfl = await sc.RunChecksAsync(ctx);
+                    var cfl = await sc.RunChecksAsync(ctx, true);
                     if (!cfl.Any())
                         scs.Add(sc);
                 }

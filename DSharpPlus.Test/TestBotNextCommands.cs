@@ -239,4 +239,20 @@ namespace DSharpPlus.Test
             }
         }
     }
+    
+    //[Cooldown(30, 60, CooldownBucketType.User)]
+    public class TestBotCooledDownCommands
+    {
+        [Command("5p30"), Description("Tests per-user cooldowns."), Cooldown(5, 30, CooldownBucketType.User)]
+        public Task FivePerHalfMinuteAsync(CommandContext ctx) =>
+            ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
+
+        [Command("10p120c"), Description("Tests per-channel cooldowns."), Cooldown(10, 120, CooldownBucketType.Channel)]
+        public Task TenPerTwoMinutesChannelAsync(CommandContext ctx) =>
+            ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
+
+        [Command("2p60g"), Description("Tests per-guild cooldowns."), Cooldown(2, 60, CooldownBucketType.Guild)]
+        public Task TwoPerMinuteGuildAsync(CommandContext ctx) =>
+            ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":white_check_mark:"));
+    }
 }

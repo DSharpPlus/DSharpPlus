@@ -60,7 +60,7 @@ namespace DSharpPlus.CommandsNext
                         Dependencies = ctx.Dependencies
                     };
 
-                    var fchecks = await cmd.RunChecksAsync(xctx);
+                    var fchecks = await cmd.RunChecksAsync(xctx, false);
                     if (fchecks.Any())
                         return new CommandResult
                         {
