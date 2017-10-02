@@ -7,24 +7,24 @@ namespace DSharpPlus
     {
         public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;
         private LogLevel Level { get; }
-        private string TimeFormatting { get; }
+        private string DateTimeFormat { get; }
 
         internal DebugLogger(BaseDiscordClient client)
         {
             this.Level = client.Configuration.LogLevel;
-            this.TimeFormatting = client.Configuration.LogTimeFormatting;
+            this.DateTimeFormat = client.Configuration.DateTimeFormat;
         }
 
         internal DebugLogger(LogLevel level, string timeformatting)
         {
             this.Level = level;
-            this.TimeFormatting = timeformatting;
+            this.DateTimeFormat = timeformatting;
         }
 
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
             if (level <= this.Level)
-                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = this.TimeFormatting });
+                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
@@ -54,7 +54,7 @@ namespace DSharpPlus
                     break;
             }
 
-            Console.Write($"[{e.Timestamp.ToString(this.TimeFormatting)}] [{e.Application}] [{e.Level}]");
+            Console.Write($"[{e.Timestamp.ToString(this.DateTimeFormat)}] [{e.Application}] [{e.Level}]");
             Console.ResetColor();
             Console.WriteLine($" {e.Message}");
 #endif

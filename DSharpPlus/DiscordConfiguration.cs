@@ -31,9 +31,9 @@
         public bool UseInternalLogHandler { internal get; set; } = false;
 
         /// <summary>
-        /// Allows you to overwrite the time format used by the internal debug logger.
+        /// Allows you to overwrite the time format used by the internal debug logger. Only applicable when <see cref="UseInternalLogHandler"/> is set to true. Defaults to ISO 8601-like format.
         /// </summary>
-        public string LogTimeFormatting { internal get; set; } = "yyyy-MM-dd HH:mm:ss zzz";
+        public string DateTimeFormat { internal get; set; } = "yyyy-MM-dd HH:mm:ss zzz";
 
         /// <summary>
         /// Sets the member count threshold at which guilds are considered large. Defaults to 250.

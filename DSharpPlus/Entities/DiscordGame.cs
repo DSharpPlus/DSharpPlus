@@ -40,7 +40,7 @@ namespace DSharpPlus.Entities
     public class DiscordGame
     {
         /// <summary>
-        /// Creates a new, empty instance of a <see cref="Game"/>.
+        /// Creates a new, empty instance of a <see cref="DiscordGame"/>.
         /// </summary>
         public DiscordGame()
         {
@@ -48,7 +48,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Creates a new instance of a <see cref="Game"/> with specified name.
+        /// Creates a new instance of a <see cref="DiscordGame"/> with specified name.
         /// </summary>
         /// <param name="name"></param>
         public DiscordGame(string name)

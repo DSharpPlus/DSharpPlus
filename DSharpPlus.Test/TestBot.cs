@@ -41,7 +41,7 @@ namespace DSharpPlus.Test
                 EnableCompression = true,
                 MessageCacheSize = 50,
                 AutomaticGuildSync = !this.Config.UseUserToken,
-                LogTimeFormatting = "dd-MM-yyyy HH:mm:ss zzz"
+                DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
             Discord = new DiscordClient(dcfg);
 
