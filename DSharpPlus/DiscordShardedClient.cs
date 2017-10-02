@@ -684,7 +684,7 @@ namespace DSharpPlus
         /// <param name="user_status">Status of the user.</param>
         /// <param name="idle_since">Since when is the client idle.</param>
         /// <returns>Asynchronous operation.</returns>
-        public async Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null)
+        public async Task UpdateStatusAsync(DiscordGame game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null)
         {
             var tasks = new List<Task>();
             foreach (var client in this.ShardClients.Values)

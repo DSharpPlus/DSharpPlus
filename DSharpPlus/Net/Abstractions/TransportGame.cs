@@ -104,7 +104,7 @@ namespace DSharpPlus.Net.Abstractions
         public GameSecrets Secrets { get; internal set; }
 
         internal TransportGame() { }
-        internal TransportGame(Game game)
+        internal TransportGame(DiscordGame game)
         {
             if (game == null)
                 return;

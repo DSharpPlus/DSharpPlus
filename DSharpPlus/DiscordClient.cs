@@ -906,7 +906,7 @@ namespace DSharpPlus
         /// <param name="user_status"></param>
         /// <param name="idle_since"></param>
         /// <returns></returns>
-        public Task UpdateStatusAsync(Game game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null) =>
+        public Task UpdateStatusAsync(DiscordGame game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null) =>
             this.InternalUpdateStatusAsync(game, user_status, idle_since);
 
         /// <summary>
@@ -2309,7 +2309,7 @@ namespace DSharpPlus
             catch (OperationCanceledException) { }
         }
 
-        internal Task InternalUpdateStatusAsync(Game game, UserStatus? user_status, DateTimeOffset? idle_since)
+        internal Task InternalUpdateStatusAsync(DiscordGame game, UserStatus? user_status, DateTimeOffset? idle_since)
         {
             if (game != null && game.Name != null && game.Name.Length > 128)
                 throw new Exception("Game name can't be longer than 128 characters!");
@@ -2318,7 +2318,7 @@ namespace DSharpPlus
 
             var status = new StatusUpdate
             {
-                Game = new TransportGame(game ?? new Game()),
+                Game = new TransportGame(game ?? new DiscordGame()),
                 IdleSince = since_unix,
                 IsAFK = idle_since != null,
                 Status = user_status ?? UserStatus.Online
