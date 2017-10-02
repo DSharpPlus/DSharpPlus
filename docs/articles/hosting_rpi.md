@@ -13,7 +13,7 @@ Raspberry Pi comes in 4 versions:
   port, and 4 USB 2.0 ports.
 * **Raspberry Pi 3**, like the 2, only has model B. Features quad-core 1.2GHz ARMv8-A 64-bit CPU (although the default OS is 
   32-bit), 1GB RAM, 10/100 Ethernet, 802.11n Wi-Fi, Bluetooth, and 4 USB 2.0 ports.
-* **Raspbbery Pi Zero** is smaller than the other options, but at the cost of having a single-core 1GHz ARMv6Z CPU, 512MB 
+* **Raspberry Pi Zero** is smaller than the other options, but at the cost of having a single-core 1GHz ARMv6Z CPU, 512MB 
   RAM, and a single Micro-USB 2.0 port. Later revisions also have 802.11n Wi-Fi and Bluetooth.
 
 There are also several clones of Raspberry Pi, some of which pack more computing power. There are 4 ways to run a bot on your 
