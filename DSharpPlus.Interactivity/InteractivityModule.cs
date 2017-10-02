@@ -112,12 +112,20 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageCreated += handler;
-
-            var result = await tsc.Task;
-
-            this.Client.MessageCreated -= handler;
-            return result;
+            try
+            {
+                this.Client.MessageCreated += handler;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageCreated -= handler;
+            }
         }
         #endregion
 
@@ -149,12 +157,21 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageReactionAdded += handler;
+            try
+            {
+                this.Client.MessageReactionAdded += handler;
 
-            var result = await tsc.Task;
-
-            this.Client.MessageReactionAdded -= handler;
-            return result;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= handler;
+            }
         }
 
         public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan? timeoutoverride = null)
@@ -189,12 +206,21 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageReactionAdded += handler;
+            try
+            {
+                this.Client.MessageReactionAdded += handler;
 
-            var result = await tsc.Task;
-
-            this.Client.MessageReactionAdded -= handler;
-            return result;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= handler;
+            }
         }
 
         public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, ulong user_id = 0, TimeSpan? timeoutoverride = null)
@@ -232,12 +258,21 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageReactionAdded += handler;
+            try
+            {
+                this.Client.MessageReactionAdded += handler;
 
-            var result = await tsc.Task;
-
-            this.Client.MessageReactionAdded -= handler;
-            return result;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= handler;
+            }
         }
 
         public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, ulong user_id = 0, TimeSpan? timeoutoverride = null)
@@ -272,12 +307,21 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageReactionAdded += handler;
+            try
+            {
+                this.Client.MessageReactionAdded += handler;
 
-            var result = await tsc.Task;
-
-            this.Client.MessageReactionAdded -= handler;
-            return result;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= handler;
+            }
         }
 
         public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, List<DiscordEmoji> Emojis, TimeSpan? timeoutoverride = null)
@@ -304,8 +348,6 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageReactionAdded += handler1;
-
             AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
             {
                 await Task.Yield();
@@ -314,8 +356,6 @@ namespace DSharpPlus.Interactivity
                     rcc.RemoveReaction(e.Emoji, e.User.Id);
                 }
             };
-
-            this.Client.MessageReactionRemoved += handler2;
 
             AsyncEventHandler<MessageReactionsClearEventArgs> handler3 = async (e) =>
             {
@@ -330,15 +370,25 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageReactionsCleared += handler3;
+            try
+            {
+                this.Client.MessageReactionAdded += handler1;
+                this.Client.MessageReactionRemoved += handler2;
+                this.Client.MessageReactionsCleared += handler3;
 
-            var result = await tsc.Task;
-
-            this.Client.MessageReactionAdded -= handler1;
-            this.Client.MessageReactionRemoved -= handler2;
-            this.Client.MessageReactionsCleared -= handler3;
-
-            return result;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= handler1;
+                this.Client.MessageReactionRemoved -= handler2;
+                this.Client.MessageReactionsCleared -= handler3;
+            }
         }
 
         public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
@@ -360,8 +410,6 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageReactionAdded += handler1;
-
             AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
             {
                 await Task.Yield();
@@ -370,8 +418,6 @@ namespace DSharpPlus.Interactivity
                     rcc.RemoveReaction(e.Emoji);
                 }
             };
-
-            this.Client.MessageReactionRemoved += handler2;
 
             AsyncEventHandler<MessageReactionsClearEventArgs> handler3 = async (e) =>
             {
@@ -382,15 +428,25 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.MessageReactionsCleared += handler3;
+            try
+            {
+                this.Client.MessageReactionAdded += handler1;
+                this.Client.MessageReactionRemoved += handler2;
+                this.Client.MessageReactionsCleared += handler3;
 
-            var result = await tsc.Task;
-
-            this.Client.MessageReactionAdded -= handler1;
-            this.Client.MessageReactionRemoved -= handler2;
-            this.Client.MessageReactionsCleared -= handler3;
-
-            return result;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= handler1;
+                this.Client.MessageReactionRemoved -= handler2;
+                this.Client.MessageReactionsCleared -= handler3;
+            }
         }
         #endregion
 
@@ -425,12 +481,21 @@ namespace DSharpPlus.Interactivity
                 }
             };
 
-            this.Client.TypingStarted += handler;
+            try
+            {
+                this.Client.TypingStarted += handler;
 
-            var result = await tsc.Task;
-
-            this.Client.TypingStarted -= handler;
-            return result;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.TypingStarted -= handler;
+            }
         }
 
         public async Task<TypingContext> WaitForTypingChannelAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
