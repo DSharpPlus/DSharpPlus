@@ -100,7 +100,14 @@ namespace DSharpPlus.Test
             this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
 
             // interactivity service
-            this.InteractivityService = Discord.UseInteractivity();
+            var icfg = new InteractivityConfiguration()
+            {
+                PaginationBehaviour = TimeoutBehaviour.Delete,
+                PaginationTimeout = TimeSpan.FromSeconds(30),
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+
+            this.InteractivityService = Discord.UseInteractivity(icfg);
         }
 
         public async Task RunAsync()

@@ -189,7 +189,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 DiscordEmoji.FromUnicode("👍"),
                 DiscordEmoji.FromUnicode("👎")
             };
-            var list = await e.Client.GetInteractivityModule().CreatePollAsync(m, TimeSpan.FromSeconds(30), Options);
+            var list = await e.Client.GetInteractivityModule().CreatePollAsync(m, Options);
             string reactions = "We're done people!\n\nResults:";
             foreach (var collected in list.Reactions)
             {

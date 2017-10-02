@@ -12,17 +12,17 @@ namespace DSharpPlus.Interactivity
     #region Extension stuff
     public static class InteractivityExtension
     {
-        public static InteractivityModule UseInteractivity(this DiscordClient c)
+        public static InteractivityModule UseInteractivity(this DiscordClient c, InteractivityConfiguration cfg)
         {
             if (c.GetModule<InteractivityModule>() != null)
                 throw new Exception("Interactivity module is already enabled for this client!");
 
-            var m = new InteractivityModule();
+            var m = new InteractivityModule(cfg);
             c.AddModule(m);
             return m;
         }
 
-        public static IReadOnlyDictionary<int, InteractivityModule> UseInteractivity(this DiscordShardedClient c)
+        public static IReadOnlyDictionary<int, InteractivityModule> UseInteractivity(this DiscordShardedClient c, InteractivityConfiguration cfg)
         {
             var modules = new Dictionary<int, InteractivityModule>();
 
@@ -32,7 +32,7 @@ namespace DSharpPlus.Interactivity
             {
                 var m = shard.GetModule<InteractivityModule>();
                 if (m == null)
-                    m = shard.UseInteractivity();
+                    m = shard.UseInteractivity(cfg);
 
                 modules.Add(shard.ShardId, m);
             }
@@ -74,14 +74,25 @@ namespace DSharpPlus.Interactivity
 
     public class InteractivityModule : BaseModule
     {
+        private InteractivityConfiguration Config { get; }
+
+        internal InteractivityModule(InteractivityConfiguration cfg)
+        {
+            this.Config = cfg;
+        }
+
         protected internal override void Setup(DiscordClient client)
         {
             this.Client = client;
         }
 
         #region Message
-        public async Task<MessageContext> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, TimeSpan timeout)
+        public async Task<MessageContext> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, TimeSpan? timeoutoverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
             var tsc = new TaskCompletionSource<MessageContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -111,8 +122,12 @@ namespace DSharpPlus.Interactivity
         #endregion
 
         #region Reaction
-        public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, TimeSpan timeout)
+        public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, TimeSpan? timeoutoverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
             var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -142,8 +157,12 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan timeout)
+        public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan? timeoutoverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
             var user_id = user.Id;
             var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
@@ -178,8 +197,12 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, TimeSpan timeout, ulong user_id = 0)
+        public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, ulong user_id = 0, TimeSpan? timeoutoverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
             var message_id = msg.Id;
             var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
@@ -217,8 +240,12 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, TimeSpan timeout, ulong user_id = 0)
+        public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, ulong user_id = 0, TimeSpan? timeoutoverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
             var message_id = msg.Id;
             var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
@@ -253,9 +280,13 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, TimeSpan timeout, List<DiscordEmoji> Emojis)
+        public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, List<DiscordEmoji> Emojis, TimeSpan? timeoutoverride = null)
         {
-            foreach(var em in Emojis)
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
+            foreach (var em in Emojis)
             {
                 await m.CreateReactionAsync(em);
             }
@@ -310,8 +341,12 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage m, TimeSpan timeout)
+        public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
             var rcc = new ReactionCollectionContext();
             var tsc = new TaskCompletionSource<ReactionCollectionContext>();
             var ct = new CancellationTokenSource(timeout);
@@ -362,8 +397,12 @@ namespace DSharpPlus.Interactivity
         #region Typing
         // I don't really know anymore why I added this.. -Naam
         // I think I told you it might be useful, but tbh I have no idea myself -Emzi
-        public async Task<TypingContext> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan timeout)
+        public async Task<TypingContext> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
             var channel_id = channel.Id;
             var tsc = new TaskCompletionSource<TypingContext>();
             var ct = new CancellationTokenSource(timeout);
@@ -394,8 +433,12 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task<TypingContext> WaitForTypingChannelAsync(DiscordUser user, TimeSpan timeout)
+        public async Task<TypingContext> WaitForTypingChannelAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
             var user_id = user.Id;
             var tsc = new TaskCompletionSource<TypingContext>();
             var ct = new CancellationTokenSource(timeout);
@@ -428,8 +471,16 @@ namespace DSharpPlus.Interactivity
         #endregion
 
         #region Pagination
-        public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> message_pages, TimeSpan timeout, TimeoutBehaviour timeout_behaviour)
+        public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> message_pages, TimeSpan? timeoutoverride = null, TimeoutBehaviour? timeoutbehaviouroverride = null)
         {
+            TimeSpan timeout = Config.Timeout;
+            if (timeoutoverride != null)
+                timeout = (TimeSpan)timeoutoverride;
+
+            TimeoutBehaviour timeout_behaviour = Config.PaginationBehaviour;
+            if (timeoutbehaviouroverride != null)
+                timeout_behaviour = (TimeoutBehaviour)timeoutbehaviouroverride;
+
             List<Page> pages = message_pages.ToList();
 
             if (pages.Count() == 0)
@@ -599,3 +650,5 @@ namespace DSharpPlus.Interactivity
 // wait don't im not 18 yet
 
 // I mean I don't mind..
+
+// comeon send those nudes man
