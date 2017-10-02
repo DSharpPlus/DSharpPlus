@@ -7,21 +7,24 @@ namespace DSharpPlus
     {
         public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;
         private LogLevel Level { get; }
+        private string TimeFormatting { get; }
 
         internal DebugLogger(BaseDiscordClient client)
         {
             this.Level = client.Configuration.LogLevel;
+            this.TimeFormatting = client.Configuration.LogTimeFormatting;
         }
 
-        internal DebugLogger(LogLevel level)
+        internal DebugLogger(LogLevel level, string timeformatting)
         {
             this.Level = level;
+            this.TimeFormatting = timeformatting;
         }
 
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
             if (level <= this.Level)
-                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp });
+                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = this.TimeFormatting });
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
@@ -51,7 +54,7 @@ namespace DSharpPlus
                     break;
             }
 
-            Console.Write($"[{e.Timestamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{e.Application}] [{e.Level}]");
+            Console.Write($"[{e.Timestamp.ToString(this.TimeFormatting)}] [{e.Application}] [{e.Level}]");
             Console.ResetColor();
             Console.WriteLine($" {e.Message}");
 #endif
@@ -85,9 +88,11 @@ namespace DSharpPlus
             /// </summary>
             public DateTime Timestamp { get; internal set; }
 
+            internal string TimeFormatting;
+
             public override string ToString()
             {
-                return $"[{Timestamp.ToString("yyyy-MM-dd HH:mm:ss zzz")}] [{Application}] [{Level}] {Message}";
+                return $"[{Timestamp.ToString(this.TimeFormatting)}] [{Application}] [{Level}] {Message}";
             }
         }
     }

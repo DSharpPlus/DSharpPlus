@@ -31,6 +31,11 @@
         public bool UseInternalLogHandler { internal get; set; } = false;
 
         /// <summary>
+        /// Allows you to overwrite the time format used by the internal debug logger.
+        /// </summary>
+        public string LogTimeFormatting { internal get; set; } = "yyyy-MM-dd HH:mm:ss zzz";
+
+        /// <summary>
         /// Sets the member count threshold at which guilds are considered large. Defaults to 250.
         /// </summary>
         public int LargeThreshold { internal get; set; } = 250;

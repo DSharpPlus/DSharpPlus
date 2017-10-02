@@ -553,7 +553,7 @@ namespace DSharpPlus
 
             this.Config = config;
             this.Shards = new ConcurrentDictionary<int, DiscordClient>();
-            this.DebugLogger = new DebugLogger(config.LogLevel);
+            this.DebugLogger = new DebugLogger(config.LogLevel, config.LogTimeFormatting);
 
             if (config.UseInternalLogHandler)
                 DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
