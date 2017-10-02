@@ -117,5 +117,12 @@ namespace DSharpPlus
         /// <param name="emoji">Emoji to display.</param>
         /// <returns>Formatted emoji.</returns>
         public static string Emoji(DiscordEmoji emoji) => $"<:{emoji.Name}:{emoji.Id.ToString(CultureInfo.InvariantCulture)}>";
+
+        /// <summary>
+        /// Creates a url for using attachments in embeds. This can only be used as an Image URL, Thumbnail URL, Author icon URL or Footer icon URL.
+        /// </summary>
+        /// <param name="filename">Name of attached image to display</param>
+        /// <returns></returns>
+        public static string AttachedImageUrl(string filename) => $"attachment://{filename}";
     }
 }
