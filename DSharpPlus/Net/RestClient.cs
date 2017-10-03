@@ -43,10 +43,24 @@ namespace DSharpPlus.Net
 
         public RateLimitBucket GetBucket(RestRequestMethod method, string route, object route_params, out string url)
         {
-            var rparams = route_params.GetType()
+            var rparams_props = route_params.GetType()
                 .GetTypeInfo()
-                .DeclaredProperties
-                .ToDictionary(xp => xp.Name, xp => xp.GetValue(route_params) as string);
+                .DeclaredProperties;
+            var rparams = new Dictionary<string, string>();
+            foreach (var xp in rparams_props)
+            {
+                var val = xp.GetValue(route_params);
+                if (val is string xs)
+                    rparams[xp.Name] = xs;
+                else if (val is DateTime dt)
+                    rparams[xp.Name] = dt.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture);
+                else if (val is DateTimeOffset dto)
+                    rparams[xp.Name] = dto.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture);
+                else if (val is IFormattable xf)
+                    rparams[xp.Name] = xf.ToString(null, CultureInfo.InvariantCulture);
+                else
+                    rparams[xp.Name] = val.ToString();
+            }
 
             var guild_id = rparams.ContainsKey("guild_id") ? rparams["guild_id"] : "";
             var channel_id = rparams.ContainsKey("channel_id") ? rparams["channel_id"] : "";
