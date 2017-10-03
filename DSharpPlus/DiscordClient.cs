@@ -1642,6 +1642,9 @@ namespace DSharpPlus
 
         internal async Task OnGuildMemberAddEventAsync(TransportMember member, DiscordGuild guild)
         {
+            if (!this.UserCache.ContainsKey(member.User.Id))
+                this.UserCache.Add(member.User.Id, new DiscordUser(member.User));
+
             var mbr = new DiscordMember(member)
             {
                 Discord = this,
