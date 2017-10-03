@@ -43,181 +43,181 @@ namespace DSharpPlus
     /// Bitwise permission flags.
     /// </summary>
     [Flags]
-    public enum Permissions : ulong
+    public enum Permissions : long
     {
         /// <summary>
         /// Indicates no permissions given.
         /// </summary>
         [PermissionString("No permissions")]
-        None = 0x0000000000000000u,
+        None = 0x0000000000000000,
 
         /// <summary>
         /// Allows creation of instant channel invites.
         /// </summary>
         [PermissionString("Create instant invites")]
-        CreateInstantInvite = 0x0000000000000001u,
+        CreateInstantInvite = 0x0000000000000001,
 
         /// <summary>
         /// Allows kicking members.
         /// </summary>
         [PermissionString("Kick members")]
-        KickMembers = 0x0000000000000002u,
+        KickMembers = 0x0000000000000002,
 
         /// <summary>
         /// Allows banning and unbanning members.
         /// </summary>
         [PermissionString("Ban members")]
-        BanMembers = 0x0000000000000004u,
+        BanMembers = 0x0000000000000004,
 
         /// <summary>
         /// Enables full access on a given guild. This also overrides other permissions.
         /// </summary>
         [PermissionString("Administrator")]
-        Administrator = 0x0000000000000008u,
+        Administrator = 0x0000000000000008,
 
         /// <summary>
         /// Allows managing channels.
         /// </summary>
         [PermissionString("Manage channels")]
-        ManageChannels = 0x0000000000000010u,
+        ManageChannels = 0x0000000000000010,
 
         /// <summary>
         /// Allows managing the guild.
         /// </summary>
         [PermissionString("Manage guild")]
-        ManageGuild = 0x0000000000000020u,
+        ManageGuild = 0x0000000000000020,
 
         /// <summary>
         /// Allows adding reactions to messages.
         /// </summary>
         [PermissionString("Add reactions")]
-        AddReactions = 0x0000000000000040u,
+        AddReactions = 0x0000000000000040,
 
         /// <summary>
         /// Allows viewing audit log entries.
         /// </summary>
         [PermissionString("View audit log")]
-        ViewAuditLog = 0x0000000000000080u,
+        ViewAuditLog = 0x0000000000000080,
 
         /// <summary>
         /// Allows accessing text and voice channels. Disabling this permission hides channels.
         /// </summary>
         [PermissionString("Read messages")]
-        AccessChannels = 0x0000000000000400u,
+        AccessChannels = 0x0000000000000400,
 
         /// <summary>
         /// Allows sending messages.
         /// </summary>
         [PermissionString("Send messages")]
-        SendMessages = 0x0000000000000800u,
+        SendMessages = 0x0000000000000800,
 
         /// <summary>
         /// Allows sending text-to-speech messages.
         /// </summary>
         [PermissionString("Send TTS messages")]
-        SendTtsMessages = 0x0000000000001000u,
+        SendTtsMessages = 0x0000000000001000,
 
         /// <summary>
         /// Allows managing messages of other users.
         /// </summary>
         [PermissionString("Manage messages")]
-        ManageMessages = 0x0000000000002000u,
+        ManageMessages = 0x0000000000002000,
 
         /// <summary>
         /// Allows embedding content in messages.
         /// </summary>
         [PermissionString("Use embeds")]
-        EmbedLinks = 0x0000000000004000u,
+        EmbedLinks = 0x0000000000004000,
 
         /// <summary>
         /// Allows uploading files.
         /// </summary>
         [PermissionString("Attach files")]
-        AttachFiles = 0x0000000000008000u,
+        AttachFiles = 0x0000000000008000,
 
         /// <summary>
         /// Allows reading message history.
         /// </summary>
         [PermissionString("Read message history")]
-        ReadMessageHistory = 0x0000000000010000u,
+        ReadMessageHistory = 0x0000000000010000,
 
         /// <summary>
         /// Allows using @everyone and @here mentions.
         /// </summary>
         [PermissionString("Mention everyone")]
-        MentionEveryone = 0x0000000000020000u,
+        MentionEveryone = 0x0000000000020000,
 
         /// <summary>
         /// Allows using emojis from external servers, such as twitch or nitro emojis.
         /// </summary>
         [PermissionString("Use external emojis")]
-        UseExternalEmojis = 0x0000000000040000u,
+        UseExternalEmojis = 0x0000000000040000,
 
         /// <summary>
         /// Allows connecting to voice chat.
         /// </summary>
         [PermissionString("Use voice chat")]
-        UseVoice = 0x0000000000100000u,
+        UseVoice = 0x0000000000100000,
 
         /// <summary>
         /// Allows speaking in voice chat.
         /// </summary>
         [PermissionString("Speak")]
-        Speak = 0x0000000000200000u,
+        Speak = 0x0000000000200000,
 
         /// <summary>
         /// Allows muting other members in voice chat.
         /// </summary>
         [PermissionString("Mute voice chat members")]
-        MuteMembers = 0x0000000000400000u,
+        MuteMembers = 0x0000000000400000,
 
         /// <summary>
         /// Allows deafening other members in voice chat.
         /// </summary>
         [PermissionString("Deafen voice chat members")]
-        DeafenMembers = 0x0000000000800000u,
+        DeafenMembers = 0x0000000000800000,
 
         /// <summary>
         /// Allows moving voice chat members.
         /// </summary>
         [PermissionString("Move voice chat members")]
-        MoveMembers = 0x0000000001000000u,
+        MoveMembers = 0x0000000001000000,
 
         /// <summary>
         /// Allows using voice activation in voice chat. Revoking this will usage of push-to-talk.
         /// </summary>
         [PermissionString("Use voice activity detection")]
-        UseVoiceDetection = 0x0000000002000000u,
+        UseVoiceDetection = 0x0000000002000000,
 
         /// <summary>
         /// Allows changing of own nickname.
         /// </summary>
         [PermissionString("Change own nickname")]
-        ChangeNickname = 0x0000000004000000u,
+        ChangeNickname = 0x0000000004000000,
 
         /// <summary>
         /// Allows managing nicknames of other members.
         /// </summary>
         [PermissionString("Manage nicknames")]
-        ManageNicknames = 0x0000000008000000u,
+        ManageNicknames = 0x0000000008000000,
 
         /// <summary>
         /// Allows managing roles in a guild.
         /// </summary>
         [PermissionString("Manage roles")]
-        ManageRoles = 0x0000000010000000u,
+        ManageRoles = 0x0000000010000000,
 
         /// <summary>
         /// Allows managing webhooks in a guild.
         /// </summary>
         [PermissionString("Manage webhooks")]
-        ManageWebhooks = 0x0000000020000000u,
+        ManageWebhooks = 0x0000000020000000,
 
         /// <summary>
         /// Allows managing guild emoji.
         /// </summary>
         [PermissionString("Manage emoji")]
-        ManageEmojis = 0x0000000040000000u
+        ManageEmojis = 0x0000000040000000
     }
 
     /// <summary>
