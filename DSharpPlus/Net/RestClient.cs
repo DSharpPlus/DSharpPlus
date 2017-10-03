@@ -249,16 +249,24 @@ namespace DSharpPlus.Net
                 return;
 
             var clienttime = DateTimeOffset.UtcNow;
+            var resettime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(long.Parse(reset, CultureInfo.InvariantCulture));
             var servertime = clienttime;
             if (hs.TryGetValue("Date", out var raw_date))
                 servertime = DateTimeOffset.Parse(raw_date, CultureInfo.InvariantCulture).ToUniversalTime();
 
-            var difference = clienttime.Subtract(servertime);
-            request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00", CultureInfo.InvariantCulture)}ms", DateTime.Now);
+            var resetdelta = resettime - servertime;
+            var difference = clienttime - servertime;
+            if (Math.Abs(difference.TotalSeconds) >= 1)
+                request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00", CultureInfo.InvariantCulture)}ms", DateTime.Now);
+            else
+                difference = TimeSpan.Zero;
+
+            if (request.RateLimitWaitOverride != null)
+                resetdelta = TimeSpan.FromSeconds(request.RateLimitWaitOverride.Value);
 
             bucket.Maximum = int.Parse(usesmax, CultureInfo.InvariantCulture);
             bucket.Remaining = int.Parse(usesleft, CultureInfo.InvariantCulture);
-            bucket.Reset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(long.Parse(reset, CultureInfo.InvariantCulture) + difference.TotalSeconds);
+            bucket.Reset = clienttime + resetdelta + difference;
         }
     }
 }
