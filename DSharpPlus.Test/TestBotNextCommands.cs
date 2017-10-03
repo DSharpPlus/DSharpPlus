@@ -171,9 +171,19 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("u my boi");
         }
 
-        [Group("interactive"), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
+        [Group("interactive", CanInvokeWithoutSubcommand = true), Aliases("int", "interact", "interactivity"), Description("Interactivity commands."), RequireOwner]
         public class InteractivityTest
         {
+            public async Task ExecuteGroupAsync(CommandContext ctx, [Description("Time to react.")] TimeSpan timeout)
+            {
+                var m = ctx.Client.GetInteractivityModule();
+
+                var msg = await ctx.RespondAsync("Yo, add a reaction here");
+                var r = await m.WaitForMessageReactionAsync(msg, timeoutoverride: timeout);
+
+                await msg.ModifyAsync(r.Emoji.ToString());
+            }
+
             [Command("collect"), Aliases("reactions"), Description("Collects reactions over given period of time.")]
             public async Task CollectReactions(CommandContext ctx, [Description("How long to collect reactions for")] TimeSpan timeout)
             {
@@ -188,6 +198,19 @@ namespace DSharpPlus.Test
                     Description = string.Join("\n", r.Reactions.Select(xkvp => $"{xkvp.Key}: {xkvp.Value}"))
                 };
                 await msg.RespondAsync("", embed: embed.Build());
+            }
+
+            [Command("poll"), Description("Polls for top reaction.")]
+            public async Task Poll(CommandContext ctx, [Description("Time to results.")] TimeSpan timeout, [Description("Emoji to poll")] params DiscordEmoji[] emoji)
+            {
+                var m = ctx.Client.GetInteractivityModule();
+
+                var msgc = string.Join(" ", emoji.Select<DiscordEmoji, string>(xe => xe));
+                var msg = await ctx.RespondAsync(msgc);
+                var r = await m.CreatePollAsync(msg, emoji.ToList(), timeout);
+
+                var kvp = r.Reactions.OrderByDescending(xkvp => xkvp.Value).FirstOrDefault();
+                await msg.ModifyAsync($"{kvp.Key} {kvp.Value}");
             }
         }
 

@@ -40,7 +40,7 @@ namespace DSharpPlus.Test
         public IHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
         {
             if (arguments.Any())
-                this._args = string.Join(", ", arguments.Select(xa => $"{xa.Name}: {xa.Type}"));
+                this._args = string.Join(", ", arguments.Select(xa => $"{xa.Name}: {xa.Type.ToUserFriendlyName()}"));
             return this;
         }
 
@@ -52,8 +52,8 @@ namespace DSharpPlus.Test
                 var sb = new StringBuilder();
                 foreach (var xc in subcommands)
                     sb.Append(xc.Name.PadRight(ml, ' '))
-                        .Append("    ")
-                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "No description provided." : xc.Description).Append("\n");
+                        .Append("  ")
+                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "No description." : xc.Description).Append("\n");
                 this._subcs = sb.ToString();
             }
             return this;
