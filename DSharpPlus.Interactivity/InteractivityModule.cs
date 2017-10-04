@@ -735,8 +735,8 @@ namespace DSharpPlus.Interactivity
 
         public async Task GeneratePaginationReactions(DiscordMessage m)
         {
-            if(m == null)
-                throw new ArgumentNullException(nameof(m))
+            if (m == null)
+                throw new ArgumentNullException(nameof(m));
 
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮"));
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀"));
