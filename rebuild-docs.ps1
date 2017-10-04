@@ -28,6 +28,7 @@ $current_path = $Env:PATH
 $current_location = Get-Location
 
 # Tool paths
+$docfx_path = Join-Path "$current_location" "docfx"
 $sevenzip_path = Join-Path "$current_location" "7zip"
 
 # Restores the environment
@@ -37,6 +38,11 @@ function Restore-Environment()
     $Env:PATH = $current_path
     Set-Location -path "$current_location"
 	
+	if (Test-Path "$docfx_path")
+	{
+		Remove-Item -recurse -force "$docfx_path"
+	}
+	
 	if (Test-Path "$sevenzip_path")
 	{
 		Remove-Item -recurse -force "$sevenzip_path"
@@ -44,15 +50,72 @@ function Restore-Environment()
 }
 
 # Downloads and installs latest version of DocFX
-function Install-DocFX()
+function Install-DocFX([string] $target_dir_path)
 {
-    # Install DocFX via chocolatey
     Write-Host "Installing DocFX"
-    Write-Output "y" | & cinst -y --no-progress docfx | Out-Host
-    if ($LastExitCode -ne 0)
+
+    # Check if the target directory exists
+    # If it does, remove it
+    if (Test-Path "$target_dir_path")
     {
-        Return $LastExitCode
+        Write-Host "Target directory exists, deleting"
+        Remove-Item -recurse -force "$target_dir_path"
     }
+	
+	# Create target directory
+    $target_dir = New-Item -type directory "$target_dir_path"
+    $target_fn = "docfx.zip"
+    
+    # Form target path
+    $target_dir = $target_dir.FullName
+    $target_path = Join-Path "$target_dir" "$target_fn"
+	
+	# Download release info from Chocolatey API
+    try
+    {
+        Write-Host "Getting latest DocFX release"
+        $release_json = Invoke-WebRequest -uri "https://chocolatey.org/api/v2/package-versions/docfx" | ConvertFrom-JSON
+		$release_json = $release_json | % { [System.Version]::Parse($_) } | Sort-Object -Descending
+        $release = $release_json[0]             # Pick the top (latest release)
+        $release_asset = $release.ToString()    # Convert to string
+		$release_asset = "https://github.com/dotnet/docfx/releases/download/v$release_asset/docfx.zip"
+    }
+    catch
+    {
+        Return 1
+    }
+    
+    # Download the release
+    try
+    {
+        Write-Host "Downloading DocFX to $target_path"
+        Invoke-WebRequest -uri "$release_asset" -outfile "$target_path"
+        Set-Location -Path "$target_dir"
+    }
+    catch
+    {
+        Return 1
+    }
+    
+    # Extract the release
+    try
+    {
+        Write-Host "Extracting DocFX"
+        Expand-Archive -path "$target_path" -destinationpath "$target_dir"
+    }
+    catch 
+    {
+        Return 1
+    }
+    
+    # Remove the downloaded zip
+    Write-Host "Removing temporary files"
+    Remove-Item "$target_path"
+    
+    # Add DocFX to PATH
+    Write-Host "Adding DocFX to PATH"
+    $Env:PATH = "$target_dir;$current_path"
+    Set-Location -path "$current_location"
     
     Return 0
 }
