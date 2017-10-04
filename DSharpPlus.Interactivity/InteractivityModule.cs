@@ -335,7 +335,7 @@ namespace DSharpPlus.Interactivity
             #endregion
         }
 
-        public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, List<DiscordEmoji> Emojis, TimeSpan? timeoutoverride = null)
+        public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, IEnumerable<DiscordEmoji> Emojis, TimeSpan? timeoutoverride = null)
         {
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
