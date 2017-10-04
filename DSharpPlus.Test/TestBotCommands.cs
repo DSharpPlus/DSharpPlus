@@ -20,9 +20,9 @@ namespace DSharpPlus.Test
     public sealed class TestBotCommands
     {
         [Command("daudit")]
-        public async Task DebugAudit(CommandContext e)
+        public async Task DebugAudit(CommandContext e, int amount = 0)
         {
-            var auditlog = await e.Guild.GetAuditLogsAsync();
+            var auditlog = await e.Guild.GetAuditLogsAsync(limit: amount <= 0 ? null : (int?)amount);
             await e.RespondAsync("grabbed audit logs without issue..");
         }
 

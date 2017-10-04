@@ -349,15 +349,18 @@ namespace DSharpPlus.Net
 
         internal async Task<AuditLog> GetAuditLogsAsync(ulong guild_id, int limit, ulong? after, ulong? before, ulong? responsible, int? action_type)
         {
-            var urlparams = new Dictionary<string, string>();
+            var urlparams = new Dictionary<string, string>
+            {
+                ["limit"] = limit.ToString(CultureInfo.InvariantCulture)
+            };
             if (after != null)
-                urlparams["after"] = after.Value.ToString(CultureInfo.InvariantCulture);
+                urlparams["after"] = after?.ToString(CultureInfo.InvariantCulture);
             if (before != null)
-                urlparams["before"] = before.Value.ToString(CultureInfo.InvariantCulture);
+                urlparams["before"] = before?.ToString(CultureInfo.InvariantCulture);
             if (responsible != null)
-                urlparams["user_id"] = responsible.Value.ToString(CultureInfo.InvariantCulture);
+                urlparams["user_id"] = responsible?.ToString(CultureInfo.InvariantCulture);
             if (action_type != null)
-                urlparams["action_type"] = action_type.Value.ToString(CultureInfo.InvariantCulture);
+                urlparams["action_type"] = action_type?.ToString(CultureInfo.InvariantCulture);
 
             var route = string.Concat(Endpoints.GUILDS, "/:guild_id", Endpoints.AUDIT_LOGS);
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
