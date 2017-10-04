@@ -1,6 +1,5 @@
-
-<p align="center"><img alt="DSharpPlus logo" src="https://github.com/NaamloosDT/DSharpPlus/raw/master/logo/dsharp+_smaller.png" /></p>
-
+ ![Logo of DSharpPlus](https://github.com/NaamloosDT/DSharpPlus/raw/master/logo/dsharp+_smaller.png) 
+ 
 # DSharpPlus
 A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards
 
