@@ -203,7 +203,16 @@ namespace DSharpPlus.Net
             {
                 var usr = this.Discord.InternalGetCachedUser(xb.RawUser.Id);
                 if (usr == null)
-                    this.Discord.UserCache.TryAdd(xb.RawUser.Id, (usr = new DiscordUser(xb.RawUser) { Discord = this.Discord }));
+                {
+                    usr = new DiscordUser(xb.RawUser) { Discord = this.Discord };
+                    usr = this.Discord.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
+                    {
+                        old.Username = usr.Username;
+                        old.Discriminator = usr.Discriminator;
+                        old.AvatarHash = usr.AvatarHash;
+                        return old;
+                    });
+                }
 
                 xb.User = usr;
                 return xb;
@@ -879,8 +888,14 @@ namespace DSharpPlus.Net
 
             var tm = JsonConvert.DeserializeObject<TransportMember>(res.Response);
 
-            if (!this.Discord.UserCache.ContainsKey(tm.User.Id))
-                this.Discord.UserCache.TryAdd(tm.User.Id, new DiscordUser(tm.User) { Discord = this.Discord });
+            var usr = new DiscordUser(tm.User) { Discord = this.Discord };
+            usr = this.Discord.UserCache.AddOrUpdate(tm.User.Id, usr, (id, old) =>
+            {
+                old.Username = usr.Username;
+                old.Discriminator = usr.Discriminator;
+                old.AvatarHash = usr.AvatarHash;
+                return old;
+            });
 
             return new DiscordMember(tm)
             {
@@ -1602,10 +1617,16 @@ namespace DSharpPlus.Net
             var reacters = new List<DiscordUser>();
             foreach (var xr in reacters_raw)
             {
-                if (!this.Discord.UserCache.ContainsKey(xr.Id))
-                    this.Discord.UserCache.TryAdd(xr.Id, new DiscordUser(xr) { Discord = this.Discord });
+                var usr = new DiscordUser(xr) { Discord = this.Discord };
+                usr = this.Discord.UserCache.AddOrUpdate(xr.Id, usr, (id, old) =>
+                {
+                    old.Username = usr.Username;
+                    old.Discriminator = usr.Discriminator;
+                    old.AvatarHash = usr.AvatarHash;
+                    return old;
+                });
 
-                reacters.Add(this.Discord.UserCache[xr.Id]);
+                reacters.Add(usr);
             }
 
             return new ReadOnlyCollection<DiscordUser>(new List<DiscordUser>(reacters));

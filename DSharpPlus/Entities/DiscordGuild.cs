@@ -673,7 +673,14 @@ namespace DSharpPlus.Entities
                     Discriminator = xau.Discriminator,
                     AvatarHash = xau.AvatarHash
                 };
-                this.Discord.UserCache.TryAdd(xtu.Id, new DiscordUser(xtu) { Discord = this.Discord });
+                var xu = new DiscordUser(xtu) { Discord = this.Discord };
+                xu = this.Discord.UserCache.AddOrUpdate(xu.Id, xu, (id, old) =>
+                {
+                    old.Username = xu.Username;
+                    old.Discriminator = xu.Discriminator;
+                    old.AvatarHash = xu.AvatarHash;
+                    return old;
+                });
             }
 
             var ahr = alrs.SelectMany(xa => xa.Webhooks)
