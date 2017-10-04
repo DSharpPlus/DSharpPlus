@@ -9,6 +9,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
+using System.IO;
 
 namespace DSharpPlus.Test
 {
@@ -266,8 +267,11 @@ namespace DSharpPlus.Test
                 var ms = ex.Message;
                 var st = ex.StackTrace;
 
-                ms = ms.Length > 1000 ? ms.Substring(0, 1000) : ms;
-                st = !string.IsNullOrWhiteSpace(st) ? (st.Length > 1000 ? st.Substring(0, 1000) : st) : "<no stack trace>";
+                MemoryStream stream = new MemoryStream();
+                StreamWriter writer = new StreamWriter(stream);
+                writer.Write($"{e.Exception.GetType()} occured when executing {e.Command.QualifiedName}.\n\n{ms}\n{st}");
+                writer.Flush();
+                stream.Position = 0;
 
                 var embed = new DiscordEmbedBuilder
                 {
@@ -277,9 +281,8 @@ namespace DSharpPlus.Test
                     Timestamp = DateTime.UtcNow
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
-                    .AddField("Message", ms, false)
-                    .AddField("Stack trace", $"```cs\n{st}\n```", false);
-                await e.Context.Channel.SendMessageAsync("\u200b", embed: embed.Build());
+                    .AddField("Message", "File with full details has been attached.", false);
+                await e.Context.Channel.SendFileAsync(stream, "error.txt", "\u200b", embed: embed.Build());
             }
         }
 
