@@ -223,7 +223,7 @@ namespace DSharpPlus.Interactivity
             }
         }
 
-        public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, ulong user_id = 0, TimeSpan? timeoutoverride = null)
+        public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, DiscordUser user = null, TimeSpan? timeoutoverride = null)
         {
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
@@ -241,7 +241,7 @@ namespace DSharpPlus.Interactivity
                 {
                     if (e.Message.Id == message_id)
                     {
-                        if (user_id == 0 || e.User.Id == user_id)
+                        if (user == null || e.User.Id == user?.Id)
                         {
                             var rc = new ReactionContext()
                             {
@@ -275,7 +275,7 @@ namespace DSharpPlus.Interactivity
             }
         }
 
-        public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, ulong user_id = 0, TimeSpan? timeoutoverride = null)
+        public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, DiscordUser user = null, TimeSpan? timeoutoverride = null)
         {
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
@@ -291,7 +291,7 @@ namespace DSharpPlus.Interactivity
                 await Task.Yield();
                 if (e.Message.Id == message_id)
                 {
-                    if (user_id == 0 || e.User.Id == user_id)
+                    if (user == null || e.User.Id == user?.Id)
                     {
                         var rc = new ReactionContext()
                         {
@@ -453,6 +453,7 @@ namespace DSharpPlus.Interactivity
         #region Typing
         // I don't really know anymore why I added this.. -Naam
         // I think I told you it might be useful, but tbh I have no idea myself -Emzi
+        // Did you? I don't remember either. Nice it's there anyway I guess.. -Naam
         public async Task<TypingContext> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
             TimeSpan timeout = Config.Timeout;
