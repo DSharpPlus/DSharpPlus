@@ -97,7 +97,23 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            AsyncEventHandler<MessageCreateEventArgs> handler = async (e) =>
+            try
+            {
+                this.Client.MessageCreated += Handler;
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageCreated -= Handler;
+            }
+
+            #region Handler
+            async Task Handler(MessageCreateEventArgs e)
             {
                 await Task.Yield();
                 if (predicate(e.Message))
@@ -110,22 +126,8 @@ namespace DSharpPlus.Interactivity
                     tsc.TrySetResult(mc);
                     return;
                 }
-            };
-
-            try
-            {
-                this.Client.MessageCreated += handler;
-                var result = await tsc.Task;
-                return result;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                this.Client.MessageCreated -= handler;
-            }
+            #endregion
         }
         #endregion
 
@@ -139,7 +141,25 @@ namespace DSharpPlus.Interactivity
             var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
-            AsyncEventHandler<MessageReactionAddEventArgs> handler = async e =>
+
+            try
+            {
+                this.Client.MessageReactionAdded += Handler;
+
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= Handler;
+            }
+
+            #region Handler
+            async Task Handler(MessageReactionAddEventArgs e)
             {
                 await Task.Yield();
                 if (predicate(e.Emoji))
@@ -155,23 +175,8 @@ namespace DSharpPlus.Interactivity
                     tsc.TrySetResult(rc);
                     return;
                 }
-            };
-
-            try
-            {
-                this.Client.MessageReactionAdded += handler;
-
-                var result = await tsc.Task;
-                return result;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                this.Client.MessageReactionAdded -= handler;
-            }
+            #endregion
         }
 
         public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan? timeoutoverride = null)
@@ -185,7 +190,24 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
+            try
+            {
+                this.Client.MessageReactionAdded += Handler;
+
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= Handler;
+            }
+
+            #region Handler
+            async Task Handler(MessageReactionAddEventArgs e)
             {
                 await Task.Yield();
                 if (predicate(e.Emoji))
@@ -204,23 +226,8 @@ namespace DSharpPlus.Interactivity
                         return;
                     }
                 }
-            };
-
-            try
-            {
-                this.Client.MessageReactionAdded += handler;
-
-                var result = await tsc.Task;
-                return result;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                this.Client.MessageReactionAdded -= handler;
-            }
+            #endregion
         }
 
         public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, DiscordUser user = null, TimeSpan? timeoutoverride = null)
@@ -234,7 +241,24 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
+            try
+            {
+                this.Client.MessageReactionAdded += Handler;
+
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= Handler;
+            }
+
+            #region Handler
+            async Task Handler(MessageReactionAddEventArgs e)
             {
                 await Task.Yield();
                 if (predicate(e.Emoji))
@@ -256,23 +280,8 @@ namespace DSharpPlus.Interactivity
                         }
                     }
                 }
-            };
-
-            try
-            {
-                this.Client.MessageReactionAdded += handler;
-
-                var result = await tsc.Task;
-                return result;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                this.Client.MessageReactionAdded -= handler;
-            }
+            #endregion
         }
 
         public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, DiscordUser user = null, TimeSpan? timeoutoverride = null)
@@ -286,7 +295,24 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            AsyncEventHandler<MessageReactionAddEventArgs> handler = async (e) =>
+            try
+            {
+                this.Client.MessageReactionAdded += Handler;
+
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.MessageReactionAdded -= Handler;
+            }
+
+            #region Handler
+            async Task Handler(MessageReactionAddEventArgs e)
             {
                 await Task.Yield();
                 if (e.Message.Id == message_id)
@@ -305,23 +331,8 @@ namespace DSharpPlus.Interactivity
                         return;
                     }
                 }
-            };
-
-            try
-            {
-                this.Client.MessageReactionAdded += handler;
-
-                var result = await tsc.Task;
-                return result;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                this.Client.MessageReactionAdded -= handler;
-            }
+            #endregion
         }
 
         public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, List<DiscordEmoji> Emojis, TimeSpan? timeoutoverride = null)
@@ -339,42 +350,12 @@ namespace DSharpPlus.Interactivity
             var tsc = new TaskCompletionSource<ReactionCollectionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(rcc));
-            AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
-            {
-                await Task.Yield();
-                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
-                {
-                    rcc.AddReaction(e.Emoji, e.User.Id);
-                }
-            };
-
-            AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
-            {
-                await Task.Yield();
-                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
-                {
-                    rcc.RemoveReaction(e.Emoji, e.User.Id);
-                }
-            };
-
-            AsyncEventHandler<MessageReactionsClearEventArgs> handler3 = async (e) =>
-            {
-                await Task.Yield();
-                if (e.Message.Id == m.Id)
-                {
-                    rcc.ClearReactions();
-                    foreach (var em in Emojis)
-                    {
-                        await m.CreateReactionAsync(em);
-                    }
-                }
-            };
 
             try
             {
-                this.Client.MessageReactionAdded += handler1;
-                this.Client.MessageReactionRemoved += handler2;
-                this.Client.MessageReactionsCleared += handler3;
+                this.Client.MessageReactionAdded += ReactionAddHandler;
+                this.Client.MessageReactionRemoved += ReactionRemoveHandler;
+                this.Client.MessageReactionsCleared += ReactionClearHandler;
 
                 var result = await tsc.Task;
                 return result;
@@ -385,10 +366,43 @@ namespace DSharpPlus.Interactivity
             }
             finally
             {
-                this.Client.MessageReactionAdded -= handler1;
-                this.Client.MessageReactionRemoved -= handler2;
-                this.Client.MessageReactionsCleared -= handler3;
+                this.Client.MessageReactionAdded -= ReactionAddHandler;
+                this.Client.MessageReactionRemoved -= ReactionRemoveHandler;
+                this.Client.MessageReactionsCleared -= ReactionClearHandler;
             }
+
+            #region Handlers
+            async Task ReactionAddHandler(MessageReactionAddEventArgs e)
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
+                {
+                    rcc.AddReaction(e.Emoji, e.User.Id);
+                }
+            }
+
+            async Task ReactionRemoveHandler(MessageReactionRemoveEventArgs e)
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
+                {
+                    rcc.RemoveReaction(e.Emoji, e.User.Id);
+                }
+            }
+
+            async Task ReactionClearHandler(MessageReactionsClearEventArgs e)
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id)
+                {
+                    rcc.ClearReactions();
+                    foreach (var em in Emojis)
+                    {
+                        await m.CreateReactionAsync(em);
+                    }
+                }
+            }
+            #endregion
         }
 
         public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
@@ -401,38 +415,12 @@ namespace DSharpPlus.Interactivity
             var tsc = new TaskCompletionSource<ReactionCollectionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(rcc));
-            AsyncEventHandler<MessageReactionAddEventArgs> handler1 = async (e) =>
-            {
-                await Task.Yield();
-                if (e.Message.Id == m.Id)
-                {
-                    rcc.AddReaction(e.Emoji);
-                }
-            };
-
-            AsyncEventHandler<MessageReactionRemoveEventArgs> handler2 = async (e) =>
-            {
-                await Task.Yield();
-                if (e.Message.Id == m.Id)
-                {
-                    rcc.RemoveReaction(e.Emoji);
-                }
-            };
-
-            AsyncEventHandler<MessageReactionsClearEventArgs> handler3 = async (e) =>
-            {
-                await Task.Yield();
-                if (e.Message.Id == m.Id)
-                {
-                    rcc.ClearReactions();
-                }
-            };
 
             try
             {
-                this.Client.MessageReactionAdded += handler1;
-                this.Client.MessageReactionRemoved += handler2;
-                this.Client.MessageReactionsCleared += handler3;
+                this.Client.MessageReactionAdded += ReactionAddHandler;
+                this.Client.MessageReactionRemoved += ReactionRemoveHandler;
+                this.Client.MessageReactionsCleared += ReactionClearHandler;
 
                 var result = await tsc.Task;
                 return result;
@@ -443,10 +431,39 @@ namespace DSharpPlus.Interactivity
             }
             finally
             {
-                this.Client.MessageReactionAdded -= handler1;
-                this.Client.MessageReactionRemoved -= handler2;
-                this.Client.MessageReactionsCleared -= handler3;
+                this.Client.MessageReactionAdded -= ReactionAddHandler;
+                this.Client.MessageReactionRemoved -= ReactionRemoveHandler;
+                this.Client.MessageReactionsCleared -= ReactionClearHandler;
             }
+
+            #region Handlers
+            async Task ReactionAddHandler(MessageReactionAddEventArgs e)
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id)
+                {
+                    rcc.AddReaction(e.Emoji);
+                }
+            }
+
+            async Task ReactionRemoveHandler(MessageReactionRemoveEventArgs e)
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id)
+                {
+                    rcc.RemoveReaction(e.Emoji);
+                }
+            }
+
+            async Task ReactionClearHandler(MessageReactionsClearEventArgs e)
+            {
+                await Task.Yield();
+                if (e.Message.Id == m.Id)
+                {
+                    rcc.ClearReactions();
+                }
+            }
+            #endregion
         }
         #endregion
 
@@ -465,7 +482,24 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            AsyncEventHandler<TypingStartEventArgs> handler = async (e) =>
+            try
+            {
+                this.Client.TypingStarted += Handler;
+
+                var result = await tsc.Task;
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.Client.TypingStarted -= Handler;
+            }
+
+            #region Handler
+            async Task Handler(TypingStartEventArgs e)
             {
                 await Task.Yield();
                 if (e.Channel.Id == channel_id)
@@ -480,23 +514,8 @@ namespace DSharpPlus.Interactivity
                     tsc.TrySetResult(tc);
                     return;
                 }
-            };
-
-            try
-            {
-                this.Client.TypingStarted += handler;
-
-                var result = await tsc.Task;
-                return result;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                this.Client.TypingStarted -= handler;
-            }
+            #endregion
         }
 
         public async Task<TypingContext> WaitForTypingChannelAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
@@ -575,30 +594,11 @@ namespace DSharpPlus.Interactivity
 
             await this.GeneratePaginationReactions(m);
 
-            AsyncEventHandler<MessageReactionsClearEventArgs> _reaction_removed_all = async e =>
-            {
-                await this.GeneratePaginationReactions(m);
-            };
-
-            AsyncEventHandler<MessageReactionAddEventArgs> _reaction_added = async e =>
-            {
-                if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
-                {
-                    await this.DoPagination(e.Emoji, m, pm, ct);
-                }
-            };
-
-            AsyncEventHandler<MessageReactionRemoveEventArgs> _reaction_removed = async e =>
-            {
-                if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
-                    await this.DoPagination(e.Emoji, m, pm, ct);
-            };
-
             try
             {
-                this.Client.MessageReactionsCleared += _reaction_removed_all;
-                this.Client.MessageReactionAdded += _reaction_added;
-                this.Client.MessageReactionRemoved += _reaction_removed;
+                this.Client.MessageReactionsCleared += ReactionClearHandler;
+                this.Client.MessageReactionAdded += ReactionAddHandler;
+                this.Client.MessageReactionRemoved += ReactionRemoveHandler;
 
                 await tsc.Task;
 
@@ -620,10 +620,31 @@ namespace DSharpPlus.Interactivity
             }
             finally
             {
-                this.Client.MessageReactionsCleared -= _reaction_removed_all;
-                this.Client.MessageReactionAdded -= _reaction_added;
-                this.Client.MessageReactionRemoved -= _reaction_removed;
+                this.Client.MessageReactionsCleared -= ReactionClearHandler;
+                this.Client.MessageReactionAdded -= ReactionAddHandler;
+                this.Client.MessageReactionRemoved -= ReactionRemoveHandler;
             }
+
+            #region Handlers
+            async Task ReactionAddHandler(MessageReactionAddEventArgs e)
+            {
+                if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
+                {
+                    await this.DoPagination(e.Emoji, m, pm, ct);
+                }
+            }
+
+            async Task ReactionRemoveHandler(MessageReactionRemoveEventArgs e)
+            {
+                if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
+                    await this.DoPagination(e.Emoji, m, pm, ct);
+            }
+
+            async Task ReactionClearHandler(MessageReactionsClearEventArgs e)
+            {
+                await this.GeneratePaginationReactions(m);
+            }
+            #endregion
         }
 
         public IEnumerable<Page> GeneratePagesInEmbeds(string input)
@@ -737,3 +758,5 @@ namespace DSharpPlus.Interactivity
 // I mean I don't mind..
 
 // comeon send those nudes man
+
+// 2 months and its legal
