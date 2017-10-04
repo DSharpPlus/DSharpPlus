@@ -124,16 +124,7 @@ namespace DSharpPlus.Entities
 
         #region Overriden user properties
         [JsonIgnore]
-        internal DiscordUser User => GetThisUser().GetAwaiter().GetResult();
-
-        internal async Task<DiscordUser> GetThisUser()
-        {
-            if (this.Id == 0)
-                return new DiscordUser();
-            if(this.Discord.UserCache.ContainsKey(this.Id))
-                return this.Discord.UserCache[this.Id];
-            return await this.Discord.ApiClient.GetUserAsync(this.Id);
-        }
+        internal DiscordUser User => this.Discord.UserCache[this.Id];
 
         /// <summary>
         /// Gets this member's username.

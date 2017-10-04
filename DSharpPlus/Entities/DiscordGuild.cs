@@ -641,7 +641,7 @@ namespace DSharpPlus.Entities
 
             var alrs = new List<AuditLog>();
             int ac = 1, tc = 0, rmn = 100;
-            ulong last = 0;
+            var last = 0ul;
             while (ac > 0)
             {
                 rmn = limit != null ? limit.Value - tc : 100;
@@ -661,12 +661,26 @@ namespace DSharpPlus.Entities
             var amr = alrs.SelectMany(xa => xa.Users)
                 .GroupBy(xu => xu.Id)
                 .Select(xgu => xgu.First());
+            foreach (var xau in amr)
+            {
+                if (this.Discord.UserCache.ContainsKey(xau.Id))
+                    continue;
+                
+                var xtu = new TransportUser
+                {
+                    Id = xau.Id,
+                    Username = xau.Username,
+                    Discriminator = xau.Discriminator,
+                    AvatarHash = xau.AvatarHash
+                };
+                this.Discord.UserCache.TryAdd(xtu.Id, new DiscordUser(xtu) { Discord = this.Discord });
+            }
 
             var ahr = alrs.SelectMany(xa => xa.Webhooks)
                 .GroupBy(xh => xh.Id)
                 .Select(xgh => xgh.First());
 
-            var ams = amr.Select(xau => gms.ContainsKey(xau.Id) ? gms[xau.Id] : new DiscordMember { Discord = this.Discord, Username = xau.Username, Discriminator = xau.Discriminator, Id = xau.Id, _guild_id = this.Id });
+            var ams = amr.Select(xau => gms.ContainsKey(xau.Id) ? gms[xau.Id] : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
             var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
 
             Dictionary<ulong, DiscordWebhook> ahd = null;

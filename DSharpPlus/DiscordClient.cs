@@ -791,7 +791,7 @@ namespace DSharpPlus
                 return usr;
 
             usr = await this.ApiClient.GetUserAsync(user_id);
-            this.UserCache[usr.Id] = usr;
+            this.UserCache.TryAdd(usr.Id, usr);
 
             return usr;
         }
@@ -1230,7 +1230,7 @@ namespace DSharpPlus
                     foreach (var xr in recips_raw)
                     {
                         if (!this.UserCache.TryGetValue(xr.Id, out var xu))
-                            this.UserCache[xr.Id] = (xu = new DiscordUser(xr) { Discord = this });
+                            this.UserCache.TryAdd(xr.Id, (xu = new DiscordUser(xr) { Discord = this }));
 
                         xdc._recipients.Add(xu);
                     }
@@ -1268,7 +1268,7 @@ namespace DSharpPlus
                             var xtu = xj["user"].ToObject<TransportUser>();
 
                             if (!this.UserCache.ContainsKey(xtu.Id))
-                                this.UserCache[xtu.Id] = new DiscordUser(xtu) { Discord = this };
+                                this.UserCache.TryAdd(xtu.Id, new DiscordUser(xtu) { Discord = this });
 
                             xg._members.Add(new DiscordMember(xj.ToObject<TransportMember>()) { Discord = this, _guild_id = xg.Id });
                         }
@@ -1592,7 +1592,7 @@ namespace DSharpPlus
         internal async Task OnGuildBanAddEventAsync(TransportUser user, DiscordGuild guild)
         {
             if (!this.UserCache.TryGetValue(user.Id, out var usr))
-                this.UserCache[user.Id] = (usr = new DiscordUser(user) { Discord = this });
+                this.UserCache.TryAdd(user.Id, (usr = new DiscordUser(user) { Discord = this }));
 
             var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             var ea = new GuildBanAddEventArgs(this)
@@ -1606,7 +1606,7 @@ namespace DSharpPlus
         internal async Task OnGuildBanRemoveEventAsync(TransportUser user, DiscordGuild guild)
         {
             if (!this.UserCache.TryGetValue(user.Id, out var usr))
-                this.UserCache[user.Id] = (usr = new DiscordUser(user) { Discord = this });
+                this.UserCache.TryAdd(user.Id, (usr = new DiscordUser(user) { Discord = this }));
 
             var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             var ea = new GuildBanRemoveEventArgs(this)
@@ -1643,7 +1643,7 @@ namespace DSharpPlus
         internal async Task OnGuildMemberAddEventAsync(TransportMember member, DiscordGuild guild)
         {
             if (!this.UserCache.ContainsKey(member.User.Id))
-                this.UserCache.Add(member.User.Id, new DiscordUser(member.User));
+                this.UserCache.TryAdd(member.User.Id, new DiscordUser(member.User));
 
             var mbr = new DiscordMember(member)
             {
@@ -1682,7 +1682,7 @@ namespace DSharpPlus
         internal async Task OnGuildMemberUpdateEventAsync(TransportUser user, DiscordGuild guild, IEnumerable<ulong> roles, string nick)
         {
             if (!this.UserCache.TryGetValue(user.Id, out var usr))
-                this.UserCache[user.Id] = (usr = new DiscordUser(user) { Discord = this });
+                this.UserCache.TryAdd(user.Id, (usr = new DiscordUser(user) { Discord = this }));
 
             var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
 
@@ -1793,7 +1793,7 @@ namespace DSharpPlus
             var guild = message.Channel?.Guild;
 
             if (!this.UserCache.TryGetValue(author.Id, out var usr))
-                this.UserCache[author.Id] = (usr = new DiscordUser(author) { Discord = this });
+                this.UserCache.TryAdd(author.Id, (usr = new DiscordUser(author) { Discord = this }));
 
             if (guild != null)
             {
@@ -1861,7 +1861,7 @@ namespace DSharpPlus
                 if (author != null)
                 {
                     if (!this.UserCache.TryGetValue(author.Id, out var usr))
-                        this.UserCache[author.Id] = (usr = new DiscordUser(author) { Discord = this });
+                        this.UserCache.TryAdd(author.Id, (usr = new DiscordUser(author) { Discord = this }));
 
                     if (guild != null)
                     {
@@ -2481,7 +2481,7 @@ namespace DSharpPlus
                     var xtu = xj["user"].ToObject<TransportUser>();
 
                     if (!this.UserCache.ContainsKey(xtu.Id))
-                        this.UserCache[xtu.Id] = new DiscordUser(xtu) { Discord = this };
+                        this.UserCache.TryAdd(xtu.Id, new DiscordUser(xtu) { Discord = this });
 
                     guild._members.Add(new DiscordMember(xj.ToObject<TransportMember>()) { Discord = this, _guild_id = guild.Id });
                 }

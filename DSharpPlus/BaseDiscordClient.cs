@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -56,7 +57,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the cached users for this client.
         /// </summary>
-        protected internal Dictionary<ulong, DiscordUser> UserCache { get; }
+        protected internal ConcurrentDictionary<ulong, DiscordUser> UserCache { get; }
 
         /// <summary>
         /// Initializes this Discord API client.
@@ -67,7 +68,7 @@ namespace DSharpPlus
             this.Configuration = config;
             this.ApiClient = new DiscordApiClient(this);
             this.DebugLogger = new DebugLogger(this);
-            this.UserCache = new Dictionary<ulong, DiscordUser>();
+            this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace DSharpPlus
             if (this.CurrentUser == null)
             {
                 this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
-                this.UserCache[this.CurrentUser.Id] = this.CurrentUser;
+                this.UserCache.AddOrUpdate(this.CurrentUser.Id, this.CurrentUser, (id, xu) => this.CurrentUser);
             }
 
             if (this.Configuration.TokenType != TokenType.User && this.CurrentApplication == null)

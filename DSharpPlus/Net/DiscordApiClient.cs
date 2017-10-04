@@ -203,7 +203,7 @@ namespace DSharpPlus.Net
             {
                 var usr = this.Discord.InternalGetCachedUser(xb.RawUser.Id);
                 if (usr == null)
-                    this.Discord.UserCache[xb.RawUser.Id] = (usr = new DiscordUser(xb.RawUser) { Discord = this.Discord });
+                    this.Discord.UserCache.TryAdd(xb.RawUser.Id, (usr = new DiscordUser(xb.RawUser) { Discord = this.Discord }));
 
                 xb.User = usr;
                 return xb;
@@ -877,7 +877,7 @@ namespace DSharpPlus.Net
             var tm = JsonConvert.DeserializeObject<TransportMember>(res.Response);
 
             if (!this.Discord.UserCache.ContainsKey(tm.User.Id))
-                this.Discord.UserCache[tm.User.Id] = new DiscordUser(tm.User);
+                this.Discord.UserCache.TryAdd(tm.User.Id, new DiscordUser(tm.User) { Discord = this.Discord });
 
             return new DiscordMember(tm)
             {
@@ -1600,7 +1600,7 @@ namespace DSharpPlus.Net
             foreach (var xr in reacters_raw)
             {
                 if (!this.Discord.UserCache.ContainsKey(xr.Id))
-                    this.Discord.UserCache[xr.Id] = new DiscordUser(xr);
+                    this.Discord.UserCache.TryAdd(xr.Id, new DiscordUser(xr) { Discord = this.Discord });
 
                 reacters.Add(this.Discord.UserCache[xr.Id]);
             }
