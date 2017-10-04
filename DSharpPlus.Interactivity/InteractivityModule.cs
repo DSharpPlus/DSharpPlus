@@ -89,6 +89,9 @@ namespace DSharpPlus.Interactivity
         #region Message
         public async Task<MessageContext> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, TimeSpan? timeoutoverride = null)
         {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -134,6 +137,9 @@ namespace DSharpPlus.Interactivity
         #region Reaction
         public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, TimeSpan? timeoutoverride = null)
         {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -181,6 +187,11 @@ namespace DSharpPlus.Interactivity
 
         public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan? timeoutoverride = null)
         {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -232,6 +243,11 @@ namespace DSharpPlus.Interactivity
 
         public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, DiscordUser user = null, TimeSpan? timeoutoverride = null)
         {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+            if (msg == null)
+                throw new ArgumentNullException(nameof(msg));
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -286,6 +302,9 @@ namespace DSharpPlus.Interactivity
 
         public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, DiscordUser user = null, TimeSpan? timeoutoverride = null)
         {
+            if (msg == null)
+                throw new ArgumentNullException(nameof(msg));
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -337,6 +356,13 @@ namespace DSharpPlus.Interactivity
 
         public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, IEnumerable<DiscordEmoji> Emojis, TimeSpan? timeoutoverride = null)
         {
+            if (m == null)
+                throw new ArgumentNullException(nameof(m));
+            if (Emojis == null)
+                throw new ArgumentNullException(nameof(Emojis));
+            if (Emojis.Count() < 1)
+                throw new InvalidOperationException("A minimum of one emoji is required to execute this method!");
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -407,6 +433,9 @@ namespace DSharpPlus.Interactivity
 
         public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
         {
+            if (m == null)
+                throw new ArgumentNullException(nameof(m));
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -473,6 +502,9 @@ namespace DSharpPlus.Interactivity
         // Did you? I don't remember either. Nice it's there anyway I guess.. -Naam
         public async Task<TypingContext> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
+            if (channel == null)
+                throw new ArgumentNullException(nameof(channel));
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -520,6 +552,9 @@ namespace DSharpPlus.Interactivity
 
         public async Task<TypingContext> WaitForTypingChannelAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
         {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -567,6 +602,15 @@ namespace DSharpPlus.Interactivity
         #region Pagination
         public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> message_pages, TimeSpan? timeoutoverride = null, TimeoutBehaviour? timeoutbehaviouroverride = null)
         {
+            if (channel == null)
+                throw new ArgumentNullException(nameof(channel));
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+            if (message_pages == null)
+                throw new ArgumentNullException(nameof(message_pages));
+            if (message_pages.Count() < 1)
+                throw new InvalidOperationException("This method can only be executed with a minimum of one page!");
+
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
@@ -649,6 +693,9 @@ namespace DSharpPlus.Interactivity
 
         public IEnumerable<Page> GeneratePagesInEmbeds(string input)
         {
+            if (String.IsNullOrEmpty(input))
+                throw new InvalidOperationException("You must provide a string that is not null or empty!");
+
             List<Page> result = new List<Page>();
             List<string> split = input.Split(2000).ToList();
             int page = 1;
@@ -669,6 +716,9 @@ namespace DSharpPlus.Interactivity
 
         public IEnumerable<Page> GeneratePagesInStrings(string input)
         {
+            if (String.IsNullOrEmpty(input))
+                throw new InvalidOperationException("You must provide a string that is not null or empty!");
+
             List<Page> result = new List<Page>();
             List<string> split = input.Split(1900).ToList();
             int page = 1;
@@ -685,6 +735,9 @@ namespace DSharpPlus.Interactivity
 
         public async Task GeneratePaginationReactions(DiscordMessage m)
         {
+            if(m == null)
+                throw new ArgumentNullException(nameof(m))
+
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮"));
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀"));
             await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹"));
@@ -694,6 +747,15 @@ namespace DSharpPlus.Interactivity
 
         public async Task DoPagination(DiscordEmoji emoji, DiscordMessage m, PaginatedMessage pm, CancellationTokenSource ct)
         {
+            if (m == null)
+                throw new ArgumentNullException(nameof(m));
+            if (pm == null)
+                throw new ArgumentNullException(nameof(pm));
+            if (emoji == null)
+                throw new ArgumentNullException(nameof(emoji));
+            if (ct == null)
+                throw new ArgumentNullException(nameof(ct));
+
             #region The "good" shit
             switch (emoji.Name)
             {
