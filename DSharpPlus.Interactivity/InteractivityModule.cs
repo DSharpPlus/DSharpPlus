@@ -241,18 +241,18 @@ namespace DSharpPlus.Interactivity
             #endregion
         }
 
-        public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage msg, DiscordUser user = null, TimeSpan? timeoutoverride = null)
+        public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage message, DiscordUser user = null, TimeSpan? timeoutoverride = null)
         {
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
-            if (msg == null)
-                throw new ArgumentNullException(nameof(msg));
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
 
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
 
-            var message_id = msg.Id;
+            var message_id = message.Id;
             var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -300,16 +300,16 @@ namespace DSharpPlus.Interactivity
             #endregion
         }
 
-        public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage msg, DiscordUser user = null, TimeSpan? timeoutoverride = null)
+        public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage message, DiscordUser user = null, TimeSpan? timeoutoverride = null)
         {
-            if (msg == null)
-                throw new ArgumentNullException(nameof(msg));
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
 
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
 
-            var message_id = msg.Id;
+            var message_id = message.Id;
             var tsc = new TaskCompletionSource<ReactionContext>();
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
@@ -354,22 +354,22 @@ namespace DSharpPlus.Interactivity
             #endregion
         }
 
-        public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage m, IEnumerable<DiscordEmoji> Emojis, TimeSpan? timeoutoverride = null)
+        public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage message, IEnumerable<DiscordEmoji> emojis, TimeSpan? timeoutoverride = null)
         {
-            if (m == null)
-                throw new ArgumentNullException(nameof(m));
-            if (Emojis == null)
-                throw new ArgumentNullException(nameof(Emojis));
-            if (Emojis.Count() < 1)
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
+            if (emojis == null)
+                throw new ArgumentNullException(nameof(emojis));
+            if (emojis.Count() < 1)
                 throw new InvalidOperationException("A minimum of one emoji is required to execute this method!");
 
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
 
-            foreach (var em in Emojis)
+            foreach (var em in emojis)
             {
-                await m.CreateReactionAsync(em);
+                await message.CreateReactionAsync(em);
             }
 
             var rcc = new ReactionCollectionContext();
@@ -401,7 +401,7 @@ namespace DSharpPlus.Interactivity
             async Task ReactionAddHandler(MessageReactionAddEventArgs e)
             {
                 await Task.Yield();
-                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
+                if (e.Message.Id == message.Id && emojis.Count(x => x == e.Emoji) > 0)
                 {
                     rcc.AddReaction(e.Emoji, e.User.Id);
                 }
@@ -410,7 +410,7 @@ namespace DSharpPlus.Interactivity
             async Task ReactionRemoveHandler(MessageReactionRemoveEventArgs e)
             {
                 await Task.Yield();
-                if (e.Message.Id == m.Id && Emojis.Count(x => x == e.Emoji) > 0)
+                if (e.Message.Id == message.Id && emojis.Count(x => x == e.Emoji) > 0)
                 {
                     rcc.RemoveReaction(e.Emoji, e.User.Id);
                 }
@@ -419,22 +419,22 @@ namespace DSharpPlus.Interactivity
             async Task ReactionClearHandler(MessageReactionsClearEventArgs e)
             {
                 await Task.Yield();
-                if (e.Message.Id == m.Id)
+                if (e.Message.Id == message.Id)
                 {
                     rcc.ClearReactions();
-                    foreach (var em in Emojis)
+                    foreach (var em in emojis)
                     {
-                        await m.CreateReactionAsync(em);
+                        await message.CreateReactionAsync(em);
                     }
                 }
             }
             #endregion
         }
 
-        public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
+        public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage message, TimeSpan? timeoutoverride = null)
         {
-            if (m == null)
-                throw new ArgumentNullException(nameof(m));
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
 
             TimeSpan timeout = Config.Timeout;
             if (timeoutoverride != null)
@@ -469,7 +469,7 @@ namespace DSharpPlus.Interactivity
             async Task ReactionAddHandler(MessageReactionAddEventArgs e)
             {
                 await Task.Yield();
-                if (e.Message.Id == m.Id)
+                if (e.Message.Id == message.Id)
                 {
                     rcc.AddReaction(e.Emoji);
                 }
@@ -478,7 +478,7 @@ namespace DSharpPlus.Interactivity
             async Task ReactionRemoveHandler(MessageReactionRemoveEventArgs e)
             {
                 await Task.Yield();
-                if (e.Message.Id == m.Id)
+                if (e.Message.Id == message.Id)
                 {
                     rcc.RemoveReaction(e.Emoji);
                 }
@@ -487,7 +487,7 @@ namespace DSharpPlus.Interactivity
             async Task ReactionClearHandler(MessageReactionsClearEventArgs e)
             {
                 await Task.Yield();
-                if (e.Message.Id == m.Id)
+                if (e.Message.Id == message.Id)
                 {
                     rcc.ClearReactions();
                 }
@@ -733,60 +733,60 @@ namespace DSharpPlus.Interactivity
             return result;
         }
 
-        public async Task GeneratePaginationReactions(DiscordMessage m)
+        public async Task GeneratePaginationReactions(DiscordMessage message)
         {
-            if (m == null)
-                throw new ArgumentNullException(nameof(m));
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
 
-            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮"));
-            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀"));
-            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹"));
-            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "▶"));
-            await m.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏭"));
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮"));
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀"));
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹"));
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "▶"));
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏭"));
         }
 
-        public async Task DoPagination(DiscordEmoji emoji, DiscordMessage m, PaginatedMessage pm, CancellationTokenSource ct)
+        public async Task DoPagination(DiscordEmoji emoji, DiscordMessage message, PaginatedMessage paginatedmessage, CancellationTokenSource canceltoken)
         {
-            if (m == null)
-                throw new ArgumentNullException(nameof(m));
-            if (pm == null)
-                throw new ArgumentNullException(nameof(pm));
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
+            if (paginatedmessage == null)
+                throw new ArgumentNullException(nameof(paginatedmessage));
             if (emoji == null)
                 throw new ArgumentNullException(nameof(emoji));
-            if (ct == null)
-                throw new ArgumentNullException(nameof(ct));
+            if (canceltoken == null)
+                throw new ArgumentNullException(nameof(canceltoken));
 
             #region The "good" shit
             switch (emoji.Name)
             {
                 case "⏮":
-                    pm.CurrentIndex = 0;
+                    paginatedmessage.CurrentIndex = 0;
                     break;
 
                 case "◀":
-                    if (pm.CurrentIndex != 0)
-                        pm.CurrentIndex--;
+                    if (paginatedmessage.CurrentIndex != 0)
+                        paginatedmessage.CurrentIndex--;
                     break;
 
                 case "⏹":
-                    ct.Cancel();
+                    canceltoken.Cancel();
                     return;
 
                 case "▶":
-                    if (pm.CurrentIndex != pm.Pages.Count() - 1)
-                        pm.CurrentIndex++;
+                    if (paginatedmessage.CurrentIndex != paginatedmessage.Pages.Count() - 1)
+                        paginatedmessage.CurrentIndex++;
                     break;
 
                 case "⏭":
-                    pm.CurrentIndex = pm.Pages.Count() - 1;
+                    paginatedmessage.CurrentIndex = paginatedmessage.Pages.Count() - 1;
                     break;
 
                 default:
                     return;
             }
 
-            await m.ModifyAsync((string.IsNullOrEmpty(pm.Pages.ToArray()[pm.CurrentIndex].Content)) ? "" : pm.Pages.ToArray()[pm.CurrentIndex].Content,
-                embed: pm.Pages.ToArray()[pm.CurrentIndex].Embed ?? null);
+            await message.ModifyAsync((string.IsNullOrEmpty(paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Content)) ? "" : paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Content,
+                embed: paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Embed ?? null);
             #endregion
         }
         #endregion
