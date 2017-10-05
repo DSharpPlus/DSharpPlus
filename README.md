@@ -6,7 +6,7 @@ A C# API for Discord based off [DiscordSharp](https://github.com/suicvne/Discord
 [![Build Status](https://img.shields.io/appveyor/ci/Emzi0767/dsharpplus-6g6vr/master.svg)](https://ci.appveyor.com/project/Emzi0767/dsharpplus-6g6vr/branch/master)
 [![Discord Server](https://img.shields.io/discord/146044397861994496.svg?label=discord)](https://discord.gg/0oZpaYcAjfvkDuE4) 
 [![NuGet](https://img.shields.io/nuget/vpre/DSharpPlus.svg)](http://nuget.org/packages/DSharpPlus)
-[![MyGet](https://img.shields.io/myget/dsharpplus-nightly/vpre/DSharpPlus.svg?label=myget)](https://www.myget.org/feed/Packages/dsharpplus-nightly) 
+[![MyGet](https://img.shields.io/myget/dsharpplus-nightly/vpre/DSharpPlus.svg?label=myget)](https://www.myget.org/gallery/dsharpplus-nightly) 
 
 # Use the lib:
 1. Download from [NuGet](http://nuget.org/packages/DSharpPlus) (Stable Release)
