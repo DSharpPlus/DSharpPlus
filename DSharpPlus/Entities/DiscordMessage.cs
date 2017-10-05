@@ -219,7 +219,7 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) => 
+        public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) =>
             this.Discord.ApiClient.UploadFileAsync(this.ChannelId, file_data, file_name, content, tts, embed);
 
 #if !NETSTANDARD1_1
@@ -267,6 +267,19 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task CreateReactionAsync(DiscordEmoji emoji) =>
             this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+
+        /// <summary>
+        /// Creates reactions to this message
+        /// </summary>  
+        /// <param name="emojis">The emoji collection you want to react with</param>
+        /// <returns></returns>
+        public Task CreateReactionsAsync(IEnumerable<DiscordEmoji> emojis)
+        {
+            foreach (var emoji in emojis)
+                this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+
+            return Task.FromResult(0);
+        }
 
         /// <summary>
         /// Deletes your own reaction
