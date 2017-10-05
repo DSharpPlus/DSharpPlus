@@ -587,7 +587,7 @@ namespace DSharpPlus.CommandsNext
                     }
 
                     if (scs.Any())
-                        helpbuilder.WithSubcommands(scs.OrderBy(xc => xc.QualifiedName));
+                        helpbuilder.WithSubcommands(scs.OrderBy(xc => xc.Name));
                 }
             }
             else
@@ -608,7 +608,7 @@ namespace DSharpPlus.CommandsNext
                 }
 
                 if (scs.Any())
-                    helpbuilder.WithSubcommands(scs.OrderBy(xc => xc.QualifiedName));
+                    helpbuilder.WithSubcommands(scs.OrderBy(xc => xc.Name));
             }
 
             var hmsg = helpbuilder.Build();
