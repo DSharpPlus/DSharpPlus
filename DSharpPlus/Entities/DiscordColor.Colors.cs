@@ -125,6 +125,12 @@
         /// Gold, or #FFD700.
         /// </summary>
         public static DiscordColor Gold { get; } = new DiscordColor(0xFFD700);
+        
+        // best color
+        /// <summary>
+        /// Goldenrod, or #FFD700.
+        /// </summary>
+        public static DiscordColor Goldenrod { get; } = new DiscordColor(0xDAA520);
 
         // emzi's favourite
         /// <summary>
