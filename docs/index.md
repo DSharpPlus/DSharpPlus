@@ -13,7 +13,7 @@ Source code for DSharpPlus is available in its [GitHub repository](https://githu
 DSharpPlus is licensed under MIT License, as detailed in the [LICENSE in the repository](https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE).
 
 DSharpPlus consists of [Naamloos](https://github.com/NaamloosDT), [afroraydude](https://github.com/afroraydude), 
-[DrCreo](https://github.com/DrCreo), [Death](https://github.com/DeathGameDev), [Emzi0767](https://github.com/Emzi0767), [TiaqoY0](https://github.com/nick-strohm)
+[DrCreo](https://github.com/DrCreo), [Death](https://github.com/DeathGameDev), [TiaqoY0](https://github.com/nick-strohm), [Axiom](https://github.com/suicvne), [Emzi0767](https://github.com/Emzi0767)
 and other contributors.
 
 ## Where to start?
