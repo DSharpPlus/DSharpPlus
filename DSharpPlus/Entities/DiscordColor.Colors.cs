@@ -128,7 +128,7 @@
         
         // best color
         /// <summary>
-        /// Goldenrod, or #FFD700.
+        /// Goldenrod, or #DAA520.
         /// </summary>
         public static DiscordColor Goldenrod { get; } = new DiscordColor(0xDAA520);
 
