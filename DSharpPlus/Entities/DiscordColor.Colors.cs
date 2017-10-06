@@ -126,7 +126,24 @@
         /// </summary>
         public static DiscordColor Gold { get; } = new DiscordColor(0xFFD700);
         
-        // best color
+        // To be fair, you have to have a very high IQ to understand Goldenrod . 
+        // The tones are extremely subtle, and without a solid grasp of artistic
+        // theory most of the beauty will go over a typical painter's head.
+        // There's also the flower's nihilistic style, which is deftly woven
+        // into its characterisation - it's pollinated by the Bombus cryptarum
+        // bumblebee, for instance. The fans understand this stuff; they have
+        // the intellectual capacity to truly appreciate the depth of this
+        // flower, to realize that it's not just a color - it says something
+        // deep about LIFE. As a consequence people who dislike Goldenrod truly
+        // ARE idiots - of course they wouldn't appreciate, for instance, the
+        // beauty in the bumblebee species' complex presence in the British Isles,
+        // which is cryptically explained by Turgenev's Russian epic Fathers and
+        // Sons I'm blushing right now just imagining one of those addlepated
+        // simpletons scratching their heads in confusion as nature's genius
+        // unfolds itself on their computer screens. What fools... how I pity them.
+        // 😂 And yes by the way, I DO have a goldenrod tattoo. And no, you cannot
+        // see it. It's for the ladies' eyes only- And even they have to
+        // demonstrate that they're within 5 IQ points of my own (preferably lower) beforehand.
         /// <summary>
         /// Goldenrod, or #DAA520.
         /// </summary>
