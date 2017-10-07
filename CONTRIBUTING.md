@@ -85,6 +85,28 @@ In addition to these, we also have several preferences:
   var d = new[] { 42, 69 };
   ```
 * Inline `out` declarations when possible: `SomeOutMethod(42, out var stringified);`
+* Members in classes should be ordered as follows (with few exceptions):
+   * Public `const` fields.
+   * Non-public `const` fields.
+   * Public static properties.
+   * Public static fields.
+   * Non-public static properties.
+   * Non-public static fields.
+   * Public properties.
+   * Public fields.
+   * Private properties.
+   * Private fields.
+   * Static constructor.
+   * Public constructors.
+   * Non-public constructors.
+   * Public methods (with the exception of methods overriden from `System.Object`).
+   * Non-public methods.
+   * Methods overriden from `System.Object`.
+   * Public static methods.
+   * Non-public static methods.
+   * Operator overloads.
+   * Public events.
+   * Non-public events.
 
 # Code changes
 One of our requirements is that all code change commits must build successfully. This is verified by our CI. When you 
