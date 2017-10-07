@@ -402,9 +402,19 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder AddField(string name, string value, bool inline = false)
         {
             if (string.IsNullOrWhiteSpace(name))
-                name == null ? throw new ArgumentNullException(nameof(name)) : throw new ArgumentException($"{nameof(name)} cannot be whitespace.");
+            {
+                if (name == null)
+                    new ArgumentNullException(nameof(name))
+                else
+                    throw new ArgumentException($"{nameof(name)} cannot be empty or whitespace.");
+            }
             if (string.IsNullOrWhiteSpace(value))
-                name == null ? throw new ArgumentNullException(nameof(value)) : throw new ArgumentException($"{nameof(value)} cannot be whitespace.");
+            {
+                if (value == null)
+                    new ArgumentNullException(nameof(value))
+                else
+                    throw new ArgumentException($"{nameof(value)} cannot be empty or whitespace.");
+            }
 
             if (name.Length > 256)
                 throw new ArgumentException("Embed field name length cannot exceed 256 characters.");
