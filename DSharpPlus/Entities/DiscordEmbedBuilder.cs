@@ -404,14 +404,14 @@ namespace DSharpPlus.Entities
             if (string.IsNullOrWhiteSpace(name))
             {
                 if (name == null)
-                    throw new ArgumentNullException(nameof(name))
+                    throw new ArgumentNullException(nameof(name));
                 else
                     throw new ArgumentException($"{nameof(name)} cannot be empty or whitespace.");
             }
             if (string.IsNullOrWhiteSpace(value))
             {
                 if (value == null)
-                    throw new ArgumentNullException(nameof(value))
+                    throw new ArgumentNullException(nameof(value));
                 else
                     throw new ArgumentException($"{nameof(value)} cannot be empty or whitespace.");
             }
