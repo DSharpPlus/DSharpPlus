@@ -20,7 +20,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the real name of this emoji, not in Unicode format.
         /// </summary>
-        public string RealName { get; internal set; }
+        public string Tag { get; internal set; }
         
         /// <summary>
         /// Gets IDs the roles this emoji is enabled for.
@@ -76,7 +76,7 @@ namespace DSharpPlus.Entities
             if (ReferenceEquals(this, e))
                 return true;
 
-            return this.Id == e.Id && this.Name == e.Name && this.RealName == e.RealName;
+            return this.Id == e.Id && this.Name == e.Name && this.Tag == e.Tag;
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
 
             if (UnicodeEmojis.ContainsKey(name))
-                return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name], RealName = UnicodeEmojis.Keys.FirstOrDefault(k => k == name) };
+                return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name], Tag = name };
 
             var ed = client.Guilds.Values.SelectMany(xg => xg.Emojis)
                 .OrderBy(xe => xe.Name)
