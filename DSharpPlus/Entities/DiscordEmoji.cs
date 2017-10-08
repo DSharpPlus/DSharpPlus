@@ -16,11 +16,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
-
-        /// <summary>
-        /// Gets the real name of this emoji, not in Unicode format.
-        /// </summary>
-        public string Tag { get; internal set; }
         
         /// <summary>
         /// Gets IDs the roles this emoji is enabled for.
@@ -41,6 +36,19 @@ namespace DSharpPlus.Entities
         public bool Managed { get; internal set; }
 
         internal DiscordEmoji() { }
+
+        /// <summary>
+        /// Gets emoji's name in non-Unicode format (eg. :thinking: instead of the Unicode representation of the emoji).
+        /// </summary>
+        public string GetDiscordName()
+        {
+            DiscordNameLookup.TryGetValue(this.Name, out var name);
+
+            if (name == null)
+                return $":{ this.Name }:";
+
+            return name;
+        }
 
         /// <summary>
         /// Returns a string representation of this emoji.
@@ -76,7 +84,7 @@ namespace DSharpPlus.Entities
             if (ReferenceEquals(this, e))
                 return true;
 
-            return this.Id == e.Id && this.Name == e.Name && this.Tag == e.Tag;
+            return this.Id == e.Id && this.Name == e.Name;
         }
 
         /// <summary>
@@ -194,7 +202,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
 
             if (UnicodeEmojis.ContainsKey(name))
-                return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name], Tag = name };
+                return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name] };
 
             var ed = client.Guilds.Values.SelectMany(xg => xg.Emojis)
                 .OrderBy(xe => xe.Name)

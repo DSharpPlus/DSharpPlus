@@ -7,6 +7,7 @@ namespace DSharpPlus.Entities
     public partial class DiscordEmoji : SnowflakeObject
     {
         private static IReadOnlyDictionary<string, string> UnicodeEmojis { get; set; }
+        private static IReadOnlyDictionary<string, string> DiscordNameLookup { get; set; }
         internal static IReadOnlyList<string> UnicodeEmojiList { get; set; }
 
         static DiscordEmoji()
@@ -1964,6 +1965,8 @@ namespace DSharpPlus.Entities
                 ["X-)"] = "😆"
             };
             UnicodeEmojis = new ReadOnlyDictionary<string, string>(edict);
+            DiscordNameLookup = new ReadOnlyDictionary<string, string>(edict.GroupBy(xkvp => xkvp.Value)
+                .ToDictionary(xg => xg.Key, xg => xg.First().Key));
 
             var el = edict.Values.Distinct().OrderBy(xs => xs);
             UnicodeEmojiList = new ReadOnlyCollection<string>(new List<string>(el));
