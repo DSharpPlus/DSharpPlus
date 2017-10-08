@@ -41,6 +41,18 @@ namespace DSharpPlus.Net
             this.RequestSemaphore = new SemaphoreSlim(1, 1);
         }
 
+        internal RestClient() // This is for meta-clients, such as the webhook client
+        {
+            this.HttpClient = new HttpClient
+            {
+                BaseAddress = new Uri(Utilities.GetApiBaseUri())
+            };
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
+
+            this.Buckets = new HashSet<RateLimitBucket>();
+            this.RequestSemaphore = new SemaphoreSlim(1, 1);
+        }
+
         public RateLimitBucket GetBucket(RestRequestMethod method, string route, object route_params, out string url)
         {
             var rparams_props = route_params.GetType()

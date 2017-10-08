@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DSharpPlus.Net;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -10,6 +11,8 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordWebhook : SnowflakeObject, IEquatable<DiscordWebhook>
     {
+        internal DiscordApiClient ApiClient { get; set; }
+
         /// <summary>
         /// Gets the ID of the guild this webhook belongs to.
         /// </summary>
@@ -77,7 +80,7 @@ namespace DSharpPlus.Entities
         /// <param name="embeds">Embeds to attach to the message being sent.</param>
         /// <returns></returns>
         public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null) =>
-            this.Discord.ApiClient.ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
+            (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.
@@ -85,7 +88,7 @@ namespace DSharpPlus.Entities
         /// <param name="json">JSON containing Slack-compatible payload for this webhook.</param>
         /// <returns></returns>
         public Task ExecuteSlackAsync(string json) =>
-            this.Discord.ApiClient.ExecuteWebhookSlackAsync(Id, Token, json);
+            (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
 
         /// <summary>
         /// Executes this webhook in GitHub compatibility mode.
@@ -93,7 +96,7 @@ namespace DSharpPlus.Entities
         /// <param name="json">JSON containing GitHub-compatible payload for this webhook.</param>
         /// <returns></returns>
         public Task ExecuteGithubAsync(string json) =>
-            this.Discord.ApiClient.ExecuteWebhookGithubAsync(Id, Token, json);
+            (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordWebhook"/> is equal to another object.
