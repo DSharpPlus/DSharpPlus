@@ -1967,7 +1967,6 @@ namespace DSharpPlus.Entities
 
             var el = edict.Values.Distinct().OrderBy(xs => xs);
             UnicodeEmojiList = new ReadOnlyCollection<string>(new List<string>(el));
-
         }
     }
 }
