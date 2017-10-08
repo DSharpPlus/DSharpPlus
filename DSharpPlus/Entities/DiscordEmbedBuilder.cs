@@ -223,6 +223,20 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Sets the embed's color with specified values for red, green, and blue components, for snowflankes.
+        /// </summary>
+        /// <param name="r">Value of red component.</param>
+        /// <param name="g">Value of green component.</param>
+        /// <param name="b">Value of blue component.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder WithColor(byte r, byte g, byte b)
+        {
+            var color = new DiscordColor(r, g, b);
+            this.Color = color;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the embed's timestamp.
         /// </summary>
         /// <param name="timestamp">Timestamp to set.</param>
