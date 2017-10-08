@@ -193,7 +193,7 @@ namespace DSharpPlus.CommandsNext
 
             if (cmd == null)
             {
-                await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException("Specified command was not found.", cms) });
+                await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(cms) });
                 return;
             }
 
@@ -203,7 +203,7 @@ namespace DSharpPlus.CommandsNext
                 {
                     var fchecks = await cmd.RunChecksAsync(ctx, false);
                     if (fchecks.Any())
-                        throw new ChecksFailedException("One or more pre-execution checks failed.", cmd, ctx, fchecks);
+                        throw new ChecksFailedException(cmd, ctx, fchecks);
 
                     var res = await cmd.ExecuteAsync(ctx);
                     
@@ -509,7 +509,7 @@ namespace DSharpPlus.CommandsNext
                 return;
 
             if (this.TopLevelCommands.ContainsKey(cmd.Name) || (cmd.Aliases != null && cmd.Aliases.Any(xs => this.TopLevelCommands.ContainsKey(xs))))
-                throw new CommandExistsException("Given command name is already registered.", cmd.Name);
+                throw new DuplicateCommandException(cmd.Name);
 
             this.TopLevelCommands[cmd.Name] = cmd;
             if (cmd.Aliases != null)
@@ -547,7 +547,7 @@ namespace DSharpPlus.CommandsNext
 
                     var cfl = await cmd.RunChecksAsync(ctx, true);
                     if (cfl.Any())
-                        throw new ChecksFailedException("You cannot access that command!", cmd, ctx, cfl);
+                        throw new ChecksFailedException(cmd, ctx, cfl);
 
                     if (cmd is CommandGroup)
                         search_in = (cmd as CommandGroup).Children;
@@ -556,7 +556,7 @@ namespace DSharpPlus.CommandsNext
                 }
 
                 if (cmd == null)
-                    throw new CommandNotFoundException("Specified command was not found!", string.Join(" ", command));
+                    throw new CommandNotFoundException(string.Join(" ", command));
 
                 helpbuilder.WithCommandName(cmd.Name).WithDescription(cmd.Description);
 
@@ -628,7 +628,7 @@ namespace DSharpPlus.CommandsNext
         {
             var eph = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
             var dtn = DateTimeOffset.UtcNow;
-            var ts = (ulong)(eph - dtn).TotalMilliseconds;
+            var ts = (ulong)(dtn - eph).TotalMilliseconds;
 
             // create fake message
             var msg = new DiscordMessage
