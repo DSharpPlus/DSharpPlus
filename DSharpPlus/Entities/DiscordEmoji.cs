@@ -16,7 +16,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
-
+        
         /// <summary>
         /// Gets IDs the roles this emoji is enabled for.
         /// </summary>
@@ -36,6 +36,19 @@ namespace DSharpPlus.Entities
         public bool Managed { get; internal set; }
 
         internal DiscordEmoji() { }
+
+        /// <summary>
+        /// Gets emoji's name in non-Unicode format (eg. :thinking: instead of the Unicode representation of the emoji).
+        /// </summary>
+        public string GetDiscordName()
+        {
+            DiscordNameLookup.TryGetValue(this.Name, out var name);
+
+            if (name == null)
+                return $":{ this.Name }:";
+
+            return name;
+        }
 
         /// <summary>
         /// Returns a string representation of this emoji.
