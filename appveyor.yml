@@ -64,18 +64,3 @@ deploy:
   api_key:
     secure: Zrcd8tC2HncrLbVMK2rD6pcfnS3txk85Enf7Totc4g9sYVMhtHcKVPfOrtFuPW6h
   symbol_server: https://www.myget.org/F/dsharpplus-nightly/symbols/api/v2/package
-notifications:
-- provider: Slack
-  incoming_webhook:
-    secure: z4bpoeWztbUGxF4yxdUMUjU9XFR2JNtrCdCmiG7Ri7yJDOP8s7ZKY1dj215hSuw0JknyiL/3IfkDmILYj6+RRt+W83FVM5hlLlZDuGsxxGd0qBkAot/W6oBJWvfiYusz2oCQ6ujnvQXvSZBss0WDfL7OV0VqyrP6Nq2Np2Up5EfRJgiq6FR+RwIp0PP4+vLz
-  channel: gitfeed
-  on_build_success: true
-  on_build_failure: true
-  on_build_status_changed: false
-- provider: Slack
-  incoming_webhook: 
-    secure: z4bpoeWztbUGxF4yxdUMUjU9XFR2JNtrCdCmiG7Ri7xb4ZAWmZKPXpU3kUL/S0rz/lVW2uIENkfsttfKn2E6030vLrd29hU5IV6kdoPY6oDZSwzqTTNXzIrvNLLyOS4Kho+1E2PF6DIu6lpFVSWNgyeLNf4Iyiesad4stoyRzyQ064BHl2/vuhrKFy5vLV/K
-  channel: dsharpplus_commits
-  on_build_success: true
-  on_build_failure: true
-  on_build_status_changed: false
