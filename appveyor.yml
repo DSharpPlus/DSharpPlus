@@ -1,4 +1,4 @@
-version: 3.2.3-beta-{build}
+version: 4.0.0-beta-{build}
 pull_requests:
   do_not_increment_build_number: true
 branches:
