@@ -291,9 +291,13 @@ docs/_site/
 docfx/
 7zip/
 
+# Build artifacts
+artifacts/
+
 ### Test files
 config.json
 /DSharpPlus.Test/libsodium.dll
 /DSharpPlus.Test/libopus.dll
 /DSharpPlus.Test/ffmpeg.exe
 /DSharpPlus.Test/*.pcm
+appveyor-test.ps1

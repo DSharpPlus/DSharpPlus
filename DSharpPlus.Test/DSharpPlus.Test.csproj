@@ -2,31 +2,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>DSharpPlus.Test</AssemblyName>
+    <RootNamespace>DSharpPlus.Test</RootNamespace>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <!-- <TargetFramework>net47</TargetFramework> -->
-    <Optimize>True</Optimize>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>DSharpPlus.Test</RootNamespace>
-    <AssemblyName>DSharpPlus.Test</AssemblyName>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <VersionPrefix>3.0.0</VersionPrefix>
     <LangVersion>7.1</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Optimize>True</Optimize>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <Optimize>False</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>3.0.0-preview-$(VersionSuffix)</Version>
-    <AssemblyVersion>3.0.0.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>3.0.0.$(VersionSuffix)</FileVersion>
+    <Version>$(VersionPrefix)-preview-$(VersionSuffix)</Version>
+    <AssemblyVersion>$(VersionPrefix).$(VersionSuffix)</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).$(VersionSuffix)</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>3.0.0-preview</Version>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <Optimize>False</Optimize>
+    <Version>$(VersionPrefix)-preview</Version>
+    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0' Or '$(TargetFramework)' == 'netcoreapp1.1'">

@@ -1,0 +1,66 @@
+version: 3.2.3-beta-{build}
+pull_requests:
+  do_not_increment_build_number: true
+branches:
+  only:
+  - master
+skip_tags: true
+max_jobs: 1
+image: Visual Studio 2017
+clone_depth: 1
+build_script:
+- ps: >-
+    # Version number
+    $VERSION_PREFIX = "$Env:APPVEYOR_BUILD_VERSION".Split("-")[0]
+    $VERSION_SUFFIX = [int]::Parse($Env:APPVEYOR_BUILD_NUMBER).ToString("00000")
+
+    # Branch
+    $BRANCH = "$Env:APPVEYOR_REPO_BRANCH"
+    $Env:DOCFX_SOURCE_BRANCH_NAME = "$BRANCH"
+    
+    # Output directory
+    $Env:ARTIFACT_DIR = ".\artifacts"
+    $dir = New-Item -type directory $env:ARTIFACT_DIR
+    $dir = $dir.FullName
+    
+    # Verbosity
+    Write-Host "Build: $VERSION_SUFFIX / Branch: $BRANCH"
+    Write-Host "Artifacts will be placed in: $dir"
+    
+    # Check if this is a PR
+    if (-not $Env:APPVEYOR_PULL_REQUEST_NUMBER)
+    {
+        # Rebuild documentation
+        Write-Host "Commencing complete build"
+        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix "$VERSION_SUFFIX" -DocsPath ".\docs" -DocsPackageName "dsharpplus-docs"
+    }
+    else
+    {
+        # Skip documentation
+        Write-Host "Building from PR ($Env:APPVEYOR_PULL_REQUEST_NUMBER); skipping docs build"
+        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix "$VERSION_SUFFIX"
+    }
+artifacts:
+- path: artifacts\*.nupkg
+- path: artifacts\dsharpplus-docs.tar.xz
+deploy:
+- provider: NuGet
+  server: https://www.myget.org/F/dsharpplus-nightly/api/v2/package
+  api_key:
+    secure: Zrcd8tC2HncrLbVMK2rD6pcfnS3txk85Enf7Totc4g9sYVMhtHcKVPfOrtFuPW6h
+  symbol_server: https://www.myget.org/F/dsharpplus-nightly/symbols/api/v2/package
+notifications:
+- provider: Slack
+  incoming_webhook:
+    secure: z4bpoeWztbUGxF4yxdUMUjU9XFR2JNtrCdCmiG7Ri7yJDOP8s7ZKY1dj215hSuw0JknyiL/3IfkDmILYj6+RRt+W83FVM5hlLlZDuGsxxGd0qBkAot/W6oBJWvfiYusz2oCQ6ujnvQXvSZBss0WDfL7OV0VqyrP6Nq2Np2Up5EfRJgiq6FR+RwIp0PP4+vLz
+  channel: gitfeed
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false
+- provider: Slack
+  incoming_webhook: 
+    secure: z4bpoeWztbUGxF4yxdUMUjU9XFR2JNtrCdCmiG7Ri7xb4ZAWmZKPXpU3kUL/S0rz/lVW2uIENkfsttfKn2E6030vLrd29hU5IV6kdoPY6oDZSwzqTTNXzIrvNLLyOS4Kho+1E2PF6DIu6lpFVSWNgyeLNf4Iyiesad4stoyRzyQ064BHl2/vuhrKFy5vLV/K
+  channel: dsharpplus_commits
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false

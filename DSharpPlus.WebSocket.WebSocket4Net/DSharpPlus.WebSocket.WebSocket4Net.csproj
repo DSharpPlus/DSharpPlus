@@ -1,41 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="../DSharpPlus.targets" />
+
   <PropertyGroup>
-	  <TargetFrameworks>net45;net46;net47</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>7.1</LangVersion>
-    <NoWarn>1591</NoWarn>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <RootNamespace>DSharpPlus</RootNamespace>
+    <AssemblyName>DSharpPlus.WebSocket.WebSocket4Net</AssemblyName>
+    <RootNamespace>DSharpPlus.WebSocket</RootNamespace>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net45;net46;net47</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageId>DSharpPlus.WebSocket.WebSocket4Net</PackageId>
-    <Authors>Naamloos afroraydude DrCreo Death TiaqoY0 Axiom Emzi0767 contributors</Authors>
-    <Company>DSharpPlus developers</Company>
-    <Description>NOTE: This is an optional package. Do not install, unless you're targeting .NETFX on Windows 7.
+    <Description>
+      NOTE: This is an optional package. Do not install, unless you're targeting .NETFX on Windows 7.
 
-A WebSocket4Net WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.</Description>
-    <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+      A WebSocket4Net WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.
+    </Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp websocket websocket4net windows windows-7</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>3.2.3-beta-$(VersionSuffix)</Version>
-    <AssemblyVersion>3.2.3.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>3.2.3.$(VersionSuffix)</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>3.2.3</Version>
-    <AssemblyVersion>3.2.3.0</AssemblyVersion>
-    <FileVersion>3.2.3.0</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <Optimize>False</Optimize>
   </PropertyGroup>
 
   <ItemGroup>

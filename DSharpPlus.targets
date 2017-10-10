@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	
+	<PropertyGroup>
+    <VersionPrefix>3.2.3</VersionPrefix>
+    <NoWarn>1591</NoWarn>
+    <LangVersion>7.1</LangVersion>
+    <Optimize>True</Optimize>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
+	
+	<PropertyGroup>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<Authors>Naamloos afroraydude DrCreo Death TiaqoY0 Axiom Emzi0767 contributors</Authors>
+		<Company>DSharpPlus developers</Company>
+		<PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
+		<PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
+		<RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+	</PropertyGroup>
+  
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46' Or '$(TargetFramework)' == 'net47'">
+		<DefineConstants>HAS_ENVIRONMENT;HAS_NAT_TRAVERSAL</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(VersionSuffix)' != ''">
+		<Version>$(VersionPrefix)-beta-$(VersionSuffix)</Version>
+		<AssemblyVersion>$(VersionPrefix).$(VersionSuffix)</AssemblyVersion>
+		<FileVersion>$(VersionPrefix).$(VersionSuffix)</FileVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(VersionSuffix)' == ''">
+		<Version>$(VersionPrefix)</Version>
+		<AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+		<FileVersion>$(VersionPrefix).0</FileVersion>
+	</PropertyGroup>
+	
+</Project>
