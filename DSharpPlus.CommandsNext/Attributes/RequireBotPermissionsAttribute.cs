@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 namespace DSharpPlus.CommandsNext.Attributes
 {
     /// <summary>
-    /// Defines that usage of this command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
+    /// Defines that usage of this command is only possible when the bot is granted a specific permission.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public sealed class RequirePermissionsAttribute : CheckBaseAttribute
+    public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
     {
         /// <summary>
         /// Gets the permissions required by this attribute.
@@ -20,10 +20,10 @@ namespace DSharpPlus.CommandsNext.Attributes
         public bool IgnoreDms { get; } = true;
 
         /// <summary>
-        /// Defines that usage of this command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
+        /// Defines that usage of this command is only possible when the bot is granted a specific permission.
         /// </summary>
         /// <param name="permissions">Permissions required to execute this command.</param>
-        public RequirePermissionsAttribute(Permissions permissions)
+        public RequireBotPermissionsAttribute(Permissions permissions)
         {
             this.Permissions = permissions;
         }
@@ -33,26 +33,22 @@ namespace DSharpPlus.CommandsNext.Attributes
             if (ctx.Guild == null)
                 return this.IgnoreDms;
 
-            var usr = ctx.Member;
-            if (usr == null)
-                return false;
-            var pusr = ctx.Channel.PermissionsFor(usr);
-
             var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
             if (bot == null)
                 return false;
+
+            if (bot.Id == ctx.Guild.OwnerId)
+                return true;
+
             var pbot = ctx.Channel.PermissionsFor(bot);
 
-            var usrok = ctx.Guild.OwnerId == usr.Id;
-            var botok = ctx.Guild.OwnerId == bot.Id;
+            if ((pbot & Permissions.Administrator) != 0)
+                return true;
 
-            if (!usrok)
-                usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
-            
-            if (!botok)
-                botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+            if ((pbot & this.Permissions) != 0)
+                return true;
 
-            return usrok && botok;
+            return false;
         }
     }
 }

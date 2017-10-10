@@ -485,6 +485,9 @@ namespace DSharpPlus.Entities
             if (this.IsPrivate || this.Guild == null)
                 return def;
 
+            if (this.Guild.OwnerId == mbr.Id)
+                return ~def;
+
             Permissions perms;
 
             // assign @everyone permissions

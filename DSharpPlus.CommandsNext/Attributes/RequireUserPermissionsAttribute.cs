@@ -42,7 +42,7 @@ namespace DSharpPlus.CommandsNext.Attributes
 
             var pusr = ctx.Channel.PermissionsFor(usr);
 
-            if ((pusr & Permissions.Administrator) == Permissions.Administrator)
+            if ((pusr & Permissions.Administrator) != 0)
                 return Task.FromResult(true);
 
             if ((pusr & this.Permissions) == this.Permissions)
