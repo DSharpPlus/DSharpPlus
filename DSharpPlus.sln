@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.WebSocket.WebSoc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Items", "Build Items", "{84464D70-687B-40A8-836D-C4F737698969}"
 	ProjectSection(SolutionItems) = preProject
-		X:\Temp\appveyor.yml = X:\Temp\appveyor.yml
+		appveyor.yml = appveyor.yml
 		DSharpPlus.targets = DSharpPlus.targets
 		oneclick-rebuild.ps1 = oneclick-rebuild.ps1
 		rebuild-all.ps1 = rebuild-all.ps1
