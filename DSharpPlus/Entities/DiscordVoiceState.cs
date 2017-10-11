@@ -97,6 +97,8 @@ namespace DSharpPlus.Entities
         [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
         public bool Suppress { get; internal set; }
 
+        internal DiscordVoiceState() { }
+
         public override string ToString()
         {
             return $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {this.GuildId?.ToString(CultureInfo.InvariantCulture)}";

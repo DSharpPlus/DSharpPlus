@@ -18,6 +18,8 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public DiscordGuild Guild { get; internal set; }
 
+        internal DiscordGuildEmoji() { }
+
         /// <summary>
         /// Modifies this emoji.
         /// </summary>

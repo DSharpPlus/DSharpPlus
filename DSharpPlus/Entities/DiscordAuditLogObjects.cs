@@ -106,6 +106,8 @@ namespace DSharpPlus.Entities
         /// Gets the the description of invite splash's change.
         /// </summary>
         public PropertyChange<string> SplashChange { get; internal set; }
+
+        internal DiscordAuditLogGuildEntry() { }
     }
 
     public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry
@@ -144,6 +146,8 @@ namespace DSharpPlus.Entities
         /// Gets the description of channel's topic change.
         /// </summary>
         public PropertyChange<string> TopicChange { get; internal set; }
+
+        internal DiscordAuditLogChannelEntry() { }
     }
 
     public sealed class DiscordAuditLogOverwriteEntry : DiscordAuditLogEntry
@@ -177,6 +181,8 @@ namespace DSharpPlus.Entities
         /// Gets the description of overwrite's target id change.
         /// </summary>
         public PropertyChange<ulong?> TargetIdChange { get; internal set; }
+
+        internal DiscordAuditLogOverwriteEntry() { }
     }
 
     public sealed class DiscordAuditLogKickEntry : DiscordAuditLogEntry
@@ -185,6 +191,8 @@ namespace DSharpPlus.Entities
         /// Gets the kicked member.
         /// </summary>
         public DiscordMember Target { get; internal set; }
+
+        internal DiscordAuditLogKickEntry() { }
     }
 
     public sealed class DiscordAuditLogPruneEntry : DiscordAuditLogEntry
@@ -198,6 +206,8 @@ namespace DSharpPlus.Entities
         /// Gets the number of members pruned.
         /// </summary>
         public int Toll { get; internal set; }
+
+        internal DiscordAuditLogPruneEntry() { }
     }
 
     public sealed class DiscordAuditLogBanEntry : DiscordAuditLogEntry
@@ -206,6 +216,8 @@ namespace DSharpPlus.Entities
         /// Gets the banned member.
         /// </summary>
         public DiscordMember Target { get; internal set; }
+
+        internal DiscordAuditLogBanEntry() { }
     }
 
     public sealed class DiscordAuditLogMemberUpdateEntry : DiscordAuditLogEntry
@@ -239,6 +251,8 @@ namespace DSharpPlus.Entities
         /// Gets the description of member's deaf status change.
         /// </summary>
         public PropertyChange<bool?> DeafenChange { get; internal set; }
+
+        internal DiscordAuditLogMemberUpdateEntry() { }
     }
 
     public sealed class DiscordAuditLogRoleUpdateEntry : DiscordAuditLogEntry
@@ -277,6 +291,8 @@ namespace DSharpPlus.Entities
         /// Gets the description of the role's hoist status change.
         /// </summary>
         public PropertyChange<bool?> HoistChange { get; internal set; }
+
+        internal DiscordAuditLogRoleUpdateEntry() { }
     }
 
     public sealed class DiscordAuditLogInviteEntry : DiscordAuditLogEntry
@@ -320,6 +336,8 @@ namespace DSharpPlus.Entities
         /// Gets the description of invite's max use count change.
         /// </summary>
         public PropertyChange<int?> MaxUsesChange { get; internal set; }
+
+        internal DiscordAuditLogInviteEntry() { }
     }
 
     public sealed class DiscordAuditLogWebhookEntry : DiscordAuditLogEntry
@@ -348,6 +366,8 @@ namespace DSharpPlus.Entities
         /// Gets the description of webhook's avatar change.
         /// </summary>
         public PropertyChange<string> AvatarChange { get; internal set; }
+
+        internal DiscordAuditLogWebhookEntry() { }
     }
 
     public sealed class DiscordAuditLogEmojiEntry : DiscordAuditLogEntry
@@ -361,6 +381,8 @@ namespace DSharpPlus.Entities
         /// Gets the description of emoji's name change.
         /// </summary>
         public PropertyChange<string> NameChange { get; internal set; }
+
+        internal DiscordAuditLogEmojiEntry() { }
     }
 
     public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
@@ -379,6 +401,8 @@ namespace DSharpPlus.Entities
         /// Gets the number of messages that were affected.
         /// </summary>
         public int? MessageCount { get; internal set; }
+
+        internal DiscordAuditLogMessageEntry() { }
     }
 
     /// <summary>

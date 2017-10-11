@@ -76,6 +76,8 @@ namespace DSharpPlus.Entities
         public bool IsRevoked { get; internal set; }
         #endregion
 
+        internal DiscordInvite() { }
+
         /// <summary>
         /// Deletes the invite.
         /// </summary>

@@ -18,5 +18,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public ChannelType Type { get; internal set; }
+
+        internal DiscordInviteChannel() { }
     }
 }

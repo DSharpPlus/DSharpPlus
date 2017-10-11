@@ -54,5 +54,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("custom", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsCustom { get; internal set; }
+
+        internal DiscordVoiceRegion() { }
     }
 }

@@ -25,5 +25,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string SplashUrl => !string.IsNullOrWhiteSpace(this.SplashHash) ? $"https://cdn.discordapp.com/splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{SplashHash}.jpg" : null;
+
+        internal DiscordInviteGuild() { }
     }
 }

@@ -54,6 +54,8 @@ namespace DSharpPlus.Entities
         [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
         public string Token { get; internal set; }
 
+        internal DiscordWebhook() { }
+
         /// <summary>
         /// Modifies this webhook.
         /// </summary>

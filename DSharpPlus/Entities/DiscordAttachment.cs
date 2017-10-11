@@ -42,5 +42,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
         public int Width { get; internal set; }
+
+        internal DiscordAttachment() { }
     }
 }
