@@ -25,6 +25,8 @@ namespace DSharpPlus.Entities
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
         public Permissions Deny { get; internal set; }
 
+        internal DiscordOverwrite() { }
+
         /// <summary>
         /// Checks whether given permissions are allowed, denied, or not set.
         /// </summary>

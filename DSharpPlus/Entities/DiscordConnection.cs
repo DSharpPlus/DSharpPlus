@@ -31,5 +31,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("integrations", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordIntegration> Integrations { get; internal set; }
+
+        internal DiscordConnection() { }
     }
 }
