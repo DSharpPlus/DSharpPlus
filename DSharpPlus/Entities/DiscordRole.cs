@@ -52,12 +52,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMentionable { get; internal set; }
 
-        internal DiscordRole() { }
-
         /// <summary>
         /// Gets a mention string for this role. If the role is mentionable, this string will mention all the users that belong to this role.
         /// </summary>
         public string Mention => Formatter.Mention(this);
+
+        internal DiscordRole() { }
 
         /// <summary>
         /// Checks whether this role has specific permissions.
