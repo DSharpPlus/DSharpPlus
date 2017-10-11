@@ -47,7 +47,44 @@ namespace DSharpPlus
         public async Task<DiscordMember> AddGuildMemberAsync(ulong guild_id, ulong user_id, string access_token, string nick, IEnumerable<DiscordRole> roles, bool muted, bool deafened)
             => await ApiClient.AddGuildMemberAsync(guild_id, user_id, this.Configuration.Token, nick, roles, muted, deafened);
 
-        public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after) => await ApiClient.ListGuildMembersAsync(guild_id, limit, after);
+        public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
+        {
+            var recmbr = new List<DiscordMember>();
+
+            var recd = 1000;
+            var last = 0ul;
+            while (recd == 1000)
+            {
+                var tms = await this.ApiClient.ListGuildMembersAsync(guild_id, 1000, last == 0 ? null : (ulong?)last);
+                recd = tms.Count;
+
+                foreach (var xtm in tms)
+                {
+                    if (this.UserCache.ContainsKey(xtm.User.Id))
+                        continue;
+
+                    var usr = new DiscordUser(xtm.User) { Discord = this };
+                    usr = this.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
+                    {
+                        old.Username = usr.Username;
+                        old.Discord = usr.Discord;
+                        old.AvatarHash = usr.AvatarHash;
+
+                        return old;
+                    });
+                }
+
+                var tm = tms.LastOrDefault();
+                if (tm != null)
+                    last = tm.User.Id;
+                else
+                    last = 0;
+
+                recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
+            }
+            
+            return new ReadOnlyCollection<DiscordMember>(recmbr);
+        }
 
         public Task AddGuildMemberRoleAsync(ulong guild_id, ulong user_id, ulong role_id, string reason) => ApiClient.AddGuildMemberRoleAsync(guild_id, user_id, role_id, reason);
 

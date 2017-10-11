@@ -422,6 +422,11 @@ namespace DSharpPlus.CommandsNext
             if (!ti.IsClass || ti.IsAbstract)
                 return false;
 
+            // check if delegate type
+            var dlgt = typeof(Delegate).GetTypeInfo();
+            if (dlgt.IsAssignableFrom(ti))
+                return false;
+
             // qualifies
             return true;
         }

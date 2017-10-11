@@ -32,10 +32,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F953F5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.WebSocket.WebSocket4NetCore", "DSharpPlus.WebSocket.WebSocket4NetCore\DSharpPlus.WebSocket.WebSocket4NetCore.csproj", "{C4C95487-628E-4E61-88D9-26BACE48380F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Scripts", "Build Scripts", "{84464D70-687B-40A8-836D-C4F737698969}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Items", "Build Items", "{84464D70-687B-40A8-836D-C4F737698969}"
 	ProjectSection(SolutionItems) = preProject
-		old-rebuild-docs.ps1 = old-rebuild-docs.ps1
-		old-script.ps1 = old-script.ps1
+		appveyor.yml = appveyor.yml
+		DSharpPlus.targets = DSharpPlus.targets
 		oneclick-rebuild.ps1 = oneclick-rebuild.ps1
 		rebuild-all.ps1 = rebuild-all.ps1
 		rebuild-docs.ps1 = rebuild-docs.ps1

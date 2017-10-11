@@ -1,39 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="../DSharpPlus.targets" />
+
   <PropertyGroup>
-	  <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>7.1</LangVersion>
-    <NoWarn>1591</NoWarn>
-    <Optimize>True</Optimize>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <AssemblyName>DSharpPlus.Rest</AssemblyName>
+    <RootNamespace>DSharpPlus.Rest</RootNamespace>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageId>DSharpPlus.Rest</PackageId>
-    <Authors>Naamloos afroraydude DrCreo Death TiaqoY0 Axiom Emzi0767 contributors</Authors>
-    <Company>DSharpPlus developers</Company>
-    <Description>A Rest-only client for DSharpPlus</Description>
-    <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <Description>A Rest-only client for DSharpPlus.</Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp rest-api oauth2</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>3.2.0-beta-$(VersionSuffix)</Version>
-    <AssemblyVersion>3.2.0.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>3.2.0.$(VersionSuffix)</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>3.2.0</Version>
-    <AssemblyVersion>3.2.0.0</AssemblyVersion>
-    <FileVersion>3.2.0.0</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <Optimize>False</Optimize>
   </PropertyGroup>
 
   <ItemGroup>

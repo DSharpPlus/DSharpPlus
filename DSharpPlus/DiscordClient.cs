@@ -1371,7 +1371,7 @@ namespace DSharpPlus
                     //IsPrivate = channel_new.IsPrivate,
                     LastMessageId = channel_new.LastMessageId,
                     Name = channel_new.Name,
-                    _permission_overwrites = channel_new._permission_overwrites,
+                    _permission_overwrites = new List<DiscordOverwrite>(channel_new._permission_overwrites),
                     Position = channel_new.Position,
                     Topic = channel_new.Topic,
                     Type = channel_new.Type,
@@ -1387,11 +1387,13 @@ namespace DSharpPlus
 
             channel_new.Bitrate = channel.Bitrate;
             channel_new.Name = channel.Name;
-            channel_new._permission_overwrites = channel._permission_overwrites;
             channel_new.Position = channel.Position;
             channel_new.Topic = channel.Topic;
             channel_new.UserLimit = channel.UserLimit;
             channel_new.ParentId = channel.ParentId;
+
+            channel_new._permission_overwrites.Clear();
+            channel_new._permission_overwrites.AddRange(channel._permission_overwrites);
 
             await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs(this) { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old });
         }

@@ -28,5 +28,5 @@ emitted it, you can identify which shard did the event came from.
 This is basically operating much like `DiscordShardedClient` does internally, but you have to manually handle all the events 
 and shards.
 
-This approach offers more control over your shards than the sharded client does, but it recommended for experiences developers 
+This approach offers more control over your shards than the sharded client does, but it recommended for experienced developers 
 only.

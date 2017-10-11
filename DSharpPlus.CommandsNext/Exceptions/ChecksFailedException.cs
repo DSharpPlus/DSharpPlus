@@ -28,12 +28,11 @@ namespace DSharpPlus.CommandsNext.Exceptions
         /// <summary>
         /// Creates a new <see cref="ChecksFailedException"/>.
         /// </summary>
-        /// <param name="message">Message that describes the error.</param>
         /// <param name="command">Command that failed to execute.</param>
         /// <param name="ctx">Context in which the command was executed.</param>
         /// <param name="failed_checks">A collection of checks that failed.</param>
-        internal ChecksFailedException(string message, Command command, CommandContext ctx, IEnumerable<CheckBaseAttribute> failed_checks)
-            : base(message)
+        public ChecksFailedException(Command command, CommandContext ctx, IEnumerable<CheckBaseAttribute> failed_checks)
+            : base("One or more pre-execution checks failed.")
         {
             this.Command = command;
             this.Context = ctx;

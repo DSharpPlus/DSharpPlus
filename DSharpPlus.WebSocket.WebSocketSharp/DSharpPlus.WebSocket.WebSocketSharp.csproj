@@ -1,41 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="../DSharpPlus.targets" />
+
   <PropertyGroup>
-	  <TargetFrameworks>net45;net46;net47</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>7.1</LangVersion>
-    <NoWarn>1591</NoWarn>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <RootNamespace>DSharpPlus</RootNamespace>
+    <AssemblyName>DSharpPlus.WebSocket.WebSocketSharp</AssemblyName>
+    <RootNamespace>DSharpPlus.WebSocket</RootNamespace>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net45;net46;net47</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageId>DSharpPlus.WebSocket.WebSocketSharp</PackageId>
-    <Authors>Naamloos afroraydude DrCreo Death TiaqoY0 Axiom Emzi0767 contributors</Authors>
-    <Company>DSharpPlus developers</Company>
-    <Description>NOTE: This is an optional package. Do not install, unless you're targeting Mono.
+    <Description>
+      NOTE: This is an optional package. Do not install, unless you're targeting Mono.
 
-A WebSocket# WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.</Description>
-    <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+      A WebSocket# WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.
+    </Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp websocket websocketsharp linux mac bsd freebsd netbsd openbsd android ios mono monotouch monoandroid</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>3.2.0-beta-$(VersionSuffix)</Version>
-    <AssemblyVersion>3.2.0.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>3.2.0.$(VersionSuffix)</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>3.2.0</Version>
-    <AssemblyVersion>3.2.0.0</AssemblyVersion>
-    <FileVersion>3.2.0.0</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <Optimize>False</Optimize>
   </PropertyGroup>
 
   <ItemGroup>

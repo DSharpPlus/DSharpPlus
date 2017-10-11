@@ -1,50 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  
+
+  <Import Project="../DSharpPlus.targets" />
+
   <PropertyGroup>
-	  <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <NoWarn>1591</NoWarn>
-    <Optimize>True</Optimize>
-    <OutputType>Library</OutputType>
-    <RootNamespace>DSharpPlus.VoiceNext</RootNamespace>
     <AssemblyName>DSharpPlus.VoiceNext</AssemblyName>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>DSharpPlus.VoiceNext</RootNamespace>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>7.1</LangVersion>
-    <Authors>Naamloos afroraydude DrCreo Death TiaqoY0 Axiom Emzi0767 contributors</Authors>
-    <Company>DSharpPlus developers</Company>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>DSharpPlus.VoiceNext</PackageId>
     <Description>Voice implementation for DSharpPlus.</Description>
-    <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp audio voice radio music</PackageTags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>3.2.0-beta-$(VersionSuffix)</Version>
-    <AssemblyVersion>3.2.0.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>3.2.0.$(VersionSuffix)</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>3.2.0</Version>
-    <AssemblyVersion>3.2.0.0</AssemblyVersion>
-    <FileVersion>3.2.0.0</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <Optimize>False</Optimize>
   </PropertyGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   
 </Project>

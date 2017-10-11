@@ -30,6 +30,11 @@ namespace DSharpPlus.Net
             this.Rest = new RestClient(client);
         }
 
+        internal DiscordApiClient() // This is for meta-clients, such as the webhook client
+        {
+            this.Rest = new RestClient();
+        }
+
         private static string BuildQueryString(IDictionary<string, string> values, bool post = false)
         {
             if (values == null || values.Count == 0)
@@ -285,7 +290,7 @@ namespace DSharpPlus.Net
             return new DiscordMember(tm) { Discord = this.Discord, _guild_id = guild_id };
         }
 
-        internal async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
+        internal async Task<IReadOnlyList<TransportMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
         {
             var urlparams = new Dictionary<string, string>();
             if (limit != null && limit > 0)
@@ -299,9 +304,8 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path, urlparams.Any() ? BuildQueryString(urlparams) : ""));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var members_raw = JsonConvert.DeserializeObject<IEnumerable<TransportMember>>(res.Response).Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = guild_id });
-
-            return new ReadOnlyCollection<DiscordMember>(new List<DiscordMember>(members_raw));
+            var members_raw = JsonConvert.DeserializeObject<List<TransportMember>>(res.Response);
+            return new ReadOnlyCollection<TransportMember>(members_raw);
         }
 
         internal Task AddGuildMemberRoleAsync(ulong guild_id, ulong user_id, ulong role_id, string reason)
@@ -1396,6 +1400,7 @@ namespace DSharpPlus.Net
             
             var ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response);
             ret.Discord = this.Discord;
+            ret.ApiClient = this;
 
             return ret;
         }
@@ -1408,7 +1413,7 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var webhooks_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordWebhook>>(res.Response).Select(xw => { xw.Discord = this.Discord; return xw; });
+            var webhooks_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordWebhook>>(res.Response).Select(xw => { xw.Discord = this.Discord; xw.ApiClient = this; return xw; });
 
             return new ReadOnlyCollection<DiscordWebhook>(new List<DiscordWebhook>(webhooks_raw));
         }
@@ -1421,7 +1426,7 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET);
 
-            var webhooks_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordWebhook>>(res.Response).Select(xw => { xw.Discord = this.Discord; return xw; });
+            var webhooks_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordWebhook>>(res.Response).Select(xw => { xw.Discord = this.Discord; xw.ApiClient = this; return xw; });
 
             return new ReadOnlyCollection<DiscordWebhook>(new List<DiscordWebhook>(webhooks_raw));
         }
@@ -1436,6 +1441,7 @@ namespace DSharpPlus.Net
             
             var ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response);
             ret.Discord = this.Discord;
+            ret.ApiClient = this;
 
             return ret;
         }
@@ -1453,6 +1459,7 @@ namespace DSharpPlus.Net
             ret.Token = webhook_token;
             ret.Id = webhook_id;
             ret.Discord = this.Discord;
+            ret.ApiClient = this;
 
             return ret;
         }
@@ -1477,6 +1484,7 @@ namespace DSharpPlus.Net
             
             var ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response);
             ret.Discord = this.Discord;
+            ret.ApiClient = this;
 
             return ret;
         }
@@ -1501,6 +1509,7 @@ namespace DSharpPlus.Net
             
             var ret = JsonConvert.DeserializeObject<DiscordWebhook>(res.Response);
             ret.Discord = this.Discord;
+            ret.ApiClient = this;
 
             return ret;
         }

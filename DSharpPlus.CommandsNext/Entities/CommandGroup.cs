@@ -65,7 +65,7 @@ namespace DSharpPlus.CommandsNext
                         return new CommandResult
                         {
                             IsSuccessful = false,
-                            Exception = new ChecksFailedException("One or more pre-execution checks failed.", cmd, xctx, fchecks),
+                            Exception = new ChecksFailedException(cmd, xctx, fchecks),
                             Context = xctx
                         };
                     
@@ -77,7 +77,7 @@ namespace DSharpPlus.CommandsNext
                 return new CommandResult
                 {
                     IsSuccessful = false,
-                    Exception = new NotSupportedException("No matching subcommands were found, and this group is not executable."),
+                    Exception = new InvalidOperationException("No matching subcommands were found, and this group is not executable."),
                     Context = ctx
                 };
 

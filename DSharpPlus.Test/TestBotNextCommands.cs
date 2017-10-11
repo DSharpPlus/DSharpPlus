@@ -16,6 +16,7 @@ namespace DSharpPlus.Test
 {
     public class TestBotNextCommands
     {
+        public delegate void Test();
         public static ConcurrentDictionary<ulong, string> Prefixes { get; } = new ConcurrentDictionary<ulong, string>();
 
         [Command("hello"), Aliases("hi", "say_hello", "say_hi"), Description("Says hello to given user.")]

@@ -484,16 +484,32 @@ namespace DSharpPlus.Entities
             var last = 0ul;
             while (recd == 1000)
             {
-                var mbrs = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
-                recd = mbrs.Count;
+                var tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
+                recd = tms.Count;
 
-                var mbr = mbrs.LastOrDefault();
-                if (mbr != null)
-                    last = mbr.Id;
+                foreach (var xtm in tms)
+                {
+                    if (this.Discord.UserCache.ContainsKey(xtm.User.Id))
+                        continue;
+
+                    var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
+                    usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
+                    {
+                        old.Username = usr.Username;
+                        old.Discord = usr.Discord;
+                        old.AvatarHash = usr.AvatarHash;
+
+                        return old;
+                    });
+                }
+
+                var tm = tms.LastOrDefault();
+                if (tm != null)
+                    last = tm.User.Id;
                 else
                     last = 0;
 
-                recmbr.AddRange(mbrs);
+                recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id }));
             }
 
             var recids = recmbr.Select(xm => xm.Id);
@@ -522,15 +538,6 @@ namespace DSharpPlus.Entities
         /// <returns>A collection of this guild's channels.</returns>
         public Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync() =>
             this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
-
-        /// <summary>
-        /// Requests a chunk of members from Discord.
-        /// </summary>
-        /// <param name="limit">Maximum number of members to return.</param>
-        /// <param name="after">ID of the last member in the previous chunk.</param>
-        /// <returns>A collection of members in this chunk.</returns>
-        public Task<IReadOnlyList<DiscordMember>> ListMembersAsync(int? limit = null, ulong? after = null) =>
-            this.Discord.ApiClient.ListGuildMembersAsync(Id, limit, after);
 
         /// <summary>
         /// Modifies a role in this guild.
