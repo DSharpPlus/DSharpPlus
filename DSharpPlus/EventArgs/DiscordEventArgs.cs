@@ -5,9 +5,9 @@
         /// <summary>
         /// Gets the client that triggered the event.
         /// </summary>
-        public BaseDiscordClient Client { get; internal set; }
+        public DiscordClient Client { get; internal set; }
 
-        protected DiscordEventArgs(BaseDiscordClient client)
+        protected DiscordEventArgs(DiscordClient client)
         {
             this.Client = client;
         }
