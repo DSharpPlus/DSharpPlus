@@ -71,6 +71,31 @@ namespace DSharpPlus.CommandsNext
             this.HelpFormatterType = typeof(T);
         }
 
+        #region Helpers
+        /// <summary>
+        /// Registers an argument converter for specified type.
+        /// </summary>
+        /// <typeparam name="T">Type for which to register the converter.</typeparam>
+        /// <param name="converter">Converter to register.</param>
+        public void RegisterConverter<T>(IArgumentConverter<T> converter) =>
+            CommandsNextUtilities.RegisterConverter(converter);
+
+        /// <summary>
+        /// Unregisters an argument converter for specified type.
+        /// </summary>
+        /// <typeparam name="T">Type for which to unregister the converter.</typeparam>
+        public void UnregisterConverter<T>() =>
+            CommandsNextUtilities.UnregisterConverter<T>();
+
+        /// <summary>
+        /// Registers a user-friendly type name.
+        /// </summary>
+        /// <typeparam name="T">Type to register the name for.</typeparam>
+        /// <param name="value">Name to register.</param>
+        public void RegisterUserFriendlyTypeName<T>(string value) =>
+            CommandsNextUtilities.RegisterUserFriendlyTypeName<T>(value);
+        #endregion
+
         #region DiscordClient Registration
         /// <summary>
         /// DO NOT USE THIS MANUALLY.

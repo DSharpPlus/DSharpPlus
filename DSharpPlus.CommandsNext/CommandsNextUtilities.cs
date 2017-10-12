@@ -210,6 +210,9 @@ namespace DSharpPlus.CommandsNext
             var t = typeof(T);
             if (ArgumentConverters.ContainsKey(t))
                 ArgumentConverters.Remove(t);
+
+            if (UserFriendlyTypeNames.ContainsKey(t))
+                UserFriendlyTypeNames.Remove(t);
         }
 
         /// <summary>
@@ -222,7 +225,11 @@ namespace DSharpPlus.CommandsNext
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentNullException("Name cannot be null or empty.", nameof(value));
 
-            UserFriendlyTypeNames[typeof(T)] = value;
+            var t = typeof(T);
+            if (!ArgumentConverters.ContainsKey(t))
+                throw new InvalidOperationException("Cannot register a friendly name for a type which has no associated converter.");
+
+            UserFriendlyTypeNames[t] = value;
         }
 
         /// <summary>
