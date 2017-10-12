@@ -195,10 +195,6 @@ namespace DSharpPlus.CommandsNext
 
             var cnt = e.Message.Content.Substring(mpos);
             var cms = CommandsNextUtilities.ExtractNextArgument(cnt, out var rrg);
-            //var cmi = cnt.IndexOf(' ', mpos);
-            //var cms = cmi != -1 ? cnt.Substring(mpos, cmi - mpos) : cnt.Substring(mpos);
-            //var rrg = cmi != -1 ? cnt.Substring(cmi + 1) : "";
-            //var arg = CommandsNextUtilities.SplitArguments(rrg);
 
             var cmd = this.TopLevelCommands.ContainsKey(cms) ? this.TopLevelCommands[cms] : null;
             if (cmd == null && !this.Config.CaseSensitive)

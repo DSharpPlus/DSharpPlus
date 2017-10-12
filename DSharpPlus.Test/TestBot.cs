@@ -69,8 +69,7 @@ namespace DSharpPlus.Test
 
             // build a dependency collection for commandsnext
             var depco = new DependencyCollectionBuilder();
-            depco.AddInstance("This is a dependency string.");
-            depco.Add<TestDependency>();
+            // add deps here
 
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
