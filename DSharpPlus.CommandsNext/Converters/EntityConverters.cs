@@ -7,11 +7,11 @@ namespace DSharpPlus.CommandsNext.Converters
 {
     public class DiscordUserConverter : IArgumentConverter<DiscordUser>
     {
-        private static Regex UserRegex { get; set; }
+        private static Regex UserRegex { get; }
 
         static DiscordUserConverter()
         {
-            UserRegex = new Regex(@"<@\!?(\d+?)>", RegexOptions.ECMAScript);
+            UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript);
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordUser result)
@@ -45,11 +45,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
     public class DiscordMemberConverter : IArgumentConverter<DiscordMember>
     {
-        private static Regex UserRegex { get; set; }
+        private static Regex UserRegex { get; }
 
         static DiscordMemberConverter()
         {
-            UserRegex = new Regex(@"<@\!?(\d+?)>", RegexOptions.ECMAScript);
+            UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript);
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordMember result)
@@ -82,11 +82,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
     public class DiscordChannelConverter : IArgumentConverter<DiscordChannel>
     {
-        private static Regex ChannelRegex { get; set; }
+        private static Regex ChannelRegex { get; }
 
         static DiscordChannelConverter()
         {
-            ChannelRegex = new Regex(@"<#(\d+)>", RegexOptions.ECMAScript);
+            ChannelRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript);
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordChannel result)
@@ -112,11 +112,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
     public class DiscordRoleConverter : IArgumentConverter<DiscordRole>
     {
-        private static Regex RoleRegex { get; set; }
+        private static Regex RoleRegex { get; }
 
         static DiscordRoleConverter()
         {
-            RoleRegex = new Regex(@"<@&(\d+?)>", RegexOptions.ECMAScript);
+            RoleRegex = new Regex(@"^<@&(\d+?)>$", RegexOptions.ECMAScript);
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordRole result)
@@ -177,11 +177,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
     public class DiscordEmojiConverter : IArgumentConverter<DiscordEmoji>
     {
-        private static Regex EmoteRegex { get; set; }
+        private static Regex EmoteRegex { get; }
 
         static DiscordEmojiConverter()
         {
-            EmoteRegex = new Regex(@"<:([a-zA-Z0-9_]+?):(\d+?)>", RegexOptions.ECMAScript);
+            EmoteRegex = new Regex(@"^<:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript);
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordEmoji result)
@@ -201,6 +201,52 @@ namespace DSharpPlus.CommandsNext.Converters
             }
 
             result = null;
+            return false;
+        }
+    }
+
+    public class DiscordColorConverter : IArgumentConverter<DiscordColor>
+    {
+        private static Regex ColorRegexHex { get; }
+        private static Regex ColorRegexRgb { get; }
+
+        static DiscordColorConverter()
+        {
+            ColorRegexHex = new Regex(@"^#?([a-fA-F0-9]{6})$");
+            ColorRegexRgb = new Regex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$");
+        }
+
+        public bool TryConvert(string value, CommandContext ctx, out DiscordColor result)
+        {
+            result = default;
+
+            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var clr))
+            {
+                result = new DiscordColor(clr);
+                return true;
+            }
+
+            var m = ColorRegexHex.Match(value);
+            if (m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out clr))
+            {
+                result = new DiscordColor(clr);
+                return true;
+            }
+
+            m = ColorRegexRgb.Match(value);
+            if (m.Success)
+            {
+                var p1 = byte.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var r);
+                var p2 = byte.TryParse(m.Groups[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var g);
+                var p3 = byte.TryParse(m.Groups[3].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var b);
+
+                if (!(p1 && p2 && p3))
+                    return false;
+
+                result = new DiscordColor(r, g, b);
+                return true;
+            }
+            
             return false;
         }
     }

@@ -16,10 +16,10 @@ namespace DSharpPlus.CommandsNext
     /// </summary>
     public static class CommandsNextUtilities
     {
-        private static Regex UserRegex { get; set; }
-        private static Dictionary<Type, IArgumentConverter> ArgumentConverters { get; set; }
-        private static MethodInfo ConvertGeneric { get; set; }
-        private static Dictionary<Type, string> UserFriendlyTypeNames { get; set; }
+        private static Regex UserRegex { get; }
+        private static Dictionary<Type, IArgumentConverter> ArgumentConverters { get; }
+        private static MethodInfo ConvertGeneric { get; }
+        private static Dictionary<Type, string> UserFriendlyTypeNames { get; }
 
         static CommandsNextUtilities()
         {
@@ -49,7 +49,8 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordChannel)] = new DiscordChannelConverter(),
                 [typeof(DiscordGuild)] = new DiscordGuildConverter(),
                 [typeof(DiscordMessage)] = new DiscordMessageConverter(),
-                [typeof(DiscordEmoji)] = new DiscordEmojiConverter()
+                [typeof(DiscordEmoji)] = new DiscordEmojiConverter(),
+                [typeof(DiscordColor)] = new DiscordColorConverter()
             };
 
             var t = typeof(CommandsNextUtilities);
@@ -81,7 +82,8 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordChannel)] = "channel",
                 [typeof(DiscordGuild)] = "guild",
                 [typeof(DiscordMessage)] = "message",
-                [typeof(DiscordEmoji)] = "emoji"
+                [typeof(DiscordEmoji)] = "emoji",
+                [typeof(DiscordColor)] = "color"
             };
         }
 

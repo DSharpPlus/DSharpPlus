@@ -10,7 +10,7 @@ using DSharpPlus.EventArgs;
 namespace DSharpPlus.Interactivity
 {
     #region Extension stuff
-    public static class InteractivityExtension
+    public static class ExtensionMethods
     {
         public static InteractivityExtension UseInteractivity(this DiscordClient c, InteractivityConfiguration cfg)
         {
