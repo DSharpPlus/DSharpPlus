@@ -220,14 +220,8 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             result = default;
 
-            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var clr))
-            {
-                result = new DiscordColor(clr);
-                return true;
-            }
-
             var m = ColorRegexHex.Match(value);
-            if (m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out clr))
+            if (m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var clr))
             {
                 result = new DiscordColor(clr);
                 return true;
