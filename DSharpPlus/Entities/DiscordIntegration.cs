@@ -67,5 +67,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("synced_at", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset SyncedAt { get; internal set; }
+
+        internal DiscordIntegration() { }
     }
 }

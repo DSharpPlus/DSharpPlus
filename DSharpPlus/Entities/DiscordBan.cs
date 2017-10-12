@@ -21,5 +21,7 @@ namespace DSharpPlus.Entities
         public DiscordUser User { get; internal set; }
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportUser RawUser { get; set; }
+
+        internal DiscordBan() { }
     }
 }

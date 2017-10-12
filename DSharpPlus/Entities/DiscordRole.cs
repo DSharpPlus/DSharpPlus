@@ -57,6 +57,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string Mention => Formatter.Mention(this);
 
+        internal DiscordRole() { }
+
         /// <summary>
         /// Checks whether this role has specific permissions.
         /// </summary>

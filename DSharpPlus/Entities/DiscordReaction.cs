@@ -24,5 +24,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmoji Emoji { get; internal set; }
+
+        internal DiscordReaction() { }
     }
 }
