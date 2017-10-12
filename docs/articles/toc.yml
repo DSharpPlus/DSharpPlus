@@ -24,17 +24,25 @@
     href: voicenext.md
   - name: Receiving
     href: voicenext_receive.md
+- name: Advanced topics
+  items:
+  - name: Sharding
+    href: sharding.md
 - name: Hosting
   items:
   - name: Running your bot 24/7
     href: hosting_options.md
   - name: Hosting on Raspbery Pi
     href: hosting_rpi.md
-- name: Migrating from 2.x to 3.x
-  href: mig223.md
-- name: Sharding
-  href: sharding.md
+- name: Migrating after major updates
+  items:
+  - name: 2.x to 3.x
+    href: mig223.md
+  - name: 3.x to 4.x
+    href: mig324.md
 - name: Nightly builds
   href: nightly.md
+- name: Debug symbols
+  href: symbols.md
 - name: Reporting issues
   href: issues.md

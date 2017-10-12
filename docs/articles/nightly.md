@@ -6,7 +6,7 @@ not guaranteed to be stable, or work at all.
 If you want to use them, you need to open your **Package Manager Settings** in Visual Studio, and add the following MyGet 
 feed to the package sources:
 
-`https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json`
+[https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json](https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json)
 
 Then open the NuGet interface for your project, check **Prerelease**, and make sure the **package source** is set to the MyGet 
 feed you just added.
