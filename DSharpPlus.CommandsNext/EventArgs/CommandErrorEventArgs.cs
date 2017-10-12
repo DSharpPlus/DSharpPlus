@@ -3,7 +3,7 @@
 namespace DSharpPlus.CommandsNext
 {
     /// <summary>
-    /// Represents arguments for <see cref="CommandsNextModule.CommandErrored"/> event.
+    /// Represents arguments for <see cref="CommandsNextExtension.CommandErrored"/> event.
     /// </summary>
     public class CommandErrorEventArgs : CommandEventArgs
     {

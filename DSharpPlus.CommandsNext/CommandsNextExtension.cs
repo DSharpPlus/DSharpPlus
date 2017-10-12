@@ -16,7 +16,7 @@ namespace DSharpPlus.CommandsNext
     /// <summary>
     /// This is the class which handles command registration, management, and execution. 
     /// </summary>
-    public class CommandsNextModule : BaseModule
+    public class CommandsNextExtension : BaseExtension
     {
         #region Events
         /// <summary>
@@ -55,7 +55,7 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public DependencyCollection Dependencies => this.Config.Dependencies;
 
-        internal CommandsNextModule(CommandsNextConfiguration cfg)
+        internal CommandsNextExtension(CommandsNextConfiguration cfg)
         {
             this.Config = cfg;
             this.TopLevelCommands = new Dictionary<string, Command>();

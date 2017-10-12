@@ -8,20 +8,20 @@ namespace DSharpPlus.CommandsNext
     /// <summary>
     /// Defines various extensions specific to CommandsNext.
     /// </summary>
-    public static class DiscordClientExtensions
+    public static class ExtensionMethods
     {
         /// <summary>
         /// Enables CommandsNext module on this <see cref="DiscordClient"/>.
         /// </summary>
         /// <param name="client">Client to enable CommandsNext for.</param>
         /// <param name="cfg">CommandsNext configuration to use.</param>
-        /// <returns>Created <see cref="CommandsNextModule"/>.</returns>
-        public static CommandsNextModule UseCommandsNext(this DiscordClient client, CommandsNextConfiguration cfg)
+        /// <returns>Created <see cref="CommandsNextExtension"/>.</returns>
+        public static CommandsNextExtension UseCommandsNext(this DiscordClient client, CommandsNextConfiguration cfg)
         {
-            if (client.GetModule<CommandsNextModule>() != null)
+            if (client.GetModule<CommandsNextExtension>() != null)
                 throw new InvalidOperationException("CommandsNext is already enabled for that client.");
 
-            var cnext = new CommandsNextModule(cfg);
+            var cnext = new CommandsNextExtension(cfg);
             client.AddModule(cnext);
             return cnext;
         }
@@ -31,23 +31,23 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="client">Client to enable CommandsNext for.</param>
         /// <param name="cfg">CommandsNext configuration to use.</param>
-        /// <returns>A dictionary of created <see cref="CommandsNextModule"/>, indexed by shard id..</returns>
-        public static IReadOnlyDictionary<int, CommandsNextModule> UseCommandsNext(this DiscordShardedClient client, CommandsNextConfiguration cfg)
+        /// <returns>A dictionary of created <see cref="CommandsNextExtension"/>, indexed by shard id..</returns>
+        public static IReadOnlyDictionary<int, CommandsNextExtension> UseCommandsNext(this DiscordShardedClient client, CommandsNextConfiguration cfg)
         {
-            var modules = new Dictionary<int, CommandsNextModule>();
+            var modules = new Dictionary<int, CommandsNextExtension>();
 
             client.InitializeShardsAsync().GetAwaiter().GetResult();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
-                var cnext = shard.GetModule<CommandsNextModule>();
+                var cnext = shard.GetModule<CommandsNextExtension>();
                 if (cnext == null)
                     cnext = shard.UseCommandsNext(cfg);
 
                 modules.Add(shard.ShardId, cnext);
             }
 
-            return new ReadOnlyDictionary<int, CommandsNextModule>(modules);
+            return new ReadOnlyDictionary<int, CommandsNextExtension>(modules);
         }
 
         /// <summary>
@@ -55,9 +55,9 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="client">Client to get CommandsNext module from.</param>
         /// <returns>The module, or null if not activated.</returns>
-        public static CommandsNextModule GetCommandsNext(this DiscordClient client)
+        public static CommandsNextExtension GetCommandsNext(this DiscordClient client)
         {
-            return client.GetModule<CommandsNextModule>();
+            return client.GetModule<CommandsNextExtension>();
         }
 
         /// <summary>
@@ -65,16 +65,16 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="client">Client to get CommandsNext instances from.</param>
         /// <returns>A dictionary of the modules, indexed by shard id.</returns>
-        public static IReadOnlyDictionary<int, CommandsNextModule> GetCommandsNext(this DiscordShardedClient client)
+        public static IReadOnlyDictionary<int, CommandsNextExtension> GetCommandsNext(this DiscordShardedClient client)
         {
-            var modules = new Dictionary<int, CommandsNextModule>();
+            var modules = new Dictionary<int, CommandsNextExtension>();
 
             client.InitializeShardsAsync().GetAwaiter().GetResult();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
-                modules.Add(shard.ShardId, shard.GetModule<CommandsNextModule>());
+                modules.Add(shard.ShardId, shard.GetModule<CommandsNextExtension>());
 
-            return new ReadOnlyDictionary<int, CommandsNextModule>(modules);
+            return new ReadOnlyDictionary<int, CommandsNextExtension>(modules);
         }
     }
 }

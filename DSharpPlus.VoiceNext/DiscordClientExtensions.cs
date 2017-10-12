@@ -7,14 +7,14 @@ namespace DSharpPlus.VoiceNext
 {
     public static class DiscordClientExtensions
     {
-        private static VoiceNextClient ClientInstance { get; set; }
+        private static VoiceNextExtension ClientInstance { get; set; }
 
         /// <summary>
         /// Creates a new VoiceNext client with default settings.
         /// </summary>
         /// <param name="client">Discord client to create VoiceNext instance for.</param>
         /// <returns>VoiceNext client instance.</returns>
-        public static VoiceNextClient UseVoiceNext(this DiscordClient client) =>
+        public static VoiceNextExtension UseVoiceNext(this DiscordClient client) =>
             UseVoiceNext(client, new VoiceNextConfiguration { VoiceApplication = VoiceApplication.Music });
 
         /// <summary>
@@ -23,9 +23,9 @@ namespace DSharpPlus.VoiceNext
         /// <param name="client">Discord client to create VoiceNext instance for.</param>
         /// <param name="config">Configuration for the VoiceNext client.</param>
         /// <returns>VoiceNext client instance.</returns>
-        public static VoiceNextClient UseVoiceNext(this DiscordClient client, VoiceNextConfiguration config)
+        public static VoiceNextExtension UseVoiceNext(this DiscordClient client, VoiceNextConfiguration config)
         {
-            ClientInstance = new VoiceNextClient(config);
+            ClientInstance = new VoiceNextExtension(config);
             client.AddModule(ClientInstance);
             return ClientInstance;
         }
@@ -36,22 +36,22 @@ namespace DSharpPlus.VoiceNext
         /// <param name="client">Discord sharded client to create VoiceNext instances for.</param>
         /// <param name="config">Configuration for the VoiceNext clients.</param>
         /// <returns>A dictionary of created VoiceNext clients.</returns>
-        public static IReadOnlyDictionary<int, VoiceNextClient> UseVoiceNext(this DiscordShardedClient client, VoiceNextConfiguration config)
+        public static IReadOnlyDictionary<int, VoiceNextExtension> UseVoiceNext(this DiscordShardedClient client, VoiceNextConfiguration config)
         {
-            var modules = new Dictionary<int, VoiceNextClient>();
+            var modules = new Dictionary<int, VoiceNextExtension>();
 
             client.InitializeShardsAsync().GetAwaiter().GetResult();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
-                var cnext = shard.GetModule<VoiceNextClient>();
+                var cnext = shard.GetModule<VoiceNextExtension>();
                 if (cnext == null)
                     cnext = shard.UseVoiceNext(config);
 
                 modules.Add(shard.ShardId, cnext);
             }
 
-            return new ReadOnlyDictionary<int, VoiceNextClient>(modules);
+            return new ReadOnlyDictionary<int, VoiceNextExtension>(modules);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <param name="client">Discord client to get VoiceNext instance for.</param>
         /// <returns>VoiceNext client instance.</returns>
-        public static VoiceNextClient GetVoiceNextClient(this DiscordClient client) =>
+        public static VoiceNextExtension GetVoiceNextClient(this DiscordClient client) =>
             ClientInstance;
     }
 }

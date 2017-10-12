@@ -13,7 +13,7 @@ namespace DSharpPlus.CommandsNext
     public delegate Task<int> CustomPrefixPredicate(DiscordMessage msg);
 
     /// <summary>
-    /// Represents a configuration for <see cref="CommandsNextModule"/>.
+    /// Represents a configuration for <see cref="CommandsNextExtension"/>.
     /// </summary>
     public sealed class CommandsNextConfiguration
     {

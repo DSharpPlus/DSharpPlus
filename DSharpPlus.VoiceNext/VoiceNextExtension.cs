@@ -9,9 +9,9 @@ using Newtonsoft.Json;
 namespace DSharpPlus.VoiceNext
 {
     /// <summary>
-    /// VoiceNext client.
+    /// Represents VoiceNext extension, which acts as Discord voice client.
     /// </summary>
-    public sealed class VoiceNextClient : BaseModule
+    public sealed class VoiceNextExtension : BaseExtension
     {
         private VoiceNextConfiguration Configuration { get; set; }
 
@@ -24,7 +24,7 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         public bool IsIncomingEnabled { get; }
 
-        internal VoiceNextClient(VoiceNextConfiguration config)
+        internal VoiceNextExtension(VoiceNextConfiguration config)
         {
             this.Configuration = config;
             this.IsIncomingEnabled = config.EnableIncoming;

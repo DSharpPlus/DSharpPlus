@@ -494,7 +494,7 @@ namespace DSharpPlus
         internal CancellationTokenSource _cancel_token_source;
         internal CancellationToken _cancel_token;
 
-        internal List<BaseModule> _modules = new List<BaseModule>();
+        internal List<BaseExtension> _modules = new List<BaseExtension>();
 
         internal BaseWebSocketClient _websocket_client;
         internal string _session_token = "";
@@ -661,7 +661,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
-        public BaseModule AddModule(BaseModule module)
+        public BaseExtension AddModule(BaseExtension module)
         {
             module.Setup(this);
             _modules.Add(module);
@@ -673,7 +673,7 @@ namespace DSharpPlus
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T GetModule<T>() where T : BaseModule
+        public T GetModule<T>() where T : BaseExtension
         {
             return _modules.Find(x => x.GetType() == typeof(T)) as T;
         }

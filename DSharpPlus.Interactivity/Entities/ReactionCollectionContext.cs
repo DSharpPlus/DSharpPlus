@@ -10,7 +10,7 @@ namespace DSharpPlus.Interactivity
 
         internal List<ulong> _membersvoted = new List<ulong>();
 
-        public InteractivityModule Interactivity { get; internal set; }
+        public InteractivityExtension Interactivity { get; internal set; }
 
         public DiscordClient Client => Interactivity.Client;
 

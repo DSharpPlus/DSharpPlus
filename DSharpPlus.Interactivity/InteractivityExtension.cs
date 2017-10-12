@@ -12,49 +12,49 @@ namespace DSharpPlus.Interactivity
     #region Extension stuff
     public static class InteractivityExtension
     {
-        public static InteractivityModule UseInteractivity(this DiscordClient c, InteractivityConfiguration cfg)
+        public static InteractivityExtension UseInteractivity(this DiscordClient c, InteractivityConfiguration cfg)
         {
-            if (c.GetModule<InteractivityModule>() != null)
+            if (c.GetModule<InteractivityExtension>() != null)
                 throw new Exception("Interactivity module is already enabled for this client!");
 
-            var m = new InteractivityModule(cfg);
+            var m = new InteractivityExtension(cfg);
             c.AddModule(m);
             return m;
         }
 
-        public static IReadOnlyDictionary<int, InteractivityModule> UseInteractivity(this DiscordShardedClient c, InteractivityConfiguration cfg)
+        public static IReadOnlyDictionary<int, InteractivityExtension> UseInteractivity(this DiscordShardedClient c, InteractivityConfiguration cfg)
         {
-            var modules = new Dictionary<int, InteractivityModule>();
+            var modules = new Dictionary<int, InteractivityExtension>();
 
             c.InitializeShardsAsync().GetAwaiter().GetResult();
 
             foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
             {
-                var m = shard.GetModule<InteractivityModule>();
+                var m = shard.GetModule<InteractivityExtension>();
                 if (m == null)
                     m = shard.UseInteractivity(cfg);
 
                 modules.Add(shard.ShardId, m);
             }
 
-            return new ReadOnlyDictionary<int, InteractivityModule>(modules);
+            return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
         }
 
-        public static InteractivityModule GetInteractivityModule(this DiscordClient c)
+        public static InteractivityExtension GetInteractivityModule(this DiscordClient c)
         {
-            return c.GetModule<InteractivityModule>();
+            return c.GetModule<InteractivityExtension>();
         }
 
-        public static IReadOnlyDictionary<int, InteractivityModule> GetInteractivityModule(this DiscordShardedClient c)
+        public static IReadOnlyDictionary<int, InteractivityExtension> GetInteractivityModule(this DiscordShardedClient c)
         {
-            var modules = new Dictionary<int, InteractivityModule>();
+            var modules = new Dictionary<int, InteractivityExtension>();
 
             c.InitializeShardsAsync().GetAwaiter().GetResult();
 
             foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
-                modules.Add(shard.ShardId, shard.GetModule<InteractivityModule>());
+                modules.Add(shard.ShardId, shard.GetModule<InteractivityExtension>());
 
-            return new ReadOnlyDictionary<int, InteractivityModule>(modules);
+            return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
         }
 
         public static IEnumerable<string> Split(this string str, int chunkSize)
@@ -72,11 +72,11 @@ namespace DSharpPlus.Interactivity
     }
     #endregion
 
-    public class InteractivityModule : BaseModule
+    public class InteractivityExtension : BaseExtension
     {
         private InteractivityConfiguration Config { get; }
 
-        internal InteractivityModule(InteractivityConfiguration cfg)
+        internal InteractivityExtension(InteractivityConfiguration cfg)
         {
             this.Config = cfg;
         }

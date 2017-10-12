@@ -18,9 +18,9 @@ namespace DSharpPlus.Test
         private TestBotConfig Config { get; }
         public DiscordClient Discord;
         private TestBotCommands Commands { get; }
-        private VoiceNextClient VoiceService { get; }
-        private CommandsNextModule CommandsNextService { get; }
-        private InteractivityModule InteractivityService { get; }
+        private VoiceNextExtension VoiceService { get; }
+        private CommandsNextExtension CommandsNextService { get; }
+        private InteractivityExtension InteractivityService { get; }
         private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg, int shardid)

@@ -1,7 +1,7 @@
 ﻿namespace DSharpPlus.CommandsNext
 {
     /// <summary>
-    /// Represents arguments for <see cref="CommandsNextModule.CommandExecuted"/> event.
+    /// Represents arguments for <see cref="CommandsNextExtension.CommandExecuted"/> event.
     /// </summary>
     public class CommandExecutionEventArgs : CommandEventArgs
     {

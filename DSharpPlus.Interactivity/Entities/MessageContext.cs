@@ -13,7 +13,7 @@ namespace DSharpPlus.Interactivity
 
         public DiscordGuild Guild => Channel.Guild;
 
-        public InteractivityModule Interactivity { get; internal set; }
+        public InteractivityExtension Interactivity { get; internal set; }
 
         public DiscordClient Client => Interactivity.Client;
 

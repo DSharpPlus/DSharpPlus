@@ -1,17 +1,17 @@
 ﻿namespace DSharpPlus
 {
     /// <summary>
-    /// Represents base for all DSharpPlus modules. To implement your own module, extend this class.
+    /// Represents base for all DSharpPlus extensions. To implement your own extension, extend this class, and implement its abstract members.
     /// </summary>
-    public abstract class BaseModule
+    public abstract class BaseExtension
     {
         /// <summary>
-        /// Gets the instance of <see cref="DiscordClient"/> this module is attached to.
+        /// Gets the instance of <see cref="DiscordClient"/> this extension is attached to.
         /// </summary>
         public DiscordClient Client { get; protected set; }
 
         /// <summary>
-        /// Initializes this module for given <see cref="DiscordClient"/> instance.
+        /// Initializes this extension for given <see cref="DiscordClient"/> instance.
         /// </summary>
         /// <param name="client">Discord client to initialize for.</param>
         protected internal abstract void Setup(DiscordClient client);

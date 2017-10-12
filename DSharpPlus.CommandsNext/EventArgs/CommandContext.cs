@@ -46,7 +46,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the CommandsNext service instance that handled this command.
         /// </summary>
-        public CommandsNextModule CommandsNext { get; internal set; }
+        public CommandsNextExtension CommandsNext { get; internal set; }
 
         /// <summary>
         /// Gets the collection of dependencies for this CNext instance.
