@@ -8,6 +8,8 @@
     href: first_bot.md
   - name: Alternate WebSocket clients
     href: alt_ws.md
+  - name: Notes about hosting using Mono
+    href: mono.md
   - name: Events
     href: events.md
 - name: Commands

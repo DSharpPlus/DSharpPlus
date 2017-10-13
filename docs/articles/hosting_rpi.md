@@ -159,23 +159,11 @@ This method can be utilized for all board flavours (ARMv6-, ARMv7, and ARMv8-bas
 Since Mono neither is .NET Core, nor implements its APIs, this method will only work if you target .NETFX (.NET Framework 4.5, 4.6, or 4.7). 
 Mono runtime has several caveats. It's notorious for being buggy, so this might not always work.
 
-To proceed, you will need to install Mono runtime on your device, and populate its SSL cache.
-
-1. Using your package manager, install Mono runtime (Debian/Raspbian: `sudo apt-get install mono-complete`).
-2. Populate the Mono SSL certificate cache (`cert-sync --user /etc/ssl/certs/ca-certificates.crt`).
-
-You will also need to appropriately prepare your project. Since Mono doesn't support .NET WebSocket implementation, you will need to follow 
-the [Alternate WebSocket client](/articles/alt_ws.html "Alternate WebSocket client implementations") instructions.
+Using your package manager, install Mono runtime (Debian/Raspbian: `sudo apt-get install mono-complete`). Once that is done, you will need to 
+follow the [Mono instructions](/articles/mono.html "Mono instructions and notes") to complete the project setup.
 
 Once all is done, build your project, and transfer the artifacts to the Pi. Assuming your artifacts are in `~/mybot` and the executable is 
 called `MyBot.exe`, you can run your bot by navigating to the directory (`cd ~/mybot`) and executing the executable with Mono (`mono MyBot.exe`).
-
-Unfortunately, due to how Mono is, it might complain about SSL certificates. In this case, you will need to add a certificate validation 
-override before instantiating your bot in code. You can do that like so:
-
-```cs
-ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
-```
 
 ## Final remarks
 
