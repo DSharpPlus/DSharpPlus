@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+﻿namespace DSharpPlus.Enums
 {
     /// <summary>
     /// Represents information about log's verbosity level.

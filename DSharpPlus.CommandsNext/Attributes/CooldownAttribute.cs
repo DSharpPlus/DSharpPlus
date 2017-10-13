@@ -35,15 +35,15 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Defines a cooldown for this command. This means that users will be able to use the command a specific number of times before they have to wait to use it again.
         /// </summary>
-        /// <param name="max_uses">Number of times the command can be used before triggering a cooldown.</param>
+        /// <param name="maxUses">Number of times the command can be used before triggering a cooldown.</param>
         /// <param name="reset">Number of seconds after which the cooldown is reset.</param>
-        /// <param name="bucket_type">Type of cooldown bucket. This allows controlling whether the bucket will be cooled down per user, guild, channel, or globally.</param>
-        public CooldownAttribute(int max_uses, double reset, CooldownBucketType bucket_type)
+        /// <param name="bucketType">Type of cooldown bucket. This allows controlling whether the bucket will be cooled down per user, guild, channel, or globally.</param>
+        public CooldownAttribute(int maxUses, double reset, CooldownBucketType bucketType)
         {
-            this.MaxUses = max_uses;
-            this.Reset = TimeSpan.FromSeconds(reset);
-            this.BucketType = bucket_type;
-            this.Buckets = new ConcurrentDictionary<string, CommandCooldownBucket>();
+            MaxUses = maxUses;
+            Reset = TimeSpan.FromSeconds(reset);
+            BucketType = bucketType;
+            Buckets = new ConcurrentDictionary<string, CommandCooldownBucket>();
         }
 
         /// <summary>
@@ -53,8 +53,8 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Requested cooldown bucket, or null if one wasn't present.</returns>
         public CommandCooldownBucket GetBucket(CommandContext ctx)
         {
-            var bid = this.GetBucketId(ctx, out _, out _, out _);
-            this.Buckets.TryGetValue(bid, out var bucket);
+            var bid = GetBucketId(ctx, out _, out _, out _);
+            Buckets.TryGetValue(bid, out var bucket);
             return bucket;
         }
 
@@ -65,12 +65,16 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Remaining cooldown, or zero if no cooldown is active.</returns>
         public TimeSpan GetRemainingCooldown(CommandContext ctx)
         {
-            var bucket = this.GetBucket(ctx);
+            var bucket = GetBucket(ctx);
             if (bucket == null)
+            {
                 return TimeSpan.Zero;
+            }
 
             if (bucket.RemainingUses > 0)
+            {
                 return TimeSpan.Zero;
+            }
 
             return bucket.ResetsAt - DateTimeOffset.UtcNow;
         }
@@ -86,18 +90,26 @@ namespace DSharpPlus.CommandsNext.Attributes
         private string GetBucketId(CommandContext ctx, out ulong usr, out ulong chn, out ulong gld)
         {
             usr = 0ul;
-            if ((this.BucketType & CooldownBucketType.User) != 0)
+            if ((BucketType & CooldownBucketType.User) != 0)
+            {
                 usr = ctx.User.Id;
+            }
 
             chn = 0ul;
-            if ((this.BucketType & CooldownBucketType.Channel) != 0)
+            if ((BucketType & CooldownBucketType.Channel) != 0)
+            {
                 chn = ctx.Channel.Id;
-            if ((this.BucketType & CooldownBucketType.Guild) != 0 && ctx.Guild == null)
+            }
+            if ((BucketType & CooldownBucketType.Guild) != 0 && ctx.Guild == null)
+            {
                 chn = ctx.Channel.Id;
+            }
 
             gld = 0ul;
-            if (ctx.Guild != null && (this.BucketType & CooldownBucketType.Guild) != 0)
+            if (ctx.Guild != null && (BucketType & CooldownBucketType.Guild) != 0)
+            {
                 gld = ctx.Guild.Id;
+            }
 
             var bid = CommandCooldownBucket.MakeId(usr, chn, gld);
             return bid;
@@ -106,13 +118,15 @@ namespace DSharpPlus.CommandsNext.Attributes
         public override async Task<bool> CanExecute(CommandContext ctx, bool help)
         {
             if (help)
-                return true;
-
-            var bid = this.GetBucketId(ctx, out var usr, out var chn, out var gld);
-            if (!this.Buckets.TryGetValue(bid, out var bucket))
             {
-                bucket = new CommandCooldownBucket(this.MaxUses, this.Reset, usr, chn, gld);
-                this.Buckets.AddOrUpdate(bid, bucket, (k, v) => bucket);
+                return true;
+            }
+
+            var bid = GetBucketId(ctx, out var usr, out var chn, out var gld);
+            if (!Buckets.TryGetValue(bid, out var bucket))
+            {
+                bucket = new CommandCooldownBucket(MaxUses, Reset, usr, chn, gld);
+                Buckets.AddOrUpdate(bid, bucket, (k, v) => bucket);
             }
 
             return await bucket.DecrementUseAsync();
@@ -122,7 +136,8 @@ namespace DSharpPlus.CommandsNext.Attributes
     /// <summary>
     /// Defines how are command cooldowns applied.
     /// </summary>
-    public enum CooldownBucketType : int
+    [Flags]
+    public enum CooldownBucketType
     {
         /// <summary>
         /// Denotes that the command will have its cooldown applied per-user.
@@ -173,8 +188,8 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets the remaining number of uses before the cooldown is triggered.
         /// </summary>
-        public int RemainingUses => Volatile.Read(ref this._remaining_uses);
-        private int _remaining_uses;
+        public int RemainingUses => Volatile.Read(ref _remainingUses);
+        private int _remainingUses;
 
         /// <summary>
         /// Gets the maximum number of times this command can be used in given timespan.
@@ -206,15 +221,15 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="guild">ID of the guild with which this cooldown is associated.</param>
         internal CommandCooldownBucket(int uses, TimeSpan reset, ulong user = 0, ulong channel = 0, ulong guild = 0)
         {
-            this._remaining_uses = uses;
-            this.MaxUses = uses;
-            this.ResetsAt = DateTimeOffset.UtcNow + reset;
-            this.Reset = reset;
-            this.UserId = user;
-            this.ChannelId = channel;
-            this.GuildId = guild;
-            this.BucketId = MakeId(user, channel, guild);
-            this.UsageSemaphore = new SemaphoreSlim(1, 1);
+            _remainingUses = uses;
+            MaxUses = uses;
+            ResetsAt = DateTimeOffset.UtcNow + reset;
+            Reset = reset;
+            UserId = user;
+            ChannelId = channel;
+            GuildId = guild;
+            BucketId = MakeId(user, channel, guild);
+            UsageSemaphore = new SemaphoreSlim(1, 1);
         }
 
         /// <summary>
@@ -223,28 +238,28 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Whether decrement succeded or not.</returns>
         internal async Task<bool> DecrementUseAsync()
         {
-            await this.UsageSemaphore.WaitAsync();
+            await UsageSemaphore.WaitAsync();
 
             // if we're past reset time...
             var now = DateTimeOffset.UtcNow;
-            if (now >= this.ResetsAt)
+            if (now >= ResetsAt)
             {
                 // ...do the reset and set a new reset time
-                Interlocked.Exchange(ref this._remaining_uses, this.MaxUses);
-                this.ResetsAt = now + this.Reset;
+                Interlocked.Exchange(ref _remainingUses, MaxUses);
+                ResetsAt = now + Reset;
             }
 
             // check if we have any uses left, if we do...
             var success = false;
-            if (this.RemainingUses > 0)
+            if (RemainingUses > 0)
             {
                 // ...decrement, and return success...
-                Interlocked.Decrement(ref this._remaining_uses);
+                Interlocked.Decrement(ref _remainingUses);
                 success = true;
             }
 
             // ...otherwise just fail
-            this.UsageSemaphore.Release();
+            UsageSemaphore.Release();
             return success;
         }
 
@@ -254,7 +269,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>String representation of this command cooldown bucket.</returns>
         public override string ToString()
         {
-            return $"Command bucket {this.BucketId}";
+            return $"Command bucket {BucketId}";
         }
 
         /// <summary>
@@ -264,7 +279,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Whether the object is equal to this <see cref="CommandCooldownBucket"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as CommandCooldownBucket);
+            return Equals(obj as CommandCooldownBucket);
         }
 
         /// <summary>
@@ -275,12 +290,16 @@ namespace DSharpPlus.CommandsNext.Attributes
         public bool Equals(CommandCooldownBucket other)
         {
             if (ReferenceEquals(other, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
 
-            return this.UserId == other.UserId && this.ChannelId == other.ChannelId && this.GuildId == other.GuildId;
+            return UserId == other.UserId && ChannelId == other.ChannelId && GuildId == other.GuildId;
         }
 
         /// <summary>
@@ -291,9 +310,9 @@ namespace DSharpPlus.CommandsNext.Attributes
         {
             int hash = 13;
 
-            hash = (hash * 7) + this.UserId.GetHashCode();
-            hash = (hash * 7) + this.ChannelId.GetHashCode();
-            hash = (hash * 7) + this.GuildId.GetHashCode();
+            hash = hash * 7 + UserId.GetHashCode();
+            hash = hash * 7 + ChannelId.GetHashCode();
+            hash = hash * 7 + GuildId.GetHashCode();
 
             return hash;
         }
@@ -306,16 +325,20 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Whether the two buckets are equal.</returns>
         public static bool operator ==(CommandCooldownBucket bucket1, CommandCooldownBucket bucket2)
         {
-            var null1 = ReferenceEquals(bucket1, null);
-            var null2 = ReferenceEquals(bucket2, null);
+            var null1 = bucket1 is null;
+            var null2 = bucket2 is null;
 
             if (null1 && null2)
+            {
                 return true;
+            }
 
             if (null1 != null2)
+            {
                 return false;
+            }
 
-            return null1.Equals(null2);
+            return false;
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DSharpPlus.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions

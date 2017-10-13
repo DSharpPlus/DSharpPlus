@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DSharpPlus.Enums;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -35,9 +36,14 @@ namespace DSharpPlus.Entities
         public PermissionLevel CheckPermission(Permissions permission)
         {
             if ((Allow & permission) != 0)
+            {
                 return PermissionLevel.Allowed;
+            }
             if ((Deny & permission) != 0)
+            {
                 return PermissionLevel.Denied;
+            }
+
             return PermissionLevel.Unset;
         }
     }

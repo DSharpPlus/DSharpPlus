@@ -11,7 +11,7 @@ namespace DSharpPlus.VoiceNext.VoiceEntities
         public int? Delay { get; set; }
 
         [JsonProperty("ssrc", NullValueHandling = NullValueHandling.Ignore)]
-        public uint? SSRC { get; set; }
+        public uint? Ssrc { get; set; }
 
         [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? UserId { get; set; }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+// ReSharper disable once CheckNamespace
 namespace DSharpPlus.CommandsNext
 {
     /// <summary>
@@ -18,8 +19,8 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public DependencyCollectionBuilder()
         {
-            this.RegisteredTypes = new HashSet<Type>();
-            this.RegisteredDependencies = new List<DependencyInfo>();
+            RegisteredTypes = new HashSet<Type>();
+            RegisteredDependencies = new List<DependencyInfo>();
         }
 
         /// <summary>
@@ -29,15 +30,20 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Specified dependency.</returns>
         public T GetDependency<T>() where T : class
         {
-            var deps = this.RegisteredDependencies.Where(xdi => xdi.Instance is T);
-            var dc = deps.Count();
+            var deps = RegisteredDependencies.Where(xdi => xdi.Instance is T);
+            var dependencyInfos = deps as DependencyInfo[] ?? deps.ToArray();
+            var dc = dependencyInfos.Count();
 
             if (dc < 1)
+            {
                 throw new ArgumentException("No dependencies with specified type were found.", nameof(T));
+            }
             if (dc > 1)
+            {
                 throw new ArgumentException("Multiple dependencies with specified type were found.", nameof(T));
+            }
 
-            return deps.Single().Instance as T;
+            return dependencyInfos.Single().Instance as T;
         }
 
         /// <summary>
@@ -47,15 +53,20 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Specified dependency</returns>
         public object GetDependency(Type t)
         {
-            var deps = this.RegisteredDependencies.Where(xdi => t.GetTypeInfo().IsAssignableFrom(xdi.ImplementationType.GetTypeInfo()));
-            var dc = deps.Count();
+            var deps = RegisteredDependencies.Where(xdi => t.GetTypeInfo().IsAssignableFrom(xdi.ImplementationType.GetTypeInfo()));
+            var dependencyInfos = deps as DependencyInfo[] ?? deps.ToArray();
+            var dc = dependencyInfos.Count();
 
             if (dc < 1)
+            {
                 throw new InvalidOperationException("No dependencies matched the criteria.");
+            }
             if (dc > 1)
+            {
                 throw new InvalidOperationException("More than one dependency matched the criteria.");
+            }
 
-            return deps.Single().Instance;
+            return dependencyInfos.Single().Instance;
         }
 
         /// <summary>
@@ -63,7 +74,7 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <returns>Built <see cref="DependencyCollection"/>.</returns>
         public DependencyCollection Build() =>
-            new DependencyCollection(this.RegisteredDependencies);
+            new DependencyCollection(RegisteredDependencies);
 
         /// <summary>
         /// Adds an instance of a dependency to the dependency collection.
@@ -73,7 +84,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns>This <see cref="DependencyCollectionBuilder"/>.</returns>
         public DependencyCollectionBuilder AddInstance<T>(T instance)
             where T : class 
-            => this.AddInstance<T, T>(instance);
+            => AddInstance<T, T>(instance);
 
         /// <summary>
         /// Adds an instance of a dependency to the dependency collection.
@@ -87,14 +98,18 @@ namespace DSharpPlus.CommandsNext
             where TImpl : class, TDep
         {
             if (instance == null)
+            {
                 throw new ArgumentNullException(nameof(instance), "Dependency cannot be null.");
+            }
 
             var tdep = typeof(TDep);
             var timpl = typeof(TImpl);
 
-            this.RegisteredTypes.Add(tdep);
+            RegisteredTypes.Add(tdep);
             if (tdep != timpl)
-                this.RegisteredTypes.Add(timpl);
+            {
+                RegisteredTypes.Add(timpl);
+            }
 
             var depinf = new DependencyInfo
             {
@@ -102,7 +117,7 @@ namespace DSharpPlus.CommandsNext
                 ImplementationType = timpl,
                 Instance = instance
             };
-            this.RegisteredDependencies.Add(depinf);
+            RegisteredDependencies.Add(depinf);
 
             return this;
         }
@@ -114,7 +129,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns>This <see cref="DependencyCollectionBuilder"/>.</returns>
         public DependencyCollectionBuilder Add<T>()
             where T : class
-            => this.Add<T, T>();
+            => Add<T, T>();
 
         /// <summary>
         /// Constructs and adds a dependency by type.
@@ -135,22 +150,27 @@ namespace DSharpPlus.CommandsNext
                 .ToArray();
 
             if (cs.Length != 1)
+            {
                 throw new ArgumentException("Specified type has more than 1 constructor.", nameof(TImpl));
+            }
 
             var cx = cs[0];
             var ts = cx.GetParameters()
                 .Select(xpi => xpi.ParameterType)
                 .ToArray();
-            var deps = this.RegisteredDependencies.ToDictionary(xdi => xdi.ImplementationType, xdi => xdi.Instance);
             var cdeps = new object[ts.Length];
             for (var i = 0; i < ts.Length; i++)
-                cdeps[i] = this.GetDependency(ts[i]);
+            {
+                cdeps[i] = GetDependency(ts[i]);
+            }
 
             var instance = Activator.CreateInstance(timpl, cdeps);
 
-            this.RegisteredTypes.Add(tdep);
+            RegisteredTypes.Add(tdep);
             if (tdep != timpl)
-                this.RegisteredTypes.Add(timpl);
+            {
+                RegisteredTypes.Add(timpl);
+            }
 
             var depinf = new DependencyInfo
             {
@@ -158,7 +178,7 @@ namespace DSharpPlus.CommandsNext
                 ImplementationType = timpl,
                 Instance = instance
             };
-            this.RegisteredDependencies.Add(depinf);
+            RegisteredDependencies.Add(depinf);
 
             return this;
         }

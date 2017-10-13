@@ -36,7 +36,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
             var us = ctx.Client.Guilds
                 .SelectMany(xkvp => xkvp.Value.Members)
-                .Where(xm => xm.Username.ToLowerInvariant() == un && ((dv != null && xm.Discriminator == dv) || dv == null));
+                .Where(xm => xm.Username.ToLowerInvariant() == un && (dv != null && xm.Discriminator == dv || dv == null));
             
             result = us.FirstOrDefault();
             return result != null;
@@ -73,7 +73,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
             var us = ctx.Guild.Members
-                .Where(xm => (xm.Username.ToLowerInvariant() == un && ((dv != null && xm.Discriminator == dv) || dv == null)) || xm.Nickname?.ToLowerInvariant() == value);
+                .Where(xm => xm.Username.ToLowerInvariant() == un && (dv != null && xm.Discriminator == dv || dv == null) || xm.Nickname?.ToLowerInvariant() == value);
 
             result = us.FirstOrDefault();
             return result != null;
@@ -235,7 +235,9 @@ namespace DSharpPlus.CommandsNext.Converters
                 var p3 = byte.TryParse(m.Groups[3].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var b);
 
                 if (!(p1 && p2 && p3))
+                {
                     return false;
+                }
 
                 result = new DiscordColor(r, g, b);
                 return true;

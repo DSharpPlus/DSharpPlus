@@ -6,7 +6,7 @@ namespace DSharpPlus.VoiceNext.VoiceEntities
     internal sealed class VoiceReadyPayload
     {
         [JsonProperty("ssrc")]
-        public uint SSRC { get; set; }
+        public uint Ssrc { get; set; }
 
         [JsonProperty("port")]
         public ushort Port { get; set; }

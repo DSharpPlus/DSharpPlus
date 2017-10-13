@@ -35,7 +35,7 @@ namespace DSharpPlus.Entities
         /// Gets whether this is a VIP-only region.
         /// </summary>
         [JsonProperty("vip", NullValueHandling = NullValueHandling.Ignore)]
-        public bool IsVIP { get; internal set; }
+        public bool IsVip { get; internal set; }
 
         /// <summary>
         /// Gets whether this region is the most optimal for the current user.

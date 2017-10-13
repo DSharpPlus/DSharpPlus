@@ -18,7 +18,7 @@ namespace DSharpPlus.Net.Abstractions
         /// Gets or sets whether the user is AFK.
         /// </summary>
         [JsonProperty("afk")]
-        public bool IsAFK { get; set; }
+        public bool IsAfk { get; set; }
 
         /// <summary>
         /// Gets or sets the status of the user.
@@ -31,7 +31,7 @@ namespace DSharpPlus.Net.Abstractions
         {
             get
             {
-                switch (this.Status)
+                switch (Status)
                 {
                     case UserStatus.Online:
                         return "online";
@@ -45,9 +45,9 @@ namespace DSharpPlus.Net.Abstractions
                     case UserStatus.Invisible:
                     case UserStatus.Offline:
                         return "invisible";
+                    default:
+                        return "online";
                 }
-
-                return "online";
             }
         }
 

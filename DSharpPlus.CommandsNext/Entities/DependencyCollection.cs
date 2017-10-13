@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+// ReSharper disable once CheckNamespace
 namespace DSharpPlus.CommandsNext
 {
     /// <summary>
@@ -15,7 +16,7 @@ namespace DSharpPlus.CommandsNext
 
         internal DependencyCollection(List<DependencyInfo> deps)
         {
-            this.Dependencies = new List<DependencyInfo>(deps);
+            Dependencies = new List<DependencyInfo>(deps);
         }
 
         /// <summary>
@@ -25,15 +26,20 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Specified dependency.</returns>
         public T GetDependency<T>() where T : class
         {
-            var deps = this.Dependencies.Where(xdi => xdi.Instance is T);
-            var dc = deps.Count();
+            var deps = Dependencies.Where(xdi => xdi.Instance is T);
+            var dependencyInfos = deps as DependencyInfo[] ?? deps.ToArray();
+            var dc = dependencyInfos.Count();
 
             if (dc < 1)
+            {
                 throw new ArgumentException("No dependencies with specified type were found.", nameof(T));
+            }
             if (dc > 1)
+            {
                 throw new ArgumentException("Multiple dependencies with specified type were found.", nameof(T));
+            }
 
-            return deps.Single().Instance as T;
+            return dependencyInfos.Single().Instance as T;
         }
 
         /// <summary>
@@ -43,15 +49,20 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Specified dependency</returns>
         public object GetDependency(Type t)
         {
-            var deps = this.Dependencies.Where(xdi => t.GetTypeInfo().IsAssignableFrom(xdi.ImplementationType.GetTypeInfo()));
-            var dc = deps.Count();
+            var deps = Dependencies.Where(xdi => t.GetTypeInfo().IsAssignableFrom(xdi.ImplementationType.GetTypeInfo()));
+            var dependencyInfos = deps as DependencyInfo[] ?? deps.ToArray();
+            var dc = dependencyInfos.Count();
 
             if (dc < 1)
+            {
                 throw new InvalidOperationException("No dependencies matched the criteria.");
+            }
             if (dc > 1)
+            {
                 throw new InvalidOperationException("More than one dependency matched the criteria.");
+            }
 
-            return deps.Single().Instance;
+            return dependencyInfos.Single().Instance;
         }
 
         /// <summary>
@@ -59,13 +70,13 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <returns>Enumerator of dependencies.</returns>
         public IEnumerator<object> GetEnumerator() =>
-            this.Dependencies.Select(xdep => xdep.Instance).GetEnumerator();
+            Dependencies.Select(xdep => xdep.Instance).GetEnumerator();
 
         /// <summary>
         /// Gets an enumerator for this <see cref="DependencyCollection"/>.
         /// </summary>
         /// <returns>Enumerator of dependencies.</returns>
         IEnumerator IEnumerable.GetEnumerator() =>
-            this.Dependencies.Select(xdep => xdep.Instance).GetEnumerator();
+            Dependencies.Select(xdep => xdep.Instance).GetEnumerator();
     }
 }

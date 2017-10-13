@@ -27,9 +27,11 @@ namespace DSharpPlus.CommandsNext.Attributes
 #else
             if (aliases.Any(xa => xa.ToCharArray().Any(xc => char.IsWhiteSpace(xc))))
 #endif
+            {
                 throw new ArgumentException("Aliases cannot contain whitespace characters.", nameof(aliases));
+            }
 
-            this.Aliases = new ReadOnlyCollection<string>(aliases);
+            Aliases = new ReadOnlyCollection<string>(aliases);
         }
     }
 }

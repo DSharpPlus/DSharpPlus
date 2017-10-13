@@ -1,6 +1,7 @@
 ﻿using System;
 using DSharpPlus.Entities;
 
+// ReSharper disable once CheckNamespace
 namespace DSharpPlus.Interactivity
 {
     public class TypingContext

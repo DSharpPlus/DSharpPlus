@@ -61,17 +61,17 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="url">Url to prevent from being previewed.</param>
         /// <returns>Formatted url.</returns>
-        public static string EmbedlessUrl(Uri url) => $"<{url.ToString()}>";
+        public static string EmbedlessUrl(Uri url) => $"<{url}>";
 
         /// <summary>
         /// Creates a masked link. This link will display as specified text, and alternatively provided alt text. This can only be used in embeds.
         /// </summary>
         /// <param name="text">Text to display the link as.</param>
         /// <param name="url">Url that the link will lead to.</param>
-        /// <param name="alt_text">Alt text to display on hover.</param>
+        /// <param name="altText">Alt text to display on hover.</param>
         /// <returns>Formatted url.</returns>
-        public static string MaskedUrl(string text, Uri url, string alt_text = "") => 
-            string.Concat("[", text, "](", url.ToString(), !string.IsNullOrWhiteSpace(alt_text) ? $" \"{alt_text}\"" : "", ")");
+        public static string MaskedUrl(string text, Uri url, string altText = "") => 
+            string.Concat("[", text, "](", url.ToString(), !string.IsNullOrWhiteSpace(altText) ? $" \"{altText}\"" : "", ")");
 
         /// <summary>
         /// Escapes all markdown formatting from specified text.
@@ -95,7 +95,7 @@ namespace DSharpPlus
         /// <param name="user">User to create mention for.</param>
         /// <param name="nickname">Whether the mention should resovle nicknames or not.</param>
         /// <returns>Formatted mention.</returns>
-        public static string Mention(DiscordUser user, bool nickname = false) => (nickname ? $"<@!{user.Id.ToString(CultureInfo.InvariantCulture)}>" : $"<@{user.Id.ToString(CultureInfo.InvariantCulture)}>");
+        public static string Mention(DiscordUser user, bool nickname = false) => nickname ? $"<@!{user.Id.ToString(CultureInfo.InvariantCulture)}>" : $"<@{user.Id.ToString(CultureInfo.InvariantCulture)}>";
 
         /// <summary>
         /// Creates a mention for specified channel.

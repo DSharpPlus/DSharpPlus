@@ -9,52 +9,62 @@ namespace DSharpPlus.Test
 {
     public sealed class TestBotHelpFormatter : IHelpFormatter
     {
-        private string _name = null, _desc = null, _args = null, _aliases = null, _subcs = null;
-        private bool _gexec = false;
+        private string _name, _desc, _args, _aliases, _subcs;
+        private bool _gexec;
 
         public IHelpFormatter WithCommandName(string name)
         {
-            this._name = name;
+            _name = name;
             return this;
         }
 
         public IHelpFormatter WithDescription(string description)
         {
-            this._desc = string.IsNullOrWhiteSpace(description) ? null : description;
+            _desc = string.IsNullOrWhiteSpace(description) ? null : description;
             return this;
         }
 
         public IHelpFormatter WithGroupExecutable()
         {
-            this._gexec = true;
+            _gexec = true;
             return this;
         }
 
         public IHelpFormatter WithAliases(IEnumerable<string> aliases)
         {
-            if (aliases.Any())
-                this._aliases = string.Join(", ", aliases);
+            var enumerable = aliases as string[] ?? aliases.ToArray();
+            if (enumerable.Any())
+            {
+                _aliases = string.Join(", ", enumerable);
+            }
             return this;
         }
 
         public IHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
         {
-            if (arguments.Any())
-                this._args = string.Join(", ", arguments.Select(xa => $"{xa.Name}: {xa.Type.ToUserFriendlyName()}"));
+            var commandArguments = arguments as CommandArgument[] ?? arguments.ToArray();
+            if (commandArguments.Any())
+            {
+                _args = string.Join(", ", commandArguments.Select(xa => $"{xa.Name}: {xa.Type.ToUserFriendlyName()}"));
+            }
             return this;
         }
 
         public IHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
-            if (subcommands.Any())
+            var enumerable = subcommands as Command[] ?? subcommands.ToArray();
+            if (enumerable.Any())
             {
-                var ml = subcommands.Max(xc => xc.Name.Length);
+                var ml = enumerable.Max(xc => xc.Name.Length);
                 var sb = new StringBuilder();
-                foreach (var xc in subcommands)
+                foreach (var xc in enumerable)
+                {
                     sb.Append(xc.Name.PadRight(ml, ' '))
-                        .Append("  ")
-                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "No description." : xc.Description).Append("\n");
-                this._subcs = sb.ToString();
+                      .Append("  ")
+                      .Append(string.IsNullOrWhiteSpace(xc.Description) ? "No description." : xc.Description).Append("\n");
+                }
+
+                _subcs = sb.ToString();
             }
             return this;
         }
@@ -63,37 +73,55 @@ namespace DSharpPlus.Test
         {
             var sb = new StringBuilder();
             sb.Append("```less\n");
-            if (this._name == null)
+            if (_name == null)
             {
-                if (this._subcs != null)
+                if (_subcs != null)
+                {
                     sb.Append("Displaying all available commands.\n\n");
+                }
                 else
+                {
                     sb.Append("No commands are available.");
+                }
             }
             else
             {
-                sb.Append(this._name).Append("\n\n");
+                sb.Append(_name).Append("\n\n");
 
-                if (this._gexec)
+                if (_gexec)
+                {
                     sb.Append("This group can be executed as a standalone command.\n\n");
+                }
 
-                if (this._desc != null)
-                    sb.Append("Description: ").Append(this._desc).Append("\n");
+                if (_desc != null)
+                {
+                    sb.Append("Description: ").Append(_desc).Append("\n");
+                }
 
-                if (this._args != null)
-                    sb.Append("Arguments:   ").Append(this._args).Append("\n");
+                if (_args != null)
+                {
+                    sb.Append("Arguments:   ").Append(_args).Append("\n");
+                }
 
-                if (this._aliases != null)
-                    sb.Append("Aliases:     ").Append(this._aliases).Append("\n");
+                if (_aliases != null)
+                {
+                    sb.Append("Aliases:     ").Append(_aliases).Append("\n");
+                }
 
-                if (this._subcs != null)
+                if (_subcs != null)
+                {
                     sb.Append("Subcommands:\n\n");
+                }
             }
 
-            if (this._subcs != null)
+            if (_subcs != null)
+            {
                 sb.Append(_subcs);
+            }
             else
+            {
                 sb.Append("\n");
+            }
 
             sb.Append("```");
             return new CommandHelpMessage(sb.ToString());

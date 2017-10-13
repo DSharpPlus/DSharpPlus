@@ -25,7 +25,7 @@ namespace DSharpPlus.Net.Abstractions
         public string AvatarUrl { get; set; }
 
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? IsTTS { get; set; }
+        public bool? IsTts { get; set; }
 
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordEmbed> Embeds { get; set; }

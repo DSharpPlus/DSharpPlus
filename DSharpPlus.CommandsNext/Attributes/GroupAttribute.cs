@@ -30,9 +30,11 @@ namespace DSharpPlus.CommandsNext.Attributes
 #else
             if (name.ToCharArray().Any(xc => char.IsWhiteSpace(xc)))
 #endif
+            {
                 throw new ArgumentException("Group names cannot contain whitespace characters.", nameof(name));
+            }
 
-            this.Name = name;
+            Name = name;
         }
     }
 }

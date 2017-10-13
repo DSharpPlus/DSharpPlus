@@ -8,10 +8,5 @@ namespace DSharpPlus.CommandsNext.Attributes
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
     public sealed class HiddenAttribute : Attribute
     {
-        /// <summary>
-        /// Marks this command or group as hidden.
-        /// </summary>
-        public HiddenAttribute()
-        { }
     }
 }

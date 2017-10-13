@@ -46,7 +46,9 @@ namespace DSharpPlus.VoiceNext
             {
                 var cnext = shard.GetModule<VoiceNextExtension>();
                 if (cnext == null)
+                {
                     cnext = shard.UseVoiceNext(config);
+                }
 
                 modules.Add(shard.ShardId, cnext);
             }

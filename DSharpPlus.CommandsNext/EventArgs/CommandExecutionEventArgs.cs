@@ -1,4 +1,5 @@
-﻿namespace DSharpPlus.CommandsNext
+﻿// ReSharper disable once CheckNamespace
+namespace DSharpPlus.CommandsNext
 {
     /// <summary>
     /// Represents arguments for <see cref="CommandsNextExtension.CommandExecuted"/> event.

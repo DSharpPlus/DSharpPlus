@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandsNext.Exceptions
         public DuplicateCommandException(string name)
             : base("A command with a given name already exists.")
         {
-            this.CommandName = name;
+            CommandName = name;
         }
     }
 }

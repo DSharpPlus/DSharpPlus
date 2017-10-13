@@ -18,7 +18,7 @@ namespace DSharpPlus.Entities
         /// Gets the user that owns this presence.
         /// </summary>
         [JsonIgnore]
-        public DiscordUser User => this.Discord.InternalGetCachedUser(this.InternalUser.Id);
+        public DiscordUser User => Discord.InternalGetCachedUser(InternalUser.Id);
 
         /// <summary>
         /// Gets the game this user is playing.
@@ -37,7 +37,7 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                switch (this.InternalStatus.ToLowerInvariant())
+                switch (InternalStatus.ToLowerInvariant())
                 {
                     case "online":
                         return UserStatus.Online;
@@ -51,7 +51,6 @@ namespace DSharpPlus.Entities
                     case "invisible":
                         return UserStatus.Invisible;
 
-                    case "offline":
                     default:
                         return UserStatus.Offline;
                 }
@@ -65,7 +64,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild for which this presence was set.
         /// </summary>
         [JsonIgnore]
-        public DiscordGuild Guild => this.GuildId != 0 ? this.Discord._guilds[this.GuildId] : null;
+        public DiscordGuild Guild => GuildId != 0 ? Discord._guilds[GuildId] : null;
 
         internal DiscordPresence() { }
     }

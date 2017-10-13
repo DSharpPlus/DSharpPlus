@@ -31,9 +31,9 @@ namespace DSharpPlus.Net.Udp
         /// Sends a datagram.
         /// </summary>
         /// <param name="data">Datagram.</param>
-        /// <param name="data_length">Length of the datagram.</param>
+        /// <param name="dataLength">Length of the datagram.</param>
         /// <returns></returns>
-        public abstract Task SendAsync(byte[] data, int data_length);
+        public abstract Task SendAsync(byte[] data, int dataLength);
 
         /// <summary>
         /// Receives a datagram.

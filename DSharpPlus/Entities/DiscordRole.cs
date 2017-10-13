@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -18,8 +19,9 @@ namespace DSharpPlus.Entities
         /// Gets the color of this role.
         /// </summary>
         [JsonIgnore]
-        public DiscordColor Color => new DiscordColor(this._color);
+        public DiscordColor Color => new DiscordColor(_color);
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
+        // ReSharper disable once InconsistentNaming
         internal int _color;
 
         /// <summary>
@@ -67,7 +69,10 @@ namespace DSharpPlus.Entities
         public PermissionLevel CheckPermission(Permissions permission)
         {
             if ((Permissions & permission) != 0)
+            {
                 return PermissionLevel.Allowed;
+            }
+
             return PermissionLevel.Unset;
         }
 
@@ -77,7 +82,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this role.</returns>
         public override string ToString()
         {
-            return string.Concat("Role ", this.Id, "; ", this.Name);
+            return string.Concat("Role ", Id, "; ", Name);
         }
 
         /// <summary>
@@ -87,7 +92,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordRole"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordRole);
+            return Equals(obj as DiscordRole);
         }
 
         /// <summary>
@@ -98,12 +103,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordRole e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id;
+            return Id == e.Id;
         }
 
         /// <summary>
@@ -112,7 +121,8 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordRole"/>.</returns>
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            return Id.GetHashCode();
         }
 
         /// <summary>
@@ -126,11 +136,15 @@ namespace DSharpPlus.Entities
             var o1 = e1 as object;
             var o2 = e2 as object;
 
-            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            if (o1 == null && o2 != null || o1 != null && o2 == null)
+            {
                 return false;
+            }
 
-            if (o1 == null && o2 == null)
+            if (o1 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id;
         }

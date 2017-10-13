@@ -1,9 +1,9 @@
-﻿namespace DSharpPlus
+﻿namespace DSharpPlus.Enums
 {
     /// <summary>
     /// Represents a channel's type.
     /// </summary>
-    public enum ChannelType : int
+    public enum ChannelType
     {
         /// <summary>
         /// Indicates that this is a text channel.

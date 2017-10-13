@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus
@@ -11,20 +12,22 @@ namespace DSharpPlus
 
         internal DebugLogger(BaseDiscordClient client)
         {
-            this.Level = client.Configuration.LogLevel;
-            this.DateTimeFormat = client.Configuration.DateTimeFormat;
+            Level = client.Configuration.LogLevel;
+            DateTimeFormat = client.Configuration.DateTimeFormat;
         }
 
         internal DebugLogger(LogLevel level, string timeformatting)
         {
-            this.Level = level;
-            this.DateTimeFormat = timeformatting;
+            Level = level;
+            DateTimeFormat = timeformatting;
         }
 
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
-            if (level <= this.Level)
-                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
+            if (level <= Level)
+            {
+                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = DateTimeFormat });
+            }
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
@@ -54,7 +57,7 @@ namespace DSharpPlus
                     break;
             }
 
-            Console.Write($"[{e.Timestamp.ToString(this.DateTimeFormat)}] [{e.Application}] [{e.Level}]");
+            Console.Write($"[{e.Timestamp.ToString(DateTimeFormat)}] [{e.Application}] [{e.Level}]");
             Console.ResetColor();
             Console.WriteLine($" {e.Message}");
 #endif
@@ -92,7 +95,7 @@ namespace DSharpPlus
 
             public override string ToString()
             {
-                return $"[{Timestamp.ToString(this.TimeFormatting)}] [{Application}] [{Level}] {Message}";
+                return $"[{Timestamp.ToString(TimeFormatting)}] [{Application}] [{Level}] {Message}";
             }
         }
     }

@@ -30,7 +30,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the Id of the ratelimit bucket.
         /// </summary>
-        public string BucketId => $"{this.Method}:{this.GuildId}:{this.ChannelId}:{this.Route}";
+        public string BucketId => $"{Method}:{GuildId}:{ChannelId}:{Route}";
 
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
@@ -47,12 +47,12 @@ namespace DSharpPlus.Net
         /// </summary>
         public DateTimeOffset Reset { get; internal set; }
 
-        internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id)
+        internal RateLimitBucket(RestRequestMethod method, string route, string guildId, string channelId)
         {
-            this.Method = method;
-            this.Route = route;
-            this.ChannelId = channel_id;
-            this.GuildId = guild_id;
+            Method = method;
+            Route = route;
+            ChannelId = channelId;
+            GuildId = guildId;
         }
 
         /// <summary>
@@ -60,11 +60,11 @@ namespace DSharpPlus.Net
         /// </summary>
         /// <param name="method">Method for this bucket.</param>
         /// <param name="route">Route for this bucket.</param>
-        /// <param name="guild_id">Guild Id for this bucket.</param>
-        /// <param name="channel_id">Channel Id for this bucket.</param>
+        /// <param name="guildId">Guild Id for this bucket.</param>
+        /// <param name="channelId">Channel Id for this bucket.</param>
         /// <returns>Bucket Id.</returns>
-        public static string GenerateId(RestRequestMethod method, string route, string guild_id, string channel_id) =>
-            $"{method}:{guild_id}:{channel_id}:{route}";
+        public static string GenerateId(RestRequestMethod method, string route, string guildId, string channelId) =>
+            $"{method}:{guildId}:{channelId}:{route}";
 
         /// <summary>
         /// Returns a string representation of this bucket.
@@ -72,7 +72,7 @@ namespace DSharpPlus.Net
         /// <returns>String representation of this bucket.</returns>
         public override string ToString()
         {
-            return $"Rate limit bucket [{this.Method}:{this.GuildId}:{this.ChannelId}:{this.Route}] [{Remaining}/{Maximum}] {Reset}";
+            return $"Rate limit bucket [{Method}:{GuildId}:{ChannelId}:{Route}] [{Remaining}/{Maximum}] {Reset}";
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace DSharpPlus.Net
         /// <returns>Whether the object is equal to this <see cref="RateLimitBucket"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as RateLimitBucket);
+            return Equals(obj as RateLimitBucket);
         }
 
         /// <summary>
@@ -93,12 +93,16 @@ namespace DSharpPlus.Net
         public bool Equals(RateLimitBucket e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.BucketId == e.BucketId;
+            return BucketId == e.BucketId;
         }
 
         /// <summary>

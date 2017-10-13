@@ -16,10 +16,14 @@ namespace DSharpPlus.CommandsNext.Attributes
             var me = ctx.Client.CurrentUser;
 
             if (cfg.SelfBot)
+            {
                 return Task.FromResult(ctx.User.Id == me.Id);
+            }
 
             if (app != null)
+            {
                 return Task.FromResult(ctx.User.Id == app.Owner.Id);
+            }
 
             return Task.FromResult(ctx.User.Id == me.Id);
         }

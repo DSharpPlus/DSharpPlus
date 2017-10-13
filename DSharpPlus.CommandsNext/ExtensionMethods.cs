@@ -19,7 +19,9 @@ namespace DSharpPlus.CommandsNext
         public static CommandsNextExtension UseCommandsNext(this DiscordClient client, CommandsNextConfiguration cfg)
         {
             if (client.GetModule<CommandsNextExtension>() != null)
+            {
                 throw new InvalidOperationException("CommandsNext is already enabled for that client.");
+            }
 
             var cnext = new CommandsNextExtension(cfg);
             client.AddModule(cnext);
@@ -42,7 +44,9 @@ namespace DSharpPlus.CommandsNext
             {
                 var cnext = shard.GetModule<CommandsNextExtension>();
                 if (cnext == null)
+                {
                     cnext = shard.UseCommandsNext(cfg);
+                }
 
                 modules.Add(shard.ShardId, cnext);
             }
@@ -72,7 +76,9 @@ namespace DSharpPlus.CommandsNext
             client.InitializeShardsAsync().GetAwaiter().GetResult();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
+            {
                 modules.Add(shard.ShardId, shard.GetModule<CommandsNextExtension>());
+            }
 
             return new ReadOnlyDictionary<int, CommandsNextExtension>(modules);
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Enums;
 using DSharpPlus.Net;
 
 namespace DSharpPlus
@@ -21,20 +22,24 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the string representing the version of D#+.
         /// </summary>
-        public string VersionString => this._version_string.Value;
-        private Lazy<string> _version_string = new Lazy<string>(() =>
+        public string VersionString => _versionString.Value;
+        private Lazy<string> _versionString = new Lazy<string>(() =>
         {
             var a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
             var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             if (iv != null)
+            {
                 return iv.InformationalVersion;
+            }
 
             var v = a.GetName().Version;
             var vs = v.ToString(3);
 
             if (v.Revision > 0)
+            {
                 vs = $"{vs}, CI build {v.Revision}";
+            }
 
             return vs;
         });
@@ -65,10 +70,10 @@ namespace DSharpPlus
         /// <param name="config">Configuration for this client.</param>
         protected BaseDiscordClient(DiscordConfiguration config)
         {
-            this.Configuration = config;
-            this.ApiClient = new DiscordApiClient(this);
-            this.DebugLogger = new DebugLogger(this);
-            this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
+            Configuration = config;
+            ApiClient = new DiscordApiClient(this);
+            DebugLogger = new DebugLogger(this);
+            UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
         }
 
         /// <summary>
@@ -76,7 +81,7 @@ namespace DSharpPlus
         /// </summary>
         /// <returns>Current API application.</returns>
         public Task<DiscordApplication> GetCurrentApplicationAsync() =>
-            this.ApiClient.GetCurrentApplicationInfoAsync();
+            ApiClient.GetCurrentApplicationInfoAsync();
 
         /// <summary>
         /// Initializes this client. This method fetches information about current user and application.
@@ -84,18 +89,20 @@ namespace DSharpPlus
         /// <returns></returns>
         public virtual async Task InitializeAsync()
         {
-            if (this.CurrentUser == null)
+            if (CurrentUser == null)
             {
-                this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
-                this.UserCache.AddOrUpdate(this.CurrentUser.Id, this.CurrentUser, (id, xu) => this.CurrentUser);
+                CurrentUser = await ApiClient.GetCurrentUserAsync();
+                UserCache.AddOrUpdate(CurrentUser.Id, CurrentUser, (id, xu) => CurrentUser);
             }
 
-            if (this.Configuration.TokenType != TokenType.User && this.CurrentApplication == null)
-                this.CurrentApplication = await this.GetCurrentApplicationAsync();
+            if (Configuration.TokenType != TokenType.User && CurrentApplication == null)
+            {
+                CurrentApplication = await GetCurrentApplicationAsync();
+            }
         }
 
-        internal DiscordUser InternalGetCachedUser(ulong user_id) =>
-            this.UserCache.TryGetValue(user_id, out var user) ? user : null;
+        internal DiscordUser InternalGetCachedUser(ulong userId) =>
+            UserCache.TryGetValue(userId, out var user) ? user : null;
 
         /// <summary>
         /// Disposes this client.

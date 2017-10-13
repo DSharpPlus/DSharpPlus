@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DSharpPlus.Enums;
 
 namespace DSharpPlus.CommandsNext.Attributes
 {
@@ -25,32 +26,44 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="permissions">Permissions required to execute this command.</param>
         public RequirePermissionsAttribute(Permissions permissions)
         {
-            this.Permissions = permissions;
+            Permissions = permissions;
         }
 
         public override async Task<bool> CanExecute(CommandContext ctx, bool help)
         {
             if (ctx.Guild == null)
-                return this.IgnoreDms;
+            {
+                return IgnoreDms;
+            }
 
             var usr = ctx.Member;
             if (usr == null)
+            {
                 return false;
+            }
+
             var pusr = ctx.Channel.PermissionsFor(usr);
 
             var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
             if (bot == null)
+            {
                 return false;
+            }
+
             var pbot = ctx.Channel.PermissionsFor(bot);
 
             var usrok = ctx.Guild.OwnerId == usr.Id;
             var botok = ctx.Guild.OwnerId == bot.Id;
 
             if (!usrok)
-                usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
-            
+            {
+                usrok = (pusr & Permissions.Administrator) != 0 || (pusr & Permissions) == Permissions;
+            }
+
             if (!botok)
-                botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+            {
+                botok = (pbot & Permissions.Administrator) != 0 || (pbot & Permissions) == Permissions;
+            }
 
             return usrok && botok;
         }

@@ -21,11 +21,11 @@ namespace DSharpPlus.Net
         public IReadOnlyDictionary<string, Stream> Files { get; }
 
         internal MultipartWebRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, IDictionary<string, string> values = null, 
-            IDictionary<string, Stream> files = null, double? ratelimit_wait_override = null)
-            : base(client, bucket, url, method, headers, ratelimit_wait_override)
+            IDictionary<string, Stream> files = null, double? ratelimitWaitOverride = null)
+            : base(client, bucket, url, method, headers, ratelimitWaitOverride)
         {
-            this.Values = values != null ? new ReadOnlyDictionary<string, string>(values) : null;
-            this.Files = files != null ? new ReadOnlyDictionary<string, Stream>(files) : null;
+            Values = values != null ? new ReadOnlyDictionary<string, string>(values) : null;
+            Files = files != null ? new ReadOnlyDictionary<string, Stream>(files) : null;
         }
     }
 }

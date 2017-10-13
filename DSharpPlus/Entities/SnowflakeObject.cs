@@ -12,7 +12,7 @@ namespace DSharpPlus.Entities
         /// Gets the ID of this object.
         /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong Id { get; internal set; }
+        public ulong Id { get; set; }
 
         /// <summary>
         /// Gets the date and time this object was created.

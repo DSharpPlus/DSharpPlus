@@ -42,10 +42,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string GetDiscordName()
         {
-            DiscordNameLookup.TryGetValue(this.Name, out var name);
+            DiscordNameLookup.TryGetValue(Name, out var name);
 
             if (name == null)
-                return $":{ this.Name }:";
+            {
+                return $":{ Name }:";
+            }
 
             return name;
         }
@@ -56,9 +58,12 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this emoji.</returns>
         public override string ToString()
         {
-            if (this.Id != 0)
-                return $"<:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
-            return this.Name;
+            if (Id != 0)
+            {
+                return $"<:{Name}:{Id.ToString(CultureInfo.InvariantCulture)}>";
+            }
+
+            return Name;
         }
 
         /// <summary>
@@ -68,7 +73,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordEmoji"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordEmoji);
+            return Equals(obj as DiscordEmoji);
         }
 
         /// <summary>
@@ -79,12 +84,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordEmoji e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id && this.Name == e.Name;
+            return Id == e.Id && Name == e.Name;
         }
 
         /// <summary>
@@ -94,17 +103,22 @@ namespace DSharpPlus.Entities
         public override int GetHashCode()
         {
             var hash = 13;
-            hash = (hash * 7) + this.Id.GetHashCode();
-            hash = (hash * 7) + this.Name.GetHashCode();
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            hash = hash * 7 + Id.GetHashCode();
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            hash = hash * 7 + Name.GetHashCode();
 
             return hash;
         }
 
         internal string ToReactionString()
         {
-            if (this.Id != 0)
-                return $"{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}";
-            return this.Name;
+            if (Id != 0)
+            {
+                return $"{Name}:{Id.ToString(CultureInfo.InvariantCulture)}";
+            }
+
+            return Name;
         }
 
         /// <summary>
@@ -118,11 +132,15 @@ namespace DSharpPlus.Entities
             var o1 = e1 as object;
             var o2 = e2 as object;
 
-            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            if (o1 == null && o2 != null || o1 != null && o2 == null)
+            {
                 return false;
+            }
 
-            if (o1 == null && o2 == null)
+            if (o1 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id && e1.Name == e2.Name;
         }
@@ -147,24 +165,26 @@ namespace DSharpPlus.Entities
         /// Creates an emoji object from a unicode entity.
         /// </summary>
         /// <param name="client"><see cref="DiscordClient"/> to attach to the object.</param>
-        /// <param name="unicode_entity">Unicode entity to create the object from.</param>
+        /// <param name="unicodeEntity">Unicode entity to create the object from.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromUnicode(DiscordClient client, string unicode_entity)
+        public static DiscordEmoji FromUnicode(DiscordClient client, string unicodeEntity)
         {
             if (client == null)
+            {
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
+            }
 
-            return new DiscordEmoji { Name = unicode_entity, Discord = client };
+            return new DiscordEmoji { Name = unicodeEntity, Discord = client };
         }
 
         /// <summary>
         /// Creates an emoji object from a unicode entity.
         /// </summary>
-        /// <param name="unicode_entity">Unicode entity to create the object from.</param>
+        /// <param name="unicodeEntity">Unicode entity to create the object from.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromUnicode(string unicode_entity)
+        public static DiscordEmoji FromUnicode(string unicodeEntity)
         {
-            return new DiscordEmoji { Name = unicode_entity, Discord = null };
+            return new DiscordEmoji { Name = unicodeEntity, Discord = null };
         }
 
         /// <summary>
@@ -176,13 +196,17 @@ namespace DSharpPlus.Entities
         public static DiscordEmoji FromGuildEmote(DiscordClient client, ulong id)
         {
             if (client == null)
+            {
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
+            }
 
             var ed = client.Guilds.Values.SelectMany(xg => xg.Emojis)
                 .ToDictionary(xe => xe.Id, xe => xe);
 
             if (!ed.ContainsKey(id))
+            {
                 throw new ArgumentOutOfRangeException(nameof(id), "Given emote was not found.");
+            }
 
             return ed[id];
         }
@@ -196,13 +220,19 @@ namespace DSharpPlus.Entities
         public static DiscordEmoji FromName(DiscordClient client, string name)
         {
             if (client == null)
+            {
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
+            }
 
             if (string.IsNullOrWhiteSpace(name))
+            {
                 throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
+            }
 
             if (UnicodeEmojis.ContainsKey(name))
+            {
                 return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name] };
+            }
 
             var ed = client.Guilds.Values.SelectMany(xg => xg.Emojis)
                 .OrderBy(xe => xe.Name)
@@ -211,9 +241,11 @@ namespace DSharpPlus.Entities
             var ek = name.Substring(1, name.Length - 2);
 
             if (ed.ContainsKey(ek))
+            {
                 return ed[ek].First();
+            }
 
-            throw new ArgumentException(nameof(name), "Invalid emoji name specified.");
+            throw new ArgumentException("Invalid emoji name specified.", nameof(name));
         }
     }
 }

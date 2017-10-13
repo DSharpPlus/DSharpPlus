@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
+// ReSharper disable once CheckNamespace
 namespace DSharpPlus.Interactivity
 {
     public class ReactionCollectionContext
     {
-        public ConcurrentDictionary<DiscordEmoji, int> Reactions { get; internal set; } = new ConcurrentDictionary<DiscordEmoji, int>();
+        public ConcurrentDictionary<DiscordEmoji, int> Reactions { get; private set; } = new ConcurrentDictionary<DiscordEmoji, int>();
 
-        internal List<ulong> _membersvoted = new List<ulong>();
+        internal List<ulong> Membersvoted = new List<ulong>();
 
         public InteractivityExtension Interactivity { get; internal set; }
 
@@ -17,20 +18,28 @@ namespace DSharpPlus.Interactivity
         internal void AddReaction(DiscordEmoji dr)
         {
             if (Reactions.ContainsKey(dr))
+            {
                 Reactions[dr]++;
+            }
             else
+            {
                 Reactions.TryAdd(dr, 1);
+            }
         }
 
         internal void AddReaction(DiscordEmoji dr, ulong m)
         {
-            if (!_membersvoted.Contains(m))
+            if (!Membersvoted.Contains(m))
             {
                 if (Reactions.ContainsKey(dr))
+                {
                     Reactions[dr]++;
+                }
                 else
+                {
                     Reactions.TryAdd(dr, 1);
-                _membersvoted.Add(m);
+                }
+                Membersvoted.Add(m);
             }
         }
 
@@ -40,19 +49,23 @@ namespace DSharpPlus.Interactivity
             {
                 Reactions[dr]--;
                 if (Reactions[dr] == 0)
-                    Reactions.TryRemove(dr, out int something);
+                {
+                    Reactions.TryRemove(dr, out int _);
+                }
             }
         }
 
         internal void RemoveReaction(DiscordEmoji dr, ulong m)
         {
-            if (Reactions.ContainsKey(dr) && _membersvoted.Contains(m))
+            if (Reactions.ContainsKey(dr) && Membersvoted.Contains(m))
             {
                 Reactions[dr]--;
                 if (Reactions[dr] == 0)
-                    Reactions.TryRemove(dr, out int something);
+                {
+                    Reactions.TryRemove(dr, out int _);
+                }
                 // Just making sure no double member slipped in :^)
-                _membersvoted.RemoveAll(x => x == m);
+                Membersvoted.RemoveAll(x => x == m);
                 // Though that should be impossible?
             }
         }
@@ -60,7 +73,7 @@ namespace DSharpPlus.Interactivity
         internal void ClearReactions()
         {
             Reactions = new ConcurrentDictionary<DiscordEmoji, int>();
-            _membersvoted = new List<ulong>();
+            Membersvoted = new List<ulong>();
         }
     }
 }

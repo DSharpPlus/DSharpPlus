@@ -21,7 +21,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild associated with this voice state.
         /// </summary>
         [JsonIgnore]
-        public DiscordGuild Guild => this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : null;
+        public DiscordGuild Guild => GuildId != null ? Discord.Guilds[GuildId.Value] : null;
 
         /// <summary>
         /// Gets ID of the channel this user is connected to.
@@ -33,7 +33,7 @@ namespace DSharpPlus.Entities
         /// Gets the channel this user is connected to.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel Channel => this.ChannelId != null && this.ChannelId.Value != 0 ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
+        public DiscordChannel Channel => ChannelId != null && ChannelId.Value != 0 ? Discord.InternalGetCachedChannel(ChannelId.Value) : null;
 
         /// <summary>
         /// Gets ID of the user to which this voice state belongs.
@@ -51,11 +51,15 @@ namespace DSharpPlus.Entities
             {
                 var usr = null as DiscordUser;
 
-                if (this.Guild != null)
-                    usr = this.Guild._members.FirstOrDefault(xm => xm.Id == this.UserId);
+                if (Guild != null)
+                {
+                    usr = Guild._members.FirstOrDefault(xm => xm.Id == UserId);
+                }
 
                 if (usr == null)
-                    usr = this.Discord.InternalGetCachedUser(this.UserId);
+                {
+                    usr = Discord.InternalGetCachedUser(UserId);
+                }
 
                 return usr;
             }
@@ -101,7 +105,7 @@ namespace DSharpPlus.Entities
 
         public override string ToString()
         {
-            return $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {this.GuildId?.ToString(CultureInfo.InvariantCulture)}";
+            return $"{UserId.ToString(CultureInfo.InvariantCulture)} in {GuildId?.ToString(CultureInfo.InvariantCulture)}";
         }
     }
 }

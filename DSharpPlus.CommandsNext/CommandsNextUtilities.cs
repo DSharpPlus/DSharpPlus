@@ -97,17 +97,27 @@ namespace DSharpPlus.CommandsNext
         {
             var cnt = msg.Content;
             if (str.Length >= cnt.Length)
+            {
                 return -1;
+            }
 
             if (!cnt.StartsWith(str))
+            {
                 return -1;
+            }
 
             int sn = 0;
             for (var i = str.Length; i < cnt.Length; i++)
+            {
                 if (char.IsWhiteSpace(cnt[i]))
+                {
                     sn++;
+                }
                 else
+                {
                     break;
+                }
+            }
 
             return str.Length + sn;
         }
@@ -122,27 +132,41 @@ namespace DSharpPlus.CommandsNext
         {
             var cnt = msg.Content;
             if (!cnt.StartsWith("<@"))
+            {
                 return -1;
+            }
 
             var cni = cnt.IndexOf('>');
             if (cni == -1 || cnt.Length <= cni + 2)
+            {
                 return -1;
+            }
 
             var cnp = cnt.Substring(0, cni + 2);
             var m = UserRegex.Match(cnp);
             if (!m.Success)
+            {
                 return -1;
+            }
 
             var uid = ulong.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
             if (user.Id != uid)
+            {
                 return -1;
+            }
 
             int sn = 0;
             for (var i = m.Value.Length; i < cnt.Length; i++)
+            {
                 if (char.IsWhiteSpace(cnt[i]))
+                {
                     sn++;
+                }
                 else
+                {
                     break;
+                }
+            }
 
             return m.Value.Length + sn;
         }
@@ -158,14 +182,20 @@ namespace DSharpPlus.CommandsNext
         {
             var t = typeof(T);
             if (!ArgumentConverters.ContainsKey(t))
+            {
                 throw new ArgumentException("There is no converter specified for given type.", nameof(T));
+            }
 
             var cv = ArgumentConverters[t] as IArgumentConverter<T>;
             if (cv == null)
+            {
                 throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
+            }
 
             if (!cv.TryConvert(value, ctx, out var result))
+            {
                 throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
+            }
 
             return result;
         }
@@ -186,7 +216,12 @@ namespace DSharpPlus.CommandsNext
             }
             catch (TargetInvocationException ex)
             {
-                throw ex.InnerException;
+                if (ex.InnerException != null)
+                {
+                    throw ex.InnerException;
+                }
+
+                throw;
             }
         }
         
@@ -197,10 +232,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="converter">Converter to register.</param>
         public static void RegisterConverter<T>(IArgumentConverter<T> converter)
         {
-            if (converter == null)
-                throw new ArgumentNullException("Converter cannot be null.", nameof(converter));
-
-            ArgumentConverters[typeof(T)] = converter;
+            ArgumentConverters[typeof(T)] = converter ?? throw new ArgumentNullException(nameof(converter), "Converter cannot be null.");
         }
 
         /// <summary>
@@ -211,10 +243,14 @@ namespace DSharpPlus.CommandsNext
         {
             var t = typeof(T);
             if (ArgumentConverters.ContainsKey(t))
+            {
                 ArgumentConverters.Remove(t);
+            }
 
             if (UserFriendlyTypeNames.ContainsKey(t))
+            {
                 UserFriendlyTypeNames.Remove(t);
+            }
         }
 
         /// <summary>
@@ -225,11 +261,15 @@ namespace DSharpPlus.CommandsNext
         public static void RegisterUserFriendlyTypeName<T>(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentNullException("Name cannot be null or empty.", nameof(value));
+            {
+                throw new ArgumentNullException(nameof(value), "Name cannot be null or empty.");
+            }
 
             var t = typeof(T);
             if (!ArgumentConverters.ContainsKey(t))
+            {
                 throw new InvalidOperationException("Cannot register a friendly name for a type which has no associated converter.");
+            }
 
             UserFriendlyTypeNames[t] = value;
         }
@@ -242,7 +282,10 @@ namespace DSharpPlus.CommandsNext
         public static string ToUserFriendlyName(this Type t)
         {
             if (UserFriendlyTypeNames.ContainsKey(t))
+            {
                 return UserFriendlyTypeNames[t];
+            }
+
             return t.Name;
         }
 
@@ -250,76 +293,100 @@ namespace DSharpPlus.CommandsNext
         {
             remainder = null;
             if (string.IsNullOrWhiteSpace(str))
+            {
                 return null;
+            }
 
-            var in_backtick = false;
-            var in_triple_backtick = false;
-            var in_quote = false;
-            var in_escape = false;
+            var inBacktick = false;
+            var inTripleBacktick = false;
+            var inQuote = false;
+            var inEscape = false;
 
             var i = 0;
             for (; i < str.Length; i++)
+            {
                 if (!char.IsWhiteSpace(str[i]))
+                {
                     break;
+                }
+            }
+
             if (i > 0)
+            {
                 str = str.Substring(i);
-            var x = i;
-            
+            }
+
             var ep = -1;
             for (i = 0; i < str.Length; i++)
             {
-                if (char.IsWhiteSpace(str[i]) && !in_quote && !in_triple_backtick && !in_backtick && !in_escape)
+                if (char.IsWhiteSpace(str[i]) && !inQuote && !inTripleBacktick && !inBacktick)
+                {
                     ep = i;
+                }
 
                 if (str[i] == '\\')
                 {
-                    if (!in_escape && !in_backtick && !in_triple_backtick)
+                    if (!inBacktick && !inTripleBacktick)
                     {
-                        in_escape = true;
-                        if (str.IndexOf("\\`", i) == i || str.IndexOf("\\\"", i) == i || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
+                        inEscape = true;
+                        if (str.IndexOf("\\`", i, StringComparison.Ordinal) == i || str.IndexOf("\\\"", i, StringComparison.Ordinal) == i || str.IndexOf("\\\\", i, StringComparison.Ordinal) == i || str.Length >= i && char.IsWhiteSpace(str[i + 1]))
+                        {
                             str = str.Remove(i, 1);
+                        }
                         else
+                        {
                             i++;
+                        }
                     }
-                    else if ((in_backtick || in_triple_backtick) && str.IndexOf("\\`", i) == i)
+                    else if (str.IndexOf("\\`", i, StringComparison.Ordinal) == i)
                     {
-                        in_escape = true;
+                        inEscape = true;
                         str = str.Remove(i, 1);
                     }
                 }
 
-                if (str[i] == '`' && !in_escape)
+                if (str[i] == '`' && !inEscape)
                 {
-                    if (in_triple_backtick && str.IndexOf("```", i) == i)
+                    if (inTripleBacktick && str.IndexOf("```", i, StringComparison.Ordinal) == i)
                     {
-                        in_triple_backtick = false;
+                        inTripleBacktick = false;
                         i += 2;
                     }
-                    else if (!in_backtick && str.IndexOf("```", i) == i)
+                    else if (!inBacktick && str.IndexOf("```", i, StringComparison.Ordinal) == i)
                     {
-                        in_triple_backtick = true;
+                        inTripleBacktick = true;
                         i += 2;
                     }
 
-                    if (in_backtick && str.IndexOf("```", i) != i)
-                        in_backtick = false;
-                    else if (!in_triple_backtick && str.IndexOf("```", i) == i)
-                        in_backtick = true;
+                    if (inBacktick && str.IndexOf("```", i, StringComparison.Ordinal) != i)
+                    {
+                        inBacktick = false;
+                    }
+                    else if (!inTripleBacktick && str.IndexOf("```", i, StringComparison.Ordinal) == i)
+                    {
+                        inBacktick = true;
+                    }
                 }
 
-                if (str[i] == '"' && !in_escape && !in_backtick && !in_triple_backtick)
+                if (str[i] == '"' && !inEscape && !inBacktick && !inTripleBacktick)
                 {
                     str = str.Remove(i, 1);
                     i--;
 
-                    if (!in_quote)
-                        in_quote = true;
+                    if (!inQuote)
+                    {
+                        inQuote = true;
+                    }
                     else
-                        in_quote = false;
+                    {
+                        inQuote = false;
+                    }
                 }
 
-                if (in_escape)
-                    in_escape = false;
+                if (inEscape)
+                {
+                    inEscape = false;
+                }
 
                 if (ep != -1)
                 {
@@ -332,7 +399,7 @@ namespace DSharpPlus.CommandsNext
             return str;
         }
 
-        internal static object[] BindArguments(CommandContext ctx, bool ignore_surplus)
+        internal static object[] BindArguments(CommandContext ctx, bool ignoreSurplus)
         {
             var cmd = ctx.Command;
 
@@ -340,21 +407,23 @@ namespace DSharpPlus.CommandsNext
             args[0] = ctx;
 
             var argstr = ctx.RawArgumentString;
-            var argrmd = "";
-            var argv = "";
             for (var i = 0; i < ctx.Command.Arguments.Count; i++)
             {
                 var arg = ctx.Command.Arguments[i];
+                string argrmd;
+                string argv;
                 if (arg.IsCatchAll)
                 {
-                    if (arg._is_array)
+                    if (arg.IsArray)
                     {
                         var lst = new List<object>();
                         while (true)
                         {
                             argv = ExtractNextArgument(argstr, out argrmd);
                             if (argv == null)
+                            {
                                 break;
+                            }
 
                             argstr = argrmd;
                             lst.Add(ConvertArgument(argv, ctx, arg.Type));
@@ -377,11 +446,18 @@ namespace DSharpPlus.CommandsNext
 
                         var j = 0;
                         for (; j < argstr.Length; j++)
+                        {
                             if (!char.IsWhiteSpace(argstr[j]))
+                            {
                                 break;
+                            }
+                        }
+
                         if (j > 0)
+                        {
                             argstr = argstr.Substring(j);
-                        
+                        }
+
                         argv = argstr;
                         args[i + 1] = ConvertArgument(argv, ctx, arg.Type);
 
@@ -395,7 +471,9 @@ namespace DSharpPlus.CommandsNext
                 }
 
                 if (argv == null && !arg.IsOptional && !arg.IsCatchAll)
+                {
                     throw new ArgumentException("Not enough arguments supplied to the command.");
+                }
                 else if (argv == null)
                 {
                     //break;
@@ -408,8 +486,10 @@ namespace DSharpPlus.CommandsNext
                 argstr = argrmd;
             }
 
-            if (!ignore_surplus && !string.IsNullOrWhiteSpace(argstr))
+            if (!ignoreSurplus && !string.IsNullOrWhiteSpace(argstr))
+            {
                 throw new ArgumentException("Too many arguments were supplied to this command.");
+            }
 
             return args;
         }
@@ -421,20 +501,28 @@ namespace DSharpPlus.CommandsNext
         {
             // check if compiler-generated
             if (ti.GetCustomAttribute<CompilerGeneratedAttribute>(false) != null)
+            {
                 return false;
+            }
 
             // check if anonymous
             if (ti.IsGenericType && ti.Name.Contains("AnonymousType") && (ti.Name.StartsWith("<>") || ti.Name.StartsWith("VB$")) && (ti.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic)
+            {
                 return false;
+            }
 
             // check if abstract, static, or not a class
             if (!ti.IsClass || ti.IsAbstract)
+            {
                 return false;
+            }
 
             // check if delegate type
             var dlgt = typeof(Delegate).GetTypeInfo();
             if (dlgt.IsAssignableFrom(ti))
+            {
                 return false;
+            }
 
             // qualifies
             return true;
@@ -445,16 +533,22 @@ namespace DSharpPlus.CommandsNext
             ps = null;
             // check if exists
             if (mi == null)
+            {
                 return false;
+            }
 
             // check if static or non-public
             if (mi.IsStatic || !mi.IsPublic)
+            {
                 return false;
+            }
 
             // check if appropriate return and arguments
             ps = mi.GetParameters();
             if (!ps.Any() || ps.First().ParameterType != typeof(CommandContext) || mi.ReturnType != typeof(Task))
+            {
                 return false;
+            }
 
             // qualifies
             return true;

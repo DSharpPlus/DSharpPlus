@@ -14,10 +14,16 @@ namespace DSharpPlus.Test
         public async Task SetPrefix(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
         {
             if (string.IsNullOrWhiteSpace(prefix))
+            {
                 if (Prefixes.TryRemove(ctx.Channel.Id, out _))
+                {
                     await ctx.RespondAsync("👍");
+                }
                 else
+                {
                     await ctx.RespondAsync("👎");
+                }
+            }
             else
             {
                 Prefixes.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);

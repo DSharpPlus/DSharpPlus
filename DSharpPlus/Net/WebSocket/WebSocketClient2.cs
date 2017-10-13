@@ -9,31 +9,31 @@ namespace DSharpPlus.Net.WebSocket
 #pragma warning disable 649
         public override event AsyncEventHandler OnConnect
         {
-            add { this._on_connect.Register(value); }
-            remove { this._on_connect.Unregister(value); }
+            add => _onConnect.Register(value);
+            remove => _onConnect.Unregister(value);
         }
-        private AsyncEvent _on_connect;
+        private AsyncEvent _onConnect;
 
         public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
         {
-            add { this._on_disconnect.Register(value); }
-            remove { this._on_disconnect.Unregister(value); }
+            add => _onDisconnect.Register(value);
+            remove => _onDisconnect.Unregister(value);
         }
-        private AsyncEvent<SocketCloseEventArgs> _on_disconnect;
+        private AsyncEvent<SocketCloseEventArgs> _onDisconnect;
 
         public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
         {
-            add { this._on_message.Register(value); }
-            remove { this._on_message.Unregister(value); }
+            add => _onMessage.Register(value);
+            remove => _onMessage.Unregister(value);
         }
-        private AsyncEvent<SocketMessageEventArgs> _on_message;
+        private AsyncEvent<SocketMessageEventArgs> _onMessage;
 
         public override event AsyncEventHandler<SocketErrorEventArgs> OnError
         {
-            add { this._on_error.Register(value); }
-            remove { this._on_error.Unregister(value); }
+            add => _onError.Register(value);
+            remove => _onError.Unregister(value);
         }
-        private AsyncEvent<SocketErrorEventArgs> _on_error;
+        private AsyncEvent<SocketErrorEventArgs> _onError;
 #pragma warning restore 649
 
         public WebSocketClient()

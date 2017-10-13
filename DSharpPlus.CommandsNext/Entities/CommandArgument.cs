@@ -1,5 +1,6 @@
 ﻿using System;
 
+// ReSharper disable once CheckNamespace
 namespace DSharpPlus.CommandsNext
 {
     public sealed class CommandArgument
@@ -13,7 +14,7 @@ namespace DSharpPlus.CommandsNext
         /// Gets this argument's type.
         /// </summary>
         public Type Type { get; internal set; }
-        internal bool _is_array = false;
+        internal bool IsArray = false;
 
         /// <summary>
         /// Gets whether this argument is optional.

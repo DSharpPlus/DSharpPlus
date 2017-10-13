@@ -3,7 +3,7 @@
     /// <summary>
     /// Specifies an OP code in a gateway payload.
     /// </summary>
-    internal enum GatewayOpCode : int
+    internal enum GatewayOpCode
     {
         /// <summary>
         /// Used for dispatching events.

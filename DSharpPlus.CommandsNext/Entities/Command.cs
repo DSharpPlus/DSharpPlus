@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 
+// ReSharper disable once CheckNamespace
 namespace DSharpPlus.CommandsNext
 {
     /// <summary>
@@ -19,7 +20,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command's qualified name (i.e. one that includes all module names).
         /// </summary>
-        public string QualifiedName => this.Parent != null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
+        public string QualifiedName => Parent != null ? string.Concat(Parent.QualifiedName, " ", Name) : Name;
 
         /// <summary>
         /// Gets this command's alises.
@@ -68,7 +69,7 @@ namespace DSharpPlus.CommandsNext
             try
             {
                 var args = CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments);
-                var ret = (Task)this.Callable.DynamicInvoke(args);
+                var ret = (Task)Callable.DynamicInvoke(args);
                 await ret;
             }
             catch (Exception ex)
@@ -97,10 +98,16 @@ namespace DSharpPlus.CommandsNext
         public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
         {
             var fchecks = new List<CheckBaseAttribute>();
-            if (this.ExecutionChecks != null && this.ExecutionChecks.Any())
-                foreach (var ec in this.ExecutionChecks)
-                    if (!(await ec.CanExecute(ctx, help)))
+            if (ExecutionChecks != null && ExecutionChecks.Any())
+            {
+                foreach (var ec in ExecutionChecks)
+                {
+                    if (!await ec.CanExecute(ctx, help))
+                    {
                         fchecks.Add(ec);
+                    }
+                }
+            }
 
             return fchecks;
         }
@@ -117,11 +124,19 @@ namespace DSharpPlus.CommandsNext
             var o2 = cmd2 as object;
 
             if (o1 == null && o2 != null)
+            {
                 return false;
-            else if (o1 != null && o2 == null)
+            }
+
+            if (o1 != null && o2 == null)
+            {
                 return false;
-            else if (o1 == null && o2 == null)
+            }
+
+            if (o1 == null)
+            {
                 return true;
+            }
 
             return cmd1.QualifiedName == cmd2.QualifiedName;
         }
@@ -142,21 +157,20 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Whether this command is equal to another object.</returns>
         public override bool Equals(object obj)
         {
-            var o1 = obj as object;
-            var o2 = this as object;
+            var o1 = obj;
 
-            if (o1 == null && o2 != null)
+            if (o1 == null)
+            {
                 return false;
-            else if (o1 != null && o2 == null)
-                return false;
-            else if (o1 == null && o2 == null)
-                return true;
+            }
 
             var cmd = obj as Command;
             if ((object)cmd == null)
+            {
                 return false;
+            }
 
-            return cmd.QualifiedName == this.QualifiedName;
+            return cmd.QualifiedName == QualifiedName;
         }
 
         /// <summary>
@@ -165,7 +179,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns>This command's hash code.</returns>
         public override int GetHashCode()
         {
-            return this.QualifiedName.GetHashCode();
+            return QualifiedName.GetHashCode();
         }
 
         /// <summary>
@@ -175,8 +189,11 @@ namespace DSharpPlus.CommandsNext
         public override string ToString()
         {
             if (this is CommandGroup g)
-                return $"Command Group: {this.QualifiedName}, {g.Children.Count} top-level children";
-            return $"Command: {this.QualifiedName}";
+            {
+                return $"Command Group: {QualifiedName}, {g.Children.Count} top-level children";
+            }
+
+            return $"Command: {QualifiedName}";
         }
     }
 }

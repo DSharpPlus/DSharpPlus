@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
@@ -22,7 +23,7 @@ namespace DSharpPlus.Test
         [Command("daudit")]
         public async Task DebugAudit(CommandContext e, int amount = 0)
         {
-            var auditlog = await e.Guild.GetAuditLogsAsync(limit: amount <= 0 ? null : (int?)amount);
+            await e.Guild.GetAuditLogsAsync(amount <= 0 ? null : (int?)amount);
             await e.RespondAsync("grabbed audit logs without issue..");
         }
 
@@ -109,41 +110,18 @@ Serverowner: {e.Guild.Owner.DisplayName}
             await e.Message.RespondAsync("u wot");
             var m = await e.Client.GetInteractivityModule().WaitForMessageAsync(xm => xm.Content.ToLowerInvariant() == "no u", TimeSpan.FromSeconds(30));
             if (m == null)
+            {
                 await e.Message.RespondAsync("that's what i thought u lil basterd");
+            }
             else
+            {
                 await e.Message.RespondAsync("What the fuck did you just fucking say about me, you little bitch? I’ll have you know I graduated top of my class in the Navy Seals, and I’ve been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I’m the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You’re fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that’s just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little “clever” comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn’t, you didn’t, and now you’re paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You’re fucking dead, kiddo.");
+            }
         }
 
         [Command("pageembed")]
         public async Task Page(CommandContext e)
         {
-            List<Page> pages = new List<Page>()
-            {
-                new Page()
-                {
-                    Content = "test 0"
-                },
-                new Page()
-                {
-                    Content = "test 1"
-                },
-                new Page()
-                {
-                    Content = "test 2"
-                },
-                new Page()
-                {
-                    Content = "test 3",
-                    Embed = new DiscordEmbedBuilder()
-                        .WithTitle("yes!")
-                        .WithDescription("this has embeds!!")
-                        .Build()
-                },
-                new Page()
-                {
-                    Content = "test 4"
-                }
-            };
             await e.Client.GetInteractivityModule().SendPaginatedMessage(e.Channel, e.User,
                 e.Client.GetInteractivityModule().GeneratePagesInEmbeds(/*Dont mind this, i've broken it in parts*/"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quae mihi ipsi, qui volo et esse et haberi gratus, grata non essent, nisi eum perspicerem mea causa mihi amicum fuisse, non sua, nisi hoc dicis sua, quod interest omnium recte facere. Omnes, qui non sint sapientes, aeque miseros esse, sapientes omnes summe beatos, recte facta omnia aequalia, omnia peccata paria; Vives, inquit Aristo, magnifice atque praeclare, quod erit cumque visum ages, numquam angere, numquam cupies, numquam timebis. Illud vero minime consectarium, sed in primis hebes, illorum scilicet, non tuum, gloriatione dignam esse beatam vitam, quod non possit sine honestate contingere, ut iure quisquam glorietur. Superiores tres erant, quae esse possent, quarum est una sola defensa, eaque vehementer. Duo Reges: constructio interrete. Ex ea quae sint apta, ea bonesta, ea pulchra, ea laudabilia, illa autem superiora naturale nominantur, quae coniuncta cum honestis vitam beatam perficiunt et absolvunt. Quantum Aristoxeni ingenium consumptum videmus in musicis? Ita, quod certissimum est, pro vera certaque iustitia simulationem nobis iustitiae traditis praecipitisque quodam modo ut nostram stabilem conscientiam contemnamus, aliorum errantem opinionem aucupemur. Etenim nec iustitia nec amicitia esse omnino poterunt, nisi ipsae per se expetuntur. Aufidio, praetorio, erudito homine, oculis capto, saepe audiebam, cum se lucis magis quam utilitatis desiderio moveri diceret. Ex quo intellegitur nec intemperantiam propter se esse fugiendam temperantiamque expetendam, non quia voluptates fugiat, sed quia maiores consequatur. Sin autem est in ea, quod quidam volunt, nihil impedit hanc nostram comprehensionem summi boni. Totius enim quaestionis eius, quae habetur de finibus bonorum et malorum, cum quaeritur, in his quid sít extremum et ultimum, fons reperiendus est, in quo sint prima invitamenta naturae; Quod idem cum vestri faciant, non satis magnam tribuunt inventoribus gratiam. Quaeque de virtutibus dicta sunt, quem ad modum eae semper voluptatibus inhaererent, eadem de amicitia dicenda sunt. Quo modo autem optimum, si bonum praeterea nullum est? Incommoda autem et commoda-ita enim estmata et dustmata appello-communia esse voluerunt, paria noluerunt. Cum autem assumpta ratío est, tanto in dominatu locatur, ut omnia illa prima naturae hulus tutelae subiciantur. Omne enim animal, simul et ortum est, se ipsum et omnes partes suas diligit duasque, quae maximae sunt, in primis amplectitur, animum et corpus, deinde utriusque partes. Pomponius Luciusque Cicero, frater noster cognatione patruelis, amore germanus, constituimus inter nos ut ambulationem postmeridianam conficeremus in Academia, maxime quod is locus ab omni turba id temporis vacuus esset. Atque his tribus generibus honestorum notatis quartum sequitur et in eadem pulchritudine et aptum ex illis tribus, in quo inest ordo et moderatio. Is hoc melior, quam Pyrrho, quod aliquod genus appetendi dedit, deterior quam ceteri, quod penitus a natura recessit. Ergo infelix una molestia, fellx rursus, cum is ipse anulus in praecordiis piscis inventus est? Quae cum ita sint, effectum est nihil esse malum, quod turpe non sit. Sed virtutem ipsam inchoavit, nihil amplius. In homine autem summa omnis animi est et in animo rationis, ex qua virtus est, quae rationis absolutio definitur, quam etiam atque etiam explicandam putant. Alii rursum isdem a principiis omne officium referent aut ad voluptatem aut ad non dolendum aut ad prima illa secundum naturam optinenda. Quodsi esset in voluptate summum bonum, ut dicitis, optabile esset maxima in voluptate nullo intervallo interiecto dies noctesque versari, cum omnes sensus dulcedine omni quasi perfusi moverentur. Quantam rem agas, ut Circeis qui habitet totum hunc mundum suum municipium esse existimet? Quod quam magnum sit fictae veterum fabulae declarant, in quibus tam multis tamque variis ab ultima antiquitate repetitis tria vix amicorum paria reperiuntur, ut ad Orestem pervenias profectus a Theseo. Et tamen vide, ne, si ego non intellegam quid Epicurus loquatur, cum Graece, ut videor, luculenter sciam, sit aliqua culpa eius, qui ita loquatur, ut non intellegatur. Non potes ergo ista tueri, Torquate, mihi crede, si te ipse et tuas cogitationes et studia perspexeris; Non ergo Epicurus ineruditus, sed ii indocti, qui, quae pueros non didicisse turpe est, ea putant usque ad senectutem esse discenda. Nam si dicent ab illis has res esse tractatas, ne ipsos quidem Graecos est cur tam multos legant, quam legendi sunt. Ego autem tibi, Piso, assentior usu hoc venire, ut acrius aliquanto et attentius de claris viris locorum admonitu cogitemus. Constituto autem illo, de quo ante diximus, quod honestum esset, id esse solum bonum, intellegi necesse est pluris id, quod honestum sit, aestimandum esse quam illa media, quae ex eo comparentur. Iudicia rerum in sensibus ponit, quibus si semel aliquid falsi pro vero probatum sit, sublatum esse omne iudicium veri et falsi putat.")
                 , TimeSpan.FromMinutes(1), TimeoutBehaviour.Delete);
@@ -152,33 +130,6 @@ Serverowner: {e.Guild.Owner.DisplayName}
         [Command("pagestring")]
         public async Task Page2(CommandContext e)
         {
-            List<Page> pages = new List<Page>()
-            {
-                new Page()
-                {
-                    Content = "test 0"
-                },
-                new Page()
-                {
-                    Content = "test 1"
-                },
-                new Page()
-                {
-                    Content = "test 2"
-                },
-                new Page()
-                {
-                    Content = "test 3",
-                    Embed = new DiscordEmbedBuilder()
-                        .WithTitle("yes!")
-                        .WithDescription("this has embeds!!")
-                        .Build()
-                },
-                new Page()
-                {
-                    Content = "test 4"
-                }
-            };
             await e.Client.GetInteractivityModule().SendPaginatedMessage(e.Channel, e.User,
                 e.Client.GetInteractivityModule().GeneratePagesInStrings(/*Dont mind this, i've broken it in parts*/"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quae mihi ipsi, qui volo et esse et haberi gratus, grata non essent, nisi eum perspicerem mea causa mihi amicum fuisse, non sua, nisi hoc dicis sua, quod interest omnium recte facere. Omnes, qui non sint sapientes, aeque miseros esse, sapientes omnes summe beatos, recte facta omnia aequalia, omnia peccata paria; Vives, inquit Aristo, magnifice atque praeclare, quod erit cumque visum ages, numquam angere, numquam cupies, numquam timebis. Illud vero minime consectarium, sed in primis hebes, illorum scilicet, non tuum, gloriatione dignam esse beatam vitam, quod non possit sine honestate contingere, ut iure quisquam glorietur. Superiores tres erant, quae esse possent, quarum est una sola defensa, eaque vehementer. Duo Reges: constructio interrete. Ex ea quae sint apta, ea bonesta, ea pulchra, ea laudabilia, illa autem superiora naturale nominantur, quae coniuncta cum honestis vitam beatam perficiunt et absolvunt. Quantum Aristoxeni ingenium consumptum videmus in musicis? Ita, quod certissimum est, pro vera certaque iustitia simulationem nobis iustitiae traditis praecipitisque quodam modo ut nostram stabilem conscientiam contemnamus, aliorum errantem opinionem aucupemur. Etenim nec iustitia nec amicitia esse omnino poterunt, nisi ipsae per se expetuntur. Aufidio, praetorio, erudito homine, oculis capto, saepe audiebam, cum se lucis magis quam utilitatis desiderio moveri diceret. Ex quo intellegitur nec intemperantiam propter se esse fugiendam temperantiamque expetendam, non quia voluptates fugiat, sed quia maiores consequatur. Sin autem est in ea, quod quidam volunt, nihil impedit hanc nostram comprehensionem summi boni. Totius enim quaestionis eius, quae habetur de finibus bonorum et malorum, cum quaeritur, in his quid sít extremum et ultimum, fons reperiendus est, in quo sint prima invitamenta naturae; Quod idem cum vestri faciant, non satis magnam tribuunt inventoribus gratiam. Quaeque de virtutibus dicta sunt, quem ad modum eae semper voluptatibus inhaererent, eadem de amicitia dicenda sunt. Quo modo autem optimum, si bonum praeterea nullum est? Incommoda autem et commoda-ita enim estmata et dustmata appello-communia esse voluerunt, paria noluerunt. Cum autem assumpta ratío est, tanto in dominatu locatur, ut omnia illa prima naturae hulus tutelae subiciantur. Omne enim animal, simul et ortum est, se ipsum et omnes partes suas diligit duasque, quae maximae sunt, in primis amplectitur, animum et corpus, deinde utriusque partes. Pomponius Luciusque Cicero, frater noster cognatione patruelis, amore germanus, constituimus inter nos ut ambulationem postmeridianam conficeremus in Academia, maxime quod is locus ab omni turba id temporis vacuus esset. Atque his tribus generibus honestorum notatis quartum sequitur et in eadem pulchritudine et aptum ex illis tribus, in quo inest ordo et moderatio. Is hoc melior, quam Pyrrho, quod aliquod genus appetendi dedit, deterior quam ceteri, quod penitus a natura recessit. Ergo infelix una molestia, fellx rursus, cum is ipse anulus in praecordiis piscis inventus est? Quae cum ita sint, effectum est nihil esse malum, quod turpe non sit. Sed virtutem ipsam inchoavit, nihil amplius. In homine autem summa omnis animi est et in animo rationis, ex qua virtus est, quae rationis absolutio definitur, quam etiam atque etiam explicandam putant. Alii rursum isdem a principiis omne officium referent aut ad voluptatem aut ad non dolendum aut ad prima illa secundum naturam optinenda. Quodsi esset in voluptate summum bonum, ut dicitis, optabile esset maxima in voluptate nullo intervallo interiecto dies noctesque versari, cum omnes sensus dulcedine omni quasi perfusi moverentur. Quantam rem agas, ut Circeis qui habitet totum hunc mundum suum municipium esse existimet? Quod quam magnum sit fictae veterum fabulae declarant, in quibus tam multis tamque variis ab ultima antiquitate repetitis tria vix amicorum paria reperiuntur, ut ad Orestem pervenias profectus a Theseo. Et tamen vide, ne, si ego non intellegam quid Epicurus loquatur, cum Graece, ut videor, luculenter sciam, sit aliqua culpa eius, qui ita loquatur, ut non intellegatur. Non potes ergo ista tueri, Torquate, mihi crede, si te ipse et tuas cogitationes et studia perspexeris; Non ergo Epicurus ineruditus, sed ii indocti, qui, quae pueros non didicisse turpe est, ea putant usque ad senectutem esse discenda. Nam si dicent ab illis has res esse tractatas, ne ipsos quidem Graecos est cur tam multos legant, quam legendi sunt. Ego autem tibi, Piso, assentior usu hoc venire, ut acrius aliquanto et attentius de claris viris locorum admonitu cogitemus. Constituto autem illo, de quo ante diximus, quod honestum esset, id esse solum bonum, intellegi necesse est pluris id, quod honestum sit, aestimandum esse quam illa media, quae ex eo comparentur. Iudicia rerum in sensibus ponit, quibus si semel aliquid falsi pro vero probatum sit, sublatum esse omne iudicium veri et falsi putat.")
                 , TimeSpan.FromMinutes(1), TimeoutBehaviour.Delete);
@@ -189,17 +140,13 @@ Serverowner: {e.Guild.Owner.DisplayName}
         {
             var m = await e.Message.RespondAsync("Cool and good?");
             //await e.Message.DeleteAsync();
-            List<DiscordEmoji> Options = new List<DiscordEmoji>()
+            var options = new List<DiscordEmoji>
             {
                 DiscordEmoji.FromUnicode("👍"),
                 DiscordEmoji.FromUnicode("👎")
             };
-            var list = await e.Client.GetInteractivityModule().CreatePollAsync(m, Options);
-            string reactions = "We're done people!\n\nResults:";
-            foreach (var collected in list.Reactions)
-            {
-                reactions += "\n" + collected.Key + ": " + collected.Value + "times!";
-            }
+            var list = await e.Client.GetInteractivityModule().CreatePollAsync(m, options);
+            string reactions = list.Reactions.Aggregate("We're done people!\n\nResults:", (current, collected) => current + ("\n" + collected.Key + ": " + collected.Value + "times!"));
             await m.RespondAsync(reactions);
         }
 
@@ -218,7 +165,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
         [Command("purgechannel")]
         public async Task PurgeChannel(CommandContext e)
         {
-            var ids = (await e.Channel.GetMessagesAsync(before: e.Message.Id, limit: 50));
+            var ids = await e.Channel.GetMessagesAsync(before: e.Message.Id, limit: 50);
             await e.Channel.DeleteMessagesAsync(ids);
             await e.Message.RespondAsync($"Removed `{ids.Count}` messages");
         }
@@ -252,8 +199,8 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 Color = new DiscordColor("#007FFF")
             };
 
-            embed.AddField("Roles", string.Join("\n", roles), false);
-            embed.AddField(string.Concat("Overrides for ", e.Channel.Mention), string.Join("\n", overs), false);
+            embed.AddField("Roles", string.Join("\n", roles));
+            embed.AddField(string.Concat("Overrides for ", e.Channel.Mention), string.Join("\n", overs));
 
             await e.Message.RespondAsync("", embed: embed.Build());
         }
@@ -313,17 +260,19 @@ Serverowner: {e.Guild.Owner.DisplayName}
         public class VoiceCommands
         {
             private CancellationTokenSource AudioLoopCancelTokenSource { get; set; }
-            private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
+            private CancellationToken AudioLoopCancelToken => AudioLoopCancelTokenSource.Token;
             private Task AudioLoopTask { get; set; }
             private double Volume { get; set; } = 1.0;
 
-            private ConcurrentDictionary<uint, ulong> _ssrc_map;
-            private ConcurrentDictionary<uint, FileStream> _ssrc_filemap;
+            private ConcurrentDictionary<uint, ulong> _ssrcMap;
+            private ConcurrentDictionary<uint, FileStream> _ssrcFilemap;
             private async Task OnVoiceReceived(VoiceReceiveEventArgs e)
             {
-                if (!this._ssrc_filemap.ContainsKey(e.SSRC))
-                    this._ssrc_filemap[e.SSRC] = File.Create($"{e.SSRC}.pcm");
-                var fs = this._ssrc_filemap[e.SSRC];
+                if (!_ssrcFilemap.ContainsKey(e.Ssrc))
+                {
+                    _ssrcFilemap[e.Ssrc] = File.Create($"{e.Ssrc}.pcm");
+                }
+                var fs = _ssrcFilemap[e.Ssrc];
 
                 //e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data.", DateTime.Now);
                 var buff = e.Voice.ToArray();
@@ -332,13 +281,17 @@ Serverowner: {e.Guild.Owner.DisplayName}
             }
             private Task OnUserSpeaking(UserSpeakingEventArgs e)
             {
-                if (this._ssrc_map.ContainsKey(e.SSRC))
+                if (_ssrcMap.ContainsKey(e.Ssrc))
+                {
                     return Task.Delay(0);
+                }
 
                 if (e.User == null)
+                {
                     return Task.Delay(0);
+                }
 
-                this._ssrc_map[e.SSRC] = e.User.Id;
+                _ssrcMap[e.Ssrc] = e.User.Id;
                 return Task.Delay(0);
             }
 
@@ -348,7 +301,9 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 {
                     var ptr16 = (short*)ptr8;
                     for (var i = 0; i < data.Length / 2; i++)
-                        *(ptr16 + i) = (short)(*(ptr16 + i) * this.Volume);
+                    {
+                        *(ptr16 + i) = (short)(*(ptr16 + i) * Volume);
+                    }
                 }
             }
 
@@ -356,9 +311,11 @@ Serverowner: {e.Guild.Owner.DisplayName}
             public async Task VolumeAsync(CommandContext ctx, double vol = 1.0)
             {
                 if (vol < 0 || vol > 5)
+                {
                     throw new ArgumentOutOfRangeException(nameof(vol), "Volume needs to be between 0 and 500% inclusive.");
+                }
 
-                this.Volume = vol;
+                Volume = vol;
                 await ctx.RespondAsync($"Volume set to {(vol * 100).ToString("0.00")}%");
             }
 
@@ -392,10 +349,10 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
                 if (voice.IsIncomingEnabled)
                 {
-                    this._ssrc_map = new ConcurrentDictionary<uint, ulong>();
-                    this._ssrc_filemap = new ConcurrentDictionary<uint, FileStream>();
-                    vnc.VoiceReceived += this.OnVoiceReceived;
-                    vnc.UserSpeaking += this.OnUserSpeaking;
+                    _ssrcMap = new ConcurrentDictionary<uint, ulong>();
+                    _ssrcFilemap = new ConcurrentDictionary<uint, FileStream>();
+                    vnc.VoiceReceived += OnVoiceReceived;
+                    vnc.UserSpeaking += OnUserSpeaking;
                 }
             }
 
@@ -419,16 +376,24 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
                 if (voice.IsIncomingEnabled)
                 {
-                    vnc.UserSpeaking -= this.OnUserSpeaking;
-                    vnc.VoiceReceived -= this.OnVoiceReceived;
+                    vnc.UserSpeaking -= OnUserSpeaking;
+                    vnc.VoiceReceived -= OnVoiceReceived;
 
-                    foreach (var kvp in this._ssrc_filemap)
+                    foreach (var kvp in _ssrcFilemap)
+                    {
                         kvp.Value.Dispose();
+                    }
 
                     using (var fs = File.Create("index.txt"))
-                    using (var sw = new StreamWriter(fs, new UTF8Encoding(false)))
-                        foreach (var kvp in this._ssrc_map)
-                            await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value));
+                    {
+                        using (var sw = new StreamWriter(fs, new UTF8Encoding(false)))
+                        {
+                            foreach (var kvp in _ssrcMap)
+                            {
+                                await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value));
+                            }
+                        }
+                    }
                 }
 
                 vnc.Disconnect();
@@ -467,13 +432,13 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
                 Exception exc = null;
                 await ctx.Message.RespondAsync($"Playing `{snd}`");
-                await vnc.SendSpeakingAsync(true);
+                await vnc.SendSpeakingAsync();
                 try
                 {
                     // borrowed from
                     // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
 
-                    var ffmpeg_inf = new ProcessStartInfo
+                    var ffmpegInf = new ProcessStartInfo
                     {
                         FileName = "ffmpeg",
                         Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
@@ -481,7 +446,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                         RedirectStandardOutput = true,
                         RedirectStandardError = true
                     };
-                    var ffmpeg = Process.Start(ffmpeg_inf);
+                    var ffmpeg = Process.Start(ffmpegInf);
                     var ffout = ffmpeg.StandardOutput.BaseStream;
 
                     using (var ms = new MemoryStream()) // if ffmpeg quits fast, that'll hold the data
@@ -490,15 +455,22 @@ Serverowner: {e.Guild.Owner.DisplayName}
                         ms.Position = 0;
 
                         var buff = new byte[3840]; // buffer to hold the PCM data
-                        var br = 0;
+                        int br;
                         while ((br = ms.Read(buff, 0, buff.Length)) > 0)
                         {
                             if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
+                            {
                                 for (var i = br; i < buff.Length; i++)
+                                {
                                     buff[i] = 0;
+                                }
+                            }
 
-                            if (this.Volume != 1.0)
-                                this.RescaleVolume(buff);
+                            // ReSharper disable once CompareOfFloatsByEqualityOperator
+                            if (Volume != 1.0)
+                            {
+                                RescaleVolume(buff);
+                            }
 
                             await vnc.SendAsync(buff, 20); // we're sending 20ms of data
                         }
@@ -511,7 +483,9 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 }
 
                 if (exc != null)
+                {
                     throw exc;
+                }
             }
 
             [Command("playloop")]
@@ -531,7 +505,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     return;
                 }
 
-                if (this.AudioLoopTask != null && !this.AudioLoopCancelToken.IsCancellationRequested)
+                if (AudioLoopTask != null && !AudioLoopCancelToken.IsCancellationRequested)
                 {
                     await ctx.Message.RespondAsync("Audio loop is already playing");
                     return;
@@ -545,18 +519,18 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 }
 
                 await ctx.Message.RespondAsync($"Playing `{snd}` in a loop");
-                this.AudioLoopCancelTokenSource = new CancellationTokenSource();
-                this.AudioLoopTask = Task.Run(async () =>
+                AudioLoopCancelTokenSource = new CancellationTokenSource();
+                AudioLoopTask = Task.Run(async () =>
                 {
                     var chn = ctx.Channel;
-                    var token = this.AudioLoopCancelToken;
-                    await vnc.SendSpeakingAsync(true);
+                    var token = AudioLoopCancelToken;
+                    await vnc.SendSpeakingAsync();
                     try
                     {
                         // borrowed from
                         // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
 
-                        var ffmpeg_inf = new ProcessStartInfo
+                        var ffmpegInf = new ProcessStartInfo
                         {
                             FileName = "ffmpeg",
                             Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
@@ -564,7 +538,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                             RedirectStandardOutput = true,
                             RedirectStandardError = true
                         };
-                        var ffmpeg = Process.Start(ffmpeg_inf);
+                        var ffmpeg = Process.Start(ffmpegInf);
                         var ffout = ffmpeg.StandardOutput.BaseStream;
 
                         using (var ms = new MemoryStream()) // this will hold our PCM data
@@ -573,14 +547,18 @@ Serverowner: {e.Guild.Owner.DisplayName}
                             ms.Position = 0;
 
                             var buff = new byte[3840]; // buffer to hold the PCM data
-                            var br = 0;
+                            int br;
                             while (true)
                             {
                                 while ((br = ms.Read(buff, 0, buff.Length)) > 0)
                                 {
                                     if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
+                                    {
                                         for (var i = br; i < buff.Length; i++)
+                                        {
                                             buff[i] = 0;
+                                        }
+                                    }
 
                                     await vnc.SendAsync(buff, 20); // we're sending 20ms of data
                                     token.ThrowIfCancellationRequested();
@@ -596,7 +574,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     {
                         await vnc.SendSpeakingAsync(false);
                     }
-                }, this.AudioLoopCancelToken);
+                }, AudioLoopCancelToken);
             }
 
             [Command("playstop")]
@@ -616,15 +594,15 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     return;
                 }
 
-                if (this.AudioLoopTask == null || this.AudioLoopCancelToken.IsCancellationRequested)
+                if (AudioLoopTask == null || AudioLoopCancelToken.IsCancellationRequested)
                 {
                     await ctx.Message.RespondAsync("Audio loop is already paused");
                     return;
                 }
 
-                this.AudioLoopCancelTokenSource.Cancel();
-                await this.AudioLoopTask;
-                this.AudioLoopTask = null;
+                AudioLoopCancelTokenSource.Cancel();
+                await AudioLoopTask;
+                AudioLoopTask = null;
 
                 await ctx.Message.RespondAsync("Audio loop stopped");
             }
@@ -655,13 +633,13 @@ Serverowner: {e.Guild.Owner.DisplayName}
 
                 Exception exc = null;
                 await ctx.Message.RespondAsync($"Playing `{snd}`");
-                await vnc.SendSpeakingAsync(true);
+                await vnc.SendSpeakingAsync();
                 try
                 {
                     // borrowed from
                     // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
 
-                    var ffmpeg_inf = new ProcessStartInfo
+                    var ffmpegInf = new ProcessStartInfo
                     {
                         FileName = "ffmpeg",
                         Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
@@ -669,7 +647,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                         RedirectStandardOutput = true,
                         RedirectStandardError = true
                     };
-                    var ffmpeg = Process.Start(ffmpeg_inf);
+                    var ffmpeg = Process.Start(ffmpegInf);
                     var ffout = ffmpeg.StandardOutput.BaseStream;
 
                     using (var ms = new MemoryStream()) // if ffmpeg quits fast, that'll hold the data
@@ -678,12 +656,16 @@ Serverowner: {e.Guild.Owner.DisplayName}
                         ms.Position = 0;
 
                         var buff = new byte[3840]; // buffer to hold the PCM data
-                        var br = 0;
+                        int br;
                         while ((br = ms.Read(buff, 0, buff.Length)) > 0)
                         {
                             if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
+                            {
                                 for (var i = br; i < buff.Length; i++)
+                                {
                                     buff[i] = 0;
+                                }
+                            }
 
                             await vnc.SendAsync(buff, 20); // we're sending 20ms of data
                         }
@@ -696,7 +678,9 @@ Serverowner: {e.Guild.Owner.DisplayName}
                 }
 
                 if (exc != null)
+                {
                     throw exc;
+                }
             }
         }
     }

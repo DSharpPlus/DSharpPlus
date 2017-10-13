@@ -29,15 +29,21 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             result = TimeSpan.Zero;
             if (value == "0")
+            {
                 return true;
+            }
 
             if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out result))
+            {
                 return true;
-            
-            var gps = new string[] { "days", "hours", "minutes", "seconds" };
+            }
+
+            var gps = new[] { "days", "hours", "minutes", "seconds" };
             var mtc = TimeSpanRegex.Match(value);
             if (!mtc.Success)
+            {
                 return false;
+            }
 
             var d = 0;
             var h = 0;
@@ -47,7 +53,9 @@ namespace DSharpPlus.CommandsNext.Converters
             {
                 var gpc = mtc.Groups[gp].Value;
                 if (string.IsNullOrWhiteSpace(gpc))
+                {
                     continue;
+                }
 
                 var gpt = gpc[gpc.Length - 1];
                 int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);

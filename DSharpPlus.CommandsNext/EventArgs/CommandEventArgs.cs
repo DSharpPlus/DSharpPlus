@@ -1,4 +1,5 @@
-﻿namespace DSharpPlus.CommandsNext
+﻿// ReSharper disable once CheckNamespace
+namespace DSharpPlus.CommandsNext
 {
     /// <summary>
     /// Base class for all CNext-related events.
@@ -13,6 +14,6 @@
         /// <summary>
         /// Gets the command that was executed.
         /// </summary>
-        public Command Command => this.Context.Command;
+        public Command Command => Context.Command;
     }
 }

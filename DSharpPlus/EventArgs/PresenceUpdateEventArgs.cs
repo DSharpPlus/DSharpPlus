@@ -18,7 +18,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the member whose presence was updated.
         /// </summary>
         [JsonIgnore]
-        public DiscordMember Member => this.Client.Guilds[this.GuildId].Members.FirstOrDefault(xm => xm.Id == this.InternalUser.Id);
+        public DiscordMember Member => Client.Guilds[GuildId].Members.FirstOrDefault(xm => xm.Id == InternalUser.Id);
 
         /// <summary>
         /// Gets the member's new game.
@@ -39,7 +39,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the guild for which this event occured.
         /// </summary>
         [JsonIgnore]
-        public DiscordGuild Guild => this.Client.Guilds[this.GuildId];
+        public DiscordGuild Guild => Client.Guilds[GuildId];
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal IReadOnlyList<ulong> RoleIds { get; set; }
@@ -48,7 +48,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the roles this member has.
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<DiscordRole> Roles => this.RoleIds.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+        public IEnumerable<DiscordRole> Roles => RoleIds.Select(xid => Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
 
         /// <summary>
         /// Gets the member's old presence.

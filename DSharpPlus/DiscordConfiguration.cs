@@ -1,4 +1,6 @@
-﻿namespace DSharpPlus
+﻿using DSharpPlus.Enums;
+
+namespace DSharpPlus
 {
     /// <summary>
     /// Represents configuration for <see cref="DiscordClient"/> and <see cref="DiscordShardedClient"/>.
@@ -10,25 +12,29 @@
         /// </summary>
         public string Token
         {
-            internal get => this._token;
-            set => this._token = value.Trim();
+            internal get => _token;
+            set => _token = value.Trim();
         }
         private string _token = "";
 
         /// <summary>
+#pragma warning disable 1584,1711,1572,1581,1580
         /// Sets the type of the token used to identify the client. Defaults to <see cref="TokenType.Bot"/>.
+#pragma warning restore 1584,1711,1572,1581,1580
         /// </summary>
         public TokenType TokenType { internal get; set; } = TokenType.Bot;
 
         /// <summary>
+#pragma warning disable 1584,1711,1572,1581,1580
         /// Sets the maximum logging level for messages. Typically, the default value of <see cref="LogLevel.Info"/> is ok for most uses.
+#pragma warning restore 1584,1711,1572,1581,1580
         /// </summary>
         public LogLevel LogLevel { internal get; set; } = LogLevel.Info;
 
         /// <summary>
         /// Sets whether to use the internal log handler. This is disabled by default. Use it if you don't want to provide your own log handlers.
         /// </summary>
-        public bool UseInternalLogHandler { internal get; set; } = false;
+        public bool UseInternalLogHandler { internal get; set; }
 
         /// <summary>
         /// Allows you to overwrite the time format used by the internal debug logger. Only applicable when <see cref="UseInternalLogHandler"/> is set to true. Defaults to ISO 8601-like format.
@@ -48,7 +54,7 @@
         /// <summary>
         /// Sets the ID of the shard to connect to. If not sharding, or sharding automatically, this value should be left with the default value of 0.
         /// </summary>
-        public int ShardId { internal get; set; } = 0;
+        public int ShardId { internal get; set; }
 
         /// <summary>
         /// Sets the total number of shards the bot is on. If not sharding, this value should be left with a default value of 1. If sharding automatically, this value will indicate how many shards 
@@ -82,16 +88,16 @@
         /// <param name="other">Client configuration to clone.</param>
         public DiscordConfiguration(DiscordConfiguration other)
         {
-            this.Token = other.Token;
-            this.TokenType = other.TokenType;
-            this.LogLevel = other.LogLevel;
-            this.UseInternalLogHandler = other.UseInternalLogHandler;
-            this.LargeThreshold = other.LargeThreshold;
-            this.AutoReconnect = other.AutoReconnect;
-            this.ShardId = other.ShardId;
-            this.ShardCount = other.ShardCount;
-            this.EnableCompression = other.EnableCompression;
-            this.MessageCacheSize = other.MessageCacheSize;
+            Token = other.Token;
+            TokenType = other.TokenType;
+            LogLevel = other.LogLevel;
+            UseInternalLogHandler = other.UseInternalLogHandler;
+            LargeThreshold = other.LargeThreshold;
+            AutoReconnect = other.AutoReconnect;
+            ShardId = other.ShardId;
+            ShardCount = other.ShardCount;
+            EnableCompression = other.EnableCompression;
+            MessageCacheSize = other.MessageCacheSize;
         }
     }
 }

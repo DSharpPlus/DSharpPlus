@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+﻿namespace DSharpPlus.Enums
 {
     /// <summary>
     /// Type of mention being made

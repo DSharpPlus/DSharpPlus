@@ -14,14 +14,16 @@ namespace DSharpPlus.Entities
         internal DiscordUser() { }
         internal DiscordUser(TransportUser transport)
         {
-            this.Id = transport.Id;
-            this.Username = transport.Username;
-            this.Discriminator = transport.Discriminator;
-            this.AvatarHash = transport.AvatarHash;
-            this.IsBot = transport.IsBot;
-            this.MfaEnabled = transport.MfaEnabled;
-            this.Verified = transport.Verified;
-            this.Email = transport.Email;
+            Id = transport.Id;
+            // ReSharper disable VirtualMemberCallInConstructor
+            Username = transport.Username;
+            Discriminator = transport.Discriminator;
+            AvatarHash = transport.AvatarHash;
+            IsBot = transport.IsBot;
+            MfaEnabled = transport.MfaEnabled;
+            Verified = transport.Verified;
+            Email = transport.Email;
+            // ReSharper restore VirtualMemberCallInConstructor
         }
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace DSharpPlus.Entities
         public virtual string Discriminator { get; internal set; }
 
         [JsonIgnore]
-        internal int DiscriminatorInt => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
+        internal int DiscriminatorInt => int.Parse(Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Gets the user's avatar hash.
@@ -49,13 +51,13 @@ namespace DSharpPlus.Entities
         /// Gets the user's avatar URL.
         /// </summary>
         [JsonIgnore]
-        public string AvatarUrl => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+        public string AvatarUrl => !string.IsNullOrWhiteSpace(AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : DefaultAvatarUrl;
 
         /// <summary>
         /// Gets the URL of default avatar for this user.
         /// </summary>
         [JsonIgnore]
-        public string DefaultAvatarUrl => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
+        public string DefaultAvatarUrl => $"https://cdn.discordapp.com/embed/avatars/{(DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
 
         /// <summary>
         /// Gets whether the user is a bot.
@@ -91,7 +93,7 @@ namespace DSharpPlus.Entities
         /// Gets whether this user is the Client which created this object.
         /// </summary>
         [JsonIgnore]
-        public bool IsCurrent => this.Id == this.Discord.CurrentUser.Id;
+        public bool IsCurrent => Id == Discord.CurrentUser.Id;
 
         /// <summary>
         /// Unbans this user from a guild.
@@ -110,8 +112,11 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                if (this.Discord is DiscordClient dc)
-                    return dc.Presences.ContainsKey(this.Id) ? dc.Presences[this.Id] : null;
+                if (Discord is DiscordClient dc)
+                {
+                    return dc.Presences.ContainsKey(Id) ? dc.Presences[Id] : null;
+                }
+
                 return null;
             }
         }
@@ -125,16 +130,23 @@ namespace DSharpPlus.Entities
         public string GetAvatarUrl(ImageFormat fmt, ushort size = 1024)
         {
             if (fmt == ImageFormat.Unknown)
+            {
                 throw new ArgumentException("You must specify valid image format.", nameof(fmt));
+            }
 
             if (size < 16 || size > 2048)
+            {
                 throw new ArgumentOutOfRangeException(nameof(size));
+            }
 
             var log = Math.Log(size, 2);
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (log < 4 || log > 11 || log % 1 != 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(size));
+            }
 
-            var sfmt = "";
+            string sfmt;
             switch (fmt)
             {
                 case ImageFormat.Gif:
@@ -158,16 +170,14 @@ namespace DSharpPlus.Entities
             }
 
             var ssize = size.ToString(CultureInfo.InvariantCulture);
-            if (!string.IsNullOrWhiteSpace(this.AvatarHash))
+            if (!string.IsNullOrWhiteSpace(AvatarHash))
             {
-                var id = this.Id.ToString(CultureInfo.InvariantCulture);
-                return $"https://cdn.discordapp.com/avatars/{id}/{this.AvatarHash}.{sfmt}?size={ssize}";
+                var id = Id.ToString(CultureInfo.InvariantCulture);
+                return $"https://cdn.discordapp.com/avatars/{id}/{AvatarHash}.{sfmt}?size={ssize}";
             }
-            else
-            {
-                var type = (this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture);
-                return $"https://cdn.discordapp.com/embed/avatars/{type}.{sfmt}?size={ssize}";
-            }
+
+            var type = (DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture);
+            return $"https://cdn.discordapp.com/embed/avatars/{type}.{sfmt}?size={ssize}";
         }
 
         /// <summary>
@@ -176,7 +186,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this user.</returns>
         public override string ToString()
         {
-            return $"User {this.Id}; {this.Username}#{this.Discriminator}";
+            return $"User {Id}; {Username}#{Discriminator}";
         }
 
         /// <summary>
@@ -186,7 +196,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordUser);
+            return Equals(obj as DiscordUser);
         }
 
         /// <summary>
@@ -197,12 +207,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordUser e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id;
+            return Id == e.Id;
         }
 
         /// <summary>
@@ -211,7 +225,8 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordUser"/>.</returns>
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            return Id.GetHashCode();
         }
 
         /// <summary>
@@ -225,11 +240,15 @@ namespace DSharpPlus.Entities
             var o1 = e1 as object;
             var o2 = e2 as object;
 
-            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            if (o1 == null && o2 != null || o1 != null && o2 == null)
+            {
                 return false;
+            }
 
-            if (o1 == null && o2 == null)
+            if (o1 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id;
         }

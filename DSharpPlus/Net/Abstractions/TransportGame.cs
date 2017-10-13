@@ -53,10 +53,10 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public ulong? ApplicationId
         {
-            get { return this.ApplicationIdStr != null ? (ulong?)ulong.Parse(this.ApplicationIdStr, CultureInfo.InvariantCulture) : null; }
+            get { return ApplicationIdStr != null ? (ulong?)ulong.Parse(ApplicationIdStr, CultureInfo.InvariantCulture) : null; }
             internal set
             {
-                this.ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
+                ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
             }
         }
 
@@ -107,11 +107,13 @@ namespace DSharpPlus.Net.Abstractions
         internal TransportGame(DiscordGame game)
         {
             if (game == null)
+            {
                 return;
+            }
 
-            this.Name = game.Name;
-            this.StreamType = game.StreamType;
-            this.Url = game.Url;
+            Name = game.Name;
+            StreamType = game.StreamType;
+            Url = game.Url;
 
             //this.Details = game.Details;
             //this.State = game.State;
@@ -169,10 +171,10 @@ namespace DSharpPlus.Net.Abstractions
             [JsonIgnore]
             public ulong LargeImage
             {
-                get { return ulong.Parse(this.LargeImageStr, CultureInfo.InvariantCulture); }
+                get { return ulong.Parse(LargeImageStr, CultureInfo.InvariantCulture); }
                 internal set
                 {
-                    this.LargeImageStr = value.ToString(CultureInfo.InvariantCulture);
+                    LargeImageStr = value.ToString(CultureInfo.InvariantCulture);
                 }
             }
             
@@ -191,10 +193,10 @@ namespace DSharpPlus.Net.Abstractions
             [JsonIgnore]
             public ulong SmallImage
             {
-                get { return ulong.Parse(this.SmallImageStr, CultureInfo.InvariantCulture); }
+                get { return ulong.Parse(SmallImageStr, CultureInfo.InvariantCulture); }
                 internal set
                 {
-                    this.SmallImageStr = value.ToString(CultureInfo.InvariantCulture);
+                    SmallImageStr = value.ToString(CultureInfo.InvariantCulture);
                 }
             }
 
@@ -253,9 +255,10 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? Start =>
-                this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._start.Value * 1000) : null;
+                _start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(_start.Value * 1000) : null;
 
             [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
+            // ReSharper disable once InconsistentNaming
             internal long? _start;
 
             /// <summary>
@@ -263,9 +266,10 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? End =>
-                this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._end.Value * 1000) : null;
+                _end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(_end.Value * 1000) : null;
 
             [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
+            // ReSharper disable once InconsistentNaming
             internal long? _end;
         }
 
@@ -317,7 +321,10 @@ namespace DSharpPlus.Net.Abstractions
         {
             var arr = serializer.Deserialize<JToken>(reader) as JArray;
             if (arr == null || arr.Count != 2)
+            {
                 throw new JsonSerializationException("Expected array of length 2");
+            }
+
             return arr;
         }
 

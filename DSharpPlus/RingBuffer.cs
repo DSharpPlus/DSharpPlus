@@ -24,7 +24,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the number of items in this ring buffer.
         /// </summary>
-        public int Count => this._reached_end ? this.Capacity : this.CurrentIndex;
+        public int Count => _reachedEnd ? Capacity : CurrentIndex;
 
         /// <summary>
         /// Gets whether this ring buffer is read-only.
@@ -35,7 +35,7 @@ namespace DSharpPlus
         /// Gets or sets the internal collection of items.
         /// </summary>
         protected T[] InternalBuffer { get; set; }
-        private bool _reached_end = false;
+        private bool _reachedEnd;
 
         /// <summary>
         /// Creates a new ring buffer with specified size.
@@ -45,11 +45,13 @@ namespace DSharpPlus
         public RingBuffer(int size)
         {
             if (size <= 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(size), "Size must be positive.");
+            }
 
-            this.CurrentIndex = 0;
-            this.Capacity = size;
-            this.InternalBuffer = new T[this.Capacity];
+            CurrentIndex = 0;
+            Capacity = size;
+            InternalBuffer = new T[Capacity];
         }
 
         /// <summary>
@@ -71,15 +73,20 @@ namespace DSharpPlus
         /// <exception cref="ArgumentOutOfRangeException" />
         public RingBuffer(IEnumerable<T> elements, int index)
         {
-            if (elements == null || !elements.Any())
-                throw new ArgumentException(nameof(elements), "The collection cannot be null or empty.");
+            var enumerable = elements as T[] ?? elements.ToArray();
+            if (elements == null || !enumerable.Any())
+            {
+                throw new ArgumentException("The collection cannot be null or empty.", nameof(elements));
+            }
 
-            this.CurrentIndex = index;
-            this.InternalBuffer = elements.ToArray();
-            this.Capacity = this.InternalBuffer.Length;
+            CurrentIndex = index;
+            InternalBuffer = enumerable.ToArray();
+            Capacity = InternalBuffer.Length;
 
-            if (this.CurrentIndex >= this.InternalBuffer.Length || this.CurrentIndex < 0)
+            if (CurrentIndex >= InternalBuffer.Length || CurrentIndex < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index), "Index must be less than buffer capacity, and greater than zero.");
+            }
         }
 
         /// <summary>
@@ -88,12 +95,12 @@ namespace DSharpPlus
         /// <param name="item">Item to insert.</param>
         public void Add(T item)
         {
-            this.InternalBuffer[this.CurrentIndex++] = item;
+            InternalBuffer[CurrentIndex++] = item;
 
-            if (this.CurrentIndex == this.Capacity)
+            if (CurrentIndex == Capacity)
             {
-                this.CurrentIndex = 0;
-                this._reached_end = true;
+                CurrentIndex = 0;
+                _reachedEnd = true;
             }
         }
 
@@ -105,19 +112,19 @@ namespace DSharpPlus
         /// <returns>Whether an item that matches the predicate was found or not.</returns>
         public bool TryGet(Func<T, bool> predicate, out T item)
         {
-            for (var i = this.CurrentIndex; i < this.InternalBuffer.Length; i++)
+            for (var i = CurrentIndex; i < InternalBuffer.Length; i++)
             {
-                if (this.InternalBuffer[i] != null && predicate(this.InternalBuffer[i]))
+                if (InternalBuffer[i] != null && predicate(InternalBuffer[i]))
                 {
-                    item = this.InternalBuffer[i];
+                    item = InternalBuffer[i];
                     return true;
                 }
             }
-            for (var i = 0; i < this.CurrentIndex; i++)
+            for (var i = 0; i < CurrentIndex; i++)
             {
-                if (this.InternalBuffer[i] != null && predicate(this.InternalBuffer[i]))
+                if (InternalBuffer[i] != null && predicate(InternalBuffer[i]))
                 {
-                    item = this.InternalBuffer[i];
+                    item = InternalBuffer[i];
                     return true;
                 }
             }
@@ -131,10 +138,12 @@ namespace DSharpPlus
         /// </summary>
         public void Clear()
         {
-            for (var i = 0; i < this.InternalBuffer.Length; i++)
-                this.InternalBuffer[i] = default(T);
+            for (var i = 0; i < InternalBuffer.Length; i++)
+            {
+                InternalBuffer[i] = default(T);
+            }
 
-            this.CurrentIndex = 0;
+            CurrentIndex = 0;
         }
 
         /// <summary>
@@ -155,7 +164,7 @@ namespace DSharpPlus
         /// <returns>Whether the buffer contains the item.</returns>
         public bool Contains(Func<T, bool> predicate)
         {
-            return this.InternalBuffer.Any(predicate);
+            return InternalBuffer.Any(predicate);
         }
 
         /// <summary>
@@ -166,13 +175,19 @@ namespace DSharpPlus
         public void CopyTo(T[] array, int index)
         {
             if (array.Length - index < 1)
+            {
                 throw new ArgumentException("Target array is too small to contain the elements from this buffer.", nameof(array));
+            }
 
             var ci = 0;
-            for (var i = this.CurrentIndex; i < this.InternalBuffer.Length; i++)
-                array[ci++] = this.InternalBuffer[i];
-            for (var i = 0; i < this.CurrentIndex; i++)
-                array[ci++] = this.InternalBuffer[i];
+            for (var i = CurrentIndex; i < InternalBuffer.Length; i++)
+            {
+                array[ci++] = InternalBuffer[i];
+            }
+            for (var i = 0; i < CurrentIndex; i++)
+            {
+                array[ci++] = InternalBuffer[i];
+            }
         }
 
         /// <summary>
@@ -192,11 +207,11 @@ namespace DSharpPlus
         /// <returns>Whether an item was removed or not.</returns>
         public bool Remove(Func<T, bool> predicate)
         {
-            for (var i = 0; i < this.InternalBuffer.Length; i++)
+            for (var i = 0; i < InternalBuffer.Length; i++)
             {
-                if (this.InternalBuffer[i] != null && predicate(this.InternalBuffer[i]))
+                if (InternalBuffer[i] != null && predicate(InternalBuffer[i]))
                 {
-                    this.InternalBuffer[i] = default(T);
+                    InternalBuffer[i] = default(T);
                     return true;
                 }
             }
@@ -210,11 +225,13 @@ namespace DSharpPlus
         /// <returns>Enumerator for this ring buffer.</returns>
         public IEnumerator<T> GetEnumerator()
         {
-            if (!this._reached_end)
-                return this.InternalBuffer.AsEnumerable().GetEnumerator();
+            if (!_reachedEnd)
+            {
+                return InternalBuffer.AsEnumerable().GetEnumerator();
+            }
 
-            return this.InternalBuffer.Skip(this.CurrentIndex)
-                .Concat(this.InternalBuffer.Take(this.CurrentIndex))
+            return InternalBuffer.Skip(CurrentIndex)
+                .Concat(InternalBuffer.Take(CurrentIndex))
                 .GetEnumerator();
         }
 
@@ -224,7 +241,7 @@ namespace DSharpPlus
         /// <returns>Enumerator for this ring buffer.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
     }
 }

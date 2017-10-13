@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DSharpPlus.Entities
 {
-    public partial class DiscordEmoji : SnowflakeObject
+    public partial class DiscordEmoji
     {
         private static IReadOnlyDictionary<string, string> UnicodeEmojis { get; set; }
         private static IReadOnlyDictionary<string, string> DiscordNameLookup { get; set; }

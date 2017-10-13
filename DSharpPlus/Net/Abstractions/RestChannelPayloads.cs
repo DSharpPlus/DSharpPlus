@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -48,7 +49,7 @@ namespace DSharpPlus.Net.Abstractions
         public int? UserLimit { get; set; }
 
         public bool ShouldSerializeParent() =>
-            this.ParentSet;
+            ParentSet;
     }
 
     internal class RestChannelMessageEditPayload
@@ -66,16 +67,16 @@ namespace DSharpPlus.Net.Abstractions
         public bool HasEmbed { get; set; }
 
         public bool ShouldSerializeContent() =>
-            this.HasContent;
+            HasContent;
 
         public bool ShouldSerializeEmbed() =>
-            this.HasEmbed;
+            HasEmbed;
     }
 
     internal sealed class RestChannelMessageCreatePayload : RestChannelMessageEditPayload
     {
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? IsTTS { get; set; }
+        public bool? IsTts { get; set; }
     }
 
     internal sealed class RestChannelMessageCreateMultipartPayload
@@ -84,7 +85,7 @@ namespace DSharpPlus.Net.Abstractions
         public string Content { get; set; }
 
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? IsTTS { get; set; }
+        public bool? IsTts { get; set; }
 
         [JsonProperty("embed", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbed Embed { get; set; }

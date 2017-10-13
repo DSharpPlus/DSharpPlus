@@ -17,7 +17,7 @@ namespace DSharpPlus.Net.Udp
             throw new PlatformNotSupportedException(".NET UDP client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
 
-        public override Task SendAsync(byte[] data, int data_length)
+        public override Task SendAsync(byte[] data, int dataLength)
         {
             throw new PlatformNotSupportedException(".NET UDP client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }

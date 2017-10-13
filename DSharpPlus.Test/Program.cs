@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Test
 {
@@ -13,7 +12,7 @@ namespace DSharpPlus.Test
         public static async Task Main(string[] args)
         {
             var cfg = new TestBotConfig();
-            var json = string.Empty;
+            string json;
             if (!File.Exists("config.json"))
             {
                 json = JsonConvert.SerializeObject(cfg);
@@ -38,50 +37,6 @@ namespace DSharpPlus.Test
             await Task.WhenAll(tskl);
 
             await Task.Delay(-1);
-        }
-
-        private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
-        {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("[{0:yyyy-MM-dd HH:mm:ss zzz}] ", e.Timestamp.ToLocalTime());
-
-            var tag = e.Application;
-            if (tag.Length > 12)
-                tag = tag.Substring(0, 12);
-            if (tag.Length < 12)
-                tag = tag.PadLeft(12, ' ');
-            Console.Write("[{0}] ", tag);
-
-            //Console.ForegroundColor = ConsoleColor.Yellow;
-            //Console.Write("[{0}] ", string.Concat("SHARD ", this.Discord.ShardId.ToString("00")));
-
-            switch (e.Level)
-            {
-                case LogLevel.Critical:
-                case LogLevel.Error:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    break;
-
-                case LogLevel.Warning:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    break;
-
-                case LogLevel.Info:
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    break;
-
-                case LogLevel.Debug:
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    break;
-                    
-                default:
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    break;
-            }
-            Console.Write("[{0}] ", e.Level.ToString().PadLeft(8));
-
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(e.Message);
         }
     }
 }

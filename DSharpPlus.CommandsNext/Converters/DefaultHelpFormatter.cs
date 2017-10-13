@@ -20,10 +20,10 @@ namespace DSharpPlus.CommandsNext.Converters
         /// </summary>
         public DefaultHelpFormatter()
         {
-            this._embed = new DiscordEmbedBuilder();
-            this._name = null;
-            this._desc = null;
-            this._gexec = false;
+            _embed = new DiscordEmbedBuilder();
+            _name = null;
+            _desc = null;
+            _gexec = false;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Current formatter.</returns>
         public IHelpFormatter WithCommandName(string name)
         {
-            this._name = name;
+            _name = name;
             return this;
         }
 
@@ -44,7 +44,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Current formatter.</returns>
         public IHelpFormatter WithDescription(string description)
         {
-            this._desc = description;
+            _desc = description;
             return this;
         }
 
@@ -55,8 +55,11 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Current formatter.</returns>
         public IHelpFormatter WithAliases(IEnumerable<string> aliases)
         {
-            if (aliases.Any())
-                this._embed.AddField("Aliases", string.Join(", ", aliases.Select(Formatter.InlineCode)), false);
+            var enumerable = aliases as string[] ?? aliases.ToArray();
+            if (enumerable.Any())
+            {
+                _embed.AddField("Aliases", string.Join(", ", enumerable.Select(Formatter.InlineCode)));
+            }
             return this;
         }
 
@@ -67,37 +70,50 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Current formatter.</returns>
         public IHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
         {
-            if (arguments.Any())
+            var commandArguments = arguments as CommandArgument[] ?? arguments.ToArray();
+            if (commandArguments.Any())
             {
                 var sb = new StringBuilder();
 
-                foreach (var arg in arguments)
+                foreach (var arg in commandArguments)
                 {
                     if (arg.IsOptional || arg.IsCatchAll)
+                    {
                         sb.Append("`[");
+                    }
                     else
+                    {
                         sb.Append("`<");
+                    }
 
                     sb.Append(arg.Name);
 
                     if (arg.IsCatchAll)
+                    {
                         sb.Append("...");
+                    }
 
                     if (arg.IsOptional || arg.IsCatchAll)
+                    {
                         sb.Append("]: ");
+                    }
                     else
+                    {
                         sb.Append(">: ");
+                    }
 
                     sb.Append(arg.Type.ToUserFriendlyName()).Append("`: ");
 
                     sb.Append(string.IsNullOrWhiteSpace(arg.Description) ? "No description provided." : arg.Description);
 
                     if (arg.IsOptional)
+                    {
                         sb.Append(" Default value: ").Append(arg.DefaultValue);
+                    }
 
                     sb.AppendLine();
                 }
-                this._embed.AddField("Arguments", sb.ToString(), false);
+                _embed.AddField("Arguments", sb.ToString());
             }
             return this;
         }
@@ -108,7 +124,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Current formatter.</returns>
         public IHelpFormatter WithGroupExecutable()
         {
-            this._gexec = true;
+            _gexec = true;
             return this;
         }
 
@@ -119,8 +135,11 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Current formatter.</returns>
         public IHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
-            if (subcommands.Any())
-                this._embed.AddField(this._name != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(xc => Formatter.InlineCode(xc.QualifiedName))), false);
+            var enumerable = subcommands as Command[] ?? subcommands.ToArray();
+            if (enumerable.Any())
+            {
+                _embed.AddField(_name != null ? "Subcommands" : "Commands", string.Join(", ", enumerable.Select(xc => Formatter.InlineCode(xc.QualifiedName))));
+            }
             return this;
         }
 
@@ -130,25 +149,27 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Data for the help message.</returns>
         public CommandHelpMessage Build()
         {
-            this._embed.Title = "Help";
-            this._embed.Color = DiscordColor.Azure;
+            _embed.Title = "Help";
+            _embed.Color = DiscordColor.Azure;
 
             var desc = "Listing all top-level commands and groups. Specify a command to see more information.";
-            if (this._name != null)
+            if (_name != null)
             {
                 var sb = new StringBuilder();
-                sb.Append(Formatter.InlineCode(this._name))
+                sb.Append(Formatter.InlineCode(_name))
                     .Append(": ")
-                    .Append(string.IsNullOrWhiteSpace(this._desc) ? "No description provided." : this._desc);
+                    .Append(string.IsNullOrWhiteSpace(_desc) ? "No description provided." : _desc);
 
-                if (this._gexec)
+                if (_gexec)
+                {
                     sb.AppendLine().AppendLine().Append("This group can be executed as a standalone command.");
+                }
 
                 desc = sb.ToString();
             }
-            this._embed.Description = desc;
+            _embed.Description = desc;
 
-            return new CommandHelpMessage(embed: this._embed);
+            return new CommandHelpMessage(embed: _embed);
         }
     }
 }

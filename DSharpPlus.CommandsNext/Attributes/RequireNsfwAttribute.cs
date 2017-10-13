@@ -10,6 +10,6 @@ namespace DSharpPlus.CommandsNext.Attributes
     public sealed class RequireNsfwAttribute : CheckBaseAttribute
     {
         public override Task<bool> CanExecute(CommandContext ctx, bool help)
-            => Task.FromResult(ctx.Channel.Guild == null || ctx.Channel.IsNSFW);
+            => Task.FromResult(ctx.Channel.Guild == null || ctx.Channel.IsNsfw);
     }
 }

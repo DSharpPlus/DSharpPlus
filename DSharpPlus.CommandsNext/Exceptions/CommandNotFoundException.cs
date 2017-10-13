@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandsNext.Exceptions
         public CommandNotFoundException(string command)
             : base("Specified command was not found.")
         {
-            this.Command = command;
+            Command = command;
         }
     }
 }

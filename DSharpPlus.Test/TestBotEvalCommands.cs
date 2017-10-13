@@ -14,26 +14,26 @@ namespace DSharpPlus.Test
     public class TestBotEvalCommands
     {
         public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string code) =>
-            this.EvalCS(ctx, code);
+            EvalCs(ctx, code);
 
         [Command("csharp"), Aliases("eval", "evalcs", "cseval", "csharp", "roslyn"), Description("Evaluates C# code."), RequireOwner]
-        public async Task EvalCS(CommandContext ctx, [RemainingText] string code)
+        public async Task EvalCs(CommandContext ctx, [RemainingText] string code)
         {
-            var msg = ctx.Message;
-
-            var cs1 = code.IndexOf("```") + 3;
+            var cs1 = code.IndexOf("```", StringComparison.Ordinal) + 3;
             cs1 = code.IndexOf('\n', cs1) + 1;
-            var cs2 = code.LastIndexOf("```");
+            var cs2 = code.LastIndexOf("```", StringComparison.Ordinal);
 
             if (cs1 == -1 || cs2 == -1)
+            {
                 throw new ArgumentException("You need to wrap the code into a code block.");
+            }
 
             var cs = code.Substring(cs1, cs2 - cs1);
 
-            msg = await ctx.RespondAsync("", embed: new DiscordEmbedBuilder()
-                .WithColor(new DiscordColor("#FF007F"))
-                .WithDescription("Evaluating...")
-                .Build());
+            var msg = await ctx.RespondAsync("", embed: new DiscordEmbedBuilder()
+                                                                .WithColor(new DiscordColor("#FF007F"))
+                                                                .WithDescription("Evaluating...")
+                                                                .Build());
 
             try
             {
@@ -47,10 +47,14 @@ namespace DSharpPlus.Test
                 script.Compile();
                 var result = await script.RunAsync(globals);
 
-                if (result != null && result.ReturnValue != null && !string.IsNullOrWhiteSpace(result.ReturnValue.ToString()))
+                if (!string.IsNullOrWhiteSpace(result?.ReturnValue?.ToString()))
+                {
                     await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") }.Build());
+                }
                 else
+                {
                     await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") }.Build());
+                }
             }
             catch (Exception ex)
             {
@@ -59,10 +63,10 @@ namespace DSharpPlus.Test
         }
 
         [Command("csharpold"), Description("Evaluates C# code."), RequireOwner]
-        public Task EvalCSOld(CommandContext ctx, params string[] code_input)
+        public Task EvalCsOld(CommandContext ctx, params string[] codeInput)
         {
-            var code = string.Join(" ", code_input);
-            return this.EvalCS(ctx, code);
+            var code = string.Join(" ", codeInput);
+            return EvalCs(ctx, code);
         }
 
         [Command("exec"), Aliases("shell", "cmd", "system"), Description("Executes a shell command."), RequireOwner]
@@ -88,10 +92,14 @@ namespace DSharpPlus.Test
                 };
 
                 if (!string.IsNullOrWhiteSpace(o1))
-                    embed.AddField("Output", $"```\n{o1}\n```", false);
+                {
+                    embed.AddField("Output", $"```\n{o1}\n```");
+                }
 
                 if (!string.IsNullOrWhiteSpace(o2))
-                    embed.AddField("Error", $"```\n{o2}\n```", false);
+                {
+                    embed.AddField("Error", $"```\n{o2}\n```");
+                }
 
                 await ctx.RespondAsync("", embed: embed.Build());
             }
@@ -113,14 +121,14 @@ namespace DSharpPlus.Test
 
         public TestVariables(DiscordMessage msg, DiscordClient client, CommandContext ctx)
         {
-            this.Client = client;
+            Client = client;
 
-            this.Message = msg;
-            this.Channel = msg.Channel;
-            this.Guild = this.Channel.Guild;
-            this.User = this.Message.Author;
-            this.Member = this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult();
-            this.Context = ctx;
+            Message = msg;
+            Channel = msg.Channel;
+            Guild = Channel.Guild;
+            User = Message.Author;
+            Member = Guild?.GetMemberAsync(User.Id).GetAwaiter().GetResult();
+            Context = ctx;
         }
 
         public DiscordClient Client;

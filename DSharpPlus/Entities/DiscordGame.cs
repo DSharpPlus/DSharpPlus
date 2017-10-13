@@ -1,12 +1,11 @@
 ﻿using System;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
     /// <summary>
     /// Represents user status.
     /// </summary>
-    public enum UserStatus : int
+    public enum UserStatus
     {
         /// <summary>
         /// User is offline.
@@ -44,7 +43,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordGame()
         {
-            this.StreamType = GameStreamType.NoStream;
+            StreamType = GameStreamType.NoStream;
         }
 
         /// <summary>
@@ -53,8 +52,8 @@ namespace DSharpPlus.Entities
         /// <param name="name"></param>
         public DiscordGame(string name)
         {
-            this.Name = name;
-            this.StreamType = GameStreamType.NoStream;
+            Name = name;
+            StreamType = GameStreamType.NoStream;
         }
 
         /// <summary>
@@ -107,15 +106,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordApplicationAsset LargeImage
         {
-            get { return this._large_image; }
+            get => _largeImage;
             set
             {
                 if (value.Type != ApplicationAssetType.LargeImage)
+                {
                     throw new InvalidOperationException("The large image asset needs to be a LargeImage type.");
-                this._large_image = value;
+                }
+
+                _largeImage = value;
             }
         }
-        private DiscordApplicationAsset _large_image;
+        private DiscordApplicationAsset _largeImage;
 
         /// <summary>
         /// Gets or sets the hovertext for large image.
@@ -131,15 +133,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordApplicationAsset SmallImage
         {
-            get { return this._small_image; }
+            get => _smallImage;
             set
             {
                 if (value.Type != ApplicationAssetType.SmallImage)
+                {
                     throw new InvalidOperationException("The small image asset needs to be a SmallImage type.");
-                this._small_image = value;
+                }
+
+                _smallImage = value;
             }
         }
-        private DiscordApplicationAsset _small_image;
+        private DiscordApplicationAsset _smallImage;
 
         /// <summary>
         /// Gets or sets the hovertext for small image.
@@ -155,12 +160,15 @@ namespace DSharpPlus.Entities
         /// </summary>
         public int? CurrentPartySize
         {
-            get { return this._party_size_current; }
+            get => _partySizeCurrent;
             set
             {
-                if (value > this._party_size_max || value < 0)
+                if (value > _partySizeMax || value < 0)
+                {
                     throw new ArgumentOutOfRangeException(nameof(value), "Current party size cannot exceed maximum party size and must be greater than zero.");
-                this._party_size_current = value;
+                }
+
+                _partySizeCurrent = value;
             }
         }
 
@@ -171,17 +179,20 @@ namespace DSharpPlus.Entities
         /// </summary>
         public int? MaximumPartySize
         {
-            get { return this._party_size_max; }
+            get => _partySizeMax;
             set
             {
-                if (value < 0 || value < this._party_size_current)
+                if (value < 0 || value < _partySizeCurrent)
+                {
                     throw new ArgumentOutOfRangeException(nameof(value), "Maximum party size must be greater than zero and greater or equal to current party size.");
-                this._party_size_max = value;
+                }
+
+                _partySizeMax = value;
             }
         }
 
-        private int? _party_size_current;
-        private int? _party_size_max;
+        private int? _partySizeCurrent;
+        private int? _partySizeMax;
 
         /// <summary>
         /// Gets or sets the party ID.

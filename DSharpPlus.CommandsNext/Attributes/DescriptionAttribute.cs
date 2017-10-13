@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="description"></param>
         public DescriptionAttribute(string description)
         {
-            this.Description = description;
+            Description = description;
         }
     }
 }

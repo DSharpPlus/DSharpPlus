@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using DSharpPlus.Entities;
+using DSharpPlus.Enums;
 using DSharpPlus.Net;
 
 namespace DSharpPlus
@@ -31,17 +32,19 @@ namespace DSharpPlus
             {
                 var xsv = xv.ToString();
                 var xmv = ti.DeclaredMembers.FirstOrDefault(xm => xm.Name == xsv);
-                var xav = xmv.GetCustomAttribute<PermissionStringAttribute>();
+                var xav = (xmv ?? throw new InvalidOperationException()).GetCustomAttribute<PermissionStringAttribute>();
 
                 PermissionStrings[xv] = xav.String;
             }
 
             var a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
-            var vs = "";
+            string vs;
             var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             if (iv != null)
+            {
                 vs = iv.InformationalVersion;
+            }
             else
             {
                 var v = a.GetName().Version;
@@ -51,14 +54,14 @@ namespace DSharpPlus
             VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, v", vs, ")");
         }
 
-        internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
+        internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeatInterval)
         {
             Random r = new Random();
             return r.Next(ping, int.MaxValue);
         }
 
         internal static string GetApiBaseUri() =>
-            Endpoints.BASE_URI;
+            Endpoints.BaseUri;
 
         internal static string GetFormattedToken(BaseDiscordClient client)
         {
@@ -134,7 +137,9 @@ namespace DSharpPlus
             var regex = new Regex(@"<@!?(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
+            {
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
         }
 
         internal static IEnumerable<ulong> GetRoleMentions(DiscordMessage message)
@@ -142,7 +147,9 @@ namespace DSharpPlus
             var regex = new Regex(@"<@&(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
+            {
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
         }
 
         internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
@@ -150,7 +157,9 @@ namespace DSharpPlus
             var regex = new Regex(@"<#(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
+            {
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
         }
 
         internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
@@ -158,7 +167,9 @@ namespace DSharpPlus
             var regex = new Regex(@"<:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
+            {
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+            }
         }
 
         /// <summary>
@@ -203,7 +214,9 @@ namespace DSharpPlus
         public static string ToPermissionString(this Permissions perm)
         {
             if (perm == Permissions.None)
+            {
                 return PermissionStrings[perm];
+            }
 
             var strs = PermissionStrings
                 .Where(xkvp => xkvp.Key != Permissions.None && (perm & xkvp.Key) == xkvp.Key)

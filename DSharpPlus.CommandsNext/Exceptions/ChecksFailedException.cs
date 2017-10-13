@@ -30,13 +30,13 @@ namespace DSharpPlus.CommandsNext.Exceptions
         /// </summary>
         /// <param name="command">Command that failed to execute.</param>
         /// <param name="ctx">Context in which the command was executed.</param>
-        /// <param name="failed_checks">A collection of checks that failed.</param>
-        public ChecksFailedException(Command command, CommandContext ctx, IEnumerable<CheckBaseAttribute> failed_checks)
+        /// <param name="failedChecks">A collection of checks that failed.</param>
+        public ChecksFailedException(Command command, CommandContext ctx, IEnumerable<CheckBaseAttribute> failedChecks)
             : base("One or more pre-execution checks failed.")
         {
-            this.Command = command;
-            this.Context = ctx;
-            this.FailedChecks = new ReadOnlyCollection<CheckBaseAttribute>(new List<CheckBaseAttribute>(failed_checks));
+            Command = command;
+            Context = ctx;
+            FailedChecks = new ReadOnlyCollection<CheckBaseAttribute>(new List<CheckBaseAttribute>(failedChecks));
         }
     }
 }

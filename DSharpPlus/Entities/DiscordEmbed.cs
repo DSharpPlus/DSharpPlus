@@ -11,7 +11,7 @@ namespace DSharpPlus.Entities
     {
         internal DiscordEmbed()
         {
-            this._color_lazy = new Lazy<DiscordColor>(() => new DiscordColor(this._color));
+            _colorLazy = new Lazy<DiscordColor>(() => new DiscordColor(_color));
         }
 
         /// <summary>
@@ -48,11 +48,12 @@ namespace DSharpPlus.Entities
         /// Gets the embed's color.
         /// </summary>
         [JsonIgnore]
-        public DiscordColor Color => this._color_lazy.Value;
+        public DiscordColor Color => _colorLazy.Value;
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
+        // ReSharper disable once InconsistentNaming
         internal int _color;
         [JsonIgnore]
-        private Lazy<DiscordColor> _color_lazy;
+        private readonly Lazy<DiscordColor> _colorLazy;
 
         /// <summary>
         /// Gets the embed's footer.

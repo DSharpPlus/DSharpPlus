@@ -4,23 +4,23 @@ namespace DSharpPlus.VoiceNext.Codec
 {
     internal sealed class RtpCodec
     {
-        private const byte RTP_TYPE_NO_EXTENSION = 0x80;
-        private const byte RTP_TYPE_EXTENSION = 0x90;
-        private const byte RTP_VERSION = 0x78;
+        private const byte RtpTypeNoExtension = 0x80;
+        private const byte RtpTypeExtension = 0x90;
+        private const byte RtpVersion = 0x78;
 
-        private const int OFFSET_SEQUENCE = 2;
-        private const int OFFSET_TIMESTAMP = 4;
-        private const int OFFSET_SSRC = 8;
+        private const int OffsetSequence = 2;
+        private const int OffsetTimestamp = 4;
+        private const int OffsetSsrc = 8;
 
-        private const int SIZE_NONCE = 24;
-        public const int SIZE_HEADER = 12;
+        private const int SizeNonce = 24;
+        public const int SizeHeader = 12;
 
         public byte[] Encode(ushort sequence, uint timestamp, uint ssrc)
         {
-            byte[] header = new byte[SIZE_HEADER];
+            byte[] header = new byte[SizeHeader];
 
-            header[0] = RTP_TYPE_NO_EXTENSION;
-            header[1] = RTP_VERSION;
+            header[0] = RtpTypeNoExtension;
+            header[1] = RtpVersion;
 
             var flip = BitConverter.IsLittleEndian;
             var seqnb = BitConverter.GetBytes(sequence);
@@ -34,22 +34,26 @@ namespace DSharpPlus.VoiceNext.Codec
                 Array.Reverse(ssrcb);
             }
 
-            Array.Copy(seqnb, 0, header, OFFSET_SEQUENCE, seqnb.Length);
-            Array.Copy(tmspb, 0, header, OFFSET_TIMESTAMP, tmspb.Length);
-            Array.Copy(ssrcb, 0, header, OFFSET_SSRC, ssrcb.Length);
+            Array.Copy(seqnb, 0, header, OffsetSequence, seqnb.Length);
+            Array.Copy(tmspb, 0, header, OffsetTimestamp, tmspb.Length);
+            Array.Copy(ssrcb, 0, header, OffsetSsrc, ssrcb.Length);
 
             return header;
         }
 
-        public void Decode(byte[] header, out ushort sequence, out uint timestamp, out uint ssrc, out bool has_extension)
+        public void Decode(byte[] header, out ushort sequence, out uint timestamp, out uint ssrc, out bool hasExtension)
         {
-            if (header.Length != SIZE_HEADER)
-                throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SIZE_HEADER, ")"));
+            if (header.Length != SizeHeader)
+            {
+                throw new ArgumentException(string.Concat("Wrong header size (must be", SizeHeader, ")"), nameof(header));
+            }
 
-            if ((header[0] != RTP_TYPE_NO_EXTENSION && header[0] != RTP_TYPE_EXTENSION) || header[1] != RTP_VERSION)
-                throw new ArgumentException(nameof(header), "Invalid header");
+            if (header[0] != RtpTypeNoExtension && header[0] != RtpTypeExtension || header[1] != RtpVersion)
+            {
+                throw new ArgumentException("Invalid header", nameof(header));
+            }
 
-            has_extension = header[0] == RTP_TYPE_EXTENSION;
+            hasExtension = header[0] == RtpTypeExtension;
 
             var flip = BitConverter.IsLittleEndian;
             if (flip)
@@ -66,8 +70,10 @@ namespace DSharpPlus.VoiceNext.Codec
 
         public byte[] Encode(byte[] header, byte[] data)
         {
-            if (header.Length != SIZE_HEADER)
-                throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SIZE_HEADER, ")"));
+            if (header.Length != SizeHeader)
+            {
+                throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SizeHeader, ")"));
+            }
 
             var buff = new byte[header.Length + data.Length];
 
@@ -79,8 +85,10 @@ namespace DSharpPlus.VoiceNext.Codec
 
         public byte[] Decode(byte[] data, byte[] header)
         {
-            if (header.Length != SIZE_HEADER)
-                throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SIZE_HEADER, ")"));
+            if (header.Length != SizeHeader)
+            {
+                throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SizeHeader, ")"));
+            }
 
             var buff = new byte[data.Length - header.Length];
 
@@ -92,10 +100,12 @@ namespace DSharpPlus.VoiceNext.Codec
 
         public byte[] MakeNonce(byte[] header)
         {
-            if (header.Length != SIZE_HEADER)
-                throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SIZE_HEADER, ")"));
+            if (header.Length != SizeHeader)
+            {
+                throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SizeHeader, ")"));
+            }
 
-            var nonce = new byte[SIZE_NONCE];
+            var nonce = new byte[SizeNonce];
 
             Array.Copy(header, nonce, header.Length);
 

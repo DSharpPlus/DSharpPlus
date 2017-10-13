@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -52,26 +48,26 @@ namespace DSharpPlus.Net.Abstractions
         public object OldValue { get; set; }
 
         [JsonIgnore]
-        public IEnumerable<JObject> OldValues => (this.OldValue as JArray)?.ToObject<IEnumerable<JObject>>();
+        public IEnumerable<JObject> OldValues => (OldValue as JArray)?.ToObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
-        public ulong OldValueUlong => (ulong)this.OldValue;
+        public ulong OldValueUlong => (ulong)OldValue;
 
         [JsonIgnore]
-        public string OldValueString => (string)this.OldValue;
+        public string OldValueString => (string)OldValue;
 
         // this can be a string or an array
         [JsonProperty("new_value")]
         public object NewValue { get; set; }
 
         [JsonIgnore]
-        public IEnumerable<JObject> NewValues => (this.NewValue as JArray)?.ToObject<IEnumerable<JObject>>();
+        public IEnumerable<JObject> NewValues => (NewValue as JArray)?.ToObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
-        public ulong NewValueUlong => (ulong)this.NewValue;
+        public ulong NewValueUlong => (ulong)NewValue;
 
         [JsonIgnore]
-        public string NewValueString => (string)this.NewValue;
+        public string NewValueString => (string)NewValue;
 
         [JsonProperty("key")]
         public string Key { get; set; }
