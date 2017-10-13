@@ -18,6 +18,11 @@ namespace DSharpPlus.Net
         public string ChannelId { get; internal set; }
 
         /// <summary>
+        /// Gets the ID of the webhook bucket.
+        /// </summary>
+        public string WebhookId { get; internal set; }
+
+        /// <summary>
         /// Gets the url by which the requests are bucketed.
         /// </summary>
         public string Route { get; internal set; }
@@ -30,7 +35,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the Id of the ratelimit bucket.
         /// </summary>
-        public string BucketId => $"{this.Method}:{this.GuildId}:{this.ChannelId}:{this.Route}";
+        public string BucketId => $"{this.Method}:{this.GuildId}:{this.ChannelId}:{this.WebhookId}:{this.Route}";
 
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
@@ -47,12 +52,13 @@ namespace DSharpPlus.Net
         /// </summary>
         public DateTimeOffset Reset { get; internal set; }
 
-        internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id)
+        internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id)
         {
             this.Method = method;
             this.Route = route;
             this.ChannelId = channel_id;
             this.GuildId = guild_id;
+            this.WebhookId = webhook_id;
         }
 
         /// <summary>
@@ -62,9 +68,10 @@ namespace DSharpPlus.Net
         /// <param name="route">Route for this bucket.</param>
         /// <param name="guild_id">Guild Id for this bucket.</param>
         /// <param name="channel_id">Channel Id for this bucket.</param>
+        /// <param name="webhook_id">Webhook Id for this bucket.</param>
         /// <returns>Bucket Id.</returns>
-        public static string GenerateId(RestRequestMethod method, string route, string guild_id, string channel_id) =>
-            $"{method}:{guild_id}:{channel_id}:{route}";
+        public static string GenerateId(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id) =>
+            $"{method}:{guild_id}:{channel_id}:{webhook_id}:{route}";
 
         /// <summary>
         /// Returns a string representation of this bucket.
@@ -72,7 +79,7 @@ namespace DSharpPlus.Net
         /// <returns>String representation of this bucket.</returns>
         public override string ToString()
         {
-            return $"Rate limit bucket [{this.Method}:{this.GuildId}:{this.ChannelId}:{this.Route}] [{Remaining}/{Maximum}] {Reset}";
+            return $"Rate limit bucket [{this.Method}:{this.GuildId}:{this.ChannelId}:{this.WebhookId}:{this.Route}] [{Remaining}/{Maximum}] {Reset}";
         }
 
         /// <summary>

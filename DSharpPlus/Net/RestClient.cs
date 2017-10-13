@@ -76,14 +76,15 @@ namespace DSharpPlus.Net
 
             var guild_id = rparams.ContainsKey("guild_id") ? rparams["guild_id"] : "";
             var channel_id = rparams.ContainsKey("channel_id") ? rparams["channel_id"] : "";
+            var webhook_id = rparams.ContainsKey("webhook_id") ? rparams["webhook_id"] : "";
 
-            var id = RateLimitBucket.GenerateId(method, route, guild_id, channel_id);
+            var id = RateLimitBucket.GenerateId(method, route, guild_id, channel_id, webhook_id);
 
             RateLimitBucket bucket = null;
             bucket = this.Buckets.FirstOrDefault(xb => xb.BucketId == id);
             if (bucket == null)
             {
-                bucket = new RateLimitBucket(method, route, guild_id, channel_id);
+                bucket = new RateLimitBucket(method, route, guild_id, channel_id, webhook_id);
                 this.Buckets.Add(bucket);
             }
 
