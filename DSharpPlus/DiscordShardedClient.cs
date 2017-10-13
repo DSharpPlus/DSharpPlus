@@ -498,6 +498,17 @@ namespace DSharpPlus
         private DiscordApplication _current_application;
 
         /// <summary>
+        /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
+        /// </summary>
+        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions => this._voice_regions_lazy?.Value;
+
+        /// <summary>
+        /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
+        /// </summary>
+        private ConcurrentDictionary<string, DiscordVoiceRegion> InternalVoiceRegions { get; set; }
+        private Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voice_regions_lazy;
+
+        /// <summary>
         /// Initializes new auto-sharding Discord client.
         /// </summary>
         /// <param name="config">Configuration to use.</param>
@@ -555,6 +566,9 @@ namespace DSharpPlus
             this.Shards = new ConcurrentDictionary<int, DiscordClient>();
             this.DebugLogger = new DebugLogger(config.LogLevel, config.DateTimeFormat);
 
+            //this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
+            //this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
+
             if (config.UseInternalLogHandler)
                 DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
         }
@@ -601,6 +615,12 @@ namespace DSharpPlus
 
                 if (this._current_application != null)
                     client.CurrentApplication = this.CurrentApplication;
+
+                if (this.InternalVoiceRegions != null)
+                {
+                    client.InternalVoiceRegions = this.InternalVoiceRegions;
+                    client._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(client.InternalVoiceRegions));
+                }
 
                 client.ClientErrored += this.Client_ClientError;
                 client.SocketErrored += this.Client_SocketError;
@@ -656,6 +676,12 @@ namespace DSharpPlus
 
                 if (this._current_application == null)
                     this._current_application = client.CurrentApplication;
+
+                if (this.InternalVoiceRegions == null)
+                {
+                    this.InternalVoiceRegions = client.InternalVoiceRegions;
+                    this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
+                }
             }
         }
 

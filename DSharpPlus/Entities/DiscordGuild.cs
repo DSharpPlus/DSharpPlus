@@ -62,7 +62,13 @@ namespace DSharpPlus.Entities
         /// Gets the guild's voice region ID.
         /// </summary>
         [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
-        public string RegionId { get; internal set; }
+        internal string VoiceRegionId { get; set; }
+
+        /// <summary>
+        /// Gets the guild's voice region.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordVoiceRegion VoiceRegion => this.Discord.VoiceRegions[this.VoiceRegionId];
 
         /// <summary>
         /// Gets the guild's AFK voice channel ID.
@@ -269,7 +275,7 @@ namespace DSharpPlus.Entities
         /// <param name="splash">New invite splash.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public async Task<DiscordGuild> ModifyAsync(string name = null, string region = null, Stream icon = null, VerificationLevel? verification_level = null,
+        public async Task<DiscordGuild> ModifyAsync(string name = null, DiscordVoiceRegion region = null, Stream icon = null, VerificationLevel? verification_level = null,
             DefaultMessageNotifications? default_message_notifications = null, MfaLevel? mfa_level = null, ExplicitContentFilter? explicit_content_filter = null, DiscordChannel afk_channel = null, 
             int? afk_timeout = null, DiscordMember owner = null, Stream splash = null, string reason = null)
         {
@@ -286,7 +292,7 @@ namespace DSharpPlus.Entities
                 using (var imgtool = new ImageTool(splash))
                     splashb64 = imgtool.GetBase64();
 
-            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel?.Id, afk_timeout, iconb64, owner?.Id, splashb64, reason);
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, region?.Id, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel?.Id, afk_timeout, iconb64, owner?.Id, splashb64, reason);
         }
 
         /// <summary>
@@ -430,8 +436,14 @@ namespace DSharpPlus.Entities
         /// Gets the voice regions for this guild.
         /// </summary>
         /// <returns>Voice regions available for this guild.</returns>
-        public Task<IReadOnlyList<DiscordVoiceRegion>> GetVoiceRegionsAsync() =>
-            this.Discord.ApiClient.GetGuildVoiceRegionsAsync(this.Id);
+        public async Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
+        {
+            var vrs = await this.Discord.ApiClient.GetGuildVoiceRegionsAsync(this.Id);
+            foreach (var xvr in vrs)
+                this.Discord.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
+
+            return vrs;
+        }
 
         /// <summary>
         /// Gets all the invites created for all the channels in this guild.

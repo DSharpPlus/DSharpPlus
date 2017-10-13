@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -60,6 +61,17 @@ namespace DSharpPlus
         protected internal ConcurrentDictionary<ulong, DiscordUser> UserCache { get; }
 
         /// <summary>
+        /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
+        /// </summary>
+        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions => this._voice_regions_lazy.Value;
+
+        /// <summary>
+        /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
+        /// </summary>
+        protected internal ConcurrentDictionary<string, DiscordVoiceRegion> InternalVoiceRegions { get; set; }
+        internal Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voice_regions_lazy;
+
+        /// <summary>
         /// Initializes this Discord API client.
         /// </summary>
         /// <param name="config">Configuration for this client.</param>
@@ -69,6 +81,8 @@ namespace DSharpPlus
             this.ApiClient = new DiscordApiClient(this);
             this.DebugLogger = new DebugLogger(this);
             this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
+            this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
+            this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
         }
 
         /// <summary>
@@ -79,7 +93,14 @@ namespace DSharpPlus
             this.ApiClient.GetCurrentApplicationInfoAsync();
 
         /// <summary>
-        /// Initializes this client. This method fetches information about current user and application.
+        /// Gets a list of regions
+        /// </summary>
+        /// <returns></returns>
+        public Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync() =>
+            this.ApiClient.ListVoiceRegionsAsync();
+
+        /// <summary>
+        /// Initializes this client. This method fetches information about current user, application, and voice regions.
         /// </summary>
         /// <returns></returns>
         public virtual async Task InitializeAsync()
@@ -92,6 +113,13 @@ namespace DSharpPlus
 
             if (this.Configuration.TokenType != TokenType.User && this.CurrentApplication == null)
                 this.CurrentApplication = await this.GetCurrentApplicationAsync();
+
+            if (this.InternalVoiceRegions.Count == 0)
+            {
+                var vrs = await this.ListVoiceRegionsAsync();
+                foreach (var xvr in vrs)
+                    this.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
+            }
         }
 
         internal DiscordUser InternalGetCachedUser(ulong user_id) =>

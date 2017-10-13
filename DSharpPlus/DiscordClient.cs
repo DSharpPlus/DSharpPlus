@@ -874,13 +874,6 @@ namespace DSharpPlus
             this.ApiClient.GetUsersConnectionsAsync();
 
         /// <summary>
-        /// Gets a list of regions
-        /// </summary>
-        /// <returns></returns>
-        public Task<IReadOnlyList<DiscordVoiceRegion>> ListRegionsAsync() =>
-            this.ApiClient.ListVoiceRegionsAsync();
-
-        /// <summary>
         /// Gets a webhook
         /// </summary>
         /// <param name="id"></param>
@@ -2562,7 +2555,7 @@ namespace DSharpPlus
             guild.IconHash = new_guild.IconHash;
             guild.MfaLevel = new_guild.MfaLevel;
             guild.OwnerId = new_guild.OwnerId;
-            guild.RegionId = new_guild.RegionId;
+            guild.VoiceRegionId = new_guild.VoiceRegionId;
             guild.SplashHash = new_guild.SplashHash;
             guild.VerificationLevel = new_guild.VerificationLevel;
             guild.ExplicitContentFilter = new_guild.ExplicitContentFilter;
