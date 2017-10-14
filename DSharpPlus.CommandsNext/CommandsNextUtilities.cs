@@ -414,8 +414,8 @@ namespace DSharpPlus.CommandsNext
             return args;
         }
 
-        internal static bool IsModuleCandidateType(this Type type) =>
-            type.GetTypeInfo().IsModuleCandidateType();
+        internal static bool IsModuleCandidateType(this Type type) 
+            => type.GetTypeInfo().IsModuleCandidateType();
 
         internal static bool IsModuleCandidateType(this TypeInfo ti)
         {

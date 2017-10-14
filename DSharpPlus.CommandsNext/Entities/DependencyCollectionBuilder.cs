@@ -62,8 +62,8 @@ namespace DSharpPlus.CommandsNext
         /// Creates a new <see cref="DependencyCollection"/> using information contained in this builder.
         /// </summary>
         /// <returns>Built <see cref="DependencyCollection"/>.</returns>
-        public DependencyCollection Build() =>
-            new DependencyCollection(this.RegisteredDependencies);
+        public DependencyCollection Build() 
+            => new DependencyCollection(this.RegisteredDependencies);
 
         /// <summary>
         /// Adds an instance of a dependency to the dependency collection.
@@ -71,8 +71,7 @@ namespace DSharpPlus.CommandsNext
         /// <typeparam name="T">Type of dependency to register.</typeparam>
         /// <param name="instance">Instance to register.</param>
         /// <returns>This <see cref="DependencyCollectionBuilder"/>.</returns>
-        public DependencyCollectionBuilder AddInstance<T>(T instance)
-            where T : class 
+        public DependencyCollectionBuilder AddInstance<T>(T instance) where T : class 
             => this.AddInstance<T, T>(instance);
 
         /// <summary>
@@ -112,8 +111,7 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <typeparam name="T">Type of dependency.</typeparam>
         /// <returns>This <see cref="DependencyCollectionBuilder"/>.</returns>
-        public DependencyCollectionBuilder Add<T>()
-            where T : class
+        public DependencyCollectionBuilder Add<T>() where T : class
             => this.Add<T, T>();
 
         /// <summary>

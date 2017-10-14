@@ -15,20 +15,20 @@ namespace DSharpPlus.Test
         {
             if (string.IsNullOrWhiteSpace(prefix))
                 if (Prefixes.TryRemove(ctx.Channel.Id, out _))
-                    await ctx.RespondAsync("👍");
+                    await ctx.RespondAsync("👍").ConfigureAwait(false);
                 else
-                    await ctx.RespondAsync("👎");
+                    await ctx.RespondAsync("👎").ConfigureAwait(false);
             else
             {
                 Prefixes.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);
-                await ctx.RespondAsync("👍");
+                await ctx.RespondAsync("👍").ConfigureAwait(false);
             }
         }
 
         [Command("sudo"), Description("Run a command as another user."), RequireOwner]
         public async Task Sudo(CommandContext ctx, DiscordUser user, [RemainingText] string content)
         {
-            await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content);
+            await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content).ConfigureAwait(false);
         }
     }
 }

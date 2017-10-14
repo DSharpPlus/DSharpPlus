@@ -29,10 +29,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("channel", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordInviteChannel Channel { get; internal set; }
 
-        #region DiscordInviteMetadata
-        //copied from DiscordInviteMetadata
-        //is not a separate object, but properties on DiscordInvite
-
         /// <summary>
         /// Gets the user who created the invite.
         /// </summary>
@@ -74,7 +70,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("revoked", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsRevoked { get; internal set; }
-        #endregion
 
         internal DiscordInvite() { }
 
@@ -83,7 +78,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);
+        public Task<DiscordInvite> DeleteAsync(string reason = null) 
+            => this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);
 
         /*
          * Disabled due to API restrictions.
@@ -93,7 +89,8 @@ namespace DSharpPlus.Entities
          * /// </summary>
          * /// <returns></returns>
          * [Obsolete("Using this method will get your account unverified.")]
-         * public Task<DiscordInvite> AcceptAsync() => this.Discord._rest_client.InternalAcceptInvite(Code);
+         * public Task<DiscordInvite> AcceptAsync() 
+         *     => this.Discord._rest_client.InternalAcceptInvite(Code);
          */
 
         /// <summary>

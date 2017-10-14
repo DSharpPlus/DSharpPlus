@@ -38,7 +38,7 @@ namespace DSharpPlus.CommandsNext.Attributes
                 return false;
             var pusr = ctx.Channel.PermissionsFor(usr);
 
-            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
             if (bot == null)
                 return false;
             var pbot = ctx.Channel.PermissionsFor(bot);

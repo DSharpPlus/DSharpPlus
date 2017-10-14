@@ -58,14 +58,14 @@ namespace DSharpPlus.CommandsNext
         /// Gets an enumerator for this <see cref="DependencyCollection"/>.
         /// </summary>
         /// <returns>Enumerator of dependencies.</returns>
-        public IEnumerator<object> GetEnumerator() =>
-            this.Dependencies.Select(xdep => xdep.Instance).GetEnumerator();
+        public IEnumerator<object> GetEnumerator() 
+            => this.Dependencies.Select(xdep => xdep.Instance).GetEnumerator();
 
         /// <summary>
         /// Gets an enumerator for this <see cref="DependencyCollection"/>.
         /// </summary>
         /// <returns>Enumerator of dependencies.</returns>
-        IEnumerator IEnumerable.GetEnumerator() =>
-            this.Dependencies.Select(xdep => xdep.Instance).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() 
+            => this.Dependencies.Select(xdep => xdep.Instance).GetEnumerator();
     }
 }

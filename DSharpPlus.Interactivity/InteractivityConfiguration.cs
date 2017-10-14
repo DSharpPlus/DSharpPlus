@@ -1,17 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSharpPlus.Interactivity
 {
     public sealed class InteractivityConfiguration
     {
-        public TimeSpan Timeout { get; set; }
+        /// <summary>
+        /// <para>Sets the default interactivity action timeout.</para>
+        /// <para>Defaults to 1 minute.</para>
+        /// </summary>
+        public TimeSpan Timeout { internal get; set; } = TimeSpan.FromMinutes(1);
 
-        public TimeSpan PaginationTimeout { get; set; }
+        /// <summary>
+        /// <para>Sets the default pagination timeout.</para>
+        /// <para>Defaults to 2 minutes.</para>
+        /// </summary>
+        public TimeSpan PaginationTimeout { internal get; set; } = TimeSpan.FromMinutes(2);
 
-        public TimeoutBehaviour PaginationBehaviour { get; set; }
+        /// <summary>
+        /// <para>Sets the default pagination timeout behaviour.</para>
+        /// <para>Defaults to <see cref="TimeoutBehaviour.Ignore"/>.</para>
+        /// </summary>
+        public TimeoutBehaviour PaginationBehaviour { internal get; set; } = TimeoutBehaviour.Ignore;
     }
 }

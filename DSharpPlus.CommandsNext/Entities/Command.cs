@@ -19,7 +19,8 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command's qualified name (i.e. one that includes all module names).
         /// </summary>
-        public string QualifiedName => this.Parent != null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
+        public string QualifiedName 
+            => this.Parent != null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
 
         /// <summary>
         /// Gets this command's alises.
@@ -69,7 +70,7 @@ namespace DSharpPlus.CommandsNext
             {
                 var args = CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments);
                 var ret = (Task)this.Callable.DynamicInvoke(args);
-                await ret;
+                await ret.ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -99,7 +100,7 @@ namespace DSharpPlus.CommandsNext
             var fchecks = new List<CheckBaseAttribute>();
             if (this.ExecutionChecks != null && this.ExecutionChecks.Any())
                 foreach (var ec in this.ExecutionChecks)
-                    if (!(await ec.CanExecute(ctx, help)))
+                    if (!(await ec.CanExecute(ctx, help).ConfigureAwait(false)))
                         fchecks.Add(ec);
 
             return fchecks;
@@ -132,8 +133,8 @@ namespace DSharpPlus.CommandsNext
         /// <param name="cmd1">Command to compare to.</param>
         /// <param name="cmd2">Command to compare.</param>
         /// <returns>Whether the two commands are not equal.</returns>
-        public static bool operator !=(Command cmd1, Command cmd2) =>
-            !(cmd1 == cmd2);
+        public static bool operator !=(Command cmd1, Command cmd2) 
+            => !(cmd1 == cmd2);
 
         /// <summary>
         /// Checks whether this command equals another object.

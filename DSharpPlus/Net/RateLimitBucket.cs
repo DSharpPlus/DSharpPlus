@@ -35,7 +35,8 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the Id of the ratelimit bucket.
         /// </summary>
-        public string BucketId => $"{this.Method}:{this.GuildId}:{this.ChannelId}:{this.WebhookId}:{this.Route}";
+        public string BucketId 
+            => $"{this.Method}:{this.GuildId}:{this.ChannelId}:{this.WebhookId}:{this.Route}";
 
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
@@ -70,8 +71,8 @@ namespace DSharpPlus.Net
         /// <param name="channel_id">Channel Id for this bucket.</param>
         /// <param name="webhook_id">Webhook Id for this bucket.</param>
         /// <returns>Bucket Id.</returns>
-        public static string GenerateId(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id) =>
-            $"{method}:{guild_id}:{channel_id}:{webhook_id}:{route}";
+        public static string GenerateId(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id) 
+            => $"{method}:{guild_id}:{channel_id}:{webhook_id}:{route}";
 
         /// <summary>
         /// Returns a string representation of this bucket.

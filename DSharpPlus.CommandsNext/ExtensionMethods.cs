@@ -18,11 +18,11 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Created <see cref="CommandsNextExtension"/>.</returns>
         public static CommandsNextExtension UseCommandsNext(this DiscordClient client, CommandsNextConfiguration cfg)
         {
-            if (client.GetModule<CommandsNextExtension>() != null)
+            if (client.GetExtension<CommandsNextExtension>() != null)
                 throw new InvalidOperationException("CommandsNext is already enabled for that client.");
 
             var cnext = new CommandsNextExtension(cfg);
-            client.AddModule(cnext);
+            client.AddExtension(cnext);
             return cnext;
         }
 
@@ -36,11 +36,11 @@ namespace DSharpPlus.CommandsNext
         {
             var modules = new Dictionary<int, CommandsNextExtension>();
 
-            client.InitializeShardsAsync().GetAwaiter().GetResult();
+            client.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
-                var cnext = shard.GetModule<CommandsNextExtension>();
+                var cnext = shard.GetExtension<CommandsNextExtension>();
                 if (cnext == null)
                     cnext = shard.UseCommandsNext(cfg);
 
@@ -57,7 +57,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns>The module, or null if not activated.</returns>
         public static CommandsNextExtension GetCommandsNext(this DiscordClient client)
         {
-            return client.GetModule<CommandsNextExtension>();
+            return client.GetExtension<CommandsNextExtension>();
         }
 
         /// <summary>
@@ -69,10 +69,10 @@ namespace DSharpPlus.CommandsNext
         {
             var modules = new Dictionary<int, CommandsNextExtension>();
 
-            client.InitializeShardsAsync().GetAwaiter().GetResult();
+            client.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
-                modules.Add(shard.ShardId, shard.GetModule<CommandsNextExtension>());
+                modules.Add(shard.ShardId, shard.GetExtension<CommandsNextExtension>());
 
             return new ReadOnlyDictionary<int, CommandsNextExtension>(modules);
         }

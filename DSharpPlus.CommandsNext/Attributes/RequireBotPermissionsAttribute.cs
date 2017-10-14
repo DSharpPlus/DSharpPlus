@@ -33,7 +33,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             if (ctx.Guild == null)
                 return this.IgnoreDms;
 
-            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
             if (bot == null)
                 return false;
 

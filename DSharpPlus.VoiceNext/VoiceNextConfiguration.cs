@@ -8,12 +8,14 @@ namespace DSharpPlus.VoiceNext
     public sealed class VoiceNextConfiguration
     {
         /// <summary>
-        /// Sets the encoding settings for this client. This decides whether the encoder will favour quality or smaller bandwidth.
+        /// <para>Sets the encoding settings for this client. This decides whether the encoder will favour quality or smaller bandwidth.</para>
+        /// <para>Defaults to <see cref="VoiceApplication.Music"/>.</para>
         /// </summary>
         public VoiceApplication VoiceApplication { internal get; set; } = VoiceApplication.Music;
 
         /// <summary>
-        /// Sets whether incoming voice receiver should be enabled.
+        /// <para>Sets whether incoming voice receiver should be enabled.</para>
+        /// <para>Defaults to false.</para>
         /// </summary>
         public bool EnableIncoming { internal get; set; } = false;
     }

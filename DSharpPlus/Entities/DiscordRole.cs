@@ -18,7 +18,9 @@ namespace DSharpPlus.Entities
         /// Gets the color of this role.
         /// </summary>
         [JsonIgnore]
-        public DiscordColor Color => new DiscordColor(this._color);
+        public DiscordColor Color 
+            => new DiscordColor(this._color);
+
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
         internal int _color;
 
@@ -55,7 +57,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a mention string for this role. If the role is mentionable, this string will mention all the users that belong to this role.
         /// </summary>
-        public string Mention => Formatter.Mention(this);
+        public string Mention 
+            => Formatter.Mention(this);
 
         internal DiscordRole() { }
 
@@ -141,7 +144,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First role to compare.</param>
         /// <param name="e2">Second role to compare.</param>
         /// <returns>Whether the two roles are not equal.</returns>
-        public static bool operator !=(DiscordRole e1, DiscordRole e2) =>
-            !(e1 == e2);
+        public static bool operator !=(DiscordRole e1, DiscordRole e2) 
+            => !(e1 == e2);
     }
 }

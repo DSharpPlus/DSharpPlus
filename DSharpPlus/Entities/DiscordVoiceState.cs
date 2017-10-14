@@ -21,7 +21,8 @@ namespace DSharpPlus.Entities
         /// Gets the guild associated with this voice state.
         /// </summary>
         [JsonIgnore]
-        public DiscordGuild Guild => this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : null;
+        public DiscordGuild Guild 
+            => this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : null;
 
         /// <summary>
         /// Gets ID of the channel this user is connected to.
@@ -33,7 +34,8 @@ namespace DSharpPlus.Entities
         /// Gets the channel this user is connected to.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel Channel => this.ChannelId != null && this.ChannelId.Value != 0 ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
+        public DiscordChannel Channel 
+            => this.ChannelId != null && this.ChannelId.Value != 0 ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
 
         /// <summary>
         /// Gets ID of the user to which this voice state belongs.

@@ -13,8 +13,8 @@ namespace DSharpPlus.Test
     [Group("eval", CanInvokeWithoutSubcommand = true), Aliases("exec", "os", "env"), Hidden, Description("Provides evaluation and OS commands."), RequireOwner]
     public class TestBotEvalCommands
     {
-        public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string code) =>
-            this.EvalCS(ctx, code);
+        public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string code) 
+            => this.EvalCS(ctx, code);
 
         [Command("csharp"), Aliases("eval", "evalcs", "cseval", "csharp", "roslyn"), Description("Evaluates C# code."), RequireOwner]
         public async Task EvalCS(CommandContext ctx, [RemainingText] string code)
@@ -33,7 +33,7 @@ namespace DSharpPlus.Test
             msg = await ctx.RespondAsync("", embed: new DiscordEmbedBuilder()
                 .WithColor(new DiscordColor("#FF007F"))
                 .WithDescription("Evaluating...")
-                .Build());
+                .Build()).ConfigureAwait(false);
 
             try
             {
@@ -45,16 +45,16 @@ namespace DSharpPlus.Test
 
                 var script = CSharpScript.Create(cs, sopts, typeof(TestVariables));
                 script.Compile();
-                var result = await script.RunAsync(globals);
+                var result = await script.RunAsync(globals).ConfigureAwait(false);
 
                 if (result != null && result.ReturnValue != null && !string.IsNullOrWhiteSpace(result.ReturnValue.ToString()))
-                    await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") }.Build());
+                    await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
                 else
-                    await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") }.Build());
+                    await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build());
+                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
             }
         }
 
@@ -79,8 +79,8 @@ namespace DSharpPlus.Test
                 var proc = Process.Start(psi);
                 proc.WaitForExit();
 
-                var o1 = await proc.StandardOutput.ReadToEndAsync();
-                var o2 = await proc.StandardError.ReadToEndAsync();
+                var o1 = await proc.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                var o2 = await proc.StandardError.ReadToEndAsync().ConfigureAwait(false);
 
                 var embed = new DiscordEmbedBuilder
                 {
@@ -93,11 +93,11 @@ namespace DSharpPlus.Test
                 if (!string.IsNullOrWhiteSpace(o2))
                     embed.AddField("Error", $"```\n{o2}\n```", false);
 
-                await ctx.RespondAsync("", embed: embed.Build());
+                await ctx.RespondAsync("", embed: embed.Build()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await ctx.RespondAsync("", embed: new DiscordEmbedBuilder { Title = "Execution failed", Description = $"`{ex.GetType()}: {ex.Message}`", Color = new DiscordColor("#FF0000") }.Build());
+                await ctx.RespondAsync("", embed: new DiscordEmbedBuilder { Title = "Execution failed", Description = $"`{ex.GetType()}: {ex.Message}`", Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
             }
         }
     }
@@ -119,7 +119,8 @@ namespace DSharpPlus.Test
             this.Channel = msg.Channel;
             this.Guild = this.Channel.Guild;
             this.User = this.Message.Author;
-            this.Member = this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult();
+            if (this.Guild != null)
+                this.Member = this.Guild.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult();
             this.Context = ctx;
         }
 

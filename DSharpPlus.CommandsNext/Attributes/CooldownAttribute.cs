@@ -115,7 +115,7 @@ namespace DSharpPlus.CommandsNext.Attributes
                 this.Buckets.AddOrUpdate(bid, bucket, (k, v) => bucket);
             }
 
-            return await bucket.DecrementUseAsync();
+            return await bucket.DecrementUseAsync().ConfigureAwait(false);
         }
     }
 
@@ -173,7 +173,9 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets the remaining number of uses before the cooldown is triggered.
         /// </summary>
-        public int RemainingUses => Volatile.Read(ref this._remaining_uses);
+        public int RemainingUses 
+            => Volatile.Read(ref this._remaining_uses);
+
         private int _remaining_uses;
 
         /// <summary>
@@ -223,7 +225,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Whether decrement succeded or not.</returns>
         internal async Task<bool> DecrementUseAsync()
         {
-            await this.UsageSemaphore.WaitAsync();
+            await this.UsageSemaphore.WaitAsync().ConfigureAwait(false);
 
             // if we're past reset time...
             var now = DateTimeOffset.UtcNow;
@@ -324,8 +326,8 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="bucket1">First bucket to compare.</param>
         /// <param name="bucket2">Second bucket to compare.</param>
         /// <returns>Whether the two buckets are not equal.</returns>
-        public static bool operator !=(CommandCooldownBucket bucket1, CommandCooldownBucket bucket2) =>
-            !(bucket1 == bucket2);
+        public static bool operator !=(CommandCooldownBucket bucket1, CommandCooldownBucket bucket2) 
+            => !(bucket1 == bucket2);
 
         /// <summary>
         /// Creates a bucket ID from given bucket parameters.
@@ -334,7 +336,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="channel">ID of the channel with which this cooldown is associated.</param>
         /// <param name="guild">ID of the guild with which this cooldown is associated.</param>
         /// <returns>Generated bucket ID.</returns>
-        public static string MakeId(ulong user = 0, ulong channel = 0, ulong guild = 0) =>
-            $"{user.ToString(CultureInfo.InvariantCulture)}:{channel.ToString(CultureInfo.InvariantCulture)}:{guild.ToString(CultureInfo.InvariantCulture)}";
+        public static string MakeId(ulong user = 0, ulong channel = 0, ulong guild = 0) 
+            => $"{user.ToString(CultureInfo.InvariantCulture)}:{channel.ToString(CultureInfo.InvariantCulture)}:{guild.ToString(CultureInfo.InvariantCulture)}";
     }
 }

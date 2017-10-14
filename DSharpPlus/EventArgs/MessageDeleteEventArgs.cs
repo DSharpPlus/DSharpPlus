@@ -20,7 +20,8 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the guild this message belonged to.
         /// </summary>
-        public DiscordGuild Guild => this.Channel.Guild;
+        public DiscordGuild Guild 
+            => this.Channel.Guild;
 
         internal MessageDeleteEventArgs(DiscordClient client) : base(client) { }
     }

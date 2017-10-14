@@ -55,7 +55,7 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
         /// <returns></returns>
-        public override Task<BaseWebSocketClient> ConnectAsync(string uri)
+        public override Task<BaseWebSocketClient> ConnectAsync(Uri uri)
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }

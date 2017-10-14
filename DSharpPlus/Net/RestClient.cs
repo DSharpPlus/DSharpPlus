@@ -97,7 +97,7 @@ namespace DSharpPlus.Net
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            await this.RequestSemaphore.WaitAsync();
+            await this.RequestSemaphore.WaitAsync().ConfigureAwait(false);
 
             var bucket = request.RateLimitBucket;
             var now = DateTimeOffset.UtcNow;
@@ -113,9 +113,9 @@ namespace DSharpPlus.Net
             var response = new RestResponse();
             try
             {
-                var res = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseContentRead);
+                var res = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
 
-                var bts = await res.Content.ReadAsByteArrayAsync();
+                var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                 var txt = UTF8.GetString(bts, 0, bts.Length);
 
                 response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
@@ -160,7 +160,7 @@ namespace DSharpPlus.Net
                         if (global)
                         {
                             request.Discord.DebugLogger.LogMessage(LogLevel.Error, "REST", "Global ratelimit hit, cooling down", DateTime.Now);
-                            await wait;
+                            await wait.ConfigureAwait(false);
                         }
                         else
                         {

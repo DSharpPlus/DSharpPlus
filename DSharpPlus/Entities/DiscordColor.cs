@@ -19,17 +19,20 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the red component of this color as an 8-bit integer.
         /// </summary>
-        public byte R => (byte)((this.Value >> 16) & 0xFF);
+        public byte R 
+            => (byte)((this.Value >> 16) & 0xFF);
 
         /// <summary>
         /// Gets the green component of this color as an 8-bit integer.
         /// </summary>
-        public byte G => (byte)((this.Value >> 8) & 0xFF);
+        public byte G 
+            => (byte)((this.Value >> 8) & 0xFF);
 
         /// <summary>
         /// Gets the blue component of this color as an 8-bit integer.
         /// </summary>
-        public byte B => (byte)(this.Value & 0xFF);
+        public byte B 
+            => (byte)(this.Value & 0xFF);
 
         /// <summary>
         /// Creates a new color with specified value.

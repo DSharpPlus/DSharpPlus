@@ -463,7 +463,7 @@ namespace DSharpPlus
         internal void EventErrorHandler(string evname, Exception ex)
         {
             this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occured in {evname}.", DateTime.Now);
-            this._client_error.InvokeAsync(new ClientErrorEventArgs(null) { EventName = evname, Exception = ex }).GetAwaiter().GetResult();
+            this._client_error.InvokeAsync(new ClientErrorEventArgs(null) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
@@ -483,24 +483,30 @@ namespace DSharpPlus
         /// <summary>
         /// Gets all client shards.
         /// </summary>
-        public IReadOnlyDictionary<int, DiscordClient> ShardClients => new ReadOnlyDictionary<int, DiscordClient>(this.Shards);
+        public IReadOnlyDictionary<int, DiscordClient> ShardClients 
+            => new ReadOnlyDictionary<int, DiscordClient>(this.Shards);
 
         /// <summary>
         /// Gets the current user.
         /// </summary>
-        public DiscordUser CurrentUser => this._current_user;
+        public DiscordUser CurrentUser 
+            => this._current_user;
+
         private DiscordUser _current_user;
 
         /// <summary>
         /// Gets the current application.
         /// </summary>
-        public DiscordApplication CurrentApplication => this._current_application;
+        public DiscordApplication CurrentApplication 
+            => this._current_application;
+
         private DiscordApplication _current_application;
 
         /// <summary>
         /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
         /// </summary>
-        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions => this._voice_regions_lazy?.Value;
+        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions 
+            => this._voice_regions_lazy?.Value;
 
         /// <summary>
         /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
@@ -566,9 +572,6 @@ namespace DSharpPlus
             this.Shards = new ConcurrentDictionary<int, DiscordClient>();
             this.DebugLogger = new DebugLogger(config.LogLevel, config.DateTimeFormat);
 
-            //this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
-            //this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
-
             if (config.UseInternalLogHandler)
                 DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
         }
@@ -578,7 +581,7 @@ namespace DSharpPlus
             if (this.Shards.Count != 0)
                 return this.Shards.Count;
 
-            var shardc = this.Config.ShardCount == 1 ? await this.GetShardCountAsync() : this.Config.ShardCount;
+            var shardc = this.Config.ShardCount == 1 ? await this.GetShardCountAsync().ConfigureAwait(false) : this.Config.ShardCount;
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfiguration(this.Config)
@@ -602,7 +605,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task StartAsync()
         {
-            var shardc = await this.InitializeShardsAsync();
+            var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
             this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc.ToString(CultureInfo.InvariantCulture)} shards", DateTime.Now);
 
             for (var i = 0; i < shardc; i++)
@@ -668,7 +671,7 @@ namespace DSharpPlus
                 client.Heartbeated += this.Client_HeartBeated;
                 client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
                 
-                await client.ConnectAsync();
+                await client.ConnectAsync().ConfigureAwait(false);
                 this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
 
                 if (this._current_user == null)
@@ -716,7 +719,7 @@ namespace DSharpPlus
             foreach (var client in this.ShardClients.Values)
                 tasks.Add(client.UpdateStatusAsync(game, user_status, idle_since));
 
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         private async Task<int> GetShardCountAsync()
@@ -727,149 +730,149 @@ namespace DSharpPlus
             var http = new HttpClient();
             http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
             http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Config));
-            var resp = await http.GetAsync(url);
+            var resp = await http.GetAsync(url).ConfigureAwait(false);
 
-            var jo = JObject.Parse(await resp.Content.ReadAsStringAsync());
+            var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
             if (jo["shards"] != null)
                 return jo.Value<int>("shards");
             return 1;
         }
 
         #region Event Dispatchers
-        private Task Client_ClientError(ClientErrorEventArgs e) =>
-            this._client_error.InvokeAsync(e);
+        private Task Client_ClientError(ClientErrorEventArgs e) 
+            => this._client_error.InvokeAsync(e);
 
-        private Task Client_SocketError(SocketErrorEventArgs e) =>
-            this._socket_error.InvokeAsync(e);
+        private Task Client_SocketError(SocketErrorEventArgs e) 
+            => this._socket_error.InvokeAsync(e);
 
-        private Task Client_SocketOpened() =>
-            this._socket_opened.InvokeAsync();
+        private Task Client_SocketOpened() 
+            => this._socket_opened.InvokeAsync();
 
-        private Task Client_SocketClosed(SocketCloseEventArgs e) =>
-            this._socket_closed.InvokeAsync(e);
+        private Task Client_SocketClosed(SocketCloseEventArgs e) 
+            => this._socket_closed.InvokeAsync(e);
 
-        private Task Client_Ready(ReadyEventArgs e) =>
-            this._ready.InvokeAsync(e);
+        private Task Client_Ready(ReadyEventArgs e) 
+            => this._ready.InvokeAsync(e);
 
-        private Task Client_Resumed(ReadyEventArgs e) =>
-            this._resumed.InvokeAsync(e);
+        private Task Client_Resumed(ReadyEventArgs e) 
+            => this._resumed.InvokeAsync(e);
 
-        private Task Client_ChannelCreated(ChannelCreateEventArgs e) =>
-            this._channel_created.InvokeAsync(e);
+        private Task Client_ChannelCreated(ChannelCreateEventArgs e) 
+            => this._channel_created.InvokeAsync(e);
 
-        private Task Client_DMChannelCreated(DmChannelCreateEventArgs e) =>
-            this._dm_channel_created.InvokeAsync(e);
+        private Task Client_DMChannelCreated(DmChannelCreateEventArgs e) 
+            => this._dm_channel_created.InvokeAsync(e);
 
-        private Task Client_ChannelUpdated(ChannelUpdateEventArgs e) =>
-            this._channel_updated.InvokeAsync(e);
+        private Task Client_ChannelUpdated(ChannelUpdateEventArgs e) 
+            => this._channel_updated.InvokeAsync(e);
 
-        private Task Client_ChannelDeleted(ChannelDeleteEventArgs e) =>
-            this._channel_deleted.InvokeAsync(e);
+        private Task Client_ChannelDeleted(ChannelDeleteEventArgs e) 
+            => this._channel_deleted.InvokeAsync(e);
 
-        private Task Client_DMChannelDeleted(DmChannelDeleteEventArgs e) =>
-            this._dm_channel_deleted.InvokeAsync(e);
+        private Task Client_DMChannelDeleted(DmChannelDeleteEventArgs e) 
+            => this._dm_channel_deleted.InvokeAsync(e);
 
-        private Task Client_ChannelPinsUpdated(ChannelPinsUpdateEventArgs e) =>
-            this._channel_pins_updated.InvokeAsync(e);
+        private Task Client_ChannelPinsUpdated(ChannelPinsUpdateEventArgs e) 
+            => this._channel_pins_updated.InvokeAsync(e);
 
-        private Task Client_GuildCreated(GuildCreateEventArgs e) =>
-            this._guild_created.InvokeAsync(e);
+        private Task Client_GuildCreated(GuildCreateEventArgs e) 
+            => this._guild_created.InvokeAsync(e);
 
-        private Task Client_GuildAvailable(GuildCreateEventArgs e) =>
-            this._guild_available.InvokeAsync(e);
+        private Task Client_GuildAvailable(GuildCreateEventArgs e) 
+            => this._guild_available.InvokeAsync(e);
 
-        private Task Client_GuildUpdated(GuildUpdateEventArgs e) =>
-            this._guild_updated.InvokeAsync(e);
+        private Task Client_GuildUpdated(GuildUpdateEventArgs e) 
+            => this._guild_updated.InvokeAsync(e);
 
-        private Task Client_GuildDeleted(GuildDeleteEventArgs e) =>
-            this._guild_deleted.InvokeAsync(e);
+        private Task Client_GuildDeleted(GuildDeleteEventArgs e) 
+            => this._guild_deleted.InvokeAsync(e);
 
-        private Task Client_GuildUnavailable(GuildDeleteEventArgs e) =>
-            this._guild_unavailable.InvokeAsync(e);
+        private Task Client_GuildUnavailable(GuildDeleteEventArgs e) 
+            => this._guild_unavailable.InvokeAsync(e);
 
-        private Task Client_MessageCreated(MessageCreateEventArgs e) =>
-            this._message_created.InvokeAsync(e);
+        private Task Client_MessageCreated(MessageCreateEventArgs e) 
+            => this._message_created.InvokeAsync(e);
 
-        private Task Client_PresenceUpdate(PresenceUpdateEventArgs e) =>
-            this._presence_update.InvokeAsync(e);
+        private Task Client_PresenceUpdate(PresenceUpdateEventArgs e) 
+            => this._presence_update.InvokeAsync(e);
 
-        private Task Client_GuildBanAdd(GuildBanAddEventArgs e) =>
-            this._guild_ban_add.InvokeAsync(e);
+        private Task Client_GuildBanAdd(GuildBanAddEventArgs e) 
+            => this._guild_ban_add.InvokeAsync(e);
 
-        private Task Client_GuildBanRemove(GuildBanRemoveEventArgs e) =>
-            this._guild_ban_remove.InvokeAsync(e);
+        private Task Client_GuildBanRemove(GuildBanRemoveEventArgs e) 
+            => this._guild_ban_remove.InvokeAsync(e);
 
-        private Task Client_GuildEmojisUpdate(GuildEmojisUpdateEventArgs e) =>
-            this._guild_emojis_update.InvokeAsync(e);
+        private Task Client_GuildEmojisUpdate(GuildEmojisUpdateEventArgs e) 
+            => this._guild_emojis_update.InvokeAsync(e);
 
-        private Task Client_GuildIntegrationsUpdate(GuildIntegrationsUpdateEventArgs e) =>
-            this._guild_integrations_update.InvokeAsync(e);
+        private Task Client_GuildIntegrationsUpdate(GuildIntegrationsUpdateEventArgs e) 
+            => this._guild_integrations_update.InvokeAsync(e);
 
-        private Task Client_GuildMemberAdd(GuildMemberAddEventArgs e) =>
-            this._guild_member_add.InvokeAsync(e);
+        private Task Client_GuildMemberAdd(GuildMemberAddEventArgs e) 
+            => this._guild_member_add.InvokeAsync(e);
 
-        private Task Client_GuildMemberRemove(GuildMemberRemoveEventArgs e) =>
-            this._guild_member_remove.InvokeAsync(e);
+        private Task Client_GuildMemberRemove(GuildMemberRemoveEventArgs e) 
+            => this._guild_member_remove.InvokeAsync(e);
 
-        private Task Client_GuildMemberUpdate(GuildMemberUpdateEventArgs e) =>
-            this._guild_member_update.InvokeAsync(e);
+        private Task Client_GuildMemberUpdate(GuildMemberUpdateEventArgs e) 
+            => this._guild_member_update.InvokeAsync(e);
 
-        private Task Client_GuildRoleCreate(GuildRoleCreateEventArgs e) =>
-            this._guild_role_create.InvokeAsync(e);
+        private Task Client_GuildRoleCreate(GuildRoleCreateEventArgs e) 
+            => this._guild_role_create.InvokeAsync(e);
 
-        private Task Client_GuildRoleUpdate(GuildRoleUpdateEventArgs e) =>
-            this._guild_role_update.InvokeAsync(e);
+        private Task Client_GuildRoleUpdate(GuildRoleUpdateEventArgs e) 
+            => this._guild_role_update.InvokeAsync(e);
 
-        private Task Client_GuildRoleDelete(GuildRoleDeleteEventArgs e) =>
-            this._guild_role_delete.InvokeAsync(e);
+        private Task Client_GuildRoleDelete(GuildRoleDeleteEventArgs e) 
+            => this._guild_role_delete.InvokeAsync(e);
 
-        private Task Client_MessageUpdate(MessageUpdateEventArgs e) =>
-            this._message_update.InvokeAsync(e);
+        private Task Client_MessageUpdate(MessageUpdateEventArgs e) 
+            => this._message_update.InvokeAsync(e);
 
-        private Task Client_MessageDelete(MessageDeleteEventArgs e) =>
-            this._message_delete.InvokeAsync(e);
+        private Task Client_MessageDelete(MessageDeleteEventArgs e) 
+            => this._message_delete.InvokeAsync(e);
 
-        private Task Client_MessageBulkDelete(MessageBulkDeleteEventArgs e) =>
-            this._message_bulk_delete.InvokeAsync(e);
+        private Task Client_MessageBulkDelete(MessageBulkDeleteEventArgs e) 
+            => this._message_bulk_delete.InvokeAsync(e);
 
-        private Task Client_TypingStart(TypingStartEventArgs e) =>
-            this._typing_start.InvokeAsync(e);
+        private Task Client_TypingStart(TypingStartEventArgs e) 
+            => this._typing_start.InvokeAsync(e);
 
-        private Task Client_UserSettingsUpdate(UserSettingsUpdateEventArgs e) =>
-            this._user_settings_update.InvokeAsync(e);
+        private Task Client_UserSettingsUpdate(UserSettingsUpdateEventArgs e) 
+            => this._user_settings_update.InvokeAsync(e);
 
-        private Task Client_UserUpdate(UserUpdateEventArgs e) =>
-            this._user_update.InvokeAsync(e);
+        private Task Client_UserUpdate(UserUpdateEventArgs e) 
+            => this._user_update.InvokeAsync(e);
 
-        private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e) =>
-            this._voice_state_update.InvokeAsync(e);
+        private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e) 
+            => this._voice_state_update.InvokeAsync(e);
 
-        private Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e) =>
-            this._voice_server_update.InvokeAsync(e);
+        private Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e) 
+            => this._voice_server_update.InvokeAsync(e);
 
-        private Task Client_GuildMembersChunk(GuildMembersChunkEventArgs e) =>
-            this._guild_members_chunk.InvokeAsync(e);
+        private Task Client_GuildMembersChunk(GuildMembersChunkEventArgs e) 
+            => this._guild_members_chunk.InvokeAsync(e);
 
-        private Task Client_UnknownEvent(UnknownEventArgs e) =>
-            this._unknown_event.InvokeAsync(e);
+        private Task Client_UnknownEvent(UnknownEventArgs e) 
+            => this._unknown_event.InvokeAsync(e);
 
-        private Task Client_MessageReactionAdd(MessageReactionAddEventArgs e) =>
-            this._message_reaction_add.InvokeAsync(e);
+        private Task Client_MessageReactionAdd(MessageReactionAddEventArgs e) 
+            => this._message_reaction_add.InvokeAsync(e);
 
-        private Task Client_MessageReactionRemove(MessageReactionRemoveEventArgs e) =>
-            this._message_reaction_remove.InvokeAsync(e);
+        private Task Client_MessageReactionRemove(MessageReactionRemoveEventArgs e) 
+            => this._message_reaction_remove.InvokeAsync(e);
 
-        private Task Client_MessageReactionRemoveAll(MessageReactionsClearEventArgs e) =>
-            this._message_reaction_remove_all.InvokeAsync(e);
+        private Task Client_MessageReactionRemoveAll(MessageReactionsClearEventArgs e) 
+            => this._message_reaction_remove_all.InvokeAsync(e);
 
-        private Task Client_WebhooksUpdate(WebhooksUpdateEventArgs e) =>
-            this._webhooks_update.InvokeAsync(e);
+        private Task Client_WebhooksUpdate(WebhooksUpdateEventArgs e) 
+            => this._webhooks_update.InvokeAsync(e);
 
-        private Task Client_HeartBeated(HeartbeatEventArgs e) =>
-            this._heartbeated.InvokeAsync(e);
+        private Task Client_HeartBeated(HeartbeatEventArgs e) 
+            => this._heartbeated.InvokeAsync(e);
 
-        private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e) =>
-            this.DebugLogger.LogMessage(e.Level, e.Application, e.Message, e.Timestamp);
+        private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e) 
+            => this.DebugLogger.LogMessage(e.Level, e.Application, e.Message, e.Timestamp);
         #endregion
     }
 }

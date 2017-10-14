@@ -25,22 +25,27 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the channel in which the execution was triggered,
         /// </summary>
-        public DiscordChannel Channel => this.Message.Channel;
+        public DiscordChannel Channel 
+            => this.Message.Channel;
 
         /// <summary>
         /// Gets the guild in which the execution was triggered. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordGuild Guild => this.Channel.Guild;
+        public DiscordGuild Guild 
+            => this.Channel.Guild;
 
         /// <summary>
         /// Gets the user who triggered the execution.
         /// </summary>
-        public DiscordUser User => this.Message.Author;
+        public DiscordUser User 
+            => this.Message.Author;
 
         /// <summary>
         /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordMember Member => this._lazy_ass_member.Value;
+        public DiscordMember Member 
+            => this._lazy_ass_member.Value;
+
         private Lazy<DiscordMember> _lazy_ass_member;
 
         /// <summary>
@@ -72,7 +77,7 @@ namespace DSharpPlus.CommandsNext
 
         internal CommandContext()
         {
-            this._lazy_ass_member = new Lazy<DiscordMember>(() => this.Guild?.Members.FirstOrDefault(xm => xm.Id == this.User.Id) ?? this.Guild?.GetMemberAsync(this.User.Id).GetAwaiter().GetResult());
+            this._lazy_ass_member = new Lazy<DiscordMember>(() => this.Guild?.Members.FirstOrDefault(xm => xm.Id == this.User.Id) ?? this.Guild?.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult());
         }
 
         /// <summary>
@@ -82,8 +87,8 @@ namespace DSharpPlus.CommandsNext
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <param name="embed">Embed to attach.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.RespondAsync(content, is_tts, embed);
+        public Task<DiscordMessage> RespondAsync(string content = null, bool is_tts = false, DiscordEmbed embed = null) 
+            => this.Message.RespondAsync(content, is_tts, embed);
 
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.
@@ -94,8 +99,8 @@ namespace DSharpPlus.CommandsNext
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>Message that was sent.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.RespondWithFileAsync(file_data, file_name, content, is_tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null) 
+            => this.Message.RespondWithFileAsync(file_data, file_name, content, is_tts, embed);
 
 #if !NETSTANDARD1_1
         /// <summary>
@@ -106,8 +111,8 @@ namespace DSharpPlus.CommandsNext
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>Message that was sent.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(FileStream file_data, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.RespondWithFileAsync(file_data, content, is_tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(FileStream file_data, string content = null, bool is_tts = false, DiscordEmbed embed = null) 
+            => this.Message.RespondWithFileAsync(file_data, content, is_tts, embed);
 
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.
@@ -131,14 +136,14 @@ namespace DSharpPlus.CommandsNext
         /// <param name="is_tts">Whether the message is to be spoken aloud.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>Message that was sent.</returns>
-        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null) =>
-            this.Message.RespondWithFilesAsync(files, content, is_tts, embed);
+        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null) 
+            => this.Message.RespondWithFilesAsync(files, content, is_tts, embed);
 
         /// <summary>
         /// Triggers typing in the channel containing the message that triggered the command.
         /// </summary>
         /// <returns></returns>
-        public Task TriggerTypingAsync() =>
-            this.Channel.TriggerTypingAsync();
+        public Task TriggerTypingAsync() 
+            => this.Channel.TriggerTypingAsync();
     }
 }

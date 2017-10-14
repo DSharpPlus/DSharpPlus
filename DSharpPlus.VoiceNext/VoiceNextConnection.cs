@@ -74,7 +74,8 @@ namespace DSharpPlus.VoiceNext
         private DateTime LastHeartbeat { get; set; }
 
         private CancellationTokenSource TokenSource { get; }
-        private CancellationToken Token => this.TokenSource.Token;
+        private CancellationToken Token 
+            => this.TokenSource.Token;
 
         private VoiceServerUpdatePayload ServerData { get; set; }
         private VoiceStateUpdatePayload StateData { get; set; }
@@ -112,12 +113,15 @@ namespace DSharpPlus.VoiceNext
         /// <summary>
         /// Gets whether this connection is still playing audio.
         /// </summary>
-        public bool IsPlaying => this.PlaybackSemaphore.CurrentCount == 0 || (this.PlayingWait != null && !this.PlayingWait.Task.IsCompleted);
+        public bool IsPlaying 
+            => this.PlaybackSemaphore.CurrentCount == 0 || (this.PlayingWait != null && !this.PlayingWait.Task.IsCompleted);
 
         /// <summary>
         /// Gets the websocket round-trip time in ms.
         /// </summary>
-        public int Ping => Volatile.Read(ref this._ping);
+        public int Ping 
+            => Volatile.Read(ref this._ping);
+
         private int _ping = 0;
 
         /// <summary>
@@ -192,9 +196,16 @@ namespace DSharpPlus.VoiceNext
         /// Connects to the specified voice channel.
         /// </summary>
         /// <returns>A task representing the connection operation.</returns>
-        internal async Task ConnectAsync()
+        internal Task ConnectAsync()
         {
-            await Task.Run(() => this.VoiceWs.ConnectAsync($"wss://{this.ConnectionEndpoint.Hostname}/?encoding=json&v=3")).ConfigureAwait(false);
+            var gwuri = new UriBuilder
+            {
+                Scheme = "wss",
+                Host = this.ConnectionEndpoint.Hostname,
+                Query = "encoding=json&v=3"
+            };
+
+            return this.VoiceWs.ConnectAsync(gwuri.Uri);
         }
 
         internal Task StartAsync()
@@ -230,10 +241,8 @@ namespace DSharpPlus.VoiceNext
             return Task.Delay(0);
         }
 
-        internal async Task WaitForReady()
-        {
-            await this.ReadyWait.Task.ConfigureAwait(false);
-        }
+        internal Task WaitForReadyAsync() 
+            => this.ReadyWait.Task;
 
         /// <summary>
         /// Encodes, encrypts, and sends the provided PCM data to the connected voice channel.
@@ -247,7 +256,7 @@ namespace DSharpPlus.VoiceNext
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
 
-            await this.PlaybackSemaphore.WaitAsync();
+            await this.PlaybackSemaphore.WaitAsync().ConfigureAwait(false);
 
             var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
 
@@ -279,13 +288,13 @@ namespace DSharpPlus.VoiceNext
                 
                 var cts = Math.Max(Stopwatch.GetTimestamp() - this.SynchronizerTicks, 0);
                 if (cts < this.SynchronizerResolution)
-                    await Task.Delay(TimeSpan.FromTicks((long)((this.SynchronizerResolution - cts) * this.TickResolution)));
+                    await Task.Delay(TimeSpan.FromTicks((long)((this.SynchronizerResolution - cts) * this.TickResolution))).ConfigureAwait(false);
 
                 this.SynchronizerTicks += this.SynchronizerResolution;
             }
 
-            await this.SendSpeakingAsync(true);
-            await this.UdpClient.SendAsync(dat, dat.Length);
+            await this.SendSpeakingAsync(true).ConfigureAwait(false);
+            await this.UdpClient.SendAsync(dat, dat.Length).ConfigureAwait(false);
 
             this.Sequence++;
             this.Timestamp += 48 * (uint)blocksize;
@@ -308,7 +317,7 @@ namespace DSharpPlus.VoiceNext
                 uint ts = 0, ssrc = 0;
                 try
                 {
-                    data = await client.ReceiveAsync();
+                    data = await client.ReceiveAsync().ConfigureAwait(false);
 
                     header = new byte[RtpCodec.SIZE_HEADER];
                     data = this.Rtp.Decode(data, header);
@@ -354,7 +363,7 @@ namespace DSharpPlus.VoiceNext
                 {
                     var id = this.SSRCMap[ssrc];
                     if (this.Guild != null)
-                        user = this.Guild._members.FirstOrDefault(xm => xm.Id == id) ?? await this.Guild.GetMemberAsync(id);
+                        user = this.Guild._members.FirstOrDefault(xm => xm.Id == id) ?? await this.Guild.GetMemberAsync(id).ConfigureAwait(false);
 
                     if (user == null)
                         user = this.Discord.InternalGetCachedUser(id);
@@ -369,7 +378,7 @@ namespace DSharpPlus.VoiceNext
                     Voice = new ReadOnlyCollection<byte>(data),
                     VoiceLength = 20,
                     User = user
-                });
+                }).ConfigureAwait(false);
             }
         }
 #endif
@@ -388,7 +397,7 @@ namespace DSharpPlus.VoiceNext
             {
                 var nullpcm = new byte[3840];
                 for (var i = 0; i < 5; i++)
-                    await this.SendAsync(nullpcm, 20);
+                    await this.SendAsync(nullpcm, 20).ConfigureAwait(false);
 
                 this.SynchronizerTicks = 0;
                 if (this.PlayingWait != null)
@@ -411,7 +420,7 @@ namespace DSharpPlus.VoiceNext
             };
 
             var plj = JsonConvert.SerializeObject(pld, Formatting.None);
-            await Task.Run(() => this.VoiceWs.SendMessage(plj));
+            this.VoiceWs.SendMessage(plj);
         }
 
         /// <summary>
@@ -421,14 +430,14 @@ namespace DSharpPlus.VoiceNext
         public async Task WaitForPlaybackFinishAsync()
         {
             if (this.PlayingWait != null)
-                await this.PlayingWait.Task;
+                await this.PlayingWait.Task.ConfigureAwait(false);
         }
 
         /// <summary>
         /// Disconnects and disposes this voice connection.
         /// </summary>
-        public void Disconnect() =>
-            this.Dispose();
+        public void Disconnect() 
+            => this.Dispose();
 
         /// <summary>
         /// Disconnects and disposes this voice connection.
@@ -444,7 +453,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = false;
             try
             {
-                this.VoiceWs.InternalDisconnectAsync(null).GetAwaiter().GetResult();
+                this.VoiceWs.InternalDisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
             catch (Exception)
@@ -481,7 +490,7 @@ namespace DSharpPlus.VoiceNext
                     this.VoiceWs.SendMessage(hbj);
 
                     this.LastHeartbeat = dt;
-                    await Task.Delay(this.HeartbeatInterval);
+                    await Task.Delay(this.HeartbeatInterval).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -500,8 +509,8 @@ namespace DSharpPlus.VoiceNext
             this.UdpClient.Setup(this.ConnectionEndpoint);
             var pck = new byte[70];
             Array.Copy(BitConverter.GetBytes(this.SSRC), 0, pck, pck.Length - 4, 4);
-            await this.UdpClient.SendAsync(pck, pck.Length);
-            var ipd = await this.UdpClient.ReceiveAsync();
+            await this.UdpClient.SendAsync(pck, pck.Length).ConfigureAwait(false);
+            var ipd = await this.UdpClient.ReceiveAsync().ConfigureAwait(false);
             var ipe = Array.IndexOf<byte>(ipd, 0, 4);
             var ip = new UTF8Encoding(false).GetString(ipd, 4, ipe - 4);
             var port = BitConverter.ToUInt16(ipd, ipd.Length - 2);
@@ -557,14 +566,14 @@ namespace DSharpPlus.VoiceNext
                     this.SSRC = vrp.SSRC;
                     this.ConnectionEndpoint = new ConnectionEndpoint { Hostname = this.ConnectionEndpoint.Hostname, Port = vrp.Port };
                     this.HeartbeatInterval = vrp.HeartbeatInterval;
-                    await this.Stage1();
+                    await this.Stage1().ConfigureAwait(false);
                     break;
 
                 case 4:
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP4 received", DateTime.Now);
                     var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
-                    await this.Stage2();
+                    await this.Stage2().ConfigureAwait(false);
                     break;
 
                 case 5:
@@ -579,7 +588,7 @@ namespace DSharpPlus.VoiceNext
                     };
                     if (!this.SSRCMap.ContainsKey(spk.SSRC))
                         this.SSRCMap.AddOrUpdate(spk.SSRC, spk.User.Id, (k, v) => spk.User.Id);
-                    await this._user_speaking.InvokeAsync(spk);
+                    await this._user_speaking.InvokeAsync(spk).ConfigureAwait(false);
                     break;
 
                 case 3:
@@ -602,7 +611,7 @@ namespace DSharpPlus.VoiceNext
                 case 9:
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP9 received, starting new session", DateTime.Now);
                     this.Resume = false;
-                    await this.StartAsync();
+                    await this.StartAsync().ConfigureAwait(false);
                     break;
 
                 default:
@@ -622,22 +631,18 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
                 this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
                 this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
-                await this.StartAsync();
+                await this.StartAsync().ConfigureAwait(false);
             }
         }
 
-        private async Task VoiceWS_SocketMessage(SocketMessageEventArgs e)
-        {
-            await this.HandleDispatch(JObject.Parse(e.Message));
-        }
+        private Task VoiceWS_SocketMessage(SocketMessageEventArgs e) 
+            => this.HandleDispatch(JObject.Parse(e.Message));
 
-        private async Task VoiceWS_SocketOpened()
-        {
-            await this.StartAsync();
-        }
+        private Task VoiceWS_SocketOpened() 
+            => this.StartAsync();
 
-        private Task VoiceWs_SocketErrored(SocketErrorEventArgs e) =>
-            this._voice_socket_error.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
+        private Task VoiceWs_SocketErrored(SocketErrorEventArgs e) 
+            => this._voice_socket_error.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
 
         private static uint UnixTimestamp(DateTime dt)
         {

@@ -14,11 +14,11 @@ namespace DSharpPlus.Interactivity
     {
         public static InteractivityExtension UseInteractivity(this DiscordClient c, InteractivityConfiguration cfg)
         {
-            if (c.GetModule<InteractivityExtension>() != null)
+            if (c.GetExtension<InteractivityExtension>() != null)
                 throw new Exception("Interactivity module is already enabled for this client!");
 
             var m = new InteractivityExtension(cfg);
-            c.AddModule(m);
+            c.AddExtension(m);
             return m;
         }
 
@@ -26,11 +26,11 @@ namespace DSharpPlus.Interactivity
         {
             var modules = new Dictionary<int, InteractivityExtension>();
 
-            c.InitializeShardsAsync().GetAwaiter().GetResult();
+            c.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
             {
-                var m = shard.GetModule<InteractivityExtension>();
+                var m = shard.GetExtension<InteractivityExtension>();
                 if (m == null)
                     m = shard.UseInteractivity(cfg);
 
@@ -42,17 +42,17 @@ namespace DSharpPlus.Interactivity
 
         public static InteractivityExtension GetInteractivityModule(this DiscordClient c)
         {
-            return c.GetModule<InteractivityExtension>();
+            return c.GetExtension<InteractivityExtension>();
         }
 
         public static IReadOnlyDictionary<int, InteractivityExtension> GetInteractivityModule(this DiscordShardedClient c)
         {
             var modules = new Dictionary<int, InteractivityExtension>();
 
-            c.InitializeShardsAsync().GetAwaiter().GetResult();
+            c.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
-                modules.Add(shard.ShardId, shard.GetModule<InteractivityExtension>());
+                modules.Add(shard.ShardId, shard.GetExtension<InteractivityExtension>());
 
             return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
         }
@@ -103,7 +103,7 @@ namespace DSharpPlus.Interactivity
             try
             {
                 this.Client.MessageCreated += Handler;
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -152,7 +152,7 @@ namespace DSharpPlus.Interactivity
             {
                 this.Client.MessageReactionAdded += Handler;
 
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -205,7 +205,7 @@ namespace DSharpPlus.Interactivity
             {
                 this.Client.MessageReactionAdded += Handler;
 
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -261,7 +261,7 @@ namespace DSharpPlus.Interactivity
             {
                 this.Client.MessageReactionAdded += Handler;
 
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -318,7 +318,7 @@ namespace DSharpPlus.Interactivity
             {
                 this.Client.MessageReactionAdded += Handler;
 
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -369,7 +369,7 @@ namespace DSharpPlus.Interactivity
 
             foreach (var em in emojis)
             {
-                await message.CreateReactionAsync(em);
+                await message.CreateReactionAsync(em).ConfigureAwait(false);
             }
 
             var rcc = new ReactionCollectionContext();
@@ -383,7 +383,7 @@ namespace DSharpPlus.Interactivity
                 this.Client.MessageReactionRemoved += ReactionRemoveHandler;
                 this.Client.MessageReactionsCleared += ReactionClearHandler;
 
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -424,7 +424,7 @@ namespace DSharpPlus.Interactivity
                     rcc.ClearReactions();
                     foreach (var em in emojis)
                     {
-                        await message.CreateReactionAsync(em);
+                        await message.CreateReactionAsync(em).ConfigureAwait(false);
                     }
                 }
             }
@@ -451,7 +451,7 @@ namespace DSharpPlus.Interactivity
                 this.Client.MessageReactionRemoved += ReactionRemoveHandler;
                 this.Client.MessageReactionsCleared += ReactionClearHandler;
 
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -518,7 +518,7 @@ namespace DSharpPlus.Interactivity
             {
                 this.Client.TypingStarted += Handler;
 
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -585,7 +585,7 @@ namespace DSharpPlus.Interactivity
             {
                 this.Client.TypingStarted += handler;
 
-                var result = await tsc.Task;
+                var result = await tsc.Task.ConfigureAwait(false);
                 return result;
             }
             catch (Exception)
@@ -628,7 +628,7 @@ namespace DSharpPlus.Interactivity
             var ct = new CancellationTokenSource(timeout);
             ct.Token.Register(() => tsc.TrySetResult(null));
 
-            DiscordMessage m = await this.Client.SendMessageAsync(channel, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed);
+            DiscordMessage m = await this.Client.SendMessageAsync(channel, string.IsNullOrEmpty(pages.First().Content) ? "" : pages.First().Content, embed: pages.First().Embed).ConfigureAwait(false);
             PaginatedMessage pm = new PaginatedMessage()
             {
                 CurrentIndex = 0,
@@ -636,7 +636,7 @@ namespace DSharpPlus.Interactivity
                 Timeout = timeout
             };
 
-            await this.GeneratePaginationReactions(m);
+            await this.GeneratePaginationReactions(m).ConfigureAwait(false);
 
             try
             {
@@ -644,17 +644,17 @@ namespace DSharpPlus.Interactivity
                 this.Client.MessageReactionAdded += ReactionAddHandler;
                 this.Client.MessageReactionRemoved += ReactionRemoveHandler;
 
-                await tsc.Task;
+                await tsc.Task.ConfigureAwait(false);
 
                 switch (timeout_behaviour)
                 {
-                    case TimeoutBehaviour.Default:
                     case TimeoutBehaviour.Ignore:
-                        await m.DeleteAllReactionsAsync();
+                        await m.DeleteAllReactionsAsync().ConfigureAwait(false);
                         break;
                     case TimeoutBehaviour.Delete:
-                        await m.DeleteAllReactionsAsync();
-                        await m.DeleteAsync();
+                        // deleting a message deletes all reactions anyway
+                        //await m.DeleteAllReactionsAsync().ConfigureAwait(false);
+                        await m.DeleteAsync().ConfigureAwait(false);
                         break;
                 }
             }
@@ -674,19 +674,19 @@ namespace DSharpPlus.Interactivity
             {
                 if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
                 {
-                    await this.DoPagination(e.Emoji, m, pm, ct);
+                    await this.DoPagination(e.Emoji, m, pm, ct).ConfigureAwait(false);
                 }
             }
 
             async Task ReactionRemoveHandler(MessageReactionRemoveEventArgs e)
             {
                 if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
-                    await this.DoPagination(e.Emoji, m, pm, ct);
+                    await this.DoPagination(e.Emoji, m, pm, ct).ConfigureAwait(false);
             }
 
             async Task ReactionClearHandler(MessageReactionsClearEventArgs e)
             {
-                await this.GeneratePaginationReactions(m);
+                await this.GeneratePaginationReactions(m).ConfigureAwait(false);
             }
             #endregion
         }
@@ -738,11 +738,11 @@ namespace DSharpPlus.Interactivity
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮"));
-            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀"));
-            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹"));
-            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "▶"));
-            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏭"));
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮")).ConfigureAwait(false);
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀")).ConfigureAwait(false);
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹")).ConfigureAwait(false);
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "▶")).ConfigureAwait(false);
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏭")).ConfigureAwait(false);
         }
 
         public async Task DoPagination(DiscordEmoji emoji, DiscordMessage message, PaginatedMessage paginatedmessage, CancellationTokenSource canceltoken)
@@ -786,7 +786,7 @@ namespace DSharpPlus.Interactivity
             }
 
             await message.ModifyAsync((string.IsNullOrEmpty(paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Content)) ? "" : paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Content,
-                embed: paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Embed ?? null);
+                embed: paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Embed ?? null).ConfigureAwait(false);
             #endregion
         }
         #endregion
@@ -794,7 +794,8 @@ namespace DSharpPlus.Interactivity
 
     public enum TimeoutBehaviour
     {
-        Default, // ignore
+        // is this actually needed?
+        //Default, // ignore
         Ignore,
         Delete
     }

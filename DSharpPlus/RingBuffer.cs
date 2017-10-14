@@ -24,12 +24,14 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the number of items in this ring buffer.
         /// </summary>
-        public int Count => this._reached_end ? this.Capacity : this.CurrentIndex;
+        public int Count 
+            => this._reached_end ? this.Capacity : this.CurrentIndex;
 
         /// <summary>
         /// Gets whether this ring buffer is read-only.
         /// </summary>
-        public bool IsReadOnly => false;
+        public bool IsReadOnly 
+            => false;
 
         /// <summary>
         /// Gets or sets the internal collection of items.

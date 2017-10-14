@@ -39,11 +39,11 @@ namespace DSharpPlus.CommandsNext
         }
         private AsyncEvent<CommandErrorEventArgs> _error;
 
-        private async Task OnCommandExecuted(CommandExecutionEventArgs e) =>
-            await this._executed.InvokeAsync(e).ConfigureAwait(false);
+        private Task OnCommandExecuted(CommandExecutionEventArgs e) 
+            => this._executed.InvokeAsync(e);
 
-        private async Task OnCommandErrored(CommandErrorEventArgs e) =>
-            await this._error.InvokeAsync(e).ConfigureAwait(false);
+        private Task OnCommandErrored(CommandErrorEventArgs e) 
+            => this._error.InvokeAsync(e);
         #endregion
 
         private CommandsNextConfiguration Config { get; }
@@ -53,7 +53,8 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the dependency collection this CommandsNext module was configured with.
         /// </summary>
-        public DependencyCollection Dependencies => this.Config.Dependencies;
+        public DependencyCollection Dependencies 
+            => this.Config.Dependencies;
 
         internal CommandsNextExtension(CommandsNextConfiguration cfg)
         {
@@ -77,23 +78,23 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <typeparam name="T">Type for which to register the converter.</typeparam>
         /// <param name="converter">Converter to register.</param>
-        public void RegisterConverter<T>(IArgumentConverter<T> converter) =>
-            CommandsNextUtilities.RegisterConverter(converter);
+        public void RegisterConverter<T>(IArgumentConverter<T> converter) 
+            => CommandsNextUtilities.RegisterConverter(converter);
 
         /// <summary>
         /// Unregisters an argument converter for specified type.
         /// </summary>
         /// <typeparam name="T">Type for which to unregister the converter.</typeparam>
-        public void UnregisterConverter<T>() =>
-            CommandsNextUtilities.UnregisterConverter<T>();
+        public void UnregisterConverter<T>() 
+            => CommandsNextUtilities.UnregisterConverter<T>();
 
         /// <summary>
         /// Registers a user-friendly type name.
         /// </summary>
         /// <typeparam name="T">Type to register the name for.</typeparam>
         /// <param name="value">Name to register.</param>
-        public void RegisterUserFriendlyTypeName<T>(string value) =>
-            CommandsNextUtilities.RegisterUserFriendlyTypeName<T>(value);
+        public void RegisterUserFriendlyTypeName<T>(string value) 
+            => CommandsNextUtilities.RegisterUserFriendlyTypeName<T>(value);
         #endregion
 
         #region DiscordClient Registration
@@ -177,7 +178,7 @@ namespace DSharpPlus.CommandsNext
             if (!this.Config.EnableDms && e.Channel.IsPrivate)
                 return;
 
-            if (this.Config.SelfBot && e.Author.Id != this.Client.CurrentUser.Id)
+            if (this.Config.Selfbot && e.Author.Id != this.Client.CurrentUser.Id)
                 return;
 
             var mpos = -1;
@@ -188,7 +189,7 @@ namespace DSharpPlus.CommandsNext
                 mpos = e.Message.GetStringPrefixLength(this.Config.StringPrefix);
 
             if (mpos == -1 && this.Config.CustomPrefixPredicate != null)
-                mpos = await this.Config.CustomPrefixPredicate(e.Message);
+                mpos = await this.Config.CustomPrefixPredicate(e.Message).ConfigureAwait(false);
 
             if (mpos == -1)
                 return;
@@ -214,7 +215,7 @@ namespace DSharpPlus.CommandsNext
 
             if (cmd == null)
             {
-                await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(cms) });
+                await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(cms) }).ConfigureAwait(false);
                 return;
             }
 
@@ -222,29 +223,34 @@ namespace DSharpPlus.CommandsNext
             {
                 try
                 {
-                    var fchecks = await cmd.RunChecksAsync(ctx, false);
+                    var fchecks = await cmd.RunChecksAsync(ctx, false).ConfigureAwait(false);
                     if (fchecks.Any())
                         throw new ChecksFailedException(cmd, ctx, fchecks);
 
-                    var res = await cmd.ExecuteAsync(ctx);
+                    var res = await cmd.ExecuteAsync(ctx).ConfigureAwait(false);
                     
                     if (res.IsSuccessful)
-                        await this._executed.InvokeAsync(new CommandExecutionEventArgs { Context = res.Context });
+                        await this._executed.InvokeAsync(new CommandExecutionEventArgs { Context = res.Context }).ConfigureAwait(false);
                     else
-                        await this._error.InvokeAsync(new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception });
+                        await this._error.InvokeAsync(new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception }).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = ex });
+                    await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = ex }).ConfigureAwait(false);
                 }
             });
         }
         #endregion
 
         #region Command Registration
+        /// <summary>
+        /// Gets a dictionary of registered top-level commands.
+        /// </summary>
+        public IReadOnlyDictionary<string, Command> RegisteredCommands 
+            => this._registered_commands_lazy.Value;
+
         private Dictionary<string, Command> TopLevelCommands { get; set; }
         private Lazy<IReadOnlyDictionary<string, Command>> _registered_commands_lazy;
-        public IReadOnlyDictionary<string, Command> RegisteredCommands => this._registered_commands_lazy.Value;
 
         /// <summary>
         /// Registers all commands from a given assembly. The command classes need to be public to be considered for registration.
@@ -566,7 +572,7 @@ namespace DSharpPlus.CommandsNext
                     if (cmd == null)
                         break;
 
-                    var cfl = await cmd.RunChecksAsync(ctx, true);
+                    var cfl = await cmd.RunChecksAsync(ctx, true).ConfigureAwait(false);
                     if (cfl.Any())
                         throw new ChecksFailedException(cmd, ctx, cfl);
 
@@ -602,7 +608,7 @@ namespace DSharpPlus.CommandsNext
                             continue;
                         }
 
-                        var cfl = await sc.RunChecksAsync(ctx, true);
+                        var cfl = await sc.RunChecksAsync(ctx, true).ConfigureAwait(false);
                         if (!cfl.Any())
                             scs.Add(sc);
                     }
@@ -623,7 +629,7 @@ namespace DSharpPlus.CommandsNext
                         continue;
                     }
 
-                    var cfl = await sc.RunChecksAsync(ctx, true);
+                    var cfl = await sc.RunChecksAsync(ctx, true).ConfigureAwait(false);
                     if (!cfl.Any())
                         scs.Add(sc);
                 }
@@ -633,7 +639,7 @@ namespace DSharpPlus.CommandsNext
             }
 
             var hmsg = helpbuilder.Build();
-            await ctx.RespondAsync(hmsg.Content, embed: hmsg.Embed);
+            await ctx.RespondAsync(hmsg.Content, embed: hmsg.Embed).ConfigureAwait(false);
         }
         #endregion
 
@@ -690,7 +696,7 @@ namespace DSharpPlus.CommandsNext
             msg._mentioned_roles = mentioned_roles;
             msg._mentioned_channels = mentioned_channels;
 
-            await this.HandleCommandsAsync(new MessageCreateEventArgs(this.Client) { Message = msg });
+            await this.HandleCommandsAsync(new MessageCreateEventArgs(this.Client) { Message = msg }).ConfigureAwait(false);
         }
         #endregion
     }

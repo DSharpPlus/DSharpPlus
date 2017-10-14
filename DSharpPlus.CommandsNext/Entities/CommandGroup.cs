@@ -60,7 +60,7 @@ namespace DSharpPlus.CommandsNext
                         Dependencies = ctx.Dependencies
                     };
 
-                    var fchecks = await cmd.RunChecksAsync(xctx, false);
+                    var fchecks = await cmd.RunChecksAsync(xctx, false).ConfigureAwait(false);
                     if (fchecks.Any())
                         return new CommandResult
                         {
@@ -69,7 +69,7 @@ namespace DSharpPlus.CommandsNext
                             Context = xctx
                         };
                     
-                    return await cmd.ExecuteAsync(xctx);
+                    return await cmd.ExecuteAsync(xctx).ConfigureAwait(false);
                 }
             }
 
@@ -81,7 +81,7 @@ namespace DSharpPlus.CommandsNext
                     Context = ctx
                 };
 
-            return await base.ExecuteAsync(ctx);
+            return await base.ExecuteAsync(ctx).ConfigureAwait(false);
         }
     }
 }

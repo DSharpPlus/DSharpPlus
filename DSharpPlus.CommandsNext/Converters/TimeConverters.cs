@@ -6,14 +6,14 @@ namespace DSharpPlus.CommandsNext.Converters
 {
     public class DateTimeConverter : IArgumentConverter<DateTime>
     {
-        public bool TryConvert(string value, CommandContext ctx, out DateTime result) =>
-            DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
+        public bool TryConvert(string value, CommandContext ctx, out DateTime result) 
+            => DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
     }
 
     public class DateTimeOffsetConverter : IArgumentConverter<DateTimeOffset>
     {
-        public bool TryConvert(string value, CommandContext ctx, out DateTimeOffset result) =>
-            DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
+        public bool TryConvert(string value, CommandContext ctx, out DateTimeOffset result) 
+            => DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
     }
 
     public class TimeSpanConverter : IArgumentConverter<TimeSpan>

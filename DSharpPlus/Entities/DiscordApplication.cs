@@ -20,7 +20,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the application's icon.
         /// </summary>
-        public string Icon => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
+        public string Icon 
+            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         internal string IconHash { get; set; }
 
@@ -70,7 +71,8 @@ namespace DSharpPlus.Entities
         /// Gets this application's cover image URL.
         /// </summary>
         [JsonIgnore]
-        public string CoverImageUrl => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
+        public string CoverImageUrl 
+            => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
 
         [JsonIgnore]
         private IReadOnlyList<DiscordApplicationAsset> Assets { get; set; }
@@ -137,7 +139,7 @@ namespace DSharpPlus.Entities
         public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync()
         {
             if (this.Assets == null)
-                this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this);
+                this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this).ConfigureAwait(false);
 
             return this.Assets;
         }
@@ -209,8 +211,8 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First application to compare.</param>
         /// <param name="e2">Second application to compare.</param>
         /// <returns>Whether the two applications are not equal.</returns>
-        public static bool operator !=(DiscordApplication e1, DiscordApplication e2) =>
-            !(e1 == e2);
+        public static bool operator !=(DiscordApplication e1, DiscordApplication e2) 
+            => !(e1 == e2);
     }
 
     /// <summary>
@@ -238,7 +240,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Url of this asset.
         /// </summary>
-        public Uri Url => new Uri($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
+        public Uri Url 
+            => new Uri($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
 
         internal DiscordApplicationAsset() { }
 
@@ -308,8 +311,8 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First application asset to compare.</param>
         /// <param name="e2">Second application asset to compare.</param>
         /// <returns>Whether the two application assets are not equal.</returns>
-        public static bool operator !=(DiscordApplicationAsset e1, DiscordApplicationAsset e2) =>
-            !(e1 == e2);
+        public static bool operator !=(DiscordApplicationAsset e1, DiscordApplicationAsset e2) 
+            => !(e1 == e2);
     }
 
     /// <summary>

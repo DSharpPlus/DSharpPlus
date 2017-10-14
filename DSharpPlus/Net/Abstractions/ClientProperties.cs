@@ -77,18 +77,21 @@ namespace DSharpPlus.Net.Abstractions
         /// Gets the client's device.
         /// </summary>
         [JsonProperty("$device")]
-        public string Device => this.Browser;
+        public string Device 
+            => this.Browser;
 
         /// <summary>
         /// Gets the client's referrer.
         /// </summary>
         [JsonProperty("$referrer")]
-        public string Referrer => "";
+        public string Referrer 
+            => "";
 
         /// <summary>
         /// Gets the client's referring domain.
         /// </summary>
         [JsonProperty("$referring_domain")]
-        public string ReferringDomain => "";
+        public string ReferringDomain 
+            => "";
     }
 }

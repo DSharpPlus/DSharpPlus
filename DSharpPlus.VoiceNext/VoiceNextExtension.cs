@@ -86,13 +86,13 @@ namespace DSharpPlus.VoiceNext
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
             (channel.Discord as DiscordClient)._websocket_client.SendMessage(vsj);
             
-            var vstu = await vstut.Task;
+            var vstu = await vstut.Task.ConfigureAwait(false);
             var vstup = new VoiceStateUpdatePayload
             {
                 SessionId = vstu.SessionId,
                 UserId = vstu.User.Id
             };
-            var vsru = await vsrut.Task;
+            var vsru = await vsrut.Task.ConfigureAwait(false);
             var vsrup = new VoiceServerUpdatePayload
             {
                 Endpoint = vsru.Endpoint,
@@ -102,8 +102,8 @@ namespace DSharpPlus.VoiceNext
             
             var vnc = new VoiceNextConnection(this.Client, gld, channel, this.Configuration, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
-            await vnc.ConnectAsync();
-            await vnc.WaitForReady();
+            await vnc.ConnectAsync().ConfigureAwait(false);
+            await vnc.WaitForReadyAsync().ConfigureAwait(false);
             this.ActiveConnections[gld.Id] = vnc;
             return vnc;
         }

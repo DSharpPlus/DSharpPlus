@@ -4,14 +4,15 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
-using WSS = WebSocket4Net;
+using ws4net = WebSocket4Net;
+using s = System;
 
 namespace DSharpPlus.Net.WebSocket
 {
     public class WebSocket4NetCoreClient : BaseWebSocketClient
     {
         private static UTF8Encoding Utf8 { get; } = new UTF8Encoding(false);
-        private WSS.WebSocket _socket;
+        private ws4net.WebSocket _socket;
 
         public override event AsyncEventHandler OnConnect
         {
@@ -49,23 +50,33 @@ namespace DSharpPlus.Net.WebSocket
             this._error = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
         }
 
-        public override Task<BaseWebSocketClient> ConnectAsync(string uri)
+        public override Task<BaseWebSocketClient> ConnectAsync(Uri uri)
         {
-            this._socket = new WSS.WebSocket(uri);
+            this._socket = new ws4net.WebSocket(uri.ToString());
 
-            this._socket.Opened += (sender, e) => _connect.InvokeAsync().GetAwaiter().GetResult();
-                
-            this._socket.Closed += (sender, e) =>
+            this._socket.Opened += HandlerOpen;
+            this._socket.Closed += HandlerClose;
+            this._socket.MessageReceived += HandlerMessage;
+            this._socket.DataReceived += HandlerData;
+
+            this._socket.Open();
+            return Task.FromResult<BaseWebSocketClient>(this);
+
+            void HandlerOpen(object sender, s.EventArgs e)
+                => _connect.InvokeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+            void HandlerClose(object sender, s.EventArgs e)
             {
-                if (e is WSS.ClosedEventArgs ea)
-                    this._disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = ea.Code, CloseMessage = ea.Reason }).GetAwaiter().GetResult();
+                if (e is ws4net.ClosedEventArgs ea)
+                    this._disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = ea.Code, CloseMessage = ea.Reason }).ConfigureAwait(false).GetAwaiter().GetResult();
                 else
-                    this._disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = "unknown" }).GetAwaiter().GetResult();
-            };
+                    this._disconnect.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = "unknown" }).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
 
-            this._socket.MessageReceived += (sender, e) => _message.InvokeAsync(new SocketMessageEventArgs { Message = e.Message }).GetAwaiter().GetResult();
+            void HandlerMessage(object sender, ws4net.MessageReceivedEventArgs e)
+                => _message.InvokeAsync(new SocketMessageEventArgs { Message = e.Message }).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            this._socket.DataReceived += (sender, e) =>
+            void HandlerData(object sender, ws4net.DataReceivedEventArgs e)
             {
                 string msg;
 
@@ -77,28 +88,26 @@ namespace DSharpPlus.Net.WebSocket
                     msg = Utf8.GetString(ms2.ToArray(), 0, (int)ms2.Length);
                 }
 
-                this._message.InvokeAsync(new SocketMessageEventArgs { Message = msg }).GetAwaiter().GetResult();
-            };
-
-            this._socket.Open();
-
-            return Task.FromResult<BaseWebSocketClient>(this);
+                this._message.InvokeAsync(new SocketMessageEventArgs { Message = msg }).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
         }
 
         public override Task InternalDisconnectAsync(SocketCloseEventArgs e)
         {
-            if (this._socket.State != WSS.WebSocketState.Closed)
+            if (this._socket.State != ws4net.WebSocketState.Closed)
                 this._socket.Close();
             return Task.Delay(0);
         }
 
-        public override Task<BaseWebSocketClient> OnConnectAsync() => Task.FromResult<BaseWebSocketClient>(this);
+        public override Task<BaseWebSocketClient> OnConnectAsync() 
+            => Task.FromResult<BaseWebSocketClient>(this);
 
-        public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketCloseEventArgs e) => Task.FromResult<BaseWebSocketClient>(this);
+        public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketCloseEventArgs e) 
+            => Task.FromResult<BaseWebSocketClient>(this);
 
         public override void SendMessage(string message)
         {
-            if (this._socket.State == WSS.WebSocketState.Open)
+            if (this._socket.State == ws4net.WebSocketState.Open)
                 this._socket.Send(message);
         }
 
@@ -107,7 +116,7 @@ namespace DSharpPlus.Net.WebSocket
             if (evname.ToLowerInvariant() == "ws_error")
                 Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
             else
-                this._error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).GetAwaiter().GetResult();
+                this._error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }

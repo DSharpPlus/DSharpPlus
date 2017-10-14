@@ -133,15 +133,15 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First emoji to compare.</param>
         /// <param name="e2">Second emoji to compare.</param>
         /// <returns>Whether the two emoji are not equal.</returns>
-        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2) =>
-            !(e1 == e2);
+        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2) 
+            => !(e1 == e2);
 
         /// <summary>
         /// Implicitly converts this emoji to its string representation.
         /// </summary>
         /// <param name="e1">Emoji to convert.</param>
-        public static implicit operator string(DiscordEmoji e1) =>
-            e1.ToString();
+        public static implicit operator string(DiscordEmoji e1) 
+            => e1.ToString();
 
         /// <summary>
         /// Creates an emoji object from a unicode entity.

@@ -37,7 +37,8 @@ namespace DSharpPlus.Entities
         public virtual string Discriminator { get; internal set; }
 
         [JsonIgnore]
-        internal int DiscriminatorInt => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
+        internal int DiscriminatorInt 
+            => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Gets the user's avatar hash.
@@ -49,13 +50,15 @@ namespace DSharpPlus.Entities
         /// Gets the user's avatar URL.
         /// </summary>
         [JsonIgnore]
-        public string AvatarUrl => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+        public string AvatarUrl 
+            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
 
         /// <summary>
         /// Gets the URL of default avatar for this user.
         /// </summary>
         [JsonIgnore]
-        public string DefaultAvatarUrl => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
+        public string DefaultAvatarUrl 
+            => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
 
         /// <summary>
         /// Gets whether the user is a bot.
@@ -85,13 +88,15 @@ namespace DSharpPlus.Entities
         /// Gets the user's mention string.
         /// </summary>
         [JsonIgnore]
-        public string Mention => Formatter.Mention(this, this is DiscordMember);
+        public string Mention 
+            => Formatter.Mention(this, this is DiscordMember);
 
         /// <summary>
         /// Gets whether this user is the Client which created this object.
         /// </summary>
         [JsonIgnore]
-        public bool IsCurrent => this.Id == this.Discord.CurrentUser.Id;
+        public bool IsCurrent 
+            => this.Id == this.Discord.CurrentUser.Id;
 
         /// <summary>
         /// Unbans this user from a guild.
@@ -99,8 +104,8 @@ namespace DSharpPlus.Entities
         /// <param name="guild">Guild to unban this user from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task UnbanAsync(DiscordGuild guild, string reason = null) =>
-            guild.UnbanMemberAsync(this, reason);
+        public Task UnbanAsync(DiscordGuild guild, string reason = null) 
+            => guild.UnbanMemberAsync(this, reason);
 
         /// <summary>
         /// Gets this user's presence.
@@ -240,7 +245,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First user to compare.</param>
         /// <param name="e2">Second user to compare.</param>
         /// <returns>Whether the two users are not equal.</returns>
-        public static bool operator !=(DiscordUser e1, DiscordUser e2) =>
-            !(e1 == e2);
+        public static bool operator !=(DiscordUser e1, DiscordUser e2) 
+            => !(e1 == e2);
     }
 }

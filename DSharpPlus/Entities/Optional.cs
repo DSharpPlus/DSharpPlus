@@ -100,22 +100,22 @@ namespace DSharpPlus.Entities
             return this.HasValue ? this.Value.GetHashCode() : 0;
         }
 
-        public static implicit operator Optional<T>(T val) =>
-            new Optional<T>(val);
+        public static implicit operator Optional<T>(T val) 
+            => new Optional<T>(val);
 
-        public static explicit operator T(Optional<T> opt) =>
-            opt.Value;
+        public static explicit operator T(Optional<T> opt) 
+            => opt.Value;
 
-        public static bool operator ==(Optional<T> opt1, Optional<T> opt2) =>
-            opt1.Equals(opt2);
+        public static bool operator ==(Optional<T> opt1, Optional<T> opt2) 
+            => opt1.Equals(opt2);
 
-        public static bool operator !=(Optional<T> opt1, Optional<T> opt2) =>
-            !opt1.Equals(opt2);
+        public static bool operator !=(Optional<T> opt1, Optional<T> opt2) 
+            => !opt1.Equals(opt2);
 
-        public static bool operator ==(Optional<T> opt, T t) =>
-            opt.Equals(t);
+        public static bool operator ==(Optional<T> opt, T t) 
+            => opt.Equals(t);
 
-        public static bool operator !=(Optional<T> opt, T t) =>
-            !opt.Equals(t);
+        public static bool operator !=(Optional<T> opt, T t) 
+            => !opt.Equals(t);
     }
 }

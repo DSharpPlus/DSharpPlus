@@ -50,11 +50,7 @@ namespace DSharpPlus.Test
             Discord.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
-            Discord.GuildBanAdded += this.Discord_GuildBanAdd;
             Discord.MessageCreated += this.Discord_MessageCreated;
-            Discord.MessageReactionAdded += this.Discord_MessageReactionAdd;
-            Discord.MessageReactionsCleared += this.Discord_MessageReactionRemoveAll;
-            Discord.PresenceUpdated += this.Discord_PresenceUpdate;
             Discord.ClientErrored += this.Discord_ClientErrored;
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
@@ -85,7 +81,7 @@ namespace DSharpPlus.Test
                 EnableMentionPrefix = true,
                 CaseSensitive = true,
                 Dependencies = depco.Build(),
-                SelfBot = this.Config.UseUserToken,
+                Selfbot = this.Config.UseUserToken,
                 IgnoreExtraArguments = false
                 //DefaultHelpChecks = new List<CheckBaseAttribute>() { new RequireOwnerAttribute() }
             };
@@ -113,8 +109,8 @@ namespace DSharpPlus.Test
 
         public async Task RunAsync()
         {
-            await Discord.ConnectAsync();
-            await Task.Delay(-1);
+            await Discord.ConnectAsync().ConfigureAwait(false);
+            await Task.Delay(-1).ConfigureAwait(false);
         }
 
         private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
@@ -171,66 +167,19 @@ namespace DSharpPlus.Test
         private Task Discord_GuildAvailable(GuildCreateEventArgs e)
         {
             Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Guild available: {e.Guild.Name}", DateTime.Now);
-            //Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.MemberCount: {e.Guild.MemberCount}", DateTime.Now);
-            //Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.Members.Count: {e.Guild.Members.Count}", DateTime.Now);
-            //Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].MemberCount: {Discord.Guilds[e.Guild.Id].MemberCount}", DateTime.Now);
-            //Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].Members.Count: {Discord.Guilds[e.Guild.Id].Members.Count}", DateTime.Now);
             return Task.Delay(0);
         }
 
         private Task Discord_GuildCreated(GuildCreateEventArgs e)
         {
-            // Tryna fix the "double guild member" bug
             Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Guild created: {e.Guild.Name}", DateTime.Now);
-            //Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.MemberCount: {e.Guild.MemberCount}", DateTime.Now);
-            //Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"e.Guild.Members.Count: {e.Guild.Members.Count}", DateTime.Now);
-            //Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].MemberCount: {Discord.Guilds[e.Guild.Id].MemberCount}", DateTime.Now);
-            //Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSPlus Test", $"Discord.Guilds[e.Guild.Id].Members.Count: {Discord.Guilds[e.Guild.Id].Members.Count}", DateTime.Now);
-            return Task.Delay(0);
-        }
-
-        private Task Discord_GuildBanAdd(GuildBanAddEventArgs e)
-        {
-            /*var usrn = e.Member.Username?
-                .Replace(@"\", @"\\")
-                .Replace(@"*", @"\*")
-                .Replace(@"_", @"\_")
-                .Replace(@"~", @"\~")
-                .Replace(@"`", @"\`");
-
-            var ch = e.Guild.Channels.FirstOrDefault(xc => xc.Name.Contains("logs"));
-            if (ch != null)
-                await ch.SendMessageAsync($"**{usrn}#{e.Member.Discriminator} got bent**");*/
-
-            return Task.Delay(0);
-        }
-
-        private Task Discord_PresenceUpdate(PresenceUpdateEventArgs e)
-        {
-            //if (e.User != null)
-            //    this.Discord.DebugLogger.LogMessage(LogLevel.Unnecessary, "DSPlus Test", $"{e.User.Username}#{e.User.Discriminator} ({e.UserID}): {e.Status ?? "<unknown>"} playing {e.Game ?? "<nothing>"}", DateTime.Now);
-
             return Task.Delay(0);
         }
 
         private async Task Discord_MessageCreated(MessageCreateEventArgs e)
         {
             if (e.Message.Content.Contains($"<@!{e.Client.CurrentUser.Id}>") || e.Message.Content.Contains($"<@{e.Client.CurrentUser.Id}>"))
-                await e.Message.RespondAsync("r u havin' a ggl thr m8");
-        }
-
-        private /*async*/ Task Discord_MessageReactionAdd(MessageReactionAddEventArgs e)
-        {
-            return Task.Delay(0);
-
-            //await e.Message.DeleteAllReactions();
-        }
-
-        private /*async*/ Task Discord_MessageReactionRemoveAll(MessageReactionsClearEventArgs e)
-        {
-            return Task.Delay(0);
-
-            //await e.Message.DeleteAllReactions();
+                await e.Message.RespondAsync("r u havin' a ggl thr m8").ConfigureAwait(false);
         }
 
         private Task Discord_ClientErrored(ClientErrorEventArgs e)
@@ -281,7 +230,7 @@ namespace DSharpPlus.Test
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
                     .AddField("Message", "File with full details has been attached.", false);
-                await e.Context.Channel.SendFileAsync(stream, "error.txt", "\u200b", embed: embed.Build());
+                await e.Context.Channel.SendFileAsync(stream, "error.txt", "\u200b", embed: embed.Build()).ConfigureAwait(false);
             }
         }
 
@@ -295,7 +244,7 @@ namespace DSharpPlus.Test
         {
             try
             {
-                this.Discord.UpdateStatusAsync(new DiscordGame("gitting better at API")).GetAwaiter().GetResult();
+                this.Discord.UpdateStatusAsync(new DiscordGame("gitting better at API")).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (Exception) { }
         }

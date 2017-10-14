@@ -22,7 +22,9 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the string representing the version of D#+.
         /// </summary>
-        public string VersionString => this._version_string.Value;
+        public string VersionString 
+            => this._version_string.Value;
+
         private Lazy<string> _version_string = new Lazy<string>(() =>
         {
             var a = typeof(DiscordClient).GetTypeInfo().Assembly;
@@ -63,7 +65,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
         /// </summary>
-        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions => this._voice_regions_lazy.Value;
+        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions 
+            => this._voice_regions_lazy.Value;
 
         /// <summary>
         /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
@@ -89,15 +92,15 @@ namespace DSharpPlus
         /// Gets the current API application.
         /// </summary>
         /// <returns>Current API application.</returns>
-        public Task<DiscordApplication> GetCurrentApplicationAsync() =>
-            this.ApiClient.GetCurrentApplicationInfoAsync();
+        public Task<DiscordApplication> GetCurrentApplicationAsync() 
+            => this.ApiClient.GetCurrentApplicationInfoAsync();
 
         /// <summary>
         /// Gets a list of regions
         /// </summary>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync() =>
-            this.ApiClient.ListVoiceRegionsAsync();
+        public Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync() 
+            => this.ApiClient.ListVoiceRegionsAsync();
 
         /// <summary>
         /// Initializes this client. This method fetches information about current user, application, and voice regions.
@@ -107,23 +110,23 @@ namespace DSharpPlus
         {
             if (this.CurrentUser == null)
             {
-                this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
+                this.CurrentUser = await this.ApiClient.GetCurrentUserAsync().ConfigureAwait(false);
                 this.UserCache.AddOrUpdate(this.CurrentUser.Id, this.CurrentUser, (id, xu) => this.CurrentUser);
             }
 
             if (this.Configuration.TokenType != TokenType.User && this.CurrentApplication == null)
-                this.CurrentApplication = await this.GetCurrentApplicationAsync();
+                this.CurrentApplication = await this.GetCurrentApplicationAsync().ConfigureAwait(false);
 
             if (this.InternalVoiceRegions.Count == 0)
             {
-                var vrs = await this.ListVoiceRegionsAsync();
+                var vrs = await this.ListVoiceRegionsAsync().ConfigureAwait(false);
                 foreach (var xvr in vrs)
                     this.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
             }
         }
 
-        internal DiscordUser InternalGetCachedUser(ulong user_id) =>
-            this.UserCache.TryGetValue(user_id, out var user) ? user : null;
+        internal DiscordUser InternalGetCachedUser(ulong user_id) 
+            => this.UserCache.TryGetValue(user_id, out var user) ? user : null;
 
         /// <summary>
         /// Disposes this client.

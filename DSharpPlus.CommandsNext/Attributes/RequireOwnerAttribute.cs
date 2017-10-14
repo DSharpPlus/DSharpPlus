@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             var app = ctx.Client.CurrentApplication;
             var me = ctx.Client.CurrentUser;
 
-            if (cfg.SelfBot)
+            if (cfg.Selfbot)
                 return Task.FromResult(ctx.User.Id == me.Id);
 
             if (app != null)

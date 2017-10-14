@@ -7,20 +7,27 @@ namespace DSharpPlus.Interactivity
     {
         public DiscordMessage Message { get; internal set; }
 
-        public DiscordUser User => Message.Author;
+        public DiscordUser User 
+            => Message.Author;
 
-        public DiscordChannel Channel => Message.Channel;
+        public DiscordChannel Channel 
+            => Message.Channel;
 
-        public DiscordGuild Guild => Channel.Guild;
+        public DiscordGuild Guild 
+            => Channel.Guild;
 
         public InteractivityExtension Interactivity { get; internal set; }
 
-        public DiscordClient Client => Interactivity.Client;
+        public DiscordClient Client 
+            => Interactivity.Client;
 
-        public IReadOnlyList<DiscordChannel> MentionedChannels => Message.MentionedChannels;
+        public IReadOnlyList<DiscordChannel> MentionedChannels 
+            => Message.MentionedChannels;
 
-        public IReadOnlyList<DiscordRole> MentionedRoles => Message.MentionedRoles;
+        public IReadOnlyList<DiscordRole> MentionedRoles 
+            => Message.MentionedRoles;
 
-        public IReadOnlyList<DiscordUser> MentionedUsers => Message.MentionedUsers;
+        public IReadOnlyList<DiscordUser> MentionedUsers 
+            => Message.MentionedUsers;
     }
 }

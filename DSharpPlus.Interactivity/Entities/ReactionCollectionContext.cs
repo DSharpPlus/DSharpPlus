@@ -12,7 +12,8 @@ namespace DSharpPlus.Interactivity
 
         public InteractivityExtension Interactivity { get; internal set; }
 
-        public DiscordClient Client => Interactivity.Client;
+        public DiscordClient Client 
+            => Interactivity.Client;
 
         internal void AddReaction(DiscordEmoji dr)
         {

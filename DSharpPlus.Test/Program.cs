@@ -32,12 +32,12 @@ namespace DSharpPlus.Test
             {
                 var bot = new TestBot(cfg, i);
                 tskl.Add(bot.RunAsync());
-                await Task.Delay(7500);
+                await Task.Delay(7500).ConfigureAwait(false);
             }
             
-            await Task.WhenAll(tskl);
+            await Task.WhenAll(tskl).ConfigureAwait(false);
 
-            await Task.Delay(-1);
+            await Task.Delay(-1).ConfigureAwait(false);
         }
 
         private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)

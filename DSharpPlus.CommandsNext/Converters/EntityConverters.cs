@@ -18,14 +18,14 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
-                result = ctx.Client.GetUserAsync(uid).GetAwaiter().GetResult();
+                result = ctx.Client.GetUserAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
                 return true;
             }
 
             var m = UserRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
             {
-                result = ctx.Client.GetUserAsync(uid).GetAwaiter().GetResult();
+                result = ctx.Client.GetUserAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
                 return true;
             }
 
@@ -56,14 +56,14 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
-                result = ctx.Guild.GetMemberAsync(uid).GetAwaiter().GetResult();
+                result = ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
                 return true;
             }
 
             var m = UserRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
             {
-                result = ctx.Guild.GetMemberAsync(uid).GetAwaiter().GetResult();
+                result = ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
                 return true;
             }
 
@@ -166,7 +166,7 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var mid))
             {
-                result = ctx.Channel.GetMessageAsync(mid).GetAwaiter().GetResult();
+                result = ctx.Channel.GetMessageAsync(mid).ConfigureAwait(false).GetAwaiter().GetResult();
                 return true;
             }
 

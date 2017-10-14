@@ -23,7 +23,9 @@ namespace DSharpPlus.Entities
         /// Gets the recipients of this direct message.
         /// </summary>
         [JsonProperty("recipient", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyList<DiscordUser> Recipients => this._recipients_lazy.Value;
+        public IReadOnlyList<DiscordUser> Recipients 
+            => this._recipients_lazy.Value;
+
         [JsonIgnore]
         internal List<DiscordUser> _recipients;
         [JsonIgnore]
@@ -39,16 +41,19 @@ namespace DSharpPlus.Entities
         /// Gets the URL of this channel's icon.
         /// </summary>
         [JsonIgnore]
-        public string IconUrl => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/channel-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png" : null;
+        public string IconUrl 
+            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/channel-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png" : null;
         
         /// <summary>
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token
         /// </summary>
-        public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname) => this.Discord.ApiClient.GroupDmAddRecipientAsync(this.Id, user_id, accesstoken, nickname);
+        public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname) 
+            => this.Discord.ApiClient.GroupDmAddRecipientAsync(this.Id, user_id, accesstoken, nickname);
 
         /// <summary>
         /// Only use for Group DMs!
         /// </summary>
-        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken) => this.Discord.ApiClient.GroupDmRemoveRecipientAsync(this.Id, user_id);
+        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken) 
+            => this.Discord.ApiClient.GroupDmRemoveRecipientAsync(this.Id, user_id);
     }
 }

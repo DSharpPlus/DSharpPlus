@@ -26,7 +26,7 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
         /// <returns></returns>
-        public abstract Task<BaseWebSocketClient> ConnectAsync(string uri);
+        public abstract Task<BaseWebSocketClient> ConnectAsync(Uri uri);
 
         /// <summary>
         /// Set the Action to call when the connection has been established.

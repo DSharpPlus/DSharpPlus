@@ -12,10 +12,12 @@ namespace DSharpPlus.Interactivity
 
         public DiscordMessage Message { get; internal set; }
 
-        public DiscordGuild Guild => Channel.Guild;
+        public DiscordGuild Guild 
+            => Channel.Guild;
 
         public InteractivityExtension Interactivity { get; internal set; }
 
-        public DiscordClient Client => Interactivity.Client;
+        public DiscordClient Client 
+            => Interactivity.Client;
     }
 }

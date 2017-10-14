@@ -13,6 +13,7 @@
         /// <summary>
         /// Gets the command that was executed.
         /// </summary>
-        public Command Command => this.Context.Command;
+        public Command Command 
+            => this.Context.Command;
     }
 }

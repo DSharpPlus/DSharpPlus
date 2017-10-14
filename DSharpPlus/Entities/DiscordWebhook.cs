@@ -46,7 +46,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the default avatar url for this webhook.
         /// </summary>
-        public string AvatarUrl => $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024";
+        public string AvatarUrl 
+            => $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024";
 
         /// <summary>
         /// Gets the secure token of this webhook.
@@ -62,15 +63,15 @@ namespace DSharpPlus.Entities
         /// <param name="name">New default name for this webhook.</param>
         /// <param name="base64avatar"></param>
         /// <returns>The modified webhook.</returns>
-        public Task<DiscordWebhook> ModifyAsync(string name = null, string base64avatar = null) =>
-            this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, base64avatar, Token);
+        public Task<DiscordWebhook> ModifyAsync(string name = null, string base64avatar = null) 
+            => this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, base64avatar, Token);
 
         /// <summary>
         /// Permanently deletes this webhook.
         /// </summary>
         /// <returns></returns>
-        public Task DeleteAsync() => 
-            this.Discord.ApiClient.DeleteWebhookAsync(this.Id, Token);
+        public Task DeleteAsync() 
+            => this.Discord.ApiClient.DeleteWebhookAsync(this.Id, Token);
 
         /// <summary>
         /// Executes this webhook.
@@ -81,24 +82,24 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be spoken aloud.</param>
         /// <param name="embeds">Embeds to attach to the message being sent.</param>
         /// <returns></returns>
-        public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null) =>
-            (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
+        public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null) 
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.
         /// </summary>
         /// <param name="json">JSON containing Slack-compatible payload for this webhook.</param>
         /// <returns></returns>
-        public Task ExecuteSlackAsync(string json) =>
-            (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
+        public Task ExecuteSlackAsync(string json) 
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
 
         /// <summary>
         /// Executes this webhook in GitHub compatibility mode.
         /// </summary>
         /// <param name="json">JSON containing GitHub-compatible payload for this webhook.</param>
         /// <returns></returns>
-        public Task ExecuteGithubAsync(string json) =>
-            (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
+        public Task ExecuteGithubAsync(string json) 
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordWebhook"/> is equal to another object.
@@ -161,7 +162,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First webhook to compare.</param>
         /// <param name="e2">Second webhook to compare.</param>
         /// <returns>Whether the two webhooks are not equal.</returns>
-        public static bool operator !=(DiscordWebhook e1, DiscordWebhook e2) =>
-            !(e1 == e2);
+        public static bool operator !=(DiscordWebhook e1, DiscordWebhook e2) 
+            => !(e1 == e2);
     }
 }
