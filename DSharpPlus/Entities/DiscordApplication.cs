@@ -142,6 +142,12 @@ namespace DSharpPlus.Entities
             return this.Assets;
         }
 
+        public string GenerateBotOAuth(Permissions Permissions = Permissions.None)
+        {
+            // Split it up so it isn't annoying and blue
+            return "https://" + $"discordapp.com/oauth2/authorize?client_id={this.Id}&scope=bot&permissions={(int)Permissions}";
+        }
+
         /// <summary>
         /// Checks whether this <see cref="DiscordApplication"/> is equal to another object.
         /// </summary>
