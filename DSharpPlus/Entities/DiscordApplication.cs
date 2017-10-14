@@ -145,7 +145,7 @@ namespace DSharpPlus.Entities
         public string GenerateBotOAuth(Permissions Permissions = Permissions.None)
         {
             // Split it up so it isn't annoying and blue
-            return "https://" + $"discordapp.com/oauth2/authorize?client_id={this.Id}&scope=bot&permissions={(int)Permissions}";
+            return "https://" + $"discordapp.com/oauth2/authorize?client_id={this.Id}&scope=bot&permissions={(long)Permissions}";
         }
 
         /// <summary>
