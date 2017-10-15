@@ -1,11 +1,16 @@
-# I updated from DiscordSharp and now I'm drowning in red underline!
+# Halp! I left my cave and the red light hurts my eyes!
 
-DSharpPlus is a continuation of DiscordSharp made by Luigifan / Suicvne. The two libraries are quite similar, however a lot has changed since we've continued the lib. Here's a migration guide for those who still need it.
+DSharpPlus is a continuation of DiscordSharp made by Luigifan / Suicvne. The two libraries are quite similar, however a 
+lot has changed since we've continued the lib. Here's a migration guide for those who still need it.
 
 ## Connecting
-Due to some changes in Discord's API and in the library itself, connecting to Discord goes a bit differently. Instead of constructing a DiscordClient object with just a token and a boolean, we now have to provide a whole DiscordConfiguration object.
+
+Due to some changes in Discord's API and in the library itself, connecting to Discord goes a bit differently. Instead 
+of constructing a DiscordClient object with just a token and a boolean, we now have to provide a whole 
+DiscordConfiguration object.
 
 Before this change your code would've looked like this:
+
 ```cs
 DiscordClient client = new DiscordClient("your token", true); // true is for isbot.
 // these two lines were used for logging in with email and password,
@@ -18,6 +23,7 @@ client.Connect();
 ```
 
 Now, your code should look more like this:
+
 ```cs
 DiscordClient client = new DiscordClient(new DiscordConfiguration
 {
@@ -33,9 +39,11 @@ await Task.Delay(-1);
 ```
 
 ## Events
+
 Events are now quite different. All events are now an `AsyncEvent`. These run asynchronously, as the name implies.
 
 Your old events would've looked like this:
+
 ```cs
 client.MessageReceived += (sender, e) =>
 {
@@ -44,116 +52,72 @@ client.MessageReceived += (sender, e) =>
 ```
 
 Now they should look like this:
+
 ```cs
 client.MessageCreated += async e =>
 {
   // Code here
 }
 ```
-Event names were also changed. A list of changed event names is to be found at the bottom of this article, along with some new events not yet available in DiscordSharp.
+
+Complete event guide is available in the [event reference](/articles/events.html "Events") article.
+
+Event names were also changed. A list of changed event names is to be found at the bottom of this article, along with 
+some new events not yet available in DiscordSharp.
 
 ## Changed Event names
-MessageReceived => MessageCreated
 
-Connected => Ready
-
-SocketOpened => SocketOpened
-
-SocketClosed => SocketClosed
-
-ChannelCreated => ChannelCreated
-
-PrivateChannelCreated => DmChannelCreated
-
-PrivateMessageReceived => Not in DSharpPlus, use MessageCreated
-
-KeepAliveSent => Resumed (not quite the same, but I assume they are quite similar)
-
-MentionReceived => Not in DSharpPlus, Use MessageCreated.
-
-UserTypingStart => TypingStarted
-
-MessageEdited => MessageUpdated
-
-PresenceUpdated => PresenceUpdated
-
-URLMessageAutoUpdate
-
-VoiceStateUpdate => VoiceStateUpdated
-
-UnknownMessageTypeReceived => Not in DSharpPlus, Use MessageCreated.
-
-MessageDeleted => MessageDeleted
-
-UserUpdate => UserUpdated
-
-UserAddedToServer => GuildMemberAdded
-
-UserRemovedFromServer => GuildMemberRemoved
-
-GuildCreated => GuildCreated
-
-GuildAvailable => GuildAvailable
-
-GuildDeleted => GuildDeleted
-
-ChannelUpdated => ChannelUpdated
-
-TextClientDebugMessageReceived
-
-VoiceClientDebugMessageReceived
-
-ChannelDeleted => ChannelDeleted
-
-GuildUpdated => GuildUpdated
-
-RoleDeleted => GuildRoleDeleted
-
-RoleUpdated => GuildRoleUpdated
-
-GuildMemberUpdated => GuildMemberUpdated
-
-GuildMemberBanned => GuildBanAdded
-
-PrivateChannelDeleted => DMChannelDeleted
-
-BanRemoved => GuildBanRemoved
-
-PrivateMessageDeleted => Not in DSharpPlus, use MessageDeleted.
+* MessageReceived -> MessageCreated
+* Connected -> Ready
+* SocketOpened -> SocketOpened
+* SocketClosed -> SocketClosed
+* ChannelCreated -> ChannelCreated
+* PrivateChannelCreated -> DmChannelCreated
+* PrivateMessageReceived -> Not in DSharpPlus, use MessageCreated
+* MentionReceived -> Not in DSharpPlus, Use MessageCreated.
+* UserTypingStart -> TypingStarted
+* MessageEdited -> MessageUpdated
+* PresenceUpdated -> PresenceUpdated
+* URLMessageAutoUpdate -> this is dispatched via regular MessageUpdate event
+* VoiceStateUpdate -> VoiceStateUpdated
+* UnknownMessageTypeReceived -> Not in DSharpPlus, Use MessageCreated.
+* MessageDeleted -> MessageDeleted
+* UserUpdate -> UserUpdated
+* UserAddedToServer -> GuildMemberAdded
+* UserRemovedFromServer -> GuildMemberRemoved
+* GuildCreated -> GuildCreated
+* GuildAvailable -> GuildAvailable
+* GuildDeleted -> GuildDeleted
+* ChannelUpdated -> ChannelUpdated
+* TextClientDebugMessageReceived
+* VoiceClientDebugMessageReceived
+* ChannelDeleted -> ChannelDeleted
+* GuildUpdated -> GuildUpdated
+* RoleDeleted -> GuildRoleDeleted
+* RoleUpdated -> GuildRoleUpdated
+* GuildMemberUpdated -> GuildMemberUpdated
+* GuildMemberBanned -> GuildBanAdded
+* PrivateChannelDeleted -> DMChannelDeleted
+* BanRemoved -> GuildBanRemoved
+* PrivateMessageDeleted -> Not in DSharpPlus, use MessageDeleted.
 
 ### New events
-ChannelPinsUpdated
 
-ClientErrored
-
-GuildEmojisUpdated
-
-GuildIntegrationsUpdated
-
-GuildMembersChunked
-
-GuildRoleCreated
-
-GuildUnavailable
-
-Heartbeated
-
-MessageAcknowledged
-
-MessageReactionAdded
-
-MessageReactionRemoved
-
-MessageReactionsCleared
-
-MessagesBulkDeleted
-
-SocketErrored
-
-UnknownEvent
-
-UserSettingsUpdated
-
-VoiceServerUpdated
-
-WebhooksUpdated
+* ChannelPinsUpdated
+* ClientErrored
+* GuildEmojisUpdated
+* GuildIntegrationsUpdated
+* GuildMembersChunked
+* GuildRoleCreated
+* GuildUnavailable
+* Heartbeated
+* MessageAcknowledged
+* MessageReactionAdded
+* MessageReactionRemoved
+* MessageReactionsCleared
+* MessagesBulkDeleted
+* SocketErrored
+* UnknownEvent
+* UserSettingsUpdated
+* VoiceServerUpdated
+* WebhooksUpdated

@@ -38,6 +38,8 @@
     href: hosting_rpi.md
 - name: Migrating after major updates
   items:
+  - name: DiscordSharp to DSharpPlus
+    href: migdsharp.md
   - name: 2.x to 3.x
     href: mig223.md
   - name: 3.x to 4.x
