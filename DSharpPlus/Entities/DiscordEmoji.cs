@@ -146,10 +146,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Creates an emoji object from a unicode entity.
         /// </summary>
-        /// <param name="client"><see cref="DiscordClient"/> to attach to the object.</param>
+        /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
         /// <param name="unicode_entity">Unicode entity to create the object from.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromUnicode(DiscordClient client, string unicode_entity)
+        public static DiscordEmoji FromUnicode(BaseDiscordClient client, string unicode_entity)
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
@@ -170,10 +170,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Creates an emoji object from a guild emote.
         /// </summary>
-        /// <param name="client"><see cref="DiscordClient"/> to attach to the object.</param>
+        /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
         /// <param name="id">Id of the emote.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromGuildEmote(DiscordClient client, ulong id)
+        public static DiscordEmoji FromGuildEmote(BaseDiscordClient client, ulong id)
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
@@ -190,10 +190,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Creates a DiscordEmoji from emote name that includes colons (eg. :thinking:). This method also supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji (still specified by :name:).
         /// </summary>
-        /// <param name="client"><see cref="DiscordClient"/> to attach to the object.</param>
+        /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
         /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromName(DiscordClient client, string name)
+        public static DiscordEmoji FromName(BaseDiscordClient client, string name)
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
