@@ -156,4 +156,4 @@ UserSettingsUpdated
 
 VoiceServerUpdated
 
-WebhooksUpdatyed
+WebhooksUpdated
