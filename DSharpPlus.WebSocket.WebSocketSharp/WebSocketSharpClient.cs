@@ -27,6 +27,14 @@ namespace DSharpPlus.Net.WebSocket
 
         public override Task<BaseWebSocketClient> ConnectAsync(Uri uri)
         {
+            this.StreamDecompressor?.Dispose();
+            this.CompressedStream?.Dispose();
+            this.DecompressedStream?.Dispose();
+
+            this.DecompressedStream = new MemoryStream();
+            this.CompressedStream = new MemoryStream();
+            this.StreamDecompressor = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
+
             _socket = new wss.WebSocket(uri.ToString());
 
             _socket.OnOpen += HandlerOpen;
@@ -48,14 +56,34 @@ namespace DSharpPlus.Net.WebSocket
 
                 if (e.IsBinary)
                 {
-                    using (var ms1 = new MemoryStream(e.RawData, 2, e.RawData.Length - 2))
-                    using (var ms2 = new MemoryStream())
-                    {
-                        using (var zlib = new DeflateStream(ms1, CompressionMode.Decompress))
-                            zlib.CopyTo(ms2);
+                    if (e.RawData[0] == 0x78)
+                        this.CompressedStream.Write(e.RawData, 2, e.RawData.Length - 2);
+                    else
+                        this.CompressedStream.Write(e.RawData, 0, e.RawData.Length);
+                    this.CompressedStream.Flush();
+                    this.CompressedStream.Position = 0;
 
-                        msg = UTF8.GetString(ms2.ToArray(), 0, (int)ms2.Length);
+                    // partial credit to FiniteReality
+                    // overall idea is his
+                    // I tuned the finer details
+                    // -Emzi
+                    var sfix = BitConverter.ToUInt16(e.RawData, e.RawData.Length - 2);
+                    if (sfix != ZLIB_STREAM_SUFFIX)
+                    {
+                        using (var zlib = new DeflateStream(this.CompressedStream, CompressionMode.Decompress, true))
+                            zlib.CopyTo(this.DecompressedStream);
                     }
+                    else
+                    {
+                        this.StreamDecompressor.CopyTo(this.DecompressedStream);
+                    }
+
+                    msg = UTF8.GetString(this.DecompressedStream.ToArray(), 0, (int)this.DecompressedStream.Length);
+
+                    this.DecompressedStream.Position = 0;
+                    this.DecompressedStream.SetLength(0);
+                    this.CompressedStream.Position = 0;
+                    this.CompressedStream.SetLength(0);
                 }
                 else
                     msg = e.Data;
@@ -64,7 +92,7 @@ namespace DSharpPlus.Net.WebSocket
             }
         }
 
-        public override Task InternalDisconnectAsync(SocketCloseEventArgs e)
+        public override Task DisconnectAsync(SocketCloseEventArgs e)
         {
             if (_socket.IsAlive)
                 _socket.Close();

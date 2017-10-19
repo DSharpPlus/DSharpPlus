@@ -11,7 +11,7 @@ namespace DSharpPlus.Net.WebSocket
 {
     public class WebSocket4NetCoreClient : BaseWebSocketClient
     {
-        private static UTF8Encoding Utf8 { get; } = new UTF8Encoding(false);
+        private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         private ws4net.WebSocket _socket;
 
         public override event AsyncEventHandler OnConnect
@@ -52,6 +52,14 @@ namespace DSharpPlus.Net.WebSocket
 
         public override Task<BaseWebSocketClient> ConnectAsync(Uri uri)
         {
+            this.StreamDecompressor?.Dispose();
+            this.CompressedStream?.Dispose();
+            this.DecompressedStream?.Dispose();
+
+            this.DecompressedStream = new MemoryStream();
+            this.CompressedStream = new MemoryStream();
+            this.StreamDecompressor = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
+
             this._socket = new ws4net.WebSocket(uri.ToString());
 
             this._socket.Opened += HandlerOpen;
@@ -80,29 +88,50 @@ namespace DSharpPlus.Net.WebSocket
             {
                 string msg;
 
-                using (MemoryStream ms1 = new MemoryStream(e.Data, 2, e.Data.Length - 2), ms2 = new MemoryStream())
-                {
-                    using (var zlib = new DeflateStream(ms1, CompressionMode.Decompress))
-                        zlib.CopyTo(ms2);
+                if (e.Data[0] == 0x78)
+                    this.CompressedStream.Write(e.Data, 2, e.Data.Length - 2);
+                else
+                    this.CompressedStream.Write(e.Data, 0, e.Data.Length);
+                this.CompressedStream.Flush();
+                this.CompressedStream.Position = 0;
 
-                    msg = Utf8.GetString(ms2.ToArray(), 0, (int)ms2.Length);
+                // partial credit to FiniteReality
+                // overall idea is his
+                // I tuned the finer details
+                // -Emzi
+                var sfix = BitConverter.ToUInt16(e.Data, e.Data.Length - 2);
+                if (sfix != ZLIB_STREAM_SUFFIX)
+                {
+                    using (var zlib = new DeflateStream(this.CompressedStream, CompressionMode.Decompress, true))
+                        zlib.CopyTo(this.DecompressedStream);
                 }
+                else
+                {
+                    this.StreamDecompressor.CopyTo(this.DecompressedStream);
+                }
+
+                msg = UTF8.GetString(this.DecompressedStream.ToArray(), 0, (int)this.DecompressedStream.Length);
+
+                this.DecompressedStream.Position = 0;
+                this.DecompressedStream.SetLength(0);
+                this.CompressedStream.Position = 0;
+                this.CompressedStream.SetLength(0);
 
                 this._message.InvokeAsync(new SocketMessageEventArgs { Message = msg }).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
 
-        public override Task InternalDisconnectAsync(SocketCloseEventArgs e)
+        public override Task DisconnectAsync(SocketCloseEventArgs e)
         {
             if (this._socket.State != ws4net.WebSocketState.Closed)
                 this._socket.Close();
             return Task.Delay(0);
         }
 
-        public override Task<BaseWebSocketClient> OnConnectAsync() 
+        public override Task<BaseWebSocketClient> OnConnectAsync()
             => Task.FromResult<BaseWebSocketClient>(this);
 
-        public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketCloseEventArgs e) 
+        public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketCloseEventArgs e)
             => Task.FromResult<BaseWebSocketClient>(this);
 
         public override void SendMessage(string message)

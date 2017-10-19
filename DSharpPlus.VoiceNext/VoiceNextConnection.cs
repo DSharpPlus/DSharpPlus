@@ -453,7 +453,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = false;
             try
             {
-                this.VoiceWs.InternalDisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
+                this.VoiceWs.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
             catch (Exception)

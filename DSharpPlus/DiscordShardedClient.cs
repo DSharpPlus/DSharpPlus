@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿#pragma warning disable CS0618
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

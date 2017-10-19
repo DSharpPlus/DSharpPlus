@@ -70,15 +70,6 @@ namespace DSharpPlus.Net.WebSocket
         }
 
         /// <summary>
-        /// Creates a new instance.
-        /// </summary>
-        /// <returns></returns>
-        public static new WebSocketClient Create()
-        {
-            return new WebSocketClient();
-        }
-
-        /// <summary>
         /// Connects to the WebSocket server.
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
@@ -134,6 +125,14 @@ namespace DSharpPlus.Net.WebSocket
 
         internal async Task InternalConnectAsync(Uri uri)
         {
+            this.StreamDecompressor?.Dispose();
+            this.CompressedStream?.Dispose();
+            this.DecompressedStream?.Dispose();
+
+            this.DecompressedStream = new MemoryStream();
+            this.CompressedStream = new MemoryStream();
+            this.StreamDecompressor = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
+
             this.Socket = new ClientWebSocket();
             this.Socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
 
@@ -143,7 +142,7 @@ namespace DSharpPlus.Net.WebSocket
         }
 
         private bool close_requested = false;
-        public override async Task InternalDisconnectAsync(SocketCloseEventArgs e)
+        public override async Task DisconnectAsync(SocketCloseEventArgs e)
         {
             //if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
             if (close_requested)
@@ -212,14 +211,33 @@ namespace DSharpPlus.Net.WebSocket
                     var resultstr = "";
                     if (result.MessageType == WebSocketMessageType.Binary)
                     {
-                        using (var ms1 = new MemoryStream(resultbuff, 2, resultbuff.Length - 2))
-                        using (var ms2 = new MemoryStream())
-                        {
-                            using (var zlib = new DeflateStream(ms1, CompressionMode.Decompress))
-                                await zlib.CopyToAsync(ms2).ConfigureAwait(false);
+                        if (resultbuff[0] == 0x78)
+                            await this.CompressedStream.WriteAsync(resultbuff, 2, resultbuff.Length - 2).ConfigureAwait(false);
+                        else
+                            await this.CompressedStream.WriteAsync(resultbuff, 0, resultbuff.Length).ConfigureAwait(false);
+                        await this.CompressedStream.FlushAsync().ConfigureAwait(false);
+                        this.CompressedStream.Position = 0;
 
-                            resultbuff = ms2.ToArray();
+                        // partial credit to FiniteReality
+                        // overall idea is his
+                        // I tuned the finer details
+                        // -Emzi
+                        var sfix = BitConverter.ToUInt16(resultbuff, resultbuff.Length - 2);
+                        if (sfix != ZLIB_STREAM_SUFFIX)
+                        {
+                            using (var zlib = new DeflateStream(this.CompressedStream, CompressionMode.Decompress, true))
+                                await zlib.CopyToAsync(this.DecompressedStream).ConfigureAwait(false);
                         }
+                        else
+                        {
+                            await this.StreamDecompressor.CopyToAsync(this.DecompressedStream).ConfigureAwait(false);
+                        }
+
+                        resultbuff = this.DecompressedStream.ToArray();
+                        this.DecompressedStream.Position = 0;
+                        this.DecompressedStream.SetLength(0);
+                        this.CompressedStream.Position = 0;
+                        this.CompressedStream.SetLength(0);
                     }
                     
                     resultstr = UTF8.GetString(resultbuff, 0, resultbuff.Length);
@@ -231,7 +249,7 @@ namespace DSharpPlus.Net.WebSocket
                 close = new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = e.Message };
             }
 
-            await InternalDisconnectAsync(close).ConfigureAwait(false);
+            await DisconnectAsync(close).ConfigureAwait(false);
         }
 
         internal async Task ProcessSmqAsync()

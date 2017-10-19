@@ -64,10 +64,11 @@
         public int ShardCount { internal get; set; } = 1;
 
         /// <summary>
-        /// <para>Sets whether to enable compression for gateway communication.</para>
-        /// <para>Disabling this option will increase size of certain dispatches, and might increase login time. Defaults to true.</para>
+        /// <para>Sets the level of compression for WebSocket traffic.</para>
+        /// <para>Disabling this option will increase the amount of traffic sent via WebSocket. Setting <see cref="GatewayCompressionLevel.Payload"/> will enable compression for READY and GUILD_CREATE payloads. Setting <see cref="GatewayCompressionLevel.Stream"/> will enable compression for the entire WebSocket stream, drastically reducing amount of traffic.</para>
+        /// <para>Defaults to <see cref="GatewayCompressionLevel.Stream"/>.</para>
         /// </summary>
-        public bool EnableCompression { internal get; set; } = true;
+        public GatewayCompressionLevel GatewayCompressionLevel { internal get; set; } = GatewayCompressionLevel.Stream;
 
         /// <summary>
         /// <para>Sets the size of the global message cache.</para>
@@ -96,12 +97,14 @@
             this.TokenType = other.TokenType;
             this.LogLevel = other.LogLevel;
             this.UseInternalLogHandler = other.UseInternalLogHandler;
+            this.DateTimeFormat = other.DateTimeFormat;
             this.LargeThreshold = other.LargeThreshold;
             this.AutoReconnect = other.AutoReconnect;
             this.ShardId = other.ShardId;
             this.ShardCount = other.ShardCount;
-            this.EnableCompression = other.EnableCompression;
+            this.GatewayCompressionLevel = other.GatewayCompressionLevel;
             this.MessageCacheSize = other.MessageCacheSize;
+            this.AutomaticGuildSync = other.AutomaticGuildSync;
         }
     }
 }

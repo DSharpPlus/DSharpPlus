@@ -744,7 +744,7 @@ namespace DSharpPlus
             if (start_new_session)
                 _session_id = "";
 
-            return _websocket_client.InternalDisconnectAsync(null);
+            return _websocket_client.DisconnectAsync(null);
         }
 
         internal Task InternalReconnectAsync()
@@ -783,9 +783,11 @@ namespace DSharpPlus
             _websocket_client.OnDisconnect += SocketOnDisconnect;
             _websocket_client.OnMessage += SocketOnMessage;
             _websocket_client.OnError += SocketOnError;
-
-            // TODO: support for stream compression
-            var gwuri = new UriBuilder(this._gateway_uri) { Query = "v=6&encoding=json" };
+            
+            var gwuri = new UriBuilder(this._gateway_uri)
+            {
+                Query = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream ? "v=6&encoding=json&compress=zlib-stream" : "v=6&encoding=json"
+            };
 
             await ConnectionSemaphore.WaitAsync().ConfigureAwait(false);
             await _websocket_client.ConnectAsync(gwuri.Uri).ConfigureAwait(false);
@@ -822,7 +824,7 @@ namespace DSharpPlus
         {
             Configuration.AutoReconnect = false;
             if (this._websocket_client != null)
-                await _websocket_client.InternalDisconnectAsync(null).ConfigureAwait(false);
+                await _websocket_client.DisconnectAsync(null).ConfigureAwait(false);
         }
 
         #region Public Functions
@@ -2494,7 +2496,7 @@ namespace DSharpPlus
             var identify = new GatewayIdentify
             {
                 Token = Utilities.GetFormattedToken(this),
-                Compress = this.Configuration.EnableCompression,
+                Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
                 LargeThreshold = this.Configuration.LargeThreshold,
                 ShardInfo = new ShardInfo
                 {
@@ -2671,7 +2673,8 @@ namespace DSharpPlus
             _heartbeat_task = null;
             _extensions = null;
             _private_channels = null;
-            _websocket_client.InternalDisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
+            _websocket_client.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
+            _websocket_client.Dispose();
 
             disposed = true;
         }

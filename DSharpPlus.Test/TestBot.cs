@@ -1,5 +1,7 @@
-﻿using System;
+﻿#pragma warning disable CS0618
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +11,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
-using System.IO;
 
 namespace DSharpPlus.Test
 {
@@ -39,7 +40,7 @@ namespace DSharpPlus.Test
                 UseInternalLogHandler = false,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
-                EnableCompression = true,
+                GatewayCompressionLevel = GatewayCompressionLevel.Stream,
                 MessageCacheSize = 50,
                 AutomaticGuildSync = !this.Config.UseUserToken,
                 DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"

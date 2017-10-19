@@ -38,16 +38,7 @@ namespace DSharpPlus.Net.WebSocket
 
         public WebSocketClient()
         {
-            throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
-        }
-
-        /// <summary>
-        /// Creates a new instance.
-        /// </summary>
-        /// <returns></returns>
-        public static new WebSocketClient Create()
-        {
-            throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
+            throw new PlatformNotSupportedException("Microsoft WebSocket client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
 
         /// <summary>
@@ -57,7 +48,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         public override Task<BaseWebSocketClient> ConnectAsync(Uri uri)
         {
-            throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
+            throw new PlatformNotSupportedException("Microsoft WebSocket client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
 
         /// <summary>
@@ -66,7 +57,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         public override Task<BaseWebSocketClient> OnConnectAsync()
         {
-            throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
+            throw new PlatformNotSupportedException("Microsoft WebSocket client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
 
         /// <summary>
@@ -75,7 +66,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketCloseEventArgs e)
         {
-            throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
+            throw new PlatformNotSupportedException("Microsoft WebSocket client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
 
         /// <summary>
@@ -84,12 +75,12 @@ namespace DSharpPlus.Net.WebSocket
         /// <param name="message">The message to send</param>
         public override void SendMessage(string message)
         {
-            throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
+            throw new PlatformNotSupportedException("Microsoft WebSocket client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
 
-        public override Task InternalDisconnectAsync(SocketCloseEventArgs e)
+        public override Task DisconnectAsync(SocketCloseEventArgs e)
         {
-            throw new PlatformNotSupportedException("Microsoft WebSocket provider is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
+            throw new PlatformNotSupportedException("Microsoft WebSocket client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }
     }
 }
