@@ -144,12 +144,13 @@ namespace DSharpPlus.Entities
             return this.Assets;
         }
 
-        public string GenerateBotOAuth(Permissions Permissions = Permissions.None)
+        public string GenerateBotOAuth(Permissions permissions = Permissions.None)
         {
+            permissions &= PermissionMethods.FULL_PERMS;
             // Split it up so it isn't annoying and blue
             // 
             // :blobthonkang: -emzi
-            return "https://" + $"discordapp.com/oauth2/authorize?client_id={this.Id.ToString(CultureInfo.InvariantCulture)}&scope=bot&permissions={((long)Permissions).ToString(CultureInfo.InvariantCulture)}";
+            return "https://" + $"discordapp.com/oauth2/authorize?client_id={this.Id.ToString(CultureInfo.InvariantCulture)}&scope=bot&permissions={((long)permissions).ToString(CultureInfo.InvariantCulture)}";
         }
 
         /// <summary>

@@ -739,8 +739,8 @@ namespace DSharpPlus.Net
             var pld = new RestChannelPermissionEditPayload
             {
                 Type = type,
-                Allow = allow,
-                Deny = deny
+                Allow = allow & PermissionMethods.FULL_PERMS,
+                Deny = deny & PermissionMethods.FULL_PERMS
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -1057,7 +1057,7 @@ namespace DSharpPlus.Net
             var pld = new RestGuildRolePayload
             {
                 Name = name,
-                Permissions = permissions,
+                Permissions = permissions & PermissionMethods.FULL_PERMS,
                 Color = color,
                 Hoist = hoist,
                 Mentionable = mentionable
@@ -1097,7 +1097,7 @@ namespace DSharpPlus.Net
             var pld = new RestGuildRolePayload
             {
                 Name = name,
-                Permissions = permissions,
+                Permissions = permissions & PermissionMethods.FULL_PERMS,
                 Color = color,
                 Hoist = hoist,
                 Mentionable = mentionable
