@@ -28,7 +28,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             this.Permissions = permissions;
         }
 
-        public override async Task<bool> CanExecute(CommandContext ctx, bool help)
+        public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
             if (ctx.Guild == null)
                 return this.IgnoreDms;

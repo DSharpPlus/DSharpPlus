@@ -100,7 +100,7 @@ namespace DSharpPlus.CommandsNext
             var fchecks = new List<CheckBaseAttribute>();
             if (this.ExecutionChecks != null && this.ExecutionChecks.Any())
                 foreach (var ec in this.ExecutionChecks)
-                    if (!(await ec.CanExecute(ctx, help).ConfigureAwait(false)))
+                    if (!(await ec.ExecuteCheckAsync(ctx, help).ConfigureAwait(false)))
                         fchecks.Add(ec);
 
             return fchecks;

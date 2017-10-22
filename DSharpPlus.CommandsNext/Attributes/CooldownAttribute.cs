@@ -103,7 +103,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             return bid;
         }
 
-        public override async Task<bool> CanExecute(CommandContext ctx, bool help)
+        public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
             if (help)
                 return true;

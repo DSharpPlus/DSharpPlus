@@ -9,7 +9,7 @@ namespace DSharpPlus.CommandsNext.Attributes
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class RequireOwnerAttribute : CheckBaseAttribute
     {
-        public override Task<bool> CanExecute(CommandContext ctx, bool help)
+        public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
             var cfg = ctx.Config;
             var app = ctx.Client.CurrentApplication;

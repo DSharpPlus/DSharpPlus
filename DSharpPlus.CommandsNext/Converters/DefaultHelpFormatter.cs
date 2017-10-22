@@ -120,7 +120,7 @@ namespace DSharpPlus.CommandsNext.Converters
         public IHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
             if (subcommands.Any())
-                this._embed.AddField(this._name != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(xc => Formatter.InlineCode(xc.QualifiedName))), false);
+                this._embed.AddField(this._name != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(xc => Formatter.InlineCode(xc.Name))), false);
             return this;
         }
 

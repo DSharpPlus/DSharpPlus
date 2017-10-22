@@ -26,7 +26,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             this.RoleNames = new ReadOnlyCollection<string>(role_names);
         }
 
-        public override Task<bool> CanExecute(CommandContext ctx, bool help)
+        public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
             if (ctx.Guild == null || ctx.Member == null)
                 return Task.FromResult(false);
