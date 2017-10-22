@@ -1589,7 +1589,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, ratelimit_wait_override: 0.3);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, ratelimit_wait_override: 0.26);
         }
 
         internal Task DeleteOwnReactionAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1598,7 +1598,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimit_wait_override: 0.3);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimit_wait_override: 0.26);
         }
 
         internal Task DeleteUserReactionAsync(ulong channel_id, ulong message_id, ulong user_id, string emoji, string reason)
@@ -1611,7 +1611,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji, user_id }, out var path);
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimit_wait_override: 0.3);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimit_wait_override: 0.26);
         }
 
         internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1651,7 +1651,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id }, out var path);
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimit_wait_override: 0.3);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimit_wait_override: 0.26);
         }
         #endregion
 

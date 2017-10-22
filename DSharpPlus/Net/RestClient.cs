@@ -268,18 +268,19 @@ namespace DSharpPlus.Net
                 servertime = DateTimeOffset.Parse(raw_date, CultureInfo.InvariantCulture).ToUniversalTime();
 
             var resetdelta = resettime - servertime;
-            var difference = clienttime - servertime;
-            if (Math.Abs(difference.TotalSeconds) >= 1)
-                request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00", CultureInfo.InvariantCulture)}ms", DateTime.Now);
-            else
-                difference = TimeSpan.Zero;
+            //var difference = clienttime - servertime;
+            //if (Math.Abs(difference.TotalSeconds) >= 1)
+            //    request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00", CultureInfo.InvariantCulture)}ms", DateTime.Now);
+            //else
+            //    difference = TimeSpan.Zero;
 
             if (request.RateLimitWaitOverride != null)
                 resetdelta = TimeSpan.FromSeconds(request.RateLimitWaitOverride.Value);
 
             bucket.Maximum = int.Parse(usesmax, CultureInfo.InvariantCulture);
             bucket.Remaining = int.Parse(usesleft, CultureInfo.InvariantCulture);
-            bucket.Reset = clienttime + resetdelta + difference;
+            //bucket.Reset = servertime + resetdelta + difference;
+            bucket.Reset = clienttime + resetdelta;
         }
     }
 }
