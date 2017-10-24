@@ -21,7 +21,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// Defines that usage of this command is restricted to members with specified role. Note that it's much preferred to restrict access using <see cref="RequirePermissionsAttribute"/>.
         /// </summary>
         /// <param name="role_names">Names of the role required to execute this command.</param>
-        public RequireRolesAttributeAttribute(params string[] role_names)
+        public RequireRolesAttribute(params string[] role_names)
         {
             this.RoleNames = new ReadOnlyCollection<string>(role_names);
         }
