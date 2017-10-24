@@ -10,7 +10,7 @@ namespace DSharpPlus.CommandsNext.Attributes
     /// Defines that usage of this command is restricted to members with specified role. Note that it's much preferred to restrict access using <see cref="RequirePermissionsAttribute"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public sealed class RequireRolesAttributeAttribute : CheckBaseAttribute
+    public sealed class RequireRolesAttribute : CheckBaseAttribute
     {
         /// <summary>
         /// Gets the name of the role required to execute this command.
