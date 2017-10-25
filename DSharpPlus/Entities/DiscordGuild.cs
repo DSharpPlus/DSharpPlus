@@ -1311,10 +1311,10 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 case "avatar_hash":
-                                    entrywhk.AvatarChange = new PropertyChange<string>
+                                    entrywhk.AvatarHashChange = new PropertyChange<string>
                                     {
-                                        Before = xc.OldValueString != null ? $"https://cdn.discordapp.com/splashes/{entrywhk.Target.Id.ToString(CultureInfo.InvariantCulture)}/{xc.OldValueString}.png?size=1024" : null,
-                                        After = xc.NewValueString != null ? $"https://cdn.discordapp.com/splashes/{entrywhk.Target.Id.ToString(CultureInfo.InvariantCulture)}/{xc.NewValueString}.png?size=1024" : null
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
                                     };
                                     break;
 

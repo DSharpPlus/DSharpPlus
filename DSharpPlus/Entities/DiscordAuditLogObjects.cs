@@ -365,7 +365,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the description of webhook's avatar change.
         /// </summary>
-        public PropertyChange<string> AvatarChange { get; internal set; }
+        public PropertyChange<string> AvatarHashChange { get; internal set; }
 
         internal DiscordAuditLogWebhookEntry() { }
     }
