@@ -76,9 +76,6 @@ function Install-DocFX([string] $target_dir_path)
         Write-Host "Getting latest DocFX release"
         $release_json = Invoke-WebRequest -uri "https://chocolatey.org/api/v2/package-versions/docfx" | ConvertFrom-JSON
 		$release_json = $release_json | % { [System.Version]::Parse($_) } | Sort-Object -Descending
-        $release = $release_json[0]             # Pick the top (latest release)
-        $release_asset = $release.ToString()    # Convert to string
-		$release_asset = "https://github.com/dotnet/docfx/releases/download/v$release_asset/docfx.zip"
     }
     catch
     {
@@ -86,16 +83,44 @@ function Install-DocFX([string] $target_dir_path)
     }
     
     # Download the release
-    try
-    {
-        Write-Host "Downloading DocFX to $target_path"
-        Invoke-WebRequest -uri "$release_asset" -outfile "$target_path"
-        Set-Location -Path "$target_dir"
-    }
-    catch
-    {
-        Return 1
-    }
+	# Since GH releases are unreliable, we have to try up to 3 times
+	$tries = 0
+	$fail = $true
+	while ($tries -lt 3)
+	{
+		# Prepare the assets
+		$release = $release_json[$tries]        # Pick the next available release
+		$release_version = $release.ToString()  # Convert to string
+		$release_asset = "https://github.com/dotnet/docfx/releases/download/v$release_version/docfx.zip"
+		
+		# increment try counter
+		$tries = $tries + 1
+		
+		try
+		{
+			Write-Host "Downloading DocFX $release_version to $target_path"
+			Invoke-WebRequest -uri "$release_asset" -outfile "$target_path"
+	
+			# No failure, carry on
+			Write-Host "DocFX version $release_version downloaded successfully"
+			$fail = $false
+			Break
+		}
+		catch
+		{
+			Write-Host "Downloading DocFX version $release_version failed, trying next ($tries / 3)"
+			#Return 1
+		}
+	}
+	
+	# Check if we succedded in downloading
+	if ($fail)
+	{
+		Return 1
+	}
+	
+	# Switch directory
+	Set-Location -Path "$target_dir"
     
     # Extract the release
     try
