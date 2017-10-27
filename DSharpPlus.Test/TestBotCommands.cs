@@ -19,6 +19,12 @@ namespace DSharpPlus.Test
 {
     public sealed class TestBotCommands
     {
+        [Command("nsfw")]
+        public async Task isnsfw(CommandContext e)
+        {
+            await e.RespondAsync(e.Channel.IsNSFW ? "yes" : "no");
+        }
+
         [Command("daudit")]
         public async Task DebugAudit(CommandContext e, int amount = 0)
         {

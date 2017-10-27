@@ -1433,6 +1433,7 @@ namespace DSharpPlus
             channel_new.Topic = channel.Topic;
             channel_new.UserLimit = channel.UserLimit;
             channel_new.ParentId = channel.ParentId;
+            channel_new.IsNSFW = channel.IsNSFW;
 
             channel_new._permission_overwrites.Clear();
             channel_new._permission_overwrites.AddRange(channel._permission_overwrites);

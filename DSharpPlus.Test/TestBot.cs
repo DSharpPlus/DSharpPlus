@@ -40,7 +40,7 @@ namespace DSharpPlus.Test
                 UseInternalLogHandler = false,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
-                GatewayCompressionLevel = GatewayCompressionLevel.Stream,
+                //GatewayCompressionLevel = GatewayCompressionLevel.Stream,
                 MessageCacheSize = 50,
                 AutomaticGuildSync = !this.Config.UseUserToken,
                 DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
