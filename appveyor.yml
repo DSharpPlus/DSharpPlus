@@ -1,0 +1,51 @@
+version: 3.2.3-beta-{build}
+pull_requests:
+  do_not_increment_build_number: true
+branches:
+  only:
+  - master
+skip_tags: true
+max_jobs: 1
+image: Visual Studio 2017
+clone_depth: 1
+build_script:
+- ps: >-
+    # Version number
+    $VERSION_PREFIX = "$Env:APPVEYOR_BUILD_VERSION".Split("-")[0]
+    $VERSION_SUFFIX = [int]::Parse($Env:APPVEYOR_BUILD_NUMBER).ToString("00000")
+
+    # Branch
+    $BRANCH = "$Env:APPVEYOR_REPO_BRANCH"
+    $Env:DOCFX_SOURCE_BRANCH_NAME = "$BRANCH"
+    
+    # Output directory
+    $Env:ARTIFACT_DIR = ".\artifacts"
+    $dir = New-Item -type directory $env:ARTIFACT_DIR
+    $dir = $dir.FullName
+    
+    # Verbosity
+    Write-Host "Build: $VERSION_SUFFIX / Branch: $BRANCH"
+    Write-Host "Artifacts will be placed in: $dir"
+    
+    # Check if this is a PR
+    if (-not $Env:APPVEYOR_PULL_REQUEST_NUMBER)
+    {
+        # Rebuild documentation
+        Write-Host "Commencing complete build"
+        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix "$VERSION_SUFFIX" -DocsPath ".\docs" -DocsPackageName "dsharpplus-docs"
+    }
+    else
+    {
+        # Skip documentation
+        Write-Host "Building from PR ($Env:APPVEYOR_PULL_REQUEST_NUMBER); skipping docs build"
+        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix "$VERSION_SUFFIX"
+    }
+artifacts:
+- path: artifacts\*.nupkg
+- path: artifacts\dsharpplus-docs.tar.xz
+deploy:
+- provider: NuGet
+  server: https://www.myget.org/F/dsharpplus-nightly/api/v2/package
+  api_key:
+    secure: Zrcd8tC2HncrLbVMK2rD6pcfnS3txk85Enf7Totc4g9sYVMhtHcKVPfOrtFuPW6h
+  symbol_server: https://www.myget.org/F/dsharpplus-nightly/symbols/api/v2/package

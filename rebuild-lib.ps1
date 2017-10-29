@@ -98,7 +98,7 @@ function Build-All([string] $target_dir_path, [string] $version_suffix)
     }
     else
     {
-        & dotnet pack -v minimal -c Release --version-suffix "$version_suffix" --no-build -o "$target_dir" | Out-Host
+        & dotnet pack -v minimal -c Release --version-suffix "$version_suffix" --no-build -o "$target_dir" --include-symbols | Out-Host
     }
     if ($LastExitCode -ne 0)
     {

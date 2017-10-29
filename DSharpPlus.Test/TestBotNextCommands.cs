@@ -262,6 +262,27 @@ namespace DSharpPlus.Test
                     await ctx.RespondWithFileAsync(fs, Path.GetFileName(p));
             }
         }
+
+        // this is a mention of _moonPtr#8058 (276460831187664897)
+        // I don't hate you, in fact I appreciate you breaking this stuff
+        // but revenge is revenge
+        // nothing personnel kid 😎
+        [Group("<@!276460831187664897>"), Aliases("<@276460831187664897>"), Description("That's what you get for breaking my lib.")]
+        public class Moon
+        {
+            [Command("test1")]
+            public Task WhatTheHeck(CommandContext ctx)
+                => ctx.RespondAsync("wewlad 0");
+
+            [Command("test2")]
+            public Task StopBreakingMyStuff(CommandContext ctx)
+                => ctx.RespondAsync("wewlad 1");
+        }
+
+        // I am GLaDOS
+        //[Command("test")]
+        //public Task TestAsync(CommandContext ctx)
+        //    => ctx.RespondAsync("It's been a loooooong time...");
     }
     
     //[Cooldown(30, 60, CooldownBucketType.User)]

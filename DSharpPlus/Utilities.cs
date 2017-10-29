@@ -205,6 +205,8 @@ namespace DSharpPlus
             if (perm == Permissions.None)
                 return PermissionStrings[perm];
 
+            perm &= PermissionMethods.FULL_PERMS;
+
             var strs = PermissionStrings
                 .Where(xkvp => xkvp.Key != Permissions.None && (perm & xkvp.Key) == xkvp.Key)
                 .Select(xkvp => xkvp.Value);

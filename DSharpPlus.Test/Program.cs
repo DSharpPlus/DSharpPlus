@@ -10,7 +10,10 @@ namespace DSharpPlus.Test
 {
     internal sealed class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
+            => MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
+
+        public static async Task MainAsync(string[] args)
         {
             var cfg = new TestBotConfig();
             var json = string.Empty;

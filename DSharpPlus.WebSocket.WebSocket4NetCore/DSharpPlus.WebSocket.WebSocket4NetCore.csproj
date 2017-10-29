@@ -1,49 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  
+
+  <Import Project="../DSharpPlus.targets" />
+
   <PropertyGroup>
+    <AssemblyName>DSharpPlus.WebSocket.WebSocket4NetCore</AssemblyName>
+    <RootNamespace>DSharpPlus.WebSocket</RootNamespace>
+    <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>7.1</LangVersion>
-    <NoWarn>1591</NoWarn>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <RootNamespace>DSharpPlus</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageId>DSharpPlus.WebSocket.WebSocket4NetCore</PackageId>
-    <Authors>Naamloos afroraydude DrCreo Death TiaqoY0 Axiom Emzi0767 contributors</Authors>
-    <Company>DSharpPlus developers</Company>
-    <Description>NOTE: This is an optional package. Do not install, unless you're targeting .NET Core on Windows 7.
-    
-A WebSocket4Net WebSocket client for DSharpPlus, for Windows 7.</Description>
-    <PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <Description>
+      NOTE: This is an optional package. Do not install, unless you're targeting .NET Core on Windows 7.
+
+      A WebSocket4Net WebSocket client for DSharpPlus, for Windows 7.
+    </Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp websocket websocket4net windows windows-7</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>3.2.2-beta-$(VersionSuffix)</Version>
-    <AssemblyVersion>3.2.2.$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>3.2.2.$(VersionSuffix)</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>3.2.2</Version>
-    <AssemblyVersion>3.2.2.0</AssemblyVersion>
-    <FileVersion>3.2.2.0</FileVersion>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <Optimize>False</Optimize>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
-  </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="WebSocket4Net" Version="0.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
   
 </Project>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS0618
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -738,6 +739,23 @@ namespace DSharpPlus
         {
             await this.InternalUpdateGatewayAsync();
             await this.InitializeAsync();
+
+            if (!this.Presences.ContainsKey(this.CurrentUser.Id))
+            {
+                this._presences[this.CurrentUser.Id] = new DiscordPresence
+                {
+                    Discord = this,
+                    Game = new TransportGame(),
+                    InternalStatus = "online",
+                    InternalUser = new TransportUser { Id = this.CurrentUser.Id }
+                };
+            }
+            else
+            {
+                var pr = this._presences[this.CurrentUser.Id];
+                pr.Game = new TransportGame();
+                pr.InternalStatus = "online";
+            }
 
             Volatile.Write(ref this._skipped_heartbeats, 0);
 
@@ -2390,6 +2408,24 @@ namespace DSharpPlus
             var statusstr = JsonConvert.SerializeObject(status_update);
 
             this._websocket_client.SendMessage(statusstr);
+
+            if (!this._presences.ContainsKey(this.CurrentUser.Id))
+            {
+                this._presences[this.CurrentUser.Id] = new DiscordPresence
+                {
+                    Discord = this,
+                    Game = status.Game,
+                    InternalStatus = user_status?.ToString() ?? "online",
+                    InternalUser = new TransportUser { Id = this.CurrentUser.Id }
+                };
+            }
+            else
+            {
+                var pr = this._presences[this.CurrentUser.Id];
+                pr.Game = status.Game;
+                pr.InternalStatus = user_status?.ToString() ?? pr.InternalStatus;
+            }
+
             return Task.Delay(0);
         }
 
