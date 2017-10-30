@@ -16,7 +16,7 @@ namespace DSharpPlus.Test
         public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string code) 
             => this.EvalCS(ctx, code);
 
-        [Command("csharp"), Aliases("eval", "evalcs", "cseval", "csharp", "roslyn"), Description("Evaluates C# code."), RequireOwner]
+        [Command("csharp"), Aliases("eval", "evalcs", "cseval", "roslyn"), Description("Evaluates C# code."), RequireOwner]
         public async Task EvalCS(CommandContext ctx, [RemainingText] string code)
         {
             var msg = ctx.Message;

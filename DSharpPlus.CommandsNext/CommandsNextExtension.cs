@@ -364,6 +364,7 @@ namespace DSharpPlus.CommandsNext
             var ms = ti.DeclaredMethods
                 .Where(xm => xm.IsPublic && !xm.IsStatic && xm.Name != GROUP_COMMAND_METHOD_NAME);
             var cmds = new List<Command>();
+            var uniq = new HashSet<string>();
             foreach (var m in ms)
             {
                 if (m.ReturnType != typeof(Task))
@@ -413,6 +414,21 @@ namespace DSharpPlus.CommandsNext
                 MakeCallable(m, inst, out var cbl, out var args);
                 cmd.Callable = cbl;
                 cmd.Arguments = args;
+                
+                if (uniq.Contains(cmd.Name))
+                    throw new DuplicateCommandException(cmd.QualifiedName);
+                uniq.Add(cmd.Name);
+
+                if (cmd.Aliases != null && cmd.Aliases.Any())
+                {
+                    foreach (var xa in cmd.Aliases)
+                    {
+                        if (uniq.Contains(xa))
+                            throw new DuplicateCommandException(cmd.QualifiedName);
+
+                        uniq.Add(xa);
+                    }
+                }
 
                 cmds.Add(cmd);
             }
@@ -536,7 +552,7 @@ namespace DSharpPlus.CommandsNext
                 return;
 
             if (this.TopLevelCommands.ContainsKey(cmd.Name) || (cmd.Aliases != null && cmd.Aliases.Any(xs => this.TopLevelCommands.ContainsKey(xs))))
-                throw new DuplicateCommandException(cmd.Name);
+                throw new DuplicateCommandException(cmd.QualifiedName);
 
             this.TopLevelCommands[cmd.Name] = cmd;
             if (cmd.Aliases != null)
