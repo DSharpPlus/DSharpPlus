@@ -20,6 +20,9 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="name">Name of this command.</param>
         public CommandAttribute(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Command names cannot be null, empty, or all-whitespace.");
+
 #if !NETSTANDARD1_1
             if (name.Any(xc => char.IsWhiteSpace(xc)))
 #else
