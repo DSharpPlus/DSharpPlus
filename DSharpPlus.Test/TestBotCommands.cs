@@ -385,7 +385,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     return;
                 }
 
-                var voice = ctx.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNext();
                 if (voice == null)
                 {
                     await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
@@ -408,7 +408,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             [Command("leave")]
             public async Task VoiceLeave(CommandContext ctx)
             {
-                var voice = ctx.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNext();
                 if (voice == null)
                 {
                     await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
@@ -444,7 +444,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             [Command("play")]
             public async Task VoicePlay(CommandContext ctx, params string[] filename)
             {
-                var voice = ctx.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNext();
                 if (voice == null)
                 {
                     await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
@@ -523,7 +523,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             [Command("playloop")]
             public async Task VoicePlayLoop(CommandContext ctx, params string[] filename)
             {
-                var voice = ctx.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNext();
                 if (voice == null)
                 {
                     await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
@@ -608,7 +608,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             [Command("playstop")]
             public async Task VoicePlayLoopStop(CommandContext ctx)
             {
-                var voice = ctx.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNext();
                 if (voice == null)
                 {
                     await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
@@ -638,7 +638,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
             [Command("playforce"), Description("Forces audio playback, regardless of whether audio is playing or not.")]
             public async Task VoicePlayForce(CommandContext ctx, params string[] filename)
             {
-                var voice = ctx.Client.GetVoiceNextClient();
+                var voice = ctx.Client.GetVoiceNext();
                 if (voice == null)
                 {
                     await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);

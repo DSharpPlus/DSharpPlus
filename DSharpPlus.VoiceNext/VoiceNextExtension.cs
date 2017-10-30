@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Net.Udp;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
 
@@ -146,6 +147,11 @@ namespace DSharpPlus.VoiceNext
             if (gld == null)
                 return Task.Delay(0);
 
+            if (this.ActiveConnections.TryGetValue(e.Guild.Id, out var vnc))
+            {
+                vnc.Channel = e.Channel;
+            }
+
             if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Client.CurrentUser.Id && this.VoiceStateUpdates.ContainsKey(gld.Id))
             {
                 this.VoiceStateUpdates.TryRemove(gld.Id, out var xe);
@@ -155,19 +161,45 @@ namespace DSharpPlus.VoiceNext
             return Task.Delay(0);
         }
 
-        private Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
+        private async Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
         {
             var gld = e.Guild;
             if (gld == null)
-                return Task.Delay(0);
+                return;
+
+            if (this.ActiveConnections.TryGetValue(e.Guild.Id, out var vnc))
+            {
+                vnc.ServerData = new VoiceServerUpdatePayload
+                {
+                    Endpoint = e.Endpoint,
+                    GuildId = e.Guild.Id,
+                    Token = e.VoiceToken
+                };
+
+                var eps = e.Endpoint;
+                var epi = eps.LastIndexOf(':');
+                var eph = string.Empty;
+                var epp = 80;
+                if (epi != -1)
+                {
+                    eph = eps.Substring(0, epi);
+                    epp = int.Parse(eps.Substring(epi + 1));
+                }
+                else
+                {
+                    eph = eps;
+                }
+                vnc.ConnectionEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
+
+                vnc.Resume = false;
+                await vnc.ReconnectAsync().ConfigureAwait(false);
+            }
 
             if (this.VoiceServerUpdates.ContainsKey(gld.Id))
             {
                 this.VoiceServerUpdates.TryRemove(gld.Id, out var xe);
                 xe.SetResult(e);
             }
-
-            return Task.Delay(0);
         }
     }
 }

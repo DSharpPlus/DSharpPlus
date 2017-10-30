@@ -12,6 +12,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
+using DSharpPlus.VoiceNext.EventArgs;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -34,6 +35,16 @@ namespace DSharpPlus.VoiceNext
             remove { this._user_speaking.Unregister(value); }
         }
         private AsyncEvent<UserSpeakingEventArgs> _user_speaking;
+
+        /// <summary>
+        /// Triggered whenever a user leaves voice in the connected guild.
+        /// </summary>
+        public event AsyncEventHandler<VoiceUserLeaveEventArgs> UserLeft
+        {
+            add { this._user_left.Register(value); }
+            remove { this._user_left.Unregister(value); }
+        }
+        private AsyncEvent<VoiceUserLeaveEventArgs> _user_left;
 
 #if !NETSTANDARD1_1
         /// <summary>
@@ -73,13 +84,13 @@ namespace DSharpPlus.VoiceNext
         private int HeartbeatInterval { get; set; }
         private DateTime LastHeartbeat { get; set; }
 
-        private CancellationTokenSource TokenSource { get; }
+        private CancellationTokenSource TokenSource { get; set; }
         private CancellationToken Token 
             => this.TokenSource.Token;
 
-        private VoiceServerUpdatePayload ServerData { get; set; }
-        private VoiceStateUpdatePayload StateData { get; set; }
-        private bool Resume { get; set; }
+        internal VoiceServerUpdatePayload ServerData { get; set; }
+        internal VoiceStateUpdatePayload StateData { get; set; }
+        internal bool Resume { get; set; }
 
         private VoiceNextConfiguration Configuration { get; }
         private OpusCodec Opus { get; set; }
@@ -88,7 +99,6 @@ namespace DSharpPlus.VoiceNext
         private double SynchronizerTicks { get; set; }
         private double SynchronizerResolution { get; set; }
         private double TickResolution { get; set; }
-        private TimeSpan UdpLatency { get; }
 
         private ushort Sequence { get; set; }
         private uint Timestamp { get; set; }
@@ -97,7 +107,7 @@ namespace DSharpPlus.VoiceNext
 #if !NETSTANDARD1_1
         private IpEndpoint DiscoveredEndpoint { get; set; }
 #endif
-        private ConnectionEndpoint ConnectionEndpoint { get; set; }
+        internal ConnectionEndpoint ConnectionEndpoint { get; set; }
 
         private TaskCompletionSource<bool> ReadyWait { get; set; }
         private bool IsInitialized { get; set; }
@@ -108,6 +118,9 @@ namespace DSharpPlus.VoiceNext
 
 #if !NETSTANDARD1_1
         private Task ReceiverTask { get; set; }
+        private CancellationTokenSource ReceiverTokenSource { get; set; }
+        private CancellationToken ReceiverToken
+            => this.ReceiverTokenSource.Token;
 #endif
 
         /// <summary>
@@ -127,7 +140,7 @@ namespace DSharpPlus.VoiceNext
         /// <summary>
         /// Gets the channel this voice client is connected to.
         /// </summary>
-        public DiscordChannel Channel { get; private set; }
+        public DiscordChannel Channel { get; internal set; }
 
         internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceNextConfiguration config, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
@@ -137,6 +150,7 @@ namespace DSharpPlus.VoiceNext
             this.SSRCMap = new ConcurrentDictionary<uint, ulong>();
 
             this._user_speaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "USER_SPEAKING");
+            this._user_left = new AsyncEvent<VoiceUserLeaveEventArgs>(this.Discord.EventErrorHandler, "USER_LEFT");
 #if !NETSTANDARD1_1
             this._voice_received = new AsyncEvent<VoiceReceiveEventArgs>(this.Discord.EventErrorHandler, "VOICE_RECEIVED");
 #endif
@@ -147,7 +161,6 @@ namespace DSharpPlus.VoiceNext
             this.Opus = new OpusCodec(48000, 2, this.Configuration.VoiceApplication);
             this.Sodium = new SodiumCodec();
             this.Rtp = new RtpCodec();
-            this.UdpLatency = TimeSpan.FromMilliseconds(0.1);
 
             this.ServerData = server;
             this.StateData = state;
@@ -207,6 +220,9 @@ namespace DSharpPlus.VoiceNext
 
             return this.VoiceWs.ConnectAsync(gwuri.Uri);
         }
+
+        internal Task ReconnectAsync()
+            => this.VoiceWs.DisconnectAsync(new SocketCloseEventArgs(this.Discord));
 
         internal Task StartAsync()
         {
@@ -305,7 +321,7 @@ namespace DSharpPlus.VoiceNext
 #if !NETSTANDARD1_1
         private async Task VoiceReceiverTask()
         {
-            var token = this.Token;
+            var token = this.ReceiverToken;
             var client = this.UdpClient;
             while (!token.IsCancellationRequested)
             {
@@ -447,10 +463,14 @@ namespace DSharpPlus.VoiceNext
             if (this.IsDisposed)
                 return;
 
-            this.TokenSource.Cancel();
-
             this.IsDisposed = true;
             this.IsInitialized = false;
+            this.TokenSource.Cancel();
+#if !NETSTANDARD1_1
+            if (this.Configuration.EnableIncoming)
+                this.ReceiverTokenSource.Cancel();
+#endif
+
             try
             {
                 this.VoiceWs.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -472,11 +492,12 @@ namespace DSharpPlus.VoiceNext
         {
             await Task.Yield();
 
+            var token = this.Token;
             while (true)
             {
                 try
                 {
-                    this.Token.ThrowIfCancellationRequested();
+                    token.ThrowIfCancellationRequested();
 
                     var dt = DateTime.Now;
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "Sent heartbeat", dt);
@@ -501,9 +522,6 @@ namespace DSharpPlus.VoiceNext
 
         private async Task Stage1()
         {
-            // Begin heartbeating
-            this.HeartbeatTask = Task.Run(this.Heartbeat);
-
 #if !NETSTANDARD1_1
             // IP Discovery
             this.UdpClient.Setup(this.ConnectionEndpoint);
@@ -542,7 +560,10 @@ namespace DSharpPlus.VoiceNext
 
 #if !NETSTANDARD1_1
             if (this.Configuration.EnableIncoming)
-                this.ReceiverTask = Task.Run(this.VoiceReceiverTask, this.Token);
+            {
+                this.ReceiverTokenSource = new CancellationTokenSource();
+                this.ReceiverTask = Task.Run(this.VoiceReceiverTask, this.ReceiverToken);
+            }
 #endif
         }
 
@@ -566,6 +587,7 @@ namespace DSharpPlus.VoiceNext
                     this.SSRC = vrp.SSRC;
                     this.ConnectionEndpoint = new ConnectionEndpoint { Hostname = this.ConnectionEndpoint.Hostname, Port = vrp.Port };
                     this.HeartbeatInterval = vrp.HeartbeatInterval;
+                    this.HeartbeatTask = Task.Run(this.Heartbeat);
                     await this.Stage1().ConfigureAwait(false);
                     break;
 
@@ -590,14 +612,12 @@ namespace DSharpPlus.VoiceNext
                         this.SSRCMap.AddOrUpdate(spk.SSRC, spk.User.Id, (k, v) => spk.User.Id);
                     await this._user_speaking.InvokeAsync(spk).ConfigureAwait(false);
                     break;
-
-                case 3:
+                    
                 case 6:
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP3 or OP6 received", DateTime.Now);
                     var dt = DateTime.Now;
                     var ping = (int)(dt - this.LastHeartbeat).TotalMilliseconds;
                     Volatile.Write(ref this._ping, ping);
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {ping.ToString("#,###", CultureInfo.InvariantCulture)}ms", dt);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {ping.ToString("#,##0", CultureInfo.InvariantCulture)}ms", dt);
                     this.LastHeartbeat = dt;
                     break;
 
@@ -609,9 +629,18 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 case 9:
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP9 received, starting new session", DateTime.Now);
-                    this.Resume = false;
-                    await this.StartAsync().ConfigureAwait(false);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP9 received", DateTime.Now);
+                    this.HeartbeatTask = Task.Run(this.Heartbeat);
+                    break;
+
+                case 13:
+                    var ulpd = opp.ToObject<VoiceUserLeavePayload>();
+                    var usr = await this.Discord.GetUserAsync(ulpd.UserId).ConfigureAwait(false);
+                    var ssrc = this.SSRCMap.FirstOrDefault(x => x.Value == ulpd.UserId);
+                    if (ssrc.Value != 0)
+                        this.SSRCMap.TryRemove(ssrc.Key, out _);
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"User '{usr.Username}#{usr.Discriminator}' ({ulpd.UserId.ToString(CultureInfo.InvariantCulture)}) left voice chat in '{this.Channel.Guild.Name}' ({this.Channel.Guild.Id.ToString(CultureInfo.InvariantCulture)})", DateTime.Now);
+                    await this._user_left.InvokeAsync(new VoiceUserLeaveEventArgs(this.Discord) { User = usr }).ConfigureAwait(false);
                     break;
 
                 default:
@@ -623,15 +652,24 @@ namespace DSharpPlus.VoiceNext
         private async Task VoiceWS_SocketClosed(SocketCloseEventArgs e)
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice socket closed ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}')", DateTime.Now);
-            this.Dispose();
+
+            // generally this should not be disposed on all disconnects, only on requested ones
+            // or something
+            // otherwise problems happen
+            //this.Dispose();
+
+            if (e.CloseCode == 4006 || e.CloseCode == 4009)
+                this.Resume = false;
 
             if (!this.IsDisposed)
             {
+                this.TokenSource.Cancel();
+                this.TokenSource = new CancellationTokenSource();
                 this.VoiceWs = BaseWebSocketClient.Create();
                 this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
                 this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
                 this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
-                await this.StartAsync().ConfigureAwait(false);
+                await this.ConnectAsync().ConfigureAwait(false);
             }
         }
 
@@ -655,3 +693,4 @@ namespace DSharpPlus.VoiceNext
 }
 
 // Naam you still owe me those noodles :^)
+// I remember
