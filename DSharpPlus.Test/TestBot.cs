@@ -55,6 +55,7 @@ namespace DSharpPlus.Test
             Discord.ClientErrored += this.Discord_ClientErrored;
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
+            Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -162,19 +163,19 @@ namespace DSharpPlus.Test
         {
             if (!this.Config.UseUserToken)
                 this.GameGuard = new Timer(TimerCallback, null, TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(15));
-            return Task.Delay(0);
+            return Task.CompletedTask;
         }
 
         private Task Discord_GuildAvailable(GuildCreateEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Guild available: {e.Guild.Name}", DateTime.Now);
-            return Task.Delay(0);
+            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"Guild available: {e.Guild.Name}", DateTime.Now);
+            return Task.CompletedTask;
         }
 
         private Task Discord_GuildCreated(GuildCreateEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSPlus Test", $"Guild created: {e.Guild.Name}", DateTime.Now);
-            return Task.Delay(0);
+            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"Guild created: {e.Guild.Name}", DateTime.Now);
+            return Task.CompletedTask;
         }
 
         private async Task Discord_MessageCreated(MessageCreateEventArgs e)
@@ -186,13 +187,19 @@ namespace DSharpPlus.Test
         private Task Discord_ClientErrored(ClientErrorEventArgs e)
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now);
-            return Task.Delay(0);
+            return Task.CompletedTask;
         }
 
         private Task Discord_SocketError(SocketErrorEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "WebSocket", $"WS threw an exception: {e.Exception.GetType()}", DateTime.Now);
-            return Task.Delay(0);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"WS threw an exception: {e.Exception.GetType()}", DateTime.Now);
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_VoiceStateUpdated(VoiceStateUpdateEventArgs e)
+        {
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSP Test", $"Voice state change for {e.User}: {e.Before?.IsServerMuted}->{e.After.IsServerMuted} {e.Before?.IsServerDeafened}->{e.After.IsServerDeafened}", DateTime.Now);
+            return Task.CompletedTask;
         }
 
         private async Task CommandsNextService_CommandErrored(CommandErrorEventArgs e)
@@ -200,7 +207,7 @@ namespace DSharpPlus.Test
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                 return;
 
-            Discord.DebugLogger.LogMessage(LogLevel.Error, "CommandsNext", $"An exception occured during {e.Context.User.Username}'s invocation of '{e.Context.Command.QualifiedName}': {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"An exception occured during {e.Context.User.Username}'s invocation of '{e.Context.Command.QualifiedName}': {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
 
             var exs = new List<Exception>();
             if (e.Exception is AggregateException ae)
@@ -237,8 +244,8 @@ namespace DSharpPlus.Test
 
         private Task CommandsNextService_CommandExecuted(CommandExecutionEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "CommandsNext", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}", DateTime.Now);
-            return Task.Delay(0);
+            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}", DateTime.Now);
+            return Task.CompletedTask;
         }
 
         private void TimerCallback(object _)

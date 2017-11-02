@@ -67,39 +67,57 @@ namespace DSharpPlus.Entities
         /// Gets ID of the session of this voice state.
         /// </summary>
         [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string SessionId { get; internal set; }
+        internal string SessionId { get; set; }
 
         /// <summary>
         /// Gets whether this user is deafened.
         /// </summary>
         [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Deaf { get; internal set; }
+        public bool IsServerDeafened { get; internal set; }
 
         /// <summary>
         /// Gets whether this user is muted.
         /// </summary>
         [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Mute { get; internal set; }
+        public bool IsServerMuted { get; internal set; }
 
         /// <summary>
         /// Gets whether this user is locally deafened.
         /// </summary>
         [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
-        public bool SelfDeaf { get; internal set; }
+        public bool IsSelfDeafened { get; internal set; }
 
         /// <summary>
         /// Gets whether this user is locally muted.
         /// </summary>
         [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
-        public bool SelfMute { get; internal set; }
+        public bool IsSelfMuted { get; internal set; }
 
         /// <summary>
         /// Gets whether the current user has suppressed this user.
         /// </summary>
         [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Suppress { get; internal set; }
+        public bool IsSuppressed { get; internal set; }
 
         internal DiscordVoiceState() { }
+
+        // copy constructor for reduced boilerplate
+        internal DiscordVoiceState(DiscordVoiceState other)
+        {
+            this.Discord = other.Discord;
+
+            this.UserId = other.UserId;
+            this.ChannelId = other.ChannelId;
+            this.GuildId = other.GuildId;
+
+            this.IsServerDeafened = other.IsServerDeafened;
+            this.IsServerMuted = other.IsServerMuted;
+            this.IsSuppressed = other.IsSuppressed;
+            this.IsSelfDeafened = other.IsSelfDeafened;
+            this.IsSelfMuted = other.IsSelfMuted;
+
+            this.SessionId = other.SessionId;
+        }
 
         public override string ToString()
         {

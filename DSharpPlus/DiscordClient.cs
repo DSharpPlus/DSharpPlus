@@ -1209,7 +1209,7 @@ namespace DSharpPlus
                     break;
 
                 case "voice_state_update":
-                    await OnVoiceStateUpdateEventAsync(dat.ToObject<DiscordVoiceState>()).ConfigureAwait(false);
+                    await OnVoiceStateUpdateEventAsync(dat).ConfigureAwait(false);
                     break;
 
                 case "voice_server_update":
@@ -2137,22 +2137,41 @@ namespace DSharpPlus
             await this._user_update.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnVoiceStateUpdateEventAsync(DiscordVoiceState voice_state)
+        internal async Task OnVoiceStateUpdateEventAsync(JObject raw)
         {
-            voice_state.Discord = this;
+            var gid = (ulong)raw["guild_id"];
+            var uid = (ulong)raw["user_id"];
+            var gld = this._guilds[gid];
 
-            var index = voice_state.Guild._voice_states.FindIndex(xvs => xvs.UserId == voice_state.UserId);
-            if (index < 0)
-                voice_state.Guild._voice_states.Add(voice_state);
+            var vstate_new = gld._voice_states.FirstOrDefault(xvs => xvs.UserId == uid);
+            var vstate_old = vstate_new != null ? new DiscordVoiceState(vstate_new) : null;
+            if (vstate_new == null)
+            {
+                vstate_new = raw.ToObject<DiscordVoiceState>();
+                vstate_new.Discord = this;
+                gld._voice_states.Add(vstate_new);
+            }
             else
-                voice_state.Guild._voice_states[index] = voice_state;
+            {
+                JsonConvert.PopulateObject(raw.ToString(), vstate_new); // TODO: Find a better way
+            }
+
+            var mbr = gld._members.FirstOrDefault(xm => xm.Id == uid);
+            if (mbr != null)
+            {
+                mbr.IsMuted = vstate_new.IsServerMuted;
+                mbr.IsDeafened = vstate_new.IsServerDeafened;
+            }
 
             var ea = new VoiceStateUpdateEventArgs(this)
             {
-                Guild = voice_state.Guild,
-                Channel = voice_state.Channel,
-                User = voice_state.User,
-                SessionId = voice_state.SessionId
+                Guild = vstate_new.Guild,
+                Channel = vstate_new.Channel,
+                User = vstate_new.User,
+                SessionId = vstate_new.SessionId,
+
+                Before = vstate_old,
+                After = vstate_new
             };
             await this._voice_state_update.InvokeAsync(ea).ConfigureAwait(false);
         }

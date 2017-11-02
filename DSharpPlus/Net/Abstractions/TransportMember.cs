@@ -18,10 +18,10 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime JoinedAt { get; internal set; }
 
-        [JsonProperty("is_deafened", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsDeafened { get; internal set; }
 
-        [JsonProperty("is_muted", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMuted { get; internal set; }
     }
 }

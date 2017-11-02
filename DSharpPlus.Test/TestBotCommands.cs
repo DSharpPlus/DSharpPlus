@@ -339,13 +339,13 @@ Serverowner: {e.Guild.Owner.DisplayName}
             private Task OnUserSpeaking(UserSpeakingEventArgs e)
             {
                 if (this._ssrc_map.ContainsKey(e.SSRC))
-                    return Task.Delay(0);
+                    return Task.CompletedTask;
 
                 if (e.User == null)
-                    return Task.Delay(0);
+                    return Task.CompletedTask;
 
                 this._ssrc_map[e.SSRC] = e.User.Id;
-                return Task.Delay(0);
+                return Task.CompletedTask;
             }
 
             private unsafe void RescaleVolume(byte[] data)

@@ -23,6 +23,16 @@ namespace DSharpPlus.EventArgs
         public DiscordChannel Channel { get; internal set; }
 
         /// <summary>
+        /// Gets the voice state pre-update.
+        /// </summary>
+        public DiscordVoiceState Before { get; internal set; }
+
+        /// <summary>
+        /// Gets the voice state post-update.
+        /// </summary>
+        public DiscordVoiceState After { get; internal set; }
+
+        /// <summary>
         /// Gets the ID of voice session.
         /// </summary>
         internal string SessionId { get; set; }
