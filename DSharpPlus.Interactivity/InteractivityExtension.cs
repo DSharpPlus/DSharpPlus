@@ -651,10 +651,13 @@ namespace DSharpPlus.Interactivity
                     case TimeoutBehaviour.Ignore:
                         await m.DeleteAllReactionsAsync().ConfigureAwait(false);
                         break;
-                    case TimeoutBehaviour.Delete:
+                    case TimeoutBehaviour.DeleteMessage:
                         // deleting a message deletes all reactions anyway
                         //await m.DeleteAllReactionsAsync().ConfigureAwait(false);
                         await m.DeleteAsync().ConfigureAwait(false);
+                        break;
+                    case TimeoutBehaviour.DeleteReactions:
+                        await m.DeleteAllReactionsAsync().ConfigureAwait(false);
                         break;
                 }
             }
@@ -674,6 +677,9 @@ namespace DSharpPlus.Interactivity
             {
                 if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
                 {
+                    ct.Dispose();
+                    ct = new CancellationTokenSource(timeout);
+                    ct.Token.Register(() => tsc.TrySetResult(null));
                     await this.DoPagination(e.Emoji, m, pm, ct).ConfigureAwait(false);
                 }
             }
@@ -681,7 +687,12 @@ namespace DSharpPlus.Interactivity
             async Task ReactionRemoveHandler(MessageReactionRemoveEventArgs e)
             {
                 if (e.Message.Id == m.Id && e.User.Id != this.Client.CurrentUser.Id && e.User.Id == user.Id)
+                {
+                    ct.Dispose();
+                    ct = new CancellationTokenSource(timeout);
+                    ct.Token.Register(() => tsc.TrySetResult(null));
                     await this.DoPagination(e.Emoji, m, pm, ct).ConfigureAwait(false);
+                }
             }
 
             async Task ReactionClearHandler(MessageReactionsClearEventArgs e)
@@ -797,7 +808,8 @@ namespace DSharpPlus.Interactivity
         // is this actually needed?
         //Default, // ignore
         Ignore,
-        Delete
+        DeleteReactions,
+        DeleteMessage
     }
 
     public class PaginatedMessage
