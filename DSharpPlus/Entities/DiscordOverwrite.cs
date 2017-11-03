@@ -40,12 +40,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Updates this channel overwrite.
         /// </summary>
-        /// <param name="allowed">Permissions that are allowed.</param>
-        /// <param name="denied">Permissions that are denied.</param>
+        /// <param name="allow">Permissions that are allowed.</param>
+        /// <param name="deny">Permissions that are denied.</param>
         /// <param name="reason">Reason as to why you made this change.</param>
         /// <returns></returns>
-        public Task UpdateAsync(Permissions allowed, Permissions denied, string reason = null)
-            => this.Discord.ApiClient.EditChannelPermissionsAsync(this._channel_id, this.Id, allowed, denied, this.Type.ToString(), reason);
+        public Task UpdateAsync(Permissions? allow = null, Permissions? deny = null, string reason = null)
+            => this.Discord.ApiClient.EditChannelPermissionsAsync(this._channel_id, this.Id, allow ?? this.Allow, deny ?? this.Deny, this.Type.ToString().ToLowerInvariant(), reason);
         #endregion
 
         internal DiscordOverwrite() { }

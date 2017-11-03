@@ -365,7 +365,7 @@ namespace DSharpPlus.Entities
         /// <param name="deny"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task AddOverwriteAsync(DiscordMember member, Permissions allow, Permissions deny, string reason = null) 
+        public Task AddOverwriteAsync(DiscordMember member, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null) 
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, member.Id, allow, deny, "member", reason);
 
         /// <summary>
@@ -376,7 +376,7 @@ namespace DSharpPlus.Entities
         /// <param name="deny"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task AddOverwriteAsync(DiscordRole role, Permissions allow, Permissions deny, string reason = null) 
+        public Task AddOverwriteAsync(DiscordRole role, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null) 
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, role.Id, allow, deny, "role", reason);
 
         /// <summary>

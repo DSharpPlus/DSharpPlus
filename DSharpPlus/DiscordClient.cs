@@ -783,7 +783,7 @@ namespace DSharpPlus
             _websocket_client.OnDisconnect += SocketOnDisconnect;
             _websocket_client.OnMessage += SocketOnMessage;
             _websocket_client.OnError += SocketOnError;
-            
+
             var gwuri = new UriBuilder(this._gateway_uri)
             {
                 Query = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream ? "v=6&encoding=json&compress=zlib-stream" : "v=6&encoding=json"
@@ -1305,7 +1305,10 @@ namespace DSharpPlus
                         xc.GuildId = xg.Id;
                         xc.Discord = this;
                         foreach (var xo in xc._permission_overwrites)
+                        {
+                            xo.Discord = this;
                             xo._channel_id = xc.Id;
+                        }
                     }
 
                     if (xg._roles == null)
@@ -1388,8 +1391,11 @@ namespace DSharpPlus
             else
             {
                 channel.Discord = this;
-                foreach (var o in channel._permission_overwrites)
-                    o._channel_id = channel.Id;
+                foreach (var xo in channel._permission_overwrites)
+                {
+                    xo.Discord = this;
+                    xo._channel_id = channel.Id;
+                }
 
                 _guilds[channel.GuildId]._channels.Add(channel);
 
@@ -1445,7 +1451,10 @@ namespace DSharpPlus
             channel_new._permission_overwrites.Clear();
 
             foreach (var po in channel._permission_overwrites)
+            {
+                po.Discord = this;
                 po._channel_id = channel.Id;
+            }
 
             channel_new._permission_overwrites.AddRange(channel._permission_overwrites);
 
@@ -1535,7 +1544,10 @@ namespace DSharpPlus
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
                 foreach (var xo in xc._permission_overwrites)
+                {
+                    xo.Discord = this;
                     xo._channel_id = xc.Id;
+                }
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
@@ -1584,7 +1596,10 @@ namespace DSharpPlus
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
                 foreach (var xo in xc._permission_overwrites)
+                {
+                    xo.Discord = this;
                     xo._channel_id = xc.Id;
+                }
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
@@ -2620,9 +2635,12 @@ namespace DSharpPlus
             if (new_guild._channels != null && new_guild._channels.Any())
             {
                 var _c = new_guild._channels.Where(xc => !guild._channels.Any(xxc => xxc.Id == xc.Id));
-                foreach(var xc in _c)
+                foreach (var xc in _c)
                     foreach (var xo in xc._permission_overwrites)
+                    {
+                        xo.Discord = this;
                         xo._channel_id = xc.Id;
+                    }
 
                 guild._channels.AddRange(_c);
             }
@@ -2652,7 +2670,7 @@ namespace DSharpPlus
             }
 
             var _r = new_guild._roles.Where(xr => !guild._roles.Any(xxr => xxr.Id == xr.Id));
-            foreach(var xr in _r)
+            foreach (var xr in _r)
             {
                 xr._guild_id = guild.Id;
             }
