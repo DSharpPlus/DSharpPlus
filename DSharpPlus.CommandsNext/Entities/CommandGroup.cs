@@ -16,6 +16,11 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public IReadOnlyList<Command> Children { get; internal set; }
 
+        /// <summary>
+        /// Gets whether this command is executable without subcommands.
+        /// </summary>
+        public bool IsExecutableWithoutSubcommands => this.Callable == null;
+
         internal CommandGroup() : base() { }
 
         /// <summary>
@@ -73,7 +78,7 @@ namespace DSharpPlus.CommandsNext
                 }
             }
 
-            if (this.Callable == null)
+            if (this.IsExecutableWithoutSubcommands)
                 return new CommandResult
                 {
                     IsSuccessful = false,
