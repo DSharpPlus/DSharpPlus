@@ -17,6 +17,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Emzi0767.Microsoft.DependencyInjection" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 

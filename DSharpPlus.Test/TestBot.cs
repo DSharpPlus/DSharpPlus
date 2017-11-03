@@ -11,6 +11,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.VoiceNext;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Test
 {
@@ -66,8 +67,8 @@ namespace DSharpPlus.Test
             this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 
             // build a dependency collection for commandsnext
-            var depco = new DependencyCollectionBuilder();
-            // add deps here
+            var depco = new ServiceCollection();
+            depco.AddSingleton(new TestBotService());
 
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
@@ -82,7 +83,7 @@ namespace DSharpPlus.Test
                 EnableDms = true,
                 EnableMentionPrefix = true,
                 CaseSensitive = true,
-                Dependencies = depco.Build(),
+                Services = depco.BuildServiceProvider(),
                 Selfbot = this.Config.UseUserToken,
                 IgnoreExtraArguments = false
                 //DefaultHelpChecks = new List<CheckBaseAttribute>() { new RequireOwnerAttribute() }
