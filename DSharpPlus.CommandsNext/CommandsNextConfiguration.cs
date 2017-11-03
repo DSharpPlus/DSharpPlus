@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
@@ -77,11 +78,11 @@ namespace DSharpPlus.CommandsNext
         public bool EnableDms { internal get; set; } = true;
 
         /// <summary>
-        /// <para>Sets the dependency collection for this CommandsNext instance.</para>
-        /// <para>Objects in this collection are used when instantiating command modules. This allows passing data around without resorting to static members.</para>
+        /// <para>Sets the service provider for this CommandsNext instance.</para>
+        /// <para>Objects in this provider are used when instantiating command modules. This allows passing data around without resorting to static members.</para>
         /// <para>Defaults to null.</para>
         /// </summary>
-        public DependencyCollection Dependencies { internal get; set; } = null;
+        public IServiceProvider Services { internal get; set; } = null;
 
         /// <summary>
         /// <para>Gets whether any extra arguments passed to commands should be ignored or not. If this is set to false, extra arguments will throw, otherwise they will be ignored.</para>

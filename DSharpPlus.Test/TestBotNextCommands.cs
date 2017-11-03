@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -51,5 +52,44 @@ namespace DSharpPlus.Test
         //[Command("test")]
         //public Task TestAsync(CommandContext ctx)
         //    => ctx.RespondAsync("It's been a loooooong time...");
+
+        [Group("di"), Description("Tests for dependency injection.")]
+        public class MSDI
+        {
+            [DontInject]
+            public TestBotService Service { get; set; }
+
+            public MSDI(TestBotService tsrv)
+            {
+                this.Service = tsrv;
+            }
+
+            [Command("increment"), Aliases("inc", "++"), Description("Increments service value.")]
+            public Task IncrementAsync(CommandContext ctx)
+            {
+                this.Service.InrementUseCount();
+                return ctx.RespondAsync(":ok_hand:");
+            }
+
+            [Command("read"), Aliases("?"), Description("Reads the current counter value.")]
+            public Task GetCounterAsync(CommandContext ctx)
+                => ctx.RespondAsync($":1234: {this.Service.CommandCounter}");
+        }
+    }
+
+    public class TestBotService
+    {
+        public int CommandCounter => this._cmd_counter;
+        private volatile int _cmd_counter;
+
+        public TestBotService()
+        {
+            this._cmd_counter = 0;
+        }
+
+        public void InrementUseCount()
+        {
+            Interlocked.Increment(ref this._cmd_counter);
+        }
     }
 }

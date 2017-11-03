@@ -61,8 +61,7 @@ namespace DSharpPlus.CommandsNext
                         Command = cmd,
                         Config = ctx.Config,
                         RawArgumentString = x,
-                        CommandsNext = ctx.CommandsNext,
-                        Dependencies = ctx.Dependencies
+                        CommandsNext = ctx.CommandsNext
                     };
 
                     var fchecks = await cmd.RunChecksAsync(xctx, false).ConfigureAwait(false);

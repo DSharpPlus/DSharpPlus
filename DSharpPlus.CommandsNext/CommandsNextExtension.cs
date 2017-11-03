@@ -10,6 +10,7 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -51,10 +52,10 @@ namespace DSharpPlus.CommandsNext
         private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroupAsync";
 
         /// <summary>
-        /// Gets the dependency collection this CommandsNext module was configured with.
+        /// Gets the service provider this CommandsNext module was configured with.
         /// </summary>
-        public DependencyCollection Dependencies 
-            => this.Config.Dependencies;
+        public IServiceProvider Services
+            => this.Config.Services;
 
         internal CommandsNextExtension(CommandsNextConfiguration cfg)
         {
@@ -209,8 +210,7 @@ namespace DSharpPlus.CommandsNext
                 //RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
                 Config = this.Config,
                 RawArgumentString = rrg,
-                CommandsNext = this,
-                Dependencies = this.Config.Dependencies
+                CommandsNext = this
             };
 
             if (cmd == null)
@@ -534,16 +534,47 @@ namespace DSharpPlus.CommandsNext
             var constr = cs[0];
             var prms = constr.GetParameters();
             var args = new object[prms.Length];
-            var deps = this.Config.Dependencies;
+            var deps = this.Config.Services;
 
             if (prms.Length != 0 && deps == null)
                 throw new InvalidOperationException("Dependency collection needs to be specified for parametered constructors.");
-
+            
+            // inject via constructor
             if (prms.Length != 0)
                 for (var i = 0; i < args.Length; i++)
-                    args[i] = deps.GetDependency(prms[i].ParameterType);
+                    args[i] = deps.GetRequiredService(prms[i].ParameterType);
 
-            return Activator.CreateInstance(t, args);
+            var module = Activator.CreateInstance(t, args);
+
+            // inject into properties
+            var props = ti.DeclaredProperties.Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
+            foreach (var prop in props)
+            {
+                if (prop.GetCustomAttribute<DontInjectAttribute>() != null)
+                    continue;
+
+                var srv = deps.GetService(prop.PropertyType);
+                if (srv == null)
+                    continue;
+
+                prop.SetValue(module, srv);
+            }
+
+            // inject into fields
+            var fields = ti.DeclaredFields.Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
+            foreach (var field in fields)
+            {
+                if (field.GetCustomAttribute<DontInjectAttribute>() != null)
+                    continue;
+
+                var srv = deps.GetService(field.FieldType);
+                if (srv == null)
+                    continue;
+
+                field.SetValue(module, srv);
+            }
+
+            return module;
         }
 
         private void AddToCommandDictionary(Command cmd)
