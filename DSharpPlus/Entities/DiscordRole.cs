@@ -1,5 +1,8 @@
 ﻿using System;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using DSharpPlus.Net.Abstractions;
+using System.Linq;
 
 namespace DSharpPlus.Entities
 {
@@ -18,7 +21,7 @@ namespace DSharpPlus.Entities
         /// Gets the color of this role.
         /// </summary>
         [JsonIgnore]
-        public DiscordColor Color 
+        public DiscordColor Color
             => new DiscordColor(this._color);
 
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
@@ -54,11 +57,59 @@ namespace DSharpPlus.Entities
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMentionable { get; internal set; }
 
+        [JsonIgnore]
+        internal ulong _guild_id = 0;
+
         /// <summary>
         /// Gets a mention string for this role. If the role is mentionable, this string will mention all the users that belong to this role.
         /// </summary>
-        public string Mention 
+        public string Mention
             => Formatter.Mention(this);
+
+        #region Methods
+        /// <summary>
+        /// Modifies this role's position.
+        /// </summary>
+        /// <param name="position">New position</param>
+        /// <param name="reason">Reason why we moved it</param>
+        /// <returns></returns>
+        public Task ModifyPositionAsync(int position, string reason = null)
+        {
+            var roles = this.Discord.Guilds[this._guild_id].Roles.Where(xr => xr.Id != this.Id).OrderByDescending(xr => xr.Position).ToArray();
+            var pmds = new RestGuildRoleReorderPayload[roles.Length];
+            for (var i = 0; i < roles.Length; i++)
+            {
+                pmds[i] = new RestGuildRoleReorderPayload { RoleId = roles[i].Id };
+
+                if (roles[i].Id == this.Id)
+                    pmds[i].Position = position;
+                else
+                    pmds[i].Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position;
+            }
+
+            return this.Discord.ApiClient.ModifyGuildRolePosition(this.Id, pmds, reason);
+        }
+
+        /// <summary>
+        /// Updates this role.
+        /// </summary>
+        /// <param name="name">New role name</param>
+        /// <param name="permissions">New role permissions</param>
+        /// <param name="color">New role color</param>
+        /// <param name="hoist">New role hoist</param>
+        /// <param name="mentionable">Whether this role is mentionable</param>
+        /// <param name="reason">Reason why we made this change</param>
+        /// <returns></returns>
+        public Task UpdateAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
+            => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, Id, name, permissions, color?.Value, hoist, mentionable, reason);
+
+        /// <summary>
+        /// Deletes this role.
+        /// </summary>
+        /// <param name="reason">Reason as to why this role has been deleted.</param>
+        /// <returns></returns>
+        public Task DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteRoleAsync(this._guild_id, this.Id, reason);
+        #endregion
 
         internal DiscordRole() { }
 
@@ -144,7 +195,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First role to compare.</param>
         /// <param name="e2">Second role to compare.</param>
         /// <returns>Whether the two roles are not equal.</returns>
-        public static bool operator !=(DiscordRole e1, DiscordRole e2) 
+        public static bool operator !=(DiscordRole e1, DiscordRole e2)
             => !(e1 == e2);
     }
 }

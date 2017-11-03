@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
@@ -11,7 +12,7 @@ namespace DSharpPlus.Entities
         /// Gets the type of the overwrite. Either "role" or "member".
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public string Type { get; internal set; }
+        public OverwriteType Type { get; internal set; }
 
         /// <summary>
         /// Gets the allowed permission set.
@@ -24,6 +25,28 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
         public Permissions Deny { get; internal set; }
+
+        [JsonIgnore]
+        internal ulong _channel_id;
+
+        #region Methods
+        /// <summary>
+        /// Deletes this channel overwrite.
+        /// </summary>
+        /// <param name="reason">Reason as to why this overwrite gets deleted.</param>
+        /// <returns></returns>
+        public Task DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteChannelPermissionAsync(this._channel_id, this.Id, reason);
+
+        /// <summary>
+        /// Updates this channel overwrite.
+        /// </summary>
+        /// <param name="allowed">Permissions that are allowed.</param>
+        /// <param name="denied">Permissions that are denied.</param>
+        /// <param name="reason">Reason as to why you made this change.</param>
+        /// <returns></returns>
+        public Task UpdateAsync(Permissions allowed, Permissions denied, string reason = null)
+            => this.Discord.ApiClient.EditChannelPermissionsAsync(this._channel_id, this.Id, allowed, denied, this.Type.ToString(), reason);
+        #endregion
 
         internal DiscordOverwrite() { }
 

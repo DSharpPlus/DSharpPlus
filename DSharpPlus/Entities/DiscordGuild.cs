@@ -276,6 +276,20 @@ namespace DSharpPlus.Entities
 
         #region Guild Methods
         /// <summary>
+        /// Adds a new member to this guild
+        /// </summary>
+        /// <param name="user">User to add</param>
+        /// <param name="access_token">User's access token (OAuth2)</param>
+        /// <param name="nickname">new nickame</param>
+        /// <param name="roles">new roles</param>
+        /// <param name="muted">whether this user has to be muted</param>
+        /// <param name="deaf">whether this user has to be deafened</param>
+        /// <returns></returns>
+        public Task AddMemberAsync(DiscordUser user, string access_token, string nickname = null, IEnumerable<DiscordRole> roles = null,
+            bool muted = false, bool deaf = false)
+            => this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, access_token, nickname, roles, muted, deaf);
+
+        /// <summary>
         /// Deletes this guild. Requires the caller to be the owner of the guild.
         /// </summary>
         /// <returns></returns>
@@ -484,15 +498,6 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.GetGuildWebhooksAsync(this.Id);
 
         /// <summary>
-        /// Kicks a member from this guild.
-        /// </summary>
-        /// <param name="member">Member to kick.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task RemoveMemberAsync(DiscordMember member, string reason = null) 
-            => this.Discord.ApiClient.RemoveGuildMemberAsync(this.Id, member.Id, reason);
-
-        /// <summary>
         /// Gets a member of this guild by his user ID.
         /// </summary>
         /// <param name="user_id">ID of the member to get.</param>
@@ -576,44 +581,6 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
 
         /// <summary>
-        /// Modifies a role in this guild.
-        /// </summary>
-        /// <param name="role">Role to modify.</param>
-        /// <param name="name">New name.</param>
-        /// <param name="permissions">New permissions.</param>
-        /// <param name="color">New color.</param>
-        /// <param name="hoist">Whether the role is to be hoisted.</param>
-        /// <param name="mentionable">Whether the role is to be mentionable.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task UpdateRoleAsync(DiscordRole role, string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildRoleAsync(Id, role.Id, name, permissions, color?.Value, hoist, mentionable, reason);
-
-        /// <summary>
-        /// Modifies position of the given role in the role hierarchy.
-        /// </summary>
-        /// <param name="role">Role to modify.</param>
-        /// <param name="position">New position.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task UpdateRolePositionAsync(DiscordRole role, int position, string reason = null)
-        {
-            var roles = this._roles.Where(xr => xr.Id != this.Id).OrderByDescending(xr => xr.Position).ToArray();
-            var pmds = new RestGuildRoleReorderPayload[roles.Length];
-            for (var i = 0; i < roles.Length; i++)
-            {
-                pmds[i] = new RestGuildRoleReorderPayload { RoleId = roles[i].Id };
-
-                if (roles[i].Id == role.Id)
-                    pmds[i].Position = position;
-                else
-                    pmds[i].Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position;
-            }
-
-            return this.Discord.ApiClient.ModifyGuildRolePosition(this.Id, pmds, reason);
-        }
-
-        /// <summary>
         /// Creates a new role in this guild.
         /// </summary>
         /// <param name="name">Name of the role.</param>
@@ -625,15 +592,6 @@ namespace DSharpPlus.Entities
         /// <returns>The newly-created role.</returns>
         public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) 
             => this.Discord.ApiClient.CreateGuildRole(this.Id, name, permissions, color?.Value, hoist, mentionable, reason);
-
-        /// <summary>
-        /// Deletes a role from this guild.
-        /// </summary>
-        /// <param name="role">Role to delete.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task DeleteRoleAsync(DiscordRole role, string reason = null) 
-            => this.Discord.ApiClient.DeleteRoleAsync(this.Id, role.Id, reason);
 
         /// <summary>
         /// Gets a role from this guild by its ID.
@@ -650,26 +608,6 @@ namespace DSharpPlus.Entities
         /// <returns>Requested channel.</returns>
         public DiscordChannel GetChannel(ulong id) 
             => this._channels.FirstOrDefault(xc => xc.Id == id);
-
-        /// <summary>
-        /// Grants a role to a member. 
-        /// </summary>
-        /// <param name="member">Member to grant the role to.</param>
-        /// <param name="role">Role to grant.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task GrantRoleAsync(DiscordMember member, DiscordRole role, string reason = null) 
-            => this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
-
-        /// <summary>
-        /// Revokes a role from a member. 
-        /// </summary>
-        /// <param name="member">Member to revoke the role from.</param>
-        /// <param name="role">Role to revoke.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task RevokeRoleAsync(DiscordMember member, DiscordRole role, string reason) 
-            => this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Id, member.Id, role.Id, reason);
 
         /// <summary>
         /// Gets audit log entries for this guild.

@@ -1015,7 +1015,7 @@ namespace DSharpPlus
         }
         #endregion
 
-        #region Websocket
+        #region Websocket (Events)
         internal async Task HandleSocketMessageAsync(string data)
         {
             var payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
@@ -1304,13 +1304,18 @@ namespace DSharpPlus
                     {
                         xc.GuildId = xg.Id;
                         xc.Discord = this;
+                        foreach (var xo in xc._permission_overwrites)
+                            xo._channel_id = xc.Id;
                     }
 
                     if (xg._roles == null)
                         xg._roles = new List<DiscordRole>();
 
                     foreach (var xr in xg.Roles)
+                    {
                         xr.Discord = this;
+                        xr._guild_id = xg.Id;
+                    }
 
                     var raw_guild = raw_guild_index[xg.Id];
                     var raw_members = (JArray)raw_guild["members"];
@@ -1383,6 +1388,8 @@ namespace DSharpPlus
             else
             {
                 channel.Discord = this;
+                foreach (var o in channel._permission_overwrites)
+                    o._channel_id = channel.Id;
 
                 _guilds[channel.GuildId]._channels.Add(channel);
 
@@ -1436,6 +1443,10 @@ namespace DSharpPlus
             channel_new.IsNSFW = channel.IsNSFW;
 
             channel_new._permission_overwrites.Clear();
+
+            foreach (var po in channel._permission_overwrites)
+                po._channel_id = channel.Id;
+
             channel_new._permission_overwrites.AddRange(channel._permission_overwrites);
 
             await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs(this) { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old }).ConfigureAwait(false);
@@ -1523,13 +1534,18 @@ namespace DSharpPlus
             {
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
+                foreach (var xo in xc._permission_overwrites)
+                    xo._channel_id = xc.Id;
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
             foreach (var xvs in guild._voice_states)
                 xvs.Discord = this;
             foreach (var xr in guild._roles)
+            {
                 xr.Discord = this;
+                xr._guild_id = guild.Id;
+            }
 
             var dcompl = this._guilds.Values.All(xg => !xg.IsUnavailable);
             Volatile.Write(ref this._guild_download_completed, dcompl);
@@ -1567,13 +1583,18 @@ namespace DSharpPlus
             {
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
+                foreach (var xo in xc._permission_overwrites)
+                    xo._channel_id = xc.Id;
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
             foreach (var xvs in guild._voice_states)
                 xvs.Discord = this;
             foreach (var xr in guild._roles)
+            {
                 xr.Discord = this;
+                xr._guild_id = guild.Id;
+            }
 
             await this._guild_updated.InvokeAsync(new GuildUpdateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
         }
@@ -1797,6 +1818,8 @@ namespace DSharpPlus
         internal async Task OnGuildRoleCreateEventAsync(DiscordRole role, DiscordGuild guild)
         {
             role.Discord = this;
+            role._guild_id = guild.Id;
+
             guild._roles.Add(role);
 
             var ea = new GuildRoleCreateEventArgs(this)
@@ -1812,6 +1835,7 @@ namespace DSharpPlus
             var role_new = guild.Roles.FirstOrDefault(xr => xr.Id == role.Id);
             var role_old = new DiscordRole
             {
+                _guild_id = guild.Id,
                 _color = role_new._color,
                 Discord = this,
                 IsHoisted = role_new.IsHoisted,
@@ -1823,6 +1847,7 @@ namespace DSharpPlus
                 Position = role_new.Position
             };
 
+            role_new._guild_id = guild.Id;
             role_new._color = role._color;
             role_new.IsHoisted = role.IsHoisted;
             role_new.IsManaged = role.IsManaged;
@@ -2595,6 +2620,10 @@ namespace DSharpPlus
             if (new_guild._channels != null && new_guild._channels.Any())
             {
                 var _c = new_guild._channels.Where(xc => !guild._channels.Any(xxc => xxc.Id == xc.Id));
+                foreach(var xc in _c)
+                    foreach (var xo in xc._permission_overwrites)
+                        xo._channel_id = xc.Id;
+
                 guild._channels.AddRange(_c);
             }
 
@@ -2623,6 +2652,10 @@ namespace DSharpPlus
             }
 
             var _r = new_guild._roles.Where(xr => !guild._roles.Any(xxr => xxr.Id == xr.Id));
+            foreach(var xr in _r)
+            {
+                xr._guild_id = guild.Id;
+            }
             guild._roles.AddRange(_r);
 
             guild.Name = new_guild.Name;

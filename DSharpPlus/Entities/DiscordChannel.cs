@@ -358,26 +358,6 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.CreateChannelInviteAsync(Id, max_age, max_uses, temporary, unique, reason);
 
         /// <summary>
-        /// Deletes a channel permission overwrite
-        /// </summary>
-        /// <param name="overwrite"></param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task DeleteOverwriteAsync(DiscordOverwrite overwrite, string reason = null) 
-            => this.Discord.ApiClient.DeleteChannelPermissionAsync(this.Id, overwrite.Id, reason);
-
-        /// <summary>
-        /// Updates a channel permission overwrite.
-        /// </summary>
-        /// <param name="overwrite">Overwrite to update.</param>
-        /// <param name="allow">Permissions to allow.</param>
-        /// <param name="deny">Permissions to deny.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task UpdateOverwriteAsync(DiscordOverwrite overwrite, Permissions allow, Permissions deny, string reason = null) 
-            => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, overwrite.Id, allow, deny, overwrite.Type, reason);
-
-        /// <summary>
         /// Adds a channel permission overwrite for specified member.
         /// </summary>
         /// <param name="member"></param>
@@ -455,7 +435,7 @@ namespace DSharpPlus.Entities
         public async Task PlaceMemberAsync(DiscordMember member)
         {
             if (this.Type != ChannelType.Voice)
-                throw new ArgumentException("Cannot place member in a non-voice channel");
+                throw new ArgumentException("Cannot place member in a non-voice channel!"); // be a little more angery, let em learn!!1
             
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null, this.Id, null).ConfigureAwait(false);
         }

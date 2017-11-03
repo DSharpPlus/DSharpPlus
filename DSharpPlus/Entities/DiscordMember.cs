@@ -358,13 +358,15 @@ namespace DSharpPlus.Entities
         public Task BanAsync(int delete_message_days = 0, string reason = null) 
             => this.Guild.BanMemberAsync(this, delete_message_days, reason);
 
+        public Task UnbanAsync(string reason = null) => this.Guild.UnbanMemberAsync(this, reason);
+
         /// <summary>
         /// Kicks this member from their guild.
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task RemoveAsync(string reason = null) 
-            => this.Guild.RemoveMemberAsync(this, reason);
+        public Task RemoveAsync(string reason = null)
+            => this.Discord.ApiClient.RemoveGuildMemberAsync(this._guild_id, this.Id, reason);
 
         /// <summary>
         /// Moves this member to the specified voice channel

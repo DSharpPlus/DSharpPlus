@@ -18,6 +18,22 @@ namespace DSharpPlus
                 return true;
             return false;
         }
+
+        /// <summary>
+        /// Grants permissions.
+        /// </summary>
+        /// <param name="p">The permissions to add to.</param>
+        /// <param name="grant">Permission to add.</param>
+        /// <returns></returns>
+        public static Permissions Grant(this Permissions p, Permissions grant) => p | grant;
+
+        /// <summary>
+        /// Revokes permissions.
+        /// </summary>
+        /// <param name="p">The permissions to take from.</param>
+        /// <param name="revoke">Permission to take.</param>
+        /// <returns></returns>
+        public static Permissions Revoke(this Permissions p, Permissions revoke) => p & ~revoke;
     }
 
     /// <summary>

@@ -190,6 +190,8 @@ namespace DSharpPlus.Net
             var json = JObject.Parse(res.Response);
             var raw_members = (JArray)json["members"];
             var guild = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
+            foreach (var r in guild._roles)
+                r._guild_id = guild.Id;
 
             if (this.Discord is DiscordClient dc)
                 await dc.OnGuildUpdateEventAsync(guild, raw_members).ConfigureAwait(false);
@@ -273,8 +275,8 @@ namespace DSharpPlus.Net
             var pld = new RestGuildMemberAddPayload
             {
                 AccessToken = access_token,
-                Nickname = nick,
-                Roles = roles,
+                Nickname = nick ?? "",
+                Roles = roles ?? new List<DiscordRole>(),
                 Deaf = deafened,
                 Mute = muted
             };
@@ -412,6 +414,8 @@ namespace DSharpPlus.Net
 
             var ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response);
             ret.Discord = this.Discord;
+            foreach (var xo in ret._permission_overwrites)
+                xo._channel_id = ret.Id;
 
             return ret;
         }
@@ -450,6 +454,8 @@ namespace DSharpPlus.Net
 
             var ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response);
             ret.Discord = this.Discord;
+            foreach (var xo in ret._permission_overwrites)
+                xo._channel_id = ret.Id;
 
             return ret;
         }
@@ -584,6 +590,12 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var channels_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordChannel>>(res.Response).Select(xc => { xc.Discord = this.Discord; return xc; });
+
+            foreach(var ret in channels_raw)
+            {
+                foreach (var xo in ret._permission_overwrites)
+                    xo._channel_id = ret.Id;
+            }
 
             return new ReadOnlyCollection<DiscordChannel>(new List<DiscordChannel>(channels_raw));
         }
@@ -967,6 +979,8 @@ namespace DSharpPlus.Net
                 var glds = guilds_raw.Select(xug =>
                 {
                     xug.Discord = this.Discord;
+                    foreach (var r in xug._roles)
+                        r._guild_id = xug.Id;
                     return xug;
                 });
                 return new ReadOnlyCollection<DiscordGuild>(new List<DiscordGuild>(glds));
@@ -1023,7 +1037,7 @@ namespace DSharpPlus.Net
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
-            var roles_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordRole>>(res.Response).Select(xr => { xr.Discord = this.Discord; return xr; });
+            var roles_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordRole>>(res.Response).Select(xr => { xr.Discord = this.Discord; xr._guild_id = guild_id; return xr; });
 
             return new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(roles_raw));
         }
@@ -1039,6 +1053,8 @@ namespace DSharpPlus.Net
             var json = JObject.Parse(res.Response);
             var raw_members = (JArray)json["members"];
             var guild_rest = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
+            foreach (var r in guild_rest._roles)
+                r._guild_id = guild_rest.Id;
 
             if (this.Discord is DiscordClient dc)
             {
@@ -1075,6 +1091,7 @@ namespace DSharpPlus.Net
             
             var ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response);
             ret.Discord = this.Discord;
+            ret._guild_id = guild_id;
 
             return ret;
         }
@@ -1115,6 +1132,7 @@ namespace DSharpPlus.Net
             
             var ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response);
             ret.Discord = this.Discord;
+            ret._guild_id = guild_id;
 
             return ret;
         }
