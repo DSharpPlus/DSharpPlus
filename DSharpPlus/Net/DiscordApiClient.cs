@@ -390,7 +390,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwrite> overwrites, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwrite> overwrites, bool? nsfw, string reason)
         {
             var pld = new RestChannelCreatePayload
             {
@@ -399,7 +399,8 @@ namespace DSharpPlus.Net
                 Parent = parent,
                 Bitrate = bitrate,
                 UserLimit = user_limit,
-                PermissionOverwrites = overwrites
+                PermissionOverwrites = overwrites,
+                Nsfw = nsfw
             };
 
             var headers = Utilities.GetBaseHeaders();

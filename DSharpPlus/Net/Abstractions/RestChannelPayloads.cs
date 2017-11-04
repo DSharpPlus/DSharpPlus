@@ -23,6 +23,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordOverwrite> PermissionOverwrites { get; set; }
+
+        [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Nsfw { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload

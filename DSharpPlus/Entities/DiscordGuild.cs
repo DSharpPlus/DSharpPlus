@@ -394,14 +394,18 @@ namespace DSharpPlus.Entities
         /// <param name="bitrate">Bitrate of the channel. Applies to voice only.</param>
         /// <param name="user_limit">Maximum number of users in the channel. Applies to voice only.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
+        /// <param name="nsfw">Whether the channel is to be flagged as not safe for work.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, string reason = null)
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, bool? nsfw = null, string reason = null)
         {
             if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
 
-            return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, bitrate, user_limit, overwrites, reason);
+            if (type == ChannelType.Category && parent != null)
+                throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent));
+
+            return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, bitrate, user_limit, overwrites, nsfw, reason);
         }
 
         /// <summary>
