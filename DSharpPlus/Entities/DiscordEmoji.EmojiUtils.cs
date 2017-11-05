@@ -1898,7 +1898,7 @@ namespace DSharpPlus.Entities
                 ["]=)"] = "\ud83d\ude08",
                 ["]=-)"] = "\ud83d\ude08",
                 ["</3"] = "\ud83d\udc94",
-                ["<\3"] = "\ud83d\udc94",
+                ["<\\3"] = "\ud83d\udc94",
                 ["<3"] = "\u2764",
                 ["=\")"] = "\ud83d\ude0a",
                 ["=-\")"] = "\ud83d\ude0a",
