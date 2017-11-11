@@ -11,7 +11,7 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         internal DiscordClient Discord { get; set; }
 
-        [JsonProperty("user")]
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportUser InternalUser { get; set; }
 
         /// <summary>

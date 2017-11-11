@@ -25,487 +25,24 @@ namespace DSharpPlus
     /// </summary>
     public class DiscordClient : BaseDiscordClient
     {
-        #region Events
-        /// <summary>
-        /// Fired whenever an error occurs within an event handler.
-        /// </summary>
-        public event AsyncEventHandler<ClientErrorEventArgs> ClientErrored
-        {
-            add { this._client_error.Register(value); }
-            remove { this._client_error.Unregister(value); }
-        }
-        private AsyncEvent<ClientErrorEventArgs> _client_error;
-
-        /// <summary>
-        /// Fired whenever a WebSocket error occurs within the client.
-        /// </summary>
-        public event AsyncEventHandler<SocketErrorEventArgs> SocketErrored
-        {
-            add { this._socket_error.Register(value); }
-            remove { this._socket_error.Unregister(value); }
-        }
-        private AsyncEvent<SocketErrorEventArgs> _socket_error;
-
-        /// <summary>
-        /// Fired whenever WebSocket connection is established.
-        /// </summary>
-        public event AsyncEventHandler SocketOpened
-        {
-            add { this._socket_opened.Register(value); }
-            remove { this._socket_opened.Unregister(value); }
-        }
-        private AsyncEvent _socket_opened;
-
-        /// <summary>
-        /// Fired whenever WebSocket connection is terminated.
-        /// </summary>
-        public event AsyncEventHandler<SocketCloseEventArgs> SocketClosed
-        {
-            add { this._socket_closed.Register(value); }
-            remove { this._socket_closed.Unregister(value); }
-        }
-        private AsyncEvent<SocketCloseEventArgs> _socket_closed;
-
-        /// <summary>
-        /// Fired when the client enters ready state.
-        /// </summary>
-        public event AsyncEventHandler<ReadyEventArgs> Ready
-        {
-            add { this._ready.Register(value); }
-            remove { this._ready.Unregister(value); }
-        }
-        private AsyncEvent<ReadyEventArgs> _ready;
-
-        /// <summary>
-        /// Fired whenever a session is resumed.
-        /// </summary>
-        public event AsyncEventHandler<ReadyEventArgs> Resumed
-        {
-            add { this._resumed.Register(value); }
-            remove { this._resumed.Unregister(value); }
-        }
-        private AsyncEvent<ReadyEventArgs> _resumed;
-
-        /// <summary>
-        /// Fired when a new channel is created.
-        /// </summary>
-        public event AsyncEventHandler<ChannelCreateEventArgs> ChannelCreated
-        {
-            add { this._channel_created.Register(value); }
-            remove { this._channel_created.Unregister(value); }
-        }
-        private AsyncEvent<ChannelCreateEventArgs> _channel_created;
-
-        /// <summary>
-        /// Fired when a new direct message channel is created.
-        /// </summary>
-        public event AsyncEventHandler<DmChannelCreateEventArgs> DmChannelCreated
-        {
-            add { this._dm_channel_created.Register(value); }
-            remove { this._dm_channel_created.Unregister(value); }
-        }
-        private AsyncEvent<DmChannelCreateEventArgs> _dm_channel_created;
-
-        /// <summary>
-        /// Fired when a channel is updated.
-        /// </summary>
-        public event AsyncEventHandler<ChannelUpdateEventArgs> ChannelUpdated
-        {
-            add { this._channel_updated.Register(value); }
-            remove { this._channel_updated.Unregister(value); }
-        }
-        private AsyncEvent<ChannelUpdateEventArgs> _channel_updated;
-
-        /// <summary>
-        /// Fired when a channel is deleted
-        /// </summary>
-        public event AsyncEventHandler<ChannelDeleteEventArgs> ChannelDeleted
-        {
-            add { this._channel_deleted.Register(value); }
-            remove { this._channel_deleted.Unregister(value); }
-        }
-        private AsyncEvent<ChannelDeleteEventArgs> _channel_deleted;
-
-        /// <summary>
-        /// Fired when a dm channel is deleted
-        /// </summary>
-        public event AsyncEventHandler<DmChannelDeleteEventArgs> DmChannelDeleted
-        {
-            add { this._dm_channel_deleted.Register(value); }
-            remove { this._dm_channel_deleted.Unregister(value); }
-        }
-        private AsyncEvent<DmChannelDeleteEventArgs> _dm_channel_deleted;
-
-        /// <summary>
-        /// Fired whenever a channel's pinned message list is updated.
-        /// </summary>
-        public event AsyncEventHandler<ChannelPinsUpdateEventArgs> ChannelPinsUpdated
-        {
-            add { this._channel_pins_updated.Register(value); }
-            remove { this._channel_pins_updated.Unregister(value); }
-        }
-        private AsyncEvent<ChannelPinsUpdateEventArgs> _channel_pins_updated;
-
-        /// <summary>
-        /// Fired when the user joins a new guild.
-        /// </summary>
-        public event AsyncEventHandler<GuildCreateEventArgs> GuildCreated
-        {
-            add { this._guild_created.Register(value); }
-            remove { this._guild_created.Unregister(value); }
-        }
-        private AsyncEvent<GuildCreateEventArgs> _guild_created;
-
-        /// <summary>
-        /// Fired when a guild is becoming available.
-        /// </summary>
-        public event AsyncEventHandler<GuildCreateEventArgs> GuildAvailable
-        {
-            add { this._guild_available.Register(value); }
-            remove { this._guild_available.Unregister(value); }
-        }
-        private AsyncEvent<GuildCreateEventArgs> _guild_available;
-
-        /// <summary>
-        /// Fired when a guild is updated.
-        /// </summary>
-        public event AsyncEventHandler<GuildUpdateEventArgs> GuildUpdated
-        {
-            add { this._guild_updated.Register(value); }
-            remove { this._guild_updated.Unregister(value); }
-        }
-        private AsyncEvent<GuildUpdateEventArgs> _guild_updated;
-
-        /// <summary>
-        /// Fired when the user leaves or is removed from a guild.
-        /// </summary>
-        public event AsyncEventHandler<GuildDeleteEventArgs> GuildDeleted
-        {
-            add { this._guild_deleted.Register(value); }
-            remove { this._guild_deleted.Unregister(value); }
-        }
-        private AsyncEvent<GuildDeleteEventArgs> _guild_deleted;
-
-        /// <summary>
-        /// Fired when a guild becomes unavailable.
-        /// </summary>
-        public event AsyncEventHandler<GuildDeleteEventArgs> GuildUnavailable
-        {
-            add { this._guild_unavailable.Register(value); }
-            remove { this._guild_unavailable.Unregister(value); }
-        }
-        private AsyncEvent<GuildDeleteEventArgs> _guild_unavailable;
-
-        /// <summary>
-        /// Fired when a message is created.
-        /// </summary>
-        public event AsyncEventHandler<MessageCreateEventArgs> MessageCreated
-        {
-            add { this._message_created.Register(value); }
-            remove { this._message_created.Unregister(value); }
-        }
-        private AsyncEvent<MessageCreateEventArgs> _message_created;
-
-        /// <summary>
-        /// Fired when a presence has been updated.
-        /// </summary>
-        public event AsyncEventHandler<PresenceUpdateEventArgs> PresenceUpdated
-        {
-            add { this._presence_update.Register(value); }
-            remove { this._presence_update.Unregister(value); }
-        }
-        private AsyncEvent<PresenceUpdateEventArgs> _presence_update;
-
-        /// <summary>
-        /// Fired when a guild ban gets added
-        /// </summary>
-        public event AsyncEventHandler<GuildBanAddEventArgs> GuildBanAdded
-        {
-            add { this._guild_ban_add.Register(value); }
-            remove { this._guild_ban_add.Unregister(value); }
-        }
-        private AsyncEvent<GuildBanAddEventArgs> _guild_ban_add;
-
-        /// <summary>
-        /// Fired when a guild ban gets removed
-        /// </summary>
-        public event AsyncEventHandler<GuildBanRemoveEventArgs> GuildBanRemoved
-        {
-            add { this._guild_ban_remove.Register(value); }
-            remove { this._guild_ban_remove.Unregister(value); }
-        }
-        private AsyncEvent<GuildBanRemoveEventArgs> _guild_ban_remove;
-
-        /// <summary>
-        /// Fired when a guilds emojis get updated
-        /// </summary>
-        public event AsyncEventHandler<GuildEmojisUpdateEventArgs> GuildEmojisUpdated
-        {
-            add { this._guild_emojis_update.Register(value); }
-            remove { this._guild_emojis_update.Unregister(value); }
-        }
-        private AsyncEvent<GuildEmojisUpdateEventArgs> _guild_emojis_update;
-
-        /// <summary>
-        /// Fired when a guild integration is updated.
-        /// </summary>
-        public event AsyncEventHandler<GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdated
-        {
-            add { this._guild_integrations_update.Register(value); }
-            remove { this._guild_integrations_update.Unregister(value); }
-        }
-        private AsyncEvent<GuildIntegrationsUpdateEventArgs> _guild_integrations_update;
-
-        /// <summary>
-        /// Fired when a new user joins a guild.
-        /// </summary>
-        public event AsyncEventHandler<GuildMemberAddEventArgs> GuildMemberAdded
-        {
-            add { this._guild_member_add.Register(value); }
-            remove { this._guild_member_add.Unregister(value); }
-        }
-        private AsyncEvent<GuildMemberAddEventArgs> _guild_member_add;
-
-        /// <summary>
-        /// Fired when a user is removed from a guild (leave/kick/ban).
-        /// </summary>
-        public event AsyncEventHandler<GuildMemberRemoveEventArgs> GuildMemberRemoved
-        {
-            add { this._guild_member_remove.Register(value); }
-            remove { this._guild_member_remove.Unregister(value); }
-        }
-        private AsyncEvent<GuildMemberRemoveEventArgs> _guild_member_remove;
-
-        /// <summary>
-        /// Fired when a guild member is updated.
-        /// </summary>
-        public event AsyncEventHandler<GuildMemberUpdateEventArgs> GuildMemberUpdated
-        {
-            add { this._guild_member_update.Register(value); }
-            remove { this._guild_member_update.Unregister(value); }
-        }
-        private AsyncEvent<GuildMemberUpdateEventArgs> _guild_member_update;
-
-        /// <summary>
-        /// Fired when a guild role is created.
-        /// </summary>
-        public event AsyncEventHandler<GuildRoleCreateEventArgs> GuildRoleCreated
-        {
-            add { this._guild_role_create.Register(value); }
-            remove { this._guild_role_create.Unregister(value); }
-        }
-        private AsyncEvent<GuildRoleCreateEventArgs> _guild_role_create;
-
-        /// <summary>
-        /// Fired when a guild role is updated.
-        /// </summary>
-        public event AsyncEventHandler<GuildRoleUpdateEventArgs> GuildRoleUpdated
-        {
-            add { this._guild_role_update.Register(value); }
-            remove { this._guild_role_update.Unregister(value); }
-        }
-        private AsyncEvent<GuildRoleUpdateEventArgs> _guild_role_update;
-
-        /// <summary>
-        /// Fired when a guild role is updated.
-        /// </summary>
-        public event AsyncEventHandler<GuildRoleDeleteEventArgs> GuildRoleDeleted
-        {
-            add { this._guild_role_delete.Register(value); }
-            remove { this._guild_role_delete.Unregister(value); }
-        }
-        private AsyncEvent<GuildRoleDeleteEventArgs> _guild_role_delete;
-
-        /// <summary>
-        /// Fired when message is acknowledged by the user.
-        /// </summary>
-        public event AsyncEventHandler<MessageAcknowledgeEventArgs> MessageAcknowledged
-        {
-            add { this._message_ack.Register(value); }
-            remove { this._message_ack.Unregister(value); }
-        }
-        private AsyncEvent<MessageAcknowledgeEventArgs> _message_ack;
-
-        /// <summary>
-        /// Fired when a message is updated.
-        /// </summary>
-        public event AsyncEventHandler<MessageUpdateEventArgs> MessageUpdated
-        {
-            add { this._message_update.Register(value); }
-            remove { this._message_update.Unregister(value); }
-        }
-        private AsyncEvent<MessageUpdateEventArgs> _message_update;
-
-        /// <summary>
-        /// Fired when a message is deleted.
-        /// </summary>
-        public event AsyncEventHandler<MessageDeleteEventArgs> MessageDeleted
-        {
-            add { this._message_delete.Register(value); }
-            remove { this._message_delete.Unregister(value); }
-        }
-        private AsyncEvent<MessageDeleteEventArgs> _message_delete;
-
-        /// <summary>
-        /// Fired when multiple messages are deleted at once.
-        /// </summary>
-        public event AsyncEventHandler<MessageBulkDeleteEventArgs> MessagesBulkDeleted
-        {
-            add { this._message_bulk_delete.Register(value); }
-            remove { this._message_bulk_delete.Unregister(value); }
-        }
-        private AsyncEvent<MessageBulkDeleteEventArgs> _message_bulk_delete;
-
-        /// <summary>
-        /// Fired when a user starts typing in a channel.
-        /// </summary>
-        public event AsyncEventHandler<TypingStartEventArgs> TypingStarted
-        {
-            add { this._typing_start.Register(value); }
-            remove { this._typing_start.Unregister(value); }
-        }
-        private AsyncEvent<TypingStartEventArgs> _typing_start;
-
-        /// <summary>
-        /// Fired when the current user updates their settings.
-        /// </summary>
-        public event AsyncEventHandler<UserSettingsUpdateEventArgs> UserSettingsUpdated
-        {
-            add { this._user_settings_update.Register(value); }
-            remove { this._user_settings_update.Unregister(value); }
-        }
-        private AsyncEvent<UserSettingsUpdateEventArgs> _user_settings_update;
-
-        /// <summary>
-        /// Fired when properties about the user change.
-        /// </summary>
-        public event AsyncEventHandler<UserUpdateEventArgs> UserUpdated
-        {
-            add { this._user_update.Register(value); }
-            remove { this._user_update.Unregister(value); }
-        }
-        private AsyncEvent<UserUpdateEventArgs> _user_update;
-
-        /// <summary>
-        /// Fired when someone joins/leaves/moves voice channels.
-        /// </summary>
-        public event AsyncEventHandler<VoiceStateUpdateEventArgs> VoiceStateUpdated
-        {
-            add { this._voice_state_update.Register(value); }
-            remove { this._voice_state_update.Unregister(value); }
-        }
-        private AsyncEvent<VoiceStateUpdateEventArgs> _voice_state_update;
-
-        /// <summary>
-        /// Fired when a guild's voice server is updated.
-        /// </summary>
-        public event AsyncEventHandler<VoiceServerUpdateEventArgs> VoiceServerUpdated
-        {
-            add { this._voice_server_update.Register(value); }
-            remove { this._voice_server_update.Unregister(value); }
-        }
-        private AsyncEvent<VoiceServerUpdateEventArgs> _voice_server_update;
-
-        /// <summary>
-        /// Fired in response to Gateway Request Guild Members.
-        /// </summary>
-        public event AsyncEventHandler<GuildMembersChunkEventArgs> GuildMembersChunked
-        {
-            add { this._guild_members_chunk.Register(value); }
-            remove { this._guild_members_chunk.Unregister(value); }
-        }
-        private AsyncEvent<GuildMembersChunkEventArgs> _guild_members_chunk;
-
-        /// <summary>
-        /// Fired when an unknown event gets received.
-        /// </summary>
-        public event AsyncEventHandler<UnknownEventArgs> UnknownEvent
-        {
-            add { this._unknown_event.Register(value); }
-            remove { this._unknown_event.Unregister(value); }
-        }
-        private AsyncEvent<UnknownEventArgs> _unknown_event;
-
-        /// <summary>
-        /// Fired when a reaction gets added to a message.
-        /// </summary>
-        public event AsyncEventHandler<MessageReactionAddEventArgs> MessageReactionAdded
-        {
-            add { this._message_reaction_add.Register(value); }
-            remove { this._message_reaction_add.Unregister(value); }
-        }
-        private AsyncEvent<MessageReactionAddEventArgs> _message_reaction_add;
-
-        /// <summary>
-        /// Fired when a reaction gets removed from a message.
-        /// </summary>
-        public event AsyncEventHandler<MessageReactionRemoveEventArgs> MessageReactionRemoved
-        {
-            add { this._message_reaction_remove.Register(value); }
-            remove { this._message_reaction_remove.Unregister(value); }
-        }
-        private AsyncEvent<MessageReactionRemoveEventArgs> _message_reaction_remove;
-
-        /// <summary>
-        /// Fired when all reactions get removed from a message.
-        /// </summary>
-        public event AsyncEventHandler<MessageReactionsClearEventArgs> MessageReactionsCleared
-        {
-            add { this._message_reaction_remove_all.Register(value); }
-            remove { this._message_reaction_remove_all.Unregister(value); }
-        }
-        private AsyncEvent<MessageReactionsClearEventArgs> _message_reaction_remove_all;
-
-        /// <summary>
-        /// Fired whenever webhooks update.
-        /// </summary>
-        public event AsyncEventHandler<WebhooksUpdateEventArgs> WebhooksUpdated
-        {
-            add { this._webhooks_update.Register(value); }
-            remove { this._webhooks_update.Unregister(value); }
-        }
-        private AsyncEvent<WebhooksUpdateEventArgs> _webhooks_update;
-
-        /// <summary>
-        /// Fired on received heartbeat ACK.
-        /// </summary>
-        public event AsyncEventHandler<HeartbeatEventArgs> Heartbeated
-        {
-            add { this._heartbeated.Register(value); }
-            remove { this._heartbeated.Unregister(value); }
-        }
-        private AsyncEvent<HeartbeatEventArgs> _heartbeated;
-
-        internal void EventErrorHandler(string evname, Exception ex)
-        {
-            this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occured in {evname}.", DateTime.Now);
-            this._client_error.InvokeAsync(new ClientErrorEventArgs(this) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        private void Goof(string evname, Exception ex)
-        {
-            this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
-        }
-        #endregion
-
         #region Internal Variables
         internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
         internal static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
-        internal CancellationTokenSource _cancel_token_source;
-        internal CancellationToken _cancel_token;
+        internal CancellationTokenSource _cancelTokenSource;
+        internal CancellationToken _cancelToken;
 
         internal List<BaseExtension> _extensions = new List<BaseExtension>();
 
-        internal BaseWebSocketClient _websocket_client;
-        internal string _session_token = "";
-        internal string _session_id = "";
-        internal int _heartbeat_interval;
-        internal Task _heartbeat_task;
-        internal DateTimeOffset _last_heartbeat;
-        internal long _last_sequence;
-        internal int _skipped_heartbeats = 0;
-        internal bool _guild_download_completed = false;
+        internal BaseWebSocketClient _webSocketClient;
+        internal string _sessionToken = "";
+        internal string _sessionId = "";
+        internal int _heartbeatInterval;
+        internal Task _heartbeatTask;
+        internal DateTimeOffset _lastHeartbeat;
+        internal long _lastSequence;
+        internal int _skippedHeartbeats = 0;
+        internal bool _guildDownloadCompleted = false;
 
         internal RingBuffer<DiscordMessage> MessageCache { get; }
         #endregion
@@ -579,9 +116,9 @@ namespace DSharpPlus
 
         #region Connection semaphore
         private static SemaphoreSlim ConnectionSemaphore
-            => _semaphore_init.Value;
+            => _semaphoreInit.Value;
 
-        private static Lazy<SemaphoreSlim> _semaphore_init = new Lazy<SemaphoreSlim>(() => new SemaphoreSlim(1, 1));
+        private static Lazy<SemaphoreSlim> _semaphoreInit = new Lazy<SemaphoreSlim>(() => new SemaphoreSlim(1, 1));
         #endregion
 
         /// <summary>
@@ -617,50 +154,50 @@ namespace DSharpPlus
 
         internal void InternalSetup()
         {
-            this._client_error = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERRORED");
-            this._socket_error = new AsyncEvent<SocketErrorEventArgs>(this.Goof, "SOCKET_ERRORED");
-            this._socket_opened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
-            this._socket_closed = new AsyncEvent<SocketCloseEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
+            this._clientErrored = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERRORED");
+            this._socketErrored = new AsyncEvent<SocketErrorEventArgs>(this.Goof, "SOCKET_ERRORED");
+            this._socketOpened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
+            this._socketClosed = new AsyncEvent<SocketCloseEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
             this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
             this._resumed = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "RESUMED");
-            this._channel_created = new AsyncEvent<ChannelCreateEventArgs>(this.EventErrorHandler, "CHANNEL_CREATED");
-            this._dm_channel_created = new AsyncEvent<DmChannelCreateEventArgs>(this.EventErrorHandler, "DM_CHANNEL_CREATED");
-            this._channel_updated = new AsyncEvent<ChannelUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_UPDATED");
-            this._channel_deleted = new AsyncEvent<ChannelDeleteEventArgs>(this.EventErrorHandler, "CHANNEL_DELETED");
-            this._dm_channel_deleted = new AsyncEvent<DmChannelDeleteEventArgs>(this.EventErrorHandler, "DM_CHANNEL_DELETED");
-            this._channel_pins_updated = new AsyncEvent<ChannelPinsUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_PINS_UPDATEED");
-            this._guild_created = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_CREATED");
-            this._guild_available = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_AVAILABLE");
-            this._guild_updated = new AsyncEvent<GuildUpdateEventArgs>(this.EventErrorHandler, "GUILD_UPDATED");
-            this._guild_deleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
-            this._guild_unavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
-            this._message_created = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
-            this._presence_update = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATEED");
-            this._guild_ban_add = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADD");
-            this._guild_ban_remove = new AsyncEvent<GuildBanRemoveEventArgs>(this.EventErrorHandler, "GUILD_BAN_REMOVED");
-            this._guild_emojis_update = new AsyncEvent<GuildEmojisUpdateEventArgs>(this.EventErrorHandler, "GUILD_EMOJI_UPDATED");
-            this._guild_integrations_update = new AsyncEvent<GuildIntegrationsUpdateEventArgs>(this.EventErrorHandler, "GUILD_INTEGRATIONS_UPDATED");
-            this._guild_member_add = new AsyncEvent<GuildMemberAddEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_ADD");
-            this._guild_member_remove = new AsyncEvent<GuildMemberRemoveEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_REMOVED");
-            this._guild_member_update = new AsyncEvent<GuildMemberUpdateEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_UPDATED");
-            this._guild_role_create = new AsyncEvent<GuildRoleCreateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_CREATED");
-            this._guild_role_update = new AsyncEvent<GuildRoleUpdateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_UPDATED");
-            this._guild_role_delete = new AsyncEvent<GuildRoleDeleteEventArgs>(this.EventErrorHandler, "GUILD_ROLE_DELETED");
-            this._message_ack = new AsyncEvent<MessageAcknowledgeEventArgs>(this.EventErrorHandler, "MESSAGE_ACKNOWLEDGED");
-            this._message_update = new AsyncEvent<MessageUpdateEventArgs>(this.EventErrorHandler, "MESSAGE_UPDATED");
-            this._message_delete = new AsyncEvent<MessageDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_DELETED");
-            this._message_bulk_delete = new AsyncEvent<MessageBulkDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_BULK_DELETED");
-            this._typing_start = new AsyncEvent<TypingStartEventArgs>(this.EventErrorHandler, "TYPING_STARTED");
-            this._user_settings_update = new AsyncEvent<UserSettingsUpdateEventArgs>(this.EventErrorHandler, "USER_SETTINGS_UPDATED");
-            this._user_update = new AsyncEvent<UserUpdateEventArgs>(this.EventErrorHandler, "USER_UPDATED");
-            this._voice_state_update = new AsyncEvent<VoiceStateUpdateEventArgs>(this.EventErrorHandler, "VOICE_STATE_UPDATED");
-            this._voice_server_update = new AsyncEvent<VoiceServerUpdateEventArgs>(this.EventErrorHandler, "VOICE_SERVER_UPDATED");
-            this._guild_members_chunk = new AsyncEvent<GuildMembersChunkEventArgs>(this.EventErrorHandler, "GUILD_MEMBERS_CHUNKED");
-            this._unknown_event = new AsyncEvent<UnknownEventArgs>(this.EventErrorHandler, "UNKNOWN_EVENT");
-            this._message_reaction_add = new AsyncEvent<MessageReactionAddEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_ADDED");
-            this._message_reaction_remove = new AsyncEvent<MessageReactionRemoveEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED");
-            this._message_reaction_remove_all = new AsyncEvent<MessageReactionsClearEventArgs>(this.EventErrorHandler, "MESSAGE_REACTIONS_CLEARED");
-            this._webhooks_update = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
+            this._channelCreated = new AsyncEvent<ChannelCreateEventArgs>(this.EventErrorHandler, "CHANNEL_CREATED");
+            this._dmChannelCreated = new AsyncEvent<DmChannelCreateEventArgs>(this.EventErrorHandler, "DM_CHANNEL_CREATED");
+            this._channelUpdated = new AsyncEvent<ChannelUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_UPDATED");
+            this._channelDeleted = new AsyncEvent<ChannelDeleteEventArgs>(this.EventErrorHandler, "CHANNEL_DELETED");
+            this._dmChannelDeleted = new AsyncEvent<DmChannelDeleteEventArgs>(this.EventErrorHandler, "DM_CHANNEL_DELETED");
+            this._channelPinsUpdated = new AsyncEvent<ChannelPinsUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_PINS_UPDATEED");
+            this._guildCreated = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_CREATED");
+            this._guildAvailable = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_AVAILABLE");
+            this._guildUpdated = new AsyncEvent<GuildUpdateEventArgs>(this.EventErrorHandler, "GUILD_UPDATED");
+            this._guildDeleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
+            this._guildUnavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
+            this._messageCreated = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
+            this._presenceUpdated = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATEED");
+            this._guildBanAdded = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADD");
+            this._guildBanRemoved = new AsyncEvent<GuildBanRemoveEventArgs>(this.EventErrorHandler, "GUILD_BAN_REMOVED");
+            this._guildEmojisUpdated = new AsyncEvent<GuildEmojisUpdateEventArgs>(this.EventErrorHandler, "GUILD_EMOJI_UPDATED");
+            this._guildIntegrationsUpdated = new AsyncEvent<GuildIntegrationsUpdateEventArgs>(this.EventErrorHandler, "GUILD_INTEGRATIONS_UPDATED");
+            this._guildMemberAdded = new AsyncEvent<GuildMemberAddEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_ADD");
+            this._guildMemberRemoved = new AsyncEvent<GuildMemberRemoveEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_REMOVED");
+            this._guildMemberUpdated = new AsyncEvent<GuildMemberUpdateEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_UPDATED");
+            this._guildRoleCreated = new AsyncEvent<GuildRoleCreateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_CREATED");
+            this._guildRoleUpdated = new AsyncEvent<GuildRoleUpdateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_UPDATED");
+            this._guildRoleDeleted = new AsyncEvent<GuildRoleDeleteEventArgs>(this.EventErrorHandler, "GUILD_ROLE_DELETED");
+            this._messageAcknowledged = new AsyncEvent<MessageAcknowledgeEventArgs>(this.EventErrorHandler, "MESSAGE_ACKNOWLEDGED");
+            this._messageUpdated = new AsyncEvent<MessageUpdateEventArgs>(this.EventErrorHandler, "MESSAGE_UPDATED");
+            this._messageDeleted = new AsyncEvent<MessageDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_DELETED");
+            this._messagesBulkDeleted = new AsyncEvent<MessageBulkDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_BULK_DELETED");
+            this._typingStarted = new AsyncEvent<TypingStartEventArgs>(this.EventErrorHandler, "TYPING_STARTED");
+            this._userSettingsUpdated = new AsyncEvent<UserSettingsUpdateEventArgs>(this.EventErrorHandler, "USER_SETTINGS_UPDATED");
+            this._userUpdated = new AsyncEvent<UserUpdateEventArgs>(this.EventErrorHandler, "USER_UPDATED");
+            this._voiceStateUpdated = new AsyncEvent<VoiceStateUpdateEventArgs>(this.EventErrorHandler, "VOICE_STATE_UPDATED");
+            this._voiceServerUpdated = new AsyncEvent<VoiceServerUpdateEventArgs>(this.EventErrorHandler, "VOICE_SERVER_UPDATED");
+            this._guildMembersChunked = new AsyncEvent<GuildMembersChunkEventArgs>(this.EventErrorHandler, "GUILD_MEMBERS_CHUNKED");
+            this._unknownEvent = new AsyncEvent<UnknownEventArgs>(this.EventErrorHandler, "UNKNOWN_EVENT");
+            this._messageReactionAdded = new AsyncEvent<MessageReactionAddEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_ADDED");
+            this._messageReactionRemoved = new AsyncEvent<MessageReactionRemoveEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED");
+            this._messageReactionsCleared = new AsyncEvent<MessageReactionsClearEventArgs>(this.EventErrorHandler, "MESSAGE_REACTIONS_CLEARED");
+            this._webhooksUpdated = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
 
             this._private_channels = new List<DiscordDmChannel>();
@@ -742,9 +279,9 @@ namespace DSharpPlus
         public Task ReconnectAsync(bool start_new_session = false)
         {
             if (start_new_session)
-                _session_id = "";
+                _sessionId = "";
 
-            return _websocket_client.DisconnectAsync(null);
+            return _webSocketClient.DisconnectAsync(null);
         }
 
         internal Task InternalReconnectAsync()
@@ -774,17 +311,17 @@ namespace DSharpPlus
                 pr.InternalStatus = "online";
             }
 
-            Volatile.Write(ref this._skipped_heartbeats, 0);
+            Volatile.Write(ref this._skippedHeartbeats, 0);
 
-            _websocket_client = BaseWebSocketClient.Create();
+            _webSocketClient = BaseWebSocketClient.Create();
 
-            _cancel_token_source = new CancellationTokenSource();
-            _cancel_token = _cancel_token_source.Token;
+            _cancelTokenSource = new CancellationTokenSource();
+            _cancelToken = _cancelTokenSource.Token;
 
-            _websocket_client.OnConnect += SocketOnConnect;
-            _websocket_client.OnDisconnect += SocketOnDisconnect;
-            _websocket_client.OnMessage += SocketOnMessage;
-            _websocket_client.OnError += SocketOnError;
+            _webSocketClient.OnConnect += SocketOnConnect;
+            _webSocketClient.OnDisconnect += SocketOnDisconnect;
+            _webSocketClient.OnMessage += SocketOnMessage;
+            _webSocketClient.OnError += SocketOnError;
 
             var gwuri = new UriBuilder(this._gateway_uri)
             {
@@ -792,23 +329,23 @@ namespace DSharpPlus
             };
 
             await ConnectionSemaphore.WaitAsync().ConfigureAwait(false);
-            await _websocket_client.ConnectAsync(gwuri.Uri).ConfigureAwait(false);
+            await _webSocketClient.ConnectAsync(gwuri.Uri).ConfigureAwait(false);
 
             Task SocketOnConnect()
-                => this._socket_opened.InvokeAsync();
+                => this._socketOpened.InvokeAsync();
 
             Task SocketOnMessage(SocketMessageEventArgs e)
                 => HandleSocketMessageAsync(e.Message);
 
             Task SocketOnError(SocketErrorEventArgs e)
-                => this._socket_error.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
+                => this._socketErrored.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
 
             async Task SocketOnDisconnect(SocketCloseEventArgs e)
             {
-                _cancel_token_source.Cancel();
+                _cancelTokenSource.Cancel();
 
                 this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Connection closed", DateTime.Now);
-                await this._socket_closed.InvokeAsync(new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
+                await this._socketClosed.InvokeAsync(new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
 
                 if (Configuration.AutoReconnect)
                 {
@@ -825,8 +362,8 @@ namespace DSharpPlus
         public async Task DisconnectAsync()
         {
             Configuration.AutoReconnect = false;
-            if (this._websocket_client != null)
-                await _websocket_client.DisconnectAsync(null).ConfigureAwait(false);
+            if (this._webSocketClient != null)
+                await _webSocketClient.DisconnectAsync(null).ConfigureAwait(false);
         }
 
         #region Public Functions
@@ -1012,7 +549,7 @@ namespace DSharpPlus
             };
             var guild_syncstr = JsonConvert.SerializeObject(guild_sync);
 
-            this._websocket_client.SendMessage(guild_syncstr);
+            this._webSocketClient.SendMessage(guild_syncstr);
             return Task.Delay(0);
         }
         #endregion
@@ -1261,7 +798,7 @@ namespace DSharpPlus
             this.CurrentUser.IsBot = rusr.IsBot;
 
             this._gateway_version = ready.GatewayVersion;
-            this._session_id = ready.SessionId;
+            this._sessionId = ready.SessionId;
             var raw_guild_index = raw_guilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
 
             this._private_channels = raw_dm_channels
@@ -1363,7 +900,7 @@ namespace DSharpPlus
             if (this.Configuration.TokenType == TokenType.User && this.Configuration.AutomaticGuildSync)
                 await this.SendGuildSyncAsync().ConfigureAwait(false);
             else if (this.Configuration.TokenType == TokenType.User)
-                Volatile.Write(ref this._guild_download_completed, true);
+                Volatile.Write(ref this._guildDownloadCompleted, true);
 
             await this._ready.InvokeAsync(new ReadyEventArgs(this)).ConfigureAwait(false);
         }
@@ -1388,7 +925,7 @@ namespace DSharpPlus
 
                 _private_channels.Add(chn);
 
-                await this._dm_channel_created.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = chn }).ConfigureAwait(false);
+                await this._dmChannelCreated.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = chn }).ConfigureAwait(false);
             }
             else
             {
@@ -1401,7 +938,7 @@ namespace DSharpPlus
 
                 _guilds[channel.GuildId]._channels.Add(channel);
 
-                await this._channel_created.InvokeAsync(new ChannelCreateEventArgs(this) { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
+                await this._channelCreated.InvokeAsync(new ChannelCreateEventArgs(this) { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
             }
         }
 
@@ -1460,7 +997,7 @@ namespace DSharpPlus
 
             channel_new._permission_overwrites.AddRange(channel._permission_overwrites);
 
-            await this._channel_updated.InvokeAsync(new ChannelUpdateEventArgs(this) { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old }).ConfigureAwait(false);
+            await this._channelUpdated.InvokeAsync(new ChannelUpdateEventArgs(this) { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old }).ConfigureAwait(false);
         }
 
         internal async Task OnChannelDeleteEventAsync(DiscordChannel channel)
@@ -1479,7 +1016,7 @@ namespace DSharpPlus
                 chn = this._private_channels[index];
                 this._private_channels.RemoveAt(index);
 
-                await this._dm_channel_deleted.InvokeAsync(new DmChannelDeleteEventArgs(this) { Channel = chn }).ConfigureAwait(false);
+                await this._dmChannelDeleted.InvokeAsync(new DmChannelDeleteEventArgs(this) { Channel = chn }).ConfigureAwait(false);
             }
             else
             {
@@ -1488,7 +1025,7 @@ namespace DSharpPlus
                 channel = gld._channels[index];
                 gld._channels.RemoveAt(index);
 
-                await this._channel_deleted.InvokeAsync(new ChannelDeleteEventArgs(this) { Channel = channel, Guild = gld }).ConfigureAwait(false);
+                await this._channelDeleted.InvokeAsync(new ChannelDeleteEventArgs(this) { Channel = channel, Guild = gld }).ConfigureAwait(false);
             }
         }
 
@@ -1502,7 +1039,7 @@ namespace DSharpPlus
                 Channel = channel,
                 LastPinTimestamp = last_pin_timestamp
             };
-            await this._channel_pins_updated.InvokeAsync(ea).ConfigureAwait(false);
+            await this._channelPinsUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildCreateEventAsync(DiscordGuild guild, JArray raw_members, IEnumerable<DiscordPresence> presences)
@@ -1567,12 +1104,12 @@ namespace DSharpPlus
             }
 
             var dcompl = this._guilds.Values.All(xg => !xg.IsUnavailable);
-            Volatile.Write(ref this._guild_download_completed, dcompl);
+            Volatile.Write(ref this._guildDownloadCompleted, dcompl);
 
             if (exists)
-                await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+                await this._guildAvailable.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
             else
-                await this._guild_created.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+                await this._guildCreated.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
         }
 
         internal async Task OnGuildUpdateEventAsync(DiscordGuild guild, JArray raw_members)
@@ -1618,7 +1155,7 @@ namespace DSharpPlus
                 xr._guild_id = guild.Id;
             }
 
-            await this._guild_updated.InvokeAsync(new GuildUpdateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+            await this._guildUpdated.InvokeAsync(new GuildUpdateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
         }
 
         internal async Task OnGuildDeleteEventAsync(DiscordGuild guild, JArray raw_members)
@@ -1631,13 +1168,13 @@ namespace DSharpPlus
             {
                 gld.IsUnavailable = true;
 
-                await this._guild_unavailable.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = guild, Unavailable = true }).ConfigureAwait(false);
+                await this._guildUnavailable.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = guild, Unavailable = true }).ConfigureAwait(false);
             }
             else
             {
                 _guilds.Remove(guild.Id);
 
-                await this._guild_deleted.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = gld }).ConfigureAwait(false);
+                await this._guildDeleted.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = gld }).ConfigureAwait(false);
             }
         }
 
@@ -1655,10 +1192,10 @@ namespace DSharpPlus
             if (this.Configuration.AutomaticGuildSync)
             {
                 var dcompl = this._guilds.Values.All(xg => xg.IsSynced);
-                Volatile.Write(ref this._guild_download_completed, dcompl);
+                Volatile.Write(ref this._guildDownloadCompleted, dcompl);
             }
 
-            await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+            await this._guildAvailable.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
         }
 
         internal async Task OnPresenceUpdateEventAsync(JObject rawPresence, JObject rawUser)
@@ -1669,6 +1206,10 @@ namespace DSharpPlus
             {
                 old = new DiscordPresence(presence);
                 JsonConvert.PopulateObject(rawPresence.ToString(), presence);
+
+                if (rawPresence["game"] == null || rawPresence["game"].Type == JTokenType.Null)
+                    presence.RawActivity = null;
+
                 if (presence.Activity != null)
                     presence.Activity.UpdateWith(presence.RawActivity);
                 else
@@ -1682,27 +1223,14 @@ namespace DSharpPlus
                 this._presences[presence.InternalUser.Id] = presence;
             }
 
-            if (this.UserCache.TryGetValue(uid, out var usr) && presence.InternalUser != null)
+            if (this.UserCache.TryGetValue(uid, out var usr))
             {
-                //if (rawUser["username"] is object || rawUser["discriminator"] is object || rawUser["avatar"] is object)
-                //{
-                //    var new_username = rawUser["username"] is object ? new Optional<string>((string)rawUser["username"]) : default;
-                //    var new_discrim = rawUser["discriminator"] is object ? new Optional<string>((string)rawUser["discriminator"]) : default;
-                //    var new_avatar = rawUser["avatar"] is object ? new Optional<string>((string)rawUser["avatar"]) : default;
-
-                //    if (new_username.HasValue)
-                //        usr.Username = new_username.Value;
-
-                //    if (new_discrim.HasValue)
-                //        usr.Discriminator = new_discrim.Value;
-
-                //    if (new_avatar.HasValue)
-                //        usr.AvatarHash = new_avatar.Value;
-                //}
-                
-                usr.Username = presence.InternalUser.Username;
-                usr.Discriminator = presence.InternalUser.Discriminator;
-                usr.AvatarHash = presence.InternalUser.AvatarHash;
+                if (rawUser["username"] is object)
+                    usr.Username = (string)rawUser["username"];
+                if (rawUser["discriminator"] is object)
+                    usr.Discriminator = (string)rawUser["discriminator"];
+                if (rawUser["avatar"] is object)
+                    usr.AvatarHash = (string)rawUser["avatar"];
             }
 
             var ea = new PresenceUpdateEventArgs
@@ -1713,7 +1241,7 @@ namespace DSharpPlus
                 InternalUser = usr,
                 PresenceBefore = old
             };
-            await this._presence_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._presenceUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildBanAddEventAsync(TransportUser user, DiscordGuild guild)
@@ -1733,7 +1261,7 @@ namespace DSharpPlus
                 Guild = guild,
                 Member = mbr
             };
-            await this._guild_ban_add.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildBanAdded.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildBanRemoveEventAsync(TransportUser user, DiscordGuild guild)
@@ -1753,7 +1281,7 @@ namespace DSharpPlus
                 Guild = guild,
                 Member = mbr
             };
-            await this._guild_ban_remove.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildBanRemoved.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> new_emojis)
@@ -1767,7 +1295,7 @@ namespace DSharpPlus
                 EmojisAfter = guild.Emojis,
                 EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old_emojis)
             };
-            await this._guild_emojis_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildEmojisUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildIntegrationsUpdateEventAsync(DiscordGuild guild)
@@ -1776,7 +1304,7 @@ namespace DSharpPlus
             {
                 Guild = guild
             };
-            await this._guild_integrations_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildIntegrationsUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildMemberAddEventAsync(TransportMember member, DiscordGuild guild)
@@ -1804,7 +1332,7 @@ namespace DSharpPlus
                 Guild = guild,
                 Member = mbr
             };
-            await this._guild_member_add.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildMemberAdded.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildMemberRemoveEventAsync(TransportUser user, DiscordGuild guild)
@@ -1821,7 +1349,7 @@ namespace DSharpPlus
                 Guild = guild,
                 Member = mbr
             };
-            await this._guild_member_remove.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildMemberRemoved.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildMemberUpdateEventAsync(TransportUser user, DiscordGuild guild, IEnumerable<ulong> roles, string nick)
@@ -1855,7 +1383,7 @@ namespace DSharpPlus
                 NicknameBefore = nick_old,
                 RolesBefore = roles_old
             };
-            await this._guild_member_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildMemberUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildRoleCreateEventAsync(DiscordRole role, DiscordGuild guild)
@@ -1870,7 +1398,7 @@ namespace DSharpPlus
                 Guild = guild,
                 Role = role
             };
-            await this._guild_role_create.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildRoleCreated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildRoleUpdateEventAsync(DiscordRole role, DiscordGuild guild)
@@ -1905,7 +1433,7 @@ namespace DSharpPlus
                 RoleAfter = role_new,
                 RoleBefore = role_old
             };
-            await this._guild_role_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildRoleUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildRoleDeleteEventAsync(ulong role_id, DiscordGuild guild)
@@ -1919,7 +1447,7 @@ namespace DSharpPlus
                 Guild = guild,
                 Role = role
             };
-            await this._guild_role_delete.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildRoleDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong msgid)
@@ -1933,7 +1461,7 @@ namespace DSharpPlus
                     Discord = this,
                 };
 
-            await this._message_ack.InvokeAsync(new MessageAcknowledgeEventArgs(this) { Message = msg }).ConfigureAwait(false);
+            await this._messageAcknowledged.InvokeAsync(new MessageAcknowledgeEventArgs(this) { Message = msg }).ConfigureAwait(false);
         }
 
         internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author)
@@ -2004,7 +1532,7 @@ namespace DSharpPlus
                 MentionedRoles = mentioned_roles != null ? new ReadOnlyCollection<DiscordRole>(mentioned_roles) : null,
                 MentionedChannels = mentioned_channels != null ? new ReadOnlyCollection<DiscordChannel>(mentioned_channels) : null
             };
-            await this._message_created.InvokeAsync(ea).ConfigureAwait(false);
+            await this._messageCreated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author)
@@ -2089,7 +1617,7 @@ namespace DSharpPlus
                 MentionedRoles = mentioned_roles != null ? new ReadOnlyCollection<DiscordRole>(mentioned_roles) : null,
                 MentionedChannels = mentioned_channels != null ? new ReadOnlyCollection<DiscordChannel>(mentioned_channels) : null
             };
-            await this._message_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._messageUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageDeleteEventAsync(ulong message_id, DiscordChannel channel)
@@ -2111,7 +1639,7 @@ namespace DSharpPlus
                 Channel = channel,
                 Message = msg
             };
-            await this._message_delete.InvokeAsync(ea).ConfigureAwait(false);
+            await this._messageDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageBulkDeleteEventAsync(IEnumerable<ulong> message_ids, DiscordChannel channel)
@@ -2139,7 +1667,7 @@ namespace DSharpPlus
                 Channel = channel,
                 Messages = new ReadOnlyCollection<DiscordMessage>(msgs)
             };
-            await this._message_bulk_delete.InvokeAsync(ea).ConfigureAwait(false);
+            await this._messagesBulkDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnTypingStartEventAsync(ulong user_id, DiscordChannel channel, DateTimeOffset started)
@@ -2159,7 +1687,7 @@ namespace DSharpPlus
                 User = usr,
                 StartedAt = started
             };
-            await this._typing_start.InvokeAsync(ea).ConfigureAwait(false);
+            await this._typingStarted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnUserSettingsUpdateEventAsync(TransportUser user)
@@ -2170,7 +1698,7 @@ namespace DSharpPlus
             {
                 User = usr
             };
-            await this._user_settings_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._userSettingsUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnUserUpdateEventAsync(TransportUser user)
@@ -2202,7 +1730,7 @@ namespace DSharpPlus
                 UserAfter = this.CurrentUser,
                 UserBefore = usr_old
             };
-            await this._user_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._userUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnVoiceStateUpdateEventAsync(JObject raw)
@@ -2241,7 +1769,7 @@ namespace DSharpPlus
                 Before = vstate_old,
                 After = vstate_new
             };
-            await this._voice_state_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._voiceStateUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnVoiceServerUpdateEventAsync(string endpoint, string token, DiscordGuild guild)
@@ -2252,7 +1780,7 @@ namespace DSharpPlus
                 VoiceToken = token,
                 Guild = guild
             };
-            await this._voice_server_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._voiceServerUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildMembersChunkEventAsync(IEnumerable<TransportMember> members, DiscordGuild guild)
@@ -2269,13 +1797,13 @@ namespace DSharpPlus
                 Guild = guild,
                 Members = new ReadOnlyCollection<DiscordMember>(new List<DiscordMember>(mbrs))
             };
-            await this._guild_members_chunk.InvokeAsync(ea).ConfigureAwait(false);
+            await this._guildMembersChunked.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnUnknownEventAsync(GatewayPayload payload)
         {
             var ea = new UnknownEventArgs(this) { EventName = payload.EventName, Json = (payload.Data as JObject)?.ToString() };
-            await this._unknown_event.InvokeAsync(ea).ConfigureAwait(false);
+            await this._unknownEvent.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageReactionAddAsync(ulong user_id, ulong message_id, DiscordChannel channel, DiscordEmoji emoji)
@@ -2323,7 +1851,7 @@ namespace DSharpPlus
                 User = usr,
                 Emoji = emoji
             };
-            await this._message_reaction_add.InvokeAsync(ea).ConfigureAwait(false);
+            await this._messageReactionAdded.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageReactionRemoveAsync(ulong user_id, ulong message_id, DiscordChannel channel, DiscordEmoji emoji)
@@ -2370,7 +1898,7 @@ namespace DSharpPlus
                 User = usr,
                 Emoji = emoji
             };
-            await this._message_reaction_remove.InvokeAsync(ea).ConfigureAwait(false);
+            await this._messageReactionRemoved.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageReactionRemoveAllAsync(ulong message_id, DiscordChannel channel)
@@ -2394,7 +1922,7 @@ namespace DSharpPlus
                 Message = msg,
                 Channel = channel
             };
-            await this._message_reaction_remove_all.InvokeAsync(ea).ConfigureAwait(false);
+            await this._messageReactionsCleared.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnWebhooksUpdateAsync(DiscordChannel channel, DiscordGuild guild)
@@ -2404,7 +1932,7 @@ namespace DSharpPlus
                 Channel = channel,
                 Guild = guild
             };
-            await this._webhooks_update.InvokeAsync(ea).ConfigureAwait(false);
+            await this._webhooksUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
         #endregion
 
@@ -2432,7 +1960,7 @@ namespace DSharpPlus
             else
             {
                 this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
-                _session_id = "";
+                _sessionId = "";
                 await SendIdentifyAsync().ConfigureAwait(false);
             }
         }
@@ -2441,12 +1969,12 @@ namespace DSharpPlus
         {
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify", DateTime.Now);
             //this._waiting_for_ack = false;
-            Interlocked.CompareExchange(ref this._skipped_heartbeats, 0, 0);
-            this._heartbeat_interval = hello.HeartbeatInterval;
-            this._heartbeat_task = new Task(StartHeartbeating, _cancel_token, TaskCreationOptions.LongRunning);
-            this._heartbeat_task.Start();
+            Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
+            this._heartbeatInterval = hello.HeartbeatInterval;
+            this._heartbeatTask = new Task(StartHeartbeating, _cancelToken, TaskCreationOptions.LongRunning);
+            this._heartbeatTask.Start();
 
-            if (_session_id == "")
+            if (_sessionId == "")
                 await SendIdentifyAsync().ConfigureAwait(false);
             else
                 await SendResumeAsync().ConfigureAwait(false);
@@ -2460,10 +1988,10 @@ namespace DSharpPlus
         internal async Task OnHeartbeatAckAsync()
         {
             //_waiting_for_ack = false;
-            Interlocked.Decrement(ref this._skipped_heartbeats);
+            Interlocked.Decrement(ref this._skippedHeartbeats);
 
             var ping = Volatile.Read(ref this._ping);
-            ping = (int)(DateTime.Now - this._last_heartbeat).TotalMilliseconds;
+            ping = (int)(DateTime.Now - this._lastHeartbeat).TotalMilliseconds;
 
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {ping.ToString(CultureInfo.InvariantCulture)}ms", DateTime.Now);
@@ -2483,13 +2011,13 @@ namespace DSharpPlus
         internal void StartHeartbeating()
         {
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat", DateTime.Now);
-            var token = this._cancel_token;
+            var token = this._cancelToken;
             try
             {
                 while (true)
                 {
                     SendHeartbeatAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    Task.Delay(_heartbeat_interval, _cancel_token).ConfigureAwait(false).GetAwaiter().GetResult();
+                    Task.Delay(_heartbeatInterval, _cancelToken).ConfigureAwait(false).GetAwaiter().GetResult();
                     token.ThrowIfCancellationRequested();
                 }
             }
@@ -2518,7 +2046,7 @@ namespace DSharpPlus
             };
             var statusstr = JsonConvert.SerializeObject(status_update);
 
-            this._websocket_client.SendMessage(statusstr);
+            this._webSocketClient.SendMessage(statusstr);
 
             if (!this._presences.ContainsKey(this.CurrentUser.Id))
             {
@@ -2550,8 +2078,8 @@ namespace DSharpPlus
 
         internal async Task SendHeartbeatAsync(long seq)
         {
-            var more_than_5 = Volatile.Read(ref this._skipped_heartbeats) > 5;
-            var guilds_comp = Volatile.Read(ref this._guild_download_completed);
+            var more_than_5 = Volatile.Read(ref this._skippedHeartbeats) > 5;
+            var guilds_comp = Volatile.Read(ref this._guildDownloadCompleted);
             if (guilds_comp && more_than_5)
             {
                 this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", "More than 5 heartbeats were skipped. Issuing reconnect.", DateTime.Now);
@@ -2563,7 +2091,7 @@ namespace DSharpPlus
                 this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "More than 5 heartbeats were skipped while the guild download is running.", DateTime.Now);
             }
 
-            Volatile.Write(ref this._last_sequence, seq);
+            Volatile.Write(ref this._lastSequence, seq);
             var _last_heartbeat = DateTimeOffset.Now;
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat", DateTime.Now);
             var heartbeat = new GatewayPayload
@@ -2572,12 +2100,12 @@ namespace DSharpPlus
                 Data = seq
             };
             var heartbeat_str = JsonConvert.SerializeObject(heartbeat);
-            _websocket_client.SendMessage(heartbeat_str);
+            _webSocketClient.SendMessage(heartbeat_str);
 
-            this._last_heartbeat = DateTimeOffset.Now;
+            this._lastHeartbeat = DateTimeOffset.Now;
 
             //_waiting_for_ack = true;
-            Interlocked.Increment(ref this._skipped_heartbeats);
+            Interlocked.Increment(ref this._skippedHeartbeats);
         }
 
         internal Task SendIdentifyAsync()
@@ -2599,7 +2127,7 @@ namespace DSharpPlus
                 Data = identify
             };
             var payloadstr = JsonConvert.SerializeObject(payload);
-            _websocket_client.SendMessage(payloadstr);
+            _webSocketClient.SendMessage(payloadstr);
             return Task.Delay(0);
         }
 
@@ -2608,8 +2136,8 @@ namespace DSharpPlus
             var resume = new GatewayResume
             {
                 Token = Utilities.GetFormattedToken(this),
-                SessionId = this._session_id,
-                SequenceNumber = Volatile.Read(ref this._last_sequence)
+                SessionId = this._sessionId,
+                SequenceNumber = Volatile.Read(ref this._lastSequence)
             };
             var resume_payload = new GatewayPayload
             {
@@ -2618,7 +2146,7 @@ namespace DSharpPlus
             };
             var resumestr = JsonConvert.SerializeObject(resume_payload);
 
-            _websocket_client.SendMessage(resumestr);
+            _webSocketClient.SendMessage(resumestr);
             return Task.Delay(0);
         }
 
@@ -2643,7 +2171,7 @@ namespace DSharpPlus
             };
             var vsustr = JsonConvert.SerializeObject(vsu_payload);
 
-            _websocket_client.SendMessage(vsustr);
+            _webSocketClient.SendMessage(vsustr);
             return Task.Delay(0);
         }
         #endregion
@@ -2768,15 +2296,478 @@ namespace DSharpPlus
             DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             this.CurrentUser = null;
 
-            _cancel_token_source?.Cancel();
+            _cancelTokenSource?.Cancel();
             _guilds = null;
-            _heartbeat_task = null;
+            _heartbeatTask = null;
             _extensions = null;
             _private_channels = null;
-            _websocket_client.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
-            _websocket_client.Dispose();
+            _webSocketClient.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
+            _webSocketClient.Dispose();
 
             disposed = true;
         }
+
+        #region Events
+        /// <summary>
+        /// Fired whenever an error occurs within an event handler.
+        /// </summary>
+        public event AsyncEventHandler<ClientErrorEventArgs> ClientErrored
+        {
+            add { this._clientErrored.Register(value); }
+            remove { this._clientErrored.Unregister(value); }
+        }
+        private AsyncEvent<ClientErrorEventArgs> _clientErrored;
+
+        /// <summary>
+        /// Fired whenever a WebSocket error occurs within the client.
+        /// </summary>
+        public event AsyncEventHandler<SocketErrorEventArgs> SocketErrored
+        {
+            add { this._socketErrored.Register(value); }
+            remove { this._socketErrored.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _socketErrored;
+
+        /// <summary>
+        /// Fired whenever WebSocket connection is established.
+        /// </summary>
+        public event AsyncEventHandler SocketOpened
+        {
+            add { this._socketOpened.Register(value); }
+            remove { this._socketOpened.Unregister(value); }
+        }
+        private AsyncEvent _socketOpened;
+
+        /// <summary>
+        /// Fired whenever WebSocket connection is terminated.
+        /// </summary>
+        public event AsyncEventHandler<SocketCloseEventArgs> SocketClosed
+        {
+            add { this._socketClosed.Register(value); }
+            remove { this._socketClosed.Unregister(value); }
+        }
+        private AsyncEvent<SocketCloseEventArgs> _socketClosed;
+
+        /// <summary>
+        /// Fired when the client enters ready state.
+        /// </summary>
+        public event AsyncEventHandler<ReadyEventArgs> Ready
+        {
+            add { this._ready.Register(value); }
+            remove { this._ready.Unregister(value); }
+        }
+        private AsyncEvent<ReadyEventArgs> _ready;
+
+        /// <summary>
+        /// Fired whenever a session is resumed.
+        /// </summary>
+        public event AsyncEventHandler<ReadyEventArgs> Resumed
+        {
+            add { this._resumed.Register(value); }
+            remove { this._resumed.Unregister(value); }
+        }
+        private AsyncEvent<ReadyEventArgs> _resumed;
+
+        /// <summary>
+        /// Fired when a new channel is created.
+        /// </summary>
+        public event AsyncEventHandler<ChannelCreateEventArgs> ChannelCreated
+        {
+            add { this._channelCreated.Register(value); }
+            remove { this._channelCreated.Unregister(value); }
+        }
+        private AsyncEvent<ChannelCreateEventArgs> _channelCreated;
+
+        /// <summary>
+        /// Fired when a new direct message channel is created.
+        /// </summary>
+        public event AsyncEventHandler<DmChannelCreateEventArgs> DmChannelCreated
+        {
+            add { this._dmChannelCreated.Register(value); }
+            remove { this._dmChannelCreated.Unregister(value); }
+        }
+        private AsyncEvent<DmChannelCreateEventArgs> _dmChannelCreated;
+
+        /// <summary>
+        /// Fired when a channel is updated.
+        /// </summary>
+        public event AsyncEventHandler<ChannelUpdateEventArgs> ChannelUpdated
+        {
+            add { this._channelUpdated.Register(value); }
+            remove { this._channelUpdated.Unregister(value); }
+        }
+        private AsyncEvent<ChannelUpdateEventArgs> _channelUpdated;
+
+        /// <summary>
+        /// Fired when a channel is deleted
+        /// </summary>
+        public event AsyncEventHandler<ChannelDeleteEventArgs> ChannelDeleted
+        {
+            add { this._channelDeleted.Register(value); }
+            remove { this._channelDeleted.Unregister(value); }
+        }
+        private AsyncEvent<ChannelDeleteEventArgs> _channelDeleted;
+
+        /// <summary>
+        /// Fired when a dm channel is deleted
+        /// </summary>
+        public event AsyncEventHandler<DmChannelDeleteEventArgs> DmChannelDeleted
+        {
+            add { this._dmChannelDeleted.Register(value); }
+            remove { this._dmChannelDeleted.Unregister(value); }
+        }
+        private AsyncEvent<DmChannelDeleteEventArgs> _dmChannelDeleted;
+
+        /// <summary>
+        /// Fired whenever a channel's pinned message list is updated.
+        /// </summary>
+        public event AsyncEventHandler<ChannelPinsUpdateEventArgs> ChannelPinsUpdated
+        {
+            add { this._channelPinsUpdated.Register(value); }
+            remove { this._channelPinsUpdated.Unregister(value); }
+        }
+        private AsyncEvent<ChannelPinsUpdateEventArgs> _channelPinsUpdated;
+
+        /// <summary>
+        /// Fired when the user joins a new guild.
+        /// </summary>
+        public event AsyncEventHandler<GuildCreateEventArgs> GuildCreated
+        {
+            add { this._guildCreated.Register(value); }
+            remove { this._guildCreated.Unregister(value); }
+        }
+        private AsyncEvent<GuildCreateEventArgs> _guildCreated;
+
+        /// <summary>
+        /// Fired when a guild is becoming available.
+        /// </summary>
+        public event AsyncEventHandler<GuildCreateEventArgs> GuildAvailable
+        {
+            add { this._guildAvailable.Register(value); }
+            remove { this._guildAvailable.Unregister(value); }
+        }
+        private AsyncEvent<GuildCreateEventArgs> _guildAvailable;
+
+        /// <summary>
+        /// Fired when a guild is updated.
+        /// </summary>
+        public event AsyncEventHandler<GuildUpdateEventArgs> GuildUpdated
+        {
+            add { this._guildUpdated.Register(value); }
+            remove { this._guildUpdated.Unregister(value); }
+        }
+        private AsyncEvent<GuildUpdateEventArgs> _guildUpdated;
+
+        /// <summary>
+        /// Fired when the user leaves or is removed from a guild.
+        /// </summary>
+        public event AsyncEventHandler<GuildDeleteEventArgs> GuildDeleted
+        {
+            add { this._guildDeleted.Register(value); }
+            remove { this._guildDeleted.Unregister(value); }
+        }
+        private AsyncEvent<GuildDeleteEventArgs> _guildDeleted;
+
+        /// <summary>
+        /// Fired when a guild becomes unavailable.
+        /// </summary>
+        public event AsyncEventHandler<GuildDeleteEventArgs> GuildUnavailable
+        {
+            add { this._guildUnavailable.Register(value); }
+            remove { this._guildUnavailable.Unregister(value); }
+        }
+        private AsyncEvent<GuildDeleteEventArgs> _guildUnavailable;
+
+        /// <summary>
+        /// Fired when a message is created.
+        /// </summary>
+        public event AsyncEventHandler<MessageCreateEventArgs> MessageCreated
+        {
+            add { this._messageCreated.Register(value); }
+            remove { this._messageCreated.Unregister(value); }
+        }
+        private AsyncEvent<MessageCreateEventArgs> _messageCreated;
+
+        /// <summary>
+        /// Fired when a presence has been updated.
+        /// </summary>
+        public event AsyncEventHandler<PresenceUpdateEventArgs> PresenceUpdated
+        {
+            add { this._presenceUpdated.Register(value); }
+            remove { this._presenceUpdated.Unregister(value); }
+        }
+        private AsyncEvent<PresenceUpdateEventArgs> _presenceUpdated;
+
+        /// <summary>
+        /// Fired when a guild ban gets added
+        /// </summary>
+        public event AsyncEventHandler<GuildBanAddEventArgs> GuildBanAdded
+        {
+            add { this._guildBanAdded.Register(value); }
+            remove { this._guildBanAdded.Unregister(value); }
+        }
+        private AsyncEvent<GuildBanAddEventArgs> _guildBanAdded;
+
+        /// <summary>
+        /// Fired when a guild ban gets removed
+        /// </summary>
+        public event AsyncEventHandler<GuildBanRemoveEventArgs> GuildBanRemoved
+        {
+            add { this._guildBanRemoved.Register(value); }
+            remove { this._guildBanRemoved.Unregister(value); }
+        }
+        private AsyncEvent<GuildBanRemoveEventArgs> _guildBanRemoved;
+
+        /// <summary>
+        /// Fired when a guilds emojis get updated
+        /// </summary>
+        public event AsyncEventHandler<GuildEmojisUpdateEventArgs> GuildEmojisUpdated
+        {
+            add { this._guildEmojisUpdated.Register(value); }
+            remove { this._guildEmojisUpdated.Unregister(value); }
+        }
+        private AsyncEvent<GuildEmojisUpdateEventArgs> _guildEmojisUpdated;
+
+        /// <summary>
+        /// Fired when a guild integration is updated.
+        /// </summary>
+        public event AsyncEventHandler<GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdated
+        {
+            add { this._guildIntegrationsUpdated.Register(value); }
+            remove { this._guildIntegrationsUpdated.Unregister(value); }
+        }
+        private AsyncEvent<GuildIntegrationsUpdateEventArgs> _guildIntegrationsUpdated;
+
+        /// <summary>
+        /// Fired when a new user joins a guild.
+        /// </summary>
+        public event AsyncEventHandler<GuildMemberAddEventArgs> GuildMemberAdded
+        {
+            add { this._guildMemberAdded.Register(value); }
+            remove { this._guildMemberAdded.Unregister(value); }
+        }
+        private AsyncEvent<GuildMemberAddEventArgs> _guildMemberAdded;
+
+        /// <summary>
+        /// Fired when a user is removed from a guild (leave/kick/ban).
+        /// </summary>
+        public event AsyncEventHandler<GuildMemberRemoveEventArgs> GuildMemberRemoved
+        {
+            add { this._guildMemberRemoved.Register(value); }
+            remove { this._guildMemberRemoved.Unregister(value); }
+        }
+        private AsyncEvent<GuildMemberRemoveEventArgs> _guildMemberRemoved;
+
+        /// <summary>
+        /// Fired when a guild member is updated.
+        /// </summary>
+        public event AsyncEventHandler<GuildMemberUpdateEventArgs> GuildMemberUpdated
+        {
+            add { this._guildMemberUpdated.Register(value); }
+            remove { this._guildMemberUpdated.Unregister(value); }
+        }
+        private AsyncEvent<GuildMemberUpdateEventArgs> _guildMemberUpdated;
+
+        /// <summary>
+        /// Fired when a guild role is created.
+        /// </summary>
+        public event AsyncEventHandler<GuildRoleCreateEventArgs> GuildRoleCreated
+        {
+            add { this._guildRoleCreated.Register(value); }
+            remove { this._guildRoleCreated.Unregister(value); }
+        }
+        private AsyncEvent<GuildRoleCreateEventArgs> _guildRoleCreated;
+
+        /// <summary>
+        /// Fired when a guild role is updated.
+        /// </summary>
+        public event AsyncEventHandler<GuildRoleUpdateEventArgs> GuildRoleUpdated
+        {
+            add { this._guildRoleUpdated.Register(value); }
+            remove { this._guildRoleUpdated.Unregister(value); }
+        }
+        private AsyncEvent<GuildRoleUpdateEventArgs> _guildRoleUpdated;
+
+        /// <summary>
+        /// Fired when a guild role is updated.
+        /// </summary>
+        public event AsyncEventHandler<GuildRoleDeleteEventArgs> GuildRoleDeleted
+        {
+            add { this._guildRoleDeleted.Register(value); }
+            remove { this._guildRoleDeleted.Unregister(value); }
+        }
+        private AsyncEvent<GuildRoleDeleteEventArgs> _guildRoleDeleted;
+
+        /// <summary>
+        /// Fired when message is acknowledged by the user.
+        /// </summary>
+        public event AsyncEventHandler<MessageAcknowledgeEventArgs> MessageAcknowledged
+        {
+            add { this._messageAcknowledged.Register(value); }
+            remove { this._messageAcknowledged.Unregister(value); }
+        }
+        private AsyncEvent<MessageAcknowledgeEventArgs> _messageAcknowledged;
+
+        /// <summary>
+        /// Fired when a message is updated.
+        /// </summary>
+        public event AsyncEventHandler<MessageUpdateEventArgs> MessageUpdated
+        {
+            add { this._messageUpdated.Register(value); }
+            remove { this._messageUpdated.Unregister(value); }
+        }
+        private AsyncEvent<MessageUpdateEventArgs> _messageUpdated;
+
+        /// <summary>
+        /// Fired when a message is deleted.
+        /// </summary>
+        public event AsyncEventHandler<MessageDeleteEventArgs> MessageDeleted
+        {
+            add { this._messageDeleted.Register(value); }
+            remove { this._messageDeleted.Unregister(value); }
+        }
+        private AsyncEvent<MessageDeleteEventArgs> _messageDeleted;
+
+        /// <summary>
+        /// Fired when multiple messages are deleted at once.
+        /// </summary>
+        public event AsyncEventHandler<MessageBulkDeleteEventArgs> MessagesBulkDeleted
+        {
+            add { this._messagesBulkDeleted.Register(value); }
+            remove { this._messagesBulkDeleted.Unregister(value); }
+        }
+        private AsyncEvent<MessageBulkDeleteEventArgs> _messagesBulkDeleted;
+
+        /// <summary>
+        /// Fired when a user starts typing in a channel.
+        /// </summary>
+        public event AsyncEventHandler<TypingStartEventArgs> TypingStarted
+        {
+            add { this._typingStarted.Register(value); }
+            remove { this._typingStarted.Unregister(value); }
+        }
+        private AsyncEvent<TypingStartEventArgs> _typingStarted;
+
+        /// <summary>
+        /// Fired when the current user updates their settings.
+        /// </summary>
+        public event AsyncEventHandler<UserSettingsUpdateEventArgs> UserSettingsUpdated
+        {
+            add { this._userSettingsUpdated.Register(value); }
+            remove { this._userSettingsUpdated.Unregister(value); }
+        }
+        private AsyncEvent<UserSettingsUpdateEventArgs> _userSettingsUpdated;
+
+        /// <summary>
+        /// Fired when properties about the user change.
+        /// </summary>
+        public event AsyncEventHandler<UserUpdateEventArgs> UserUpdated
+        {
+            add { this._userUpdated.Register(value); }
+            remove { this._userUpdated.Unregister(value); }
+        }
+        private AsyncEvent<UserUpdateEventArgs> _userUpdated;
+
+        /// <summary>
+        /// Fired when someone joins/leaves/moves voice channels.
+        /// </summary>
+        public event AsyncEventHandler<VoiceStateUpdateEventArgs> VoiceStateUpdated
+        {
+            add { this._voiceStateUpdated.Register(value); }
+            remove { this._voiceStateUpdated.Unregister(value); }
+        }
+        private AsyncEvent<VoiceStateUpdateEventArgs> _voiceStateUpdated;
+
+        /// <summary>
+        /// Fired when a guild's voice server is updated.
+        /// </summary>
+        public event AsyncEventHandler<VoiceServerUpdateEventArgs> VoiceServerUpdated
+        {
+            add { this._voiceServerUpdated.Register(value); }
+            remove { this._voiceServerUpdated.Unregister(value); }
+        }
+        private AsyncEvent<VoiceServerUpdateEventArgs> _voiceServerUpdated;
+
+        /// <summary>
+        /// Fired in response to Gateway Request Guild Members.
+        /// </summary>
+        public event AsyncEventHandler<GuildMembersChunkEventArgs> GuildMembersChunked
+        {
+            add { this._guildMembersChunked.Register(value); }
+            remove { this._guildMembersChunked.Unregister(value); }
+        }
+        private AsyncEvent<GuildMembersChunkEventArgs> _guildMembersChunked;
+
+        /// <summary>
+        /// Fired when an unknown event gets received.
+        /// </summary>
+        public event AsyncEventHandler<UnknownEventArgs> UnknownEvent
+        {
+            add { this._unknownEvent.Register(value); }
+            remove { this._unknownEvent.Unregister(value); }
+        }
+        private AsyncEvent<UnknownEventArgs> _unknownEvent;
+
+        /// <summary>
+        /// Fired when a reaction gets added to a message.
+        /// </summary>
+        public event AsyncEventHandler<MessageReactionAddEventArgs> MessageReactionAdded
+        {
+            add { this._messageReactionAdded.Register(value); }
+            remove { this._messageReactionAdded.Unregister(value); }
+        }
+        private AsyncEvent<MessageReactionAddEventArgs> _messageReactionAdded;
+
+        /// <summary>
+        /// Fired when a reaction gets removed from a message.
+        /// </summary>
+        public event AsyncEventHandler<MessageReactionRemoveEventArgs> MessageReactionRemoved
+        {
+            add { this._messageReactionRemoved.Register(value); }
+            remove { this._messageReactionRemoved.Unregister(value); }
+        }
+        private AsyncEvent<MessageReactionRemoveEventArgs> _messageReactionRemoved;
+
+        /// <summary>
+        /// Fired when all reactions get removed from a message.
+        /// </summary>
+        public event AsyncEventHandler<MessageReactionsClearEventArgs> MessageReactionsCleared
+        {
+            add { this._messageReactionsCleared.Register(value); }
+            remove { this._messageReactionsCleared.Unregister(value); }
+        }
+        private AsyncEvent<MessageReactionsClearEventArgs> _messageReactionsCleared;
+
+        /// <summary>
+        /// Fired whenever webhooks update.
+        /// </summary>
+        public event AsyncEventHandler<WebhooksUpdateEventArgs> WebhooksUpdated
+        {
+            add { this._webhooksUpdated.Register(value); }
+            remove { this._webhooksUpdated.Unregister(value); }
+        }
+        private AsyncEvent<WebhooksUpdateEventArgs> _webhooksUpdated;
+
+        /// <summary>
+        /// Fired on received heartbeat ACK.
+        /// </summary>
+        public event AsyncEventHandler<HeartbeatEventArgs> Heartbeated
+        {
+            add { this._heartbeated.Register(value); }
+            remove { this._heartbeated.Unregister(value); }
+        }
+        private AsyncEvent<HeartbeatEventArgs> _heartbeated;
+
+        internal void EventErrorHandler(string evname, Exception ex)
+        {
+            this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occured in {evname}.", DateTime.Now);
+            this._clientErrored.InvokeAsync(new ClientErrorEventArgs(this) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        private void Goof(string evname, Exception ex)
+        {
+            this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
+        }
+        #endregion
     }
 }
