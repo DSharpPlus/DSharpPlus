@@ -300,7 +300,13 @@ namespace DSharpPlus
                     RawActivity = new TransportActivity(),
                     Activity = new DiscordActivity(),
                     InternalStatus = "online",
-                    InternalUser = new TransportUser { Id = this.CurrentUser.Id }
+                    InternalUser = new TransportUser
+                    {
+                        Id = this.CurrentUser.Id,
+                        Username = this.CurrentUser.Username,
+                        Discriminator = this.CurrentUser.Discriminator,
+                        AvatarHash = this.CurrentUser.AvatarHash
+                    }
                 };
             }
             else
@@ -1225,12 +1231,20 @@ namespace DSharpPlus
 
             if (this.UserCache.TryGetValue(uid, out var usr))
             {
+                old.InternalUser.Username = usr.Username;
+                old.InternalUser.Discriminator = usr.Discriminator;
+                old.InternalUser.AvatarHash = usr.AvatarHash;
+
                 if (rawUser["username"] is object)
                     usr.Username = (string)rawUser["username"];
                 if (rawUser["discriminator"] is object)
                     usr.Discriminator = (string)rawUser["discriminator"];
                 if (rawUser["avatar"] is object)
                     usr.AvatarHash = (string)rawUser["avatar"];
+
+                presence.InternalUser.Username = usr.Username;
+                presence.InternalUser.Discriminator = usr.Discriminator;
+                presence.InternalUser.AvatarHash = usr.AvatarHash;
             }
 
             var ea = new PresenceUpdateEventArgs
@@ -1240,7 +1254,9 @@ namespace DSharpPlus
                 Activity = presence.Activity,
                 User = usr,
                 PresenceBefore = old,
-                PresenceAfter = presence
+                PresenceAfter = presence,
+                UserBefore = new DiscordUser(old.InternalUser),
+                UserAfter = usr ?? new DiscordUser(presence.InternalUser)
             };
             await this._presenceUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }

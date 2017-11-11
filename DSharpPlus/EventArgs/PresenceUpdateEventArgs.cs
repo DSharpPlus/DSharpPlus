@@ -32,6 +32,16 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordPresence PresenceAfter { get; internal set; }
 
+        /// <summary>
+        /// Gets the user prior to presence update.
+        /// </summary>
+        public DiscordUser UserBefore { get; internal set; }
+
+        /// <summary>
+        /// Gets the user after the presence update.
+        /// </summary>
+        public DiscordUser UserAfter { get; internal set; }
+
         internal PresenceUpdateEventArgs() : base(null) { }
         internal PresenceUpdateEventArgs(DiscordClient client) : base(client) { }
     }
