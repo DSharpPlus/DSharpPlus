@@ -31,20 +31,20 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         public event AsyncEventHandler<UserSpeakingEventArgs> UserSpeaking
         {
-            add { this._user_speaking.Register(value); }
-            remove { this._user_speaking.Unregister(value); }
+            add { this._userSpeaking.Register(value); }
+            remove { this._userSpeaking.Unregister(value); }
         }
-        private AsyncEvent<UserSpeakingEventArgs> _user_speaking;
+        private AsyncEvent<UserSpeakingEventArgs> _userSpeaking;
 
         /// <summary>
         /// Triggered whenever a user leaves voice in the connected guild.
         /// </summary>
         public event AsyncEventHandler<VoiceUserLeaveEventArgs> UserLeft
         {
-            add { this._user_left.Register(value); }
-            remove { this._user_left.Unregister(value); }
+            add { this._userLeft.Register(value); }
+            remove { this._userLeft.Unregister(value); }
         }
-        private AsyncEvent<VoiceUserLeaveEventArgs> _user_left;
+        private AsyncEvent<VoiceUserLeaveEventArgs> _userLeft;
 
 #if !NETSTANDARD1_1
         /// <summary>
@@ -52,10 +52,10 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         public event AsyncEventHandler<VoiceReceiveEventArgs> VoiceReceived
         {
-            add { this._voice_received.Register(value); }
-            remove { this._voice_received.Unregister(value); }
+            add { this._voiceReceived.Register(value); }
+            remove { this._voiceReceived.Unregister(value); }
         }
-        private AsyncEvent<VoiceReceiveEventArgs> _voice_received;
+        private AsyncEvent<VoiceReceiveEventArgs> _voiceReceived;
 #endif
 
         /// <summary>
@@ -63,16 +63,16 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         public event AsyncEventHandler<SocketErrorEventArgs> VoiceSocketErrored
         {
-            add { this._voice_socket_error.Register(value); }
-            remove { this._voice_socket_error.Unregister(value); }
+            add { this._voiceSocketError.Register(value); }
+            remove { this._voiceSocketError.Unregister(value); }
         }
-        private AsyncEvent<SocketErrorEventArgs> _voice_socket_error;
+        private AsyncEvent<SocketErrorEventArgs> _voiceSocketError;
 
         internal event VoiceDisconnectedEventHandler VoiceDisconnected;
 
         private const string VOICE_MODE = "xsalsa20_poly1305";
-        private static DateTime UnixEpoch { get { return _unix_epoch.Value; } }
-        private static Lazy<DateTime> _unix_epoch;
+        private static DateTime UnixEpoch { get { return _unixEpoch.Value; } }
+        private static Lazy<DateTime> _unixEpoch;
 
         private DiscordClient Discord { get; }
         private DiscordGuild Guild { get; }
@@ -149,12 +149,12 @@ namespace DSharpPlus.VoiceNext
             this.Channel = channel;
             this.SSRCMap = new ConcurrentDictionary<uint, ulong>();
 
-            this._user_speaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "USER_SPEAKING");
-            this._user_left = new AsyncEvent<VoiceUserLeaveEventArgs>(this.Discord.EventErrorHandler, "USER_LEFT");
+            this._userSpeaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "USER_SPEAKING");
+            this._userLeft = new AsyncEvent<VoiceUserLeaveEventArgs>(this.Discord.EventErrorHandler, "USER_LEFT");
 #if !NETSTANDARD1_1
-            this._voice_received = new AsyncEvent<VoiceReceiveEventArgs>(this.Discord.EventErrorHandler, "VOICE_RECEIVED");
+            this._voiceReceived = new AsyncEvent<VoiceReceiveEventArgs>(this.Discord.EventErrorHandler, "VOICE_RECEIVED");
 #endif
-            this._voice_socket_error = new AsyncEvent<SocketErrorEventArgs>(this.Discord.EventErrorHandler, "VOICE_WS_ERROR");
+            this._voiceSocketError = new AsyncEvent<SocketErrorEventArgs>(this.Discord.EventErrorHandler, "VOICE_WS_ERROR");
             this.TokenSource = new CancellationTokenSource();
 
             this.Configuration = config;
@@ -197,7 +197,7 @@ namespace DSharpPlus.VoiceNext
 
         static VoiceNextConnection()
         {
-            _unix_epoch = new Lazy<DateTime>(() => new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            _unixEpoch = new Lazy<DateTime>(() => new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         }
 
         ~VoiceNextConnection()
@@ -263,11 +263,11 @@ namespace DSharpPlus.VoiceNext
         /// <summary>
         /// Encodes, encrypts, and sends the provided PCM data to the connected voice channel.
         /// </summary>
-        /// <param name="pcm">PCM data to encode, encrypt, and send.</param>
-        /// <param name="blocksize">Millisecond length of the PCM data.</param>
-        /// <param name="bitrate">Bitrate of the PCM data.</param>
+        /// <param name="pcmData">PCM data to encode, encrypt, and send.</param>
+        /// <param name="blockSize">Millisecond length of the PCM data.</param>
+        /// <param name="bitRate">Bitrate of the PCM data.</param>
         /// <returns>Task representing the sending operation.</returns>
-        public async Task SendAsync(byte[] pcm, int blocksize, int bitrate = 16)
+        public async Task SendAsync(byte[] pcmData, int blockSize, int bitRate = 16)
         {
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
@@ -276,7 +276,7 @@ namespace DSharpPlus.VoiceNext
 
             var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
 
-            var dat = this.Opus.Encode(pcm, 0, pcm.Length, bitrate);
+            var dat = this.Opus.Encode(pcmData, 0, pcmData.Length, bitRate);
             dat = this.Sodium.Encode(dat, this.Rtp.MakeNonce(rtp), this.Key);
             dat = this.Rtp.Encode(rtp, dat);
 
@@ -313,7 +313,7 @@ namespace DSharpPlus.VoiceNext
             await this.UdpClient.SendAsync(dat, dat.Length).ConfigureAwait(false);
 
             this.Sequence++;
-            this.Timestamp += 48 * (uint)blocksize;
+            this.Timestamp += 48 * (uint)blockSize;
 
             this.PlaybackSemaphore.Release();
         }
@@ -388,7 +388,7 @@ namespace DSharpPlus.VoiceNext
                         user = new DiscordUser { Discord = this.Discord, Id = id };
                 }
 
-                await this._voice_received.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
+                await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
                 {
                     SSRC = ssrc,
                     Voice = new ReadOnlyCollection<byte>(data),
@@ -610,7 +610,7 @@ namespace DSharpPlus.VoiceNext
                     };
                     if (!this.SSRCMap.ContainsKey(spk.SSRC))
                         this.SSRCMap.AddOrUpdate(spk.SSRC, spk.User.Id, (k, v) => spk.User.Id);
-                    await this._user_speaking.InvokeAsync(spk).ConfigureAwait(false);
+                    await this._userSpeaking.InvokeAsync(spk).ConfigureAwait(false);
                     break;
                     
                 case 6:
@@ -640,7 +640,7 @@ namespace DSharpPlus.VoiceNext
                     if (ssrc.Value != 0)
                         this.SSRCMap.TryRemove(ssrc.Key, out _);
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"User '{usr.Username}#{usr.Discriminator}' ({ulpd.UserId.ToString(CultureInfo.InvariantCulture)}) left voice chat in '{this.Channel.Guild.Name}' ({this.Channel.Guild.Id.ToString(CultureInfo.InvariantCulture)})", DateTime.Now);
-                    await this._user_left.InvokeAsync(new VoiceUserLeaveEventArgs(this.Discord) { User = usr }).ConfigureAwait(false);
+                    await this._userLeft.InvokeAsync(new VoiceUserLeaveEventArgs(this.Discord) { User = usr }).ConfigureAwait(false);
                     break;
 
                 default:
@@ -680,7 +680,7 @@ namespace DSharpPlus.VoiceNext
             => this.StartAsync();
 
         private Task VoiceWs_SocketErrored(SocketErrorEventArgs e) 
-            => this._voice_socket_error.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
+            => this._voiceSocketError.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
 
         private static uint UnixTimestamp(DateTime dt)
         {

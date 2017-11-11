@@ -41,7 +41,7 @@ namespace DSharpPlus.VoiceNext.Codec
             return header;
         }
 
-        public void Decode(byte[] header, out ushort sequence, out uint timestamp, out uint ssrc, out bool has_extension)
+        public void Decode(byte[] header, out ushort sequence, out uint timestamp, out uint ssrc, out bool hasExtension)
         {
             if (header.Length != SIZE_HEADER)
                 throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SIZE_HEADER, ")"));
@@ -49,7 +49,7 @@ namespace DSharpPlus.VoiceNext.Codec
             if ((header[0] != RTP_TYPE_NO_EXTENSION && header[0] != RTP_TYPE_EXTENSION) || header[1] != RTP_VERSION)
                 throw new ArgumentException(nameof(header), "Invalid header");
 
-            has_extension = header[0] == RTP_TYPE_EXTENSION;
+            hasExtension = header[0] == RTP_TYPE_EXTENSION;
 
             var flip = BitConverter.IsLittleEndian;
             if (flip)
