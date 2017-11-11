@@ -84,6 +84,19 @@ namespace DSharpPlus.Test
             public Task GetCounterAsync(CommandContext ctx)
                 => ctx.RespondAsync($":1234: {this.Service.CommandCounter}");
         }
+
+        [Group("empty")]
+        public class EmptyGroup
+        {
+
+        }
+
+        [Group("executable", CanInvokeWithoutSubcommand = true)]
+        public class ExecutableGroup
+        {
+            public Task ExecuteGroupAsync(CommandContext ctx)
+                => ctx.RespondAsync("Yes, hi");
+        }
     }
 
     public class TestBotService

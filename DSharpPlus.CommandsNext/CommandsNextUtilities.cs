@@ -438,8 +438,8 @@ namespace DSharpPlus.CommandsNext
             if (dlgt.IsAssignableFrom(ti))
                 return false;
 
-            // qualifies
-            return true;
+            // qualifies if any method or type qualifies
+            return ti.DeclaredMethods.Any(xmi => xmi.IsCommandCandidate(out _)) || ti.DeclaredNestedTypes.Any(xti => xti.IsModuleCandidateType());
         }
 
         internal static bool IsCommandCandidate(this MethodInfo method, out ParameterInfo[] parameters)
