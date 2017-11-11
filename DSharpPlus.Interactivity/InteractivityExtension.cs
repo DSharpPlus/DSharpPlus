@@ -40,12 +40,12 @@ namespace DSharpPlus.Interactivity
             return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
         }
 
-        public static InteractivityExtension GetInteractivityModule(this DiscordClient c)
+        public static InteractivityExtension GetInteractivity(this DiscordClient c)
         {
             return c.GetExtension<InteractivityExtension>();
         }
 
-        public static IReadOnlyDictionary<int, InteractivityExtension> GetInteractivityModule(this DiscordShardedClient c)
+        public static IReadOnlyDictionary<int, InteractivityExtension> GetInteractivity(this DiscordShardedClient c)
         {
             var modules = new Dictionary<int, InteractivityExtension>();
 
