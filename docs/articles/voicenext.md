@@ -58,17 +58,11 @@ I encourage you to try and solve both of these issues yourself, however if you g
 [Command("join")]
 public async Task Join(CommandContext ctx)
 {
-	var vnext = ctx.Client.GetVoiceNextClient();
-
-	var vnc = vnext.GetConnection(ctx.Guild);
-	if (vnc != null)
-		throw new InvalidOperationException("Already connected in this guild.");
-
 	var chn = ctx.Member?.VoiceState?.Channel;
 	if (chn == null)
 		throw new InvalidOperationException("You need to be in a voice channel.");
 
-	vnc = await vnext.ConnectAsync(chn);
+	vnc = await chn.ConnectAsync();
 	await ctx.RespondAsync("👌");
 }
 

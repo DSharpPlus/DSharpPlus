@@ -76,6 +76,9 @@ namespace DSharpPlus.VoiceNext
             if (channel == null)
                 throw new NullReferenceException();
 
+            if (channel.Guild == null)
+                throw new InvalidOperationException("VoiceNext can only be used with guild channels.");
+
             if (channel.Type != ChannelType.Voice)
                 throw new InvalidOperationException("You can only connect to voice channels.");
 
@@ -85,6 +88,10 @@ namespace DSharpPlus.VoiceNext
             var vnext = discord.GetVoiceNext();
             if (vnext == null)
                 throw new InvalidOperationException("VoiceNext is not initialized for this Discord client.");
+
+            var vnc = vnext.GetConnection(channel.Guild);
+            if (vnc != null)
+                throw new InvalidOperationException("VoiceNext is already connected in this guild.");
 
             return vnext.ConnectAsync(channel);
         }
