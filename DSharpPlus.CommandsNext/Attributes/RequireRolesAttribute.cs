@@ -25,12 +25,12 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Defines that usage of this command is restricted to members with specified role. Note that it's much preferred to restrict access using <see cref="RequirePermissionsAttribute"/>.
         /// </summary>
-        /// <param name="check_mode">Role checking mode.</param>
-        /// <param name="role_names">Names of the role to be verified by this check.</param>
-        public RequireRolesAttribute(RoleCheckMode check_mode, params string[] role_names)
+        /// <param name="checkMode">Role checking mode.</param>
+        /// <param name="roleNames">Names of the role to be verified by this check.</param>
+        public RequireRolesAttribute(RoleCheckMode checkMode, params string[] roleNames)
         {
-            this.CheckMode = check_mode;
-            this.RoleNames = new ReadOnlyCollection<string>(role_names);
+            this.CheckMode = checkMode;
+            this.RoleNames = new ReadOnlyCollection<string>(roleNames);
         }
 
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)

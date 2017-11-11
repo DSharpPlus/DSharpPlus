@@ -35,14 +35,14 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Defines a cooldown for this command. This means that users will be able to use the command a specific number of times before they have to wait to use it again.
         /// </summary>
-        /// <param name="max_uses">Number of times the command can be used before triggering a cooldown.</param>
-        /// <param name="reset">Number of seconds after which the cooldown is reset.</param>
-        /// <param name="bucket_type">Type of cooldown bucket. This allows controlling whether the bucket will be cooled down per user, guild, channel, or globally.</param>
-        public CooldownAttribute(int max_uses, double reset, CooldownBucketType bucket_type)
+        /// <param name="maxUses">Number of times the command can be used before triggering a cooldown.</param>
+        /// <param name="resetAfter">Number of seconds after which the cooldown is reset.</param>
+        /// <param name="bucketType">Type of cooldown bucket. This allows controlling whether the bucket will be cooled down per user, guild, channel, or globally.</param>
+        public CooldownAttribute(int maxUses, double resetAfter, CooldownBucketType bucketType)
         {
-            this.MaxUses = max_uses;
-            this.Reset = TimeSpan.FromSeconds(reset);
-            this.BucketType = bucket_type;
+            this.MaxUses = maxUses;
+            this.Reset = TimeSpan.FromSeconds(resetAfter);
+            this.BucketType = bucketType;
             this.Buckets = new ConcurrentDictionary<string, CommandCooldownBucket>();
         }
 
@@ -79,27 +79,27 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// Calculates bucket ID for given command context.
         /// </summary>
         /// <param name="ctx">Context for which to calculate bucket ID for.</param>
-        /// <param name="usr">ID of the user with which this bucket is associated.</param>
-        /// <param name="chn">ID of the channel with which this bucket is associated.</param>
-        /// <param name="gld">ID of the guild with which this bucket is associated.</param>
+        /// <param name="userId">ID of the user with which this bucket is associated.</param>
+        /// <param name="channelId">ID of the channel with which this bucket is associated.</param>
+        /// <param name="guildId">ID of the guild with which this bucket is associated.</param>
         /// <returns>Calculated bucket ID.</returns>
-        private string GetBucketId(CommandContext ctx, out ulong usr, out ulong chn, out ulong gld)
+        private string GetBucketId(CommandContext ctx, out ulong userId, out ulong channelId, out ulong guildId)
         {
-            usr = 0ul;
+            userId = 0ul;
             if ((this.BucketType & CooldownBucketType.User) != 0)
-                usr = ctx.User.Id;
+                userId = ctx.User.Id;
 
-            chn = 0ul;
+            channelId = 0ul;
             if ((this.BucketType & CooldownBucketType.Channel) != 0)
-                chn = ctx.Channel.Id;
+                channelId = ctx.Channel.Id;
             if ((this.BucketType & CooldownBucketType.Guild) != 0 && ctx.Guild == null)
-                chn = ctx.Channel.Id;
+                channelId = ctx.Channel.Id;
 
-            gld = 0ul;
+            guildId = 0ul;
             if (ctx.Guild != null && (this.BucketType & CooldownBucketType.Guild) != 0)
-                gld = ctx.Guild.Id;
+                guildId = ctx.Guild.Id;
 
-            var bid = CommandCooldownBucket.MakeId(usr, chn, gld);
+            var bid = CommandCooldownBucket.MakeId(userId, channelId, guildId);
             return bid;
         }
 
@@ -201,21 +201,21 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Creates a new command cooldown bucket.
         /// </summary>
-        /// <param name="uses">Maximum number of uses for this bucket.</param>
-        /// <param name="reset">Time after which this bucket resets.</param>
-        /// <param name="user">ID of the user with which this cooldown is associated.</param>
-        /// <param name="channel">ID of the channel with which this cooldown is associated.</param>
-        /// <param name="guild">ID of the guild with which this cooldown is associated.</param>
-        internal CommandCooldownBucket(int uses, TimeSpan reset, ulong user = 0, ulong channel = 0, ulong guild = 0)
+        /// <param name="maxUses">Maximum number of uses for this bucket.</param>
+        /// <param name="resetAfter">Time after which this bucket resets.</param>
+        /// <param name="userId">ID of the user with which this cooldown is associated.</param>
+        /// <param name="channelId">ID of the channel with which this cooldown is associated.</param>
+        /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
+        internal CommandCooldownBucket(int maxUses, TimeSpan resetAfter, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
         {
-            this._remaining_uses = uses;
-            this.MaxUses = uses;
-            this.ResetsAt = DateTimeOffset.UtcNow + reset;
-            this.Reset = reset;
-            this.UserId = user;
-            this.ChannelId = channel;
-            this.GuildId = guild;
-            this.BucketId = MakeId(user, channel, guild);
+            this._remaining_uses = maxUses;
+            this.MaxUses = maxUses;
+            this.ResetsAt = DateTimeOffset.UtcNow + resetAfter;
+            this.Reset = resetAfter;
+            this.UserId = userId;
+            this.ChannelId = channelId;
+            this.GuildId = guildId;
+            this.BucketId = MakeId(userId, channelId, guildId);
             this.UsageSemaphore = new SemaphoreSlim(1, 1);
         }
 
@@ -332,11 +332,11 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Creates a bucket ID from given bucket parameters.
         /// </summary>
-        /// <param name="user">ID of the user with which this cooldown is associated.</param>
-        /// <param name="channel">ID of the channel with which this cooldown is associated.</param>
-        /// <param name="guild">ID of the guild with which this cooldown is associated.</param>
+        /// <param name="userId">ID of the user with which this cooldown is associated.</param>
+        /// <param name="channelId">ID of the channel with which this cooldown is associated.</param>
+        /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
         /// <returns>Generated bucket ID.</returns>
-        public static string MakeId(ulong user = 0, ulong channel = 0, ulong guild = 0) 
-            => $"{user.ToString(CultureInfo.InvariantCulture)}:{channel.ToString(CultureInfo.InvariantCulture)}:{guild.ToString(CultureInfo.InvariantCulture)}";
+        public static string MakeId(ulong userId = 0, ulong channelId = 0, ulong guildId = 0) 
+            => $"{userId.ToString(CultureInfo.InvariantCulture)}:{channelId.ToString(CultureInfo.InvariantCulture)}:{guildId.ToString(CultureInfo.InvariantCulture)}";
     }
 }

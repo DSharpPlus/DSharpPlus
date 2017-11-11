@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -31,6 +32,10 @@ namespace DSharpPlus.Test
         {
             await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content).ConfigureAwait(false);
         }
+
+        [Command("timebind"), Description("...time, mr. Freeman? Is it really that... time... again?")]
+        public Task Time(CommandContext ctx, TimeSpan ts)
+            => ctx.RespondAsync(ts.ToString());
 
         // this is a mention of _moonPtr#8058 (276460831187664897)
         // I don't hate you, in fact I appreciate you breaking this stuff

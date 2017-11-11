@@ -332,7 +332,7 @@ namespace DSharpPlus.CommandsNext
             return str;
         }
 
-        internal static object[] BindArguments(CommandContext ctx, bool ignore_surplus)
+        internal static object[] BindArguments(CommandContext ctx, bool ignoreSurplus)
         {
             var cmd = ctx.Command;
 
@@ -408,7 +408,7 @@ namespace DSharpPlus.CommandsNext
                 argstr = argrmd;
             }
 
-            if (!ignore_surplus && !string.IsNullOrWhiteSpace(argstr))
+            if (!ignoreSurplus && !string.IsNullOrWhiteSpace(argstr))
                 throw new ArgumentException("Too many arguments were supplied to this command.");
 
             return args;
@@ -440,20 +440,20 @@ namespace DSharpPlus.CommandsNext
             return true;
         }
 
-        internal static bool IsCommandCandidate(this MethodInfo mi, out ParameterInfo[] ps)
+        internal static bool IsCommandCandidate(this MethodInfo method, out ParameterInfo[] parameters)
         {
-            ps = null;
+            parameters = null;
             // check if exists
-            if (mi == null)
+            if (method == null)
                 return false;
 
             // check if static or non-public
-            if (mi.IsStatic || !mi.IsPublic)
+            if (method.IsStatic || !method.IsPublic)
                 return false;
 
             // check if appropriate return and arguments
-            ps = mi.GetParameters();
-            if (!ps.Any() || ps.First().ParameterType != typeof(CommandContext) || mi.ReturnType != typeof(Task))
+            parameters = method.GetParameters();
+            if (!parameters.Any() || parameters.First().ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
                 return false;
 
             // qualifies
