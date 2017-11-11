@@ -174,7 +174,7 @@ namespace DSharpPlus.VoiceNext.Codec
 
         private int FrameCount(int length, int bitRate)
         {
-            int bps = (bitRate >> 2) & ~0xF; // (bitrate / 8) * 2;
+            var bps = (bitRate >> 2) & ~1; // (bitrate / 8) * 2;
             return length / bps;
         }
 

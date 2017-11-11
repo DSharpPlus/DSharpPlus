@@ -371,32 +371,17 @@ Serverowner: {e.Guild.Owner.DisplayName}
             [Command("join")]
             public async Task VoiceJoin(CommandContext ctx)
             {
-                var vs = ctx.Member?.VoiceState;
-                if (vs == null)
-                {
-                    await ctx.Message.RespondAsync("You are not in a voice channel").ConfigureAwait(false);
-                    return;
-                }
-
-                var chn = vs.Channel;
+                var chn = ctx.Member?.VoiceState?.Channel;
                 if (chn == null)
                 {
-                    await ctx.Message.RespondAsync("Your voice channel was not found").ConfigureAwait(false);
+                    await ctx.Message.RespondAsync("Your voice channel was not found or you are not connected").ConfigureAwait(false);
                     return;
                 }
 
-                var voice = ctx.Client.GetVoiceNext();
-                if (voice == null)
-                {
-                    await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
-                    return;
-                }
-
-                await Task.Yield();
-                var vnc = await voice.ConnectAsync(chn).ConfigureAwait(false);
+                var vnc = await chn.ConnectAsync().ConfigureAwait(false);
                 await ctx.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})").ConfigureAwait(false);
 
-                if (voice.IsIncomingEnabled)
+                if (ctx.Client.GetVoiceNext().IsIncomingEnabled)
                 {
                     this._ssrc_map = new ConcurrentDictionary<uint, ulong>();
                     this._ssrc_filemap = new ConcurrentDictionary<uint, FileStream>();
@@ -421,8 +406,7 @@ Serverowner: {e.Guild.Owner.DisplayName}
                     await ctx.Message.RespondAsync("Voice is not connected in this guild").ConfigureAwait(false);
                     return;
                 }
-
-
+                
                 if (voice.IsIncomingEnabled)
                 {
                     vnc.UserSpeaking -= this.OnUserSpeaking;
