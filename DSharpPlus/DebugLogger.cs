@@ -5,7 +5,6 @@ namespace DSharpPlus
 {
     public class DebugLogger
     {
-        public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;
         private LogLevel Level { get; }
         private string DateTimeFormat { get; }
 
@@ -24,7 +23,14 @@ namespace DSharpPlus
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
             if (level <= this.Level)
-                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
+            {
+                message = message.Replace("\r", "");
+                var lines = new[] { message };
+                if (message.Contains('\n'))
+                    lines = message.Split('\n');
+                foreach (var line in lines)
+                    LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = line, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
+            }
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
@@ -59,6 +65,8 @@ namespace DSharpPlus
             Console.WriteLine($" {e.Message}");
 #endif
         }
+
+        public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;
     }
 
     namespace EventArgs

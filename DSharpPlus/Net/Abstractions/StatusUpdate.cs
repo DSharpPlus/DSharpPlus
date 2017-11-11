@@ -55,6 +55,6 @@ namespace DSharpPlus.Net.Abstractions
         /// Gets or sets the game the user is playing.
         /// </summary>
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
-        public TransportGame Game { get; set; }
+        public TransportActivity Activity { get; set; }
     }
 }

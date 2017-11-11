@@ -9,7 +9,7 @@ namespace DSharpPlus.Net.Abstractions
     /// <summary>
     /// Represents a game a user is playing.
     /// </summary>
-    public sealed class TransportGame
+    internal sealed class TransportActivity
     {
         /// <summary>
         /// Gets or sets the name of the game the user is playing.
@@ -21,13 +21,13 @@ namespace DSharpPlus.Net.Abstractions
         /// Gets or sets the stream URI, if applicable.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; internal set; }
+        public string StreamUrl { get; internal set; }
 
         /// <summary>
         /// Gets or sets the livesteam type.
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public GameStreamType StreamType { get; internal set; }
+        public ActivityType ActivityType { get; internal set; }
 
         /// <summary>
         /// Gets or sets the details.
@@ -103,59 +103,21 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("secrets", NullValueHandling = NullValueHandling.Ignore)]
         public GameSecrets Secrets { get; internal set; }
 
-        internal TransportGame() { }
-        internal TransportGame(DiscordGame game)
+        internal TransportActivity() { }
+
+        internal TransportActivity(DiscordActivity game)
         {
             if (game == null)
                 return;
 
             this.Name = game.Name;
-            this.StreamType = game.StreamType;
-            this.Url = game.Url;
+            this.ActivityType = game.ActivityType;
+            this.StreamUrl = game.StreamUrl;
+        }
 
-            //this.Details = game.Details;
-            //this.State = game.State;
-            //this.Instance = game.Instance;
-            //this.ApplicationId = game.Application?.Id;
-            //
-            //if (game.PartyId != null || (game.CurrentPartySize != null && game.MaximumPartySize != null))
-            //{
-            //    this.Party = new GameParty
-            //    {
-            //        Id = game.PartyId?.ToString(CultureInfo.InvariantCulture)
-            //    };
-            //
-            //    if (game.CurrentPartySize != null && game.MaximumPartySize != null)
-            //        this.Party.Size = new GameParty.GamePartySize
-            //        {
-            //            Current = game.CurrentPartySize.Value,
-            //            Maximum = game.MaximumPartySize.Value
-            //        };
-            //}
-            //
-            //if (game.LargeImage != null && game.SmallImage != null)
-            //    this.Assets = new PresenceAssets
-            //    {
-            //        LargeImage = game.LargeImage.Id,
-            //        SmallImage = game.SmallImage.Id,
-            //        LargeImageText = game.LargeImageText,
-            //        SmallImageText = game.SmallImageText
-            //    };
-            //
-            //if (game.StartTimestamp != null || game.EndTimestamp != null)
-            //    this.Timestamps = new GameTimestamps
-            //    {
-            //        _start = game.StartTimestamp != null ? (long?)(Utilities.GetUnixTime(game.StartTimestamp.Value) / 1000) : null,
-            //        _end = game.EndTimestamp != null ? (long?)(Utilities.GetUnixTime(game.EndTimestamp.Value) / 1000) : null
-            //    };
-            //
-            //if (game.JoinSecret != null || game.MatchSecret != null || game.SpectateSecret != null)
-            //    this.Secrets = new GameSecrets
-            //    {
-            //        Join = game.JoinSecret,
-            //        Match = game.MatchSecret,
-            //        Spectate = game.SpectateSecret
-            //    };
+        public bool IsRichPresence()
+        {
+            return this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null;
         }
 
         /// <summary>
@@ -167,12 +129,12 @@ namespace DSharpPlus.Net.Abstractions
             /// Gets the large image asset ID.
             /// </summary>
             [JsonIgnore]
-            public ulong LargeImage
+            public ulong? LargeImage
             {
-                get { return ulong.Parse(this.LargeImageStr, CultureInfo.InvariantCulture); }
+                get { return this.LargeImageStr != null ? (ulong?)ulong.Parse(this.LargeImageStr, CultureInfo.InvariantCulture) : null; }
                 internal set
                 {
-                    this.LargeImageStr = value.ToString(CultureInfo.InvariantCulture);
+                    this.LargeImageStr = value?.ToString(CultureInfo.InvariantCulture);
                 }
             }
             
@@ -189,12 +151,12 @@ namespace DSharpPlus.Net.Abstractions
             /// Gets the small image asset ID.
             /// </summary>
             [JsonIgnore]
-            public ulong SmallImage
+            public ulong? SmallImage
             {
-                get { return ulong.Parse(this.SmallImageStr, CultureInfo.InvariantCulture); }
+                get { return this.SmallImageStr != null ? (ulong?)ulong.Parse(this.SmallImageStr, CultureInfo.InvariantCulture) : null; }
                 internal set
                 {
-                    this.SmallImageStr = value.ToString(CultureInfo.InvariantCulture);
+                    this.SmallImageStr = value?.ToString(CultureInfo.InvariantCulture);
                 }
             }
 
@@ -298,7 +260,7 @@ namespace DSharpPlus.Net.Abstractions
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var sinfo = value as TransportGame.GameParty.GamePartySize;
+            var sinfo = value as TransportActivity.GameParty.GamePartySize;
             var obj = sinfo != null ? new object[] { sinfo.Current, sinfo.Maximum } : null;
             serializer.Serialize(writer, obj);
         }
@@ -306,7 +268,7 @@ namespace DSharpPlus.Net.Abstractions
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var arr = ReadArrayObject(reader, serializer);
-            return new TransportGame.GameParty.GamePartySize
+            return new TransportActivity.GameParty.GamePartySize
             {
                 Current = (int)arr[0],
                 Maximum = (int)arr[1],
@@ -323,7 +285,7 @@ namespace DSharpPlus.Net.Abstractions
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(TransportGame.GameParty.GamePartySize);
+            return objectType == typeof(TransportActivity.GameParty.GamePartySize);
         }
     }
 }

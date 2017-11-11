@@ -27,5 +27,19 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
         public string Email { get; internal set; }
+
+        internal TransportUser() { }
+
+        internal TransportUser(TransportUser other)
+        {
+            this.Id = other.Id;
+            this.Username = other.Username;
+            this.Discriminator = other.Discriminator;
+            this.AvatarHash = other.AvatarHash;
+            this.IsBot = other.IsBot;
+            this.MfaEnabled = other.MfaEnabled;
+            this.Verified = other.Verified;
+            this.Email = other.Email;
+        }
     }
 }

@@ -24,8 +24,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the game this user is playing.
         /// </summary>
+        [JsonIgnore]
+        public DiscordActivity Activity { get; internal set; }
+
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
-        public TransportGame Game { get; internal set; }
+        internal TransportActivity RawActivity { get; set; }
         
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
         internal string InternalStatus { get; set; }
@@ -70,5 +73,14 @@ namespace DSharpPlus.Entities
             => this.GuildId != 0 ? this.Discord._guilds[this.GuildId] : null;
 
         internal DiscordPresence() { }
+
+        internal DiscordPresence(DiscordPresence other)
+        {
+            this.Discord = other.Discord;
+            this.Activity = other.Activity;
+            this.RawActivity = other.RawActivity;
+            this.InternalStatus = other.InternalStatus;
+            this.InternalUser = new TransportUser(other.InternalUser);
+        }
     }
 }

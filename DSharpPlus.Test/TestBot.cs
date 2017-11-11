@@ -193,7 +193,8 @@ namespace DSharpPlus.Test
 
         private Task Discord_SocketError(SocketErrorEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"WS threw an exception: {e.Exception.GetType()}", DateTime.Now);
+            var ex = e.Exception is AggregateException ae ? ae.InnerException : e.Exception;
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"WS threw an exception: {ex.GetType()}\n{ex.StackTrace}", DateTime.Now);
             return Task.CompletedTask;
         }
 
@@ -253,7 +254,7 @@ namespace DSharpPlus.Test
         {
             try
             {
-                this.Discord.UpdateStatusAsync(new DiscordGame("gitting better at API")).ConfigureAwait(false).GetAwaiter().GetResult();
+                this.Discord.UpdateStatusAsync(new DiscordActivity("gitting better at API")).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (Exception) { }
         }

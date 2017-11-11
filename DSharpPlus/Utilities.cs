@@ -209,5 +209,20 @@ namespace DSharpPlus
 
             return string.Join(", ", strs.OrderBy(xs => xs));
         }
+
+        /// <summary>
+        /// Checks whether this string contains given characters.
+        /// </summary>
+        /// <param name="str">String to check.</param>
+        /// <param name="characters">Characters to check for.</param>
+        /// <returns>Whether the string contained these characters.</returns>
+        public static bool Contains(this string str, params char[] characters)
+        {
+            foreach (var xc in str)
+                if (characters.Contains(xc))
+                    return true;
+
+            return false;
+        }
     }
 }

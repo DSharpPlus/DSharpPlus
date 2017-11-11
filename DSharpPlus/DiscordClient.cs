@@ -760,7 +760,8 @@ namespace DSharpPlus
                 this._presences[this.CurrentUser.Id] = new DiscordPresence
                 {
                     Discord = this,
-                    Game = new TransportGame(),
+                    RawActivity = new TransportActivity(),
+                    Activity = new DiscordActivity(),
                     InternalStatus = "online",
                     InternalUser = new TransportUser { Id = this.CurrentUser.Id }
                 };
@@ -768,7 +769,8 @@ namespace DSharpPlus
             else
             {
                 var pr = this._presences[this.CurrentUser.Id];
-                pr.Game = new TransportGame();
+                pr.RawActivity = new TransportActivity();
+                pr.Activity = new DiscordActivity();
                 pr.InternalStatus = "online";
             }
 
@@ -950,12 +952,12 @@ namespace DSharpPlus
         /// <summary>
         /// Updates current user's status
         /// </summary>
-        /// <param name="game">Game you're playing</param>
-        /// <param name="user_status"></param>
-        /// <param name="idle_since"></param>
+        /// <param name="activity">Game you're playing</param>
+        /// <param name="userStatus"></param>
+        /// <param name="idleSince"></param>
         /// <returns></returns>
-        public Task UpdateStatusAsync(DiscordGame game = null, UserStatus? user_status = null, DateTimeOffset? idle_since = null)
-            => this.InternalUpdateStatusAsync(game, user_status, idle_since);
+        public Task UpdateStatusAsync(DiscordActivity activity = null, UserStatus? userStatus = null, DateTimeOffset? idleSince = null)
+            => this.InternalUpdateStatusAsync(activity, userStatus, idleSince);
 
         /// <summary>
         /// Gets information about specified API application.
@@ -1192,7 +1194,7 @@ namespace DSharpPlus
                     break;
 
                 case "presence_update":
-                    await OnPresenceUpdateEventAsync(dat.ToObject<DiscordPresence>(), (JObject)dat["user"], dat.ToObject<PresenceUpdateEventArgs>()).ConfigureAwait(false);
+                    await OnPresenceUpdateEventAsync(dat, (JObject)dat["user"]).ConfigureAwait(false);
                     break;
 
                 case "typing_start":
@@ -1507,7 +1509,12 @@ namespace DSharpPlus
         {
             if (presences != null)
             {
-                presences = presences.Select(xp => { xp.Discord = this; return xp; });
+                presences = presences.Select(xp =>
+                {
+                    xp.Discord = this;
+                    xp.Activity = new DiscordActivity(xp.RawActivity);
+                    return xp;
+                });
                 foreach (var xp in presences)
                     this._presences[xp.InternalUser.Id] = xp;
             }
@@ -1636,7 +1643,7 @@ namespace DSharpPlus
 
         internal async Task OnGuildSyncEventAsync(DiscordGuild guild, bool is_large, JArray raw_members, IEnumerable<DiscordPresence> presences)
         {
-            presences = presences.Select(xp => { xp.Discord = this; return xp; });
+            presences = presences.Select(xp => { xp.Discord = this; xp.Activity = new DiscordActivity(xp.RawActivity); return xp; });
             foreach (var xp in presences)
                 this._presences[xp.InternalUser.Id] = xp;
 
@@ -1654,37 +1661,58 @@ namespace DSharpPlus
             await this._guild_available.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
         }
 
-        internal async Task OnPresenceUpdateEventAsync(DiscordPresence presence, JObject raw_user, PresenceUpdateEventArgs ea)
+        internal async Task OnPresenceUpdateEventAsync(JObject rawPresence, JObject rawUser)
         {
-            presence.Discord = this;
+            var uid = (ulong)rawUser["id"];
             DiscordPresence old = null;
-
-            if (this._presences.ContainsKey(presence.InternalUser.Id))
-                old = this._presences[presence.InternalUser.Id];
-            this._presences[presence.InternalUser.Id] = presence;
-
-            if (raw_user["username"] is object || raw_user["discriminator"] is object || raw_user["avatar"] is object)
+            if (this._presences.TryGetValue(uid, out var presence))
             {
-                var new_username = raw_user["username"] is object ? new Optional<string>((string)raw_user["username"]) : default;
-                var new_discrim = raw_user["discriminator"] is object ? new Optional<string>((string)raw_user["discriminator"]) : default;
-                var new_avatar = raw_user["avatar"] is object ? new Optional<string>((string)raw_user["avatar"]) : default;
-
-                if (this.UserCache.TryGetValue(presence.InternalUser.Id, out var usr))
-                {
-                    if (new_username.HasValue)
-                        usr.Username = new_username.Value;
-
-                    if (new_discrim.HasValue)
-                        usr.Discriminator = new_discrim.Value;
-
-                    if (new_avatar.HasValue)
-                        usr.AvatarHash = new_avatar.Value;
-                }
+                old = new DiscordPresence(presence);
+                JsonConvert.PopulateObject(rawPresence.ToString(), presence);
+                if (presence.Activity != null)
+                    presence.Activity.UpdateWith(presence.RawActivity);
+                else
+                    presence.Activity = new DiscordActivity();
+            }
+            else
+            {
+                presence = rawPresence.ToObject<DiscordPresence>();
+                presence.Discord = this;
+                presence.Activity = new DiscordActivity(presence.RawActivity);
+                this._presences[presence.InternalUser.Id] = presence;
             }
 
-            ea.Client = this;
-            ea.PresenceBefore = old;
+            if (this.UserCache.TryGetValue(uid, out var usr) && presence.InternalUser != null)
+            {
+                //if (rawUser["username"] is object || rawUser["discriminator"] is object || rawUser["avatar"] is object)
+                //{
+                //    var new_username = rawUser["username"] is object ? new Optional<string>((string)rawUser["username"]) : default;
+                //    var new_discrim = rawUser["discriminator"] is object ? new Optional<string>((string)rawUser["discriminator"]) : default;
+                //    var new_avatar = rawUser["avatar"] is object ? new Optional<string>((string)rawUser["avatar"]) : default;
 
+                //    if (new_username.HasValue)
+                //        usr.Username = new_username.Value;
+
+                //    if (new_discrim.HasValue)
+                //        usr.Discriminator = new_discrim.Value;
+
+                //    if (new_avatar.HasValue)
+                //        usr.AvatarHash = new_avatar.Value;
+                //}
+                
+                usr.Username = presence.InternalUser.Username;
+                usr.Discriminator = presence.InternalUser.Discriminator;
+                usr.AvatarHash = presence.InternalUser.AvatarHash;
+            }
+
+            var ea = new PresenceUpdateEventArgs
+            {
+                Client = this,
+                Status = presence.Status,
+                Activity = presence.Activity,
+                InternalUser = usr,
+                PresenceBefore = old
+            };
             await this._presence_update.InvokeAsync(ea).ConfigureAwait(false);
         }
 
@@ -2468,19 +2496,20 @@ namespace DSharpPlus
             catch (OperationCanceledException) { }
         }
 
-        internal Task InternalUpdateStatusAsync(DiscordGame game, UserStatus? user_status, DateTimeOffset? idle_since)
+        internal Task InternalUpdateStatusAsync(DiscordActivity activity, UserStatus? userStatus, DateTimeOffset? idleSince)
         {
-            if (game != null && game.Name != null && game.Name.Length > 128)
+            if (activity != null && activity.Name != null && activity.Name.Length > 128)
                 throw new Exception("Game name can't be longer than 128 characters!");
 
-            var since_unix = idle_since != null ? (long?)Utilities.GetUnixTime(idle_since.Value) : null;
+            var since_unix = idleSince != null ? (long?)Utilities.GetUnixTime(idleSince.Value) : null;
+            var act = activity ?? new DiscordActivity();
 
             var status = new StatusUpdate
             {
-                Game = new TransportGame(game ?? new DiscordGame()),
+                Activity = new TransportActivity(act),
                 IdleSince = since_unix,
-                IsAFK = idle_since != null,
-                Status = user_status ?? UserStatus.Online
+                IsAFK = idleSince != null,
+                Status = userStatus ?? UserStatus.Online
             };
             var status_update = new GatewayPayload
             {
@@ -2496,16 +2525,16 @@ namespace DSharpPlus
                 this._presences[this.CurrentUser.Id] = new DiscordPresence
                 {
                     Discord = this,
-                    Game = status.Game,
-                    InternalStatus = user_status?.ToString() ?? "online",
+                    Activity = act,
+                    InternalStatus = userStatus?.ToString() ?? "online",
                     InternalUser = new TransportUser { Id = this.CurrentUser.Id }
                 };
             }
             else
             {
                 var pr = this._presences[this.CurrentUser.Id];
-                pr.Game = status.Game;
-                pr.InternalStatus = user_status?.ToString() ?? pr.InternalStatus;
+                pr.Activity = act;
+                pr.InternalStatus = userStatus?.ToString() ?? pr.InternalStatus;
             }
 
             return Task.Delay(0);
