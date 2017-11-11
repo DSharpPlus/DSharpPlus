@@ -215,7 +215,7 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? Start 
-                => this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._start.Value) : null;
+                => this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._start.Value, false) : null;
 
             [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
             internal long? _start;
@@ -225,7 +225,7 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? End 
-                => this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._end.Value) : null;
+                => this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._end.Value, false) : null;
 
             [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
             internal long? _end;

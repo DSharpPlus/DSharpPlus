@@ -160,18 +160,29 @@ namespace DSharpPlus
         /// <summary>
         /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.
         /// </summary>
-        /// <param name="unixtime">Unix time seconds to convert.</param>
+        /// <param name="unixTime">Unix time seconds to convert.</param>
+        /// <param name="shouldThrow">Whether the method should throw on failure. Defaults to true.</param>
         /// <returns>Calculated <see cref="DateTimeOffset"/>.</returns>
-        public static DateTimeOffset GetDateTimeOffset(long unixtime)
+        public static DateTimeOffset GetDateTimeOffset(long unixTime, bool shouldThrow = true)
         {
+            try
+            {
 #if !(NETSTANDARD1_1 || NET45)
-            return DateTimeOffset.FromUnixTimeSeconds(unixtime);
+                return DateTimeOffset.FromUnixTimeSeconds(unixTime);
 #else
-            // below constant taken from 
-            // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
-            var ticks = unixtime * TimeSpan.TicksPerSecond + 621_355_968_000_000_000;
-            return new DateTimeOffset(ticks, TimeSpan.Zero);
+                // below constant taken from 
+                // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
+                var ticks = unixTime * TimeSpan.TicksPerSecond + 621_355_968_000_000_000;
+                return new DateTimeOffset(ticks, TimeSpan.Zero);
 #endif
+            }
+            catch (Exception)
+            {
+                if (shouldThrow)
+                    throw;
+
+                return DateTimeOffset.MinValue;
+            }
         }
 
         /// <summary>
