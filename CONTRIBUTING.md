@@ -40,8 +40,6 @@ Examples of bad commit messages:
 We use [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) 
 throughout the repository, with several exceptions:
 
-* Preference of snake_case instead of camelCase for method argument names.
-* Preference of _prefixed_snake_case instead of _prefixedCamelCase for private fields.
 * Preference of `this`. While this one is not required, it's ill-advised to remove the existing instances of thereof.
 * When working with async code, and your method consists of a single `await` statement not in any `if`, `while`, etc. 
   blocks, pass the task through instead of awaiting it. For example:
