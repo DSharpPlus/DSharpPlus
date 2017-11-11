@@ -74,6 +74,11 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public string RawArgumentString { get; internal set; }
 
+        /// <summary>
+        /// Gets the prefix used to invoke the command.
+        /// </summary>
+        public string Prefix { get; internal set; }
+
         internal CommandsNextConfiguration Config { get; set; }
 
         internal CommandContext()

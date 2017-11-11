@@ -61,6 +61,7 @@ namespace DSharpPlus.CommandsNext
                         Command = cmd,
                         Config = ctx.Config,
                         RawArgumentString = x,
+                        Prefix = ctx.Prefix,
                         CommandsNext = ctx.CommandsNext
                     };
 

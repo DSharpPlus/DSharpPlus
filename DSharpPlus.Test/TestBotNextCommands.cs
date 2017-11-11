@@ -37,6 +37,10 @@ namespace DSharpPlus.Test
         public Task Time(CommandContext ctx, TimeSpan ts)
             => ctx.RespondAsync(ts.ToString());
 
+        [Command("whatprefix"), Description("Displays the prefix used to invoke this command.")]
+        public Task WhatPrefix(CommandContext ctx)
+            => ctx.RespondAsync(Formatter.InlineCode($@"""{ctx.Prefix}"""));
+
         // this is a mention of _moonPtr#8058 (276460831187664897)
         // I don't hate you, in fact I appreciate you breaking this stuff
         // but revenge is revenge

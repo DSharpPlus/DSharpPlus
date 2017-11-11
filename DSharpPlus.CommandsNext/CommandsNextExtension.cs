@@ -168,6 +168,7 @@ namespace DSharpPlus.CommandsNext
             if (mpos == -1)
                 return;
 
+            var pfx = e.Message.Content.Substring(0, mpos);
             var cnt = e.Message.Content.Substring(mpos);
             var cms = CommandsNextUtilities.ExtractNextArgument(cnt, out var rrg);
 
@@ -183,6 +184,7 @@ namespace DSharpPlus.CommandsNext
                 //RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
                 Config = this.Config,
                 RawArgumentString = rrg,
+                Prefix = pfx,
                 CommandsNext = this
             };
 
