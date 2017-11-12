@@ -31,7 +31,7 @@ You can use [this website](https://www.nickstrohm.de/dsb/) provided by [nick-str
 # Questions?
 Come talk to us here:
 
-[![Discord Server](https://discordapp.com/api/guilds/146044397861994496/embed.png?style=banner1)](https://discord.gg/0oZpaYcAjfvkDuE4)
+[![Discord Server](https://discordapp.com/api/guilds/379378609942560770/embed.png?style=banner1)](https://discord.gg/KeAS3pU)
 
 Alternatively, you could also join us in the [Discord API chat](https://discord.gg/discord-api) at **#dotnet_dsharpplus**.
 
