@@ -1231,9 +1231,12 @@ namespace DSharpPlus
 
             if (this.UserCache.TryGetValue(uid, out var usr))
             {
-                old.InternalUser.Username = usr.Username;
-                old.InternalUser.Discriminator = usr.Discriminator;
-                old.InternalUser.AvatarHash = usr.AvatarHash;
+                if (old != null)
+                {
+                    old.InternalUser.Username = usr.Username;
+                    old.InternalUser.Discriminator = usr.Discriminator;
+                    old.InternalUser.AvatarHash = usr.AvatarHash;
+                }
 
                 if (rawUser["username"] is object)
                     usr.Username = (string)rawUser["username"];

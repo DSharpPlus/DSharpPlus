@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets whether this command is executable without subcommands.
         /// </summary>
-        public bool IsExecutableWithoutSubcommands => this.Callable == null;
+        public bool IsExecutableWithoutSubcommands => this.Callable != null;
 
         internal CommandGroup() : base() { }
 
@@ -78,7 +78,7 @@ namespace DSharpPlus.CommandsNext
                 }
             }
 
-            if (this.IsExecutableWithoutSubcommands)
+            if (!this.IsExecutableWithoutSubcommands)
                 return new CommandResult
                 {
                     IsSuccessful = false,
