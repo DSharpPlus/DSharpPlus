@@ -128,18 +128,8 @@ namespace DSharpPlus.Net.Abstractions
             /// <summary>
             /// Gets the large image asset ID.
             /// </summary>
-            [JsonIgnore]
-            public ulong? LargeImage
-            {
-                get { return this.LargeImageStr != null ? (ulong?)ulong.Parse(this.LargeImageStr, CultureInfo.InvariantCulture) : null; }
-                internal set
-                {
-                    this.LargeImageStr = value?.ToString(CultureInfo.InvariantCulture);
-                }
-            }
-            
             [JsonProperty("large_image")]
-            internal string LargeImageStr { get; set; }
+            public string LargeImage { get; set; }
 
             /// <summary>
             /// Gets the large image text.
@@ -150,18 +140,8 @@ namespace DSharpPlus.Net.Abstractions
             /// <summary>
             /// Gets the small image asset ID.
             /// </summary>
-            [JsonIgnore]
-            public ulong? SmallImage
-            {
-                get { return this.SmallImageStr != null ? (ulong?)ulong.Parse(this.SmallImageStr, CultureInfo.InvariantCulture) : null; }
-                internal set
-                {
-                    this.SmallImageStr = value?.ToString(CultureInfo.InvariantCulture);
-                }
-            }
-
             [JsonProperty("small_image")]
-            internal string SmallImageStr { get; set; }
+            internal string SmallImage { get; set; }
 
             /// <summary>
             /// Gets the small image text.

@@ -146,7 +146,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets large image for the rich presence.
         /// </summary>
-        public DiscordApplicationAsset LargeImage { get; internal set; }
+        public DiscordAsset LargeImage { get; internal set; }
 
         /// <summary>
         /// Gets the hovertext for large image.
@@ -156,7 +156,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets small image for the rich presence.
         /// </summary>
-        public DiscordApplicationAsset SmallImage { get; internal set; }
+        public DiscordAsset SmallImage { get; internal set; }
 
         /// <summary>
         /// Gets the hovertext for small image.
@@ -238,8 +238,8 @@ namespace DSharpPlus.Entities
             this.Instance = rawGame?.Instance;
             this.LargeImageText = rawGame?.Assets?.LargeImageText;
             this.SmallImageText = rawGame?.Assets?.SmallImageText;
-            this.LargeImage = rawGame?.Assets?.LargeImage != null ? new DiscordApplicationAsset { Application = this.Application, Id = rawGame.Assets.LargeImage.Value, Type = ApplicationAssetType.LargeImage } : null;
-            this.SmallImage = rawGame?.Assets?.SmallImage != null ? new DiscordApplicationAsset { Application = this.Application, Id = rawGame.Assets.SmallImage.Value, Type = ApplicationAssetType.SmallImage } : null;
+            //this.LargeImage = rawGame?.Assets?.LargeImage != null ? new DiscordApplicationAsset { Application = this.Application, Id = rawGame.Assets.LargeImage.Value, Type = ApplicationAssetType.LargeImage } : null;
+            //this.SmallImage = rawGame?.Assets?.SmallImage != null ? new DiscordApplicationAsset { Application = this.Application, Id = rawGame.Assets.SmallImage.Value, Type = ApplicationAssetType.SmallImage } : null;
             this.CurrentPartySize = rawGame?.Party?.Size?.Current;
             this.MaximumPartySize = rawGame?.Party?.Size?.Maximum;
             if (rawGame?.Party != null && ulong.TryParse(rawGame.Party.Id, NumberStyles.Number, CultureInfo.InvariantCulture, out var partyId))
@@ -249,6 +249,24 @@ namespace DSharpPlus.Entities
             this.JoinSecret = rawGame?.Secrets?.Join;
             this.MatchSecret = rawGame?.Secrets?.Match;
             this.SpectateSecret = rawGame?.Secrets?.Spectate;
+
+            var lid = rawGame?.Assets?.LargeImage;
+            if (lid != null)
+            {
+                if (lid.StartsWith("spotify:"))
+                    this.LargeImage = new DiscordSpotifyAsset { Id = lid };
+                else if (ulong.TryParse(lid, NumberStyles.Number, CultureInfo.InvariantCulture, out var ulid))
+                    this.LargeImage = new DiscordApplicationAsset { Id = lid, Application = this.Application, Type = ApplicationAssetType.LargeImage };
+            }
+
+            var sid = rawGame?.Assets?.SmallImage;
+            if (sid != null)
+            {
+                if (sid.StartsWith("spotify:"))
+                    this.SmallImage = new DiscordSpotifyAsset { Id = sid };
+                else if (ulong.TryParse(sid, NumberStyles.Number, CultureInfo.InvariantCulture, out var usid))
+                    this.SmallImage = new DiscordApplicationAsset { Id = sid, Application = this.Application, Type = ApplicationAssetType.LargeImage };
+            }
         }
     }
 

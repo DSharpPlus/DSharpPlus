@@ -1052,14 +1052,12 @@ namespace DSharpPlus
         {
             if (presences != null)
             {
-                presences = presences.Select(xp =>
+                foreach (var xp in presences)
                 {
                     xp.Discord = this;
                     xp.Activity = new DiscordActivity(xp.RawActivity);
-                    return xp;
-                });
-                foreach (var xp in presences)
                     this._presences[xp.InternalUser.Id] = xp;
+                }
             }
 
             var exists = this._guilds.ContainsKey(guild.Id);
@@ -1250,6 +1248,7 @@ namespace DSharpPlus
                 presence.InternalUser.AvatarHash = usr.AvatarHash;
             }
 
+            var usrafter = usr ?? new DiscordUser(presence.InternalUser);
             var ea = new PresenceUpdateEventArgs
             {
                 Client = this,
@@ -1258,8 +1257,8 @@ namespace DSharpPlus
                 User = usr,
                 PresenceBefore = old,
                 PresenceAfter = presence,
-                UserBefore = new DiscordUser(old.InternalUser),
-                UserAfter = usr ?? new DiscordUser(presence.InternalUser)
+                UserBefore = old != null ? new DiscordUser(old.InternalUser) : usrafter,
+                UserAfter = usrafter
             };
             await this._presenceUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }

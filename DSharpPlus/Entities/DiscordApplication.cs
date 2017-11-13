@@ -218,11 +218,29 @@ namespace DSharpPlus.Entities
             => !(e1 == e2);
     }
 
+    public abstract class DiscordAsset
+    {
+        /// <summary>
+        /// Gets the ID of this asset.
+        /// </summary>
+        public virtual string Id { get; set; }
+
+        /// <summary>
+        /// Gets the URL of this asset.
+        /// </summary>
+        public abstract Uri Url { get; }
+    }
+
     /// <summary>
     /// Represents an asset for an OAuth2 application.
     /// </summary>
-    public sealed class DiscordApplicationAsset : SnowflakeObject, IEquatable<DiscordApplicationAsset>
+    public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordApplicationAsset>
     {
+        /// <summary>
+        /// Gets the Discord client instance for this asset.
+        /// </summary>
+        internal BaseDiscordClient Discord { get; set; }
+
         /// <summary>
         /// Gets the asset's name.
         /// </summary>
@@ -243,7 +261,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Url of this asset.
         /// </summary>
-        public Uri Url 
+        public override Uri Url 
             => new Uri($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
 
         internal DiscordApplicationAsset() { }
@@ -316,6 +334,27 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two application assets are not equal.</returns>
         public static bool operator !=(DiscordApplicationAsset e1, DiscordApplicationAsset e2) 
             => !(e1 == e2);
+    }
+
+    public sealed class DiscordSpotifyAsset : DiscordAsset
+    {
+        /// <summary>
+        /// Gets the URL of this asset.
+        /// </summary>
+        public override Uri Url
+            => this._url.Value;
+
+        private Lazy<Uri> _url;
+
+        public DiscordSpotifyAsset()
+        {
+            this._url = new Lazy<Uri>(() =>
+            {
+                var ids = this.Id.Split(':');
+                var id = ids[1];
+                return new Uri($"https://i.scdn.co/image/{id}");
+            });
+        }
     }
 
     /// <summary>
