@@ -22,7 +22,7 @@ namespace DSharpPlus.CommandsNext
         private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroupAsync";
 
         private CommandsNextConfiguration Config { get; }
-        private Type HelpFormatterType { get; set; } = typeof(DefaultHelpFormatter);
+        private HelpFormatterFactory HelpFormatter { get; }
 
         /// <summary>
         /// Gets the service provider this CommandsNext module was configured with.
@@ -35,15 +35,17 @@ namespace DSharpPlus.CommandsNext
             this.Config = cfg;
             this.TopLevelCommands = new Dictionary<string, Command>();
             this._registered_commands_lazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
+            this.HelpFormatter = new HelpFormatterFactory();
+            this.HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
         }
 
         /// <summary>
         /// Sets the help formatter to use with the default help command.
         /// </summary>
         /// <typeparam name="T">Type of the formatter to use.</typeparam>
-        public void SetHelpFormatter<T>() where T : class, IHelpFormatter, new()
+        public void SetHelpFormatter<T>() where T : class, IHelpFormatter
         {
-            this.HelpFormatterType = typeof(T);
+            this.HelpFormatter.SetFormatterType<T>();
         }
 
         #region Helpers
@@ -572,7 +574,7 @@ namespace DSharpPlus.CommandsNext
         public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
             var toplevel = this.TopLevelCommands.Values.Distinct();
-            var helpbuilder = Activator.CreateInstance(this.HelpFormatterType) as IHelpFormatter;
+            var helpbuilder = this.HelpFormatter.Create(ctx.Services);
             
             if (command != null && command.Any())
             {

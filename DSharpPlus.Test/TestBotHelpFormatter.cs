@@ -9,8 +9,15 @@ namespace DSharpPlus.Test
 {
     public sealed class TestBotHelpFormatter : IHelpFormatter
     {
+        private TestBotService Service { get; }
+
         private string _name = null, _desc = null, _args = null, _aliases = null, _subcs = null;
         private bool _gexec = false;
+
+        public TestBotHelpFormatter(TestBotService dep)
+        {
+            this.Service = dep;
+        }
 
         public IHelpFormatter WithCommandName(string name)
         {
