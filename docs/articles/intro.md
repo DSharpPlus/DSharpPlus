@@ -24,5 +24,5 @@ You can contact us via Discord<sup>(duh!)</sup> using one of these servers:
 **#dotnet_dsharpplus** on **Discord API**:    
 [![Discord API / #dotnet_dsharpplus](https://discordapp.com/api/guilds/81384788765712384/embed.png?style=banner1)](https://discord.gg/discord-api)
 
-Naamloos' Guild:  
-[![Naamloos' Guild](https://discordapp.com/api/guilds/146044397861994496/embed.png?style=banner1)](https://discord.gg/0oZpaYcAjfvkDuE4)
+DSharpPlus Guild:  
+[![DSharpPlus Guild](https://discordapp.com/api/guilds/379378609942560770/embed.png?style=banner1)](https://discord.gg/KeAS3pU)
