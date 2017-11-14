@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -10,13 +9,9 @@ using Microsoft.CodeAnalysis.Scripting;
 
 namespace DSharpPlus.Test
 {
-    [Group("eval", CanInvokeWithoutSubcommand = true), Aliases("exec", "os", "env"), Hidden, Description("Provides evaluation and OS commands."), RequireOwner]
     public class TestBotEvalCommands
     {
-        public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string code) 
-            => this.EvalCS(ctx, code);
-
-        [Command("csharp"), Aliases("eval", "evalcs", "cseval", "roslyn"), Description("Evaluates C# code."), RequireOwner]
+        [Command("eval"), Aliases("evalcs", "cseval", "roslyn"), Description("Evaluates C# code."), Hidden, RequireOwner]
         public async Task EvalCS(CommandContext ctx, [RemainingText] string code)
         {
             var msg = ctx.Message;
@@ -55,49 +50,6 @@ namespace DSharpPlus.Test
             catch (Exception ex)
             {
                 await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
-            }
-        }
-
-        [Command("csharpold"), Description("Evaluates C# code."), RequireOwner]
-        public Task EvalCSOld(CommandContext ctx, params string[] code_input)
-        {
-            var code = string.Join(" ", code_input);
-            return this.EvalCS(ctx, code);
-        }
-
-        [Command("exec"), Aliases("shell", "cmd", "system"), Description("Executes a shell command."), RequireOwner]
-        public async Task Exec(CommandContext ctx, string process, params string[] args)
-        {
-            try
-            {
-                var psi = new ProcessStartInfo(process, string.Join(" ", args))
-                {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                };
-
-                var proc = Process.Start(psi);
-                proc.WaitForExit();
-
-                var o1 = await proc.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                var o2 = await proc.StandardError.ReadToEndAsync().ConfigureAwait(false);
-
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = "Execution finished",
-                };
-
-                if (!string.IsNullOrWhiteSpace(o1))
-                    embed.AddField("Output", $"```\n{o1}\n```", false);
-
-                if (!string.IsNullOrWhiteSpace(o2))
-                    embed.AddField("Error", $"```\n{o2}\n```", false);
-
-                await ctx.RespondAsync("", embed: embed.Build()).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                await ctx.RespondAsync("", embed: new DiscordEmbedBuilder { Title = "Execution failed", Description = $"`{ex.GetType()}: {ex.Message}`", Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
             }
         }
     }

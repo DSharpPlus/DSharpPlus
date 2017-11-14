@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -27,25 +26,17 @@ namespace DSharpPlus.Test
             }
         }
 
-        [Command("sudo"), Description("Run a command as another user."), RequireOwner]
+        [Command("sudo"), Description("Run a command as another user."), Hidden, RequireOwner]
         public async Task Sudo(CommandContext ctx, DiscordUser user, [RemainingText] string content)
         {
             await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content).ConfigureAwait(false);
         }
-
-        [Command("timebind"), Description("...time, mr. Freeman? Is it really that... time... again?")]
-        public Task Time(CommandContext ctx, TimeSpan ts)
-            => ctx.RespondAsync(ts.ToString());
-
-        [Command("whatprefix"), Description("Displays the prefix used to invoke this command.")]
-        public Task WhatPrefix(CommandContext ctx)
-            => ctx.RespondAsync(Formatter.InlineCode($@"""{ctx.Prefix}"""));
-
+        
         // this is a mention of _moonPtr#8058 (276460831187664897)
         // I don't hate you, in fact I appreciate you breaking this stuff
         // but revenge is revenge
         // nothing personnel kid 😎
-        [Group("<@!276460831187664897>"), Aliases("<@276460831187664897>"), Description("That's what you get for breaking my lib.")]
+        [Group("<@!276460831187664897>"), Aliases("<@276460831187664897>"), Description("That's what you get for breaking my christian lib.")]
         public class Moon
         {
             [Command("test1")]
@@ -55,47 +46,6 @@ namespace DSharpPlus.Test
             [Command("test2")]
             public Task StopBreakingMyStuff(CommandContext ctx)
                 => ctx.RespondAsync("wewlad 1");
-        }
-
-        // I am GLaDOS
-        //[Command("test")]
-        //public Task TestAsync(CommandContext ctx)
-        //    => ctx.RespondAsync("It's been a loooooong time...");
-
-        [Group("di"), Description("Tests for dependency injection.")]
-        public class MSDI
-        {
-            [DontInject]
-            public TestBotService Service { get; set; }
-
-            public MSDI(TestBotService tsrv)
-            {
-                this.Service = tsrv;
-            }
-
-            [Command("increment"), Aliases("inc", "++"), Description("Increments service value.")]
-            public Task IncrementAsync(CommandContext ctx)
-            {
-                this.Service.InrementUseCount();
-                return ctx.RespondAsync(":ok_hand:");
-            }
-
-            [Command("read"), Aliases("?"), Description("Reads the current counter value.")]
-            public Task GetCounterAsync(CommandContext ctx)
-                => ctx.RespondAsync($":1234: {this.Service.CommandCounter}");
-        }
-
-        [Group("empty")]
-        public class EmptyGroup
-        {
-
-        }
-
-        [Group("executable", CanInvokeWithoutSubcommand = true)]
-        public class ExecutableGroup
-        {
-            public Task ExecuteGroupAsync(CommandContext ctx)
-                => ctx.RespondAsync("Yes, hi");
         }
     }
 
