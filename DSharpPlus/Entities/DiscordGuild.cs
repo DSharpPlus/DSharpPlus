@@ -1476,14 +1476,15 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets the default channel for this member.
+        /// Gets the default channel for this guild.
+        /// This returns the first channel the current member can send a message in.
         /// </summary>
-        /// <returns>This member's default channel.</returns>
+        /// <returns>This guild's default channel.</returns>
         public DiscordChannel GetDefaultChannel()
         {
             return this._channels.Where(xc => xc.Type == ChannelType.Text)
                 .OrderBy(xc => xc.Position)
-                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels);
+                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.SendMessages) == Permissions.SendMessages);
         }
         #endregion
 
