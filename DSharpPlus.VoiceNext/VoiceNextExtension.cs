@@ -147,6 +147,9 @@ namespace DSharpPlus.VoiceNext
             if (gld == null)
                 return Task.Delay(0);
 
+            if (e.User == null)
+                return Task.Delay(0);
+
             if (e.User.Id == this.Client.CurrentUser.Id && this.ActiveConnections.TryGetValue(e.Guild.Id, out var vnc))
             {
                 vnc.Channel = e.Channel;
