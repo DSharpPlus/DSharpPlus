@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -191,7 +192,7 @@ namespace DSharpPlus.CommandsNext
                 throw ex.InnerException;
             }
         }
-        
+
         /// <summary>
         /// Registers an argument converter for specified type.
         /// </summary>
@@ -248,9 +249,10 @@ namespace DSharpPlus.CommandsNext
             return t.Name;
         }
 
-        internal static string ExtractNextArgument(string str, out string remainder)
+        //internal static string ExtractNextArgument(string str, out string remainder)
+        internal static string ExtractNextArgument(string str, ref int startPos)
         {
-            remainder = null;
+            //remainder = null;
             if (string.IsNullOrWhiteSpace(str))
                 return null;
 
@@ -258,17 +260,17 @@ namespace DSharpPlus.CommandsNext
             var in_triple_backtick = false;
             var in_quote = false;
             var in_escape = false;
+            var remove = new List<int>(str.Length - startPos);
 
-            var i = 0;
+            var i = startPos;
             for (; i < str.Length; i++)
                 if (!char.IsWhiteSpace(str[i]))
                     break;
-            if (i > 0)
-                str = str.Substring(i);
-            var x = i;
-            
+            startPos = i;
+
             var ep = -1;
-            for (i = 0; i < str.Length; i++)
+            var sp = startPos;
+            for (i = sp; i < str.Length; i++)
             {
                 if (char.IsWhiteSpace(str[i]) && !in_quote && !in_triple_backtick && !in_backtick && !in_escape)
                     ep = i;
@@ -279,40 +281,44 @@ namespace DSharpPlus.CommandsNext
                     {
                         in_escape = true;
                         if (str.IndexOf("\\`", i) == i || str.IndexOf("\\\"", i) == i || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
-                            str = str.Remove(i, 1);
-                        else
-                            i++;
+                            //str = str.Remove(i, 1);
+                            remove.Add(i - sp);
+                        i++;
                     }
                     else if ((in_backtick || in_triple_backtick) && str.IndexOf("\\`", i) == i)
                     {
                         in_escape = true;
-                        str = str.Remove(i, 1);
+                        //str = str.Remove(i, 1);
+                        remove.Add(i - sp);
+                        i++;
                     }
                 }
 
                 if (str[i] == '`' && !in_escape)
                 {
-                    if (in_triple_backtick && str.IndexOf("```", i) == i)
+                    var tritick = str.IndexOf("```", i) == i;
+                    if (in_triple_backtick && tritick)
                     {
                         in_triple_backtick = false;
                         i += 2;
                     }
-                    else if (!in_backtick && str.IndexOf("```", i) == i)
+                    else if (!in_backtick && tritick)
                     {
                         in_triple_backtick = true;
                         i += 2;
                     }
 
-                    if (in_backtick && str.IndexOf("```", i) != i)
+                    if (in_backtick && !tritick)
                         in_backtick = false;
-                    else if (!in_triple_backtick && str.IndexOf("```", i) == i)
+                    else if (!in_triple_backtick && tritick)
                         in_backtick = true;
                 }
 
                 if (str[i] == '"' && !in_escape && !in_backtick && !in_triple_backtick)
                 {
-                    str = str.Remove(i, 1);
-                    i--;
+                    //str = str.Remove(i, 1);
+                    //i--;
+                    remove.Add(i - sp);
 
                     if (!in_quote)
                         in_quote = true;
@@ -325,98 +331,123 @@ namespace DSharpPlus.CommandsNext
 
                 if (ep != -1)
                 {
-                    remainder = str.Substring(ep);
-                    return str.Substring(0, ep);
+                    startPos = ep;
+                    return str.Substring(sp, ep - sp).CleanupString(remove);
                 }
             }
-            
-            remainder = null;
-            return str;
+
+            startPos = str.Length;
+            if (startPos != sp)
+                return str.Substring(sp).CleanupString(remove);
+            return null;
         }
 
-        internal static object[] BindArguments(CommandContext ctx, bool ignoreSurplus)
+        internal static string CleanupString(this string s, IList<int> indices)
+        {
+            if (!indices.Any())
+                return s;
+
+            var li = indices.Last();
+            var ll = 1;
+            for (var x = indices.Count - 2; x >= 0; x--)
+            {
+                if (li - indices[x] == ll)
+                {
+                    ll++;
+                    continue;
+                }
+
+                s = s.Remove(li - ll + 1, ll);
+                li = indices[x];
+                ll = 1;
+            }
+
+            return s.Remove(li - ll + 1, ll);
+        }
+
+        internal static object[] BindArguments(CommandContext ctx, bool ignoreSurplus, out IReadOnlyList<string> rawArguments)
         {
             var cmd = ctx.Command;
 
             var args = new object[cmd.Arguments.Count + 1];
             args[0] = ctx;
+            var argr = new List<string>(cmd.Arguments.Count);
 
             var argstr = ctx.RawArgumentString;
-            var argrmd = "";
+            var findpos = 0;
             var argv = "";
             for (var i = 0; i < ctx.Command.Arguments.Count; i++)
             {
                 var arg = ctx.Command.Arguments[i];
                 if (arg.IsCatchAll)
                 {
-                    if (arg._is_array)
+                    if (arg._isArray)
                     {
-                        var lst = new List<object>();
                         while (true)
                         {
-                            argv = ExtractNextArgument(argstr, out argrmd);
+                            argv = ExtractNextArgument(argstr, ref findpos);
                             if (argv == null)
                                 break;
-
-                            argstr = argrmd;
-                            lst.Add(ConvertArgument(argv, ctx, arg.Type));
+                            
+                            argr.Add(argv);
                         }
-                        
-                        var arr = Array.CreateInstance(arg.Type, lst.Count);
-                        (lst as System.Collections.IList).CopyTo(arr, 0);
-                        args[i + 1] = arr;
 
-                        argstr = string.Empty;
                         break;
                     }
                     else
                     {
                         if (argstr == null)
-                        {
-                            args[i + 1] = arg.DefaultValue;
                             break;
-                        }
 
-                        var j = 0;
-                        for (; j < argstr.Length; j++)
-                            if (!char.IsWhiteSpace(argstr[j]))
-                                break;
-                        if (j > 0)
-                            argstr = argstr.Substring(j);
-                        
-                        argv = argstr;
-                        args[i + 1] = ConvertArgument(argv, ctx, arg.Type);
+                        argv = argstr.Substring(findpos).Trim();
+                        findpos = argstr.Length;
 
-                        argstr = string.Empty;
+                        argr.Add(argv);
                         break;
                     }
                 }
                 else
                 {
-                    argv = ExtractNextArgument(argstr, out argrmd);
+                    argv = ExtractNextArgument(argstr, ref findpos);
+                    argr.Add(argv);
                 }
 
                 if (argv == null && !arg.IsOptional && !arg.IsCatchAll)
                     throw new ArgumentException("Not enough arguments supplied to the command.");
                 else if (argv == null)
+                    argr.Add(null);
+            }
+
+            if (!ignoreSurplus && findpos < argstr.Length)
+                throw new ArgumentException("Too many arguments were supplied to this command.");
+
+            for (var i = 0; i < ctx.Command.Arguments.Count; i++)
+            {
+                var arg = ctx.Command.Arguments[i];
+                if (arg.IsCatchAll && arg._isArray)
                 {
-                    //break;
-                    args[i + 1] = arg.DefaultValue;
+                    var arr = Array.CreateInstance(arg.Type, argr.Count - i);
+                    var start = i;
+                    while (i < argr.Count)
+                    {
+                        arr.SetValue(ConvertArgument(argr[i], ctx, arg.Type), i - start);
+                        i++;
+                    }
+
+                    args[start + 1] = arr;
+                    break;
                 }
                 else
                 {
-                    args[i + 1] = ConvertArgument(argv, ctx, arg.Type);
+                    args[i + 1] = argr[i] != null ? ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
                 }
-                argstr = argrmd;
             }
 
-            if (!ignoreSurplus && !string.IsNullOrWhiteSpace(argstr))
-                throw new ArgumentException("Too many arguments were supplied to this command.");
-
+            rawArguments = new ReadOnlyCollection<string>(argr);
             return args;
         }
 
-        internal static bool IsModuleCandidateType(this Type type) 
+        internal static bool IsModuleCandidateType(this Type type)
             => type.GetTypeInfo().IsModuleCandidateType();
 
         internal static bool IsModuleCandidateType(this TypeInfo ti)

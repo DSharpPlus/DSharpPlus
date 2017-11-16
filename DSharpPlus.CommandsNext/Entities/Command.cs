@@ -68,7 +68,8 @@ namespace DSharpPlus.CommandsNext
         {
             try
             {
-                var args = CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments);
+                var args = CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments, out var raw);
+                ctx.RawArguments = raw;
                 var ret = (Task)this.Callable.DynamicInvoke(args);
                 await ret.ConfigureAwait(false);
             }

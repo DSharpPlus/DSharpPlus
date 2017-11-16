@@ -18,7 +18,7 @@ namespace DSharpPlus.Test
     internal sealed class TestBot
     {
         private TestBotConfig Config { get; }
-        public DiscordClient Discord;
+        public DiscordClient Discord { get; }
         private TestBotCommands Commands { get; }
         private VoiceNextExtension VoiceService { get; }
         private CommandsNextExtension CommandsNextService { get; }
@@ -42,7 +42,7 @@ namespace DSharpPlus.Test
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
                 //GatewayCompressionLevel = GatewayCompressionLevel.Stream,
-                MessageCacheSize = 50,
+                MessageCacheSize = 2048,
                 AutomaticGuildSync = !this.Config.UseUserToken,
                 DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
@@ -52,7 +52,6 @@ namespace DSharpPlus.Test
             Discord.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
-            Discord.MessageCreated += this.Discord_MessageCreated;
             Discord.ClientErrored += this.Discord_ClientErrored;
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
@@ -82,7 +81,7 @@ namespace DSharpPlus.Test
                 },
                 EnableDms = true,
                 EnableMentionPrefix = true,
-                CaseSensitive = true,
+                CaseSensitive = false,
                 Services = depco.BuildServiceProvider(),
                 Selfbot = this.Config.UseUserToken,
                 IgnoreExtraArguments = false
@@ -91,11 +90,6 @@ namespace DSharpPlus.Test
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
             this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
-            //this.CommandsNextService.RegisterCommands<TestBotCommands>();
-            //this.CommandsNextService.RegisterCommands<TestBotNextCommands>();
-            //this.CommandsNextService.RegisterCommands<TestBotEvalCommands>();
-            //this.CommandsNextService.RegisterCommands<TestBotDependentCommands>();
-            //this.CommandsNextService.RegisterCommands<TestBotGroupInheritedChecksCommands>();
             this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
             this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
 
@@ -179,12 +173,6 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
-        private async Task Discord_MessageCreated(MessageCreateEventArgs e)
-        {
-            if (e.Message.Content.Contains($"<@!{e.Client.CurrentUser.Id}>") || e.Message.Content.Contains($"<@{e.Client.CurrentUser.Id}>"))
-                await e.Message.RespondAsync("r u havin' a ggl thr m8").ConfigureAwait(false);
-        }
-
         private Task Discord_ClientErrored(ClientErrorEventArgs e)
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now);
@@ -222,14 +210,15 @@ namespace DSharpPlus.Test
                 if (ex is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                     return;
 
-                var ms = ex.Message;
-                var st = ex.StackTrace;
-
-                MemoryStream stream = new MemoryStream();
-                StreamWriter writer = new StreamWriter(stream);
-                writer.Write($"{e.Exception.GetType()} occured when executing {e.Command.QualifiedName}.\n\n{ms}\n{st}");
-                writer.Flush();
-                stream.Position = 0;
+                //var ms = ex.Message;
+                //var st = ex.StackTrace;
+                //
+                // naam pls, using this shit
+                //MemoryStream stream = new MemoryStream();
+                //StreamWriter writer = new StreamWriter(stream);
+                //writer.Write($"{e.Exception.GetType()} occured when executing {e.Command.QualifiedName}.\n\n{ms}\n{st}");
+                //writer.Flush();
+                //stream.Position = 0;
 
                 var embed = new DiscordEmbedBuilder
                 {
@@ -239,8 +228,10 @@ namespace DSharpPlus.Test
                     Timestamp = DateTime.UtcNow
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
-                    .AddField("Message", "File with full details has been attached.", false);
-                await e.Context.Channel.SendFileAsync(stream, "error.txt", "\u200b", embed: embed.Build()).ConfigureAwait(false);
+                    .AddField("Message", ex.Message);
+                //    .AddField("Message", "File with full details has been attached.", false);
+                //await e.Context.Channel.SendFileAsync(stream, "error.txt", "\u200b", embed: embed.Build()).ConfigureAwait(false);
+                await e.Context.RespondAsync(embed: embed.Build());
             }
         }
 
@@ -254,7 +245,7 @@ namespace DSharpPlus.Test
         {
             try
             {
-                this.Discord.UpdateStatusAsync(new DiscordActivity("gitting better at API")).ConfigureAwait(false).GetAwaiter().GetResult();
+                this.Discord.UpdateStatusAsync(new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo)).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             catch (Exception) { }
         }

@@ -11,7 +11,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordUserConverter()
         {
+#if NETSTANDARD1_1
             UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript);
+#else
+            UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordUser result)
@@ -29,14 +33,17 @@ namespace DSharpPlus.CommandsNext.Converters
                 return true;
             }
 
-            value = value.ToLowerInvariant();
+            var cs = ctx.Config.CaseSensitive;
+            if (!cs)
+                value = value.ToLowerInvariant();
+
             var di = value.IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
             var us = ctx.Client.Guilds
                 .SelectMany(xkvp => xkvp.Value.Members)
-                .Where(xm => xm.Username.ToLowerInvariant() == un && ((dv != null && xm.Discriminator == dv) || dv == null));
+                .Where(xm => (cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null));
             
             result = us.FirstOrDefault();
             return result != null;
@@ -49,7 +56,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordMemberConverter()
         {
+#if NETSTANDARD1_1
             UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript);
+#else
+            UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordMember result)
@@ -67,13 +78,17 @@ namespace DSharpPlus.CommandsNext.Converters
                 return true;
             }
 
-            value = value.ToLowerInvariant();
+            var cs = ctx.Config.CaseSensitive;
+            if (!cs)
+                value = value.ToLowerInvariant();
+
             var di = value.IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
             var us = ctx.Guild.Members
-                .Where(xm => (xm.Username.ToLowerInvariant() == un && ((dv != null && xm.Discriminator == dv) || dv == null)) || xm.Nickname?.ToLowerInvariant() == value);
+                .Where(xm => ((cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null)) 
+                          || (cs ? xm.Nickname : xm.Nickname?.ToLowerInvariant()) == value);
 
             result = us.FirstOrDefault();
             return result != null;
@@ -86,7 +101,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordChannelConverter()
         {
+#if NETSTANDARD1_1
             ChannelRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript);
+#else
+            ChannelRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordChannel result)
@@ -104,8 +123,11 @@ namespace DSharpPlus.CommandsNext.Converters
                 return true;
             }
 
-            var chn = ctx.Guild.Channels.FirstOrDefault(xc => xc.Name == value);
-            result = chn;
+            var cs = ctx.Config.CaseSensitive;
+            if (!cs)
+                value = value.ToLowerInvariant();
+
+            result = ctx.Guild.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
             return result != null;
         }
     }
@@ -116,7 +138,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordRoleConverter()
         {
+#if NETSTANDARD1_1
             RoleRegex = new Regex(@"^<@&(\d+?)>$", RegexOptions.ECMAScript);
+#else
+            RoleRegex = new Regex(@"^<@&(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordRole result)
@@ -134,8 +160,11 @@ namespace DSharpPlus.CommandsNext.Converters
                 return true;
             }
 
-            var rl = ctx.Guild.Roles.FirstOrDefault(xr => xr.Name == value);
-            result = rl;
+            var cs = ctx.Config.CaseSensitive;
+            if (!cs)
+                value = value.ToLowerInvariant();
+
+            result = ctx.Guild.Roles.FirstOrDefault(xr => (cs ? xr.Name : xr.Name.ToLowerInvariant()) == value);
             return result != null;
         }
     }
@@ -149,14 +178,12 @@ namespace DSharpPlus.CommandsNext.Converters
                 return ctx.Client.Guilds.TryGetValue(gid, out result);
             }
 
-            if (ctx.Client.Guilds.Any(xg => xg.Value.Name == value))
-            {
-                result = ctx.Client.Guilds.First(xg => xg.Value.Name == value).Value;
-                return true;
-            }
+            var cs = ctx.Config.CaseSensitive;
+            if (!cs)
+                value = value?.ToLowerInvariant();
 
-            result = null;
-            return false;
+            result = ctx.Client.Guilds.Values.FirstOrDefault(xg => (cs ? xg.Name : xg.Name.ToLowerInvariant()) == value);
+            return result != null;
         }
     }
 
@@ -181,7 +208,11 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordEmojiConverter()
         {
+#if NETSTANDARD1_1
             EmoteRegex = new Regex(@"^<:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript);
+#else
+            EmoteRegex = new Regex(@"^<:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordEmoji result)
@@ -212,8 +243,13 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordColorConverter()
         {
-            ColorRegexHex = new Regex(@"^#?([a-fA-F0-9]{6})$");
-            ColorRegexRgb = new Regex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$");
+#if NETSTANDARD1_1
+            ColorRegexHex = new Regex(@"^#?([a-fA-F0-9]{6})$", RegexOptions.ECMAScript);
+            ColorRegexRgb = new Regex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$", RegexOptions.ECMAScript);
+#else
+            ColorRegexHex = new Regex(@"^#?([a-fA-F0-9]{6})$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+            ColorRegexRgb = new Regex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
         }
 
         public bool TryConvert(string value, CommandContext ctx, out DiscordColor result)

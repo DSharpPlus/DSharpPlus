@@ -172,7 +172,8 @@ namespace DSharpPlus.CommandsNext
 
             var pfx = e.Message.Content.Substring(0, mpos);
             var cnt = e.Message.Content.Substring(mpos);
-            var cms = CommandsNextUtilities.ExtractNextArgument(cnt, out var rrg);
+            int sp = 0;
+            var cms = CommandsNextUtilities.ExtractNextArgument(cnt, ref sp);
 
             var cmd = this.TopLevelCommands.ContainsKey(cms) ? this.TopLevelCommands[cms] : null;
             if (cmd == null && !this.Config.CaseSensitive)
@@ -185,7 +186,7 @@ namespace DSharpPlus.CommandsNext
                 Message = e.Message,
                 //RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
                 Config = this.Config,
-                RawArgumentString = rrg,
+                RawArgumentString = cnt.Substring(sp),
                 Prefix = pfx,
                 CommandsNext = this
             };
@@ -470,7 +471,7 @@ namespace DSharpPlus.CommandsNext
                         case ParamArrayAttribute p:
                             ca.IsCatchAll = true;
                             ca.Type = xp.ParameterType.GetElementType();
-                            ca._is_array = true;
+                            ca._isArray = true;
                             break;
                     }
                 }

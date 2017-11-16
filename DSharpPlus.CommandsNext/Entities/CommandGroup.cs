@@ -30,18 +30,8 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Command's execution results.</returns>
         public override async Task<CommandResult> ExecuteAsync(CommandContext ctx)
         {
-            //var cn = ctx.RawArguments.FirstOrDefault();
-            var cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, out var x);
-
-            if (x != null)
-            {
-                var xi = 0;
-                for (; xi < x.Length; xi++)
-                    if (!char.IsWhiteSpace(x[xi]))
-                        break;
-                if (xi > 0)
-                    x = x.Substring(xi);
-            }
+            var findpos = 0;
+            var cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, ref findpos);
 
             if (cn != null)
             {
@@ -60,7 +50,7 @@ namespace DSharpPlus.CommandsNext
                         Message = ctx.Message,
                         Command = cmd,
                         Config = ctx.Config,
-                        RawArgumentString = x,
+                        RawArgumentString = ctx.RawArgumentString.Substring(findpos),
                         Prefix = ctx.Prefix,
                         CommandsNext = ctx.CommandsNext
                     };

@@ -49,9 +49,9 @@ namespace DSharpPlus.CommandsNext
 
         /// <summary>
         /// <para>Sets whether the commands should be case-sensitive.</para>
-        /// <para>Defaults to true.</para>
+        /// <para>Defaults to false.</para>
         /// </summary>
-        public bool CaseSensitive { internal get; set; } = true;
+        public bool CaseSensitive { internal get; set; } = false;
 
         /// <summary>
         /// <para>Sets whether to enable default help command.</para>
