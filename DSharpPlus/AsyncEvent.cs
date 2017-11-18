@@ -19,7 +19,18 @@ namespace DSharpPlus
     /// </summary>
     /// <typeparam name="T">Type of EventArgs for the event.</typeparam>
     /// <returns>Event handling task.</returns>
-    public delegate Task AsyncEventHandler<T>(T e) where T : System.EventArgs;
+    public delegate Task AsyncEventHandler<T>(T e) where T : AsyncEventArgs;
+
+    /// <summary>
+    /// Represents asynchronous event arguments.
+    /// </summary>
+    public abstract class AsyncEventArgs : System.EventArgs
+    {
+        /// <summary>
+        /// Gets or sets whether the event was completely handled. Setting this to true will prevent remaining handlers from running.
+        /// </summary>
+        public bool Handled { get; set; }
+    }
 
     /// <summary>
     /// Represents an asynchronously-handled event.
@@ -87,7 +98,7 @@ namespace DSharpPlus
     /// Represents an asynchronously-handled event.
     /// </summary>
     /// <typeparam name="T">Type of EventArgs for this event.</typeparam>
-    public sealed class AsyncEvent<T> where T : System.EventArgs
+    public sealed class AsyncEvent<T> where T : AsyncEventArgs
     {
         private readonly object _lock = new object();
         private List<AsyncEventHandler<T>> Handlers { get; }
@@ -134,6 +145,9 @@ namespace DSharpPlus
                 try
                 {
                     await handlers[i](e).ConfigureAwait(false);
+
+                    if (e.Handled)
+                        break;
                 }
                 catch (Exception ex)
                 {

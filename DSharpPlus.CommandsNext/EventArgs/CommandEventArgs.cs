@@ -3,7 +3,7 @@
     /// <summary>
     /// Base class for all CNext-related events.
     /// </summary>
-    public class CommandEventArgs : System.EventArgs
+    public class CommandEventArgs : AsyncEventArgs
     {
         /// <summary>
         /// Gets the context in which the command was executed.

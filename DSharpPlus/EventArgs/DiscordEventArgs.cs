@@ -1,6 +1,6 @@
 ﻿namespace DSharpPlus.EventArgs
 {
-    public abstract class DiscordEventArgs : System.EventArgs
+    public abstract class DiscordEventArgs : AsyncEventArgs
     {
         /// <summary>
         /// Gets the client that triggered the event.

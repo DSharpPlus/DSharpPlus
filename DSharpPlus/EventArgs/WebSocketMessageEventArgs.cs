@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents arguments for raw socket message events.
     /// </summary>
-    public class SocketMessageEventArgs : System.EventArgs
+    public class SocketMessageEventArgs : AsyncEventArgs
     {
         /// <summary>
         /// Gets the received message.
