@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -138,17 +140,46 @@ namespace DSharpPlus
         /// Sets the WebSocket client implementation.
         /// </summary>
         /// <typeparam name="T">Type of the WebSocket client to use.</typeparam>
-        public void SetWebSocketClient<T>() where T : BaseWebSocketClient, new()
+        /// <exception cref="InvalidOperationException">If attempting to set a client implementation when the client is already running.</exception>
+        /// <exception cref="MissingMemberException">If the specified implementation lacks a suitable constructor.</exception>
+        public void SetWebSocketClient<T>() where T : BaseWebSocketClient
         {
-            BaseWebSocketClient.ClientType = typeof(T);
+            if (this._webSocketClient != null)
+                throw new InvalidOperationException("Cannot set a WebSocket client implementation on a running client instance.");
+
+            var t = typeof(T);
+            var tp = typeof(IWebProxy);
+            var ti = t.GetTypeInfo();
+            var vc = false;
+            foreach (var xci in ti.DeclaredConstructors)
+            {
+                if (!xci.IsPublic)
+                    continue;
+
+                var prms = xci.GetParameters();
+                if (prms.Length == 1 && prms[0].ParameterType != tp)
+                {
+                    vc = true;
+                    break;
+                }
+            }
+
+            if (!vc)
+                throw new MissingMemberException("Specified WebSocket client implementation lacks a suitable constructor.");
+
+            BaseWebSocketClient.ClientType = t;
         }
 
         /// <summary>
         /// Sets the UDP client implementation.
         /// </summary>
         /// <typeparam name="T">Type of the UDP client to use.</typeparam>
+        /// <exception cref="InvalidOperationException">If attempting to set a client implementation when the client is already running.</exception>
         public void SetUdpClient<T>() where T : BaseUdpClient, new()
         {
+            if (this._webSocketClient != null)
+                throw new InvalidOperationException("Cannot set a WebSocket client implementation on a running client instance.");
+
             BaseUdpClient.ClientType = typeof(T);
         }
 
