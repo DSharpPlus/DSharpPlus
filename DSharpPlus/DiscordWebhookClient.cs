@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -38,11 +39,19 @@ namespace DSharpPlus
         internal DiscordApiClient _apiclient;
 
         /// <summary>
-        /// Creates a new webhook client, with optional username and avatar url override.
+        /// Creates a new webhook client.
         /// </summary>
         public DiscordWebhookClient()
+            : this(null)
+        { }
+
+        /// <summary>
+        /// Creates a new webhook client, with specified HTTP proxy settings.
+        /// </summary>
+        /// <param name="proxy">Proxy to use for HTTP connections.</param>
+        public DiscordWebhookClient(IWebProxy proxy)
         {
-            this._apiclient = new DiscordApiClient();
+            this._apiclient = new DiscordApiClient(proxy);
             this._hooks = new List<DiscordWebhook>();
             this.Webhooks = new ReadOnlyCollection<DiscordWebhook>(this._hooks);
         }

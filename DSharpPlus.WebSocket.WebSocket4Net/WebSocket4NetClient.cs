@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using ws4net = WebSocket4Net;
 using s = System;
+using System.Net;
 
 namespace DSharpPlus.Net.WebSocket
 {
@@ -14,7 +15,8 @@ namespace DSharpPlus.Net.WebSocket
         internal static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         internal ws4net.WebSocket _socket;
 
-        public WebSocket4NetClient()
+        public WebSocket4NetClient(IWebProxy proxy)
+            : base(proxy)
         {
             this._connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
             this._disconnect = new AsyncEvent<SocketCloseEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
@@ -33,6 +35,8 @@ namespace DSharpPlus.Net.WebSocket
             this.StreamDecompressor = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
 
             _socket = new ws4net.WebSocket(uri.ToString());
+            if (this.Proxy != null) // fuck this, I ain't working with that shit
+                throw new NotImplementedException("Proxies are not supported on non-Microsoft WebSocket client implementations.");
 
             _socket.Opened += HandlerOpen;
             _socket.Closed += HandlerClose;

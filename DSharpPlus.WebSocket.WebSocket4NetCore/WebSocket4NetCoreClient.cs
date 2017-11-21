@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using ws4net = WebSocket4Net;
 using s = System;
+using System.Net;
 
 namespace DSharpPlus.Net.WebSocket
 {
@@ -14,35 +15,8 @@ namespace DSharpPlus.Net.WebSocket
         private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         private ws4net.WebSocket _socket;
 
-        public override event AsyncEventHandler OnConnect
-        {
-            add { _connect.Register(value); }
-            remove { _connect.Unregister(value); }
-        }
-        private readonly AsyncEvent _connect;
-
-        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
-        {
-            add { _disconnect.Register(value); }
-            remove { _disconnect.Unregister(value); }
-        }
-        private readonly AsyncEvent<SocketCloseEventArgs> _disconnect;
-
-        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
-        {
-            add { _message.Register(value); }
-            remove { _message.Unregister(value); }
-        }
-        private readonly AsyncEvent<SocketMessageEventArgs> _message;
-
-        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
-        {
-            add { _error.Register(value); }
-            remove { _error.Unregister(value); }
-        }
-        private readonly AsyncEvent<SocketErrorEventArgs> _error;
-
-        public WebSocket4NetCoreClient()
+        public WebSocket4NetCoreClient(IWebProxy proxy)
+            : base(proxy)
         {
             this._connect = new AsyncEvent(EventErrorHandler, "WS_CONNECT");
             this._disconnect = new AsyncEvent<SocketCloseEventArgs>(EventErrorHandler, "WS_DISCONNECT");
@@ -61,6 +35,8 @@ namespace DSharpPlus.Net.WebSocket
             this.StreamDecompressor = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
 
             this._socket = new ws4net.WebSocket(uri.ToString());
+            if (this.Proxy != null) // fuck this, I ain't working with that shit
+                throw new NotImplementedException("Proxies are not supported on non-Microsoft WebSocket client implementations.");
 
             this._socket.Opened += HandlerOpen;
             this._socket.Closed += HandlerClose;
@@ -147,5 +123,33 @@ namespace DSharpPlus.Net.WebSocket
             else
                 this._error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
+
+        public override event AsyncEventHandler OnConnect
+        {
+            add { _connect.Register(value); }
+            remove { _connect.Unregister(value); }
+        }
+        private readonly AsyncEvent _connect;
+
+        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
+        {
+            add { _disconnect.Register(value); }
+            remove { _disconnect.Unregister(value); }
+        }
+        private readonly AsyncEvent<SocketCloseEventArgs> _disconnect;
+
+        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
+        {
+            add { _message.Register(value); }
+            remove { _message.Unregister(value); }
+        }
+        private readonly AsyncEvent<SocketMessageEventArgs> _message;
+
+        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        {
+            add { _error.Register(value); }
+            remove { _error.Unregister(value); }
+        }
+        private readonly AsyncEvent<SocketErrorEventArgs> _error;
     }
 }

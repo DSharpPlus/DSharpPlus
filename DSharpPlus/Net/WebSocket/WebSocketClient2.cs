@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 
@@ -36,7 +37,8 @@ namespace DSharpPlus.Net.WebSocket
         private AsyncEvent<SocketErrorEventArgs> _on_error;
 #pragma warning restore 649
 
-        public WebSocketClient()
+        public WebSocketClient(IWebProxy proxy)
+            : base(proxy)
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }

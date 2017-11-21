@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 
@@ -14,24 +15,9 @@ namespace DSharpPlus.Net.WebSocket
         protected const ushort ZLIB_STREAM_SUFFIX = 0xFFFF;
 
         /// <summary>
-        /// Triggered when the client connects successfully.
+        /// Gets the proxy settings for this client.
         /// </summary>
-        public abstract event AsyncEventHandler OnConnect;
-
-        /// <summary>
-        /// Triggered when the client is disconnected.
-        /// </summary>
-        public abstract event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect;
-
-        /// <summary>
-        /// Triggered when the client receives a message from the remote party.
-        /// </summary>
-        public abstract event AsyncEventHandler<SocketMessageEventArgs> OnMessage;
-
-        /// <summary>
-        /// Triggered when an error occurs in the client.
-        /// </summary>
-        public abstract event AsyncEventHandler<SocketErrorEventArgs> OnError;
+        public IWebProxy Proxy { get; }
 
         /// <summary>
         /// Gets the stream decompressor for stream compression.
@@ -53,17 +39,20 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Creates a new WebSocket client.
         /// </summary>
-        public BaseWebSocketClient()
+        public BaseWebSocketClient(IWebProxy proxy)
         {
+            this.Proxy = proxy;
         }
 
         /// <summary>
-        /// Creates a new instance.
+        /// Creates a new WebSocket client instance.
         /// </summary>
+        /// <param name="proxy">Proxy settings to use for the new WebSocket client instance.</param>
         /// <returns></returns>
-        public static BaseWebSocketClient Create()
+        public static BaseWebSocketClient Create(IWebProxy proxy)
         {
-            return (BaseWebSocketClient)Activator.CreateInstance(ClientType);
+            var ws = Activator.CreateInstance(ClientType, new object[] { proxy }) as BaseWebSocketClient;
+            return ws;
         }
 
         /// <summary>
@@ -107,5 +96,25 @@ namespace DSharpPlus.Net.WebSocket
             this.CompressedStream?.Dispose();
             this.DecompressedStream?.Dispose();
         }
+
+        /// <summary>
+        /// Triggered when the client connects successfully.
+        /// </summary>
+        public abstract event AsyncEventHandler OnConnect;
+
+        /// <summary>
+        /// Triggered when the client is disconnected.
+        /// </summary>
+        public abstract event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect;
+
+        /// <summary>
+        /// Triggered when the client receives a message from the remote party.
+        /// </summary>
+        public abstract event AsyncEventHandler<SocketMessageEventArgs> OnMessage;
+
+        /// <summary>
+        /// Triggered when an error occurs in the client.
+        /// </summary>
+        public abstract event AsyncEventHandler<SocketErrorEventArgs> OnError;
     }
 }

@@ -319,7 +319,7 @@ namespace DSharpPlus
 
             Volatile.Write(ref this._skippedHeartbeats, 0);
 
-            _webSocketClient = BaseWebSocketClient.Create();
+            _webSocketClient = BaseWebSocketClient.Create(this.Configuration.Proxy);
 
             _cancelTokenSource = new CancellationTokenSource();
             _cancelToken = _cancelTokenSource.Token;

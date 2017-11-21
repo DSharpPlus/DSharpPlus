@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace DSharpPlus
 {
@@ -89,6 +90,12 @@ namespace DSharpPlus
         /// <para>Defaults to true.</para>
         /// </summary>
         public bool AutomaticGuildSync { internal get; set; } = true;
+
+        /// <summary>
+        /// <para>Sets the proxy to use for HTTP and WebSocket connections to Discord.</para>
+        /// <para>Defaults to null.</para>
+        /// </summary>
+        public IWebProxy Proxy { internal get; set; } = null;
 
         /// <summary>
         /// Creates a new configuration with default values.

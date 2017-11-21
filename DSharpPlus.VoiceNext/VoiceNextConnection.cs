@@ -188,7 +188,7 @@ namespace DSharpPlus.VoiceNext
             this.PlaybackSemaphore = new SemaphoreSlim(1, 1);
 
             this.UdpClient = BaseUdpClient.Create();
-            this.VoiceWs = BaseWebSocketClient.Create();
+            this.VoiceWs = BaseWebSocketClient.Create(this.Discord.Configuration.Proxy);
             this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
             this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
             this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
@@ -665,7 +665,7 @@ namespace DSharpPlus.VoiceNext
             {
                 this.TokenSource.Cancel();
                 this.TokenSource = new CancellationTokenSource();
-                this.VoiceWs = BaseWebSocketClient.Create();
+                this.VoiceWs = BaseWebSocketClient.Create(this.Discord.Configuration.Proxy);
                 this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
                 this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
                 this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;

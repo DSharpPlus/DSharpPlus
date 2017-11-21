@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -26,37 +27,8 @@ namespace DSharpPlus.Net.WebSocket
         private Task WsListener { get; set; }
         private Task SocketQueueManager { get; set; }
 
-        #region Events
-        public override event AsyncEventHandler OnConnect
-        {
-            add { this._on_connect.Register(value); }
-            remove { this._on_connect.Unregister(value); }
-        }
-        private AsyncEvent _on_connect;
-
-        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
-        {
-            add { this._on_disconnect.Register(value); }
-            remove { this._on_disconnect.Unregister(value); }
-        }
-        private AsyncEvent<SocketCloseEventArgs> _on_disconnect;
-
-        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
-        {
-            add { this._on_message.Register(value); }
-            remove { this._on_message.Unregister(value); }
-        }
-        private AsyncEvent<SocketMessageEventArgs> _on_message;
-
-        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
-        {
-            add { this._on_error.Register(value); }
-            remove { this._on_error.Unregister(value); }
-        }
-        private AsyncEvent<SocketErrorEventArgs> _on_error;
-        #endregion
-
-        public WebSocketClient()
+        public WebSocketClient(IWebProxy proxy)
+            : base(proxy)
         {
             this._on_connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
             this._on_disconnect = new AsyncEvent<SocketCloseEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
@@ -135,6 +107,7 @@ namespace DSharpPlus.Net.WebSocket
 
             this.Socket = new ClientWebSocket();
             this.Socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
+            this.Socket.Options.Proxy = this.Proxy;
 
             await Socket.ConnectAsync(uri, this.Token).ConfigureAwait(false);
             await CallOnConnectedAsync().ConfigureAwait(false);
@@ -302,5 +275,35 @@ namespace DSharpPlus.Net.WebSocket
             else
                 this._on_error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
+
+        #region Events
+        public override event AsyncEventHandler OnConnect
+        {
+            add { this._on_connect.Register(value); }
+            remove { this._on_connect.Unregister(value); }
+        }
+        private AsyncEvent _on_connect;
+
+        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
+        {
+            add { this._on_disconnect.Register(value); }
+            remove { this._on_disconnect.Unregister(value); }
+        }
+        private AsyncEvent<SocketCloseEventArgs> _on_disconnect;
+
+        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
+        {
+            add { this._on_message.Register(value); }
+            remove { this._on_message.Unregister(value); }
+        }
+        private AsyncEvent<SocketMessageEventArgs> _on_message;
+
+        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        {
+            add { this._on_error.Register(value); }
+            remove { this._on_error.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _on_error;
+        #endregion
     }
 }

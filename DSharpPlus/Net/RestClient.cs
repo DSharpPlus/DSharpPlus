@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -27,23 +28,21 @@ namespace DSharpPlus.Net
         private SemaphoreSlim RequestSemaphore { get; }
 
         internal RestClient(BaseDiscordClient client)
+            : this(client.Configuration.Proxy)
         {
             this.Discord = client;
-
-            this.HttpClient = new HttpClient
-            {
-                BaseAddress = new Uri(Utilities.GetApiBaseUri())
-            };
-            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
-
-            this.Buckets = new HashSet<RateLimitBucket>();
-            this.RequestSemaphore = new SemaphoreSlim(1, 1);
         }
 
-        internal RestClient() // This is for meta-clients, such as the webhook client
+        internal RestClient(IWebProxy proxy) // This is for meta-clients, such as the webhook client
         {
-            this.HttpClient = new HttpClient
+            this.HttpClient = new HttpClient(new HttpClientHandler
+            {
+                UseCookies = false,
+                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
+                UseProxy = proxy != null,
+                Proxy = proxy
+            })
             {
                 BaseAddress = new Uri(Utilities.GetApiBaseUri())
             };

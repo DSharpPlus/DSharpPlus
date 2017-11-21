@@ -10,6 +10,6 @@
         /// </summary>
         public string Message { get; internal set; }
 
-        internal SocketMessageEventArgs() { }
+        public SocketMessageEventArgs() { }
     }
 }
