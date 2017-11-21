@@ -261,6 +261,10 @@ namespace DSharpPlus
                 {
                     throw;
                 }
+                catch (NotImplementedException)
+                {
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     cex = ex;
