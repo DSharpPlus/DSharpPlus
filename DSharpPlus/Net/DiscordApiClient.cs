@@ -25,9 +25,9 @@ namespace DSharpPlus.Net
         private SemaphoreSlim TokenSemaphore { get; } = new SemaphoreSlim(1, 1);
 
         internal DiscordApiClient(BaseDiscordClient client)
-            : this(client.Configuration.Proxy)
         {
             this.Discord = client;
+            this.Rest = new RestClient(client);
         }
 
         internal DiscordApiClient(IWebProxy proxy) // This is for meta-clients, such as the webhook client
