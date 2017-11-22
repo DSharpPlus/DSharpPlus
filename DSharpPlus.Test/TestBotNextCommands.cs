@@ -62,6 +62,10 @@ namespace DSharpPlus.Test
             [Command("string"), Description("Attempts to bind a string.")]
             public Task StringAsync(CommandContext ctx, string s)
                 => ctx.RespondAsync(s);
+
+            [Command("bool"), Description("Attempts to bind a boolean.")]
+            public Task BoolAsync(CommandContext ctx, bool b)
+                => ctx.RespondAsync($"{b}");
         }
 
         [Group("very"), Description("Deeeeeep nesting")]
