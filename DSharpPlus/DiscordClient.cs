@@ -157,7 +157,7 @@ namespace DSharpPlus
                     continue;
 
                 var prms = xci.GetParameters();
-                if (prms.Length == 1 && prms[0].ParameterType != tp)
+                if (prms.Length == 1 && prms[0].ParameterType == tp)
                 {
                     vc = true;
                     break;

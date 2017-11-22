@@ -48,6 +48,9 @@ namespace DSharpPlus.Test
             };
             Discord = new DiscordClient(dcfg);
 
+            // ws impl
+            //Discord.SetWebSocketClient<Net.WebSocket.WebSocket4NetCoreClient>();
+
             // events
             Discord.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
             Discord.Ready += this.Discord_Ready;
