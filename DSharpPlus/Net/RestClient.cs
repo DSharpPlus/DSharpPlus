@@ -36,13 +36,16 @@ namespace DSharpPlus.Net
 
         internal RestClient(IWebProxy proxy) // This is for meta-clients, such as the webhook client
         {
-            this.HttpClient = new HttpClient(new HttpClientHandler
+            var httphandler = new HttpClientHandler
             {
                 UseCookies = false,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                UseProxy = proxy != null,
-                Proxy = proxy
-            })
+                UseProxy = proxy != null
+            };
+            if (httphandler.UseProxy) // because mono doesn't implement this properly
+                httphandler.Proxy = proxy;
+
+            this.HttpClient = new HttpClient(httphandler)
             {
                 BaseAddress = new Uri(Utilities.GetApiBaseUri())
             };

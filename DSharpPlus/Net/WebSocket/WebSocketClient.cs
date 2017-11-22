@@ -107,7 +107,8 @@ namespace DSharpPlus.Net.WebSocket
 
             this.Socket = new ClientWebSocket();
             this.Socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
-            this.Socket.Options.Proxy = this.Proxy;
+            if (this.Proxy != null) // because mono doesn't implement this properly
+                this.Socket.Options.Proxy = this.Proxy;
 
             await Socket.ConnectAsync(uri, this.Token).ConfigureAwait(false);
             await CallOnConnectedAsync().ConfigureAwait(false);
