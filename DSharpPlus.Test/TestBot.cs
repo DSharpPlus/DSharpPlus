@@ -1,7 +1,6 @@
 ﻿#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,9 +46,6 @@ namespace DSharpPlus.Test
                 DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
             Discord = new DiscordClient(dcfg);
-
-            // ws impl
-            //Discord.SetWebSocketClient<Net.WebSocket.WebSocket4NetCoreClient>();
 
             // events
             Discord.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
