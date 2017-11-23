@@ -31,57 +31,41 @@ namespace DSharpPlus.Test
         {
             await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content).ConfigureAwait(false);
         }
-        
+
         [Group("bind"), Description("Various argument binder testing commands.")]
         public class Binding
         {
             [Command("user"), Description("Attempts to get a user.")]
-            public Task UserAsync(CommandContext ctx, DiscordUser usr)
-                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(usr.Mention));
+            public Task UserAsync(CommandContext ctx, DiscordUser usr = null)
+                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(usr?.Mention ?? "<null>"));
 
             [Command("member"), Description("Attempts to get a member.")]
-            public Task MemberAsync(CommandContext ctx, DiscordMember mbr)
-                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(mbr.Mention));
+            public Task MemberAsync(CommandContext ctx, DiscordMember mbr = null)
+                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(mbr?.Mention ?? "<null>"));
 
             [Command("role"), Description("Attempts to get a role.")]
-            public Task RoleAsync(CommandContext ctx, DiscordRole rol)
-                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(rol.Mention));
+            public Task RoleAsync(CommandContext ctx, DiscordRole rol = null)
+                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(rol?.Mention ?? "<null>"));
 
             [Command("channel"), Description("Attempts to get a channel.")]
-            public Task ChannelAsync(CommandContext ctx, DiscordChannel chn)
-                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(chn.Mention));
+            public Task ChannelAsync(CommandContext ctx, DiscordChannel chn = null)
+                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(chn?.Mention ?? "<null>"));
 
             [Command("guild"), Description("Attempts to get a guild.")]
-            public Task GuildAsync(CommandContext ctx, DiscordGuild gld)
-                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(gld.Name));
+            public Task GuildAsync(CommandContext ctx, DiscordGuild gld = null)
+                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(gld?.Name ?? "<null>"));
 
             [Command("emote"), Description("Attempts to get an emoji.")]
-            public Task EmoteAsync(CommandContext ctx, DiscordEmoji emt)
-                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(emt.ToString()));
+            public Task EmoteAsync(CommandContext ctx, DiscordEmoji emt = null)
+                => ctx.RespondAsync(embed: new DiscordEmbedBuilder().WithDescription(emt?.ToString() ?? "<null>"));
 
             [Command("string"), Description("Attempts to bind a string.")]
-            public Task StringAsync(CommandContext ctx, string s)
-                => ctx.RespondAsync(s);
+            public Task StringAsync(CommandContext ctx, string s = null)
+                => ctx.RespondAsync(s ?? "<null>");
 
             [Command("bool"), Description("Attempts to bind a boolean.")]
             public Task BoolAsync(CommandContext ctx, bool b)
                 => ctx.RespondAsync($"{b}");
-        }
-
-        [Group("very"), Description("Deeeeeep nesting")]
-        public class Very
-        {
-            [Group("deeply"), Description("Deeeeeep nesting")]
-            public class Deeply
-            {
-                [Group("nested"), Description("Deeeeeep nesting")]
-                public class Nested
-                {
-                    [Command("command"), Description("Deeeeeep nesting")]
-                    public Task CommandAsync(CommandContext ctx)
-                        => ctx.RespondAsync("Hi");
-                }
-            }
         }
         
         // this is a mention of _moonPtr#8058 (276460831187664897)

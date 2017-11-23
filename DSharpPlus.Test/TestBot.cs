@@ -92,19 +92,6 @@ namespace DSharpPlus.Test
             this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
             this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
 
-            // testing event handler cancellation
-            this.CommandsNextService.CommandExecuted += e =>
-            {
-                e.Context.Client.DebugLogger.LogMessage(LogLevel.Debug, "DSP Test", "Anonymous handler 1", DateTime.Now);
-                e.Handled = true;
-                return Task.CompletedTask;
-            };
-            this.CommandsNextService.CommandExecuted += e =>
-            {
-                e.Context.Client.DebugLogger.LogMessage(LogLevel.Debug, "DSP Test", "Anonymous handler 2", DateTime.Now);
-                return Task.CompletedTask;
-            };
-
             // interactivity service
             var icfg = new InteractivityConfiguration()
             {

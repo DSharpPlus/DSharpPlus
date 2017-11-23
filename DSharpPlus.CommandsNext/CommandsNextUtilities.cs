@@ -332,7 +332,9 @@ namespace DSharpPlus.CommandsNext
                 if (ep != -1)
                 {
                     startPos = ep;
-                    return str.Substring(sp, ep - sp).CleanupString(remove);
+                    if (sp != ep)
+                        return str.Substring(sp, ep - sp).CleanupString(remove);
+                    return null;
                 }
             }
 
@@ -400,6 +402,7 @@ namespace DSharpPlus.CommandsNext
                             break;
 
                         argv = argstr.Substring(findpos).Trim();
+                        argv = argv == "" ? null : argv;
                         findpos = argstr.Length;
 
                         argr.Add(argv);
