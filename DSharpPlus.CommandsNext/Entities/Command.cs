@@ -28,11 +28,6 @@ namespace DSharpPlus.CommandsNext
         public IReadOnlyList<string> Aliases { get; internal set; }
 
         /// <summary>
-        /// Gets this command's arguments.
-        /// </summary>
-        public IReadOnlyList<CommandArgument> Arguments { get; internal set; }
-
-        /// <summary>
         /// Gets this command's parent module, if any.
         /// </summary>
         public CommandGroup Parent { get; internal set; }
@@ -51,6 +46,11 @@ namespace DSharpPlus.CommandsNext
         /// Gets a collection of pre-execution checks for this command.
         /// </summary>
         public IReadOnlyList<CheckBaseAttribute> ExecutionChecks { get; internal set; }
+
+        /// <summary>
+        /// Gets this command's arguments.
+        /// </summary>
+        public IReadOnlyList<CommandArgument> Arguments { get; internal set; }
 
         /// <summary>
         /// Gets this command's callable.

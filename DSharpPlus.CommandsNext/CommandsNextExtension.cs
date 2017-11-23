@@ -392,6 +392,9 @@ namespace DSharpPlus.CommandsNext
                 MakeCallable(m, moduleInstance, out var cbl, out var args);
                 cmd.Callable = cbl;
                 cmd.Arguments = args;
+
+                if (!is_mdl && mdl_hidden)
+                    cmd.IsHidden = mdl_hidden;
                 
                 if (uniq.Contains(cmd.Name))
                     throw new DuplicateCommandException(cmd.QualifiedName);
