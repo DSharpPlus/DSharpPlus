@@ -74,7 +74,7 @@ namespace DSharpPlus.Test
                 StringPrefix = this.Config.CommandPrefix,
                 CustomPrefixPredicate = msg =>
                 {
-                    if (TestBotNextCommands.Prefixes.ContainsKey(msg.Channel.Id) && TestBotNextCommands.Prefixes.TryGetValue(msg.Channel.Id, out var pfix))
+                    if (TestBotCommands.Prefixes.ContainsKey(msg.Channel.Id) && TestBotCommands.Prefixes.TryGetValue(msg.Channel.Id, out var pfix))
                         return Task.FromResult(msg.GetStringPrefixLength(pfix));
                     return Task.FromResult(-1);
                 },
