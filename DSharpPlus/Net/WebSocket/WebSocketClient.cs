@@ -12,12 +12,15 @@ using DSharpPlus.EventArgs;
 namespace DSharpPlus.Net.WebSocket
 {
     // weebsocket
+    /// <summary>
+    /// The default, native-based WebSocket client implementation.
+    /// </summary>
     public class WebSocketClient : BaseWebSocketClient
     {
         private const int BUFFER_SIZE = 32768;
 
-        private static UTF8Encoding UTF8 { get; set; }
-        
+        private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
+
         private ConcurrentQueue<string> SocketMessageQueue { get; set; }
         private CancellationTokenSource TokenSource { get; set; }
         private CancellationToken Token 
@@ -27,6 +30,10 @@ namespace DSharpPlus.Net.WebSocket
         private Task WsListener { get; set; }
         private Task SocketQueueManager { get; set; }
 
+        /// <summary>
+        /// Instantiates a new WebSocket client with specified proxy settings.
+        /// </summary>
+        /// <param name="proxy">Proxy settings for the client.</param>
         public WebSocketClient(IWebProxy proxy)
             : base(proxy)
         {
@@ -36,67 +43,16 @@ namespace DSharpPlus.Net.WebSocket
             this._on_error = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
         }
 
-        static WebSocketClient()
-        {
-            UTF8 = new UTF8Encoding(false);
-        }
-
         /// <summary>
         /// Connects to the WebSocket server.
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
         /// <returns></returns>
-        public override async Task<BaseWebSocketClient> ConnectAsync(Uri uri)
+        public override async Task ConnectAsync(Uri uri)
         {
             this.SocketMessageQueue = new ConcurrentQueue<string>();
             this.TokenSource = new CancellationTokenSource();
 
-            await InternalConnectAsync(uri).ConfigureAwait(false);
-            return this;
-        }
-
-        /// <summary>
-        /// Set the Action to call when the connection has been established.
-        /// </summary>
-        /// <returns></returns>
-        public override async Task<BaseWebSocketClient> OnConnectAsync()
-        {
-            await _on_connect.InvokeAsync().ConfigureAwait(false);
-            return this;
-        }
-
-        /// <summary>
-        /// Set the Action to call when the connection has been terminated.
-        /// </summary>
-        /// <returns></returns>
-        public override async Task<BaseWebSocketClient> OnDisconnectAsync(SocketCloseEventArgs e)
-        {
-            await _on_disconnect.InvokeAsync(e).ConfigureAwait(false);
-            return this;
-        }
-
-        /// <summary>
-        /// Send a message to the WebSocket server.
-        /// </summary>
-        /// <param name="message">The message to send</param>
-        public override void SendMessage(string message)
-        {
-            SendMessageAsync(message);
-        }
-
-        internal void SendMessageAsync(string message)
-        {
-            if (Socket.State != WebSocketState.Open)
-                return;
-
-            this.SocketMessageQueue.Enqueue(message);
-
-            if (this.SocketQueueManager == null || this.SocketQueueManager.IsCompleted)
-                this.SocketQueueManager = Task.Run(this.ProcessSmqAsync, this.Token);
-        }
-
-        internal async Task InternalConnectAsync(Uri uri)
-        {
             this.StreamDecompressor?.Dispose();
             this.CompressedStream?.Dispose();
             this.DecompressedStream?.Dispose();
@@ -111,11 +67,16 @@ namespace DSharpPlus.Net.WebSocket
                 this.Socket.Options.Proxy = this.Proxy;
 
             await Socket.ConnectAsync(uri, this.Token).ConfigureAwait(false);
-            await CallOnConnectedAsync().ConfigureAwait(false);
+            await OnConnectedAsync().ConfigureAwait(false);
             this.WsListener = Task.Run(this.ListenAsync, this.Token);
         }
 
         private bool close_requested = false;
+        /// <summary>
+        /// Disconnects the WebSocket connection.
+        /// </summary>
+        /// <param name="e">Disconect event arguments.</param>
+        /// <returns></returns>
         public override async Task DisconnectAsync(SocketCloseEventArgs e)
         {
             //if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
@@ -139,8 +100,42 @@ namespace DSharpPlus.Net.WebSocket
                     var cc = this.Socket.CloseStatus != null ? (int)this.Socket.CloseStatus.Value : -1;
                     e = new SocketCloseEventArgs(null) { CloseCode = cc, CloseMessage = this.Socket.CloseStatusDescription ?? "Unknown reason" };
                 }
-                await CallOnDisconnectedAsync(e).ConfigureAwait(false);
+                await OnDisconnectedAsync(e).ConfigureAwait(false);
             }
+        }
+
+        /// <summary>
+        /// Send a message to the WebSocket server.
+        /// </summary>
+        /// <param name="message">The message to send</param>
+        public override void SendMessage(string message)
+        {
+            if (Socket.State != WebSocketState.Open)
+                return;
+
+            this.SocketMessageQueue.Enqueue(message);
+
+            if (this.SocketQueueManager == null || this.SocketQueueManager.IsCompleted)
+                this.SocketQueueManager = Task.Run(this.ProcessSmqAsync, this.Token);
+        }
+
+        /// <summary>
+        /// Set the Action to call when the connection has been established.
+        /// </summary>
+        /// <returns></returns>
+        protected override Task OnConnectedAsync()
+        {
+            return _on_connect.InvokeAsync();
+        }
+
+        /// <summary>
+        /// Set the Action to call when the connection has been terminated.
+        /// </summary>
+        /// <returns></returns>
+        protected override Task OnDisconnectedAsync(SocketCloseEventArgs e)
+        {
+            _ = this._on_disconnect.InvokeAsync(e).ConfigureAwait(false);
+            return Task.Delay(0);
         }
 
         internal async Task ListenAsync()
@@ -258,16 +253,54 @@ namespace DSharpPlus.Net.WebSocket
         internal Task CallOnMessageAsync(string result)
             => _on_message.InvokeAsync(new SocketMessageEventArgs() { Message = result });
 
-        internal Task CallOnDisconnectedAsync(SocketCloseEventArgs e)
+        /// <summary>
+        /// Creates a new instance of <see cref="WebSocketClient"/>.
+        /// </summary>
+        /// <param name="proxy">Proxy to use for this client instance.</param>
+        /// <returns>An instance of <see cref="WebSocketClient"/>.</returns>
+        public static BaseWebSocketClient CreateNew(IWebProxy proxy)
+            => new WebSocketClient(proxy);
+
+        #region Events
+        /// <summary>
+        /// Triggered when the client connects successfully.
+        /// </summary>
+        public override event AsyncEventHandler OnConnect
         {
-            // Zis is to prevent deadlocks (I hope)
-            _ = this._on_disconnect.InvokeAsync(e).ConfigureAwait(false);
-
-            return Task.Delay(0);
+            add { this._on_connect.Register(value); }
+            remove { this._on_connect.Unregister(value); }
         }
+        private AsyncEvent _on_connect;
 
-        internal Task CallOnConnectedAsync()
-            => _on_connect.InvokeAsync();
+        /// <summary>
+        /// Triggered when the client is disconnected.
+        /// </summary>
+        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
+        {
+            add { this._on_disconnect.Register(value); }
+            remove { this._on_disconnect.Unregister(value); }
+        }
+        private AsyncEvent<SocketCloseEventArgs> _on_disconnect;
+
+        /// <summary>
+        /// Triggered when the client receives a message from the remote party.
+        /// </summary>
+        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
+        {
+            add { this._on_message.Register(value); }
+            remove { this._on_message.Unregister(value); }
+        }
+        private AsyncEvent<SocketMessageEventArgs> _on_message;
+
+        /// <summary>
+        /// Triggered when an error occurs in the client.
+        /// </summary>
+        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        {
+            add { this._on_error.Register(value); }
+            remove { this._on_error.Unregister(value); }
+        }
+        private AsyncEvent<SocketErrorEventArgs> _on_error;
 
         private void EventErrorHandler(string evname, Exception ex)
         {
@@ -276,35 +309,6 @@ namespace DSharpPlus.Net.WebSocket
             else
                 this._on_error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
-
-        #region Events
-        public override event AsyncEventHandler OnConnect
-        {
-            add { this._on_connect.Register(value); }
-            remove { this._on_connect.Unregister(value); }
-        }
-        private AsyncEvent _on_connect;
-
-        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
-        {
-            add { this._on_disconnect.Register(value); }
-            remove { this._on_disconnect.Unregister(value); }
-        }
-        private AsyncEvent<SocketCloseEventArgs> _on_disconnect;
-
-        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
-        {
-            add { this._on_message.Register(value); }
-            remove { this._on_message.Unregister(value); }
-        }
-        private AsyncEvent<SocketMessageEventArgs> _on_message;
-
-        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
-        {
-            add { this._on_error.Register(value); }
-            remove { this._on_error.Unregister(value); }
-        }
-        private AsyncEvent<SocketErrorEventArgs> _on_error;
         #endregion
     }
 }

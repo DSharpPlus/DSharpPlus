@@ -690,24 +690,6 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Sets the WebSocket client implementation.
-        /// </summary>
-        /// <typeparam name="T">Type of the WebSocket client to use.</typeparam>
-        public void SetWebSocketClient<T>() where T : BaseWebSocketClient, new()
-        {
-            BaseWebSocketClient.ClientType = typeof(T);
-        }
-
-        /// <summary>
-        /// Sets the UDP client implementation.
-        /// </summary>
-        /// <typeparam name="T">Type of the UDP client to use.</typeparam>
-        public void SetUdpClient<T>() where T : BaseUdpClient, new()
-        {
-            BaseUdpClient.ClientType = typeof(T);
-        }
-
-        /// <summary>
         /// Updates playing statuses on all shards.
         /// </summary>
         /// <param name="game">Game to set.</param>

@@ -1,20 +1,27 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
-using ws4net = WebSocket4Net;
 using s = System;
-using System.Net;
+using ws4net = WebSocket4Net;
 
 namespace DSharpPlus.Net.WebSocket
 {
+    /// <summary>
+    /// A WebSocket4Net-based WebSocket client implementation.
+    /// </summary>
     public class WebSocket4NetClient : BaseWebSocketClient
     {
         internal static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         internal ws4net.WebSocket _socket;
 
+        /// <summary>
+        /// Instantiates a new WebSocket client with specified proxy settings.
+        /// </summary>
+        /// <param name="proxy">Proxy settings for the client.</param>
         public WebSocket4NetClient(IWebProxy proxy)
             : base(proxy)
         {
@@ -24,7 +31,12 @@ namespace DSharpPlus.Net.WebSocket
             this._error = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
         }
 
-        public override Task<BaseWebSocketClient> ConnectAsync(Uri uri)
+        /// <summary>
+        /// Connects to the WebSocket server.
+        /// </summary>
+        /// <param name="uri">The URI of the WebSocket server.</param>
+        /// <returns></returns>
+        public override Task ConnectAsync(Uri uri)
         {
             this.StreamDecompressor?.Dispose();
             this.CompressedStream?.Dispose();
@@ -100,6 +112,11 @@ namespace DSharpPlus.Net.WebSocket
             }
         }
 
+        /// <summary>
+        /// Disconnects the WebSocket connection.
+        /// </summary>
+        /// <param name="e">Disconect event arguments.</param>
+        /// <returns></returns>
         public override Task DisconnectAsync(SocketCloseEventArgs e)
         {
             if (_socket.State != ws4net.WebSocketState.Closed)
@@ -107,22 +124,42 @@ namespace DSharpPlus.Net.WebSocket
             return Task.Delay(0);
         }
 
-        public override Task<BaseWebSocketClient> OnConnectAsync()
-        {
-            return Task.FromResult<BaseWebSocketClient>(this);
-        }
-
-        public override Task<BaseWebSocketClient> OnDisconnectAsync(SocketCloseEventArgs e)
-        {
-            return Task.FromResult<BaseWebSocketClient>(this);
-        }
-
+        /// <summary>
+        /// Send a message to the WebSocket server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
         public override void SendMessage(string message)
         {
             if (_socket.State == ws4net.WebSocketState.Open)
                 _socket.Send(message);
         }
 
+        /// <summary>
+        /// Set the Action to call when the connection has been established.
+        /// </summary>
+        /// <returns></returns>
+        protected override Task OnConnectedAsync()
+            => Task.Delay(0);
+
+        /// <summary>
+        /// Set the Action to call when the connection has been terminated.
+        /// </summary>
+        /// <returns></returns>
+        protected override Task OnDisconnectedAsync(SocketCloseEventArgs e)
+            => Task.Delay(0);
+
+        /// <summary>
+        /// Creates a new instance of <see cref="WebSocket4NetClient"/>.
+        /// </summary>
+        /// <param name="proxy">Proxy to use for this client instance.</param>
+        /// <returns>An instance of <see cref="WebSocket4NetClient"/>.</returns>
+        public static BaseWebSocketClient CreateNew(IWebProxy proxy)
+            => new WebSocket4NetClient(proxy);
+
+        #region Events
+        /// <summary>
+        /// Triggered when the client connects successfully.
+        /// </summary>
         public override event AsyncEventHandler OnConnect
         {
             add { this._connect.Register(value); }
@@ -130,6 +167,9 @@ namespace DSharpPlus.Net.WebSocket
         }
         private AsyncEvent _connect;
 
+        /// <summary>
+        /// Triggered when the client is disconnected.
+        /// </summary>
         public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
         {
             add { this._disconnect.Register(value); }
@@ -137,6 +177,9 @@ namespace DSharpPlus.Net.WebSocket
         }
         private AsyncEvent<SocketCloseEventArgs> _disconnect;
 
+        /// <summary>
+        /// Triggered when the client receives a message from the remote party.
+        /// </summary>
         public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
         {
             add { this._message.Register(value); }
@@ -144,6 +187,9 @@ namespace DSharpPlus.Net.WebSocket
         }
         private AsyncEvent<SocketMessageEventArgs> _message;
 
+        /// <summary>
+        /// Triggered when an error occurs in the client.
+        /// </summary>
         public override event AsyncEventHandler<SocketErrorEventArgs> OnError
         {
             add { this._error.Register(value); }
@@ -158,5 +204,6 @@ namespace DSharpPlus.Net.WebSocket
             else
                 this._error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
+        #endregion
     }
 }

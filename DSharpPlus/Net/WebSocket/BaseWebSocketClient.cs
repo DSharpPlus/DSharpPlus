@@ -7,6 +7,16 @@ using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Net.WebSocket
 {
+    /// <summary>
+    /// Creates an instance of a WebSocket client implementation.
+    /// </summary>
+    /// <param name="proxy">Proxy settings to use for the new WebSocket client instance.</param>
+    /// <returns>Constructed WebSocket client implementation.</returns>
+    public delegate BaseWebSocketClient WebSocketClientFactoryDelegate(IWebProxy proxy);
+
+    /// <summary>
+    /// Represents a base abstraction for all WebSocket client implementations.
+    /// </summary>
     public abstract class BaseWebSocketClient : IDisposable
     {
         /// <summary>
@@ -34,8 +44,6 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         protected MemoryStream CompressedStream { get; set; }
 
-        internal static Type ClientType { get; set; } = typeof(WebSocketClient);
-
         /// <summary>
         /// Creates a new WebSocket client.
         /// </summary>
@@ -45,41 +53,12 @@ namespace DSharpPlus.Net.WebSocket
         }
 
         /// <summary>
-        /// Creates a new WebSocket client instance.
-        /// </summary>
-        /// <param name="proxy">Proxy settings to use for the new WebSocket client instance.</param>
-        /// <returns></returns>
-        public static BaseWebSocketClient Create(IWebProxy proxy)
-        {
-            var ws = Activator.CreateInstance(ClientType, new object[] { proxy }) as BaseWebSocketClient;
-            return ws;
-        }
-
-        /// <summary>
         /// Connects to the WebSocket server.
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
-        /// <returns>Current WS client instance.</returns>
-        public abstract Task<BaseWebSocketClient> ConnectAsync(Uri uri);
+        /// <returns></returns>
+        public abstract Task ConnectAsync(Uri uri);
 
-        /// <summary>
-        /// Set the Action to call when the connection has been established.
-        /// </summary>
-        /// <returns>Current WS client instance.</returns>
-        public abstract Task<BaseWebSocketClient> OnConnectAsync();
-
-        /// <summary>
-        /// Set the Action to call when the connection has been terminated.
-        /// </summary>
-        /// <returns>Current WS client instance.</returns>
-        public abstract Task<BaseWebSocketClient> OnDisconnectAsync(SocketCloseEventArgs e);
-
-        /// <summary>
-        /// Send a message to the WebSocket server.
-        /// </summary>
-        /// <param name="message">The message to send.</param>
-        public abstract void SendMessage(string message);
-        
         /// <summary>
         /// Disconnects the WebSocket connection.
         /// </summary>
@@ -88,9 +67,27 @@ namespace DSharpPlus.Net.WebSocket
         public abstract Task DisconnectAsync(SocketCloseEventArgs e);
 
         /// <summary>
+        /// Send a message to the WebSocket server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        public abstract void SendMessage(string message);
+
+        /// <summary>
+        /// Set the Action to call when the connection has been established.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract Task OnConnectedAsync();
+
+        /// <summary>
+        /// Set the Action to call when the connection has been terminated.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract Task OnDisconnectedAsync(SocketCloseEventArgs e);
+
+        /// <summary>
         /// Disposes this socket client.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             this.StreamDecompressor?.Dispose();
             this.CompressedStream?.Dispose();

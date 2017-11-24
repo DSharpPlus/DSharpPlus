@@ -130,57 +130,10 @@ namespace DSharpPlus
         public DiscordClient(DiscordConfiguration config)
             : base(config)
         {
-            if (config.MessageCacheSize > 0)
-                this.MessageCache = new RingBuffer<DiscordMessage>(config.MessageCacheSize);
+            if (this.Configuration.MessageCacheSize > 0)
+                this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize);
 
             InternalSetup();
-        }
-
-        /// <summary>
-        /// Sets the WebSocket client implementation.
-        /// </summary>
-        /// <typeparam name="T">Type of the WebSocket client to use.</typeparam>
-        /// <exception cref="InvalidOperationException">If attempting to set a client implementation when the client is already running.</exception>
-        /// <exception cref="MissingMemberException">If the specified implementation lacks a suitable constructor.</exception>
-        public void SetWebSocketClient<T>() where T : BaseWebSocketClient
-        {
-            if (this._webSocketClient != null)
-                throw new InvalidOperationException("Cannot set a WebSocket client implementation on a running client instance.");
-
-            var t = typeof(T);
-            var tp = typeof(IWebProxy);
-            var ti = t.GetTypeInfo();
-            var vc = false;
-            foreach (var xci in ti.DeclaredConstructors)
-            {
-                if (!xci.IsPublic)
-                    continue;
-
-                var prms = xci.GetParameters();
-                if (prms.Length == 1 && prms[0].ParameterType == tp)
-                {
-                    vc = true;
-                    break;
-                }
-            }
-
-            if (!vc)
-                throw new MissingMemberException("Specified WebSocket client implementation lacks a suitable constructor.");
-
-            BaseWebSocketClient.ClientType = t;
-        }
-
-        /// <summary>
-        /// Sets the UDP client implementation.
-        /// </summary>
-        /// <typeparam name="T">Type of the UDP client to use.</typeparam>
-        /// <exception cref="InvalidOperationException">If attempting to set a client implementation when the client is already running.</exception>
-        public void SetUdpClient<T>() where T : BaseUdpClient, new()
-        {
-            if (this._webSocketClient != null)
-                throw new InvalidOperationException("Cannot set a WebSocket client implementation on a running client instance.");
-
-            BaseUdpClient.ClientType = typeof(T);
         }
 
         internal void InternalSetup()
@@ -354,7 +307,7 @@ namespace DSharpPlus
 
             Volatile.Write(ref this._skippedHeartbeats, 0);
 
-            _webSocketClient = BaseWebSocketClient.Create(this.Configuration.Proxy);
+            _webSocketClient = this.Configuration.WebSocketClientFactory(this.Configuration.Proxy);
 
             _cancelTokenSource = new CancellationTokenSource();
             _cancelToken = _cancelTokenSource.Token;

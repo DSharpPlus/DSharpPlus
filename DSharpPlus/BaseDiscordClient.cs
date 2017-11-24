@@ -81,7 +81,7 @@ namespace DSharpPlus
         /// <param name="config">Configuration for this client.</param>
         protected BaseDiscordClient(DiscordConfiguration config)
         {
-            this.Configuration = config;
+            this.Configuration = new DiscordConfiguration(config);
             this.ApiClient = new DiscordApiClient(this);
             this.DebugLogger = new DebugLogger(this);
             this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();

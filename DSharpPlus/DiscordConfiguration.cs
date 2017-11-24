@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using DSharpPlus.Net.Udp;
+using DSharpPlus.Net.WebSocket;
 
 namespace DSharpPlus
 {
@@ -96,6 +98,42 @@ namespace DSharpPlus
         /// <para>Defaults to null.</para>
         /// </summary>
         public IWebProxy Proxy { internal get; set; } = null;
+
+        /// <summary>
+        /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
+        /// <para>Use <see cref="WebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
+        /// <para>Defaults to <see cref="WebSocketClient.CreateNew(IWebProxy)"/>.</para>
+        /// </summary>
+        public WebSocketClientFactoryDelegate WebSocketClientFactory
+        {
+            internal get => this._webSocketClientFactory;
+            set
+            {
+                if (value == null)
+                    throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
+
+                this._webSocketClientFactory = value;
+            }
+        }
+        private WebSocketClientFactoryDelegate _webSocketClientFactory = WebSocketClient.CreateNew;
+
+        /// <summary>
+        /// <para>Sets the factory method used to create instances of UDP clients.</para>
+        /// <para>Use <see cref="DspUdpClient.CreateNew"/> and equivalents on other implementations to switch out client implementations.</para>
+        /// <para>Defaults to <see cref="DspUdpClient.CreateNew"/>.</para>
+        /// </summary>
+        public UdpClientFactoryDelegate UdpClientFactory
+        {
+            internal get => this._udpClientFactory;
+            set
+            {
+                if (value == null)
+                    throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
+
+                this._udpClientFactory = value;
+            }
+        }
+        private UdpClientFactoryDelegate _udpClientFactory = DspUdpClient.CreateNew;
 
         /// <summary>
         /// Creates a new configuration with default values.

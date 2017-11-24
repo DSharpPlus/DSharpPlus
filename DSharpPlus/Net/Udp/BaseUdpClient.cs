@@ -1,25 +1,22 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace DSharpPlus.Net.Udp
 {
+    /// <summary>
+    /// Creates an instance of a UDP client implementation.
+    /// </summary>
+    /// <returns>Constructed UDP client implementation.</returns>
+    public delegate BaseUdpClient UdpClientFactoryDelegate();
+
+    /// <summary>
+    /// Represents a base abstraction for all UDP client implementations.
+    /// </summary>
     public abstract class BaseUdpClient
     {
         /// <summary>
         /// Gets the amount of data available for this client.
         /// </summary>
         public abstract int DataAvailable { get; }
-
-        internal static Type ClientType { get; set; } = typeof(DspUdpClient);
-
-        /// <summary>
-        /// Creates a new instance.
-        /// </summary>
-        /// <returns></returns>
-        public static BaseUdpClient Create()
-        {
-            return (BaseUdpClient)Activator.CreateInstance(ClientType);
-        }
 
         /// <summary>
         /// Configures the UDP client.
@@ -38,7 +35,7 @@ namespace DSharpPlus.Net.Udp
         /// <summary>
         /// Receives a datagram.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The received bytes.</returns>
         public abstract Task<byte[]> ReceiveAsync();
 
         /// <summary>
