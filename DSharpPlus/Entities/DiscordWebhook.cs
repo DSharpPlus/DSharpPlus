@@ -58,13 +58,20 @@ namespace DSharpPlus.Entities
         internal DiscordWebhook() { }
 
         /// <summary>
-        /// Modifies this webhook.
+        /// Changes this webhook's name.
         /// </summary>
         /// <param name="name">New default name for this webhook.</param>
-        /// <param name="base64avatar"></param>
         /// <returns>The modified webhook.</returns>
-        public Task<DiscordWebhook> ModifyAsync(string name = null, string base64avatar = null) 
-            => this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, base64avatar, Token);
+        public Task<DiscordWebhook> SetNameAsync(string name) 
+            => this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, null, Token);
+
+        /// <summary>
+        /// Changes this webhook's avatar.
+        /// </summary>
+        /// <param name="base64avatar">Base64 encoded image in one of Discord's supported image types</param>
+        /// <returns>The modified webhook.</returns>
+        public Task<DiscordWebhook> SetAvatarAsync(string base64avatar) 
+            => this.Discord.ApiClient.ModifyWebhookAsync(this.Id, null, base64avatar, Token);
 
         /// <summary>
         /// Permanently deletes this webhook.
