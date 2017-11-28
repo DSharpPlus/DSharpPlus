@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
@@ -61,10 +62,17 @@ namespace DSharpPlus.Entities
         /// Modifies this webhook.
         /// </summary>
         /// <param name="name">New default name for this webhook.</param>
-        /// <param name="base64avatar"></param>
+        /// <param name="avatar">New avatar for this webhook.</param>
         /// <returns>The modified webhook.</returns>
-        public Task<DiscordWebhook> ModifyAsync(string name = null, string base64avatar = null) 
-            => this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, base64avatar, Token);
+        public Task<DiscordWebhook> ModifyAsync(string name = null, Stream avatar = null)
+        {
+            string avatarb64 = null;
+            if (avatar != null)
+                using (var imgtool = new ImageTool(avatar))
+                    avatarb64 = imgtool.GetBase64();
+                    
+            return this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, avatarb64, Token);
+        }
 
         /// <summary>
         /// Permanently deletes this webhook.
