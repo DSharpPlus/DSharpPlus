@@ -296,8 +296,30 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>  
-        /// Returns a list of messages. Only set ONE of the three parameters. They are Message ID's
+        /// Returns a list of messages before a certain message.
+        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="before">ID of the message to fetch before from.</param>
         /// </summary> 
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(int limit = 100, ulong? before = null)
+            => this.GetMessagesAsync(limit, before, null, null);
+        
+        /// <summary>  
+        /// Returns a list of messages after a certain message.
+        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="before">ID of the message to fetch after from.</param>
+        /// </summary> 
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(int limit = 100, ulong? after = null)
+            => this.GetMessagesAsync(limit, null, after, null);
+        
+        /// <summary>  
+        /// Returns a list of messages around a certain message.
+        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="before">ID of the message to fetch around from.</param>
+        /// </summary> 
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(int limit = 100, ulong? around = null)
+            => this.GetMessagesAsync(limit, null, null, around);
+        
+        [System.Obsolete("GetMessagesAsync is deprecated, please use the separate methods instead.")]
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
