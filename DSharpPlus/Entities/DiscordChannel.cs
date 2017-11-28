@@ -250,21 +250,80 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Modifies the current channel.
+        /// Renames the current channel.
         /// </summary>
         /// <param name="name">New name for the channel.</param>
-        /// <param name="position">New position for the channel.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task RenameAsync(string name, string reason = null)
+        {
+            if (this.Guild == null)
+                throw new InvalidOperationException("Cannot rename non-guild channels.");
+                
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, name, null, null, default(Optional<ulong?>), null, null, reason);
+        }
+        /// <summary>
+        /// Sets this text channel's topic.
+        /// </summary>
         /// <param name="topic">New topic for the channel.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task SetTopicAsync(string topic, string reason = null)
+        {
+            if (this.Guild == null)
+                throw new InvalidOperationException("Cannot set topic of non-guild channels.");
+            if (this.Type != ChannelType.Text)
+                throw new InvalidOperationException("Cannot set topic of non-text channels.");
+            
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, null, null, topic, default(Optional<ulong?>), null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this channel's parent category.
+        /// </summary>
         /// <param name="parent">Category to put this channel in.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task SetParentAsync(Optional<DiscordChannel> parent topic, string reason = null)
+        {
+            if (this.Guild == null)
+                throw new InvalidOperationException("Cannot set parent of non-guild channels.");
+                
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, null, null, null, parent, null, null, reason);
+        }
+
+        /// <summary>
+        /// Sets this voice channel's bitrate in kbps.
+        /// </summary>
         /// <param name="bitrate">New voice bitrate for the channel.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task SetBitrateAsync(int bitrate, string reason = null)
+        {
+            if (this.Guild == null)
+                throw new InvalidOperationException("Cannot set user limit of non-guild channels.");
+            if (this.Type != ChannelType.Voice)
+                throw new InvalidOperationException("Cannot set user limit of non-voice channels.");
+                
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, null, null, null, default(Optional<ulong?>), bitrate, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this voice channel's connected user limit.
+        /// </summary>
         /// <param name="user_limit">New user limit for the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task ModifyAsync(string name = null, int? position = null, string topic = null, Optional<DiscordChannel> parent = default(Optional<DiscordChannel>), int? bitrate = null, 
-            int? user_limit = null, string reason = null)
+        public Task SetUserLimitAsync(int user_limit, string reason = null)
         {
-            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, name, position, topic, parent.HasValue ? parent.Value?.Id : default(Optional<ulong?>), bitrate, user_limit, reason);
+            if (this.Guild == null)
+                throw new InvalidOperationException("Cannot set user limit of non-guild channels.");
+            if (this.Type != ChannelType.Voice)
+                throw new InvalidOperationException("Cannot set user limit of non-voice channels.");
+                
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, null, null, null, default(Optional<ulong?>), null, user_limit, reason);
         }
+
 
         /// <summary>
         /// Updates the channel position
@@ -272,7 +331,7 @@ namespace DSharpPlus.Entities
         /// <param name="position"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task ModifyPositionAsync(int position, string reason = null)
+        public Task MoveAsync(int position, string reason = null)
         {
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot modify order of non-guild channels.");
