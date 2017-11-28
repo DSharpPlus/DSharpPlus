@@ -302,12 +302,12 @@ namespace DSharpPlus.Entities
         /// <param name="nickname">Nickname to set for this member.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task RenameAsync(string nickname, string reason = null)
+        public async Task RenameAsync(string nickname, string reason = null)
         {
             if (nickname != null && this.Discord.CurrentUser.Id == this.Id)
-                return this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, nickname, reason).ConfigureAwait(false);
+                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, nickname, reason).ConfigureAwait(false);
             else
-                return this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, null, null, null, null, reason).ConfigureAwait(false);
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, null, null, null, null, reason).ConfigureAwait(false);
         }
         
         /// <summary>
@@ -316,12 +316,12 @@ namespace DSharpPlus.Entities
         /// <param name="voice_channel">Voice channel to put the member into.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task MoveToAsync(DiscordChannel voice_channel, string reason = null)
+        public async Task MoveToAsync(DiscordChannel voice_channel, string reason = null)
         {
             if (voice_channel.Type != ChannelType.Voice)
                 throw new ArgumentException("Given channel is not a voice channel.", nameof(voice_channel));
 
-            return this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, null, null, null, voice_channel.Id, reason).ConfigureAwait(false);
+            await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, null, null, null, voice_channel.Id, reason).ConfigureAwait(false);
         }
         
         /// <summary>
