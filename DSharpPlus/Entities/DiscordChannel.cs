@@ -309,7 +309,7 @@ namespace DSharpPlus.Entities
         /// <param name="before">Message to fetch after from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(DiscordMessage after, int limit = 100)
-            => this.GetMessagesAsync(limit, null, after, null);
+            => this.GetMessagesAsync(limit, null, after.Id, null);
         
         /// <summary>  
         /// Returns a list of messages around a certain message.
@@ -317,7 +317,7 @@ namespace DSharpPlus.Entities
         /// <param name="before">Message to fetch around from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(DiscordMessage around, int limit = 100)
-            => this.GetMessagesAsync(limit, null, null, around);
+            => this.GetMessagesAsync(limit, null, null, around.Id);
         
         [System.Obsolete("GetMessagesAsync is deprecated, please use the separate methods instead.")]
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
