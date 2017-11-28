@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities
 {
@@ -299,26 +300,26 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Modifies this member.
         /// </summary>
-        /// <param name="nickname">Nickname to set for this member.</param>
-        /// <param name="roles">Roles to set for this member.</param>
-        /// <param name="mute">Whether the member is to be muted in voice.</param>
-        /// <param name="deaf">Whether the member is to be deafened in voice.</param>
-        /// <param name="voice_channel">Voice channel to put the member into.</param>
-        /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="action">Action to perform on this member.</param>
         /// <returns></returns>
-        public async Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, DiscordChannel voice_channel = null, string reason = null)
+        public async Task ModifyAsync(Action<MemberEditModel> action)
         {
-            if (voice_channel != null && voice_channel.Type != ChannelType.Voice)
-                throw new ArgumentException("Given channel is not a voice channel.", nameof(voice_channel));
+            var mdl = new MemberEditModel();
+            action(mdl);
 
-            if (nickname != null && this.Discord.CurrentUser.Id == this.Id)
+            if (mdl.VoiceChannel != null && mdl.VoiceChannel.Type != ChannelType.Voice)
+                throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
+
+            if (mdl.Nickname != null && this.Discord.CurrentUser.Id == this.Id)
             {
-                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, nickname, reason).ConfigureAwait(false);
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason).ConfigureAwait(false);
+                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, mdl.Nickname, mdl.AuditLogReason).ConfigureAwait(false);
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, mdl.Roles != null ? mdl.Roles.Select(xr => xr.Id) : null,
+                    mdl.Muted, mdl.Deafened, mdl.VoiceChannel?.Id, mdl.AuditLogReason).ConfigureAwait(false);
             }
             else
             {
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason).ConfigureAwait(false);
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname, mdl.Roles != null ? mdl.Roles.Select(xr => xr.Id) : null,
+                    mdl.Muted, mdl.Deafened, mdl.VoiceChannel?.Id, mdl.AuditLogReason).ConfigureAwait(false);
             }
         }
 

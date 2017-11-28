@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
+using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities
 {
@@ -252,18 +253,14 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Modifies the current channel.
         /// </summary>
-        /// <param name="name">New name for the channel.</param>
-        /// <param name="position">New position for the channel.</param>
-        /// <param name="topic">New topic for the channel.</param>
-        /// <param name="parent">Category to put this channel in.</param>
-        /// <param name="bitrate">New voice bitrate for the channel.</param>
-        /// <param name="user_limit">New user limit for the channel.</param>
-        /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="action">Action to perform on this channel</param>
         /// <returns></returns>
-        public Task ModifyAsync(string name = null, int? position = null, string topic = null, Optional<DiscordChannel> parent = default(Optional<DiscordChannel>), int? bitrate = null, 
-            int? user_limit = null, string reason = null)
+        public Task ModifyAsync(Action<ChannelEditModel> action)
         {
-            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, name, position, topic, parent.HasValue ? parent.Value?.Id : default(Optional<ulong?>), bitrate, user_limit, reason);
+            var mdl = new ChannelEditModel();
+            action(mdl);
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, 
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.AuditLogReason);
         }
 
         /// <summary>

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities
 {
@@ -299,38 +300,28 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Modifies this guild.
         /// </summary>
-        /// <param name="name">New name.</param>
-        /// <param name="region">New voice region.</param>
-        /// <param name="icon">New icon.</param>
-        /// <param name="verification_level">New verification level.</param>
-        /// <param name="default_message_notifications">New default notification settings.</param>
-        /// <param name="mfa_level">New MFA requirement setting.</param>
-        /// <param name="explicit_content_filter">New explicit content filter setting.</param>
-        /// <param name="afk_channel">New voice AFK channel.</param>
-        /// <param name="afk_timeout">New timeout after users are going to be moved to the voice AFK channel in seconds.</param>
-        /// <param name="owner">New owner. This can only be changed by current owner.</param>
-        /// <param name="splash">New invite splash.</param>
-        /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="action">Action to perform on this guild..</param>
         /// <returns>The modified guild object.</returns>
-        public async Task<DiscordGuild> ModifyAsync(string name = null, DiscordVoiceRegion region = null, Stream icon = null, VerificationLevel? verification_level = null,
-            DefaultMessageNotifications? default_message_notifications = null, MfaLevel? mfa_level = null, ExplicitContentFilter? explicit_content_filter = null, DiscordChannel afk_channel = null, 
-            int? afk_timeout = null, DiscordMember owner = null, Stream splash = null, string reason = null)
+        public async Task<DiscordGuild> ModifyAsync(Action<GuildEditModel> action)
         {
-            if (afk_channel != null && afk_channel.Type != ChannelType.Voice)
+            var mdl = new GuildEditModel();
+            action(mdl);
+            if (mdl.AfkChannel != null && mdl.AfkChannel.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
             string iconb64 = null;
-            if (icon != null)
-                using (var imgtool = new ImageTool(icon))
+            if (mdl.Icon != null)
+                using (var imgtool = new ImageTool(mdl.Icon))
                     iconb64 = imgtool.GetBase64();
 
             string splashb64 = null;
-            if (splash != null)
-                using (var imgtool = new ImageTool(splash))
+            if (mdl.Splash != null)
+                using (var imgtool = new ImageTool(mdl.Splash))
                     splashb64 = imgtool.GetBase64();
 
-            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, region?.Id, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel?.Id, 
-                afk_timeout, iconb64, owner?.Id, splashb64, reason).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region?.Id, mdl.VerificationLevel, mdl.DefaultMessageNotifications,
+                mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel?.Id,
+                mdl.AfkTimeout, iconb64, mdl.Owner?.Id, splashb64, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>
