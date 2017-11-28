@@ -386,6 +386,41 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.GetGuildBansAsync(Id);
 
         /// <summary>
+        /// Creates a new text channel in this guild.
+        /// </summary>
+        /// <param name="name">Name of the new channel.</param>
+        /// <param name="parent">Category to put this channel in.</param>
+        /// <param name="overwrites">Permission overwrites for this channel.</param>
+        /// <param name="nsfw">Whether the channel is to be flagged as not safe for work.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The newly-created channel.</returns>
+        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, IEnumerable<DiscordOverwrite> overwrites = null, bool? nsfw = null, string reason = null)
+        => this.CreateChannelAsync(name, ChannelType.Text, parent, null, null, overwrites, nsfw, reason);
+        
+        /// <summary>
+        /// Creates a new channel category in this guild.
+        /// </summary>
+        /// <param name="name">Name of the new category.</param>
+        /// <param name="overwrites">Permission overwrites for this category.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The newly-created channel category.</returns>
+        public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwrite> overwrites = null, string reason = null)
+        => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, reason);
+        
+        /// <summary>
+        /// Creates a new voice channel in this guild.
+        /// </summary>
+        /// <param name="name">Name of the new channel.</param>
+        /// <param name="parent">Category to put this channel in.</param>
+        /// <param name="bitrate">Bitrate of the channel.</param>
+        /// <param name="user_limit">Maximum number of users in the channel.</param>
+        /// <param name="overwrites">Permission overwrites for this channel.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The newly-created channel.</returns>
+        public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, string reason = null)
+        => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, reason);
+        
+        /// <summary>
         /// Creates a new channel in this guild.
         /// </summary>
         /// <param name="name">Name of the new channel.</param>
@@ -394,7 +429,7 @@ namespace DSharpPlus.Entities
         /// <param name="bitrate">Bitrate of the channel. Applies to voice only.</param>
         /// <param name="user_limit">Maximum number of users in the channel. Applies to voice only.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
-        /// <param name="nsfw">Whether the channel is to be flagged as not safe for work.</param>
+        /// <param name="nsfw">Whether the channel is to be flagged as not safe for work. Applies to text only.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwrite> overwrites = null, bool? nsfw = null, string reason = null)
