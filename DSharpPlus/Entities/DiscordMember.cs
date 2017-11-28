@@ -297,31 +297,33 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, null, null, null, deaf, null, reason);
 
         /// <summary>
-        /// Modifies this member.
+        /// Renames this member.
         /// </summary>
         /// <param name="nickname">Nickname to set for this member.</param>
-        /// <param name="roles">Roles to set for this member.</param>
-        /// <param name="mute">Whether the member is to be muted in voice.</param>
-        /// <param name="deaf">Whether the member is to be deafened in voice.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public async Task RenameAsync(string nickname, string reason = null)
+        {
+            if (nickname != null && this.Discord.CurrentUser.Id == this.Id)
+                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, nickname, reason).ConfigureAwait(false);
+            else
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, null, null, null, null, reason).ConfigureAwait(false);
+        }
+        
+        /// <summary>
+        /// Move this member to a voice channel.
+        /// </summary>
         /// <param name="voice_channel">Voice channel to put the member into.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public async Task ModifyAsync(string nickname = null, IEnumerable<DiscordRole> roles = null, bool? mute = null, bool? deaf = null, DiscordChannel voice_channel = null, string reason = null)
+        public async Task MoveToAsync(DiscordChannel voice_channel, string reason = null)
         {
-            if (voice_channel != null && voice_channel.Type != ChannelType.Voice)
+            if (voice_channel.Type != ChannelType.Voice)
                 throw new ArgumentException("Given channel is not a voice channel.", nameof(voice_channel));
 
-            if (nickname != null && this.Discord.CurrentUser.Id == this.Id)
-            {
-                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, nickname, reason).ConfigureAwait(false);
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason).ConfigureAwait(false);
-            }
-            else
-            {
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, nickname, roles != null ? roles.Select(xr => xr.Id) : null, mute, deaf, voice_channel?.Id, reason).ConfigureAwait(false);
-            }
+            await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, null, null, null, voice_channel.Id, reason).ConfigureAwait(false);
         }
-
+        
         /// <summary>
         /// Grants a role to the member. 
         /// </summary>

@@ -21,15 +21,24 @@ namespace DSharpPlus.Entities
         internal DiscordGuildEmoji() { }
 
         /// <summary>
-        /// Modifies this emoji.
+        /// Renames this emoji.
         /// </summary>
         /// <param name="name">New name for this emoji.</param>
-        /// <param name="roles">Roles for which this emoji will be available. This works only if your application is whitelisted as integration.</param>
         /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified emoji.</returns>
-        public Task<DiscordGuildEmoji> ModifyAsync(string name, IEnumerable<DiscordRole> roles = null, string reason = null) 
-            => this.Guild.ModifyEmojiAsync(this, name, roles, reason);
-
+        public Task<DiscordGuildEmoji> RenameAsync(string name, string reason = null) 
+            => this.Guild.ModifyEmojiAsync(this, name, null, reason);
+        
+        /// <summary>
+        /// Modifies the list of roles for which this emoji is available.
+        /// This works only if your application is whitelisted as integration.
+        /// </summary>
+        /// <param name="roles">Roles for which this emoji will be available.</param>
+        /// <param name="reason">Reason for audit log.</param>
+        /// <returns>The modified emoji.</returns>
+        public Task<DiscordGuildEmoji> SetRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) 
+            => this.Guild.ModifyEmojiAsync(this, null, roles, reason);
+        
         /// <summary>
         /// Deletes this emoji.
         /// </summary>
