@@ -302,7 +302,7 @@ namespace DSharpPlus.Entities
         /// <param name="name">New name.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> RenameAsync(string name, string reason = null)
+        public async Task<DiscordGuild> RenameAsync(string name, string reason = null)
         {
             return this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, null, null, 
                 null, null, null, null, null, null, null, null, reason);
@@ -314,9 +314,9 @@ namespace DSharpPlus.Entities
         /// <param name="region">New voice region.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetVoiceRegionAsync(DiscordVoiceRegion region, string reason = null)
+        public async Task<DiscordGuild> SetVoiceRegionAsync(DiscordVoiceRegion region, string reason = null)
         {
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, region.Id, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, region.Id, null, 
                 null, null, null, null, null, null, null, null, reason);
         }
         
@@ -326,13 +326,13 @@ namespace DSharpPlus.Entities
         /// <param name="icon">New icon.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetIconAsync(Stream icon, string reason = null)
+        public async Task<DiscordGuild> SetIconAsync(Stream icon, string reason = null)
         {
             string iconb64 = null;
             using (var imgtool = new ImageTool(icon))
                 iconb64 = imgtool.GetBase64();
                     
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
                 null, null, null, null, null, iconb64, null, null, reason);
         }
         
@@ -342,9 +342,9 @@ namespace DSharpPlus.Entities
         /// <param name="verification_level">New verification level.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetVerificationLevelAsync(VerificationLevel verification_level, string reason = null)
+        public async Task<DiscordGuild> SetVerificationLevelAsync(VerificationLevel verification_level, string reason = null)
         {                    
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, verification_level, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, verification_level, 
                 null, null, null, null, null, null, null, null, reason);
         }
         
@@ -354,9 +354,9 @@ namespace DSharpPlus.Entities
         /// <param name="default_message_notifications">New default notification settings.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetDefaultMessageNotificationsAsync(DefaultMessageNotifications default_message_notifications, string reason = null)
+        public async Task<DiscordGuild> SetDefaultMessageNotificationsAsync(DefaultMessageNotifications default_message_notifications, string reason = null)
         {
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
                 default_message_notifications, null, null, null, null, null, null, null, reason);
         }
         
@@ -366,9 +366,9 @@ namespace DSharpPlus.Entities
         /// <param name="mfa_level">New MFA requirement setting.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetMfaAsync(MfaLevel mfa_level, string reason = null)
+        public async Task<DiscordGuild> SetMfaAsync(MfaLevel mfa_level, string reason = null)
         {
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
                 null, mfa_level, null, null, null, null, null, null, reason);
         }
         
@@ -378,9 +378,9 @@ namespace DSharpPlus.Entities
         /// <param name="explicit_content_filter">New explicit content filter setting.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetExplicitContentFilterAsync(ExplicitContentFilter explicit_content_filter, string reason = null)
+        public async Task<DiscordGuild> SetExplicitContentFilterAsync(ExplicitContentFilter explicit_content_filter, string reason = null)
         {
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
                 null, null, explicit_content_filter, null, null, null, null, null, reason);
         }
         
@@ -390,12 +390,12 @@ namespace DSharpPlus.Entities
         /// <param name="afk_channel">New voice AFK channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetAfkChannelAsync(DiscordChannel afk_channel, string reason = null)
+        public async Task<DiscordGuild> SetAfkChannelAsync(DiscordChannel afk_channel, string reason = null)
         {
             if (afk_channel.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
                 null, null, null, afk_channel.Id, null, null, null, null, reason);
         }
         
@@ -405,9 +405,9 @@ namespace DSharpPlus.Entities
         /// <param name="afk_timeout">New timeout after users are going to be moved to the voice AFK channel in seconds.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetAfkTimeoutAsync(int afk_timeout, string reason = null)
+        public async Task<DiscordGuild> SetAfkTimeoutAsync(int afk_timeout, string reason = null)
         {
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
                 null, null, null, null, afk_timeout, null, null, null, reason);
         }
         
@@ -417,9 +417,9 @@ namespace DSharpPlus.Entities
         /// <param name="owner">New owner. This can only be changed by current owner.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetOwnerAsync(DiscordMember owner, string reason = null)
+        public async Task<DiscordGuild> SetOwnerAsync(DiscordMember owner, string reason = null)
         {
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
                 null, null, null, null, null, null, owner.Id, null, reason);
         }
         
@@ -429,13 +429,13 @@ namespace DSharpPlus.Entities
         /// <param name="splash">New invite splash.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public Task<DiscordGuild> SetInviteSplashAsync(DiscordMember owner, string reason = null)
+        public async Task<DiscordGuild> SetInviteSplashAsync(DiscordMember owner, string reason = null)
         {
             string splashb64 = null;
             using (var imgtool = new ImageTool(splash))
                 splashb64 = imgtool.GetBase64();
 
-            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
                 null, null, null, null, null, null, null, splashb64, reason);
         }
 
