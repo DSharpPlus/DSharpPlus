@@ -298,25 +298,25 @@ namespace DSharpPlus.Entities
         /// <summary>  
         /// Returns a list of messages before a certain message.
         /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
-        /// <param name="before">ID of the message to fetch before from.</param>
+        /// <param name="before">Message to fetch before from.</param>
         /// </summary> 
-        public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(int limit = 100, ulong? before = null)
-            => this.GetMessagesAsync(limit, before, null, null);
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(DiscordMessage before, int limit = 100)
+            => this.GetMessagesAsync(limit, before.Id, null, null);
         
         /// <summary>  
         /// Returns a list of messages after a certain message.
         /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
-        /// <param name="before">ID of the message to fetch after from.</param>
+        /// <param name="before">Message to fetch after from.</param>
         /// </summary> 
-        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(int limit = 100, ulong? after = null)
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(DiscordMessage after, int limit = 100)
             => this.GetMessagesAsync(limit, null, after, null);
         
         /// <summary>  
         /// Returns a list of messages around a certain message.
         /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
-        /// <param name="before">ID of the message to fetch around from.</param>
+        /// <param name="before">Message to fetch around from.</param>
         /// </summary> 
-        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(int limit = 100, ulong? around = null)
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(DiscordMessage around, int limit = 100)
             => this.GetMessagesAsync(limit, null, null, around);
         
         [System.Obsolete("GetMessagesAsync is deprecated, please use the separate methods instead.")]
