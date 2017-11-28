@@ -8,7 +8,7 @@ it will also make grabbing additional data for your commands easy.
 
 Right now, your bot is console-mute. Let's change it. Let's make it output all information about its state and doings.
 
-To do that, add the following options to your `DiscordConfig`:
+To do that, add the following options to your `DiscordConfiguration`:
 
 ```cs
 UseInternalLogHandler = true,
@@ -19,8 +19,8 @@ LogLevel = LogLevel.Debug
 
 Using the procedures in the previous article, install a NuGet package called `DSharpPlus.CommandsNext`.
 
-Now you need to enable CommandsNext module on your DiscordClient. Add a new field to your bot's `Program` class: 
-`static CommandsNextModule commands;`
+Now you need to enable CommandsNext extension on your DiscordClient. Add a new field to your bot's `Program` class: 
+`static CommandsNextExtension commands;`
 
 Visual Studio will complain, you also need to add `using DSharpPlus.CommandsNext;` to your usings.
 
@@ -80,7 +80,7 @@ namespace MyFirstBot
     class Program
     {
         static DiscordClient discord;
-        static CommandsNextModule commands;
+        static CommandsNextExtension commands;
 
         static void Main(string[] args)
         {
@@ -89,7 +89,7 @@ namespace MyFirstBot
 
         static async Task MainAsync(string[] args)
         {
-            discord = new DiscordClient(new DiscordConfig
+            discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = "<your token here>",
                 TokenType = TokenType.Bot,
@@ -194,7 +194,7 @@ can convert to the following:
 * Text and character types: `string`, `char`
 * Boolean types: `bool`
 * Date and time types: `DateTime`, `DateTimeOffset`, `TimeSpan`
-* Discord entities: `DiscordGuild`, `DiscordChannel`, `DiscordMember`, `DiscordUser`, `DiscordRole`, `DiscordMessage`, `DiscordEmoji`
+* Discord entities: `DiscordGuild`, `DiscordChannel`, `DiscordMember`, `DiscordUser`, `DiscordRole`, `DiscordMessage`, `DiscordEmoji`, `DiscordColor`
 
 Using these is as simple as declaring additional arguments for your command function. Let's say you want to create a command 
 that generates a random number between the two specified numbers. You can do it by adding two `int` arguments to your function.
@@ -217,5 +217,5 @@ and 10 exclusive.
 
 ## 6. Advanced subjects
 
-Commands are covered more in-depth in [Emzi0767's Example bot #2](https://github.com/Emzi0767/DSharpPlus-Example-Bot/tree/master/DSPlus.Examples.CSharp.Ex02 "Example Bot #2"). If you want to check out all the cool things CommandsNext can 
-do to make your life easier, make sure to check it out.
+Commands are covered more in-depth in [Emzi0767's Example bot #2](https://github.com/Emzi0767/DSharpPlus-Example-Bot/tree/master/DSPlus.Examples.CSharp.Ex02 "Example Bot #2"). 
+If you want to check out all the cool things CommandsNext can do to make your life easier, make sure to check it out.

@@ -41,9 +41,9 @@ connection is decent enough, you could try hosting your bot at home. This has th
 hardware your code runs on, and only costs you as much as your electricity and internet bill. You will also need to take care 
 to secure your bot against outages.
 
-You need to make sure you have all the lasted updates and patches along with all the necessary software installed. It's generally 
+You need to make sure you have all the latest updates and patches along with all the necessary software installed. It's generally 
 recommended your hosting machine has at least 2 CPU cores, and a decent amount of RAM.
 
 ### I have a Pi, can't that be used?
 
-We have a [special guide](/articles/hosting_rpi.html "Hosting on a Rasbperry Pi") for Raspberry Pi.
+We have a [special guide](/articles/hosting/raspberry_pi.html "Hosting on a Rasbperry Pi") for Raspberry Pi.

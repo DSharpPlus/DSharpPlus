@@ -4,7 +4,7 @@ apiRules:
 - exclude:
     uidRegex: ^System\..*$
 - exclude:
-    uidRegex: ^DSharpPlus\.(AsyncEvent|RingBuffer).*$
+    uidRegex: ^DSharpPlus\.RingBuffer.*$
 - exclude:
     uidRegex: ^DSharpPlus\.Base(WebSocket|Udp)Client.*$
 - exclude:

@@ -3,50 +3,58 @@
 - name: Getting started
   items:
   - name: Bot application
-    href: getting_started.md
+    href: getting_started/bot_application.md
   - name: Basic bot
-    href: first_bot.md
+    href: getting_started/basic_bot.md
   - name: Alternate WebSocket clients
-    href: alt_ws.md
-  - name: Notes about hosting using Mono
-    href: mono.md
-  - name: Events
-    href: events.md
+    href: getting_started/alternate_ws.md
+  - name: Event reference
+    href: getting_started/event_reference.md
+  - name: Notes about using Mono
+    href: getting_started/mono.md
 - name: Commands
   items:
   - name: Introduction
-    href: commandsnext.md
-  - name: Interactivity
-    href: interactivity.md
+    href: commands/intro.md
+  - name: Argument converters
+    href: commands/argument_converters.md
+  - name: Dependency injection
+    href: commands/dependency_injection.md
+  - name: Module lifespans
+    href: commands/module_lifespans.md
+- name: Interactivity
+  items:
+  - name: Introduction
+    href: interactivity/intro.md
 - name: Voice
   items:
   - name: Setup
-    href: vnext_setup.md
+    href: voice/setup.md
   - name: Sending
-    href: voicenext.md
+    href: voice/send.md
   - name: Receiving
-    href: voicenext_receive.md
-- name: Advanced topics
-  items:
-  - name: Sharding
-    href: sharding.md
+    href: voice/receive.md
 - name: Hosting
   items:
   - name: Running your bot 24/7
-    href: hosting_options.md
+    href: hosting/options.md
   - name: Hosting on Raspbery Pi
-    href: hosting_rpi.md
+    href: hosting/raspberry_pi.md
 - name: Migrating after major updates
   items:
   - name: DiscordSharp to DSharpPlus
-    href: migdsharp.md
+    href: migration/dsharp.md
   - name: 2.x to 3.x
-    href: mig223.md
+    href: migration/2x_to_3x.md
   - name: 3.x to 4.x
-    href: mig324.md
-- name: Nightly builds
-  href: nightly.md
-- name: Debug symbols
-  href: symbols.md
-- name: Reporting issues
-  href: issues.md
+    href: migration/3x_to_4x.md
+- name: Advanced topics
+  items:
+  - name: Sharding
+    href: advanced/sharding.md
+  - name: Nightly builds
+    href: advanced/nightly_builds.md
+  - name: Debug symbols
+    href: advanced/debug_symbols.md
+  - name: Reporting issues
+    href: advanced/reporting_issues.md

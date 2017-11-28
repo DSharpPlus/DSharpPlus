@@ -1,7 +1,7 @@
 # Halp! I tried ~~hard drugs~~ Mono and my bot crashes on start!
 
 Mono is an open-source implementation of the .NET Framework for non-Windows operating systems. However, it has a large 
-share of flaws, some of which break support for DSharpPlus without extra effort. It is generally recommended you stay 
+number of flaws, some of which break support for DSharpPlus without extra effort. It is generally recommended you stay 
 away from it.
 
 ## But I cannot use Windows! What do?
@@ -37,7 +37,7 @@ Mono lacks support for most of the HTTP-related code from .NETFX Base Class Libr
 you install an alternative WebSocket client implementation.
 
 To achieve that, follow the instructions outlined in the 
-[Alternate WebSocket client implementations](/articles/alt_ws.html "Alternate WebSocket client implementations") 
+[Alternate WebSocket client implementations](/articles/getting_started/alternate_ws.html "Alternate WebSocket client implementations") 
 section of the guide.
 
 ### Place validation callback override in your code

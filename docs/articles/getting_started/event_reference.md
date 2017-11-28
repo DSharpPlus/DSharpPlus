@@ -53,7 +53,7 @@ Task MyEventHandlerMethod()
 ## Parameterized event handlers
 
 This is largely similar to parameter-less, except these event handlers take appropriate `EventArgs`, that are derived from 
-[DiscordEventArgs class](/api/DSharpPlus.EventArgs.DiscordEventArgs.html).
+@DSharpPlus.EventArgs.DiscordEventArgs.
 
 ```cs
 discord.MessageCreated += async e =>
@@ -82,3 +82,9 @@ Task MyEventHandlerMethod()
 	return Task.CompletedTask; // or Task.Delay(0); if targeting .NET 4.5.x
 }
 ```
+
+## Preventing further event handlers from running
+
+Parametrized asynchronous events take instances that derive from @DSharpPlus.AsyncEventArgs. This means they 
+have a @DSharpPlus.AsyncEventArgs.Handled property, which, if set to `true` prevents further event handlers 
+from executing.

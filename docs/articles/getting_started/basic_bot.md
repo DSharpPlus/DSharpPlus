@@ -22,7 +22,7 @@ IDEs (so long as they support .NET Core).
 If you're using Windows 7, create a regular .NET Framework project (it's required you target at least .NET 4.5; we recommend 
 4.7).
 
-Make sure you read the article about [Alternate WebSocket Client Implementations](/articles/alt_ws.html).
+Make sure you read the article about [Alternate WebSocket Client Implementations](/articles/getting_started/alternate_ws.html).
 
 ## 1. Creating your project
 
@@ -166,7 +166,7 @@ If this is the case, you are ready to move on.
 Hit F5. This will compile your code and run the project. If all went well, your bot should now be online and respond to 
 messages that start with ping.
 
-If you're a Windows 7 user, it won't work. Read the [Alternate WebSocket Client Implementations](/articles/alt_ws.html) 
+If you're a Windows 7 user, it won't work. Read the [Alternate WebSocket Client Implementations](/articles/getting_started/alternate_ws.html) 
 on ways to fix the issue.
 
 ![Step 9](/images/02_08_alive.png)

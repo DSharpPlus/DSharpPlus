@@ -28,29 +28,56 @@ If none of these fit your criteria, you can make your own implementation, using 
 First, you need to install the desired WebSocket client implementation. If you're installing from NuGet, the procedure is the 
 same as for all other DSharpPlus packages.
 
-Then you need to indicate that DSharpPlus should use that specific WebSocket implementation. This is done by calling 
-@DSharpPlus.DiscordClient.SetWebSocketClient``1 method with appropriate generic argument right after you instantiate your 
-Discord client.
+Then you need to indicate that DSharpPlus should use that specific WebSocket implementation. This is done by setting an 
+appropriate factory method in @DSharpPlus.DiscordConfiguration.WebSocketClientFactory property in your @DSharpPlus.DiscordConfiguration instance.
 
-For example, for WS4Net client, you need to call it as:
+The factory methods are static methods, that return an instance of @DSharpPlus.Net.WebSocket.BaseWebSocketClient, and take a `System.Net.IWebProxy` 
+as an argument. For provided implementations, they are called `CreateNew`, and are available on the implementation classes:
+
+* WebSocket4Net: @DSharpPlus.Net.WebSocket.WebSocket4NetClient.CreateNew(IWebProxy)
+* WebSocket4NetCore: @DSharpPlus.Net.WebSocket.WebSocket4NetCoreClient.CreateNew(IWebProxy)
+* WebSocketSharp: @DSharpPlus.Net.WebSocket.WebSocketSharpClient.CreateNew(IWebProxy)
+
+In order to use a specific implementation, you pass selected factory method to the aformentioned `WebSocketClientFactory` property.
+
+For example, for WS4Net client, you need to set it like this:
 
 ```cs
-client.SetWebSocketClient<WebSocket4NetClient>();
+var config = new DiscordConfiguration
+{
+	Token = "my.token.here",
+	TokenType = TokenType.Bot,
+	// yadda yadda
+	WebSocketClientFactory = WebSocket4NetClient.CreateNew
+};
 ```
 
 For WS4NetCore:
 
 ```cs
-client.SetWebSocketClient<WebSocket4NetCoreClient>();
+var config = new DiscordConfiguration
+{
+	Token = "my.token.here",
+	TokenType = TokenType.Bot,
+	// yadda yadda
+	WebSocketClientFactory = WebSocket4NetCoreClient.CreateNew
+};
 ```
 
 Similarly, for WS#:
 
 ```cs
-client.SetWebSocketClient<WebSocketSharpClient>();
+var config = new DiscordConfiguration
+{
+	Token = "my.token.here",
+	TokenType = TokenType.Bot,
+	// yadda yadda
+	WebSocketClientFactory = WebSocketSharpClient.CreateNew
+};
 ```
 
-For any other implementation, make sure it's a class that inherits from @DSharpPlus.Net.WebSocket.BaseWebSocketClient class 
-and has a public parameter-less constructor.
+For any other implementation, make sure you have a class that inherits from @DSharpPlus.Net.WebSocket.BaseWebSocketClient class, 
+implements its abstract members, and has a public constructor which takes a `System.Net.IWebProxy` as an argument. Provide a factory 
+method which instantiates this implementation, and you're good to go.
 
 Lastly, don't forget to add `using DSharpPlus.Net.WebSocket;` at the top of your `.cs` file.
