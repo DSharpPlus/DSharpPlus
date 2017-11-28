@@ -104,5 +104,8 @@ namespace DSharpPlus.Entities
         {
             return $"#{this.Value.ToString("X6")}";
         }
+
+        public static implicit operator DiscordColor(int value)
+            => new DiscordColor(value);
     }
 }

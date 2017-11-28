@@ -1,11 +1,11 @@
-﻿namespace DSharpPlus.CommandsNext.Converters
+﻿using System.Threading.Tasks;
+using DSharpPlus.Entities;
+
+namespace DSharpPlus.CommandsNext.Converters
 {
     public class StringConverter : IArgumentConverter<string>
     {
-        public bool TryConvert(string value, CommandContext ctx, out string result)
-        {
-            result = value;
-            return true;
-        }
+        public Task<Optional<string>> ConvertAsync(string value, CommandContext ctx)
+            => Task.FromResult(Optional<string>.FromValue(value));
     }
 }

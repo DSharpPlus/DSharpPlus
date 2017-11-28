@@ -157,7 +157,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="value">Value to convert.</param>
         /// <param name="ctx">Context in which to convert to.</param>
         /// <returns>Converted object.</returns>
-        public static object ConvertArgument<T>(this string value, CommandContext ctx)
+        public static async Task<object> ConvertArgument<T>(this string value, CommandContext ctx)
         {
             var t = typeof(T);
             if (!ArgumentConverters.ContainsKey(t))
@@ -167,10 +167,11 @@ namespace DSharpPlus.CommandsNext
             if (cv == null)
                 throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
 
-            if (!cv.TryConvert(value, ctx, out var result))
+            var cvr = await cv.ConvertAsync(value, ctx);
+            if (!cvr.HasValue)
                 throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
 
-            return result;
+            return cvr.Value;
         }
 
         /// <summary>
@@ -180,12 +181,12 @@ namespace DSharpPlus.CommandsNext
         /// <param name="ctx">Context in which to convert to.</param>
         /// <param name="type">Type to convert to.</param>
         /// <returns>Converted object.</returns>
-        public static object ConvertArgument(this string value, CommandContext ctx, Type type)
+        public static async Task<object> ConvertArgument(this string value, CommandContext ctx, Type type)
         {
             var m = ConvertGeneric.MakeGenericMethod(type);
             try
             {
-                return m.Invoke(null, new object[] { value, ctx });
+                return await (m.Invoke(null, new object[] { value, ctx }) as Task<object>);
             }
             catch (TargetInvocationException ex)
             {
@@ -367,7 +368,7 @@ namespace DSharpPlus.CommandsNext
             return s.Remove(li - ll + 1, ll);
         }
 
-        internal static object[] BindArguments(CommandContext ctx, bool ignoreSurplus, out IReadOnlyList<string> rawArguments)
+        internal static async Task<ArgumentBindingResult> BindArguments(CommandContext ctx, bool ignoreSurplus)
         {
             var cmd = ctx.Command;
 
@@ -433,7 +434,7 @@ namespace DSharpPlus.CommandsNext
                     var start = i;
                     while (i < argr.Count)
                     {
-                        arr.SetValue(ConvertArgument(argr[i], ctx, arg.Type), i - start);
+                        arr.SetValue(await ConvertArgument(argr[i], ctx, arg.Type), i - start);
                         i++;
                     }
 
@@ -442,12 +443,11 @@ namespace DSharpPlus.CommandsNext
                 }
                 else
                 {
-                    args[i + 1] = argr[i] != null ? ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
+                    args[i + 1] = argr[i] != null ? await ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
                 }
             }
 
-            rawArguments = new ReadOnlyCollection<string>(argr);
-            return args;
+            return new ArgumentBindingResult(args, argr);
         }
 
         internal static bool IsModuleCandidateType(this Type type)

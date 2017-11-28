@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters
@@ -18,19 +19,21 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public bool TryConvert(string value, CommandContext ctx, out DiscordUser result)
+        public async Task<Optional<DiscordUser>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
-                result = ctx.Client.GetUserAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
-                return true;
+                var result = await ctx.Client.GetUserAsync(uid).ConfigureAwait(false);
+                var ret = result != null ? Optional<DiscordUser>.FromValue(result) : Optional<DiscordUser>.FromNoValue();
+                return ret;
             }
 
             var m = UserRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
             {
-                result = ctx.Client.GetUserAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
-                return true;
+                var result = await ctx.Client.GetUserAsync(uid).ConfigureAwait(false);
+                var ret = result != null ? Optional<DiscordUser>.FromValue(result) : Optional<DiscordUser>.FromNoValue();
+                return ret;
             }
 
             var cs = ctx.Config.CaseSensitive;
@@ -45,8 +48,8 @@ namespace DSharpPlus.CommandsNext.Converters
                 .SelectMany(xkvp => xkvp.Value.Members)
                 .Where(xm => (cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null));
             
-            result = us.FirstOrDefault();
-            return result != null;
+            var usr = us.FirstOrDefault();
+            return usr != null ? Optional<DiscordUser>.FromValue(usr) : Optional<DiscordUser>.FromNoValue();
         }
     }
 
@@ -63,19 +66,21 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public bool TryConvert(string value, CommandContext ctx, out DiscordMember result)
+        public async Task<Optional<DiscordMember>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
-                result = ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
-                return true;
+                var result = await ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false);
+                var ret = result != null ? Optional<DiscordMember>.FromValue(result) : Optional<DiscordMember>.FromNoValue();
+                return ret;
             }
 
             var m = UserRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
             {
-                result = ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
-                return true;
+                var result = await ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false);
+                var ret = result != null ? Optional<DiscordMember>.FromValue(result) : Optional<DiscordMember>.FromNoValue();
+                return ret;
             }
 
             var cs = ctx.Config.CaseSensitive;
@@ -90,8 +95,8 @@ namespace DSharpPlus.CommandsNext.Converters
                 .Where(xm => ((cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null)) 
                           || (cs ? xm.Nickname : xm.Nickname?.ToLowerInvariant()) == value);
 
-            result = us.FirstOrDefault();
-            return result != null;
+            var mbr = us.FirstOrDefault();
+            return mbr != null ? Optional<DiscordMember>.FromValue(mbr) : Optional<DiscordMember>.FromNoValue();
         }
     }
 
@@ -108,27 +113,29 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public bool TryConvert(string value, CommandContext ctx, out DiscordChannel result)
+        public Task<Optional<DiscordChannel>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid))
             {
-                result = ctx.Guild.Channels.FirstOrDefault(xc => xc.Id == cid);
-                return true;
+                var result = ctx.Guild.Channels.FirstOrDefault(xc => xc.Id == cid);
+                var ret = result != null ? Optional<DiscordChannel>.FromValue(result) : Optional<DiscordChannel>.FromNoValue();
+                return Task.FromResult(ret);
             }
 
             var m = ChannelRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cid))
             {
-                result = ctx.Guild.Channels.FirstOrDefault(xc => xc.Id == cid);
-                return true;
+                var result = ctx.Guild.Channels.FirstOrDefault(xc => xc.Id == cid);
+                var ret = result != null ? Optional<DiscordChannel>.FromValue(result) : Optional<DiscordChannel>.FromNoValue();
+                return Task.FromResult(ret);
             }
 
             var cs = ctx.Config.CaseSensitive;
             if (!cs)
                 value = value.ToLowerInvariant();
 
-            result = ctx.Guild.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
-            return result != null;
+            var chn = ctx.Guild.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
+            return Task.FromResult(chn != null ? Optional<DiscordChannel>.FromValue(chn) : Optional<DiscordChannel>.FromNoValue());
         }
     }
 
@@ -145,60 +152,65 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public bool TryConvert(string value, CommandContext ctx, out DiscordRole result)
+        public Task<Optional<DiscordRole>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var rid))
             {
-                result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
-                return true;
+                var result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
+                var ret = result != null ? Optional<DiscordRole>.FromValue(result) : Optional<DiscordRole>.FromNoValue();
+                return Task.FromResult(ret);
             }
 
             var m = RoleRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out rid))
             {
-                result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
-                return true;
+                var result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
+                var ret = result != null ? Optional<DiscordRole>.FromValue(result) : Optional<DiscordRole>.FromNoValue();
+                return Task.FromResult(ret);
             }
 
             var cs = ctx.Config.CaseSensitive;
             if (!cs)
                 value = value.ToLowerInvariant();
 
-            result = ctx.Guild.Roles.FirstOrDefault(xr => (cs ? xr.Name : xr.Name.ToLowerInvariant()) == value);
-            return result != null;
+            var rol = ctx.Guild.Roles.FirstOrDefault(xr => (cs ? xr.Name : xr.Name.ToLowerInvariant()) == value);
+            return Task.FromResult(rol != null ? Optional<DiscordRole>.FromValue(rol) : Optional<DiscordRole>.FromNoValue());
         }
     }
 
     public class DiscordGuildConverter : IArgumentConverter<DiscordGuild>
     {
-        public bool TryConvert(string value, CommandContext ctx, out DiscordGuild result)
+        public Task<Optional<DiscordGuild>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var gid))
             {
-                return ctx.Client.Guilds.TryGetValue(gid, out result);
+                if (ctx.Client.Guilds.TryGetValue(gid, out var result))
+                    return Task.FromResult(Optional<DiscordGuild>.FromValue(result));
+                else
+                    return Task.FromResult(Optional<DiscordGuild>.FromNoValue());
             }
 
             var cs = ctx.Config.CaseSensitive;
             if (!cs)
                 value = value?.ToLowerInvariant();
 
-            result = ctx.Client.Guilds.Values.FirstOrDefault(xg => (cs ? xg.Name : xg.Name.ToLowerInvariant()) == value);
-            return result != null;
+            var gld = ctx.Client.Guilds.Values.FirstOrDefault(xg => (cs ? xg.Name : xg.Name.ToLowerInvariant()) == value);
+            return Task.FromResult(gld != null ? Optional<DiscordGuild>.FromValue(gld) : Optional<DiscordGuild>.FromNoValue());
         }
     }
 
     public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
     {
-        public bool TryConvert(string value, CommandContext ctx, out DiscordMessage result)
+        public async Task<Optional<DiscordMessage>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var mid))
             {
-                result = ctx.Channel.GetMessageAsync(mid).ConfigureAwait(false).GetAwaiter().GetResult();
-                return true;
+                var result = await ctx.Channel.GetMessageAsync(mid).ConfigureAwait(false);
+                var ret = result != null ? Optional<DiscordMessage>.FromValue(result) : Optional<DiscordMessage>.FromNoValue();
+                return ret;
             }
 
-            result = null;
-            return false;
+            return Optional<DiscordMessage>.FromNoValue();
         }
     }
 
@@ -215,24 +227,25 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public bool TryConvert(string value, CommandContext ctx, out DiscordEmoji result)
+        public Task<Optional<DiscordEmoji>> ConvertAsync(string value, CommandContext ctx)
         {
             if (DiscordEmoji.UnicodeEmojiList.Contains(value))
             {
-                result = DiscordEmoji.FromUnicode(ctx.Client, value);
-                return true;
+                var result = DiscordEmoji.FromUnicode(ctx.Client, value);
+                var ret = result != null ? Optional<DiscordEmoji>.FromValue(result) : Optional<DiscordEmoji>.FromNoValue();
+                return Task.FromResult(ret);
             }
 
             var m = EmoteRegex.Match(value);
             if (m.Success)
             {
                 var id = ulong.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture);
-                result = DiscordEmoji.FromGuildEmote(ctx.Client, id);
-                return true;
+                var result = DiscordEmoji.FromGuildEmote(ctx.Client, id);
+                var ret = result != null ? Optional<DiscordEmoji>.FromValue(result) : Optional<DiscordEmoji>.FromNoValue();
+                return Task.FromResult(ret);
             }
 
-            result = null;
-            return false;
+            return Task.FromResult(Optional<DiscordEmoji>.FromNoValue());
         }
     }
 
@@ -252,16 +265,11 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public bool TryConvert(string value, CommandContext ctx, out DiscordColor result)
+        public Task<Optional<DiscordColor>> ConvertAsync(string value, CommandContext ctx)
         {
-            result = default;
-
             var m = ColorRegexHex.Match(value);
             if (m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var clr))
-            {
-                result = new DiscordColor(clr);
-                return true;
-            }
+                return Task.FromResult(Optional<DiscordColor>.FromValue(clr));
 
             m = ColorRegexRgb.Match(value);
             if (m.Success)
@@ -271,13 +279,12 @@ namespace DSharpPlus.CommandsNext.Converters
                 var p3 = byte.TryParse(m.Groups[3].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var b);
 
                 if (!(p1 && p2 && p3))
-                    return false;
-
-                result = new DiscordColor(r, g, b);
-                return true;
+                    return Task.FromResult(Optional<DiscordColor>.FromNoValue());
+                
+                return Task.FromResult(Optional<DiscordColor>.FromValue(new DiscordColor(r, g, b)));
             }
-            
-            return false;
+
+            return Task.FromResult(Optional<DiscordColor>.FromNoValue());
         }
     }
 }

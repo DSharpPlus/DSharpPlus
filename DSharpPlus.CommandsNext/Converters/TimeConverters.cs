@@ -1,19 +1,31 @@
 ﻿using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters
 {
     public class DateTimeConverter : IArgumentConverter<DateTime>
     {
-        public bool TryConvert(string value, CommandContext ctx, out DateTime result) 
-            => DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
+        public Task<Optional<DateTime>> ConvertAsync(string value, CommandContext ctx)
+        {
+            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+                return Task.FromResult(new Optional<DateTime>(result));
+
+            return Task.FromResult(Optional<DateTime>.FromNoValue());
+        }
     }
 
     public class DateTimeOffsetConverter : IArgumentConverter<DateTimeOffset>
     {
-        public bool TryConvert(string value, CommandContext ctx, out DateTimeOffset result) 
-            => DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
+        public Task<Optional<DateTimeOffset>> ConvertAsync(string value, CommandContext ctx)
+        {
+            if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+                return Task.FromResult(Optional<DateTimeOffset>.FromValue(result));
+
+            return Task.FromResult(Optional<DateTimeOffset>.FromNoValue());
+        }
     }
 
     public class TimeSpanConverter : IArgumentConverter<TimeSpan>
@@ -29,25 +41,24 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public bool TryConvert(string value, CommandContext ctx, out TimeSpan result)
+        public Task<Optional<TimeSpan>> ConvertAsync(string value, CommandContext ctx)
         {
-            result = TimeSpan.Zero;
             if (value == "0")
-                return true;
+                return Task.FromResult(Optional<TimeSpan>.FromValue(TimeSpan.Zero));
 
             if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
-                return false;
+                return Task.FromResult(Optional<TimeSpan>.FromNoValue());
 
             if (!ctx.Config.CaseSensitive)
                 value = value.ToLowerInvariant();
 
-            if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out result))
-                return true;
-            
+            if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
+                return Task.FromResult(Optional<TimeSpan>.FromValue(result));
+
             var gps = new string[] { "days", "hours", "minutes", "seconds" };
             var mtc = TimeSpanRegex.Match(value);
             if (!mtc.Success)
-                return false;
+                return Task.FromResult(Optional<TimeSpan>.FromNoValue());
 
             var d = 0;
             var h = 0;
@@ -81,7 +92,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 }
             }
             result = new TimeSpan(d, h, m, s);
-            return true;
+            return Task.FromResult(Optional<TimeSpan>.FromValue(result));
         }
     }
 }
