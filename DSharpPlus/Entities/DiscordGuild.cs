@@ -297,40 +297,146 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteGuildAsync(this.Id);
 
         /// <summary>
-        /// Modifies this guild.
+        /// Renames this guild.
         /// </summary>
         /// <param name="name">New name.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> RenameAsync(string name, string reason = null)
+        {
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, null, null, 
+                null, null, null, null, null, null, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's voice region.
+        /// </summary>
         /// <param name="region">New voice region.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetVoiceRegionAsync(DiscordVoiceRegion region, string reason = null)
+        {
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, region.Id, null, 
+                null, null, null, null, null, null, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's icon.
+        /// </summary>
         /// <param name="icon">New icon.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetIconAsync(Stream icon, string reason = null)
+        {
+            string iconb64 = null;
+            using (var imgtool = new ImageTool(icon))
+                iconb64 = imgtool.GetBase64();
+                    
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+                null, null, null, null, null, iconb64, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's verification level.
+        /// </summary>
         /// <param name="verification_level">New verification level.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetVerificationLevelAsync(VerificationLevel verification_level, string reason = null)
+        {                    
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, verification_level, 
+                null, null, null, null, null, null, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's default message notifications.
+        /// </summary>
         /// <param name="default_message_notifications">New default notification settings.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetDefaultMessageNotificationsAsync(DefaultMessageNotifications default_message_notifications, string reason = null)
+        {
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+                default_message_notifications, null, null, null, null, null, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's MFA requirement setting.
+        /// </summary>
         /// <param name="mfa_level">New MFA requirement setting.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetMfaAsync(MfaLevel mfa_level, string reason = null)
+        {
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+                null, mfa_level, null, null, null, null, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's explicit content filter setting.
+        /// </summary>
         /// <param name="explicit_content_filter">New explicit content filter setting.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetExplicitContentFilterAsync(ExplicitContentFilter explicit_content_filter, string reason = null)
+        {
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+                null, null, explicit_content_filter, null, null, null, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's AFK voice channel.
+        /// </summary>
         /// <param name="afk_channel">New voice AFK channel.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetAfkChannelAsync(DiscordChannel afk_channel, string reason = null)
+        {
+            if (afk_channel.Type != ChannelType.Voice)
+                throw new ArgumentException("AFK channel needs to be a voice channel.");
+
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+                null, null, null, afk_channel.Id, null, null, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's AFK timeout (in seconds).
+        /// </summary>
         /// <param name="afk_timeout">New timeout after users are going to be moved to the voice AFK channel in seconds.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetAfkTimeoutAsync(int afk_timeout, string reason = null)
+        {
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+                null, null, null, null, afk_timeout, null, null, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's owner.
+        /// </summary>
         /// <param name="owner">New owner. This can only be changed by current owner.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The modified guild object.</returns>
+        public Task<DiscordGuild> SetOwnerAsync(DiscordMember owner, string reason = null)
+        {
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+                null, null, null, null, null, null, owner.Id, null, reason);
+        }
+        
+        /// <summary>
+        /// Sets this guild's invite splash.
+        /// </summary>
         /// <param name="splash">New invite splash.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified guild object.</returns>
-        public async Task<DiscordGuild> ModifyAsync(string name = null, DiscordVoiceRegion region = null, Stream icon = null, VerificationLevel? verification_level = null,
-            DefaultMessageNotifications? default_message_notifications = null, MfaLevel? mfa_level = null, ExplicitContentFilter? explicit_content_filter = null, DiscordChannel afk_channel = null, 
-            int? afk_timeout = null, DiscordMember owner = null, Stream splash = null, string reason = null)
+        public Task<DiscordGuild> SetInviteSplashAsync(DiscordMember owner, string reason = null)
         {
-            if (afk_channel != null && afk_channel.Type != ChannelType.Voice)
-                throw new ArgumentException("AFK channel needs to be a voice channel.");
-
-            string iconb64 = null;
-            if (icon != null)
-                using (var imgtool = new ImageTool(icon))
-                    iconb64 = imgtool.GetBase64();
-
             string splashb64 = null;
-            if (splash != null)
-                using (var imgtool = new ImageTool(splash))
-                    splashb64 = imgtool.GetBase64();
+            using (var imgtool = new ImageTool(splash))
+                splashb64 = imgtool.GetBase64();
 
-            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, name, region?.Id, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel?.Id, 
-                afk_timeout, iconb64, owner?.Id, splashb64, reason).ConfigureAwait(false);
+            return this.Discord.ApiClient.ModifyGuildAsync(this.Id, null, null, null, 
+                null, null, null, null, null, null, null, splashb64, reason);
         }
 
         /// <summary>
