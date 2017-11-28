@@ -443,6 +443,18 @@ namespace DSharpPlus.Entities
             return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, bitrate, user_limit, overwrites, nsfw, reason);
         }
 
+        // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.
+        /// <summary>
+        /// <para>Deletes all channels in this guild.</para>
+        /// <para>Note that this is irreversible. Use carefully!</para>
+        /// </summary>
+        /// <returns></returns>
+        public Task DeleteAllChannelsAsync()
+        {
+            var tasks = this.Channels.Select(xc => xc.DeleteAsync());
+            return Task.WhenAll(tasks);
+        }
+
         /// <summary>
         /// Estimates the number of users to be pruned.
         /// </summary>
