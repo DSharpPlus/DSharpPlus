@@ -62,7 +62,7 @@ namespace DSharpPlus.Entities
         /// Modifies this webhook.
         /// </summary>
         /// <param name="name">New default name for this webhook.</param>
-        /// <param name="base64avatar">New avatar for this webhook.</param>
+        /// <param name="avatar">New avatar for this webhook.</param>
         /// <returns>The modified webhook.</returns>
         public Task<DiscordWebhook> ModifyAsync(string name = null, Stream avatar = null)
         {
