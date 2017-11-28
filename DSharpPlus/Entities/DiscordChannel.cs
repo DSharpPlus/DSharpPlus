@@ -284,7 +284,7 @@ namespace DSharpPlus.Entities
         /// <param name="parent">Category to put this channel in.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task SetParentAsync(Optional<DiscordChannel> parent topic, string reason = null)
+        public Task SetParentAsync(Optional<DiscordChannel> parent, string reason = null)
         {
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot set parent of non-guild channels.");
