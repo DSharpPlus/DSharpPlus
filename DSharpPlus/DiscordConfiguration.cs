@@ -158,6 +158,8 @@ namespace DSharpPlus
             this.GatewayCompressionLevel = other.GatewayCompressionLevel;
             this.MessageCacheSize = other.MessageCacheSize;
             this.AutomaticGuildSync = other.AutomaticGuildSync;
+            this.WebSocketClientFactory = other.WebSocketClientFactory;
+            this.UdpClientFactory = other.UdpClientFactory;
         }
     }
 }
