@@ -289,7 +289,7 @@ namespace DSharpPlus.Entities
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot set parent of non-guild channels.");
                 
-            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, null, null, null, parent, null, null, reason);
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, null, null, null, parent.HasValue ? parent.Value?.Id : default(Optional<ulong?>), null, null, reason);
         }
 
         /// <summary>
