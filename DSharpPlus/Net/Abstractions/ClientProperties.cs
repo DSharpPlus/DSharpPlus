@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
+#if !HAS_ENVIRONMENT
 using System.Runtime.InteropServices;
+#endif
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
