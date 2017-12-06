@@ -91,6 +91,20 @@ namespace DSharpPlus.Test
             [Command("bool"), Description("Attempts to bind a boolean.")]
             public Task BoolAsync(CommandContext ctx, bool b)
                 => ctx.RespondAsync($"{b}");
+
+            [Command("nullable"), Description("Attempts to bind a nullable integer.")]
+            public Task NullableAsync(CommandContext ctx, int? x = 4)
+                => ctx.RespondAsync(x?.ToString("#,##0") ?? "<null>");
+
+            //[Command("enum"), Description("Attempts to bind an enum value.")]
+            //public Task EnumAsync(CommandContext ctx, TestEnum? te = null)
+            //    => ctx.RespondAsync(te?.ToString() ?? "<null>");
+
+            //public enum TestEnum
+            //{
+            //    String,
+            //    Integer
+            //}
         }
 
         // this is a mention of _moonPtr#8058 (276460831187664897)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -18,9 +17,9 @@ namespace DSharpPlus.CommandsNext
     public static class CommandsNextUtilities
     {
         private static Regex UserRegex { get; }
-        private static Dictionary<Type, IArgumentConverter> ArgumentConverters { get; }
         private static MethodInfo ConvertGeneric { get; }
         private static Dictionary<Type, string> UserFriendlyTypeNames { get; }
+        internal static Dictionary<Type, IArgumentConverter> ArgumentConverters { get; }
 
         static CommandsNextUtilities()
         {
@@ -54,11 +53,6 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordColor)] = new DiscordColorConverter()
             };
 
-            var t = typeof(CommandsNextUtilities);
-            var ms = t.GetTypeInfo().DeclaredMethods;
-            var m = ms.FirstOrDefault(xm => xm.Name == "ConvertArgument" && xm.ContainsGenericParameters && xm.IsStatic && xm.IsPublic);
-            ConvertGeneric = m;
-
             UserFriendlyTypeNames = new Dictionary<Type, string>()
             {
                 [typeof(string)] = "string",
@@ -86,6 +80,30 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordEmoji)] = "emoji",
                 [typeof(DiscordColor)] = "color"
             };
+
+            var ncvt = typeof(NullableConverter<>);
+            var nt = typeof(Nullable<>);
+            var cvts = ArgumentConverters.Keys.ToArray();
+            foreach (var xt in cvts)
+            {
+                var xti = xt.GetTypeInfo();
+                if (!xti.IsValueType)
+                    continue;
+
+                var xcvt = ncvt.MakeGenericType(xt);
+                var xnt = nt.MakeGenericType(xt);
+                if (ArgumentConverters.ContainsKey(xcvt))
+                    continue;
+
+                var xcv = Activator.CreateInstance(xcvt) as IArgumentConverter;
+                ArgumentConverters[xnt] = xcv;
+                UserFriendlyTypeNames[xnt] = UserFriendlyTypeNames[xt];
+            }
+
+            var t = typeof(CommandsNextUtilities);
+            var ms = t.GetTypeInfo().DeclaredMethods;
+            var m = ms.FirstOrDefault(xm => xm.Name == "ConvertArgument" && xm.ContainsGenericParameters && xm.IsStatic && xm.IsPublic);
+            ConvertGeneric = m;
         }
 
         /// <summary>
@@ -204,7 +222,20 @@ namespace DSharpPlus.CommandsNext
             if (converter == null)
                 throw new ArgumentNullException("Converter cannot be null.", nameof(converter));
 
-            ArgumentConverters[typeof(T)] = converter;
+            var t = typeof(T);
+            var ti = t.GetTypeInfo();
+            ArgumentConverters[t] = converter;
+
+            if (!ti.IsValueType)
+                return;
+
+            var ncvt = typeof(NullableConverter<>).MakeGenericType(t);
+            var nt = typeof(Nullable<>).MakeGenericType(t);
+            if (ArgumentConverters.ContainsKey(nt))
+                return;
+
+            var ncv = Activator.CreateInstance(ncvt) as IArgumentConverter;
+            ArgumentConverters[nt] = ncv;
         }
 
         /// <summary>
@@ -214,11 +245,22 @@ namespace DSharpPlus.CommandsNext
         public static void UnregisterConverter<T>()
         {
             var t = typeof(T);
+            var ti = t.GetTypeInfo();
             if (ArgumentConverters.ContainsKey(t))
                 ArgumentConverters.Remove(t);
 
             if (UserFriendlyTypeNames.ContainsKey(t))
                 UserFriendlyTypeNames.Remove(t);
+
+            if (!ti.IsValueType)
+                return;
+            
+            var nt = typeof(Nullable<>).MakeGenericType(t);
+            if (!ArgumentConverters.ContainsKey(nt))
+                return;
+
+            ArgumentConverters.Remove(nt);
+            UserFriendlyTypeNames.Remove(nt);
         }
 
         /// <summary>
@@ -232,10 +274,18 @@ namespace DSharpPlus.CommandsNext
                 throw new ArgumentNullException("Name cannot be null or empty.", nameof(value));
 
             var t = typeof(T);
+            var ti = t.GetTypeInfo();
             if (!ArgumentConverters.ContainsKey(t))
                 throw new InvalidOperationException("Cannot register a friendly name for a type which has no associated converter.");
 
             UserFriendlyTypeNames[t] = value;
+
+            if (!ti.IsValueType)
+                return;
+
+            var ncvt = typeof(NullableConverter<>).MakeGenericType(t);
+            var nt = typeof(Nullable<>).MakeGenericType(t);
+            UserFriendlyTypeNames[nt] = value;
         }
 
         /// <summary>
@@ -247,6 +297,17 @@ namespace DSharpPlus.CommandsNext
         {
             if (UserFriendlyTypeNames.ContainsKey(t))
                 return UserFriendlyTypeNames[t];
+
+            var ti = t.GetTypeInfo();
+            if (ti.IsGenericTypeDefinition && t.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var tn = ti.GenericTypeArguments[0];
+                if (UserFriendlyTypeNames.ContainsKey(tn))
+                    return UserFriendlyTypeNames[tn];
+
+                return tn.Name;
+            }
+
             return t.Name;
         }
 
