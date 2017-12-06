@@ -24,6 +24,10 @@ namespace DSharpPlus.CommandsNext
         private CommandsNextConfiguration Config { get; }
         private HelpFormatterFactory HelpFormatter { get; }
 
+        private MethodInfo ConvertGeneric { get; }
+        private Dictionary<Type, string> UserFriendlyTypeNames { get; }
+        internal Dictionary<Type, IArgumentConverter> ArgumentConverters { get; }
+
         /// <summary>
         /// Gets the service provider this CommandsNext module was configured with.
         /// </summary>
@@ -37,41 +41,96 @@ namespace DSharpPlus.CommandsNext
             this._registered_commands_lazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
             this.HelpFormatter = new HelpFormatterFactory();
             this.HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
+
+            this.ArgumentConverters = new Dictionary<Type, IArgumentConverter>
+            {
+                [typeof(string)] = new StringConverter(),
+                [typeof(bool)] = new BoolConverter(),
+                [typeof(sbyte)] = new Int8Converter(),
+                [typeof(byte)] = new Uint8Converter(),
+                [typeof(short)] = new Int16Converter(),
+                [typeof(ushort)] = new Uint16Converter(),
+                [typeof(int)] = new Int32Converter(),
+                [typeof(uint)] = new Uint32Converter(),
+                [typeof(long)] = new Int64Converter(),
+                [typeof(ulong)] = new Uint64Converter(),
+                [typeof(float)] = new Float32Converter(),
+                [typeof(double)] = new Float64Converter(),
+                [typeof(decimal)] = new Float128Converter(),
+                [typeof(DateTime)] = new DateTimeConverter(),
+                [typeof(DateTimeOffset)] = new DateTimeOffsetConverter(),
+                [typeof(TimeSpan)] = new TimeSpanConverter(),
+                [typeof(DiscordUser)] = new DiscordUserConverter(),
+                [typeof(DiscordMember)] = new DiscordMemberConverter(),
+                [typeof(DiscordRole)] = new DiscordRoleConverter(),
+                [typeof(DiscordChannel)] = new DiscordChannelConverter(),
+                [typeof(DiscordGuild)] = new DiscordGuildConverter(),
+                [typeof(DiscordMessage)] = new DiscordMessageConverter(),
+                [typeof(DiscordEmoji)] = new DiscordEmojiConverter(),
+                [typeof(DiscordColor)] = new DiscordColorConverter()
+            };
+
+            this.UserFriendlyTypeNames = new Dictionary<Type, string>()
+            {
+                [typeof(string)] = "string",
+                [typeof(bool)] = "boolean",
+                [typeof(sbyte)] = "signed byte",
+                [typeof(byte)] = "byte",
+                [typeof(short)] = "short",
+                [typeof(ushort)] = "unsigned short",
+                [typeof(int)] = "int",
+                [typeof(uint)] = "unsigned int",
+                [typeof(long)] = "long",
+                [typeof(ulong)] = "unsigned long",
+                [typeof(float)] = "float",
+                [typeof(double)] = "double",
+                [typeof(decimal)] = "decimal",
+                [typeof(DateTime)] = "date and time",
+                [typeof(DateTimeOffset)] = "date and time",
+                [typeof(TimeSpan)] = "time span",
+                [typeof(DiscordUser)] = "user",
+                [typeof(DiscordMember)] = "member",
+                [typeof(DiscordRole)] = "role",
+                [typeof(DiscordChannel)] = "channel",
+                [typeof(DiscordGuild)] = "guild",
+                [typeof(DiscordMessage)] = "message",
+                [typeof(DiscordEmoji)] = "emoji",
+                [typeof(DiscordColor)] = "color"
+            };
+
+            var ncvt = typeof(NullableConverter<>);
+            var nt = typeof(Nullable<>);
+            var cvts = this.ArgumentConverters.Keys.ToArray();
+            foreach (var xt in cvts)
+            {
+                var xti = xt.GetTypeInfo();
+                if (!xti.IsValueType)
+                    continue;
+
+                var xcvt = ncvt.MakeGenericType(xt);
+                var xnt = nt.MakeGenericType(xt);
+                if (ArgumentConverters.ContainsKey(xcvt))
+                    continue;
+
+                var xcv = Activator.CreateInstance(xcvt) as IArgumentConverter;
+                this.ArgumentConverters[xnt] = xcv;
+                this.UserFriendlyTypeNames[xnt] = UserFriendlyTypeNames[xt];
+            }
+
+            var t = typeof(CommandsNextExtension);
+            var ms = t.GetTypeInfo().DeclaredMethods;
+            var m = ms.FirstOrDefault(xm => xm.Name == "ConvertArgument" && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
+            this.ConvertGeneric = m;
         }
 
         /// <summary>
         /// Sets the help formatter to use with the default help command.
         /// </summary>
         /// <typeparam name="T">Type of the formatter to use.</typeparam>
-        public void SetHelpFormatter<T>() where T : class, IHelpFormatter
+        public void SetHelpFormatter<T>() where T : BaseHelpFormatter
         {
             this.HelpFormatter.SetFormatterType<T>();
         }
-
-        #region Helpers
-        /// <summary>
-        /// Registers an argument converter for specified type.
-        /// </summary>
-        /// <typeparam name="T">Type for which to register the converter.</typeparam>
-        /// <param name="converter">Converter to register.</param>
-        public void RegisterConverter<T>(IArgumentConverter<T> converter) 
-            => CommandsNextUtilities.RegisterConverter(converter);
-
-        /// <summary>
-        /// Unregisters an argument converter for specified type.
-        /// </summary>
-        /// <typeparam name="T">Type for which to unregister the converter.</typeparam>
-        public void UnregisterConverter<T>() 
-            => CommandsNextUtilities.UnregisterConverter<T>();
-
-        /// <summary>
-        /// Registers a user-friendly type name.
-        /// </summary>
-        /// <typeparam name="T">Type to register the name for.</typeparam>
-        /// <param name="value">Name to register.</param>
-        public void RegisterUserFriendlyTypeName<T>(string value) 
-            => CommandsNextUtilities.RegisterUserFriendlyTypeName<T>(value);
-        #endregion
 
         #region DiscordClient Registration
         /// <summary>
@@ -578,7 +637,7 @@ namespace DSharpPlus.CommandsNext
         public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
         {
             var toplevel = this.TopLevelCommands.Values.Distinct();
-            var helpbuilder = this.HelpFormatter.Create(ctx.Services);
+            var helpbuilder = this.HelpFormatter.Create(ctx.Services, this);
             
             if (command != null && command.Any())
             {
@@ -727,7 +786,152 @@ namespace DSharpPlus.CommandsNext
             await this.HandleCommandsAsync(new MessageCreateEventArgs(this.Client) { Message = msg }).ConfigureAwait(false);
         }
         #endregion
-        
+
+        #region Type Conversion
+        /// <summary>
+        /// Converts a string to specified type.
+        /// </summary>
+        /// <typeparam name="T">Type to convert to.</typeparam>
+        /// <param name="value">Value to convert.</param>
+        /// <param name="ctx">Context in which to convert to.</param>
+        /// <returns>Converted object.</returns>
+        public async Task<object> ConvertArgument<T>(string value, CommandContext ctx)
+        {
+            var t = typeof(T);
+            if (!this.ArgumentConverters.ContainsKey(t))
+                throw new ArgumentException("There is no converter specified for given type.", nameof(T));
+
+            var cv = this.ArgumentConverters[t] as IArgumentConverter<T>;
+            if (cv == null)
+                throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
+
+            var cvr = await cv.ConvertAsync(value, ctx);
+            if (!cvr.HasValue)
+                throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
+
+            return cvr.Value;
+        }
+
+        /// <summary>
+        /// Converts a string to specified type.
+        /// </summary>
+        /// <param name="value">Value to convert.</param>
+        /// <param name="ctx">Context in which to convert to.</param>
+        /// <param name="type">Type to convert to.</param>
+        /// <returns>Converted object.</returns>
+        public async Task<object> ConvertArgument(string value, CommandContext ctx, Type type)
+        {
+            var m = this.ConvertGeneric.MakeGenericMethod(type);
+            try
+            {
+                return await (m.Invoke(this, new object[] { value, ctx }) as Task<object>);
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+        /// <summary>
+        /// Registers an argument converter for specified type.
+        /// </summary>
+        /// <typeparam name="T">Type for which to register the converter.</typeparam>
+        /// <param name="converter">Converter to register.</param>
+        public void RegisterConverter<T>(IArgumentConverter<T> converter)
+        {
+            if (converter == null)
+                throw new ArgumentNullException("Converter cannot be null.", nameof(converter));
+
+            var t = typeof(T);
+            var ti = t.GetTypeInfo();
+            this.ArgumentConverters[t] = converter;
+
+            if (!ti.IsValueType)
+                return;
+
+            var ncvt = typeof(NullableConverter<>).MakeGenericType(t);
+            var nt = typeof(Nullable<>).MakeGenericType(t);
+            if (this.ArgumentConverters.ContainsKey(nt))
+                return;
+
+            var ncv = Activator.CreateInstance(ncvt) as IArgumentConverter;
+            this.ArgumentConverters[nt] = ncv;
+        }
+
+        /// <summary>
+        /// Unregisters an argument converter for specified type.
+        /// </summary>
+        /// <typeparam name="T">Type for which to unregister the converter.</typeparam>
+        public void UnregisterConverter<T>()
+        {
+            var t = typeof(T);
+            var ti = t.GetTypeInfo();
+            if (this.ArgumentConverters.ContainsKey(t))
+                this.ArgumentConverters.Remove(t);
+
+            if (this.UserFriendlyTypeNames.ContainsKey(t))
+                this.UserFriendlyTypeNames.Remove(t);
+
+            if (!ti.IsValueType)
+                return;
+
+            var nt = typeof(Nullable<>).MakeGenericType(t);
+            if (!this.ArgumentConverters.ContainsKey(nt))
+                return;
+
+            this.ArgumentConverters.Remove(nt);
+            this.UserFriendlyTypeNames.Remove(nt);
+        }
+
+        /// <summary>
+        /// Registers a user-friendly type name.
+        /// </summary>
+        /// <typeparam name="T">Type to register the name for.</typeparam>
+        /// <param name="value">Name to register.</param>
+        public void RegisterUserFriendlyTypeName<T>(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException("Name cannot be null or empty.", nameof(value));
+
+            var t = typeof(T);
+            var ti = t.GetTypeInfo();
+            if (!this.ArgumentConverters.ContainsKey(t))
+                throw new InvalidOperationException("Cannot register a friendly name for a type which has no associated converter.");
+
+            this.UserFriendlyTypeNames[t] = value;
+
+            if (!ti.IsValueType)
+                return;
+
+            var ncvt = typeof(NullableConverter<>).MakeGenericType(t);
+            var nt = typeof(Nullable<>).MakeGenericType(t);
+            this.UserFriendlyTypeNames[nt] = value;
+        }
+
+        /// <summary>
+        /// Converts a type into user-friendly type name.
+        /// </summary>
+        /// <param name="t">Type to convert.</param>
+        /// <returns>User-friendly type name.</returns>
+        public string TypeToUserFriendlyName(Type t)
+        {
+            if (this.UserFriendlyTypeNames.ContainsKey(t))
+                return this.UserFriendlyTypeNames[t];
+
+            var ti = t.GetTypeInfo();
+            if (ti.IsGenericTypeDefinition && t.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var tn = ti.GenericTypeArguments[0];
+                if (this.UserFriendlyTypeNames.ContainsKey(tn))
+                    return this.UserFriendlyTypeNames[tn];
+
+                return tn.Name;
+            }
+
+            return t.Name;
+        }
+        #endregion
+
         #region Events
         /// <summary>
         /// Triggered whenever a command executes successfully.

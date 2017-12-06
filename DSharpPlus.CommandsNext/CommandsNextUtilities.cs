@@ -16,95 +16,7 @@ namespace DSharpPlus.CommandsNext
     /// </summary>
     public static class CommandsNextUtilities
     {
-        private static Regex UserRegex { get; }
-        private static MethodInfo ConvertGeneric { get; }
-        private static Dictionary<Type, string> UserFriendlyTypeNames { get; }
-        internal static Dictionary<Type, IArgumentConverter> ArgumentConverters { get; }
-
-        static CommandsNextUtilities()
-        {
-            UserRegex = new Regex(@"<@\!?(\d+?)> ", RegexOptions.ECMAScript);
-
-            ArgumentConverters = new Dictionary<Type, IArgumentConverter>
-            {
-                [typeof(string)] = new StringConverter(),
-                [typeof(bool)] = new BoolConverter(),
-                [typeof(sbyte)] = new Int8Converter(),
-                [typeof(byte)] = new Uint8Converter(),
-                [typeof(short)] = new Int16Converter(),
-                [typeof(ushort)] = new Uint16Converter(),
-                [typeof(int)] = new Int32Converter(),
-                [typeof(uint)] = new Uint32Converter(),
-                [typeof(long)] = new Int64Converter(),
-                [typeof(ulong)] = new Uint64Converter(),
-                [typeof(float)] = new Float32Converter(),
-                [typeof(double)] = new Float64Converter(),
-                [typeof(decimal)] = new Float128Converter(),
-                [typeof(DateTime)] = new DateTimeConverter(),
-                [typeof(DateTimeOffset)] = new DateTimeOffsetConverter(),
-                [typeof(TimeSpan)] = new TimeSpanConverter(),
-                [typeof(DiscordUser)] = new DiscordUserConverter(),
-                [typeof(DiscordMember)] = new DiscordMemberConverter(),
-                [typeof(DiscordRole)] = new DiscordRoleConverter(),
-                [typeof(DiscordChannel)] = new DiscordChannelConverter(),
-                [typeof(DiscordGuild)] = new DiscordGuildConverter(),
-                [typeof(DiscordMessage)] = new DiscordMessageConverter(),
-                [typeof(DiscordEmoji)] = new DiscordEmojiConverter(),
-                [typeof(DiscordColor)] = new DiscordColorConverter()
-            };
-
-            UserFriendlyTypeNames = new Dictionary<Type, string>()
-            {
-                [typeof(string)] = "string",
-                [typeof(bool)] = "boolean",
-                [typeof(sbyte)] = "signed byte",
-                [typeof(byte)] = "byte",
-                [typeof(short)] = "short",
-                [typeof(ushort)] = "unsigned short",
-                [typeof(int)] = "int",
-                [typeof(uint)] = "unsigned int",
-                [typeof(long)] = "long",
-                [typeof(ulong)] = "unsigned long",
-                [typeof(float)] = "float",
-                [typeof(double)] = "double",
-                [typeof(decimal)] = "decimal",
-                [typeof(DateTime)] = "date and time",
-                [typeof(DateTimeOffset)] = "date and time",
-                [typeof(TimeSpan)] = "time span",
-                [typeof(DiscordUser)] = "user",
-                [typeof(DiscordMember)] = "member",
-                [typeof(DiscordRole)] = "role",
-                [typeof(DiscordChannel)] = "channel",
-                [typeof(DiscordGuild)] = "guild",
-                [typeof(DiscordMessage)] = "message",
-                [typeof(DiscordEmoji)] = "emoji",
-                [typeof(DiscordColor)] = "color"
-            };
-
-            var ncvt = typeof(NullableConverter<>);
-            var nt = typeof(Nullable<>);
-            var cvts = ArgumentConverters.Keys.ToArray();
-            foreach (var xt in cvts)
-            {
-                var xti = xt.GetTypeInfo();
-                if (!xti.IsValueType)
-                    continue;
-
-                var xcvt = ncvt.MakeGenericType(xt);
-                var xnt = nt.MakeGenericType(xt);
-                if (ArgumentConverters.ContainsKey(xcvt))
-                    continue;
-
-                var xcv = Activator.CreateInstance(xcvt) as IArgumentConverter;
-                ArgumentConverters[xnt] = xcv;
-                UserFriendlyTypeNames[xnt] = UserFriendlyTypeNames[xt];
-            }
-
-            var t = typeof(CommandsNextUtilities);
-            var ms = t.GetTypeInfo().DeclaredMethods;
-            var m = ms.FirstOrDefault(xm => xm.Name == "ConvertArgument" && xm.ContainsGenericParameters && xm.IsStatic && xm.IsPublic);
-            ConvertGeneric = m;
-        }
+        private static Regex UserRegex { get; } = new Regex(@"<@\!?(\d+?)> ", RegexOptions.ECMAScript);
 
         /// <summary>
         /// Checks whether the message has a specified string prefix.
@@ -121,14 +33,6 @@ namespace DSharpPlus.CommandsNext
             if (!cnt.StartsWith(str))
                 return -1;
 
-            //int sn = 0;
-            //for (var i = str.Length; i < cnt.Length; i++)
-            //    if (char.IsWhiteSpace(cnt[i]))
-            //        sn++;
-            //    else
-            //        break;
-
-            //return str.Length + sn;
             return str.Length;
         }
 
@@ -157,164 +61,12 @@ namespace DSharpPlus.CommandsNext
             if (user.Id != uid)
                 return -1;
 
-            //int sn = 0;
-            //for (var i = m.Value.Length; i < cnt.Length; i++)
-            //    if (char.IsWhiteSpace(cnt[i]))
-            //        sn++;
-            //    else
-            //        break;
-
-            //return m.Value.Length + sn;
             return m.Value.Length;
         }
 
-        /// <summary>
-        /// Converts a string to specified type.
-        /// </summary>
-        /// <typeparam name="T">Type to convert to.</typeparam>
-        /// <param name="value">Value to convert.</param>
-        /// <param name="ctx">Context in which to convert to.</param>
-        /// <returns>Converted object.</returns>
-        public static async Task<object> ConvertArgument<T>(this string value, CommandContext ctx)
-        {
-            var t = typeof(T);
-            if (!ArgumentConverters.ContainsKey(t))
-                throw new ArgumentException("There is no converter specified for given type.", nameof(T));
-
-            var cv = ArgumentConverters[t] as IArgumentConverter<T>;
-            if (cv == null)
-                throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
-
-            var cvr = await cv.ConvertAsync(value, ctx);
-            if (!cvr.HasValue)
-                throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
-
-            return cvr.Value;
-        }
-
-        /// <summary>
-        /// Converts a string to specified type.
-        /// </summary>
-        /// <param name="value">Value to convert.</param>
-        /// <param name="ctx">Context in which to convert to.</param>
-        /// <param name="type">Type to convert to.</param>
-        /// <returns>Converted object.</returns>
-        public static async Task<object> ConvertArgument(this string value, CommandContext ctx, Type type)
-        {
-            var m = ConvertGeneric.MakeGenericMethod(type);
-            try
-            {
-                return await (m.Invoke(null, new object[] { value, ctx }) as Task<object>);
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        /// <summary>
-        /// Registers an argument converter for specified type.
-        /// </summary>
-        /// <typeparam name="T">Type for which to register the converter.</typeparam>
-        /// <param name="converter">Converter to register.</param>
-        public static void RegisterConverter<T>(IArgumentConverter<T> converter)
-        {
-            if (converter == null)
-                throw new ArgumentNullException("Converter cannot be null.", nameof(converter));
-
-            var t = typeof(T);
-            var ti = t.GetTypeInfo();
-            ArgumentConverters[t] = converter;
-
-            if (!ti.IsValueType)
-                return;
-
-            var ncvt = typeof(NullableConverter<>).MakeGenericType(t);
-            var nt = typeof(Nullable<>).MakeGenericType(t);
-            if (ArgumentConverters.ContainsKey(nt))
-                return;
-
-            var ncv = Activator.CreateInstance(ncvt) as IArgumentConverter;
-            ArgumentConverters[nt] = ncv;
-        }
-
-        /// <summary>
-        /// Unregisters an argument converter for specified type.
-        /// </summary>
-        /// <typeparam name="T">Type for which to unregister the converter.</typeparam>
-        public static void UnregisterConverter<T>()
-        {
-            var t = typeof(T);
-            var ti = t.GetTypeInfo();
-            if (ArgumentConverters.ContainsKey(t))
-                ArgumentConverters.Remove(t);
-
-            if (UserFriendlyTypeNames.ContainsKey(t))
-                UserFriendlyTypeNames.Remove(t);
-
-            if (!ti.IsValueType)
-                return;
-            
-            var nt = typeof(Nullable<>).MakeGenericType(t);
-            if (!ArgumentConverters.ContainsKey(nt))
-                return;
-
-            ArgumentConverters.Remove(nt);
-            UserFriendlyTypeNames.Remove(nt);
-        }
-
-        /// <summary>
-        /// Registers a user-friendly type name.
-        /// </summary>
-        /// <typeparam name="T">Type to register the name for.</typeparam>
-        /// <param name="value">Name to register.</param>
-        public static void RegisterUserFriendlyTypeName<T>(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentNullException("Name cannot be null or empty.", nameof(value));
-
-            var t = typeof(T);
-            var ti = t.GetTypeInfo();
-            if (!ArgumentConverters.ContainsKey(t))
-                throw new InvalidOperationException("Cannot register a friendly name for a type which has no associated converter.");
-
-            UserFriendlyTypeNames[t] = value;
-
-            if (!ti.IsValueType)
-                return;
-
-            var ncvt = typeof(NullableConverter<>).MakeGenericType(t);
-            var nt = typeof(Nullable<>).MakeGenericType(t);
-            UserFriendlyTypeNames[nt] = value;
-        }
-
-        /// <summary>
-        /// Converts a type into user-friendly type name.
-        /// </summary>
-        /// <param name="t">Type to convert.</param>
-        /// <returns>User-friendly type name.</returns>
-        public static string ToUserFriendlyName(this Type t)
-        {
-            if (UserFriendlyTypeNames.ContainsKey(t))
-                return UserFriendlyTypeNames[t];
-
-            var ti = t.GetTypeInfo();
-            if (ti.IsGenericTypeDefinition && t.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                var tn = ti.GenericTypeArguments[0];
-                if (UserFriendlyTypeNames.ContainsKey(tn))
-                    return UserFriendlyTypeNames[tn];
-
-                return tn.Name;
-            }
-
-            return t.Name;
-        }
-
         //internal static string ExtractNextArgument(string str, out string remainder)
-        internal static string ExtractNextArgument(string str, ref int startPos)
+        internal static string ExtractNextArgument(this string str, ref int startPos)
         {
-            //remainder = null;
             if (string.IsNullOrWhiteSpace(str))
                 return null;
 
@@ -343,14 +95,12 @@ namespace DSharpPlus.CommandsNext
                     {
                         in_escape = true;
                         if (str.IndexOf("\\`", i) == i || str.IndexOf("\\\"", i) == i || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
-                            //str = str.Remove(i, 1);
                             remove.Add(i - sp);
                         i++;
                     }
                     else if ((in_backtick || in_triple_backtick) && str.IndexOf("\\`", i) == i)
                     {
                         in_escape = true;
-                        //str = str.Remove(i, 1);
                         remove.Add(i - sp);
                         i++;
                     }
@@ -378,8 +128,6 @@ namespace DSharpPlus.CommandsNext
 
                 if (str[i] == '"' && !in_escape && !in_backtick && !in_triple_backtick)
                 {
-                    //str = str.Remove(i, 1);
-                    //i--;
                     remove.Add(i - sp);
 
                     if (!in_quote)
@@ -495,7 +243,7 @@ namespace DSharpPlus.CommandsNext
                     var start = i;
                     while (i < argr.Count)
                     {
-                        arr.SetValue(await ConvertArgument(argr[i], ctx, arg.Type), i - start);
+                        arr.SetValue(await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type), i - start);
                         i++;
                     }
 
@@ -504,7 +252,7 @@ namespace DSharpPlus.CommandsNext
                 }
                 else
                 {
-                    args[i + 1] = argr[i] != null ? await ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
+                    args[i + 1] = argr[i] != null ? await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
                 }
             }
 

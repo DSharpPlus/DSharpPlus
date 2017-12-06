@@ -9,14 +9,14 @@ namespace DSharpPlus.CommandsNext.Converters
 
         public HelpFormatterFactory() { }
 
-        public void SetFormatterType<T>() where T : class, IHelpFormatter
+        public void SetFormatterType<T>() where T : BaseHelpFormatter
         {
-            this.Factory = ActivatorUtilities.CreateFactory(typeof(T), new Type[0]);
+            this.Factory = ActivatorUtilities.CreateFactory(typeof(T), new[] { typeof(CommandsNextExtension) });
         }
 
-        public IHelpFormatter Create(IServiceProvider services)
+        public BaseHelpFormatter Create(IServiceProvider services, CommandsNextExtension cnext)
         {
-            return this.Factory(services, null) as IHelpFormatter;
+            return this.Factory(services, new object[] { cnext }) as BaseHelpFormatter;
         }
     }
 }

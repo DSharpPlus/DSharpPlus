@@ -14,7 +14,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (value == "null")
                 return Optional<Nullable<T>>.FromValue(null);
 
-            if (CommandsNextUtilities.ArgumentConverters.TryGetValue(typeof(T), out var cv))
+            if (ctx.CommandsNext.ArgumentConverters.TryGetValue(typeof(T), out var cv))
             {
                 var cvx = cv as IArgumentConverter<T>;
                 var val = await cvx.ConvertAsync(value, ctx);

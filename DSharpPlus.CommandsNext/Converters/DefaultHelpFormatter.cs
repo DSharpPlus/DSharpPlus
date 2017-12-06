@@ -9,7 +9,7 @@ namespace DSharpPlus.CommandsNext.Converters
     /// <summary>
     /// Default CommandsNext help formatter.
     /// </summary>
-    public class DefaultHelpFormatter : IHelpFormatter
+    public class DefaultHelpFormatter : BaseHelpFormatter
     {
         private DiscordEmbedBuilder _embed;
         private string _name, _desc;
@@ -18,7 +18,9 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <summary>
         /// Creates a new default help formatter.
         /// </summary>
-        public DefaultHelpFormatter()
+        /// <param name="cnext">CommandsNext instance this formatter is for.</param>
+        public DefaultHelpFormatter(CommandsNextExtension cnext)
+            : base(cnext)
         {
             this._embed = new DiscordEmbedBuilder();
             this._name = null;
@@ -31,7 +33,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// </summary>
         /// <param name="name">Name of the command for which the help is displayed.</param>
         /// <returns>Current formatter.</returns>
-        public IHelpFormatter WithCommandName(string name)
+        public override BaseHelpFormatter WithCommandName(string name)
         {
             this._name = name;
             return this;
@@ -42,7 +44,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// </summary>
         /// <param name="description">Description of the command for which help is displayed.</param>
         /// <returns>Current formatter.</returns>
-        public IHelpFormatter WithDescription(string description)
+        public override BaseHelpFormatter WithDescription(string description)
         {
             this._desc = description;
             return this;
@@ -53,7 +55,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// </summary>
         /// <param name="aliases">Aliases of the command for which help is displayed.</param>
         /// <returns>Current formatter.</returns>
-        public IHelpFormatter WithAliases(IEnumerable<string> aliases)
+        public override BaseHelpFormatter WithAliases(IEnumerable<string> aliases)
         {
             if (aliases.Any())
                 this._embed.AddField("Aliases", string.Join(", ", aliases.Select(Formatter.InlineCode)), false);
@@ -65,7 +67,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// </summary>
         /// <param name="arguments">Arguments that the command for which help is displayed takes.</param>
         /// <returns>Current formatter.</returns>
-        public IHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
+        public override BaseHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
         {
             if (arguments.Any())
             {
@@ -88,7 +90,7 @@ namespace DSharpPlus.CommandsNext.Converters
                     else
                         sb.Append(">: ");
 
-                    sb.Append(arg.Type.ToUserFriendlyName()).Append("`: ");
+                    sb.Append(this.CommandsNext.TypeToUserFriendlyName(arg.Type)).Append("`: ");
 
                     sb.Append(string.IsNullOrWhiteSpace(arg.Description) ? "No description provided." : arg.Description);
 
@@ -106,7 +108,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// When the current command is a group, this sets it as executable.
         /// </summary>
         /// <returns>Current formatter.</returns>
-        public IHelpFormatter WithGroupExecutable()
+        public override BaseHelpFormatter WithGroupExecutable()
         {
             this._gexec = true;
             return this;
@@ -117,7 +119,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// </summary>
         /// <param name="subcommands">Subcommands of the command for which help is displayed.</param>
         /// <returns>Current formatter.</returns>
-        public IHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
+        public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
             if (subcommands.Any())
                 this._embed.AddField(this._name != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(xc => Formatter.InlineCode(xc.Name))), false);
@@ -128,7 +130,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// Construct the help message.
         /// </summary>
         /// <returns>Data for the help message.</returns>
-        public CommandHelpMessage Build()
+        public override CommandHelpMessage Build()
         {
             this._embed.Title = "Help";
             this._embed.Color = DiscordColor.Azure;

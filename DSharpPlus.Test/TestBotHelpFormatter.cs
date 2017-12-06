@@ -7,51 +7,52 @@ using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.Test
 {
-    public sealed class TestBotHelpFormatter : IHelpFormatter
+    public sealed class TestBotHelpFormatter : BaseHelpFormatter
     {
         private TestBotService Service { get; }
 
         private string _name = null, _desc = null, _args = null, _aliases = null, _subcs = null;
         private bool _gexec = false;
 
-        public TestBotHelpFormatter(TestBotService dep)
+        public TestBotHelpFormatter(TestBotService dep, CommandsNextExtension cnext)
+            : base(cnext)
         {
             this.Service = dep;
         }
 
-        public IHelpFormatter WithCommandName(string name)
+        public override BaseHelpFormatter WithCommandName(string name)
         {
             this._name = name;
             return this;
         }
 
-        public IHelpFormatter WithDescription(string description)
+        public override BaseHelpFormatter WithDescription(string description)
         {
             this._desc = string.IsNullOrWhiteSpace(description) ? null : description;
             return this;
         }
 
-        public IHelpFormatter WithGroupExecutable()
+        public override BaseHelpFormatter WithGroupExecutable()
         {
             this._gexec = true;
             return this;
         }
 
-        public IHelpFormatter WithAliases(IEnumerable<string> aliases)
+        public override BaseHelpFormatter WithAliases(IEnumerable<string> aliases)
         {
             if (aliases.Any())
                 this._aliases = string.Join(", ", aliases);
             return this;
         }
 
-        public IHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
+        public override BaseHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
         {
             if (arguments.Any())
-                this._args = string.Join(", ", arguments.Select(xa => $"{xa.Name}: {xa.Type.ToUserFriendlyName()}"));
+                this._args = string.Join(", ", arguments.Select(xa => $"{xa.Name}: {this.CommandsNext.TypeToUserFriendlyName(xa.Type)}"));
             return this;
         }
 
-        public IHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
+        public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
             if (subcommands.Any())
             {
@@ -66,7 +67,7 @@ namespace DSharpPlus.Test
             return this;
         }
 
-        public CommandHelpMessage Build()
+        public override CommandHelpMessage Build()
         {
             var sb = new StringBuilder();
             sb.Append("```less\n");
