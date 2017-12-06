@@ -5,7 +5,11 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters
 {
+#if NETSTANDARD1_1
+    public class EnumConverter<T> : IArgumentConverter<T> where T : struct, IComparable, IFormattable
+#else
     public class EnumConverter<T> : IArgumentConverter<T> where T : struct, IComparable, IConvertible, IFormattable
+#endif
     {
         public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
         {
