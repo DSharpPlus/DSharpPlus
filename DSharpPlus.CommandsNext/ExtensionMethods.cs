@@ -37,12 +37,12 @@ namespace DSharpPlus.CommandsNext
         {
             var modules = new Dictionary<int, CommandsNextExtension>();
             await client.InitializeShardsAsync().ConfigureAwait(false);
-            var cnext = new CommandsNextExtension(cfg);
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
-                if (shard.GetExtension<CommandsNextExtension>() == null)
-                    shard.AddExtension(cnext);
+                var cnext = shard.GetExtension<CommandsNextExtension>();
+                if (cnext == null)
+                    cnext = shard.UseCommandsNext(cfg);
 
                 modules[shard.ShardId] = cnext;
             }

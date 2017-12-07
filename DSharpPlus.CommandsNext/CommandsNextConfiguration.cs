@@ -89,5 +89,28 @@ namespace DSharpPlus.CommandsNext
         /// <para>Defaults to false.</para>
         /// </summary>
         public bool IgnoreExtraArguments { internal get; set; } = false;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="CommandsNextConfiguration"/>.
+        /// </summary>
+        public CommandsNextConfiguration() { }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="CommandsNextConfiguration"/>, copying the properties of another configuration.
+        /// </summary>
+        /// <param name="other">Configuration the properties of which are to be copied.</param>
+        public CommandsNextConfiguration(CommandsNextConfiguration other)
+        {
+            this.CaseSensitive = other.CaseSensitive;
+            this.CustomPrefixPredicate = other.CustomPrefixPredicate;
+            this.DefaultHelpChecks = other.DefaultHelpChecks;
+            this.EnableDefaultHelp = other.EnableDefaultHelp;
+            this.EnableDms = other.EnableDms;
+            this.EnableMentionPrefix = other.EnableMentionPrefix;
+            this.IgnoreExtraArguments = other.IgnoreExtraArguments;
+            this.Selfbot = other.Selfbot;
+            this.Services = other.Services;
+            this.StringPrefix = other.StringPrefix;
+        }
     }
 }

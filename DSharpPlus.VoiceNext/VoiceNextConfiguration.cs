@@ -18,5 +18,20 @@ namespace DSharpPlus.VoiceNext
         /// <para>Defaults to false.</para>
         /// </summary>
         public bool EnableIncoming { internal get; set; } = false;
+
+        /// <summary>
+        /// Creates a new instance of <see cref="VoiceNextConfiguration"/>.
+        /// </summary>
+        public VoiceNextConfiguration() { }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="VoiceNextConfiguration"/>, copying the properties of another configuration.
+        /// </summary>
+        /// <param name="other">Configuration the properties of which are to be copied.</param>
+        public VoiceNextConfiguration(VoiceNextConfiguration other)
+        {
+            this.VoiceApplication = other.VoiceApplication;
+            this.EnableIncoming = other.EnableIncoming;
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace DSharpPlus.CommandsNext
 
         internal CommandsNextExtension(CommandsNextConfiguration cfg)
         {
-            this.Config = cfg;
+            this.Config = new CommandsNextConfiguration(cfg);
             this.TopLevelCommands = new Dictionary<string, Command>();
             this._registered_commands_lazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
             this.HelpFormatter = new HelpFormatterFactory();
@@ -775,7 +775,7 @@ namespace DSharpPlus.CommandsNext
                 }
                 else
                 {
-                    mentioned_users = Utilities.GetUserMentions(msg).Select(xid => this.Client.InternalGetCachedUser(xid)).ToList();
+                    mentioned_users = Utilities.GetUserMentions(msg).Select(this.Client.InternalGetCachedUser).ToList();
                 }
             }
 

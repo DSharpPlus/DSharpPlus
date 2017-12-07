@@ -40,19 +40,18 @@ namespace DSharpPlus.VoiceNext
         /// <param name="client">Discord sharded client to create VoiceNext instances for.</param>
         /// <param name="config">Configuration for the VoiceNext clients.</param>
         /// <returns>A dictionary of created VoiceNext clients.</returns>
-        public static IReadOnlyDictionary<int, VoiceNextExtension> UseVoiceNext(this DiscordShardedClient client, VoiceNextConfiguration config)
+        public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> UseVoiceNextAsync(this DiscordShardedClient client, VoiceNextConfiguration config)
         {
             var modules = new Dictionary<int, VoiceNextExtension>();
-
-            client.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            await client.InitializeShardsAsync().ConfigureAwait(false);
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
-                var cnext = shard.GetExtension<VoiceNextExtension>();
-                if (cnext == null)
-                    cnext = shard.UseVoiceNext(config);
+                var vnext = shard.GetExtension<VoiceNextExtension>();
+                if (vnext == null)
+                    vnext = shard.UseVoiceNext(config);
 
-                modules.Add(shard.ShardId, cnext);
+                modules[shard.ShardId] = vnext;
             }
 
             return new ReadOnlyDictionary<int, VoiceNextExtension>(modules);

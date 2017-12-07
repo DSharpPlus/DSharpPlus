@@ -22,11 +22,10 @@ namespace DSharpPlus.Interactivity
             return m;
         }
 
-        public static IReadOnlyDictionary<int, InteractivityExtension> UseInteractivity(this DiscordShardedClient c, InteractivityConfiguration cfg)
+        public static async Task<IReadOnlyDictionary<int, InteractivityExtension>> UseInteractivityAsync(this DiscordShardedClient c, InteractivityConfiguration cfg)
         {
             var modules = new Dictionary<int, InteractivityExtension>();
-
-            c.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            await c.InitializeShardsAsync().ConfigureAwait(false);
 
             foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
             {
@@ -34,7 +33,7 @@ namespace DSharpPlus.Interactivity
                 if (m == null)
                     m = shard.UseInteractivity(cfg);
 
-                modules.Add(shard.ShardId, m);
+                modules[shard.ShardId] = m;
             }
 
             return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
@@ -78,7 +77,7 @@ namespace DSharpPlus.Interactivity
 
         internal InteractivityExtension(InteractivityConfiguration cfg)
         {
-            this.Config = cfg;
+            this.Config = new InteractivityConfiguration(cfg);
         }
 
         protected internal override void Setup(DiscordClient client)
@@ -615,7 +614,7 @@ namespace DSharpPlus.Interactivity
             if (timeoutoverride != null)
                 timeout = (TimeSpan)timeoutoverride;
 
-            TimeoutBehaviour timeout_behaviour = Config.PaginationBehaviour;
+            TimeoutBehaviour timeout_behaviour = Config.PaginationBehavior;
             if (timeoutbehaviouroverride != null)
                 timeout_behaviour = (TimeoutBehaviour)timeoutbehaviouroverride;
 

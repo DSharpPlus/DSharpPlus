@@ -27,7 +27,7 @@ namespace DSharpPlus.VoiceNext
 
         internal VoiceNextExtension(VoiceNextConfiguration config)
         {
-            this.Configuration = config;
+            this.Configuration = new VoiceNextConfiguration(config);
             this.IsIncomingEnabled = config.EnableIncoming;
 
             this.ActiveConnections = new ConcurrentDictionary<ulong, VoiceNextConnection>();

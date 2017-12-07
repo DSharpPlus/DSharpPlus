@@ -95,7 +95,7 @@ namespace DSharpPlus.Test
             // interactivity service
             var icfg = new InteractivityConfiguration()
             {
-                PaginationBehaviour = TimeoutBehaviour.DeleteMessage,
+                PaginationBehavior = TimeoutBehaviour.DeleteMessage,
                 PaginationTimeout = TimeSpan.FromSeconds(30),
                 Timeout = TimeSpan.FromSeconds(30)
             };
