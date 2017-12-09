@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets the description for this command, group, or argument.
         /// </summary>
-        public string Description { get; private set; }
+        public string Description { get; }
 
         /// <summary>
         /// Gives this command, group, or argument a description, which is used when listing help.

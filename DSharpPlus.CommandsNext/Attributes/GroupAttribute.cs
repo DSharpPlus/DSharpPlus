@@ -12,12 +12,20 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets the name of this group.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         /// Whether or not this group can be invoked without subcommand. If this is set to true, the group needs to have a ExecuteGroupAsync method.
         /// </summary>
         public bool CanInvokeWithoutSubcommand { get; set; } = false;
+
+        /// <summary>
+        /// Marks this class as a command group, using the class' name as group name.
+        /// </summary>
+        public GroupAttribute()
+        {
+            this.Name = null;
+        }
 
         /// <summary>
         /// Marks this class as a command group with specified name.

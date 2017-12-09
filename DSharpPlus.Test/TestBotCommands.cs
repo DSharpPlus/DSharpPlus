@@ -107,6 +107,18 @@ namespace DSharpPlus.Test
             //}
         }
 
+        [Group]
+        public class ImplicitGroup
+        {
+            [Command]
+            public Task ImplicitAsync(CommandContext ctx)
+                => ctx.RespondAsync("Hello from trimmed name!");
+
+            [Command]
+            public Task Another(CommandContext ctx)
+                => ctx.RespondAsync("Hello from untrimmed name!");
+        }
+
         // this is a mention of _moonPtr#8058 (276460831187664897)
         // I don't hate you, in fact I appreciate you breaking this stuff
         // but revenge is revenge

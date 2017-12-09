@@ -12,7 +12,15 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets the name of this command.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
+
+        /// <summary>
+        /// Marks this method as a command, using the method's name as command name.
+        /// </summary>
+        public CommandAttribute()
+        {
+            this.Name = null;
+        }
 
         /// <summary>
         /// Marks this method as a command with specified name.

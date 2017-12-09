@@ -361,6 +361,19 @@ namespace DSharpPlus.CommandsNext
                     case GroupAttribute g:
                         is_mdl = true;
                         mdl_name = g.Name;
+                        if (mdl_name == null)
+                        {
+                            mdl_name = ti.Name;
+
+                            if (mdl_name.EndsWith("Group") && mdl_name != "Group")
+                                mdl_name = mdl_name.Substring(0, mdl_name.Length - 5);
+
+                            if (mdl_name.EndsWith("Module") && mdl_name != "Module")
+                                mdl_name = mdl_name.Substring(0, mdl_name.Length - 6);
+
+                            if (mdl_name.EndsWith("Commands") && mdl_name != "Commands")
+                                mdl_name = mdl_name.Substring(0, mdl_name.Length - 8);
+                        }
                         if (g.CanInvokeWithoutSubcommand)
                             this.MakeCallableModule(ti, moduleInstance, out mdl_cbl, out mdl_args);
                         break;
@@ -427,6 +440,15 @@ namespace DSharpPlus.CommandsNext
                     {
                         case CommandAttribute c:
                             cmd.Name = c.Name;
+                            if (cmd.Name == null)
+                            {
+                                var cname = m.Name;
+
+                                if (cname.EndsWith("Async") && cname != "Async")
+                                    cname = cname.Substring(0, cname.Length - 5);
+
+                                cmd.Name = cname;
+                            }
                             break;
 
                         case AliasesAttribute a:
