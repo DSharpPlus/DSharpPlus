@@ -470,14 +470,6 @@ namespace DSharpPlus
             => this.ApiClient.GetWebhookWithTokenAsync(id, token);
 
         /// <summary>
-        /// Creates a dm
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        public async Task<DiscordDmChannel> CreateDmAsync(DiscordUser user)
-            => this.PrivateChannels.ToList().Find(x => x.Recipients.First().Id == user.Id) ?? await ApiClient.CreateDmAsync(user.Id).ConfigureAwait(false);
-
-        /// <summary>
         /// Updates current user's status
         /// </summary>
         /// <param name="activity">Game you're playing</param>
