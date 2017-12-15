@@ -1,7 +1,7 @@
 ![Logo of DSharpPlus](https://github.com/NaamloosDT/DSharpPlus/raw/master/logo/dsharp+_smaller.png)
 
 # DSharpPlus
-An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards
+An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards.
 
 [![Build Status](https://img.shields.io/appveyor/ci/Emzi0767/dsharpplus-6g6vr/master.svg)](https://ci.appveyor.com/project/Emzi0767/dsharpplus-6g6vr/branch/master)
 [![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=discord)](https://discord.gg/KeAS3pU) 
