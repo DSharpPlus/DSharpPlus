@@ -220,11 +220,13 @@ namespace DSharpPlus.CommandsNext
             if (this.Config.EnableMentionPrefix)
                 mpos = e.Message.GetMentionPrefixLength(this.Client.CurrentUser);
 
-            if (mpos == -1 && !string.IsNullOrWhiteSpace(this.Config.StringPrefix))
-                mpos = e.Message.GetStringPrefixLength(this.Config.StringPrefix);
+            if (this.Config.StringPrefixes?.Any() == true)
+                foreach (var pfix in this.Config.StringPrefixes)
+                    if (mpos == -1 && !string.IsNullOrWhiteSpace(pfix))
+                        mpos = e.Message.GetStringPrefixLength(pfix);
 
-            if (mpos == -1 && this.Config.CustomPrefixPredicate != null)
-                mpos = await this.Config.CustomPrefixPredicate(e.Message).ConfigureAwait(false);
+            if (mpos == -1 && this.Config.PrefixResolver != null)
+                mpos = await this.Config.PrefixResolver(e.Message).ConfigureAwait(false);
 
             if (mpos == -1)
                 return;

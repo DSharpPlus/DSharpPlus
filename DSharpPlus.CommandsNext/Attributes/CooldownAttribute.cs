@@ -9,7 +9,7 @@ namespace DSharpPlus.CommandsNext.Attributes
     /// <summary>
     /// Defines a cooldown for this command. This allows you to define how many times can users execute a specific command
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public sealed class CooldownAttribute : CheckBaseAttribute
     {
         /// <summary>

@@ -6,7 +6,7 @@ namespace DSharpPlus.CommandsNext.Attributes
     /// <summary>
     /// Defines that usage of this command is restricted to the owner of the bot.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class RequireOwnerAttribute : CheckBaseAttribute
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)

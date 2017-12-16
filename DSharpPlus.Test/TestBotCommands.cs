@@ -9,7 +9,7 @@ namespace DSharpPlus.Test
 {
     public class TestBotCommands
     {
-        public static ConcurrentDictionary<ulong, string> Prefixes { get; } = new ConcurrentDictionary<ulong, string>();
+        public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
         [Command("testmodify")]
         public async Task TestModifyAsync(CommandContext ctx, DiscordMember m)
@@ -40,13 +40,13 @@ namespace DSharpPlus.Test
         public async Task SetPrefixAsync(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
         {
             if (string.IsNullOrWhiteSpace(prefix))
-                if (Prefixes.TryRemove(ctx.Channel.Id, out _))
+                if (PrefixSettings.TryRemove(ctx.Channel.Id, out _))
                     await ctx.RespondAsync("👍").ConfigureAwait(false);
                 else
                     await ctx.RespondAsync("👎").ConfigureAwait(false);
             else
             {
-                Prefixes.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);
+                PrefixSettings.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);
                 await ctx.RespondAsync("👍").ConfigureAwait(false);
             }
         }
@@ -117,6 +117,18 @@ namespace DSharpPlus.Test
             [Command]
             public Task Another(CommandContext ctx)
                 => ctx.RespondAsync("Hello from untrimmed name!");
+        }
+
+        [Group]
+        public class Prefixes
+        {
+            [Command, RequirePrefixes("<<", ShowInHelp = true)]
+            public Task PrefixShown(CommandContext ctx)
+                => ctx.RespondAsync("Hello from shown prefix.");
+
+            [Command, RequirePrefixes("<<", ShowInHelp = false)]
+            public Task PrefixHidden(CommandContext ctx)
+                => ctx.RespondAsync("Hello from hidden prefix.");
         }
 
         // this is a mention of _moonPtr#8058 (276460831187664897)

@@ -8,7 +8,10 @@ namespace DSharpPlus.Test
         public string Token { get; private set; } = string.Empty;
 
         [JsonProperty("command_prefix")]
-        public string CommandPrefix { get; private set; } = "d#+";
+        public string CommandPrefix { get; private set; } = null;
+
+        [JsonProperty("command_prefixes")]
+        public string[] CommandPrefixes { get; private set; } = new[] { "d#", "d#+"  };
 
         [JsonProperty("shards")]
         public int ShardCount { get; private set; } = 1;

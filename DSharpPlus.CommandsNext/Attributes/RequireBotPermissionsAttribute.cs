@@ -6,7 +6,7 @@ namespace DSharpPlus.CommandsNext.Attributes
     /// <summary>
     /// Defines that usage of this command is only possible when the bot is granted a specific permission.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
     {
         /// <summary>

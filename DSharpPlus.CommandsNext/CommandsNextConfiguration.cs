@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
@@ -16,7 +17,7 @@ namespace DSharpPlus.CommandsNext
     /// </summary>
     /// <param name="msg">Message to check for prefix.</param>
     /// <returns>Position of the command invocation or -1 if not present.</returns>
-    public delegate Task<int> CustomPrefixPredicate(DiscordMessage msg);
+    public delegate Task<int> PrefixResolverDelegate(DiscordMessage msg);
 
     /// <summary>
     /// Represents a configuration for <see cref="CommandsNextExtension"/>.
@@ -24,16 +25,16 @@ namespace DSharpPlus.CommandsNext
     public sealed class CommandsNextConfiguration
     {
         /// <summary>
-        /// <para>Sets the string prefix used for commands.</para>
+        /// <para>Sets the string prefixes used for commands.</para>
         /// <para>Defaults to no value (disabled).</para>
         /// </summary>
-        public string StringPrefix { internal get; set; } = null;
+        public IEnumerable<string> StringPrefixes { internal get; set; }
 
         /// <summary>
-        /// <para>Sets the custom prefix predicate used for commands.</para>
+        /// <para>Sets the custom prefix resolver used for commands.</para>
         /// <para>Defaults to none (disabled).</para>
         /// </summary>
-        public CustomPrefixPredicate CustomPrefixPredicate { internal get; set; } = null;
+        public PrefixResolverDelegate PrefixResolver { internal get; set; } = null;
 
         /// <summary>
         /// <para>Sets whether to allow mentioning the bot to be used as command prefix.</para>
@@ -102,7 +103,7 @@ namespace DSharpPlus.CommandsNext
         public CommandsNextConfiguration(CommandsNextConfiguration other)
         {
             this.CaseSensitive = other.CaseSensitive;
-            this.CustomPrefixPredicate = other.CustomPrefixPredicate;
+            this.PrefixResolver = other.PrefixResolver;
             this.DefaultHelpChecks = other.DefaultHelpChecks;
             this.EnableDefaultHelp = other.EnableDefaultHelp;
             this.EnableDms = other.EnableDms;
@@ -110,7 +111,7 @@ namespace DSharpPlus.CommandsNext
             this.IgnoreExtraArguments = other.IgnoreExtraArguments;
             this.Selfbot = other.Selfbot;
             this.Services = other.Services;
-            this.StringPrefix = other.StringPrefix;
+            this.StringPrefixes = other.StringPrefixes.ToArray();
         }
     }
 }
