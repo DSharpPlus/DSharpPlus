@@ -111,7 +111,7 @@ namespace DSharpPlus.CommandsNext
             this.IgnoreExtraArguments = other.IgnoreExtraArguments;
             this.Selfbot = other.Selfbot;
             this.Services = other.Services;
-            this.StringPrefixes = other.StringPrefixes.ToArray();
+            this.StringPrefixes = other.StringPrefixes?.ToArray();
         }
     }
 }
