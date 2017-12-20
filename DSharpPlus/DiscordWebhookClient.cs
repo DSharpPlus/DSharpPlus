@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -50,8 +51,17 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="proxy">Proxy to use for HTTP connections.</param>
         public DiscordWebhookClient(IWebProxy proxy)
+            : this(proxy, TimeSpan.FromSeconds(10))
+        { }
+
+        /// <summary>
+        /// Creates a new webhook client, with specified HTTP proxy and timeout settings.
+        /// </summary>
+        /// <param name="proxy">Proxy to use for HTTP connections.</param>
+        /// <param name="timeout">Timeout to use for HTTP requests. Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</param>
+        public DiscordWebhookClient(IWebProxy proxy, TimeSpan timeout)
         {
-            this._apiclient = new DiscordApiClient(proxy);
+            this._apiclient = new DiscordApiClient(proxy, timeout);
             this._hooks = new List<DiscordWebhook>();
             this.Webhooks = new ReadOnlyCollection<DiscordWebhook>(this._hooks);
         }

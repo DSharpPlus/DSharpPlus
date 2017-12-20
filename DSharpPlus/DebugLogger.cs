@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus
@@ -24,13 +25,21 @@ namespace DSharpPlus
         {
             if (level <= this.Level)
             {
-                message = message.Replace("\r", "");
-                var lines = new[] { message };
-                if (message.Contains('\n'))
-                    lines = message.Split('\n');
-                foreach (var line in lines)
-                    LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = line, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
+                //message = message.Replace("\r", "");
+                //var lines = new[] { message };
+                //if (message.Contains('\n'))
+                //    lines = message.Split('\n');
+                //foreach (var line in lines)
+                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
             }
+        }
+
+        public void LogTaskFault(Task task, LogLevel level, string application, string message)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
+            task.ContinueWith(t => LogMessage(level, application, message + t.Exception, DateTime.Now), TaskContinuationOptions.OnlyOnFaulted);
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
