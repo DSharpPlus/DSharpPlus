@@ -41,6 +41,24 @@ namespace DSharpPlus.Entities
         [JsonProperty("animated")]
         public bool IsAnimated { get; internal set; }
 
+        /// <summary>
+        /// Gets the image URL of this emoji.
+        /// </summary>
+        [JsonIgnore]
+        public string Url
+        {
+            get
+            {
+                if (this.Id == 0)
+                    throw new InvalidOperationException("Cannot get URL of unicode emojis.");
+
+                if (this.IsAnimated)
+                    return $"https://cdn.discordapp.com/emojis/{this.Id.ToString(CultureInfo.InvariantCulture)}.gif";
+
+                return $"https://cdn.discordapp.com/emojis/{this.Id.ToString(CultureInfo.InvariantCulture)}.png";
+            }
+        }
+
         internal DiscordEmoji() { }
 
         /// <summary>
@@ -63,7 +81,13 @@ namespace DSharpPlus.Entities
         public override string ToString()
         {
             if (this.Id != 0)
-                return string.Concat("<", this.IsAnimated ? "a" : "", $":{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>");
+            {
+                if (this.IsAnimated)
+                    return $"<a:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
+                else
+                    return $"<:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
+            }
+
             return this.Name;
         }
 
