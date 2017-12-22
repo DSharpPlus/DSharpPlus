@@ -26,14 +26,20 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets whether this emoji requires colons to use.
         /// </summary>
-        [JsonProperty("require_colons", NullValueHandling = NullValueHandling.Ignore)]
-        public bool RequireColons { get; internal set; }
+        [JsonProperty("require_colons")]
+        public bool RequiresColons { get; internal set; }
 
         /// <summary>
         /// Gets whether this emoji is managed by an integration.
         /// </summary>
-        [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Managed { get; internal set; }
+        [JsonProperty("managed")]
+        public bool IsManaged { get; internal set; }
+
+        /// <summary>
+        /// Gets whether this emoji is animated.
+        /// </summary>
+        [JsonProperty("animated")]
+        public bool IsAnimated { get; internal set; }
 
         internal DiscordEmoji() { }
 
@@ -57,7 +63,7 @@ namespace DSharpPlus.Entities
         public override string ToString()
         {
             if (this.Id != 0)
-                return $"<:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
+                return string.Concat("<", this.IsAnimated ? "a" : "", $":{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>");
             return this.Name;
         }
 

@@ -221,9 +221,9 @@ namespace DSharpPlus.CommandsNext.Converters
         static DiscordEmojiConverter()
         {
 #if NETSTANDARD1_1
-            EmoteRegex = new Regex(@"^<:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript);
+            EmoteRegex = new Regex(@"^<a?:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript);
 #else
-            EmoteRegex = new Regex(@"^<:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+            EmoteRegex = new Regex(@"^<a?:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
 #endif
         }
 
