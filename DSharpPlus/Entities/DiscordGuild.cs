@@ -132,6 +132,17 @@ namespace DSharpPlus.Entities
         [JsonProperty("explicit_content_filter")]
         public ExplicitContentFilter ExplicitContentFilter { get; internal set; }
 
+        [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
+        internal ulong? SystemChannelId { get; set; }
+
+        /// <summary>
+        /// Gets the channel to which system messages (such as join notifications) are sent.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordChannel SystemChannel => SystemChannelId.HasValue
+            ? this.Channels.FirstOrDefault(xc => xc.Id == SystemChannelId)
+            : null;
+        
         /// <summary>
         /// Gets a collection of this guild's roles.
         /// </summary>
@@ -321,7 +332,8 @@ namespace DSharpPlus.Entities
 
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region?.Id, mdl.VerificationLevel, mdl.DefaultMessageNotifications,
                 mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel?.Id,
-                mdl.AfkTimeout, iconb64, mdl.Owner?.Id, splashb64, mdl.AuditLogReason).ConfigureAwait(false);
+                mdl.AfkTimeout, iconb64, mdl.Owner?.Id, splashb64, mdl.AuditLogReason, 
+                mdl.SystemChannel.HasValue, mdl.SystemChannel.HasValue ? mdl.SystemChannel.Value?.Id : null).ConfigureAwait(false);
         }
 
         /// <summary>
