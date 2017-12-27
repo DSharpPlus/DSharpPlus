@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System;
 
 namespace DSharpPlus.Entities
 {
