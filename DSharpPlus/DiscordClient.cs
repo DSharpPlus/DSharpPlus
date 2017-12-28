@@ -946,7 +946,7 @@ namespace DSharpPlus
                     GuildId = channel_new.GuildId,
                     Id = channel_new.Id,
                     //IsPrivate = channel_new.IsPrivate,
-                    LastMessageId = channel_new.LastMessageId,
+                    LastMessage = channel_new.LastMessage,
                     Name = channel_new.Name,
                     _permission_overwrites = new List<DiscordOverwrite>(channel_new._permission_overwrites),
                     Position = channel_new.Position,
@@ -1467,7 +1467,7 @@ namespace DSharpPlus
             if (message.Channel == null)
                 DebugLogger.LogMessage(LogLevel.Warning, "Event", "Could not find channel last message belonged to", DateTime.Now);
             else
-                message.Channel.LastMessageId = message.Id;
+                message.Channel.LastMessage = message;
 
             var guild = message.Channel?.Guild;
 

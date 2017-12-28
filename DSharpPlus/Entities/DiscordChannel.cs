@@ -92,10 +92,10 @@ namespace DSharpPlus.Entities
         public string Topic { get; internal set; } = "";
 
         /// <summary>
-        /// Gets the ID of the last message sent in this channel. This is applicable to text channels only.
+        /// Gets the last message sent in this channel. This is applicable to text channels only.
         /// </summary>
-        [JsonProperty("last_message_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong LastMessageId { get; internal set; } = 0;
+        [JsonProperty("last_message", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessage LastMessage { get; internal set; }
 
         /// <summary>
         /// Gets this channel's bitrate. This is applicable to voice channels only.
