@@ -10,16 +10,25 @@ namespace DSharpPlus.CommandsNext.Exceptions
         /// <summary>
         /// Gets the name of the command that was not found.
         /// </summary>
-        public string Command { get; set; }
+        public string CommandName { get; set; }
 
         /// <summary>
         /// Creates a new <see cref="CommandNotFoundException"/>.
         /// </summary>
-        /// <param name="command">Command that was not found.</param>
+        /// <param name="command">Name of the command that was not found.</param>
         public CommandNotFoundException(string command)
             : base("Specified command was not found.")
         {
-            this.Command = command;
+            this.CommandName = command;
+        }
+
+        /// <summary>
+        /// Returns a string representation of this <see cref="CommandNotFoundException"/>.
+        /// </summary>
+        /// <returns>A string representation.</returns>
+        public override string ToString()
+        {
+            return $"{this.GetType()}: {this.Message}\nCommand name: {this.CommandName}"; // much like System.ArgumentNullException works
         }
     }
 }
