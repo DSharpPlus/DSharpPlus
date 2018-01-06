@@ -9,12 +9,14 @@ namespace DSharpPlus.Net.Serialization
 {
     public static class DiscordJson
     {
+        private static readonly OptionalJsonConverter OptionalJsonConverter = new OptionalJsonConverter();
+
         /// <summary>Serializes the specified object to a JSON string.</summary>
         /// <param name="value">The object to serialize.</param>
         /// <returns>A JSON string representation of the object.</returns>
         public static string SerializeObject(object value)
         {
-            return JsonConvert.SerializeObject(value, new OptionalJsonConverter());
+            return JsonConvert.SerializeObject(value, OptionalJsonConverter);
         }
     }
 
