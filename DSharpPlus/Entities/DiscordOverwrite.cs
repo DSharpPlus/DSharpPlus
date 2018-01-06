@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System;
 
 namespace DSharpPlus.Entities
 {
@@ -47,6 +48,28 @@ namespace DSharpPlus.Entities
         public Task UpdateAsync(Permissions? allow = null, Permissions? deny = null, string reason = null)
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this._channel_id, this.Id, allow ?? this.Allow, deny ?? this.Deny, this.Type.ToString().ToLowerInvariant(), reason);
         #endregion
+        
+        /// <summary>
+        /// Gets the DiscordMember that is affected by this overwrite.
+        /// </summary>
+        /// <returns>The DiscordMember that is affected by this overwrite</returns>
+        public async Task<DiscordMember> GetMemberAsync()
+        {
+            if (this.Type != OverwriteType.Member)
+                throw new ArgumentException(nameof(this.Type), "This overwrite is for a role, not a member.");
+            return await (await this.Discord.ApiClient.GetChannelAsync(this._channel_id)).Guild.GetMemberAsync(this.Id);
+        }
+
+        /// <summary>
+        /// Gets the DiscordRole that is affected by this overwrite.
+        /// </summary>
+        /// <returns>The DiscordRole that is affected by this overwrite</returns>
+        public async Task<DiscordRole> GetRoleAsync()
+        {
+            if (this.Type != OverwriteType.Role)
+                throw new ArgumentException(nameof(this.Type), "This overwrite is for a member, not a role.");
+            return (await this.Discord.ApiClient.GetChannelAsync(this._channel_id)).Guild.GetRole(this.Id);
+        }
 
         internal DiscordOverwrite() { }
 
