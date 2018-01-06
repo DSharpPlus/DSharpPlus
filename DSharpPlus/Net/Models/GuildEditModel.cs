@@ -22,6 +22,7 @@ namespace DSharpPlus.Net.Models
         public DiscordMember Owner { internal get; set; }
         public Stream Splash { internal get; set; }
         public string AuditLogReason { internal get; set; }
+        public Optional<DiscordChannel> SystemChannel { internal get; set; }
 
         internal GuildEditModel()
         {
