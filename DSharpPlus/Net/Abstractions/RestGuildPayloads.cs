@@ -56,6 +56,14 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("explicit_content_filter", NullValueHandling = NullValueHandling.Ignore)]
         public ExplicitContentFilter? ExplicitContentFilter { get; set; }
 
+        [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
+        public ulong? SystemChannelId { get; set; }
+        
+        [JsonIgnore]
+        public bool HasSystemChannelId { get; set; }
+
+        public bool ShouldSerializeSystemChannelId() => HasSystemChannelId;
+
         // we no want that here
         [JsonIgnore]
         public new IEnumerable<DiscordRole> Roles { get; set; }
