@@ -22,22 +22,13 @@ namespace DSharpPlus.Net.Serialization
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var type = value.GetType();
-#if NETSTANDARD1_1 || NETSTANDARD1_3
-            var hasValue = (bool) type.GetTypeInfo().DeclaredProperties.FirstOrDefault(e => e.Name == "HasValue")
+            var typeInfo = value.GetType().GetTypeInfo();
+            var hasValue = (bool) typeInfo.DeclaredProperties.FirstOrDefault(e => e.Name == "HasValue")
                 .GetValue(value);
-#else
-            var hasValue = (bool)type.GetProperty("HasValue").GetValue(value);
-#endif
 
             if (!hasValue) return;
-
-#if NETSTANDARD1_1 || NETSTANDARD1_3
-            var t = JToken.FromObject(type.GetTypeInfo().DeclaredProperties.FirstOrDefault(e => e.Name == "Value")
+            var t = JToken.FromObject(typeInfo.DeclaredProperties.FirstOrDefault(e => e.Name == "Value")
                 .GetValue(value));
-#else
-            var t = JToken.FromObject(type.GetProperty("Value").GetValue(value));
-#endif
             t.WriteTo(writer);
         }
 
@@ -52,25 +43,13 @@ namespace DSharpPlus.Net.Serialization
 
         public override bool CanConvert(Type objectType)
         {
-#if NETSTANDARD1_1 || NETSTANDARD1_3
             if (!objectType.GetTypeInfo().IsGenericType) return false;
-#else
-            if (!objectType.IsGenericType) return false;
-#endif
 
             if (objectType.GetGenericTypeDefinition() != typeof(Optional<>)) return false;
 
-#if NETSTANDARD1_1 || NETSTANDARD1_3
             var firstGeneric = objectType.GetTypeInfo().GenericTypeArguments[0];
-#else
-            var firstGeneric = objectType.GetGenericArguments()[0];
-#endif
 
-#if NETSTANDARD1_1 || NETSTANDARD1_3
             if (!firstGeneric.GetTypeInfo().IsGenericType) return false;
-#else
-            if (!firstGeneric.IsGenericType) return false;
-#endif
 
             return firstGeneric.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
