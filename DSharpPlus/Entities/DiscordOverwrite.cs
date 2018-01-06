@@ -56,7 +56,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMember> GetMemberAsync()
         {
             if (this.Type != OverwriteType.Member)
-                throw new ArgumentException(nameof(this.Type), "This overwrite is for a role, not a member");
+                throw new ArgumentException(nameof(this.Type), "This overwrite is for a role, not a member.");
             return await (await this.Discord.ApiClient.GetChannelAsync(this._channel_id)).Guild.GetMemberAsync(this.Id);
         }
 
@@ -67,7 +67,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordRole> GetRoleAsync()
         {
             if (this.Type != OverwriteType.Role)
-                throw new ArgumentException(nameof(this.Type), "This overwrite is for a member, not a role");
+                throw new ArgumentException(nameof(this.Type), "This overwrite is for a member, not a role.");
             return (await this.Discord.ApiClient.GetChannelAsync(this._channel_id)).Guild.GetRole(this.Id);
         }
 
