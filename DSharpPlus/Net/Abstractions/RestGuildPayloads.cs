@@ -38,37 +38,37 @@ namespace DSharpPlus.Net.Abstractions
 
     internal sealed class RestGuildModifyPayload
     {
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("name")]
         public Optional<string> Name { get; set; }
 
-        [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("region")]
         public Optional<string> RegionId { get; set; }
         
-        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("icon")]
         public Optional<string> IconBase64 { get; set; }
 
-        [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("verification_level")]
         public Optional<VerificationLevel> VerificationLevel { get; set; }
 
-        [JsonProperty("default_message_notifications", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("default_message_notifications")]
         public Optional<DefaultMessageNotifications> DefaultMessageNotifications { get; set; }
 
-        [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("owner_id")]
         public Optional<ulong> OwnerId { get; set; }
 
-        [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("splash")]
         public Optional<string> SplashBase64 { get; set; }
 
-        [JsonProperty("afk_channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("afk_channel_id")]
         public Optional<ulong> AfkChannelId { get; set; }
 
-        [JsonProperty("afk_timeout", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("afk_timeout")]
         public Optional<int> AfkTimeout { get; set; }
 
-        [JsonProperty("mfa_level", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("mfa_level")]
         public Optional<MfaLevel> MfaLevel { get; set; }
 
-        [JsonProperty("explicit_content_filter", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("explicit_content_filter")]
         public Optional<ExplicitContentFilter> ExplicitContentFilter { get; set; }
 
         [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
