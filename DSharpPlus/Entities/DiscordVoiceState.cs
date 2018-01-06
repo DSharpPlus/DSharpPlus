@@ -27,7 +27,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets ID of the channel this user is connected to.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Include)]
         internal ulong? ChannelId { get; set; }
 
         /// <summary>
