@@ -317,23 +317,23 @@ namespace DSharpPlus.Entities
         {
             var mdl = new GuildEditModel();
             action(mdl);
-            if (mdl.AfkChannel != null && mdl.AfkChannel.Type != ChannelType.Voice)
+            if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
-            string iconb64 = null;
-            if (mdl.Icon != null)
-                using (var imgtool = new ImageTool(mdl.Icon))
+            Optional<string> iconb64 = default;
+            if (mdl.Icon.HasValue)
+                using (var imgtool = new ImageTool(mdl.Icon.Value))
                     iconb64 = imgtool.GetBase64();
 
-            string splashb64 = null;
-            if (mdl.Splash != null)
-                using (var imgtool = new ImageTool(mdl.Splash))
+            Optional<string> splashb64 = default;
+            if (mdl.Splash.HasValue)
+                using (var imgtool = new ImageTool(mdl.Splash.Value))
                     splashb64 = imgtool.GetBase64();
 
-            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region?.Id, mdl.VerificationLevel, mdl.DefaultMessageNotifications,
-                mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel?.Id,
-                mdl.AfkTimeout, iconb64, mdl.Owner?.Id, splashb64, mdl.AuditLogReason, 
-                mdl.SystemChannel.HasValue, mdl.SystemChannel.HasValue ? mdl.SystemChannel.Value?.Id : null).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
+                mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
+                mdl.AfkChannel.IfPresent(e => e.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
+                mdl.SystemChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>

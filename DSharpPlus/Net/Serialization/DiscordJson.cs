@@ -45,13 +45,7 @@ namespace DSharpPlus.Net.Serialization
         {
             if (!objectType.GetTypeInfo().IsGenericType) return false;
 
-            if (objectType.GetGenericTypeDefinition() != typeof(Optional<>)) return false;
-
-            var firstGeneric = objectType.GetTypeInfo().GenericTypeArguments[0];
-
-            if (!firstGeneric.GetTypeInfo().IsGenericType) return false;
-
-            return firstGeneric.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return objectType.GetGenericTypeDefinition() == typeof(Optional<>);
         }
 
 //        private static void DisplayTypeInfo(Type t)

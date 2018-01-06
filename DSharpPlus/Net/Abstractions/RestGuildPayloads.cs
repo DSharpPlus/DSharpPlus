@@ -36,41 +36,43 @@ namespace DSharpPlus.Net.Abstractions
         public IEnumerable<RestChannelCreatePayload> Channels { get; set; }
     }
 
-    internal sealed class RestGuildModifyPayload : RestGuildCreatePayload
+    internal sealed class RestGuildModifyPayload
     {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Name { get; set; }
+
+        [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> RegionId { get; set; }
+        
+        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> IconBase64 { get; set; }
+
+        [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<VerificationLevel> VerificationLevel { get; set; }
+
+        [JsonProperty("default_message_notifications", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DefaultMessageNotifications> DefaultMessageNotifications { get; set; }
+
         [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? OwnerId { get; set; }
+        public Optional<ulong> OwnerId { get; set; }
 
         [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
-        public string SplashBase64 { get; set; }
+        public Optional<string> SplashBase64 { get; set; }
 
         [JsonProperty("afk_channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? AfkChannelId { get; set; }
+        public Optional<ulong> AfkChannelId { get; set; }
 
         [JsonProperty("afk_timeout", NullValueHandling = NullValueHandling.Ignore)]
-        public int? AfkTimeout { get; set; }
+        public Optional<int> AfkTimeout { get; set; }
 
         [JsonProperty("mfa_level", NullValueHandling = NullValueHandling.Ignore)]
-        public MfaLevel? MfaLevel { get; set; }
+        public Optional<MfaLevel> MfaLevel { get; set; }
 
         [JsonProperty("explicit_content_filter", NullValueHandling = NullValueHandling.Ignore)]
-        public ExplicitContentFilter? ExplicitContentFilter { get; set; }
+        public Optional<ExplicitContentFilter> ExplicitContentFilter { get; set; }
 
         [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
-        public ulong? SystemChannelId { get; set; }
-        
-        [JsonIgnore]
-        public bool HasSystemChannelId { get; set; }
-
-        public bool ShouldSerializeSystemChannelId() => HasSystemChannelId;
-
-        // we no want that here
-        [JsonIgnore]
-        public new IEnumerable<DiscordRole> Roles { get; set; }
-
-        // we no want that here
-        [JsonIgnore]
-        public new IEnumerable<RestChannelCreatePayload> Channels { get; set; }
+        public Optional<ulong?> SystemChannelId { get; set; }
     }
     
     internal sealed class RestGuildMemberAddPayload : IOAuth2Payload

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Net.Models
 {
-    public class ChannelEditModel
+    public class ChannelEditModel : BaseEditModel
     {
         public string Name { internal get; set; }
         public int? Position { internal get; set; }
@@ -15,8 +15,7 @@ namespace DSharpPlus.Net.Models
         public Optional<DiscordChannel> Parent { internal get; set; }
         public int? Bitrate { internal get; set; }
         public int? Userlimit { internal get; set; }
-        public string AuditLogReason { internal get; set; }
-
+        
         internal ChannelEditModel()
         {
 
