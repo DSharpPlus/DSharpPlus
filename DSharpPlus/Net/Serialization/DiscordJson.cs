@@ -25,12 +25,10 @@ namespace DSharpPlus.Net.Serialization
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var typeInfo = value.GetType().GetTypeInfo();
-            var hasValue = (bool) typeInfo.DeclaredProperties.FirstOrDefault(e => e.Name == "HasValue")
-                .GetValue(value);
+            var hasValue = (bool) typeInfo.GetDeclaredProperty("HasValue").GetValue(value);
 
             if (!hasValue) return;
-            var t = JToken.FromObject(typeInfo.DeclaredProperties.FirstOrDefault(e => e.Name == "Value")
-                .GetValue(value));
+            var t = JToken.FromObject(typeInfo.GetDeclaredProperty("Value").GetValue(value));
             t.WriteTo(writer);
         }
 
