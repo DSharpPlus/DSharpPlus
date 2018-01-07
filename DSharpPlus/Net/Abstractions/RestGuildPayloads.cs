@@ -113,20 +113,20 @@ namespace DSharpPlus.Net.Abstractions
 
     internal sealed class RestGuildMemberModifyPayload
     {
-        [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
-        public string Nickname { get; set; }
+        [JsonProperty("nick")]
+        public Optional<string> Nickname { get; set; }
 
-        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<ulong> RoleIds { get; set; }
+        [JsonProperty("roles")]
+        public Optional<IEnumerable<ulong>> RoleIds { get; set; }
 
-        [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Mute { get; set; }
+        [JsonProperty("mute")]
+        public Optional<bool> Mute { get; set; }
 
-        [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Deafen { get; set; }
+        [JsonProperty("deaf")]
+        public Optional<bool> Deafen { get; set; }
 
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? VoiceChannelId { get; set; }
+        [JsonProperty("channel_id")]
+        public Optional<ulong> VoiceChannelId { get; set; }
     }
 
     internal sealed class RestGuildRolePayload

@@ -1000,7 +1000,9 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, string nick, IEnumerable<ulong> role_ids, bool? mute, bool? deaf, ulong? voice_channel_id, string reason)
+        internal Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
+            Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
+            Optional<ulong> voice_channel_id, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
