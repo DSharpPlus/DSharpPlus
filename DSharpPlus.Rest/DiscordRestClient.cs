@@ -252,7 +252,9 @@ namespace DSharpPlus
         public Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
             => ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
 
-        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, string nick, IEnumerable<ulong> role_ids, bool? mute, bool? deaf, ulong? voice_channel_id, string reason)
+        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
+            Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
+            Optional<ulong> voice_channel_id, string reason)
             => ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, reason);
 
         public Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
