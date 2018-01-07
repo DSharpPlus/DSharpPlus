@@ -92,7 +92,7 @@ namespace DSharpPlus.Entities
         public string Topic { get; internal set; } = "";
 
         /// <summary>
-        /// Gets the id of the last message sent in this channel. This is applicable to text channels only.
+        /// Gets the ID of the last message sent in this channel. This is applicable to text channels only.
         /// </summary>
         [JsonProperty("last_message_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong LastMessageId { get; internal set; } = 0;
