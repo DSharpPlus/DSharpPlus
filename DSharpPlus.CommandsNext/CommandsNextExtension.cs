@@ -697,9 +697,10 @@ namespace DSharpPlus.CommandsNext
                     throw new CommandNotFoundException(string.Join(" ", command));
 
                 helpbuilder.WithCommandName(cmd.Name).WithDescription(cmd.Description);
+                helpbuilder.WithQualifiedCommandName(cmd.QualifiedName);
 
-                if (cmd is CommandGroup g && g.Callable != null)
-                    helpbuilder.WithGroupExecutable();
+                if (cmd is CommandGroup g)
+                    helpbuilder.AsCommandGroup(g.Callable != null ? true : false);
 
                 if (cmd.Aliases != null && cmd.Aliases.Any())
                     helpbuilder.WithAliases(cmd.Aliases.OrderBy(xs => xs));

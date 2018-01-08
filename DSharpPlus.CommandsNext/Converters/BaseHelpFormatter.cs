@@ -30,6 +30,13 @@ namespace DSharpPlus.CommandsNext.Converters
         public abstract BaseHelpFormatter WithCommandName(string name);
 
         /// <summary>
+        /// Gets the full name of the current command, including all module names.
+        /// </summary>
+        /// <param name="name">Qualified name of the command for which the help is displayed.</param>
+        /// <returns>Current formatter.</returns>
+        public abstract BaseHelpFormatter WithQualifiedCommandName(string name);
+
+        /// <summary>
         /// Sets the description of the current command.
         /// </summary>
         /// <param name="description">Description of the command for which help is displayed.</param>
@@ -58,10 +65,11 @@ namespace DSharpPlus.CommandsNext.Converters
         public abstract BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands);
 
         /// <summary>
-        /// When the current command is a group, this sets it as executable.
+        /// This flags the current command as a group, with a bool stating whether or not the group is executable.
         /// </summary>
+        /// <param name="groupExecutable">States whether or not the group is executable.</param>
         /// <returns>Current formatter.</returns>
-        public abstract BaseHelpFormatter WithGroupExecutable();
+        public abstract BaseHelpFormatter AsCommandGroup(bool groupExecutable);
 
         /// <summary>
         /// Construct the help message.
