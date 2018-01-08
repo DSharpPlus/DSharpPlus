@@ -10,8 +10,8 @@ namespace DSharpPlus.Test
     public sealed class TestBotHelpFormatter : BaseHelpFormatter
     {
         private TestBotService Service { get; }
-
-        private string _name = null, _desc = null, _args = null, _aliases = null, _subcs = null;
+        
+        private string _name = null, _desc = null, _args = null, _aliases = null, _subcs = null, _qname = null;
         private bool _gexec = false;
 
         public TestBotHelpFormatter(TestBotService dep, CommandsNextExtension cnext)
@@ -23,6 +23,12 @@ namespace DSharpPlus.Test
         public override BaseHelpFormatter WithCommandName(string name)
         {
             this._name = name;
+            return this;
+        }
+
+        public override BaseHelpFormatter WithQualifiedCommandName(string name)
+        {
+            this._qname = name;
             return this;
         }
 
@@ -80,7 +86,7 @@ namespace DSharpPlus.Test
             }
             else
             {
-                sb.Append(this._name).Append("\n\n");
+                sb.Append(this._qname).Append("\n\n");
 
                 if (this._gexec)
                     sb.Append("This group can be executed as a standalone command.\n\n");

@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandsNext.Converters
     public class DefaultHelpFormatter : BaseHelpFormatter
     {
         private DiscordEmbedBuilder _embed;
-        private string _name, _desc;
+        private string _name, _desc, _qname;
         private bool _gexec;
 
         /// <summary>
@@ -36,6 +36,16 @@ namespace DSharpPlus.CommandsNext.Converters
         public override BaseHelpFormatter WithCommandName(string name)
         {
             this._name = name;
+            return this;
+        }
+
+        /// <summary>
+        /// Gets the full name of the current command, including all module names.
+        /// </summary>
+        /// <returns>Current formatter.</returns>
+        public override BaseHelpFormatter WithQualifiedCommandName(string qname)
+        {
+            this._qname = qname;
             return this;
         }
 

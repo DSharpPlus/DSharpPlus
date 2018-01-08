@@ -30,6 +30,13 @@ namespace DSharpPlus.CommandsNext.Converters
         public abstract BaseHelpFormatter WithCommandName(string name);
 
         /// <summary>
+        /// Gets the full name of the current command, including all module names.
+        /// </summary>
+        /// <param name="name">Qualified name of the command for which the help is displayed.</param>
+        /// <returns>Current formatter.</returns>
+        public abstract BaseHelpFormatter WithQualifiedCommandName(string name);
+
+        /// <summary>
         /// Sets the description of the current command.
         /// </summary>
         /// <param name="description">Description of the command for which help is displayed.</param>
