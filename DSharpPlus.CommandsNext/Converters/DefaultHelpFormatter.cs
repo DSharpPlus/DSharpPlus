@@ -13,7 +13,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         private DiscordEmbedBuilder _embed;
         private string _name, _desc, _qname;
-        private bool _gexec;
+        private bool _g, _gexec;
 
         /// <summary>
         /// Creates a new default help formatter.
@@ -115,12 +115,14 @@ namespace DSharpPlus.CommandsNext.Converters
         }
 
         /// <summary>
-        /// When the current command is a group, this sets it as executable.
+        /// This flags the current command as a group, with a bool stating whether or not the group is executable.
         /// </summary>
+        /// <param name="groupExecutable">Sets whether or not the group is executable.</param>
         /// <returns>Current formatter.</returns>
-        public override BaseHelpFormatter WithGroupExecutable()
+        public override BaseHelpFormatter AsCommandGroup(bool groupExecutable)
         {
-            this._gexec = true;
+            this._gexec = groupExecutable;
+            this._g = true;
             return this;
         }
 

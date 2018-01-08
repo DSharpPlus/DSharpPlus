@@ -12,7 +12,7 @@ namespace DSharpPlus.Test
         private TestBotService Service { get; }
         
         private string _name = null, _desc = null, _args = null, _aliases = null, _subcs = null, _qname = null;
-        private bool _gexec = false;
+        private bool _g = false, _gexec = false;
 
         public TestBotHelpFormatter(TestBotService dep, CommandsNextExtension cnext)
             : base(cnext)
@@ -38,9 +38,10 @@ namespace DSharpPlus.Test
             return this;
         }
 
-        public override BaseHelpFormatter WithGroupExecutable()
+        public override BaseHelpFormatter AsCommandGroup(bool groupExecutable)
         {
-            this._gexec = true;
+            this._g = true;
+            this._gexec = groupExecutable;
             return this;
         }
 
