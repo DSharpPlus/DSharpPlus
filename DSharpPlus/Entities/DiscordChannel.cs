@@ -316,9 +316,12 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
             => this._getMessagesAsync(limit, null, null, around);
 
-        [System.Obsolete("GetMessagesAsync is deprecated, please use the separate methods instead.")]
-        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null) =>
-            _getMessagesAsync(limit, before, after, around);
+        /// <summary>  
+        /// Returns a list of messages from the last message in the channel.
+        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// </summary> 
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100) =>
+            _getMessagesAsync(limit, null, null, null);
 
         private Task<IReadOnlyList<DiscordMessage>> _getMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
