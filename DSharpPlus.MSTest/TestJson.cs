@@ -6,6 +6,19 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Test
 {
+    public class TestFixture1
+    {
+        public Optional<ulong?> Entry { get; set; }
+    }
+    public class TestFixture2
+    {
+        public Optional<bool?> Entry { get; set; }
+    }
+    public class TestFixture3
+    {
+        public Optional<bool> Entry { get; set; }
+    }
+    
     [TestClass]
     public class TestJson
     {
@@ -13,16 +26,16 @@ namespace DSharpPlus.Test
         public void TestOptionalSerialization()
         {
             // ulong
-            Assert.AreEqual("[0]", DiscordJson.SerializeObject(new[] { new Optional<ulong?>(0UL) }));
-            Assert.AreEqual("[]" , DiscordJson.SerializeObject(new[] { new Optional<ulong?>() }));
+            Assert.AreEqual(@"{""Entry"":0}", DiscordJson.SerializeObject(new TestFixture1 { Entry = new Optional<ulong?>(0UL) }));
+            Assert.AreEqual(@"{}" , DiscordJson.SerializeObject(new TestFixture1 { Entry = new Optional<ulong?>() }));
             // bool?
-            Assert.AreEqual("[true]" , DiscordJson.SerializeObject(new[] { new Optional<bool?>(true) }));
-            Assert.AreEqual("[false]", DiscordJson.SerializeObject(new[] { new Optional<bool?>(false) }));
-            Assert.AreEqual("[]"     , DiscordJson.SerializeObject(new[] { new Optional<bool?>() }));
+            Assert.AreEqual(@"{""Entry"":true}" , DiscordJson.SerializeObject(new TestFixture2 { Entry = new Optional<bool?>(true) }));
+            Assert.AreEqual(@"{""Entry"":false}", DiscordJson.SerializeObject(new TestFixture2 { Entry = new Optional<bool?>(false) }));
+            Assert.AreEqual(@"{}"     , DiscordJson.SerializeObject(new TestFixture2 { Entry = new Optional<bool?>() }));
             // bool
-            Assert.AreEqual("[true]" , DiscordJson.SerializeObject(new[] { new Optional<bool>(true) }));
-            Assert.AreEqual("[false]", DiscordJson.SerializeObject(new[] { new Optional<bool>(false) }));
-            Assert.AreEqual("[]"     , DiscordJson.SerializeObject(new[] { new Optional<bool>() }));
+            Assert.AreEqual(@"{""Entry"":true}" , DiscordJson.SerializeObject(new TestFixture3 { Entry = new Optional<bool>(true) }));
+            Assert.AreEqual(@"{""Entry"":false}", DiscordJson.SerializeObject(new TestFixture3 { Entry = new Optional<bool>(false) }));
+            Assert.AreEqual(@"{}"     , DiscordJson.SerializeObject(new TestFixture3 { Entry = new Optional<bool>() }));
         }
 
         [TestMethod]
