@@ -131,6 +131,12 @@ namespace DSharpPlus.Entities
         public bool IsOwner 
             => this.Id == this.Guild.OwnerId;
 
+        /// <summary>
+        /// Gets this member's permissions in the guild they're part of.
+        /// </summary>
+        [JsonIgnore]
+        public Permissions Permissions => this.Roles.Select(e => e.Permissions).Aggregate((a, b) => a | b);
+
         #region Overriden user properties
         [JsonIgnore]
         internal DiscordUser User 
