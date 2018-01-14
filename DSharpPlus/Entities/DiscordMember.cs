@@ -397,7 +397,7 @@ namespace DSharpPlus.Entities
             if (target == null) throw new ArgumentNullException(nameof(target));
         
             var guild = this.Guild;
-            if (guild != target.Guild) throw new ArgumentException("Provided members must both be Member objects of the same Guild!");
+            if (guild != target.Guild) throw new ArgumentException("Provided members must both be Member objects of the same Guild!", nameof(target));
             
             if (guild.Owner == this) return true;
             if (guild.Owner == target) return false;
