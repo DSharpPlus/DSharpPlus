@@ -138,6 +138,7 @@ namespace DSharpPlus.Entities
             
             return target.Position < this.Position;
         }
+        
         /// <summary>
         /// Returns a string representation of this role.
         /// </summary>
