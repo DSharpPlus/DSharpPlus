@@ -22,7 +22,7 @@ namespace DSharpPlus.Net.Abstractions
         public int? UserLimit { get; set; }
 
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<DiscordOverwrite> PermissionOverwrites { get; set; }
+        public IEnumerable<DiscordRestOverwrite> PermissionOverwrites { get; set; }
 
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Nsfw { get; set; }

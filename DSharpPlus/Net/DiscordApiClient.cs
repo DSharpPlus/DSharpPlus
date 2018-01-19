@@ -390,8 +390,12 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwrite> overwrites, bool? nsfw, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, string reason)
         {
+            List<DiscordRestOverwrite> restoverwrites = new List<DiscordRestOverwrite>();
+            foreach (var ow in overwrites)
+                restoverwrites.Add(ow.Build());
+
             var pld = new RestChannelCreatePayload
             {
                 Name = name,
@@ -399,7 +403,7 @@ namespace DSharpPlus.Net
                 Parent = parent,
                 Bitrate = bitrate,
                 UserLimit = user_limit,
-                PermissionOverwrites = overwrites,
+                PermissionOverwrites = restoverwrites,
                 Nsfw = nsfw
             };
 
