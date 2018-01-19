@@ -298,7 +298,7 @@ namespace DSharpPlus.Entities
         /// <param name="before">Message to fetch before from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(ulong before, int limit = 100)
-            => this._getMessagesAsync(limit, before, null, null);
+            => this.GetMessagesInternalAsync(limit, before, null, null);
         
         /// <summary>  
         /// Returns a list of messages after a certain message.
@@ -306,7 +306,7 @@ namespace DSharpPlus.Entities
         /// <param name="after">Message to fetch after from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(ulong after, int limit = 100)
-            => this._getMessagesAsync(limit, null, after, null);
+            => this.GetMessagesInternalAsync(limit, null, after, null);
         
         /// <summary>  
         /// Returns a list of messages around a certain message.
@@ -314,16 +314,16 @@ namespace DSharpPlus.Entities
         /// <param name="around">Message to fetch around from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
-            => this._getMessagesAsync(limit, null, null, around);
+            => this.GetMessagesInternalAsync(limit, null, null, around);
 
         /// <summary>  
         /// Returns a list of messages from the last message in the channel.
         /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100) =>
-            _getMessagesAsync(limit, null, null, null);
+            GetMessagesInternalAsync(limit, null, null, null);
 
-        private Task<IReadOnlyList<DiscordMessage>> _getMessagesAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
+        private Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
                 throw new ArgumentException("Cannot get the messages of a non-text channel");
