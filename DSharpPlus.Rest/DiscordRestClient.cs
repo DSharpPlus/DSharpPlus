@@ -125,7 +125,7 @@ namespace DSharpPlus
         #endregion
 
         #region Channel
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwrite> overwrites, bool? nsfw, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, string reason)
         {
             if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
