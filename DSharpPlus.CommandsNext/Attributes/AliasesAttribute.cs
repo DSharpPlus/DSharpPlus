@@ -23,11 +23,11 @@ namespace DSharpPlus.CommandsNext.Attributes
         public AliasesAttribute(params string[] aliases)
         {
 #if !NETSTANDARD1_1
-            if (aliases.Any(xa => xa.Any(xc => char.IsWhiteSpace(xc))))
+            if (aliases.Any(xa => xa == null || xa.Any(xc => char.IsWhiteSpace(xc))))
 #else
-            if (aliases.Any(xa => xa.ToCharArray().Any(xc => char.IsWhiteSpace(xc))))
+            if (aliases.Any(xa => xa == null || xa.ToCharArray().Any(xc => char.IsWhiteSpace(xc))))
 #endif
-                throw new ArgumentException("Aliases cannot contain whitespace characters.", nameof(aliases));
+                throw new ArgumentException("Aliases cannot contain whitespace characters or null strings.", nameof(aliases));
 
             this.Aliases = new ReadOnlyCollection<string>(aliases);
         }

@@ -180,17 +180,18 @@ namespace DSharpPlus.CommandsNext
         internal static async Task<ArgumentBindingResult> BindArguments(CommandContext ctx, bool ignoreSurplus)
         {
             var cmd = ctx.Command;
+            var ovl = ctx.Overload;
 
-            var args = new object[cmd.Arguments.Count + 1];
+            var args = new object[ovl.Arguments.Count + 1];
             args[0] = ctx;
-            var argr = new List<string>(cmd.Arguments.Count);
+            var argr = new List<string>(ovl.Arguments.Count);
 
             var argstr = ctx.RawArgumentString;
             var findpos = 0;
             var argv = "";
-            for (var i = 0; i < ctx.Command.Arguments.Count; i++)
+            for (var i = 0; i < ovl.Arguments.Count; i++)
             {
-                var arg = ctx.Command.Arguments[i];
+                var arg = ovl.Arguments[i];
                 if (arg.IsCatchAll)
                 {
                     if (arg._isArray)
@@ -226,24 +227,31 @@ namespace DSharpPlus.CommandsNext
                 }
 
                 if (argv == null && !arg.IsOptional && !arg.IsCatchAll)
-                    throw new ArgumentException("Not enough arguments supplied to the command.");
+                    return new ArgumentBindingResult(new ArgumentException("Not enough arguments supplied to the command."));
                 else if (argv == null)
                     argr.Add(null);
             }
 
             if (!ignoreSurplus && findpos < argstr.Length)
-                throw new ArgumentException("Too many arguments were supplied to this command.");
+                return new ArgumentBindingResult(new ArgumentException("Too many arguments were supplied to this command."));
 
-            for (var i = 0; i < ctx.Command.Arguments.Count; i++)
+            for (var i = 0; i < ovl.Arguments.Count; i++)
             {
-                var arg = ctx.Command.Arguments[i];
+                var arg = ovl.Arguments[i];
                 if (arg.IsCatchAll && arg._isArray)
                 {
                     var arr = Array.CreateInstance(arg.Type, argr.Count - i);
                     var start = i;
                     while (i < argr.Count)
                     {
-                        arr.SetValue(await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type), i - start);
+                        try
+                        {
+                            arr.SetValue(await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type), i - start);
+                        }
+                        catch (Exception ex)
+                        {
+                            return new ArgumentBindingResult(ex);
+                        }
                         i++;
                     }
 
@@ -252,7 +260,14 @@ namespace DSharpPlus.CommandsNext
                 }
                 else
                 {
-                    args[i + 1] = argr[i] != null ? await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
+                    try
+                    { 
+                        args[i + 1] = argr[i] != null ? await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
+                    }
+                    catch (Exception ex)
+                    {
+                        return new ArgumentBindingResult(ex);
+                    }
                 }
             }
 

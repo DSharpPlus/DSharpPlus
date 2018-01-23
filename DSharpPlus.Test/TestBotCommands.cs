@@ -146,6 +146,18 @@ namespace DSharpPlus.Test
             public Task StopBreakingMyStuff(CommandContext ctx)
                 => ctx.RespondAsync("wewlad 1");
         }
+
+        [Command, Priority(0)]
+        public Task OverloadTestAsync(CommandContext ctx)
+            => ctx.RespondAsync("Overload with no args.");
+
+        [Command, Priority(10)]
+        public Task OverloadTestAsync(CommandContext ctx, [RemainingText, Description("Catch-all argument.")] string arg)
+            => ctx.RespondAsync($"Overload with catch-all string: {arg}.");
+
+        [Command, Priority(5)]
+        public Task OverloadTestAsync(CommandContext ctx, [Description("An integer.")] int arg)
+            => ctx.RespondAsync($"Overload with int: {arg}");
     }
 
     public class TestBotService
