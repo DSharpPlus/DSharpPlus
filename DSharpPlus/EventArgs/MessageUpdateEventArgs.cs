@@ -14,9 +14,9 @@ namespace DSharpPlus.EventArgs
         public DiscordMessage Message { get; internal set; }
 
         /// <summary>
-        /// Message before it got updated. Value may not be present if message was not cached.
+        /// Gets the message before it got updated. This property will be null if the message was not cached.
         /// </summary>
-        public Optional<DiscordMessage> MessageBefore { get; internal set; }
+        public DiscordMessage MessageBefore { get; internal set; }
 
         /// <summary>
         /// Gets the channel this message belongs to.

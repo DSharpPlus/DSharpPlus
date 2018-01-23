@@ -16,12 +16,35 @@ namespace DSharpPlus.Entities
     {
         internal DiscordMessage()
         {
-            this._attachments_lazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
-            this._embeds_lazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));
-            this._mentioned_channels_lazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._mentioned_channels));
-            this._mentioned_roles_lazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._mentioned_roles));
-            this._mentioned_users_lazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentioned_users));
-            this._reactions_lazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
+            this._attachmentsLazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
+            this._embedsLazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));
+            this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels));
+            this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._mentionedRoles));
+            this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
+            this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
+        }
+        internal DiscordMessage(DiscordMessage other)
+            : this()
+        {
+            this.Discord = other.Discord;
+
+            this._attachments = other._attachments; // the attachments cannot change, thus no need to copy and reallocate.
+            this._embeds = new List<DiscordEmbed>(other._embeds);
+            this._mentionedChannels = new List<DiscordChannel>(other._mentionedChannels);
+            this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
+            this._mentionedUsers = new List<DiscordUser>(other._mentionedUsers);
+            this._reactions = new List<DiscordReaction>(other._reactions);
+
+            this.Author = other.Author;
+            this.ChannelId = other.ChannelId;
+            this.Content = other.Content;
+            this.EditedTimestampRaw = other.EditedTimestampRaw;
+            this.Id = other.Id;
+            this.IsTTS = other.IsTTS;
+            this.MessageType = other.MessageType;
+            this.Pinned = other.Pinned;
+            this.TimestampRaw = other.TimestampRaw;
+            this.WebhookId = other.WebhookId;
         }
 
         /// <summary> 
@@ -93,72 +116,72 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordUser> MentionedUsers 
-            => this._mentioned_users_lazy.Value;
+            => this._mentionedUsersLazy.Value;
 
         [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordUser> _mentioned_users;
+        internal List<DiscordUser> _mentionedUsers;
         [JsonIgnore]
-        Lazy<IReadOnlyList<DiscordUser>> _mentioned_users_lazy;
+        Lazy<IReadOnlyList<DiscordUser>> _mentionedUsersLazy;
 
         /// <summary>
         /// Gets roles mentioned by this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordRole> MentionedRoles 
-            => this._mentioned_roles_lazy.Value;
+            => this._mentionedRolesLazy.Value;
 
         [JsonIgnore]
-        internal List<DiscordRole> _mentioned_roles;
+        internal List<DiscordRole> _mentionedRoles;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordRole>> _mentioned_roles_lazy;
+        private Lazy<IReadOnlyList<DiscordRole>> _mentionedRolesLazy;
 
         /// <summary>
         /// Gets channels mentioned by this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordChannel> MentionedChannels 
-            => this._mentioned_channels_lazy.Value;
+            => this._mentionedChannelsLazy.Value;
 
         [JsonIgnore]
-        internal List<DiscordChannel> _mentioned_channels;
+        internal List<DiscordChannel> _mentionedChannels;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordChannel>> _mentioned_channels_lazy;
+        private Lazy<IReadOnlyList<DiscordChannel>> _mentionedChannelsLazy;
 
         /// <summary>
         /// Gets files attached to this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordAttachment> Attachments 
-            => this._attachments_lazy.Value;
+            => this._attachmentsLazy.Value;
 
         [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordAttachment> _attachments;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordAttachment>> _attachments_lazy;
+        private Lazy<IReadOnlyList<DiscordAttachment>> _attachmentsLazy;
 
         /// <summary>
         /// Gets embeds attached to this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordEmbed> Embeds 
-            => this._embeds_lazy.Value;
+            => this._embedsLazy.Value;
 
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordEmbed> _embeds;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordEmbed>> _embeds_lazy;
+        private Lazy<IReadOnlyList<DiscordEmbed>> _embedsLazy;
 
         /// <summary>
         /// Gets reactions used on this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordReaction> Reactions 
-            => this._reactions_lazy.Value;
+            => this._reactionsLazy.Value;
 
         [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordReaction> _reactions;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordReaction>> _reactions_lazy;
+        private Lazy<IReadOnlyList<DiscordReaction>> _reactionsLazy;
 
         /*
         /// <summary>

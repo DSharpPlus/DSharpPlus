@@ -88,9 +88,9 @@ namespace DSharpPlus.Net
                 }
             }
 
-            ret._mentioned_users = mentioned_users;
-            ret._mentioned_roles = mentioned_roles;
-            ret._mentioned_channels = mentioned_channels;
+            ret._mentionedUsers = mentioned_users;
+            ret._mentionedRoles = mentioned_roles;
+            ret._mentionedChannels = mentioned_channels;
 
             if (ret._reactions == null)
                 ret._reactions = new List<DiscordReaction>();

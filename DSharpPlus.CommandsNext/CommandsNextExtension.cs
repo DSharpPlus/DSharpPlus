@@ -803,9 +803,9 @@ namespace DSharpPlus.CommandsNext
                 }
             }
 
-            msg._mentioned_users = mentioned_users;
-            msg._mentioned_roles = mentioned_roles;
-            msg._mentioned_channels = mentioned_channels;
+            msg._mentionedUsers = mentioned_users;
+            msg._mentionedRoles = mentioned_roles;
+            msg._mentionedChannels = mentioned_channels;
 
             await this.HandleCommandsAsync(new MessageCreateEventArgs(this.Client) { Message = msg }).ConfigureAwait(false);
         }

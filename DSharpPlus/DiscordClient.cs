@@ -1508,9 +1508,9 @@ namespace DSharpPlus
                 }
             }
 
-            message._mentioned_users = mentioned_users;
-            message._mentioned_roles = mentioned_roles;
-            message._mentioned_channels = mentioned_channels;
+            message._mentionedUsers = mentioned_users;
+            message._mentionedRoles = mentioned_roles;
+            message._mentionedChannels = mentioned_channels;
 
             if (message._reactions == null)
                 message._reactions = new List<DiscordReaction>();
@@ -1538,11 +1538,9 @@ namespace DSharpPlus
             message.Discord = this;
             var event_message = message;
 
-            var old_message = new Optional<DiscordMessage>();
-
-            if (this.Configuration.MessageCacheSize > 0 && this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message) != true)
+            DiscordMessage oldmsg = null;
+            if (this.Configuration.MessageCacheSize > 0 && !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
             {
-                old_message = message;
                 message = event_message;
                 guild = message.Channel?.Guild;
 
@@ -1575,6 +1573,8 @@ namespace DSharpPlus
             }
             else
             {
+                oldmsg = new DiscordMessage(message);
+
                 guild = message.Channel?.Guild;
                 message.EditedTimestampRaw = event_message.EditedTimestampRaw;
                 if (event_message.Content != null)
@@ -1604,14 +1604,14 @@ namespace DSharpPlus
                 }
             }
 
-            message._mentioned_users = mentioned_users;
-            message._mentioned_roles = mentioned_roles;
-            message._mentioned_channels = mentioned_channels;
+            message._mentionedUsers = mentioned_users;
+            message._mentionedRoles = mentioned_roles;
+            message._mentionedChannels = mentioned_channels;
 
             var ea = new MessageUpdateEventArgs(this)
             {
                 Message = message,
-                MessageBefore = old_message,
+                MessageBefore = oldmsg,
                 MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentioned_users),
                 MentionedRoles = mentioned_roles != null ? new ReadOnlyCollection<DiscordRole>(mentioned_roles) : null,
                 MentionedChannels = mentioned_channels != null ? new ReadOnlyCollection<DiscordChannel>(mentioned_channels) : null
