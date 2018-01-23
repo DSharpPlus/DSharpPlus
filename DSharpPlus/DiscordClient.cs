@@ -1538,8 +1538,11 @@ namespace DSharpPlus
             message.Discord = this;
             var event_message = message;
 
+            var old_message = new Optional<DiscordMessage>();
+
             if (this.Configuration.MessageCacheSize > 0 && this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message) != true)
             {
+                old_message = message;
                 message = event_message;
                 guild = message.Channel?.Guild;
 
@@ -1608,7 +1611,7 @@ namespace DSharpPlus
             var ea = new MessageUpdateEventArgs(this)
             {
                 Message = message,
-
+                MessageBefore = old_message,
                 MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentioned_users),
                 MentionedRoles = mentioned_roles != null ? new ReadOnlyCollection<DiscordRole>(mentioned_roles) : null,
                 MentionedChannels = mentioned_channels != null ? new ReadOnlyCollection<DiscordChannel>(mentioned_channels) : null

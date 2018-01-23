@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -10,6 +11,20 @@ namespace DSharpPlus.Test
     public class TestBotCommands
     {
         public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
+
+        [Command("testcreateow")]
+        public async Task TestCreateOwAsync(CommandContext ctx)
+        {
+            List<DiscordOverwriteBuilder> dowbs = new List<DiscordOverwriteBuilder>();
+            dowbs.Add(new DiscordOverwriteBuilder()
+                .Allow(Permissions.ManageChannels)
+                .Deny(Permissions.ManageMessages)
+                .ForId(ctx.Member.Id)
+                .WithType(OverwriteType.Member));
+
+            await ctx.Guild.CreateTextChannelAsync("memes", overwrites: dowbs);
+            await ctx.RespondAsync("naam check your shitcode");
+        }
 
         [Command("testmodify")]
         public async Task TestModifyAsync(CommandContext ctx, DiscordMember m)

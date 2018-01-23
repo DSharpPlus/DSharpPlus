@@ -25,13 +25,10 @@ The documentation can be found [**here**](https://dsharpplus.emzi0767.com/).
 * [Example by Emzi0767](https://github.com/Emzi0767/DSharpPlus-Example-Bot)
 * [Example by Naamloos](https://github.com/NaamloosDT/DSharpPlus-example)
 
-## Slack Webhooks
-You can use [this website](https://www.nickstrohm.de/dsb/) provided by [nick-strohm](https://github.com/nick-strohm) to generate JSON for slack messages.
-
 # Questions?
 Come talk to us here:
 
-[![Discord Server](https://discordapp.com/api/guilds/379378609942560770/embed.png?style=banner1)](https://discord.gg/nTk7HgF)
+[![DSharpPlus Chat](https://discordapp.com/api/guilds/379378609942560770/embed.png?style=banner1)](https://discord.gg/nTk7HgF)
 
 Alternatively, you could also join us in the [Discord API chat](https://discord.gg/discord-api) at **#dotnet_dsharpplus**.
 
