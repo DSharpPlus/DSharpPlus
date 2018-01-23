@@ -90,7 +90,11 @@ namespace DSharpPlus.Entities
             else if (color.Length == 7)
                 color = color.Substring(1);
 
+#if !NETSTANDARD1_1
+            if (color.Any(xc => !HexAlphabet.Contains(xc)))
+#else
             if (color.ToCharArray().Any(xc => !HexAlphabet.Contains(xc)))
+#endif
                 throw new ArgumentException(nameof(color), "Colors must consist of hexadecimal characters only.");
 
             this.Value = int.Parse(color, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
