@@ -393,8 +393,9 @@ namespace DSharpPlus.Net
         internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, string reason)
         {
             List<DiscordRestOverwrite> restoverwrites = new List<DiscordRestOverwrite>();
-            foreach (var ow in overwrites)
-                restoverwrites.Add(ow.Build());
+            if (overwrites != null)
+                foreach (var ow in overwrites)
+                    restoverwrites.Add(ow.Build());
 
             var pld = new RestChannelCreatePayload
             {
