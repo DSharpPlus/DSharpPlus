@@ -34,7 +34,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static TimeSpanConverter()
         {
-#if NETSTANDARD1_1
+#if NETSTANDARD1_1 || NETSTANDARD1_3
             TimeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
 #else
             TimeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
