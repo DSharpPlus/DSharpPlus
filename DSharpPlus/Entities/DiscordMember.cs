@@ -286,7 +286,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task SetMuteAsync(bool mute, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, null, null, mute, null, null, reason);
+            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, mute, default, default, reason);
         
         /// <summary>
         /// Sets this member's voice deaf status.
@@ -295,7 +295,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task SetDeafAsync(bool deaf, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, null, null, null, deaf, null, reason);
+            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, default, deaf, default, reason);
 
         /// <summary>
         /// Modifies this member.
@@ -307,19 +307,22 @@ namespace DSharpPlus.Entities
             var mdl = new MemberEditModel();
             action(mdl);
 
-            if (mdl.VoiceChannel != null && mdl.VoiceChannel.Type != ChannelType.Voice)
+            if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value.Type != ChannelType.Voice)
                 throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
 
-            if (mdl.Nickname != null && this.Discord.CurrentUser.Id == this.Id)
+            if (mdl.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
             {
-                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, mdl.Nickname, mdl.AuditLogReason).ConfigureAwait(false);
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, mdl.Roles != null ? mdl.Roles.Select(xr => xr.Id) : null,
-                    mdl.Muted, mdl.Deafened, mdl.VoiceChannel?.Id, mdl.AuditLogReason).ConfigureAwait(false);
+                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, mdl.Nickname.Value,
+                    mdl.AuditLogReason).ConfigureAwait(false);
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null,
+                    mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
+                    mdl.VoiceChannel.IfPresent(e => e.Id), mdl.AuditLogReason).ConfigureAwait(false);
             }
             else
             {
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname, mdl.Roles != null ? mdl.Roles.Select(xr => xr.Id) : null,
-                    mdl.Muted, mdl.Deafened, mdl.VoiceChannel?.Id, mdl.AuditLogReason).ConfigureAwait(false);
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname,
+                    mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
+                    mdl.VoiceChannel.IfPresent(e => e.Id), mdl.AuditLogReason).ConfigureAwait(false);
             }
         }
 
@@ -348,7 +351,8 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles.Select(xr => xr.Id), null, null, null, reason);
+            => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
+                new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, reason);
 
         /// <summary>
         /// Bans a this member from their guild.
