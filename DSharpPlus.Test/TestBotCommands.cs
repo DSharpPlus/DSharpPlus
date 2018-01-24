@@ -147,6 +147,38 @@ namespace DSharpPlus.Test
                 => ctx.RespondAsync("wewlad 1");
         }
 
+        [Group("conflict")]
+        public class Conflict1
+        {
+            [Command]
+            public Task Command1(CommandContext ctx)
+                => ctx.RespondAsync("If you can see this, something went terribly wrong (1).");
+        }
+
+        //[Group("conflict")]
+        //public class Conflict2
+        //{
+        //    [Command]
+        //    public Task Command1(CommandContext ctx)
+        //        => ctx.RespondAsync("If you can see this, something went terribly wrong (1).");
+        //}
+
+        [Group]
+        public class Nesting1
+        {
+            [Group]
+            public class Nesting2
+            {
+                [Group]
+                public class Nesting3
+                {
+                    [Command]
+                    public Task NestingAsync(CommandContext ctx)
+                        => ctx.RespondAsync("Hello from nested crap.");
+                }
+            }
+        }
+
         [Command, Priority(0)]
         public Task OverloadTestAsync(CommandContext ctx)
             => ctx.RespondAsync("Overload with no args.");

@@ -388,6 +388,9 @@ namespace DSharpPlus.CommandsNext
                 }
             }
 
+            if (!is_mdl)
+                cgbldr = null;
+
             // candidate methods
             var ms = ti.DeclaredMethods
                 .Where(xm => xm.IsPublic && !xm.IsStatic && xm.Name != GROUP_COMMAND_METHOD_NAME);
@@ -468,9 +471,11 @@ namespace DSharpPlus.CommandsNext
                     cmds.AddRange(tcmds);
             }
 
-            if (is_mdl)
+            if (is_mdl && currentParent == null)
                 cmds.Add(cgbldr);
-            commands = is_mdl ? null : cmds;
+            else if (is_mdl)
+                currentParent.WithChild(cgbldr);
+            commands = cmds;
         }
 
         private void MakeCallable(MethodInfo method, object moduleInstance, out Delegate callable, out IReadOnlyList<CommandArgument> args)
