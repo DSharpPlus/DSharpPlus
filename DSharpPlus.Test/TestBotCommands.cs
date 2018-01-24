@@ -179,6 +179,33 @@ namespace DSharpPlus.Test
             }
         }
 
+        [Group(CanInvokeWithoutSubcommand = true)]
+        public class Executable1
+        {
+            public TestBotService Service { get; }
+
+            public Executable1(TestBotService srv)
+            {
+                this.Service = srv;
+            }
+
+            [Priority(10)]
+            public Task ExecuteGroupAsync(CommandContext ctx)
+            {
+                this.Service.InrementUseCount();
+                return ctx.RespondAsync("Incremented by 1.");
+            }
+
+            [Priority(0)]
+            public Task ExecuteGroupAsync(CommandContext ctx, int arg)
+            {
+                for (var i = 0; i < arg; i++)
+                    this.Service.InrementUseCount();
+
+                return ctx.RespondAsync($"Incremented by {arg} (int).");
+            }
+        }
+
         [Command, Priority(0)]
         public Task OverloadTestAsync(CommandContext ctx)
             => ctx.RespondAsync("Overload with no args.");

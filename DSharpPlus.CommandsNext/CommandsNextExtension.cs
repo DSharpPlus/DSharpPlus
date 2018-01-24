@@ -363,9 +363,14 @@ namespace DSharpPlus.CommandsNext
                                 mdl_name = mdl_name.Substring(0, mdl_name.Length - 8);
                         }
                         cgbldr.WithName(mdl_name);
-#warning TODO
-                        //if (g.CanInvokeWithoutSubcommand)
-                        //    this.MakeCallableModule(ti, moduleInstance, out mdl_cbl, out mdl_args);
+
+                        if (g.CanInvokeWithoutSubcommand)
+                        {
+                            moduleInstance = this.CreateInstance(t);
+
+                            foreach (var mi in ti.GetDeclaredMethods(GROUP_COMMAND_METHOD_NAME))
+                                cgbldr.WithOverload(new CommandOverloadBuilder(mi, moduleInstance));
+                        }
                         break;
 
                     case AliasesAttribute a:
@@ -476,73 +481,6 @@ namespace DSharpPlus.CommandsNext
             else if (is_mdl)
                 currentParent.WithChild(cgbldr);
             commands = cmds;
-        }
-
-        private void MakeCallable(MethodInfo method, object moduleInstance, out Delegate callable, out IReadOnlyList<CommandArgument> args)
-        {
-            if (!method.IsCommandCandidate(out var ps))
-                throw new MissingMethodException("Specified method is not suitable for a command.");
-
-            var ei = Expression.Constant(moduleInstance);
-
-            var ea = new ParameterExpression[ps.Length];
-            ea[0] = Expression.Parameter(typeof(CommandContext), "ctx");
-
-            var i = 1;
-            var ps1 = ps.Skip(1);
-            var argsl = new List<CommandArgument>(ps.Length - 1);
-            foreach (var xp in ps1)
-            {
-                var ca = new CommandArgument
-                {
-                    Name = xp.Name,
-                    Type = xp.ParameterType,
-                    IsOptional = xp.IsOptional,
-                    DefaultValue = xp.IsOptional ? xp.DefaultValue : null
-                };
-
-                var attrs = xp.GetCustomAttributes();
-                foreach (var xa in attrs)
-                {
-                    switch (xa)
-                    {
-                        case DescriptionAttribute d:
-                            ca.Description = d.Description;
-                            break;
-
-                        case RemainingTextAttribute r:
-                            ca.IsCatchAll = true;
-                            break;
-
-                        case ParamArrayAttribute p:
-                            ca.IsCatchAll = true;
-                            ca.Type = xp.ParameterType.GetElementType();
-                            ca._isArray = true;
-                            break;
-                    }
-                }
-
-                if (i > 1 && !ca.IsOptional && !ca.IsCatchAll && argsl[i - 2].IsOptional)
-                    throw new InvalidOperationException("Non-optional argument cannot appear after an optional one");
-
-                argsl.Add(ca);
-                ea[i++] = Expression.Parameter(xp.ParameterType, xp.Name);
-            }
-
-            var ec = Expression.Call(ei, method, ea);
-            var el = Expression.Lambda(ec, ea);
-
-            callable = el.Compile();
-            args = new ReadOnlyCollection<CommandArgument>(argsl);
-        }
-
-        private void MakeCallableModule(TypeInfo ti, object moduleInstance, out Delegate callable, out IReadOnlyList<CommandArgument> args)
-        {
-            var mtd = ti.GetDeclaredMethod(GROUP_COMMAND_METHOD_NAME);
-            if (mtd == null)
-                throw new MissingMethodException($"A group marked with CanExecute must have a method named {GROUP_COMMAND_METHOD_NAME}.");
-
-            this.MakeCallable(mtd, moduleInstance, out callable, out args);
         }
 
         private object CreateInstance(Type t)
