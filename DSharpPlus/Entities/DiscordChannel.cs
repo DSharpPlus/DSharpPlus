@@ -110,6 +110,21 @@ namespace DSharpPlus.Entities
         public int UserLimit { get; internal set; }
 
         /// <summary>
+        /// Gets this channel's currently connected users. This is applicable to voice channels only.
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<DiscordUser> Users
+        {
+            get
+            {
+                if (Guild == null || Type != ChannelType.Voice)
+                    throw new ArgumentException("Only applicable to voice channels");
+
+                return Guild._voice_states.Where(x => x.ChannelId.HasValue && x.ChannelId.Value == Id).Select(x => x.User);
+            }
+        }
+
+        /// <summary>
         /// Gets this channel's mention string.
         /// </summary>
         [JsonIgnore]
