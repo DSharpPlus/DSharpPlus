@@ -65,7 +65,7 @@ namespace DSharpPlus.CommandsNext
             try
             {
                 var executed = false;
-                foreach (var ovl in this.Overloads.OrderBy(x => x.Priority))
+                foreach (var ovl in this.Overloads.OrderByDescending(x => x.Priority))
                 {
                     ctx.Overload = ovl;
                     var args = await CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments);

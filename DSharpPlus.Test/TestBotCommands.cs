@@ -196,21 +196,56 @@ namespace DSharpPlus.Test
                 return ctx.RespondAsync("Incremented by 1.");
             }
 
-            [Priority(0)]
+            [Priority(5)]
             public Task ExecuteGroupAsync(CommandContext ctx, int arg)
             {
-                for (var i = 0; i < arg; i++)
-                    this.Service.InrementUseCount();
+                if (arg > 0)
+                {
+                    for (var i = 0; i < arg; i++)
+                        this.Service.InrementUseCount();
 
-                return ctx.RespondAsync($"Incremented by {arg} (int).");
+                    return ctx.RespondAsync($"Incremented by {arg} (int).");
+                }
+                else
+                {
+                    return ctx.RespondAsync("Not incremented (int).");
+                }
             }
+
+            [Priority(0)]
+            public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string arg)
+            {
+                if (arg != null && arg.Length > 0)
+                {
+                    for (var i = 0; i < arg.Length; i++)
+                        this.Service.InrementUseCount();
+
+                    return ctx.RespondAsync($"Incremented by {arg.Length} (string).");
+                }
+                else
+                {
+                    return ctx.RespondAsync("Not incremented (string).");
+                }
+            }
+
+            [Command, Priority(10)]
+            public Task TestAsync(CommandContext ctx)
+                => ctx.RespondAsync("Argument-less TEST.");
+
+            [Command, Priority(0)]
+            public Task TestAsync(CommandContext ctx, [RemainingText] string text)
+                => ctx.RespondAsync($"Argumented TEST: {text}.");
+
+            [Command]
+            public Task StatusAsync(CommandContext ctx)
+                => ctx.RespondAsync($"Counter: {this.Service.CommandCounter}");
         }
 
-        [Command, Priority(0)]
+        [Command, Priority(10)]
         public Task OverloadTestAsync(CommandContext ctx)
             => ctx.RespondAsync("Overload with no args.");
 
-        [Command, Priority(10)]
+        [Command, Priority(0)]
         public Task OverloadTestAsync(CommandContext ctx, [RemainingText, Description("Catch-all argument.")] string arg)
             => ctx.RespondAsync($"Overload with catch-all string: {arg}.");
 
