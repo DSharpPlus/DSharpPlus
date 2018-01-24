@@ -234,7 +234,11 @@ namespace DSharpPlus.Test
 
             [Command, Priority(0)]
             public Task TestAsync(CommandContext ctx, [RemainingText] string text)
-                => ctx.RespondAsync($"Argumented TEST: {text}.");
+                => ctx.RespondAsync($"Argumented TEST (s): {text}.");
+
+            [Command("test"), Priority(5)]
+            public Task NotNameAsync(CommandContext ctx, int i)
+                => ctx.RespondAsync($"Argumented TEST (i): {i}");
 
             [Command]
             public Task StatusAsync(CommandContext ctx)

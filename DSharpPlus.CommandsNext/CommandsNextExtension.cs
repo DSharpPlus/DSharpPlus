@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
@@ -362,6 +361,10 @@ namespace DSharpPlus.CommandsNext
                             else if (mdl_name.EndsWith("Commands") && mdl_name != "Commands")
                                 mdl_name = mdl_name.Substring(0, mdl_name.Length - 8);
                         }
+
+                        if (!this.Config.CaseSensitive)
+                            mdl_name = mdl_name.ToLowerInvariant();
+
                         cgbldr.WithName(mdl_name);
 
                         if (g.CanInvokeWithoutSubcommand)
@@ -415,6 +418,9 @@ namespace DSharpPlus.CommandsNext
                     if (cname.EndsWith("Async") && cname != "Async")
                         cname = cname.Substring(0, cname.Length - 5);
                 }
+
+                if (!this.Config.CaseSensitive)
+                    cname = cname.ToLowerInvariant();
 
                 if (!cblds.TryGetValue(cname, out var cmdbld))
                 {
