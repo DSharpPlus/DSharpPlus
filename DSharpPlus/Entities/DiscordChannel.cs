@@ -132,6 +132,24 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the list of members currently in the channel (if voice channel), or members who can see the channel (otherwise).
+        /// </summary>
+        [JsonIgnore]
+        public virtual IEnumerable<DiscordMember> Users
+        {
+            get
+            {
+                if (this.Guild != null)
+                    throw new InvalidOperationException("Cannot query permissions for non-guild channels.");
+
+                if (this.Type == ChannelType.Voice)
+                    return Guild.Members.Where(x => x.VoiceState.ChannelId == this.Id);
+
+                return Guild.Members.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels);
+            }
+        }
+
+        /// <summary>
         /// Gets whether this channel is an NSFW channel.
         /// </summary>
         [JsonProperty("nsfw")]
