@@ -161,6 +161,116 @@ namespace DSharpPlus.Test
             public Task StopBreakingMyStuff(CommandContext ctx)
                 => ctx.RespondAsync("wewlad 1");
         }
+
+        [Group("conflict")]
+        public class Conflict1
+        {
+            [Command]
+            public Task Command1(CommandContext ctx)
+                => ctx.RespondAsync("If you can see this, something went terribly wrong (1).");
+        }
+
+        //[Group("conflict")]
+        //public class Conflict2
+        //{
+        //    [Command]
+        //    public Task Command1(CommandContext ctx)
+        //        => ctx.RespondAsync("If you can see this, something went terribly wrong (1).");
+        //}
+
+        [Group]
+        public class Nesting1
+        {
+            [Group]
+            public class Nesting2
+            {
+                [Group]
+                public class Nesting3
+                {
+                    [Command]
+                    public Task NestingAsync(CommandContext ctx)
+                        => ctx.RespondAsync("Hello from nested crap.");
+                }
+            }
+        }
+
+        [Group(CanInvokeWithoutSubcommand = true)]
+        public class Executable1
+        {
+            public TestBotService Service { get; }
+
+            public Executable1(TestBotService srv)
+            {
+                this.Service = srv;
+            }
+
+            [Priority(10)]
+            public Task ExecuteGroupAsync(CommandContext ctx)
+            {
+                this.Service.InrementUseCount();
+                return ctx.RespondAsync("Incremented by 1.");
+            }
+
+            [Priority(5)]
+            public Task ExecuteGroupAsync(CommandContext ctx, int arg)
+            {
+                if (arg > 0)
+                {
+                    for (var i = 0; i < arg; i++)
+                        this.Service.InrementUseCount();
+
+                    return ctx.RespondAsync($"Incremented by {arg} (int).");
+                }
+                else
+                {
+                    return ctx.RespondAsync("Not incremented (int).");
+                }
+            }
+
+            [Priority(0)]
+            public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string arg)
+            {
+                if (arg != null && arg.Length > 0)
+                {
+                    for (var i = 0; i < arg.Length; i++)
+                        this.Service.InrementUseCount();
+
+                    return ctx.RespondAsync($"Incremented by {arg.Length} (string).");
+                }
+                else
+                {
+                    return ctx.RespondAsync("Not incremented (string).");
+                }
+            }
+
+            [Command, Priority(10)]
+            public Task TestAsync(CommandContext ctx)
+                => ctx.RespondAsync("Argument-less TEST.");
+
+            [Command, Priority(0)]
+            public Task TestAsync(CommandContext ctx, [RemainingText] string text)
+                => ctx.RespondAsync($"Argumented TEST (s): {text}.");
+
+            [Command("test"), Priority(5)]
+            public Task NotNameAsync(CommandContext ctx, int i)
+                => ctx.RespondAsync($"Argumented TEST (i): {i}");
+
+            [Command]
+            public Task StatusAsync(CommandContext ctx)
+                => ctx.RespondAsync($"Counter: {this.Service.CommandCounter}");
+        }
+
+        [Command, Priority(10)]
+        public Task OverloadTestAsync(CommandContext ctx)
+            => ctx.RespondAsync("Overload with no args.");
+
+        [Command, Priority(0)]
+        public Task OverloadTestAsync(CommandContext ctx, [RemainingText, Description("Catch-all argument.")] string arg)
+            => ctx.RespondAsync($"Overload with catch-all string: {arg}.");
+
+        [Command, Priority(5)]
+        public Task OverloadTestAsync(CommandContext ctx, [Description("An integer.")] int arg)
+            => ctx.RespondAsync($"Overload with int: {arg}");
     }
 
     public class TestBotService

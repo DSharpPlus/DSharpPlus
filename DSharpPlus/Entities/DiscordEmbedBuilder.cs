@@ -491,13 +491,6 @@ namespace DSharpPlus.Entities
         public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder) 
             => builder?.Build();
 
-        /// <summary>
-        /// Implicitly converts this builder to an optional embed.
-        /// </summary>
-        /// <param name="builder">Builder to convert.</param>
-        public static implicit operator Optional<DiscordEmbed>(DiscordEmbedBuilder builder) 
-            => builder?.Build();
-
         public class EmbedAuthor
         {
             /// <summary>

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
@@ -114,7 +114,7 @@ namespace DSharpPlus.CommandsNext
 
                 var xcv = Activator.CreateInstance(xcvt) as IArgumentConverter;
                 this.ArgumentConverters[xnt] = xcv;
-                this.UserFriendlyTypeNames[xnt] = UserFriendlyTypeNames[xt];
+                this.UserFriendlyTypeNames[xnt] = this.UserFriendlyTypeNames[xt];
             }
 
             var t = typeof(CommandsNextExtension);
@@ -154,49 +154,44 @@ namespace DSharpPlus.CommandsNext
             {
                 var dlg = new Func<CommandContext, string[], Task>(this.DefaultHelpAsync);
                 var mi = dlg.GetMethodInfo();
-                this.MakeCallable(mi, dlg.Target, out var cbl, out var args);
 
                 var attrs = mi.GetCustomAttributes();
                 if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
                     return;
 
-                var cmd = new Command();
-
-                var cbas = new List<CheckBaseAttribute>();
+                var cmdbld = new CommandBuilder()
+                    .WithName("help");
+                
                 foreach (var xa in attrs)
                 {
                     switch (xa)
                     {
-                        case CommandAttribute c:
-                            cmd.Name = c.Name;
-                            break;
-
                         case AliasesAttribute a:
-                            cmd.Aliases = a.Aliases;
+                            foreach (var alias in a.Aliases)
+                                cmdbld.WithAlias(alias);
                             break;
 
                         case CheckBaseAttribute p:
-                            cbas.Add(p);
+                            cmdbld.WithExecutionCheck(p);
                             break;
 
                         case DescriptionAttribute d:
-                            cmd.Description = d.Description;
+                            cmdbld.WithDescription(d.Description);
                             break;
 
                         case HiddenAttribute h:
-                            cmd.IsHidden = true;
+                            cmdbld.WithHiddenStatus(true);
                             break;
                     }
                 }
 
                 if (this.Config.DefaultHelpChecks != null && this.Config.DefaultHelpChecks.Any())
-                    cbas.AddRange(this.Config.DefaultHelpChecks);
+                    foreach (var xc in this.Config.DefaultHelpChecks)
+                        cmdbld.WithExecutionCheck(xc);
 
-                cmd.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(cbas);
-                cmd.Arguments = args;
-                cmd.Callable = cbl;
+                cmdbld.WithOverload(new CommandOverloadBuilder(mi, this));
 
-                this.AddToCommandDictionary(cmd);
+                this.AddToCommandDictionary(cmdbld.Build(null));
             }
         }
         #endregion
@@ -267,7 +262,7 @@ namespace DSharpPlus.CommandsNext
                         throw new ChecksFailedException(cmd, ctx, fchecks);
 
                     var res = await cmd.ExecuteAsync(ctx).ConfigureAwait(false);
-                    
+
                     if (res.IsSuccessful)
                         await this._executed.InvokeAsync(new CommandExecutionEventArgs { Context = res.Context }).ConfigureAwait(false);
                     else
@@ -285,7 +280,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets a dictionary of registered top-level commands.
         /// </summary>
-        public IReadOnlyDictionary<string, Command> RegisteredCommands 
+        public IReadOnlyDictionary<string, Command> RegisteredCommands
             => this._registered_commands_lazy.Value;
 
         private Dictionary<string, Command> TopLevelCommands { get; set; }
@@ -331,170 +326,146 @@ namespace DSharpPlus.CommandsNext
             if (!t.IsModuleCandidateType())
                 throw new ArgumentNullException("Type must be a class, which cannot be abstract or static.", nameof(t));
 
-            RegisterCommands(t, CreateInstance(t), null, out var tres, out var tcmds);
-            
-            if (tres != null)
-                this.AddToCommandDictionary(tres);
+            this.RegisterCommands(t, CreateInstance(t), null, out var tcmds);
 
             if (tcmds != null)
                 foreach (var xc in tcmds)
-                    this.AddToCommandDictionary(xc);
+                    this.AddToCommandDictionary(xc.Build(null));
         }
 
-        private void RegisterCommands(Type t, object moduleInstance, CommandGroup currentParent, out CommandGroup result, out IReadOnlyList<Command> commands)
+        private void RegisterCommands(Type t, object moduleInstance, CommandGroupBuilder currentParent, out List<CommandBuilder> commands)
         {
             var ti = t.GetTypeInfo();
 
             // check if we are anything
-            var mdl_attrs = ti.GetCustomAttributes();
+            var cgbldr = new CommandGroupBuilder();
             var is_mdl = false;
-            var mdl_name = "";
-            IReadOnlyList<string> mdl_aliases = null;
+            var mdl_attrs = ti.GetCustomAttributes();
             var mdl_hidden = false;
-            var mdl_desc = "";
             var mdl_chks = new List<CheckBaseAttribute>();
-            Delegate mdl_cbl = null;
-            IReadOnlyList<CommandArgument> mdl_args = null;
-            CommandGroup mdl = null;
             foreach (var xa in mdl_attrs)
             {
                 switch (xa)
                 {
                     case GroupAttribute g:
                         is_mdl = true;
-                        mdl_name = g.Name;
+                        var mdl_name = g.Name;
                         if (mdl_name == null)
                         {
                             mdl_name = ti.Name;
 
                             if (mdl_name.EndsWith("Group") && mdl_name != "Group")
                                 mdl_name = mdl_name.Substring(0, mdl_name.Length - 5);
-
-                            if (mdl_name.EndsWith("Module") && mdl_name != "Module")
+                            else if (mdl_name.EndsWith("Module") && mdl_name != "Module")
                                 mdl_name = mdl_name.Substring(0, mdl_name.Length - 6);
-
-                            if (mdl_name.EndsWith("Commands") && mdl_name != "Commands")
+                            else if (mdl_name.EndsWith("Commands") && mdl_name != "Commands")
                                 mdl_name = mdl_name.Substring(0, mdl_name.Length - 8);
                         }
+
+                        if (!this.Config.CaseSensitive)
+                            mdl_name = mdl_name.ToLowerInvariant();
+
+                        cgbldr.WithName(mdl_name);
+
                         if (g.CanInvokeWithoutSubcommand)
-                            this.MakeCallableModule(ti, moduleInstance, out mdl_cbl, out mdl_args);
+                        {
+                            moduleInstance = this.CreateInstance(t);
+
+                            foreach (var mi in ti.GetDeclaredMethods(GROUP_COMMAND_METHOD_NAME))
+                                cgbldr.WithOverload(new CommandOverloadBuilder(mi, moduleInstance));
+                        }
                         break;
 
                     case AliasesAttribute a:
-                        mdl_aliases = a.Aliases;
+                        foreach (var xalias in a.Aliases)
+                            cgbldr.WithAlias(this.Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
                         break;
 
                     case HiddenAttribute h:
-                        mdl_hidden = true;
+                        cgbldr.WithHiddenStatus(true);
                         break;
 
                     case DescriptionAttribute d:
-                        mdl_desc = d.Description;
+                        cgbldr.WithDescription(d.Description);
                         break;
 
                     case CheckBaseAttribute c:
                         mdl_chks.Add(c);
+                        cgbldr.WithExecutionCheck(c);
                         break;
                 }
             }
 
-            if (is_mdl)
-                mdl = new CommandGroup
-                {
-                    Name = mdl_name,
-                    Aliases = mdl_aliases,
-                    Description = mdl_desc,
-                    ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(mdl_chks),
-                    IsHidden = mdl_hidden,
-                    Parent = currentParent,
-                    Callable = mdl_cbl,
-                    Arguments = mdl_args,
-                    Children = null
-                };
+            if (!is_mdl)
+                cgbldr = null;
 
             // candidate methods
             var ms = ti.DeclaredMethods
                 .Where(xm => xm.IsPublic && !xm.IsStatic && xm.Name != GROUP_COMMAND_METHOD_NAME);
-            var cmds = new List<Command>();
-            var uniq = new HashSet<string>();
+            var cmds = new List<CommandBuilder>();
+            var cblds = new Dictionary<string, CommandBuilder>();
             foreach (var m in ms)
             {
-                if (m.ReturnType != typeof(Task))
-                    continue;
-
-                var ps = m.GetParameters();
-                if (!ps.Any() || ps.First().ParameterType != typeof(CommandContext))
-                    continue;
-
                 var attrs = m.GetCustomAttributes();
-                if (!attrs.Any(xa => xa.GetType() == typeof(CommandAttribute)))
+                var cattr = attrs.FirstOrDefault(xa => xa is CommandAttribute) as CommandAttribute;
+                if (cattr == null)
                     continue;
 
-                var cmd = new Command();
+                var cname = cattr.Name;
+                if (cname == null)
+                {
+                    cname = m.Name;
+                    if (cname.EndsWith("Async") && cname != "Async")
+                        cname = cname.Substring(0, cname.Length - 5);
+                }
 
-                var cbas = new List<CheckBaseAttribute>();
+                if (!this.Config.CaseSensitive)
+                    cname = cname.ToLowerInvariant();
+
+                if (!cblds.TryGetValue(cname, out var cmdbld))
+                {
+                    cblds.Add(cname, cmdbld = new CommandBuilder().WithName(cname));
+
+                    if (!is_mdl)
+                        if (currentParent != null)
+                            currentParent.WithChild(cmdbld);
+                        else
+                            cmds.Add(cmdbld);
+                    else
+                        cgbldr.WithChild(cmdbld);
+                }
+
+                cmdbld.WithOverload(new CommandOverloadBuilder(m, moduleInstance));
+
                 if (!is_mdl && mdl_chks.Any())
-                    cbas.AddRange(mdl_chks);
+                    foreach (var chk in mdl_chks)
+                        cmdbld.WithExecutionCheck(chk);
 
                 foreach (var xa in attrs)
                 {
                     switch (xa)
                     {
-                        case CommandAttribute c:
-                            cmd.Name = c.Name;
-                            if (cmd.Name == null)
-                            {
-                                var cname = m.Name;
-
-                                if (cname.EndsWith("Async") && cname != "Async")
-                                    cname = cname.Substring(0, cname.Length - 5);
-
-                                cmd.Name = cname;
-                            }
-                            break;
-
                         case AliasesAttribute a:
-                            cmd.Aliases = a.Aliases;
+                            foreach (var xalias in a.Aliases)
+                                cmdbld.WithAlias(this.Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
                             break;
 
                         case CheckBaseAttribute p:
-                            cbas.Add(p);
+                            cmdbld.WithExecutionCheck(p);
                             break;
 
                         case DescriptionAttribute d:
-                            cmd.Description = d.Description;
+                            cmdbld.WithDescription(d.Description);
                             break;
 
                         case HiddenAttribute h:
-                            cmd.IsHidden = true;
+                            cmdbld.WithHiddenStatus(true);
                             break;
                     }
                 }
-                cmd.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(cbas);
-                cmd.Parent = mdl;
-                MakeCallable(m, moduleInstance, out var cbl, out var args);
-                cmd.Callable = cbl;
-                cmd.Arguments = args;
 
                 if (!is_mdl && mdl_hidden)
-                    cmd.IsHidden = mdl_hidden;
-                
-                if (uniq.Contains(cmd.Name))
-                    throw new DuplicateCommandException(cmd.QualifiedName);
-                uniq.Add(cmd.Name);
-
-                if (cmd.Aliases != null && cmd.Aliases.Any())
-                {
-                    foreach (var xa in cmd.Aliases)
-                    {
-                        if (uniq.Contains(xa))
-                            throw new DuplicateCommandException(cmd.QualifiedName);
-
-                        uniq.Add(xa);
-                    }
-                }
-
-                cmds.Add(cmd);
+                    cmdbld.WithHiddenStatus(true);
             }
 
             // candidate types
@@ -502,87 +473,20 @@ namespace DSharpPlus.CommandsNext
                 .Where(xt => xt.IsModuleCandidateType() && xt.DeclaredConstructors.Any(xc => xc.IsPublic));
             foreach (var xt in ts)
             {
-                this.RegisterCommands(xt.AsType(), this.CreateInstance(xt.AsType()), mdl, out var tmdl, out var tcmds);
+                this.RegisterCommands(xt.AsType(), this.CreateInstance(xt.AsType()), cgbldr, out var tcmds);
 
-                if (tmdl != null)
-                    cmds.Add(tmdl);
-                cmds.AddRange(tcmds);
+                if (is_mdl && tcmds != null)
+                        foreach (var xtcmd in tcmds)
+                            cgbldr.WithChild(xtcmd);
+                else if (tcmds != null)
+                    cmds.AddRange(tcmds);
             }
 
-            commands = new ReadOnlyCollection<Command>(cmds);
-            if (mdl != null)
-            {
-                mdl.Children = commands;
-                commands = new ReadOnlyCollection<Command>(new List<Command>());
-            }
-            result = mdl;
-        }
-
-        private void MakeCallable(MethodInfo method, object moduleInstance, out Delegate callable, out IReadOnlyList<CommandArgument> args)
-        {
-            if (!method.IsCommandCandidate(out var ps))
-                throw new MissingMethodException("Specified method is not suitable for a command.");
-
-            var ei = Expression.Constant(moduleInstance);
-
-            var ea = new ParameterExpression[ps.Length];
-            ea[0] = Expression.Parameter(typeof(CommandContext), "ctx");
-
-            var i = 1;
-            var ps1 = ps.Skip(1);
-            var argsl = new List<CommandArgument>(ps.Length - 1);
-            foreach (var xp in ps1)
-            {
-                var ca = new CommandArgument
-                {
-                    Name = xp.Name,
-                    Type = xp.ParameterType,
-                    IsOptional = xp.IsOptional,
-                    DefaultValue = xp.IsOptional ? xp.DefaultValue : null
-                };
-
-                var attrs = xp.GetCustomAttributes();
-                foreach (var xa in attrs)
-                {
-                    switch (xa)
-                    {
-                        case DescriptionAttribute d:
-                            ca.Description = d.Description;
-                            break;
-
-                        case RemainingTextAttribute r:
-                            ca.IsCatchAll = true;
-                            break;
-
-                        case ParamArrayAttribute p:
-                            ca.IsCatchAll = true;
-                            ca.Type = xp.ParameterType.GetElementType();
-                            ca._isArray = true;
-                            break;
-                    }
-                }
-
-                if (i > 1 && !ca.IsOptional && !ca.IsCatchAll && argsl[i - 2].IsOptional)
-                    throw new InvalidOperationException("Non-optional argument cannot appear after an optional one");
-
-                argsl.Add(ca);
-                ea[i++] = Expression.Parameter(xp.ParameterType, xp.Name);
-            }
-
-            var ec = Expression.Call(ei, method, ea);
-            var el = Expression.Lambda(ec, ea);
-
-            callable = el.Compile();
-            args = new ReadOnlyCollection<CommandArgument>(argsl);
-        }
-
-        private void MakeCallableModule(TypeInfo ti, object moduleInstance, out Delegate callable, out IReadOnlyList<CommandArgument> args)
-        {
-            var mtd = ti.GetDeclaredMethod(GROUP_COMMAND_METHOD_NAME);
-            if (mtd == null)
-                throw new MissingMethodException($"A group marked with CanExecute must have a method named {GROUP_COMMAND_METHOD_NAME}.");
-
-            this.MakeCallable(mtd, moduleInstance, out callable, out args);
+            if (is_mdl && currentParent == null)
+                cmds.Add(cgbldr);
+            else if (is_mdl)
+                currentParent.WithChild(cgbldr);
+            commands = cmds;
         }
 
         private object CreateInstance(Type t)
@@ -602,7 +506,7 @@ namespace DSharpPlus.CommandsNext
 
             if (prms.Length != 0 && deps == null)
                 throw new InvalidOperationException("Dependency collection needs to be specified for parametered constructors.");
-            
+
             // inject via constructor
             if (prms.Length != 0)
                 for (var i = 0; i < args.Length; i++)
@@ -662,7 +566,7 @@ namespace DSharpPlus.CommandsNext
         {
             var toplevel = this.TopLevelCommands.Values.Distinct();
             var helpbuilder = this.HelpFormatter.Create(ctx.Services, this);
-            
+
             if (command != null && command.Any())
             {
                 Command cmd = null;
@@ -696,16 +600,7 @@ namespace DSharpPlus.CommandsNext
                 if (cmd == null)
                     throw new CommandNotFoundException(string.Join(" ", command));
 
-                helpbuilder.WithCommandName(cmd.Name).WithDescription(cmd.Description);
-
-                if (cmd is CommandGroup g && g.Callable != null)
-                    helpbuilder.WithGroupExecutable();
-
-                if (cmd.Aliases != null && cmd.Aliases.Any())
-                    helpbuilder.WithAliases(cmd.Aliases.OrderBy(xs => xs));
-
-                if (cmd.Arguments != null && cmd.Arguments.Any())
-                    helpbuilder.WithArguments(cmd.Arguments);
+                helpbuilder.WithCommand(cmd);
 
                 if (cmd is CommandGroup gx)
                 {
@@ -735,7 +630,7 @@ namespace DSharpPlus.CommandsNext
                 foreach (var sc in sxs)
                 {
                     if (sc.ExecutionChecks == null || !sc.ExecutionChecks.Any())
-                    { 
+                    {
                         scs.Add(sc);
                         continue;
                     }
@@ -937,7 +832,7 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="t">Type to convert.</param>
         /// <returns>User-friendly type name.</returns>
-        public string TypeToUserFriendlyName(Type t)
+        public string GetUserFriendlyTypeName(Type t)
         {
             if (this.UserFriendlyTypeNames.ContainsKey(t))
                 return this.UserFriendlyTypeNames[t];

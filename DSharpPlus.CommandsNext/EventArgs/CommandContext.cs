@@ -65,6 +65,11 @@ namespace DSharpPlus.CommandsNext
         public Command Command { get; internal set; }
 
         /// <summary>
+        /// Gets the overload of the command that is being executed.
+        /// </summary>
+        public CommandOverload Overload { get; internal set; }
+
+        /// <summary>
         /// Gets the list of raw arguments passed to the command.
         /// </summary>
         public IReadOnlyList<string> RawArguments { get; internal set; }
