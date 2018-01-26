@@ -10,101 +10,69 @@ namespace DSharpPlus.Test
     public sealed class TestBotHelpFormatter : BaseHelpFormatter
     {
         private TestBotService Service { get; }
-
-        private string _name = null, _desc = null, _args = null, _aliases = null, _subcs = null;
-        private bool _gexec = false;
+        private StringBuilder Content { get; }
 
         public TestBotHelpFormatter(TestBotService dep, CommandsNextExtension cnext)
             : base(cnext)
         {
             this.Service = dep;
+            this.Content = new StringBuilder();
         }
 
-        public override BaseHelpFormatter WithCommandName(string name)
+        public override BaseHelpFormatter WithCommand(Command command)
         {
-            this._name = name;
-            return this;
-        }
+            this.Content.Append(command.Description ?? "No description provided.").Append("\n\n");
 
-        public override BaseHelpFormatter WithDescription(string description)
-        {
-            this._desc = string.IsNullOrWhiteSpace(description) ? null : description;
-            return this;
-        }
+            if (command.Aliases?.Any() == true)
+                this.Content.Append("Aliases: ").Append(string.Join(", ", command.Aliases)).Append("\n\n");
 
-        public override BaseHelpFormatter WithGroupExecutable()
-        {
-            this._gexec = true;
-            return this;
-        }
+            if (command.Overloads?.Any() == true)
+            {
+                var sb = new StringBuilder();
 
-        public override BaseHelpFormatter WithAliases(IEnumerable<string> aliases)
-        {
-            if (aliases.Any())
-                this._aliases = string.Join(", ", aliases);
-            return this;
-        }
+                foreach (var ovl in command.Overloads.OrderByDescending(x => x.Priority))
+                {
+                    sb.Append(command.QualifiedName);
 
-        public override BaseHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
-        {
-            if (arguments.Any())
-                this._args = string.Join(", ", arguments.Select(xa => $"{xa.Name}: {this.CommandsNext.TypeToUserFriendlyName(xa.Type)}"));
+                    foreach (var arg in ovl.Arguments)
+                        sb.Append(arg.IsOptional || arg.IsCatchAll ? " [" : " <").Append(arg.Name).Append(arg.IsCatchAll ? "..." : "").Append(arg.IsOptional || arg.IsCatchAll ? ']' : '>');
+
+                    sb.Append('\n');
+
+                    foreach (var arg in ovl.Arguments)
+                        sb.Append(arg.Name).Append(" (").Append(this.CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append("): ").Append(arg.Description ?? "No description provided.").Append('\n');
+
+                    sb.Append('\n');
+                }
+
+                this.Content.Append("Arguments:\n").Append(sb.ToString());
+            }
+
             return this;
         }
 
         public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
-            if (subcommands.Any())
+            if (this.Content.Length == 0)
+                this.Content.Append("Displaying all available commands.\n\n");
+            else
+                this.Content.Append("Subcommands:\n");
+
+            if (subcommands?.Any() == true)
             {
                 var ml = subcommands.Max(xc => xc.Name.Length);
                 var sb = new StringBuilder();
                 foreach (var xc in subcommands)
                     sb.Append(xc.Name.PadRight(ml, ' '))
                         .Append("  ")
-                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "No description." : xc.Description).Append("\n");
-                this._subcs = sb.ToString();
+                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "" : xc.Description).Append("\n");
+                this.Content.Append(sb.ToString());
             }
+
             return this;
         }
 
         public override CommandHelpMessage Build()
-        {
-            var sb = new StringBuilder();
-            sb.Append("```less\n");
-            if (this._name == null)
-            {
-                if (this._subcs != null)
-                    sb.Append("Displaying all available commands.\n\n");
-                else
-                    sb.Append("No commands are available.");
-            }
-            else
-            {
-                sb.Append(this._name).Append("\n\n");
-
-                if (this._gexec)
-                    sb.Append("This group can be executed as a standalone command.\n\n");
-
-                if (this._desc != null)
-                    sb.Append("Description: ").Append(this._desc).Append("\n");
-
-                if (this._args != null)
-                    sb.Append("Arguments:   ").Append(this._args).Append("\n");
-
-                if (this._aliases != null)
-                    sb.Append("Aliases:     ").Append(this._aliases).Append("\n");
-
-                if (this._subcs != null)
-                    sb.Append("Subcommands:\n\n");
-            }
-
-            if (this._subcs != null)
-                sb.Append(_subcs);
-            else
-                sb.Append("\n");
-
-            sb.Append("```");
-            return new CommandHelpMessage(sb.ToString());
-        }
+            => new CommandHelpMessage($"```less\n{this.Content.ToString().Trim()}\n```");
     }
 }

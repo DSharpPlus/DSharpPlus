@@ -11,9 +11,8 @@ namespace DSharpPlus.CommandsNext.Converters
     /// </summary>
     public class DefaultHelpFormatter : BaseHelpFormatter
     {
-        private DiscordEmbedBuilder _embed;
-        private string _name, _desc;
-        private bool _gexec;
+        public DiscordEmbedBuilder EmbedBuilder { get; }
+        private Command Command { get; set; }
 
         /// <summary>
         /// Creates a new default help formatter.
@@ -22,107 +21,62 @@ namespace DSharpPlus.CommandsNext.Converters
         public DefaultHelpFormatter(CommandsNextExtension cnext)
             : base(cnext)
         {
-            this._embed = new DiscordEmbedBuilder();
-            this._name = null;
-            this._desc = null;
-            this._gexec = false;
+            this.EmbedBuilder = new DiscordEmbedBuilder()
+                .WithTitle("Help")
+                .WithColor(0x007FFF);
         }
 
         /// <summary>
-        /// Sets the name of the current command.
+        /// Sets the command this help message will be for.
         /// </summary>
-        /// <param name="name">Name of the command for which the help is displayed.</param>
-        /// <returns>Current formatter.</returns>
-        public override BaseHelpFormatter WithCommandName(string name)
+        /// <param name="command">Command for which the help message is being produced.</param>
+        /// <returns>This help formatter.</returns>
+        public override BaseHelpFormatter WithCommand(Command command)
         {
-            this._name = name;
-            return this;
-        }
+            this.Command = command;
 
-        /// <summary>
-        /// Sets the description of the current command.
-        /// </summary>
-        /// <param name="description">Description of the command for which help is displayed.</param>
-        /// <returns>Current formatter.</returns>
-        public override BaseHelpFormatter WithDescription(string description)
-        {
-            this._desc = description;
-            return this;
-        }
+            this.EmbedBuilder.WithDescription($"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
 
-        /// <summary>
-        /// Sets aliases for the current command.
-        /// </summary>
-        /// <param name="aliases">Aliases of the command for which help is displayed.</param>
-        /// <returns>Current formatter.</returns>
-        public override BaseHelpFormatter WithAliases(IEnumerable<string> aliases)
-        {
-            if (aliases.Any())
-                this._embed.AddField("Aliases", string.Join(", ", aliases.Select(Formatter.InlineCode)), false);
-            return this;
-        }
+            if (command is CommandGroup cgroup && cgroup.IsExecutableWithoutSubcommands)
+                this.EmbedBuilder.WithDescription($"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
 
-        /// <summary>
-        /// Sets the arguments the current command takes.
-        /// </summary>
-        /// <param name="arguments">Arguments that the command for which help is displayed takes.</param>
-        /// <returns>Current formatter.</returns>
-        public override BaseHelpFormatter WithArguments(IEnumerable<CommandArgument> arguments)
-        {
-            if (arguments.Any())
+            if (command.Aliases?.Any() == true)
+                this.EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
+
+            if (command.Overloads?.Any() == true)
             {
                 var sb = new StringBuilder();
 
-                foreach (var arg in arguments)
+                foreach (var ovl in command.Overloads.OrderByDescending(x => x.Priority))
                 {
-                    if (arg.IsOptional || arg.IsCatchAll)
-                        sb.Append("`[");
-                    else
-                        sb.Append("`<");
+                    sb.Append('`').Append(command.QualifiedName);
 
-                    sb.Append(arg.Name);
+                    foreach (var arg in ovl.Arguments)
+                        sb.Append(arg.IsOptional || arg.IsCatchAll ? " [" : " <").Append(arg.Name).Append(arg.IsCatchAll ? "..." : "").Append(arg.IsOptional || arg.IsCatchAll ? ']' : '>');
 
-                    if (arg.IsCatchAll)
-                        sb.Append("...");
+                    sb.Append("`\n");
 
-                    if (arg.IsOptional || arg.IsCatchAll)
-                        sb.Append("]: ");
-                    else
-                        sb.Append(">: ");
+                    foreach (var arg in ovl.Arguments)
+                        sb.Append('`').Append(arg.Name).Append(" (").Append(this.CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ").Append(arg.Description ?? "No description provided.").Append('\n');
 
-                    sb.Append(this.CommandsNext.TypeToUserFriendlyName(arg.Type)).Append("`: ");
-
-                    sb.Append(string.IsNullOrWhiteSpace(arg.Description) ? "No description provided." : arg.Description);
-
-                    if (arg.IsOptional)
-                        sb.Append(" Default value: ").Append(arg.DefaultValue);
-
-                    sb.AppendLine();
+                    sb.Append('\n');
                 }
-                this._embed.AddField("Arguments", sb.ToString(), false);
+
+                this.EmbedBuilder.AddField("Arguments", sb.ToString().Trim(), false);
             }
+
             return this;
         }
 
         /// <summary>
-        /// When the current command is a group, this sets it as executable.
+        /// Sets the subcommands for this command, if applicable. This method will be called with filtered data.
         /// </summary>
-        /// <returns>Current formatter.</returns>
-        public override BaseHelpFormatter WithGroupExecutable()
-        {
-            this._gexec = true;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets subcommands of the current command. This is also invoked for top-level command listing.
-        /// </summary>
-        /// <param name="subcommands">Subcommands of the command for which help is displayed.</param>
-        /// <returns>Current formatter.</returns>
+        /// <param name="subcommands">Subcommands for this command group.</param>
+        /// <returns>This help formatter.</returns>
         public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
-            if (subcommands.Any())
-                this._embed.AddField(this._name != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(xc => Formatter.InlineCode(xc.Name))), false);
+            this.EmbedBuilder.AddField(this.Command != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
+
             return this;
         }
 
@@ -132,25 +86,10 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Data for the help message.</returns>
         public override CommandHelpMessage Build()
         {
-            this._embed.Title = "Help";
-            this._embed.Color = DiscordColor.Azure;
+            if (this.Command == null)
+                this.EmbedBuilder.WithDescription("Listing all top-level commands and groups. Specify a command to see more information.");
 
-            var desc = "Listing all top-level commands and groups. Specify a command to see more information.";
-            if (this._name != null)
-            {
-                var sb = new StringBuilder();
-                sb.Append(Formatter.InlineCode(this._name))
-                    .Append(": ")
-                    .Append(string.IsNullOrWhiteSpace(this._desc) ? "No description provided." : this._desc);
-
-                if (this._gexec)
-                    sb.AppendLine().AppendLine().Append("This group can be executed as a standalone command.");
-
-                desc = sb.ToString();
-            }
-            this._embed.Description = desc;
-
-            return new CommandHelpMessage(embed: this._embed);
+            return new CommandHelpMessage(embed: this.EmbedBuilder.Build());
         }
     }
 }

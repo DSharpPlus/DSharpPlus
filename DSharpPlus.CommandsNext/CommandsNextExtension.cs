@@ -114,7 +114,7 @@ namespace DSharpPlus.CommandsNext
 
                 var xcv = Activator.CreateInstance(xcvt) as IArgumentConverter;
                 this.ArgumentConverters[xnt] = xcv;
-                this.UserFriendlyTypeNames[xnt] = UserFriendlyTypeNames[xt];
+                this.UserFriendlyTypeNames[xnt] = this.UserFriendlyTypeNames[xt];
             }
 
             var t = typeof(CommandsNextExtension);
@@ -378,7 +378,7 @@ namespace DSharpPlus.CommandsNext
 
                     case AliasesAttribute a:
                         foreach (var xalias in a.Aliases)
-                            cgbldr.WithAlias(xalias);
+                            cgbldr.WithAlias(this.Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
                         break;
 
                     case HiddenAttribute h:
@@ -447,7 +447,7 @@ namespace DSharpPlus.CommandsNext
                     {
                         case AliasesAttribute a:
                             foreach (var xalias in a.Aliases)
-                                cmdbld.WithAlias(xalias);
+                                cmdbld.WithAlias(this.Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
                             break;
 
                         case CheckBaseAttribute p:
@@ -600,16 +600,7 @@ namespace DSharpPlus.CommandsNext
                 if (cmd == null)
                     throw new CommandNotFoundException(string.Join(" ", command));
 
-                helpbuilder.WithCommandName(cmd.Name).WithDescription(cmd.Description);
-
-                //if (cmd is CommandGroup g && g.Callable != null)
-                //    helpbuilder.WithGroupExecutable();
-
-                //if (cmd.Aliases != null && cmd.Aliases.Any())
-                //    helpbuilder.WithAliases(cmd.Aliases.OrderBy(xs => xs));
-
-                //if (cmd.Arguments != null && cmd.Arguments.Any())
-                //    helpbuilder.WithArguments(cmd.Arguments);
+                helpbuilder.WithCommand(cmd);
 
                 if (cmd is CommandGroup gx)
                 {
@@ -841,7 +832,7 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="t">Type to convert.</param>
         /// <returns>User-friendly type name.</returns>
-        public string TypeToUserFriendlyName(Type t)
+        public string GetUserFriendlyTypeName(Type t)
         {
             if (this.UserFriendlyTypeNames.ContainsKey(t))
                 return this.UserFriendlyTypeNames[t];
