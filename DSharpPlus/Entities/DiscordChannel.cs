@@ -238,6 +238,23 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteChannelAsync(Id, reason);
 
         /// <summary>
+        /// Clones this channel. This operation will create a channel with identical settings to this one. Note that this will not copy messages.
+        /// </summary>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>Newly-created channel.</returns>
+        public async Task<DiscordChannel> CloneAsync(string reason = null)
+        {
+            if (this.Guild == null)
+                throw new InvalidOperationException("Non-guild channels cannot be cloned.");
+
+            var ovrs = new List<DiscordOverwriteBuilder>();
+            foreach (var ovr in this._permission_overwrites)
+                ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr));
+
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Bitrate, this.UserLimit, ovrs, this.IsNSFW, reason);
+        }
+
+        /// <summary>
         /// Returns a specific message
         /// </summary>
         /// <param name="id"></param>
@@ -514,22 +531,22 @@ namespace DSharpPlus.Entities
             var everyoneOverwrites = this._permission_overwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);
             if (everyoneOverwrites != null)
             {
-                perms &= ~everyoneOverwrites.Deny;
-                perms |= everyoneOverwrites.Allow;
+                perms &= ~everyoneOverwrites.Denied;
+                perms |= everyoneOverwrites.Allowed;
             }
 
             // assign channel permission overwrites for member's roles (explicit deny)
-            perms &= ~mbRoleOverrides.Aggregate(def, (c, overs) => c | overs.Deny);
+            perms &= ~mbRoleOverrides.Aggregate(def, (c, overs) => c | overs.Denied);
             // assign channel permission overwrites for member's roles (explicit allow)
-            perms |= mbRoleOverrides.Aggregate(def, (c, overs) => c | overs.Allow);
+            perms |= mbRoleOverrides.Aggregate(def, (c, overs) => c | overs.Allowed);
 
             // channel overrides for just this member
             var mbOverrides = this._permission_overwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
             if (mbOverrides == null) return perms;
             
             // assign channel permission overwrites for just this member
-            perms &= ~mbOverrides.Deny;
-            perms |= mbOverrides.Allow;
+            perms &= ~mbOverrides.Denied;
+            perms |= mbOverrides.Allowed;
 
             return perms;
         }
