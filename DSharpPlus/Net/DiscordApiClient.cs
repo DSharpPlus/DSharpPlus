@@ -946,12 +946,13 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE);
         }
 
-        internal async Task<TransportUser> ModifyCurrentUserAsync(string username, string base64_avatar)
+        internal async Task<TransportUser> ModifyCurrentUserAsync(string username, Optional<string> base64_avatar)
         {
             var pld = new RestUserUpdateCurrentPayload
             {
                 Username = username,
-                AvatarBase64 = base64_avatar
+                AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
+                AvatarSet = base64_avatar.HasValue
             };
 
             var route = string.Concat(Endpoints.USERS, Endpoints.ME);

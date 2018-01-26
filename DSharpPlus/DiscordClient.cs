@@ -493,12 +493,14 @@ namespace DSharpPlus
         /// <param name="username">New username.</param>
         /// <param name="avatar">New avatar.</param>
         /// <returns></returns>
-        public async Task<DiscordUser> EditCurrentUserAsync(string username = null, Stream avatar = null)
+        public async Task<DiscordUser> UpdateCurrentUserAsync(string username = null, Optional<Stream> avatar = default)
         {
-            string av64 = null;
-            if (avatar != null)
-                using (var imgtool = new ImageTool(avatar))
+            var av64 = Optional<string>.FromNoValue();
+            if (avatar.HasValue && avatar.Value != null)
+                using (var imgtool = new ImageTool(avatar.Value))
                     av64 = imgtool.GetBase64();
+            else if (avatar.HasValue)
+                av64 = null;
 
             var usr = await this.ApiClient.ModifyCurrentUserAsync(username, av64).ConfigureAwait(false);
 

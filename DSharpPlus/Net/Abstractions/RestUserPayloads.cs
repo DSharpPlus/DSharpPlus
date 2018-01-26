@@ -23,8 +23,14 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
         public string Username { get; set; }
 
-        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Include)]
         public string AvatarBase64 { get; set; }
+
+        [JsonIgnore]
+        public bool AvatarSet { get; set; }
+
+        public bool ShouldSerializeAvatarBase64()
+            => this.AvatarSet;
     }
 
     internal sealed class RestUserGuild
