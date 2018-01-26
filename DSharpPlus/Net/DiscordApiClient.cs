@@ -116,7 +116,7 @@ namespace DSharpPlus.Net
         }
 
         #region Guild
-        internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level,
+        internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, Optional<string> iconb64, VerificationLevel? verification_level,
             DefaultMessageNotifications? default_message_notifications)
         {
             var pld = new RestGuildCreatePayload
@@ -125,7 +125,8 @@ namespace DSharpPlus.Net
                 RegionId = region_id,
                 DefaultMessageNotifications = default_message_notifications,
                 VerificationLevel = verification_level,
-                IconBase64 = iconb64
+                IconBase64 = iconb64.HasValue ? iconb64.Value : null,
+                IconSet = iconb64.HasValue
             };
 
             var route = string.Concat(Endpoints.GUILDS);
@@ -159,8 +160,8 @@ namespace DSharpPlus.Net
         }
 
         internal async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, string name, string region, VerificationLevel? verification_level,
-            DefaultMessageNotifications? default_message_notifications, MfaLevel? mfa_level, ExplicitContentFilter? explicit_content_filter, ulong? afk_channel_id, int? afk_timeout, string iconb64,
-            ulong? owner_id, string splashb64, string reason)
+            DefaultMessageNotifications? default_message_notifications, MfaLevel? mfa_level, ExplicitContentFilter? explicit_content_filter, ulong? afk_channel_id, int? afk_timeout, 
+            Optional<string> iconb64, ulong? owner_id, Optional<string> splashb64, string reason)
         {
             var pld = new RestGuildModifyPayload
             {
@@ -172,8 +173,10 @@ namespace DSharpPlus.Net
                 ExplicitContentFilter = explicit_content_filter,
                 AfkChannelId = afk_channel_id,
                 AfkTimeout = afk_timeout,
-                IconBase64 = iconb64,
-                SplashBase64 = splashb64,
+                IconBase64 = iconb64.HasValue ? iconb64.Value : null,
+                IconSet = iconb64.HasValue,
+                SplashBase64 = splashb64.HasValue ? splashb64.Value : null,
+                SplashSet = splashb64.HasValue,
                 OwnerId = owner_id
             };
 
@@ -1412,12 +1415,13 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Webhooks
-        internal async Task<DiscordWebhook> CreateWebhookAsync(ulong channel_id, string name, string base64_avatar, string reason)
+        internal async Task<DiscordWebhook> CreateWebhookAsync(ulong channel_id, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
             {
                 Name = name,
-                AvatarBase64 = base64_avatar
+                AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
+                AvatarSet = base64_avatar.HasValue
             };
 
             var headers = new Dictionary<string, string>();
@@ -1496,12 +1500,13 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, string base64_avatar, string reason)
+        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
             {
                 Name = name,
-                AvatarBase64 = base64_avatar
+                AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
+                AvatarSet = base64_avatar.HasValue
             };
 
             var headers = new Dictionary<string, string>();

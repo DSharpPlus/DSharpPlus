@@ -20,7 +20,7 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
         public string RegionId { get; set; }
 
-        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("icon", NullValueHandling = NullValueHandling.Include)]
         public string IconBase64 { get; set; }
 
         [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
@@ -34,6 +34,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<RestChannelCreatePayload> Channels { get; set; }
+
+        [JsonIgnore]
+        public bool IconSet { get; set; }
+
+        public bool ShouldSerializeIconBase64()
+            => this.IconSet;
     }
 
     internal sealed class RestGuildModifyPayload : RestGuildCreatePayload
@@ -41,7 +47,7 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? OwnerId { get; set; }
 
-        [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("splash", NullValueHandling = NullValueHandling.Include)]
         public string SplashBase64 { get; set; }
 
         [JsonProperty("afk_channel_id", NullValueHandling = NullValueHandling.Ignore)]
@@ -63,6 +69,12 @@ namespace DSharpPlus.Net.Abstractions
         // we no want that here
         [JsonIgnore]
         public new IEnumerable<RestChannelCreatePayload> Channels { get; set; }
+
+        [JsonIgnore]
+        public bool SplashSet { get; set; }
+
+        public bool ShouldSerializeSplashBase64()
+            => this.SplashSet;
     }
     
     internal sealed class RestGuildMemberAddPayload : IOAuth2Payload

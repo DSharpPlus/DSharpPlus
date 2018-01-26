@@ -470,12 +470,14 @@ namespace DSharpPlus.Entities
         /// <param name="avatar"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public async Task<DiscordWebhook> CreateWebhookAsync(string name, Stream avatar = null, string reason = null)
+        public async Task<DiscordWebhook> CreateWebhookAsync(string name, Optional<Stream> avatar = default, string reason = null)
         {
-            string av64 = null;
-            if (avatar != null)
-                using (var imgtool = new ImageTool(avatar))
+            var av64 = Optional<string>.FromNoValue();
+            if (avatar.HasValue && avatar.Value != null)
+                using (var imgtool = new ImageTool(avatar.Value))
                     av64 = imgtool.GetBase64();
+            else if (avatar.HasValue)
+                av64 = null;
 
             return await this.Discord.ApiClient.CreateWebhookAsync(this.Id, name, av64, reason).ConfigureAwait(false);
         }

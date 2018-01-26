@@ -409,13 +409,15 @@ namespace DSharpPlus
         /// <param name="verificationLevel">Verification level for the guild.</param>
         /// <param name="defaultMessageNotifications">Default message notification settings for the guild.</param>
         /// <returns>The created guild.</returns>
-        public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Stream icon = null, VerificationLevel? verificationLevel = null,
+        public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
             DefaultMessageNotifications? defaultMessageNotifications = null)
         {
-            string iconb64 = null;
-            if (icon != null)
-                using (var imgtool = new ImageTool(icon))
+            var iconb64 = Optional<string>.FromNoValue();
+            if (icon.HasValue && icon.Value != null)
+                using (var imgtool = new ImageTool(icon.Value))
                     iconb64 = imgtool.GetBase64();
+            else if (icon.HasValue)
+                iconb64 = null;
 
             return this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications);
         }

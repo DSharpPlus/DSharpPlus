@@ -1,10 +1,5 @@
-﻿using DSharpPlus.Entities;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models
 {
@@ -12,7 +7,7 @@ namespace DSharpPlus.Net.Models
     {
         public string Name { internal get; set; }
         public DiscordVoiceRegion Region { internal get; set; }
-        public Stream Icon { internal get; set; }
+        public Optional<Stream> Icon { internal get; set; }
         public VerificationLevel VerificationLevel { internal get; set; }
         public DefaultMessageNotifications DefaultMessageNotifications { internal get; set; }
         public MfaLevel MfaLevel { internal get; set; }
@@ -20,7 +15,7 @@ namespace DSharpPlus.Net.Models
         public DiscordChannel AfkChannel { internal get; set; }
         public int? AfkTimeout { internal get; set; }
         public DiscordMember Owner { internal get; set; }
-        public Stream Splash { internal get; set; }
+        public Optional<Stream> Splash { internal get; set; }
         public string AuditLogReason { internal get; set; }
 
         internal GuildEditModel()

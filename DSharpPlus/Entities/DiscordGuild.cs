@@ -309,15 +309,19 @@ namespace DSharpPlus.Entities
             if (mdl.AfkChannel != null && mdl.AfkChannel.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
-            string iconb64 = null;
-            if (mdl.Icon != null)
-                using (var imgtool = new ImageTool(mdl.Icon))
+            var iconb64 = Optional<string>.FromNoValue();
+            if (mdl.Icon.HasValue && mdl.Icon.Value != null)
+                using (var imgtool = new ImageTool(mdl.Icon.Value))
                     iconb64 = imgtool.GetBase64();
+            else if (mdl.Icon.HasValue)
+                iconb64 = null;
 
-            string splashb64 = null;
-            if (mdl.Splash != null)
-                using (var imgtool = new ImageTool(mdl.Splash))
+            var splashb64 = Optional<string>.FromNoValue();
+            if (mdl.Splash.HasValue && mdl.Splash.Value != null)
+                using (var imgtool = new ImageTool(mdl.Splash.Value))
                     splashb64 = imgtool.GetBase64();
+            else if (mdl.Splash.HasValue)
+                splashb64 = null;
 
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region?.Id, mdl.VerificationLevel, mdl.DefaultMessageNotifications,
                 mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel?.Id,
