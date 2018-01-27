@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -26,7 +26,7 @@ namespace DSharpPlus.Test
         //    await ctx.RespondAsync("naam check your shitcode");
         //}
 
-        [Command("testmodify")]
+        [Command("testmodify"), RequireOwner]
         public async Task TestModifyAsync(CommandContext ctx, DiscordMember m)
         {
             await ctx.Channel.ModifyAsync(x =>
@@ -271,6 +271,18 @@ namespace DSharpPlus.Test
         [Command, Priority(5)]
         public Task OverloadTestAsync(CommandContext ctx, [Description("An integer.")] int arg)
             => ctx.RespondAsync($"Overload with int: {arg}");
+
+        [Command]
+        public Task EmojiTest(CommandContext ctx, params DiscordEmoji[] args)
+        {
+            var sb = new StringBuilder();
+            foreach (var arg in args)
+            {
+                sb.Append($"Name: {arg.Name} | Id: {arg.Id} | Animated: {arg.IsAnimated}\n");
+            }
+
+            return ctx.RespondAsync(sb.ToString().Trim());
+        }
     }
 
     public class TestBotService

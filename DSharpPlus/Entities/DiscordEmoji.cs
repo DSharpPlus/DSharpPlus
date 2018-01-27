@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
@@ -16,12 +17,16 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
-        
+
         /// <summary>
         /// Gets IDs the roles this emoji is enabled for.
         /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<ulong> Roles => this._rolesLazy.Value;
+
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public List<ulong> Roles { get; internal set; }
+        internal List<ulong> _roles;
+        private Lazy<IReadOnlyList<ulong>> _rolesLazy;
 
         /// <summary>
         /// Gets whether this emoji requires colons to use.
@@ -59,7 +64,10 @@ namespace DSharpPlus.Entities
             }
         }
 
-        internal DiscordEmoji() { }
+        internal DiscordEmoji()
+        {
+            this._rolesLazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._roles));
+        }
 
         /// <summary>
         /// Gets emoji's name in non-Unicode format (eg. :thinking: instead of the Unicode representation of the emoji).
@@ -212,7 +220,7 @@ namespace DSharpPlus.Entities
                 .ToDictionary(xe => xe.Id, xe => xe);
 
             if (!ed.ContainsKey(id))
-                throw new ArgumentOutOfRangeException(nameof(id), "Given emote was not found.");
+                throw new KeyNotFoundException("Given emote was not found.");
 
             return ed[id];
         }

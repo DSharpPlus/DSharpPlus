@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -223,7 +224,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #if NETSTANDARD1_1 || NETSTANDARD1_3
             EmoteRegex = new Regex(@"^<a?:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript);
 #else
-            EmoteRegex = new Regex(@"^<a?:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+            EmoteRegex = new Regex(@"^<(?<animated>a)?:(?<name>[a-zA-Z0-9_]+?):(?<id>\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
 #endif
         }
 
@@ -239,10 +240,30 @@ namespace DSharpPlus.CommandsNext.Converters
             var m = EmoteRegex.Match(value);
             if (m.Success)
             {
-                var id = ulong.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture);
-                var result = DiscordEmoji.FromGuildEmote(ctx.Client, id);
-                var ret = result != null ? Optional<DiscordEmoji>.FromValue(result) : Optional<DiscordEmoji>.FromNoValue();
-                return Task.FromResult(ret);
+                var sid = m.Groups["id"].Value;
+                var name = m.Groups["name"].Value;
+                var anim = m.Groups["animated"].Success;
+
+                if (!ulong.TryParse(sid, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
+                    return Task.FromResult(Optional<DiscordEmoji>.FromNoValue());
+
+                try
+                {
+                    var e = DiscordEmoji.FromGuildEmote(ctx.Client, id);
+                    return Task.FromResult(Optional<DiscordEmoji>.FromValue(e));
+                }
+                catch (KeyNotFoundException)
+                { }
+
+                return Task.FromResult(Optional<DiscordEmoji>.FromValue(new DiscordEmoji
+                {
+                    Discord = ctx.Client,
+                    Id = id,
+                    Name = name,
+                    IsAnimated = anim,
+                    RequiresColons = true,
+                    IsManaged = false
+                }));
             }
 
             return Task.FromResult(Optional<DiscordEmoji>.FromNoValue());
