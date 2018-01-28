@@ -202,7 +202,8 @@ namespace DSharpPlus.CommandsNext
                 Config = this.Config,
                 RawArgumentString = cnt.Substring(sp),
                 Prefix = pfx,
-                CommandsNext = this
+                CommandsNext = this,
+                Services = this.Services
             };
 
             if (cmd == null)
@@ -631,7 +632,7 @@ namespace DSharpPlus.CommandsNext
             if (cv == null)
                 throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
 
-            var cvr = await cv.ConvertAsync(value, ctx);
+            var cvr = await cv.ConvertAsync(value, ctx).ConfigureAwait(false);
             if (!cvr.HasValue)
                 throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
 
@@ -650,7 +651,7 @@ namespace DSharpPlus.CommandsNext
             var m = this.ConvertGeneric.MakeGenericMethod(type);
             try
             {
-                return await (m.Invoke(this, new object[] { value, ctx }) as Task<object>);
+                return await (m.Invoke(this, new object[] { value, ctx }) as Task<object>).ConfigureAwait(false);
             }
             catch (TargetInvocationException ex)
             {

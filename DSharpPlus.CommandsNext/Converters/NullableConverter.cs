@@ -17,7 +17,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (ctx.CommandsNext.ArgumentConverters.TryGetValue(typeof(T), out var cv))
             {
                 var cvx = cv as IArgumentConverter<T>;
-                var val = await cvx.ConvertAsync(value, ctx);
+                var val = await cvx.ConvertAsync(value, ctx).ConfigureAwait(false);
                 return val.HasValue ? Optional<Nullable<T>>.FromValue(val.Value) : Optional<Nullable<T>>.FromNoValue();
             }
 

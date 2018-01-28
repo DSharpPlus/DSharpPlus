@@ -56,8 +56,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the service provider for this CNext instance.
         /// </summary>
-        public IServiceProvider Services
-            => this.CommandsNext.Services;
+        public IServiceProvider Services { get; internal set; }
 
         /// <summary>
         /// Gets the command that is being executed.

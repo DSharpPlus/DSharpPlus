@@ -14,7 +14,7 @@ using DSharpPlus.VoiceNext;
 namespace DSharpPlus.Test
 {
     [Group("voice"), Description("Provides voice commands."), Aliases("audio")]
-    public class TestBotVoiceCommands
+    public class TestBotVoiceCommands : BaseCommandModule
     {
         private CancellationTokenSource AudioLoopCancelTokenSource { get; set; }
         private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;

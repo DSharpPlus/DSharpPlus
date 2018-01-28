@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Test
 {
@@ -298,6 +299,12 @@ namespace DSharpPlus.Test
 
                 return ctx.RespondAsync($"0x{ptr:x16}");
             }
+
+            public override Task BeforeExecutionAsync(CommandContext ctx)
+                => ctx.RespondAsync("before execute");
+
+            public override Task AfterExecutionAsync(CommandContext ctx)
+                => ctx.RespondAsync("after execute");
         }
 
         [Group, ModuleLifespan(ModuleLifespan.Singleton)]
@@ -312,8 +319,35 @@ namespace DSharpPlus.Test
 
                 return ctx.RespondAsync($"0x{ptr:x16}");
             }
+
+            public override Task BeforeExecutionAsync(CommandContext ctx)
+                => ctx.RespondAsync("before execute");
+
+            public override Task AfterExecutionAsync(CommandContext ctx)
+                => ctx.RespondAsync("after execute");
         }
         // ok you can open your eyes again
+
+        [Group, ModuleLifespan(ModuleLifespan.Transient)]
+        public class Scoped : BaseCommandModule
+        {
+            public TestBotScopedService Service { get; }
+
+            public Scoped(TestBotScopedService srv)
+            {
+                this.Service = srv;
+            }
+
+            [Command]
+            public Task GetPtr(CommandContext ctx)
+            {
+                var ptr0 = this.Service.GetPtr();
+                var ptr1 = ctx.Services.GetRequiredService<TestBotScopedService>().GetPtr();
+                var ptr2 = ctx.Services.GetRequiredService<TestBotScopedService>().GetPtr();
+
+                return ctx.RespondAsync($"{ptr0} | {ptr1} | {ptr2}");
+            }
+        }
     }
 
     public class TestBotService
@@ -329,6 +363,18 @@ namespace DSharpPlus.Test
         public void InrementUseCount()
         {
             Interlocked.Increment(ref this._cmd_counter);
+        }
+    }
+
+    public class TestBotScopedService
+    {
+        public unsafe string GetPtr()
+        {
+            var x = this;
+            var r = __makeref(x);
+            var ptr = **(IntPtr**)(&r);
+
+            return $"0x{ptr:x16}";
         }
     }
 }

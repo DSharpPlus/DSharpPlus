@@ -52,7 +52,8 @@ namespace DSharpPlus.CommandsNext
                         Config = ctx.Config,
                         RawArgumentString = ctx.RawArgumentString.Substring(findpos),
                         Prefix = ctx.Prefix,
-                        CommandsNext = ctx.CommandsNext
+                        CommandsNext = ctx.CommandsNext,
+                        Services = ctx.Services
                     };
 
                     var fchecks = await cmd.RunChecksAsync(xctx, false).ConfigureAwait(false);

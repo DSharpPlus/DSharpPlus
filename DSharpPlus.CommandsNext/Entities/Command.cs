@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -68,23 +68,42 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Command's execution results.</returns>
         public virtual async Task<CommandResult> ExecuteAsync(CommandContext ctx)
         {
+            CommandResult res = default;
             try
             {
                 var executed = false;
                 foreach (var ovl in this.Overloads.OrderByDescending(x => x.Priority))
                 {
                     ctx.Overload = ovl;
-                    var args = await CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments);
+                    var args = await CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments).ConfigureAwait(false);
 
                     if (!args.IsSuccessful)
                         continue;
 
                     ctx.RawArguments = args.Raw;
-                    args.Converted[0] = this.Module;
-                    args.Converted[1] = ctx.Services;
+
+                    IServiceScope scope = null;
+                    if (this.Module is TransientCommandModule)
+                    {
+                        scope = ctx.Services.CreateScope();
+                        ctx.Services = scope.ServiceProvider;
+                    }
+
+                    var mdl = this.Module.GetInstance(ctx.Services);
+                    await mdl.BeforeExecutionAsync(ctx).ConfigureAwait(false);
+
+                    args.Converted[0] = mdl;
                     var ret = (Task)ovl.Callable.DynamicInvoke(args.Converted);
                     await ret.ConfigureAwait(false);
                     executed = true;
+                    res = new CommandResult
+                    {
+                        IsSuccessful = true,
+                        Context = ctx
+                    };
+
+                    await mdl.AfterExecutionAsync(ctx).ConfigureAwait(false);
+                    scope?.Dispose();
                     break;
                 }
 
@@ -93,7 +112,7 @@ namespace DSharpPlus.CommandsNext
             }
             catch (Exception ex)
             {
-                return new CommandResult
+                res = new CommandResult
                 {
                     IsSuccessful = false,
                     Exception = ex,
@@ -101,11 +120,7 @@ namespace DSharpPlus.CommandsNext
                 };
             }
 
-            return new CommandResult
-            {
-                IsSuccessful = true,
-                Context = ctx
-            };
+            return res;
         }
 
         /// <summary>

@@ -267,9 +267,9 @@ namespace DSharpPlus.Entities
 
             var ovrs = new List<DiscordOverwriteBuilder>();
             foreach (var ovr in this._permission_overwrites)
-                ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr));
+                ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Bitrate, this.UserLimit, ovrs, this.IsNSFW, reason);
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Bitrate, this.UserLimit, ovrs, this.IsNSFW, reason).ConfigureAwait(false);
         }
 
         /// <summary>

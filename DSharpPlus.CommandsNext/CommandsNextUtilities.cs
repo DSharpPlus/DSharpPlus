@@ -184,8 +184,8 @@ namespace DSharpPlus.CommandsNext
             var cmd = ctx.Command;
             var ovl = ctx.Overload;
 
-            var args = new object[ovl.Arguments.Count + 3];
-            args[2] = ctx;
+            var args = new object[ovl.Arguments.Count + 2];
+            args[1] = ctx;
             var argr = new List<string>(ovl.Arguments.Count);
 
             var argstr = ctx.RawArgumentString;
@@ -248,7 +248,7 @@ namespace DSharpPlus.CommandsNext
                     {
                         try
                         {
-                            arr.SetValue(await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type), i - start);
+                            arr.SetValue(await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type).ConfigureAwait(false), i - start);
                         }
                         catch (Exception ex)
                         {
@@ -257,14 +257,14 @@ namespace DSharpPlus.CommandsNext
                         i++;
                     }
 
-                    args[start + 3] = arr;
+                    args[start + 2] = arr;
                     break;
                 }
                 else
                 {
                     try
                     { 
-                        args[i + 3] = argr[i] != null ? await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
+                        args[i + 2] = argr[i] != null ? await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type).ConfigureAwait(false) : arg.DefaultValue;
                     }
                     catch (Exception ex)
                     {
