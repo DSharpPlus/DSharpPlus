@@ -186,6 +186,34 @@ namespace DSharpPlus
         }
 
         /// <summary>
+        /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time milliseconds for targets that do not support this natively.
+        /// </summary>
+        /// <param name="unixTime">Unix time milliseconds to convert.</param>
+        /// <param name="shouldThrow">Whether the method should throw on failure. Defaults to true.</param>
+        /// <returns>Calculated <see cref="DateTimeOffset"/>.</returns>
+        public static DateTimeOffset GetDateTimeOffsetFromMilliseconds(long unixTime, bool shouldThrow = true)
+        {
+            try
+            {
+#if !(NETSTANDARD1_1 || NET45)
+                return DateTimeOffset.FromUnixTimeMilliseconds(unixTime);
+#else
+                // below constant taken from 
+                // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
+                var ticks = unixTime * TimeSpan.TicksPerMillisecond + 621_355_968_000_000_000;
+                return new DateTimeOffset(ticks, TimeSpan.Zero);
+#endif
+            }
+            catch (Exception)
+            {
+                if (shouldThrow)
+                    throw;
+
+                return DateTimeOffset.MinValue;
+            }
+        }
+
+        /// <summary>
         /// Helper method to calculate Unix time seconsd from a <see cref="DateTimeOffset"/> for targets that do not support this natively.
         /// </summary>
         /// <param name="dto"><see cref="DateTimeOffset"/> to calculate Unix time for.</param>

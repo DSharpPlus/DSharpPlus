@@ -472,11 +472,11 @@ namespace DSharpPlus
             => this.ApiClient.GetWebhookWithTokenAsync(id, token);
 
         /// <summary>
-        /// Updates current user's status
+        /// Updates current user's activity and status.
         /// </summary>
-        /// <param name="activity">Game you're playing</param>
-        /// <param name="userStatus"></param>
-        /// <param name="idleSince"></param>
+        /// <param name="activity">Activity to set.</param>
+        /// <param name="userStatus">Status of the user.</param>
+        /// <param name="idleSince">Since when is the client performing the specified activity.</param>
         /// <returns></returns>
         public Task UpdateStatusAsync(DiscordActivity activity = null, UserStatus? userStatus = null, DateTimeOffset? idleSince = null)
             => this.InternalUpdateStatusAsync(activity, userStatus, idleSince);

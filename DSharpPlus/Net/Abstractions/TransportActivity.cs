@@ -117,7 +117,7 @@ namespace DSharpPlus.Net.Abstractions
 
         public bool IsRichPresence()
         {
-            return this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null;
+            return this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? Start 
-                => this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._start.Value, false) : null;
+                => this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(this._start.Value, false) : null;
 
             [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
             internal long? _start;
@@ -205,7 +205,7 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? End 
-                => this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffset(this._end.Value, false) : null;
+                => this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(this._end.Value, false) : null;
 
             [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
             internal long? _end;
