@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.CommandsNext.Builders
 {
@@ -18,8 +19,9 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Creates a new command group builder.
         /// </summary>
-        public CommandGroupBuilder() 
-            : base()
+        /// <param name="module">Module on which this group is to be defined.</param>
+        public CommandGroupBuilder(ICommandModule module) 
+            : base(module)
         {
             this.ChildrenList = new List<CommandBuilder>();
             this.Children = new ReadOnlyCollection<CommandBuilder>(this.ChildrenList);
@@ -46,7 +48,8 @@ namespace DSharpPlus.CommandsNext.Builders
                 ExecutionChecks = this.ExecutionChecks,
                 IsHidden = this.IsHidden,
                 Parent = parent,
-                Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList())
+                Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
+                Module = this.Module
             };
 
             var cs = new List<Command>();

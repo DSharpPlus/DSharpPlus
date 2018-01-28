@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.CommandsNext.Builders
 {
@@ -46,9 +47,15 @@ namespace DSharpPlus.CommandsNext.Builders
         private HashSet<string> OverloadArgumentSets { get; }
 
         /// <summary>
+        /// Gets the module on which this command is to be defined.
+        /// </summary>
+        public ICommandModule Module { get; }
+
+        /// <summary>
         /// Creates a new command builder.
         /// </summary>
-        public CommandBuilder()
+        /// <param name="module">Module on which this command is to be defined.</param>
+        public CommandBuilder(ICommandModule module)
         {
             this.AliasList = new List<string>();
             this.Aliases = new ReadOnlyCollection<string>(this.AliasList);
@@ -59,6 +66,8 @@ namespace DSharpPlus.CommandsNext.Builders
             this.OverloadArgumentSets = new HashSet<string>();
             this.OverloadList = new List<CommandOverloadBuilder>();
             this.Overloads = new ReadOnlyCollection<CommandOverloadBuilder>(this.OverloadList);
+
+            this.Module = module;
         }
 
         /// <summary>
@@ -197,7 +206,8 @@ namespace DSharpPlus.CommandsNext.Builders
                 ExecutionChecks = this.ExecutionChecks,
                 IsHidden = this.IsHidden,
                 Parent = parent,
-                Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList())
+                Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
+                Module = this.Module
             };
 
             return cmd;

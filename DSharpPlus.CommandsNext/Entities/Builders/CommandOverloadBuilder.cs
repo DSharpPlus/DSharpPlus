@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.CommandsNext.Builders
 {
@@ -38,21 +39,32 @@ namespace DSharpPlus.CommandsNext.Builders
         /// Creates a new command overload builder from specified method.
         /// </summary>
         /// <param name="method">Method to use for this overload.</param>
-        /// <param name="moduleInstance">Instance of the module this command will use when called.</param>
-        public CommandOverloadBuilder(MethodInfo method, object moduleInstance)
+        public CommandOverloadBuilder(MethodInfo method)
         {
             if (!method.IsCommandCandidate(out var prms))
                 throw new MissingMethodException("Specified method is not suitable for a command.");
 
-            var ei = Expression.Constant(moduleInstance);
-            var ea = new ParameterExpression[prms.Length];
-            ea[0] = Expression.Parameter(typeof(CommandContext), "ctx");
+            // create a method which will instantiate the module
+            var tcm = typeof(ICommandModule);
+            var tcmi = tcm.GetTypeInfo();
+            var tmi = tcmi.GetDeclaredMethod("GetInstance");
+
+            var iep = Expression.Parameter(typeof(ICommandModule), "module");
+            var ies = Expression.Parameter(typeof(IServiceProvider), "services");
+            var iec = Expression.Call(iep, tmi, ies);
+            var iev = Expression.Convert(iec, method.DeclaringType);
+
+            // create the 
+            var ea = new ParameterExpression[prms.Length + 2];
+            ea[0] = iep;
+            ea[1] = ies;
+            ea[2] = Expression.Parameter(typeof(CommandContext), "ctx");
 
             var pri = method.GetCustomAttribute<PriorityAttribute>();
             if (pri != null)
                 this.Priority = pri.Priority;
 
-            var i = 1;
+            var i = 3;
             var args = new List<CommandArgument>(prms.Length - 1);
             var setb = new StringBuilder();
             foreach (var arg in prms.Skip(1))
@@ -87,14 +99,14 @@ namespace DSharpPlus.CommandsNext.Builders
                     }
                 }
 
-                if (i > 1 && !ca.IsOptional && !ca.IsCatchAll && args[i - 2].IsOptional)
+                if (i > 3 && !ca.IsOptional && !ca.IsCatchAll && args[i - 4].IsOptional)
                     throw new InvalidOperationException("Non-optional argument cannot appear after an optional one");
 
                 args.Add(ca);
                 ea[i++] = Expression.Parameter(arg.ParameterType, arg.Name);
             }
 
-            var ec = Expression.Call(ei, method, ea);
+            var ec = Expression.Call(iev, method, ea.Skip(2));
             var el = Expression.Lambda(ec, ea);
 
             this.ArgumentSet = setb.ToString();

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
+using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -53,6 +54,11 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         public IReadOnlyCollection<CommandOverload> Overloads { get; internal set; }
 
+        /// <summary>
+        /// Gets the module in which this command is defined.
+        /// </summary>
+        public ICommandModule Module { get; internal set; }
+
         internal Command() { }
 
         /// <summary>
@@ -74,6 +80,8 @@ namespace DSharpPlus.CommandsNext
                         continue;
 
                     ctx.RawArguments = args.Raw;
+                    args.Converted[0] = this.Module;
+                    args.Converted[1] = ctx.Services;
                     var ret = (Task)ovl.Callable.DynamicInvoke(args.Converted);
                     await ret.ConfigureAwait(false);
                     executed = true;

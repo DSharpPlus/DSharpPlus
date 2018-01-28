@@ -6,8 +6,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -182,8 +184,8 @@ namespace DSharpPlus.CommandsNext
             var cmd = ctx.Command;
             var ovl = ctx.Overload;
 
-            var args = new object[ovl.Arguments.Count + 1];
-            args[0] = ctx;
+            var args = new object[ovl.Arguments.Count + 3];
+            args[2] = ctx;
             var argr = new List<string>(ovl.Arguments.Count);
 
             var argstr = ctx.RawArgumentString;
@@ -255,14 +257,14 @@ namespace DSharpPlus.CommandsNext
                         i++;
                     }
 
-                    args[start + 1] = arr;
+                    args[start + 3] = arr;
                     break;
                 }
                 else
                 {
                     try
                     { 
-                        args[i + 1] = argr[i] != null ? await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
+                        args[i + 3] = argr[i] != null ? await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type) : arg.DefaultValue;
                     }
                     catch (Exception ex)
                     {
@@ -281,6 +283,12 @@ namespace DSharpPlus.CommandsNext
         {
             // check if compiler-generated
             if (ti.GetCustomAttribute<CompilerGeneratedAttribute>(false) != null)
+                return false;
+
+            // check if derives from the required base class
+            var tmodule = typeof(BaseCommandModule);
+            var timodule = tmodule.GetTypeInfo();
+            if (!timodule.IsAssignableFrom(ti))
                 return false;
 
             // check if anonymous
@@ -318,6 +326,61 @@ namespace DSharpPlus.CommandsNext
 
             // qualifies
             return true;
+        }
+
+        internal static object CreateInstance(this Type t, IServiceProvider services)
+        {
+            var ti = t.GetTypeInfo();
+            var cs = ti.DeclaredConstructors
+                .Where(xci => xci.IsPublic)
+                .ToArray();
+
+            if (cs.Length != 1)
+                throw new ArgumentException("Specified type does not contain a public constructor or contains more than one public constructor.");
+
+            var constr = cs[0];
+            var prms = constr.GetParameters();
+            var args = new object[prms.Length];
+
+            if (prms.Length != 0 && services == null)
+                throw new InvalidOperationException("Dependency collection needs to be specified for parametered constructors.");
+
+            // inject via constructor
+            if (prms.Length != 0)
+                for (var i = 0; i < args.Length; i++)
+                    args[i] = services.GetRequiredService(prms[i].ParameterType);
+
+            var module = Activator.CreateInstance(t, args);
+
+            // inject into properties
+            var props = ti.DeclaredProperties.Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
+            foreach (var prop in props)
+            {
+                if (prop.GetCustomAttribute<DontInjectAttribute>() != null)
+                    continue;
+
+                var srv = services.GetService(prop.PropertyType);
+                if (srv == null)
+                    continue;
+
+                prop.SetValue(module, srv);
+            }
+
+            // inject into fields
+            var fields = ti.DeclaredFields.Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
+            foreach (var field in fields)
+            {
+                if (field.GetCustomAttribute<DontInjectAttribute>() != null)
+                    continue;
+
+                var srv = services.GetService(field.FieldType);
+                if (srv == null)
+                    continue;
+
+                field.SetValue(module, srv);
+            }
+
+            return module;
         }
     }
 }

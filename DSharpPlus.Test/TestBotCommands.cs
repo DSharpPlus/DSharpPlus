@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Test
 {
-    public class TestBotCommands
+    public class TestBotCommands : BaseCommandModule
     {
         public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
@@ -73,7 +74,7 @@ namespace DSharpPlus.Test
         }
 
         [Group("bind"), Description("Various argument binder testing commands.")]
-        public class Binding
+        public class Binding : BaseCommandModule
         {
             [Command("user"), Description("Attempts to get a user.")]
             public Task UserAsync(CommandContext ctx, DiscordUser usr = null)
@@ -123,7 +124,7 @@ namespace DSharpPlus.Test
         }
 
         [Group]
-        public class ImplicitGroup
+        public class ImplicitGroup : BaseCommandModule
         {
             [Command]
             public Task ImplicitAsync(CommandContext ctx)
@@ -135,7 +136,7 @@ namespace DSharpPlus.Test
         }
 
         [Group]
-        public class Prefixes
+        public class Prefixes : BaseCommandModule
         {
             [Command, RequirePrefixes("<<", ShowInHelp = true)]
             public Task PrefixShown(CommandContext ctx)
@@ -151,7 +152,7 @@ namespace DSharpPlus.Test
         // but revenge is revenge
         // nothing personnel kid 😎
         [Group("<@!276460831187664897>"), Aliases("<@276460831187664897>"), Description("That's what you get for breaking my christian lib.")]
-        public class Moon
+        public class Moon : BaseCommandModule
         {
             [Command("test1")]
             public Task WhatTheHeck(CommandContext ctx)
@@ -163,7 +164,7 @@ namespace DSharpPlus.Test
         }
 
         [Group("conflict")]
-        public class Conflict1
+        public class Conflict1 : BaseCommandModule
         {
             [Command]
             public Task Command1(CommandContext ctx)
@@ -171,7 +172,7 @@ namespace DSharpPlus.Test
         }
 
         //[Group("conflict")]
-        //public class Conflict2
+        //public class Conflict2 : BaseCommandModule
         //{
         //    [Command]
         //    public Task Command1(CommandContext ctx)
@@ -179,7 +180,7 @@ namespace DSharpPlus.Test
         //}
 
         [Group]
-        public class Nesting1
+        public class Nesting1 : BaseCommandModule
         {
             [Group]
             public class Nesting2
@@ -195,7 +196,7 @@ namespace DSharpPlus.Test
         }
 
         [Group(CanInvokeWithoutSubcommand = true)]
-        public class Executable1
+        public class Executable1 : BaseCommandModule
         {
             public TestBotService Service { get; }
 
@@ -283,6 +284,36 @@ namespace DSharpPlus.Test
 
             return ctx.RespondAsync(sb.ToString().Trim());
         }
+
+        // close your eyes, there are disasters ahead
+        [Group, ModuleLifespan(ModuleLifespan.Transient)]
+        public class Transient : BaseCommandModule
+        {
+            [Command]
+            public unsafe Task GetPtr(CommandContext ctx)
+            {
+                var x = this;
+                var r =__makeref(x);
+                var ptr = **(IntPtr**)(&r);
+
+                return ctx.RespondAsync($"0x{ptr:x16}");
+            }
+        }
+
+        [Group, ModuleLifespan(ModuleLifespan.Singleton)]
+        public class Singleton : BaseCommandModule
+        {
+            [Command]
+            public unsafe Task GetPtr(CommandContext ctx)
+            {
+                var x = this;
+                var r = __makeref(x);
+                var ptr = **(IntPtr**)(&r);
+
+                return ctx.RespondAsync($"0x{ptr:x16}");
+            }
+        }
+        // ok you can open your eyes again
     }
 
     public class TestBotService
