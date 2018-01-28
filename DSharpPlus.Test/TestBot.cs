@@ -82,7 +82,7 @@ namespace DSharpPlus.Test
                 EnableDms = true,
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
-                Services = depco.BuildServiceProvider(),
+                Services = depco.BuildServiceProvider(false),
                 Selfbot = this.Config.UseUserToken,
                 IgnoreExtraArguments = false
                 //DefaultHelpChecks = new List<CheckBaseAttribute>() { new RequireOwnerAttribute() }
