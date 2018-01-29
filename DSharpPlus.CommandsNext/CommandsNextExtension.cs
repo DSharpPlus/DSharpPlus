@@ -336,10 +336,9 @@ namespace DSharpPlus.CommandsNext
                             mdl_name = mdl_name.ToLowerInvariant();
 
                         cgbldr.WithName(mdl_name);
-
-                        if (g.CanInvokeWithoutSubcommand)
-                            foreach (var mi in ti.GetDeclaredMethods(GROUP_COMMAND_METHOD_NAME))
-                                cgbldr.WithOverload(new CommandOverloadBuilder(mi));
+                        
+                        foreach (var mi in ti.GetDeclaredMethods(GROUP_COMMAND_METHOD_NAME))
+                            cgbldr.WithOverload(new CommandOverloadBuilder(mi));
                         break;
 
                     case AliasesAttribute a:

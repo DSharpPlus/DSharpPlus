@@ -196,7 +196,7 @@ namespace DSharpPlus.Test
             }
         }
 
-        [Group(CanInvokeWithoutSubcommand = true)]
+        [Group]
         public class Executable1 : BaseCommandModule
         {
             public TestBotService Service { get; }
