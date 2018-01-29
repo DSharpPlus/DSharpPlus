@@ -315,8 +315,8 @@ namespace DSharpPlus.CommandsNext
             if (method == null)
                 return false;
 
-            // check if static or non-public
-            if (method.IsStatic || !method.IsPublic)
+            // check if static, non-public, abstract, a constructor, or a special name
+            if (method.IsStatic || !method.IsPublic || method.IsAbstract || method.IsConstructor || method.IsSpecialName)
                 return false;
 
             // check if appropriate return and arguments

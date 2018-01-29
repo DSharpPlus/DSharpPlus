@@ -18,8 +18,6 @@ namespace DSharpPlus.CommandsNext
     /// </summary>
     public class CommandsNextExtension : BaseExtension
     {
-        private const string GROUP_COMMAND_METHOD_NAME = "ExecuteGroupAsync";
-
         private CommandsNextConfiguration Config { get; }
         private HelpFormatterFactory HelpFormatter { get; }
 
@@ -337,7 +335,7 @@ namespace DSharpPlus.CommandsNext
 
                         cgbldr.WithName(mdl_name);
                         
-                        foreach (var mi in ti.GetDeclaredMethods(GROUP_COMMAND_METHOD_NAME))
+                        foreach (var mi in ti.DeclaredMethods.Where(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null))
                             cgbldr.WithOverload(new CommandOverloadBuilder(mi));
                         break;
 
@@ -365,12 +363,14 @@ namespace DSharpPlus.CommandsNext
                 cgbldr = null;
 
             // candidate methods
-            var ms = ti.DeclaredMethods
-                .Where(xm => xm.IsPublic && !xm.IsStatic && xm.Name != GROUP_COMMAND_METHOD_NAME);
+            var ms = ti.DeclaredMethods;
             var cmds = new List<CommandBuilder>();
             var cblds = new Dictionary<string, CommandBuilder>();
             foreach (var m in ms)
             {
+                if (!m.IsCommandCandidate(out _))
+                    continue;
+
                 var attrs = m.GetCustomAttributes();
                 var cattr = attrs.FirstOrDefault(xa => xa is CommandAttribute) as CommandAttribute;
                 if (cattr == null)

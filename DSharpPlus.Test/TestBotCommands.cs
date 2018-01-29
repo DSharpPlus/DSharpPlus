@@ -206,14 +206,14 @@ namespace DSharpPlus.Test
                 this.Service = srv;
             }
 
-            [Priority(10)]
+            [GroupCommand, Priority(10)]
             public Task ExecuteGroupAsync(CommandContext ctx)
             {
                 this.Service.InrementUseCount();
                 return ctx.RespondAsync("Incremented by 1.");
             }
 
-            [Priority(5)]
+            [GroupCommand, Priority(5)]
             public Task ExecuteGroupAsync(CommandContext ctx, int arg)
             {
                 if (arg > 0)
@@ -229,7 +229,7 @@ namespace DSharpPlus.Test
                 }
             }
 
-            [Priority(0)]
+            [GroupCommand, Priority(0)]
             public Task ExecuteGroupAsync(CommandContext ctx, [RemainingText] string arg)
             {
                 if (arg != null && arg.Length > 0)

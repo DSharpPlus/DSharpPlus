@@ -41,7 +41,7 @@ namespace DSharpPlus.CommandsNext.Builders
         public CommandOverloadBuilder(MethodInfo method)
         {
             if (!method.IsCommandCandidate(out var prms))
-                throw new MissingMethodException("Specified method is not suitable for a command.");
+                throw new ArgumentException("Specified method is not suitable for a command.", nameof(method));
 
             //// create a method which will instantiate the module
             //var tcm = typeof(ICommandModule);

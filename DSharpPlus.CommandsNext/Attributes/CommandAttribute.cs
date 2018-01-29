@@ -41,4 +41,17 @@ namespace DSharpPlus.CommandsNext.Attributes
             this.Name = name;
         }
     }
+
+    /// <summary>
+    /// Marks this method as a group command.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public sealed class GroupCommandAttribute : Attribute
+    {
+        /// <summary>
+        /// Marks this method as a group command.
+        /// </summary>
+        public GroupCommandAttribute()
+        { }
+    }
 }
