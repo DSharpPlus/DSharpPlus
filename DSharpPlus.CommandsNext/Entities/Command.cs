@@ -86,6 +86,8 @@ namespace DSharpPlus.CommandsNext
                     if (this.Module is TransientCommandModule)
                     {
                         scope = ctx.Services.CreateScope();
+                        ctx.ServiceScopeContext = new CommandContext.ServiceContext(ctx.Services, scope);
+
                         ctx.Services = scope.ServiceProvider;
                     }
 
@@ -103,7 +105,6 @@ namespace DSharpPlus.CommandsNext
                     };
 
                     await mdl.AfterExecutionAsync(ctx).ConfigureAwait(false);
-                    scope?.Dispose();
                     break;
                 }
 

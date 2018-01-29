@@ -231,6 +231,11 @@ namespace DSharpPlus.CommandsNext
                 {
                     await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = ex }).ConfigureAwait(false);
                 }
+                finally
+                {
+                    if (ctx.ServiceScopeContext.IsInitialized)
+                        ctx.ServiceScopeContext.Dispose();
+                }
             });
         }
         #endregion

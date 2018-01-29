@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -85,6 +86,8 @@ namespace DSharpPlus.CommandsNext
 
         internal CommandsNextConfiguration Config { get; set; }
 
+        internal ServiceContext ServiceScopeContext { get; set; }
+
         internal CommandContext()
         {
             this._lazyAssMember = new Lazy<DiscordMember>(() => this.Guild?.Members.FirstOrDefault(xm => xm.Id == this.User.Id) ?? this.Guild?.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult());
@@ -155,5 +158,24 @@ namespace DSharpPlus.CommandsNext
         /// <returns></returns>
         public Task TriggerTypingAsync() 
             => this.Channel.TriggerTypingAsync();
+
+        internal struct ServiceContext : IDisposable
+        {
+            public IServiceProvider Provider { get; }
+            public IServiceScope Scope { get; }
+            public bool IsInitialized { get; }
+
+            public ServiceContext(IServiceProvider services, IServiceScope scope)
+            {
+                this.Provider = services;
+                this.Scope = scope;
+                this.IsInitialized = true;
+            }
+
+            public void Dispose()
+            {
+                this.Scope?.Dispose();
+            }
+        }
     }
 }
