@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -347,6 +348,22 @@ namespace DSharpPlus.Test
 
                 return ctx.RespondAsync($"{ptr0} | {ptr1} | {ptr2}");
             }
+        }
+
+        [Group, Test]
+        public class CustomAttributes : BaseCommandModule
+        {
+            [GroupCommand]
+            public Task ListAttributes(CommandContext ctx)
+            {
+                return ctx.RespondAsync(string.Join(" ", ctx.Command.CustomAttributes.Select(x => Formatter.InlineCode(x.GetType().ToString()))));
+            }
+        }
+
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+        public class TestAttribute : Attribute
+        {
+            public TestAttribute() { }
         }
     }
 

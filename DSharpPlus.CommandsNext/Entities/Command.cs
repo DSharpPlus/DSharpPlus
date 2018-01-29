@@ -52,12 +52,17 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets a collection of this command's overloads.
         /// </summary>
-        public IReadOnlyCollection<CommandOverload> Overloads { get; internal set; }
+        public IReadOnlyList<CommandOverload> Overloads { get; internal set; }
 
         /// <summary>
         /// Gets the module in which this command is defined.
         /// </summary>
         public ICommandModule Module { get; internal set; }
+
+        /// <summary>
+        /// Gets the custom attributes defined on this command.
+        /// </summary>
+        public IReadOnlyList<Attribute> CustomAttributes { get; internal set; }
 
         internal Command() { }
 

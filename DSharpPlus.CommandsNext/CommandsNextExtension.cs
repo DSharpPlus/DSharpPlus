@@ -356,6 +356,10 @@ namespace DSharpPlus.CommandsNext
                         mdl_chks.Add(c);
                         cgbldr.WithExecutionCheck(c);
                         break;
+
+                    default:
+                        cgbldr.WithCustomAttribute(xa);
+                        break;
                 }
             }
 
@@ -425,6 +429,10 @@ namespace DSharpPlus.CommandsNext
 
                         case HiddenAttribute h:
                             cmdbld.WithHiddenStatus(true);
+                            break;
+
+                        default:
+                            cmdbld.WithCustomAttribute(xa);
                             break;
                     }
                 }

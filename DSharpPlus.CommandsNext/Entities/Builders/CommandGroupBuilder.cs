@@ -49,7 +49,8 @@ namespace DSharpPlus.CommandsNext.Builders
                 IsHidden = this.IsHidden,
                 Parent = parent,
                 Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
-                Module = this.Module
+                Module = this.Module,
+                CustomAttributes = this.CustomAttributes
             };
 
             var cs = new List<Command>();

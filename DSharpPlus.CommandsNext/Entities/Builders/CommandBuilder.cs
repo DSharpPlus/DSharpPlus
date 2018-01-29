@@ -52,6 +52,12 @@ namespace DSharpPlus.CommandsNext.Builders
         public ICommandModule Module { get; }
 
         /// <summary>
+        /// Gets custom attributes defined on this command.
+        /// </summary>
+        public IReadOnlyList<Attribute> CustomAttributes { get; }
+        private List<Attribute> CustomAttributeList { get; }
+
+        /// <summary>
         /// Creates a new command builder.
         /// </summary>
         /// <param name="module">Module on which this command is to be defined.</param>
@@ -68,6 +74,9 @@ namespace DSharpPlus.CommandsNext.Builders
             this.Overloads = new ReadOnlyCollection<CommandOverloadBuilder>(this.OverloadList);
 
             this.Module = module;
+
+            this.CustomAttributeList = new List<Attribute>();
+            this.CustomAttributes = new ReadOnlyCollection<Attribute>(this.CustomAttributeList);
         }
 
         /// <summary>
@@ -196,6 +205,30 @@ namespace DSharpPlus.CommandsNext.Builders
             return this;
         }
 
+        /// <summary>
+        /// Adds a custom attribute to this command. This can be used to indicate various custom information about a command.
+        /// </summary>
+        /// <param name="attribute">Attribute to add.</param>
+        /// <returns>This builder.</returns>
+        public CommandBuilder WithCustomAttribute(Attribute attribute)
+        {
+            this.CustomAttributeList.Add(attribute);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds multiple custom attributes to this command. This can be used to indicate various custom information about a command.
+        /// </summary>
+        /// <param name="attributes">Attributes to add.</param>
+        /// <returns>This builder.</returns>
+        public CommandBuilder WithCustomAttributes(params Attribute[] attributes)
+        {
+            foreach (var attr in attributes)
+                this.WithCustomAttribute(attr);
+
+            return this;
+        }
+
         internal virtual Command Build(CommandGroup parent)
         {
             var cmd = new Command
@@ -207,7 +240,8 @@ namespace DSharpPlus.CommandsNext.Builders
                 IsHidden = this.IsHidden,
                 Parent = parent,
                 Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
-                Module = this.Module
+                Module = this.Module,
+                CustomAttributes = this.CustomAttributes
             };
 
             return cmd;
