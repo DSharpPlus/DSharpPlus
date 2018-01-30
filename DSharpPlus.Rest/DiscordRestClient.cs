@@ -43,7 +43,7 @@ namespace DSharpPlus
         public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
             Optional<string> region, Optional<VerificationLevel> verification_level,
             Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
-            Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong> afk_channel_id,
+            Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
             Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
             Optional<ulong?> systemChannelId, string reason)
             => ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64, 

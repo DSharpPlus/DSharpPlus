@@ -126,8 +126,7 @@ namespace DSharpPlus.Net
                 RegionId = region_id,
                 DefaultMessageNotifications = default_message_notifications,
                 VerificationLevel = verification_level,
-                IconBase64 = iconb64.HasValue ? iconb64.Value : null,
-                IconSet = iconb64.HasValue
+                IconBase64 = iconb64
             };
 
             var route = string.Concat(Endpoints.GUILDS);
@@ -163,7 +162,7 @@ namespace DSharpPlus.Net
         internal async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
             Optional<string> region, Optional<VerificationLevel> verification_level,
             Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
-            Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong> afk_channel_id,
+            Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
             Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
             Optional<ulong?> systemChannelId, string reason)
         {
