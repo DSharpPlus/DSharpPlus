@@ -132,6 +132,17 @@ namespace DSharpPlus.Entities
         [JsonProperty("explicit_content_filter")]
         public ExplicitContentFilter ExplicitContentFilter { get; internal set; }
 
+        [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
+        internal ulong? SystemChannelId { get; set; }
+
+        /// <summary>
+        /// Gets the channel to which system messages (such as join notifications) are sent.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordChannel SystemChannel => SystemChannelId.HasValue
+            ? this.Channels.FirstOrDefault(xc => xc.Id == SystemChannelId)
+            : null;
+        
         /// <summary>
         /// Gets a collection of this guild's roles.
         /// </summary>
@@ -306,7 +317,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new GuildEditModel();
             action(mdl);
-            if (mdl.AfkChannel != null && mdl.AfkChannel.Type != ChannelType.Voice)
+            if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
             var iconb64 = Optional<string>.FromNoValue();
@@ -323,9 +334,10 @@ namespace DSharpPlus.Entities
             else if (mdl.Splash.HasValue)
                 splashb64 = null;
 
-            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region?.Id, mdl.VerificationLevel, mdl.DefaultMessageNotifications,
-                mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel?.Id,
-                mdl.AfkTimeout, iconb64, mdl.Owner?.Id, splashb64, mdl.AuditLogReason).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
+                mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
+                mdl.AfkChannel.IfPresent(e => e.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
+                mdl.SystemChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>
