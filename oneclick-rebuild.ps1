@@ -23,7 +23,7 @@ $docs_path = ".\docs"
 $docs_pkgname = "dsharpplus-docs"
 
 # --------- Execute build ---------
-& .\rebuild-all.ps1 -ArtifactLocation "$target" -VersionSuffix "$suffix" -DocsPath "$docs_path" -DocsPackageName "$docs_pkgname" | Out-Host
+& .\rebuild-all.ps1 -ArtifactLocation "$target" -VersionSuffix "$suffix" -Configuration "Release" -DocsPath "$docs_path" -DocsPackageName "$docs_pkgname" | Out-Host
 if ($LastExitCode -ne 0)
 {
     Write-Host "----------------------------------------------------------------"

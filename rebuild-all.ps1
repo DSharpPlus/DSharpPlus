@@ -25,8 +25,18 @@ param
     [string] $DocsPath,
     
     [parameter(Mandatory = $false)]
-    [string] $DocsPackageName
+    [string] $DocsPackageName,
+
+    [parameter(Mandatory = $true)]
+    [string] $Configuration
 )
+
+# Check if configuration is valid
+if ($Configuration -ne "Debug" -and $Configuration -ne "Release")
+{
+    Write-Host "Invalid configuration specified. Must be Release or Debug."
+    Exit 1
+}
 
 # Check if we have a version prefix
 if (-not $VersionSuffix)
@@ -41,7 +51,7 @@ else
 }
 
 # Invoke the build script
-& .\rebuild-lib.ps1 -artifactlocation "$ArtifactLocation" -versionsuffix "$VersionSuffix" | Out-Host
+& .\rebuild-lib.ps1 -artifactlocation "$ArtifactLocation" -versionsuffix "$VersionSuffix" -configuration "$Configuration" | Out-Host
 
 # Check if it failed
 if ($LastExitCode -ne 0)

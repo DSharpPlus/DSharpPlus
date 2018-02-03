@@ -21,21 +21,31 @@ param
     [string] $ArtifactLocation,
 
     [parameter(Mandatory = $false)]
-    [string] $VersionSuffix
+    [string] $VersionSuffix,
+
+    [parameter(Mandatory = $true)]
+    [string] $Configuration
 )
+
+# Check if configuration is valid
+if ($Configuration -ne "Debug" -and $Configuration -ne "Release")
+{
+    Write-Host "Invalid configuration specified. Must be Release or Debug."
+    Exit 1
+}
 
 # Restores the environment
 function Restore-Environment()
 {
     Write-Host "Restoring environment"
-    Remove-Item .\NuGet.config
+    Remove-Item ./NuGet.config
 }
 
 # Prepares the environment
 function Prepare-Environment([string] $target_dir_path)
 {
     # Prepare the environment
-    Copy-Item .\.nuget\NuGet.config .\
+    Copy-Item ./.nuget/NuGet.config ./
     
     # Check if the target directory exists
     # If it does, remove it
@@ -50,7 +60,7 @@ function Prepare-Environment([string] $target_dir_path)
 }
 
 # Builds everything
-function Build-All([string] $target_dir_path, [string] $version_suffix)
+function Build-All([string] $target_dir_path, [string] $version_suffix, [string] $bcfg)
 {
     # Form target path
     $dir = Get-Item "$target_dir_path"
@@ -59,7 +69,7 @@ function Build-All([string] $target_dir_path, [string] $version_suffix)
     
     # Clean previous build results
     Write-Host "Cleaning previous build"
-    & dotnet clean -v minimal -c Release | Out-Host
+    & dotnet clean -v minimal -c "$bcfg" | Out-Host
     if ($LastExitCode -ne 0)
     {
         Write-Host "Cleanup failed"
@@ -75,36 +85,57 @@ function Build-All([string] $target_dir_path, [string] $version_suffix)
         Return $LastExitCode
     }
     
-    # Build in Release configuration
-    Write-Host "Building everything"
-    if (-not $version_suffix)
+    if ($Env:OS -eq $null)
     {
-        & dotnet build -v minimal -c Release | Out-Host
+        # Build and package (if Release) in specified configuration but Linux
+        Write-Host "Building everything"
+        if (-not $version_suffix)
+        {
+            & .\rebuild-linux.ps1 "$target_dir" -Configuration "$bcfg" | Out-Host
+        }
+        else
+        {
+            & .\rebuild-linux.ps1 "$target_dir" -VersionSuffix "$version_suffix" -Configuration "$bcfg" | Out-Host
+        }
+        if ($LastExitCode -ne 0)
+        {
+            Write-Host "Packaging failed"
+            Return $LastExitCode
+        }
     }
-    else
+    else 
     {
-        & dotnet build -v minimal -c Release --version-suffix "$version_suffix" | Out-Host
-    }
-    if ($LastExitCode -ne 0)
-    {
-        Write-Host "Build failed"
-        Return $LastExitCode
-    }
-    
-    # Package for NuGet
-    Write-Host "Creating NuGet packages"
-    if (-not $version_suffix)
-    {
-        & dotnet pack -v minimal -c Release --no-build -o "$target_dir" --include-symbols | Out-Host
-    }
-    else
-    {
-        & dotnet pack -v minimal -c Release --version-suffix "$version_suffix" --no-build -o "$target_dir" --include-symbols | Out-Host
-    }
-    if ($LastExitCode -ne 0)
-    {
-        Write-Host "Packaging failed"
-        Return $LastExitCode
+        # Build in specified configuration
+        Write-Host "Building everything"
+        if (-not $version_suffix)
+        {
+            & dotnet build -v minimal -c "$bcfg" | Out-Host
+        }
+        else
+        {
+            & dotnet build -v minimal -c "$bcfg" --version-suffix "$version_suffix" | Out-Host
+        }
+        if ($LastExitCode -ne 0)
+        {
+            Write-Host "Build failed"
+            Return $LastExitCode
+        }
+        
+        # Package for NuGet
+        Write-Host "Creating NuGet packages"
+        if (-not $version_suffix)
+        {
+            & dotnet pack -v minimal -c "$bcfg" --no-build -o "$target_dir" --include-symbols | Out-Host
+        }
+        else
+        {
+            & dotnet pack -v minimal -c "$bcfg" --version-suffix "$version_suffix" --no-build -o "$target_dir" --include-symbols | Out-Host
+        }
+        if ($LastExitCode -ne 0)
+        {
+            Write-Host "Packaging failed"
+            Return $LastExitCode
+        }
     }
     
     Return 0
@@ -120,7 +151,7 @@ if ($VersionSuffix)
 Prepare-Environment "$ArtifactLocation"
 
 # Build everything
-$BuildResult = Build-All "$ArtifactLocation" "$VersionSuffix"
+$BuildResult = Build-All "$ArtifactLocation" "$VersionSuffix" "$Configuration"
 
 # Restore environment
 Restore-Environment
