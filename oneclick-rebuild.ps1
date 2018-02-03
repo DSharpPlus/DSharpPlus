@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 # One-click rebuild
 #
 # Rebuilds all DSharpPlus components with default values.

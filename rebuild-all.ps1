@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 # Rebuild-all
 #
 # Rebuilds the DSharpPlus project and its documentation, and places artifacts in specified directories.

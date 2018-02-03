@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 # Rebuild-lib
 #
 # Rebuilds the entire DSharpPlus project, and places artifacts in specified directory.
@@ -34,7 +35,7 @@ function Restore-Environment()
 function Prepare-Environment([string] $target_dir_path)
 {
     # Prepare the environment
-    Copy-Item .\.nuget.\NuGet.config .\
+    Copy-Item .\.nuget\NuGet.config .\
     
     # Check if the target directory exists
     # If it does, remove it
