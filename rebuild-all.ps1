@@ -81,3 +81,4 @@ else
     # Nope
     Write-Host "Not building documentation"
 }
+Exit 0
