@@ -174,6 +174,8 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send a file to a non-text channel");
             if (string.IsNullOrWhiteSpace(content) && embed == null)
                 throw new ArgumentNullException("Must provide either content, embed or both, and content may not consist only of whitespace");
+            if (content != null && content.Length > 2000)
+                throw new ArgumentException("Message must be less than or exactly 2000 characters", nameof(content));
 
             return this.Discord.ApiClient.CreateMessageAsync(Id, content, tts, embed);
         }
