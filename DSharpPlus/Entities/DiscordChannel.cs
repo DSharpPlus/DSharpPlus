@@ -172,6 +172,8 @@ namespace DSharpPlus.Entities
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
                 throw new ArgumentException("Cannot send a file to a non-text channel");
+            if (string.IsNullOrWhiteSpace(content) && embed == null)
+                throw new ArgumentNullException("Must provide either content, embed or both, and content may not consist only of whitespace");
 
             return this.Discord.ApiClient.CreateMessageAsync(Id, content, tts, embed);
         }
