@@ -45,7 +45,9 @@ build_script:
     {
         # Rebuild documentation
         Write-Host "Commencing complete build"
-        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix "$VERSION" -DocsPath ".\docs" -DocsPackageName "dsharpplus-docs"
+        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix 
+"$VERSION" -Configuration "Release" -DocsPath ".\docs" -DocsPackageName 
+"dsharpplus-docs"
     }
 
     else
@@ -53,7 +55,8 @@ build_script:
     {
         # Skip documentation
         Write-Host "Building from PR ($Env:APPVEYOR_PULL_REQUEST_NUMBER); skipping docs build"
-        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix "$VERSION"
+        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix 
+"$VERSION" -Configuration "Release"
     }
 artifacts:
 - path: artifacts\*.nupkg
