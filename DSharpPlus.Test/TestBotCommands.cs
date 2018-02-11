@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Test
@@ -28,6 +30,28 @@ namespace DSharpPlus.Test
         //    await ctx.Guild.CreateTextChannelAsync("memes", overwrites: dowbs);
         //    await ctx.RespondAsync("naam check your shitcode");
         //}
+
+		[Command("testpoll")]
+		public async Task TestPollAsync(CommandContext ctx, [RemainingText]string question)
+		{
+			var intr = ctx.Client.GetInteractivity();
+			var m = await ctx.RespondAsync(question);
+			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "sent message & got interactivity ext", DateTime.Now);
+			List<DiscordEmoji> ems = new List<DiscordEmoji>();
+			ems.Add(DiscordEmoji.FromUnicode(ctx.Client, "👍"));
+			ems.Add(DiscordEmoji.FromUnicode(ctx.Client, "👎"));
+			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "added reactions", DateTime.Now);
+			var rcc = await intr.CreatePollAsync(m, ems, TimeSpan.FromSeconds(4));
+			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "got results", DateTime.Now);
+			string results = "";
+			foreach(var smth in rcc.Reactions)
+			{
+				results += $"{smth.Key.ToString()}: {smth.Value}\n";
+			}
+			await m.DeleteAllReactionsAsync();
+			await m.ModifyAsync(results);
+			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "sent results", DateTime.Now);
+		}
 
         [Command("testmodify"), RequireOwner]
         public async Task TestModifyAsync(CommandContext ctx, DiscordMember m)
