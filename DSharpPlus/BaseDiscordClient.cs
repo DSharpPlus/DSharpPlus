@@ -109,7 +109,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public virtual async Task InitializeAsync()
         {
-            if (this.CurrentUser == null)
+            if (this.CurrentUser == null && this.Configuration.TokenType != TokenType.Bearer)
             {
                 this.CurrentUser = await this.ApiClient.GetCurrentUserAsync().ConfigureAwait(false);
                 this.UserCache.AddOrUpdate(this.CurrentUser.Id, this.CurrentUser, (id, xu) => this.CurrentUser);
