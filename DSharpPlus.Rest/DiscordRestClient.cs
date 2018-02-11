@@ -266,7 +266,7 @@ namespace DSharpPlus
             => ApiClient.GetGuildAsync(guild_id);
 
         public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
-            => ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color, hoist, mentionable, reason);
+            => ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color, hoist, mentionable, reason);
 
         public Task DeleteRoleAsync(ulong guild_id, ulong role_id, string reason)
             => ApiClient.DeleteRoleAsync(guild_id, role_id, reason);
@@ -291,7 +291,7 @@ namespace DSharpPlus
             => ApiClient.CreateGuildIntegrationAsync(guild_id, type, id);
 
         public Task<DiscordIntegration> ModifyGuildIntegrationAsync(ulong guild_id, ulong integration_id, int expire_behaviour, int expire_grace_period, bool enable_emoticons)
-            => ModifyGuildIntegrationAsync(guild_id, integration_id, expire_behaviour, expire_grace_period, enable_emoticons);
+            => ApiClient.ModifyGuildIntegrationAsync(guild_id, integration_id, expire_behaviour, expire_grace_period, enable_emoticons);
 
         public Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration) 
             => ApiClient.DeleteGuildIntegrationAsync(guild_id, integration);
@@ -300,7 +300,7 @@ namespace DSharpPlus
             => ApiClient.SyncGuildIntegrationAsync(guild_id, integration_id);
 
         public Task<DiscordGuildEmbed> GetGuildEmbedAsync(ulong guild_id) 
-            => GetGuildEmbedAsync(guild_id);
+            => ApiClient.GetGuildEmbedAsync(guild_id);
 
         public Task<DiscordGuildEmbed> ModifyGuildEmbedAsync(ulong guild_id, DiscordGuildEmbed embed) 
             => ApiClient.ModifyGuildEmbedAsync(guild_id, embed);
