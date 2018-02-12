@@ -300,5 +300,4 @@ config.json
 /DSharpPlus.Test/libopus.dll
 /DSharpPlus.Test/ffmpeg.exe
 /DSharpPlus.Test/*.pcm
-appveyor-test.ps1
 DSharpPlus.UnitTests/SECRET.cs
