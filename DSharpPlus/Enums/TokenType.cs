@@ -1,11 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 
 namespace DSharpPlus
 {
-    /// <summary>
-    /// Token type
-    /// </summary>
-    public enum TokenType
+	/// <summary>
+	/// Token type
+	/// </summary>
+	[JsonConverter(typeof(StringEnumConverter))]
+	public enum TokenType
     {
         /// <summary>
         /// User token type
