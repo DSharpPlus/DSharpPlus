@@ -19,7 +19,7 @@ namespace DSharpPlus.OAuth2
 		[JsonIgnore]
 		public Scope[] Scopes { get; set; }
 		[JsonProperty("scope")]
-		private string scope;
+		internal string scope;
 
 
 		public virtual DiscordConfiguration GetDiscordConfiguration()

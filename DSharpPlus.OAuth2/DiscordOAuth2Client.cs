@@ -35,21 +35,36 @@ namespace DSharpPlus
 			}
 		}
 
-		public DiscordOAuth2Client(DiscordConfiguration config, Scope[] scopes) : base(config)
+		public string RefreshToken { get; set; }
+		public bool UseRefresh
+		{
+			get
+			{ return string.IsNullOrWhiteSpace(RefreshToken); }
+		}
+		public DateTime TokenExpireDate;
+
+		private string clientId;
+		private string clientSecret;
+		private string redirectUri;
+
+		/// <summary>
+		/// Creates a instance
+		/// </summary>
+		/// <param name="response">See static Functions</param>
+		/// <param name="config">The Config to use</param>
+		public DiscordOAuth2Client(BaseTokenResponse response, DiscordConfiguration config)
+		: base(new DiscordConfiguration(config)
+		{
+			Token = response.AccessToken,
+			TokenType = response.TokenType
+		})
 		{
 			//TODO: What about guilds.join needing a bot account?
-			//TODO: rpc?
-			this.scopes = scopes;
+			//TODO: rpc support?
+			this.scopes = response.Scopes;
+			this.TokenExpireDate = DateTime.UtcNow.AddSeconds(response.ExpiresIn);
 			disposed = false;
-			if (config.TokenType != TokenType.Bearer)
-				throw new NotImplementedException("OAuth2 Only supports the Bearer token currently");
-		}
-
-		public DiscordOAuth2Client(BaseTokenResponse token) : base(token.GetDiscordConfiguration())
-		{
-			this.scopes = token.Scopes;
-			disposed = false;
-			if (token.GetDiscordConfiguration().TokenType != TokenType.Bearer)
+			if (Configuration.TokenType != TokenType.Bearer)
 				throw new NotImplementedException("OAuth2 Only supports the Bearer token currently");
 		}
 
@@ -60,7 +75,6 @@ namespace DSharpPlus
 				this.CurrentUser = await this.ApiClient.GetCurrentUserAsync().ConfigureAwait(false);
 				this.UserCache.AddOrUpdate(this.CurrentUser.Id, this.CurrentUser, (id, xu) => this.CurrentUser);
 			}
-			//TODO: Add Support for the Extended Bot Auth Flow
 			if ((this.Configuration.TokenType != TokenType.User && this.CurrentApplication == null) && scopes.Contains(Scope.bot))
 				this.CurrentApplication = await this.GetCurrentApplicationAsync().ConfigureAwait(false);
 
@@ -897,6 +911,48 @@ namespace DSharpPlus
 			_guilds = null;
 		}
 
+		private bool CheckTokenRefresh()
+		{
+			DateTime discordEpoch = new DateTime(2015, 0, 0, 0, 0, 0);
+			return ((DateTime.UtcNow - discordEpoch).TotalSeconds >= (TokenExpireDate - discordEpoch).TotalSeconds);
+		}
+
+		private async Task RefreshTokenAsync()
+		{
+			using (HttpClient client = new HttpClient())
+			{
+				var content = new Dictionary<string, string>
+				{
+					{ "client_id", clientId },
+					{ "client_secret", clientSecret },
+					{ "grant_type", "refresh_token" },
+					{ "refresh_token", RefreshToken },
+					{ "redirect_uri", redirectUri }
+				};
+				var res = await client.PostAsync($"{Utilities.GetApiBaseUri()}/oauth2/token", new FormUrlEncodedContent(content));
+				if (res.IsSuccessStatusCode)
+				{
+					var resContent = await res.Content.ReadAsStringAsync();
+					var response = JsonConvert.DeserializeObject<RefreshTokenResponse>(resContent);
+					this.EnableRefresh(
+						response.RefreshToken,
+					redirectUri,
+					clientId,
+					clientSecret);
+				}
+				else
+					throw new Exception("Coudnt get token! Check your Parameters and try again!");
+			}
+		}
+
+		public void EnableRefresh(string refreshToken, string redirectUri, string clientId, string clientSecret)
+		{
+			this.RefreshToken = refreshToken;
+			this.redirectUri = redirectUri;
+			this.clientId = clientId;
+			this.clientSecret = clientSecret;
+		}
+
 		#region TokenGrants
 		//Not Included in NetStandart1.1 because of Encoding.ASCII
 #if !NETSTANDARD1_1
@@ -904,7 +960,7 @@ namespace DSharpPlus
 		/// <summary>
 		/// This shoud only be used for Debug purposes
 		/// </summary>
-		public static async Task<ClientCredentialsResponse> ClientCredentialsGrantAsync(string ClientId, string ClientSecret, Scope[] scopes)
+		public static async Task<DiscordOAuth2Client> ClientCredentialsGrantAsync(string ClientId, string ClientSecret, Scope[] scopes, DiscordConfiguration config = null)
 		{
 			if (scopes.Length == 0)
 				throw new Exception("Empty Scope");
@@ -914,7 +970,7 @@ namespace DSharpPlus
 				var content = new Dictionary<string, string>();
 				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
 					Convert.ToBase64String(Encoding.ASCII.GetBytes($"{ClientId}:{ClientSecret}")));
-				content.Add("grant_type", "client_credentials");
+				content.Add("grant_type", "refresh_token");
 				string scope = "";
 				foreach (var s in scopes)
 				{
@@ -932,15 +988,63 @@ namespace DSharpPlus
 					//Hack: Please just fix the Serialization
 					if (dyn.scope == scope)
 						response.Scopes = scopes;
-					return response;
+					return new DiscordOAuth2Client(response, config);
 				}
 				else
 					throw new Exception("Coud not get Token!");
 			}
-
-
 		}
 #endif
+		//https://discordapp.com/developers/docs/topics/oauth2#authorization-code-grant
+		/// <summary>
+		/// Please visit https://discordapp.com/developers/docs/topics/oauth2#authorization-code-grant for more information
+		/// </summary>
+		/// <param name="clientId">Your Client id</param>
+		/// <param name="clientSecret">Your Client secret</param>
+		/// <param name="redirectUri">The Redirect Uri just used</param>
+		/// <param name="code">The Code returned</param>
+		/// <returns>Your Response, can be used to Create a OAuth2Client</returns>
+		public static async Task<DiscordOAuth2Client> AuthorizationCodeGrantAsync(string clientId, string clientSecret, string redirectUri, string code, Scope[] scopes, DiscordConfiguration config = null)
+		{
+			using (HttpClient client = new HttpClient())
+			{
+				var content = new Dictionary<string, string>
+				{
+					{ "client_id", clientId },
+					{ "client_secret", clientSecret },
+					{ "grant_type", "authorization_code" },
+					{ "code", code },
+					{ "redirect_uri", redirectUri }
+				};
+				var res = await client.PostAsync($"{Utilities.GetApiBaseUri()}/oauth2/token", new FormUrlEncodedContent(content));
+				if (res.IsSuccessStatusCode)
+				{
+					var resContent = await res.Content.ReadAsStringAsync();
+					var response = JsonConvert.DeserializeObject<AuthorizationCodeGrantResponse>(resContent);
+					string scope = "";
+					foreach (var s in scopes)
+					{
+						scope += " " + s.ToString().Replace('_', '.'); //Hack: Use EnumMember instead
+
+					}
+					scope = scope.Trim();
+					if (scope == response.scope)
+						response.Scopes = scopes;
+					else
+						throw new ArgumentException("Please enter the Right Scopes!");
+					var discord = new DiscordOAuth2Client(response, config);
+					discord.EnableRefresh(
+						response.RefreshToken,
+					redirectUri,
+					clientId,
+					clientSecret);
+					return discord;
+				}
+				else
+					throw new Exception("Coudnt get token! Check your Parameters and try again!");
+			}
+		}
+
 		#endregion
 	}
 }

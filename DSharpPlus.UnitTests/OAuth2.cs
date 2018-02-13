@@ -15,9 +15,6 @@ namespace DSharpPlus.UnitTests
 {
 	public class OAuth2
 	{
-		private const string CLIENT_ID = "412341265313693716";
-		private const string CLIENT_SECRET = "IMJsij6nVdTic-xaPyXEjH-yZvFsjoZC";
-		private const string BotToken = "NDEyMzQxMjY1MzEzNjkzNzE2.DWMg0Q.LAfO3etlF1mGSCc4yJ2N8cPcp8U";
 		private static Scope[] DefaultScopes = new Scope[] { Scope.email, Scope.identify, Scope.messages_read, Scope.guilds_join, Scope.guilds };
 		[Fact]
 		public async Task GetToken()
@@ -29,7 +26,7 @@ namespace DSharpPlus.UnitTests
 		private async Task<DiscordOAuth2Client> GetClientAsync()
 		{
 			var token = await DiscordOAuth2Client.ClientCredentialsGrantAsync(SECRET.CLIENT_ID, SECRET.CLIENT_SECRET, DefaultScopes);
-			DiscordOAuth2Client client = new DiscordOAuth2Client(token.GetDiscordConfiguration(), token.Scopes);
+			DiscordOAuth2Client client = new DiscordOAuth2Client(token.Scopes, token.GetDiscordConfiguration());
 			return client;
 		}
 
