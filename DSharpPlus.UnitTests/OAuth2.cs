@@ -1,5 +1,6 @@
 using DSharpPlus.Entities;
-using DSharpPlus.OAuth2;
+using DSharpPlus.Rest;
+using DSharpPlus;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -19,23 +20,16 @@ namespace DSharpPlus.UnitTests
 		[Fact]
 		public async Task GetToken()
 		{
-			var s = await DiscordOAuth2Client.ClientCredentialsGrantAsync(SECRET.CLIENT_ID, SECRET.CLIENT_SECRET, DefaultScopes);
-			Assert.True(s != null && !string.IsNullOrWhiteSpace(s.AccessToken));
-		}
-
-		private async Task<DiscordOAuth2Client> GetClientAsync()
-		{
-			var token = await DiscordOAuth2Client.ClientCredentialsGrantAsync(SECRET.CLIENT_ID, SECRET.CLIENT_SECRET, DefaultScopes);
-			DiscordOAuth2Client client = new DiscordOAuth2Client(token.Scopes, token.GetDiscordConfiguration());
-			return client;
+			var s = await DiscordRestClient.ClientCredentialsGrantAsync(SECRET.CLIENT_ID, SECRET.CLIENT_SECRET, DefaultScopes);
+			Assert.True(s != null && !string.IsNullOrWhiteSpace(s.Token));
 		}
 
 		[Fact]
         public async Task Create()
         {
-			var client = await GetClientAsync();
+			var client = DiscordRestClient.ClientCredentialsGrantAsync(SECRET.CLIENT_ID, SECRET.CLIENT_SECRET, DefaultScopes);
 
-			
+
 			//Cleanup
 			client.Dispose();
         }
@@ -43,7 +37,7 @@ namespace DSharpPlus.UnitTests
 		[Fact]
 		public async Task GetCache()
 		{
-			var client = await GetClientAsync();
+			var client = await DiscordRestClient.ClientCredentialsGrantAsync(SECRET.CLIENT_ID, SECRET.CLIENT_SECRET, DefaultScopes);
 
 			await client.InitializeCacheAsync();
 
@@ -54,7 +48,7 @@ namespace DSharpPlus.UnitTests
 		[Fact]
 		public async Task AddUserToGuild()
 		{
-			var client = await GetClientAsync();
+			var client = await DiscordRestClient.ClientCredentialsGrantAsync(SECRET.CLIENT_ID, SECRET.CLIENT_SECRET, DefaultScopes);
 
 			await client.InitializeCacheAsync();
 
@@ -99,7 +93,7 @@ namespace DSharpPlus.UnitTests
 		[Fact]
 		public async Task GetUserInfo()
 		{
-			var client = await GetClientAsync();
+			var client = await DiscordRestClient.ClientCredentialsGrantAsync(SECRET.CLIENT_ID, SECRET.CLIENT_SECRET, DefaultScopes);
 
 			await client.InitializeCacheAsync();
 

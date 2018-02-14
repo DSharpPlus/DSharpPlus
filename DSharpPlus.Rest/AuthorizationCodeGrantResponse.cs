@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace DSharpPlus.OAuth2
+namespace DSharpPlus.Rest
 {
 	public class AuthorizationCodeGrantResponse : BaseTokenResponse
 	{

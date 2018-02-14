@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Converters;
 
-namespace DSharpPlus.OAuth2
+namespace DSharpPlus.Rest
 {
 #if !NETSTANDARD1_1
 	[Serializable]

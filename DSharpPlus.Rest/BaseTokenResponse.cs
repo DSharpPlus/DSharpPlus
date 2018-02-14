@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.OAuth2
+namespace DSharpPlus.Rest
 {
     public class BaseTokenResponse
     {
