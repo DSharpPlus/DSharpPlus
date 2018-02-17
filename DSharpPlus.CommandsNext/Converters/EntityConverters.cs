@@ -134,6 +134,8 @@ namespace DSharpPlus.CommandsNext.Converters
             var cs = ctx.Config.CaseSensitive;
             if (!cs)
                 value = value.ToLowerInvariant();
+            if (value.StartsWith('#'))
+                value = value.Substring(1);
 
             var chn = ctx.Guild.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
             return Task.FromResult(chn != null ? Optional<DiscordChannel>.FromValue(chn) : Optional<DiscordChannel>.FromNoValue());
