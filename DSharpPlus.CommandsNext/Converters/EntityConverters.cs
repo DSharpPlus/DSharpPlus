@@ -134,7 +134,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var cs = ctx.Config.CaseSensitive;
             if (!cs)
                 value = value.ToLowerInvariant();
-            if (value.StartsWith('#'))
+            if (value.Length > 0 && value[0] == '#')
                 value = value.Substring(1);
 
             var chn = ctx.Guild.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
