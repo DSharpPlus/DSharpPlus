@@ -272,6 +272,7 @@ namespace DSharpPlus.VoiceNext
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
 
+            var tickStart = CurrentTimeMillis();
             await this.PlaybackSemaphore.WaitAsync().ConfigureAwait(false);
 
             var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
@@ -280,43 +281,26 @@ namespace DSharpPlus.VoiceNext
             dat = this.Sodium.Encode(dat, this.Rtp.MakeNonce(rtp), this.Key);
             dat = this.Rtp.Encode(rtp, dat);
 
-            if (this.SynchronizerTicks == 0)
-            {
-                this.SynchronizerTicks = Stopwatch.GetTimestamp();
-                this.SynchronizerResolution = (Stopwatch.Frequency * 0.02);
-                this.TickResolution = 10_000_000.0 / Stopwatch.Frequency;
-                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0", CultureInfo.InvariantCulture)}/{this.SynchronizerResolution.ToString(CultureInfo.InvariantCulture)} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
-            }
-            else
-            {
-                // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
-                // 
-                // delay = max(0, self.delay + ((start_time + self.delay * loops) + - time.time()))
-                // 
-                // self.delay
-                //   sample size
-                // start_time
-                //   time since streaming started
-                // loops
-                //   number of samples sent
-                // time.time()
-                //   DateTime.Now
-                
-                var cts = Math.Max(Stopwatch.GetTimestamp() - this.SynchronizerTicks, 0);
-                if (cts < this.SynchronizerResolution)
-                    await Task.Delay(TimeSpan.FromTicks((long)((this.SynchronizerResolution - cts) * this.TickResolution))).ConfigureAwait(false);
-
-                this.SynchronizerTicks += this.SynchronizerResolution;
-            }
-
             await this.SendSpeakingAsync(true).ConfigureAwait(false);
             await this.UdpClient.SendAsync(dat, dat.Length).ConfigureAwait(false);
 
             this.Sequence++;
             this.Timestamp += 48 * (uint)blockSize;
-
+            
+            var delay = blockSize - (int)(CurrentTimeMillis() - tickStart);
+            if (delay > 0)
+            {
+                await Task.Delay(delay);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", 
+                    $"VNext datarate: {1000f / delay:#,##0}pps", DateTime.Now);
+            }
+            
             this.PlaybackSemaphore.Release();
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static long CurrentTimeMillis()
+            => DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 
 #if !NETSTANDARD1_1
         private async Task VoiceReceiverTask()
