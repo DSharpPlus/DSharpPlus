@@ -2,9 +2,9 @@
 
 namespace DSharpPlus.Rest
 {
-	public class AuthorizationCodeGrantResponse : BaseTokenResponse
-	{
-		[JsonProperty("refresh_token")]
-		public string RefreshToken;
-	}
+    public class AuthorizationCodeGrantResponse : BaseTokenResponse
+    {
+        [JsonProperty("refresh_token")]
+        public string RefreshToken;
+    }
 }

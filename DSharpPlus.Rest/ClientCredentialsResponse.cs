@@ -1,6 +1,6 @@
 ﻿namespace DSharpPlus.Rest
 {
-	public class ClientCredentialsResponse : BaseTokenResponse
-	{
-	}
+    public class ClientCredentialsResponse : BaseTokenResponse
+    {
+    }
 }
