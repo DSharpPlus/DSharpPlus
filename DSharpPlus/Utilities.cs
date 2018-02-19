@@ -53,7 +53,6 @@ namespace DSharpPlus
 
         internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
         {
-
             Random r = new Random();
             return r.Next(ping, int.MaxValue);
         }
