@@ -16,6 +16,7 @@ using DSharpPlus.VoiceNext.EventArgs;
 using DSharpPlus.VoiceNext.VoiceEntities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
 
 namespace DSharpPlus.VoiceNext
 {
