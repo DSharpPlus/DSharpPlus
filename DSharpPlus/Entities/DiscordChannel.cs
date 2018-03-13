@@ -139,7 +139,7 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                if (this.Guild != null)
+                if (this.Guild == null)
                     throw new InvalidOperationException("Cannot query users outside of guild channels.");
 
                 if (this.Type == ChannelType.Voice)
