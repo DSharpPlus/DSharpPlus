@@ -216,7 +216,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendMessageAsync(string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
-            if (this.IsBot && this.Client.CurrentUser.IsBot)
+            if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other");
             
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
@@ -234,7 +234,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
-            if (this.IsBot && this.Client.CurrentUser.IsBot)
+            if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other");
             
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
