@@ -112,7 +112,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordVoiceState VoiceState 
-            => this.Discord.Guilds[this._guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == this.Id);
+            => this.Discord.Guilds[this._guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == this.Id) ?? new DiscordVoiceState(this);
 
         [JsonIgnore]
         internal ulong _guild_id = 0;

@@ -36,6 +36,8 @@ namespace DSharpPlus.Test
 		{
 			if (ctx.Member.VoiceState == null)
 				await ctx.RespondAsync("voice state is null");
+			else if (ctx.Member.VoiceState.Channel == null)
+				await ctx.RespondAsync($"voice state is not null, channel is null");
 			else
 				await ctx.RespondAsync($"connected to channel {ctx.Member.VoiceState.Channel.Name}");
 		}
