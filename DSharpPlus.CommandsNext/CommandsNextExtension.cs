@@ -728,11 +728,18 @@ namespace DSharpPlus.CommandsNext
         /// <typeparam name="T">Type to register the name for.</typeparam>
         /// <param name="value">Name to register.</param>
         public void RegisterUserFriendlyTypeName<T>(string value)
+            => RegisterUserFriendlyTypeName(typeof(T), value);
+
+        /// <summary>
+        /// Registers a user-friendly type name.
+        /// </summary>
+        /// <param name="type">Type to register the name for.</param>
+        /// <param name="value">Name to register.</param>
+        public void RegisterUserFriendlyTypeName(Type t, string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentNullException(nameof(value), "Name cannot be null or empty.");
 
-            var t = typeof(T);
             var ti = t.GetTypeInfo();
             if (!this.ArgumentConverters.ContainsKey(t))
                 throw new InvalidOperationException("Cannot register a friendly name for a type which has no associated converter.");
