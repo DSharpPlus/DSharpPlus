@@ -22,7 +22,7 @@ namespace DSharpPlus.Entities
 		/// </summary>
 		[JsonIgnore]
 		public DiscordGuild Guild
-			=> this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : null;
+			=> this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : (this.Channel != null ? this.Channel.Guild : null);
 
 		/// <summary>
 		/// Gets ID of the channel this user is connected to.
@@ -135,7 +135,7 @@ namespace DSharpPlus.Entities
 
 		public override string ToString()
 		{
-			return $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {this.GuildId?.ToString(CultureInfo.InvariantCulture)}";
+			return $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {(this.GuildId ?? this.Channel.GuildId).ToString(CultureInfo.InvariantCulture)}";
 		}
 	}
 }
