@@ -111,10 +111,16 @@ namespace DSharpPlus.Entities
         [JsonProperty("mention_everyone", NullValueHandling = NullValueHandling.Ignore)]
         public bool MentionEveryone { get; internal set; }
 
-        /// <summary>
-        /// Gets users or members mentioned by this message.
-        /// </summary>
-        [JsonIgnore]
+		/// <summary>
+		/// Gets whether the message mentions everyone.
+		/// </summary>
+		[JsonIgnore]
+		public bool MentionSomeone { get => this.Content.Contains("@someone"); }
+
+		/// <summary>
+		/// Gets users or members mentioned by this message.
+		/// </summary>
+		[JsonIgnore]
         public IReadOnlyList<DiscordUser> MentionedUsers 
             => this._mentionedUsersLazy.Value;
 
