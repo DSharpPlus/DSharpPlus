@@ -59,7 +59,7 @@ namespace DSharpPlus.Test
 			ems.Add(DiscordEmoji.FromUnicode(ctx.Client, "👍"));
 			ems.Add(DiscordEmoji.FromUnicode(ctx.Client, "👎"));
 			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "added reactions", DateTime.Now);
-			var rcc = await intr.CreatePollAsync(m, ems, TimeSpan.FromSeconds(4));
+			var rcc = await intr.CreatePollAsync(m, ems, TimeSpan.FromSeconds(10));
 			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "got results", DateTime.Now);
 			string results = "";
 			foreach (var smth in rcc.Reactions)
