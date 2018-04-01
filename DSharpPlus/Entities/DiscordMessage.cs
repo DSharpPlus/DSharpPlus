@@ -113,18 +113,6 @@ namespace DSharpPlus.Entities
         public bool MentionEveryone { get; internal set; }
 
 		/// <summary>
-		/// Gets whether the message mentions @someone.
-		/// </summary>
-		[JsonIgnore]
-		public bool MentionSomeone { get => this.Content.Contains("@someone"); }
-
-		/// <summary>
-		/// Gets whether the message mentions b1nzy.
-		/// </summary>
-		[JsonIgnore]
-		public bool MentionBinzy { get => this.MentionedUsers.Count(x => x.Id == 80351110224678912) > 0; }
-
-		/// <summary>
 		/// Gets users or members mentioned by this message.
 		/// </summary>
 		[JsonIgnore]
