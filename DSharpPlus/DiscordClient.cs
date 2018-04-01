@@ -1744,7 +1744,7 @@ namespace DSharpPlus
 
             var vstate_new = gld._voice_states.FirstOrDefault(xvs => xvs.UserId == uid);
             var vstate_old = vstate_new != null ? new DiscordVoiceState(vstate_new) : null;
-            if (vstate_new == null)
+			if (vstate_new == null)
             {
                 vstate_new = raw.ToObject<DiscordVoiceState>();
                 vstate_new.Discord = this;

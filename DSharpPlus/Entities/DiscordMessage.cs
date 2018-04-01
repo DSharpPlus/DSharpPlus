@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Globalization;
+using System.Linq;
 
 namespace DSharpPlus.Entities
 {
@@ -111,10 +112,22 @@ namespace DSharpPlus.Entities
         [JsonProperty("mention_everyone", NullValueHandling = NullValueHandling.Ignore)]
         public bool MentionEveryone { get; internal set; }
 
-        /// <summary>
-        /// Gets users or members mentioned by this message.
-        /// </summary>
-        [JsonIgnore]
+		/// <summary>
+		/// Gets whether the message mentions @someone.
+		/// </summary>
+		[JsonIgnore]
+		public bool MentionSomeone { get => this.Content.Contains("@someone"); }
+
+		/// <summary>
+		/// Gets whether the message mentions b1nzy.
+		/// </summary>
+		[JsonIgnore]
+		public bool MentionBinzy { get => this.MentionedUsers.Count(x => x.Id == 80351110224678912) > 0; }
+
+		/// <summary>
+		/// Gets users or members mentioned by this message.
+		/// </summary>
+		[JsonIgnore]
         public IReadOnlyList<DiscordUser> MentionedUsers 
             => this._mentionedUsersLazy.Value;
 

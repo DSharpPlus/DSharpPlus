@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 # Rebuild-docs
 #
 # Rebuilds the documentation for DSharpPlus project, and places artifacts in specified directory.
@@ -139,7 +140,14 @@ function Install-DocFX([string] $target_dir_path)
     
     # Add DocFX to PATH
     Write-Host "Adding DocFX to PATH"
-    $Env:PATH = "$target_dir;$current_path"
+    if ($Env:OS -eq $null)
+    {
+        $Env:DOCFX_PATH = "$target_dir"
+    }
+    else 
+    {
+        $Env:PATH = "$target_dir;$current_path"
+    }
     Set-Location -path "$current_location"
     
     Return 0
@@ -316,11 +324,23 @@ function Build-Docs([string] $target_dir_path)
     # Enter the documentation directory
     Set-Location -path "$target_path"
     
-    # Generate new API documentation
-    & docfx docfx.json | Out-Host
-    
-    # Build new documentation site
-    & docfx build docfx.json | Out-Host
+    # Check OS
+    if ($Env:OS -eq $null)
+    {
+        # Generate new API documentation
+        & mono "$Env:DOCFX_PATH/docfx.exe" docfx.json | Out-Host
+        
+        # Build new documentation site
+        & mono "$Env:DOCFX_PATH/docfx.exe" build docfx.json | Out-Host
+    }
+    else 
+    {
+        # Generate new API documentation
+        & docfx docfx.json | Out-Host
+        
+        # Build new documentation site
+        & docfx build docfx.json | Out-Host
+    }
     
     # Exit back
     Set-Location -path "$current_location"
@@ -383,14 +403,17 @@ if ($result -ne 0)
     Exit 1
 }
 
-# Install 7-zip
-$result = Install-7zip "$sevenzip_path"
-if ($result -ne 0)
+# Install 7-zip, if Windows
+if ($Env:OS -ne $null)
 {
-    Write-Host "Installing 7-zip failed"
-    Restore-Environment
-    $host.SetShouldExit(1)
-    Exit 1
+    $result = Install-7zip "$sevenzip_path"
+    if ($result -ne 0)
+    {
+        Write-Host "Installing 7-zip failed"
+        Restore-Environment
+        $host.SetShouldExit(1)
+        Exit 1
+    }
 }
 
 # Build and package docs
