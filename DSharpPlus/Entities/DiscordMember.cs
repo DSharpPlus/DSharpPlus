@@ -362,8 +362,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="role">The role to check.</param>
         /// <returns></returns>
-        public Task<bool> HasRole(DiscordRole role)
-            => Task.FromResult<bool>(this.Roles.Count(x => x.Id == role.Id) > 0);
+        public bool HasRole(DiscordRole role)
+            => this.Roles.Any(x => x.Id == role.Id);
 
         /// <summary>
         /// Bans a this member from their guild.
