@@ -37,6 +37,12 @@ namespace DSharpPlus.Entities
             this.HasValue = true;
         }
 
+        internal Optional(object value)
+        {
+            this._val = (T) value; // not a safe cast.
+            this.HasValue = true;
+        }
+
         /// <summary>
         /// Returns a string representation of this optional value.
         /// </summary>

@@ -53,7 +53,7 @@ namespace DSharpPlus.Net
         private DiscordMessage PrepareMessage(JToken msg_raw)
         {
             var author = msg_raw["author"].ToObject<TransportUser>();
-            var ret = msg_raw.ToObject<DiscordMessage>();
+            var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this.Discord;
 
             var guild = ret.Channel?.Guild;
