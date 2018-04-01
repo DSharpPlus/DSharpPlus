@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.Entities;
@@ -10,22 +11,36 @@ namespace DSharpPlus.Net.Serialization
 {
     public static class DiscordJson
     {
-        private static readonly JsonConverter[] JsonConverters =
+        private static readonly OptionalJsonConverter OptionalJsonConverter = new OptionalJsonConverter();
+
+        private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
         {
-            new OptionalJsonConverter()
+            Converters = {OptionalJsonConverter},
+            ContractResolver = new OptionalJsonContractResolver()
         };
-        private static readonly OptionalJsonContractResolver OptionalJsonContractResolver = new OptionalJsonContractResolver();
+
+        private static readonly JsonSerializer OptionalJsonSerializer = new JsonSerializer();
+
+        static DiscordJson() => OptionalJsonSerializer.Converters.Add(OptionalJsonConverter);
 
         /// <summary>Serializes the specified object to a JSON string.</summary>
         /// <param name="value">The object to serialize.</param>
         /// <returns>A JSON string representation of the object.</returns>
         public static string SerializeObject(object value)
         {
-            return JsonConvert.SerializeObject(value, new JsonSerializerSettings
-            {
-                Converters = JsonConverters,
-                ContractResolver = OptionalJsonContractResolver
-            });
+            return JsonConvert.SerializeObject(value, JsonSerializerSettings);
+        }
+        
+        /// <summary>
+        /// Converts this token into an object, passing any properties through extra <see cref="JsonConverter"/>s if
+        /// needed.
+        /// </summary>
+        /// <param name="token">The token to convert</param>
+        /// <typeparam name="T">Type to convert to</typeparam>
+        /// <returns>The converted token</returns>
+        public static T ToDiscordObject<T>(this JToken token)
+        {
+            return token.ToObject<T>(OptionalJsonSerializer);
         }
     }
 
@@ -47,10 +62,18 @@ namespace DSharpPlus.Net.Serialization
             // access to the property value so we have to reflect into it from the parent instance
             // we use UnderlyingName instead of PropertyName in case the C# name is different from the Json name.
             var optionalProp = property.DeclaringType.GetTypeInfo().GetDeclaredProperty(property.UnderlyingName);
+            
+            // DIRTY HACK to support both serializing both fields and properties, if you know a better way to do this
+            // write me at cadrekucra@gmx.com!!!!
+            var propPresent = optionalProp != null;
+            var optionalField = !propPresent
+                ? property.DeclaringType.GetTypeInfo().GetDeclaredField(property.UnderlyingName)
+                : null;
+            
             property.ShouldSerialize = instance => // instance here is the declaring (parent) type
             {
                 // this is the Optional<T> object
-                var optionalValue = optionalProp.GetValue(instance);
+                var optionalValue = propPresent ? optionalProp.GetValue(instance) : optionalField.GetValue(instance);
                 // get the HasValue property of the Optional<T> object and cast it to a bool, and only serialize it if
                 // it's present
                 return (bool)optionalValue.GetType().GetTypeInfo().GetDeclaredProperty("HasValue").GetValue(optionalValue);
@@ -86,11 +109,23 @@ namespace DSharpPlus.Net.Serialization
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
         {
-            throw new NotImplementedException(
-                "Unnecessary because CanRead is false. The type will skip the converter.");
+            var genericType = objectType.GenericTypeArguments[0];
+            
+            // TODO will this crash with Single finding more than one if T happens to be object?
+            var constructor = objectType.GetTypeInfo().DeclaredConstructors
+                .Single(e => e.GetParameters()[0].ParameterType == typeof(object));
+            
+            try
+            {
+                return constructor.Invoke(new[] {reader.Value});
+            }
+            catch
+            {
+                return existingValue;
+            }
         }
 
-        public override bool CanRead => false;
+        public override bool CanRead => true;
 
         public override bool CanConvert(Type objectType)
         {

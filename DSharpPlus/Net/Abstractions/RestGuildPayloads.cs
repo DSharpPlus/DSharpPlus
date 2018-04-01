@@ -41,17 +41,11 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("name")]
         public Optional<string> Name { get; set; }
 
-        [JsonProperty("name")]
+        [JsonProperty("region")]
         public Optional<string> RegionId { get; set; }
-
-        [JsonProperty("splash", NullValueHandling = NullValueHandling.Include)]
+        
+        [JsonProperty("icon")]
         public Optional<string> IconBase64 { get; set; }
-
-        [JsonProperty("splash", NullValueHandling = NullValueHandling.Include)]
-        public Optional<string> SplashBase64 { get; set; }
-
-        [JsonProperty("afk_channel_id", NullValueHandling = NullValueHandling.Include)]
-        public Optional<ulong?> AfkChannelId { get; set; }
 
         [JsonProperty("verification_level")]
         public Optional<VerificationLevel> VerificationLevel { get; set; }
@@ -61,6 +55,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("owner_id")]
         public Optional<ulong> OwnerId { get; set; }
+
+        [JsonProperty("splash")]
+        public Optional<string> SplashBase64 { get; set; }
+
+        [JsonProperty("afk_channel_id")]
+        public Optional<ulong?> AfkChannelId { get; set; }
 
         [JsonProperty("afk_timeout")]
         public Optional<int> AfkTimeout { get; set; }
