@@ -356,6 +356,15 @@ namespace DSharpPlus.Entities
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) 
             => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null, roles.Select(xr => xr.Id), null, null, null, reason);
 
+
+        /// <summary>
+        /// Checks if a member has a specific role.
+        /// </summary>
+        /// <param name="role">The role to check.</param>
+        /// <returns></returns>
+        public bool HasRole(DiscordRole role)
+            => this.Roles.Any(x => x.Id == role.Id);
+
         /// <summary>
         /// Bans a this member from their guild.
         /// </summary>
