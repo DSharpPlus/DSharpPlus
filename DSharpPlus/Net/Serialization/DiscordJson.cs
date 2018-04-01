@@ -31,6 +31,13 @@ namespace DSharpPlus.Net.Serialization
             return JsonConvert.SerializeObject(value, JsonSerializerSettings);
         }
         
+        /// <summary>
+        /// Converts this token into an object, passing any properties through extra <see cref="JsonConverter"/>s if
+        /// needed.
+        /// </summary>
+        /// <param name="token">The token to convert</param>
+        /// <typeparam name="T">Type to convert to</typeparam>
+        /// <returns>The converted token</returns>
         public static T ToDiscordObject<T>(this JToken token)
         {
             return token.ToObject<T>(OptionalJsonSerializer);
@@ -65,9 +72,6 @@ namespace DSharpPlus.Net.Serialization
             
             property.ShouldSerialize = instance => // instance here is the declaring (parent) type
             {
-                #if NETSTANDARD2_0
-                Console.WriteLine($"Property: {type} {property.DeclaringType}#{property.UnderlyingName} :: {optionalProp}");
-                #endif
                 // this is the Optional<T> object
                 var optionalValue = propPresent ? optionalProp.GetValue(instance) : optionalField.GetValue(instance);
                 // get the HasValue property of the Optional<T> object and cast it to a bool, and only serialize it if
@@ -105,12 +109,6 @@ namespace DSharpPlus.Net.Serialization
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
         {
-            //if (!reader.Read()) throw new ArgumentException("Something's wrong here.");
-            
-            #if NETSTANDARD2_0
-            Console.WriteLine($"Deserializing {objectType} from {existingValue} :: {reader} / str::{reader.Value}");
-            #endif
-
             var genericType = objectType.GenericTypeArguments[0];
             
             // TODO will this crash with Single finding more than one if T happens to be object?

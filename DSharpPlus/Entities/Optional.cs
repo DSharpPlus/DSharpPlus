@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus.Entities
 {
@@ -37,6 +38,12 @@ namespace DSharpPlus.Entities
             this.HasValue = true;
         }
 
+        /// <summary>
+        /// FOR INTERNAL USE ONLY! See <see cref="OptionalJsonConverter.ReadJson"/>. Having a method that takes an
+        /// object and casts it saves a lot of time building type parameters.
+        /// <p>Creates a new <see cref="Optional{T}"/> with specified value.</p>
+        /// </summary>
+        /// <param name="value">Value of this option.</param>
         internal Optional(object value)
         {
             this._val = (T) value; // not a safe cast.
