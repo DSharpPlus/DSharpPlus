@@ -132,5 +132,10 @@ namespace DSharpPlus.Entities
 
         public static bool operator !=(Optional<T> opt, T t) 
             => !opt.Equals(t);
+
+        public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper)
+        {
+            return HasValue ? new Optional<TTarget>(mapper(Value)) : default;
+        }
     }
 }

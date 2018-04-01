@@ -43,10 +43,14 @@ namespace DSharpPlus
         public Task DeleteGuildAsync(ulong id) 
             => ApiClient.DeleteGuildAsync(id);
 
-        public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, string name, string region, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications, 
-            MfaLevel? mfa_level, ExplicitContentFilter? explicit_content_filter, ulong? afk_channel_id, int? afk_timeout, string iconb64, ulong? owner_id, string splashb64, string reason) 
+        public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
+            Optional<string> region, Optional<VerificationLevel> verification_level,
+            Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
+            Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
+            Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
+            Optional<ulong?> systemChannelId, string reason)
             => ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64, 
-                owner_id, splashb64, reason);
+                owner_id, splashb64, systemChannelId, reason);
 
         public Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id) 
             => ApiClient.GetGuildBansAsync(guild_id);
@@ -80,7 +84,7 @@ namespace DSharpPlus
                         continue;
 
                     var usr = new DiscordUser(xtm.User) { Discord = this };
-                    usr = this.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
+                    this.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
                     {
                         old.Username = usr.Username;
                         old.Discord = usr.Discord;
@@ -91,10 +95,7 @@ namespace DSharpPlus
                 }
 
                 var tm = tms.LastOrDefault();
-                if (tm != null)
-                    last = tm.User.Id;
-                else
-                    last = 0;
+                last = tm?.User.Id ?? 0;
 
                 recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
             }
@@ -110,7 +111,7 @@ namespace DSharpPlus
 
         public Task UpdateRolePositionAsync(ulong guild_id, ulong role_id, int position, string reason = null)
         {
-            List<RestGuildRoleReorderPayload> rgrrps = new List<RestGuildRoleReorderPayload>()
+            var rgrrps = new List<RestGuildRoleReorderPayload>()
             {
                 new RestGuildRoleReorderPayload { RoleId = role_id }
             };
@@ -119,7 +120,7 @@ namespace DSharpPlus
 
         public Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason)
         {
-            List<RestGuildChannelReorderPayload> rgcrps = new List<RestGuildChannelReorderPayload>()
+            var rgcrps = new List<RestGuildChannelReorderPayload>()
             {
                 new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position }
             };
@@ -251,7 +252,9 @@ namespace DSharpPlus
         public Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
             => ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
 
-        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, string nick, IEnumerable<ulong> role_ids, bool? mute, bool? deaf, ulong? voice_channel_id, string reason)
+        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
+            Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
+            Optional<ulong> voice_channel_id, string reason)
             => ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, reason);
 
         public Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
