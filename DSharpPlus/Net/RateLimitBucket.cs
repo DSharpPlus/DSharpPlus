@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.Net
 {
@@ -41,7 +43,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
         /// </summary>
-        public int Remaining { get; internal set; }
+        public int Remaining => _remaining;
 
         /// <summary>
         /// Gets the maximum number of uses within a single bucket.
@@ -52,6 +54,37 @@ namespace DSharpPlus.Net
         /// Gets the timestamp at which the rate limit resets.
         /// </summary>
         public DateTimeOffset Reset { get; internal set; }
+
+        internal volatile int _remaining;
+
+        /// <summary>
+        /// If the initial request for this bucket that is deterternining the rate limits is currently executing
+        /// This is a int because booleans can't be accessed atomically
+        /// 0 => False, all other values => True
+        /// </summary>
+        internal volatile int _limitTesting;
+
+        /// <summary>
+        /// Task to wait for the rate limit test to finish
+        /// </summary>
+        internal volatile Task _limitTestFinished;
+
+        /// <summary>
+        /// If the rate limits have been determined
+        /// </summary>
+        internal volatile bool _limitValid;
+
+        /// <summary>
+        /// Rate limit reset in ticks, UTC on the next response after the rate limit has been reset
+        /// </summary>
+        internal long _nextReset;
+        
+        /// <summary>
+        /// If the rate limit is currently being reset.
+        /// This is a int because booleans can't be accessed atomically.
+        /// 0 => False, all other values => True
+        /// </summary>
+        internal volatile int _limitReseting;
 
         internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id)
         {
@@ -116,6 +149,32 @@ namespace DSharpPlus.Net
         public override int GetHashCode()
         {
             return BucketId.GetHashCode();
+        }
+
+        /// <summary>
+        /// Sets remaining number of requests to the maximum when the ratelimit is reset
+        /// </summary>
+        /// <param name="now"></param>
+        internal async Task TryResetLimit(DateTimeOffset now)
+        {
+            if (_nextReset == 0)
+                return;
+
+            if (_nextReset > now.UtcTicks)
+                return;
+
+#pragma warning disable 420 // interlocked access is always volatile
+            while (Interlocked.CompareExchange(ref _limitReseting, 1, 0) != 0)
+#pragma warning restore 420
+                await Task.Yield();
+
+            if (_nextReset != 0)
+            {
+                _remaining = this.Maximum;
+                _nextReset = 0;
+            }
+
+            _limitReseting = 0;
         }
     }
 }

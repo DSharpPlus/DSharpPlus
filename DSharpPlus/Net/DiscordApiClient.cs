@@ -31,9 +31,9 @@ namespace DSharpPlus.Net
             this.Rest = new RestClient(client);
         }
 
-        internal DiscordApiClient(IWebProxy proxy) // This is for meta-clients, such as the webhook client
+        internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout) // This is for meta-clients, such as the webhook client
         {
-            this.Rest = new RestClient(proxy);
+            this.Rest = new RestClient(proxy, timeout);
         }
 
         private static string BuildQueryString(IDictionary<string, string> values, bool post = false)
@@ -104,7 +104,7 @@ namespace DSharpPlus.Net
         private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, string payload = null, double? ratelimit_wait_override = null)
         {
             var req = new RestRequest(client, bucket, url, method, headers, payload, ratelimit_wait_override);
-            _ = this.Rest.ExecuteRequestAsync(req);
+            Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
             return req.WaitForCompletionAsync();
         }
 
@@ -112,7 +112,7 @@ namespace DSharpPlus.Net
             IDictionary<string, Stream> files = null, double? ratelimit_wait_override = null)
         {
             var req = new MultipartWebRequest(client, bucket, url, method, headers, values, files, ratelimit_wait_override);
-            _ = this.Rest.ExecuteRequestAsync(req);
+            Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
             return req.WaitForCompletionAsync();
         }
 

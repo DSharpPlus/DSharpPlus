@@ -2251,7 +2251,7 @@ namespace DSharpPlus
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var request = new RestRequest(this, bucket, url, RestRequestMethod.GET, headers);
-            _ = this.ApiClient.Rest.ExecuteRequestAsync(request);
+            DebugLogger.LogTaskFault(this.ApiClient.Rest.ExecuteRequestAsync(request), LogLevel.Error, "DSharpPlus", "Error while executing request: ");
             var response = await request.WaitForCompletionAsync().ConfigureAwait(false);
 
             var jo = JObject.Parse(response.Response);
