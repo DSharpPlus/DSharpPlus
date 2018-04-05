@@ -13,6 +13,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -325,8 +326,17 @@ namespace DSharpPlus
             Task SocketOnConnect()
                 => this._socketOpened.InvokeAsync();
 
-            Task SocketOnMessage(SocketMessageEventArgs e)
-                => HandleSocketMessageAsync(e.Message);
+            async Task SocketOnMessage(SocketMessageEventArgs e)
+            {
+                try
+                {
+                    await HandleSocketMessageAsync(e.Message);
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.LogMessage(LogLevel.Error, "Websocket", $"Socket swallowed an exception: {ex} This is bad!!!!", DateTime.Now);
+                }
+            }
 
             Task SocketOnError(SocketErrorEventArgs e)
                 => this._socketErrored.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
@@ -701,11 +711,11 @@ namespace DSharpPlus
                     break;
 
                 case "message_create":
-                    await OnMessageCreateEventAsync(dat.ToObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>()).ConfigureAwait(false);
+                    await OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>()).ConfigureAwait(false);
                     break;
 
                 case "message_update":
-                    await OnMessageUpdateEventAsync(dat.ToObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>()).ConfigureAwait(false);
+                    await OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>()).ConfigureAwait(false);
                     break;
 
                 // delete event does *not* include message object 
