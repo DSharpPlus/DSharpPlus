@@ -24,6 +24,7 @@ namespace DSharpPlus.Entities
             this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
             this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
         }
+        
         internal DiscordMessage(DiscordMessage other)
             : this()
         {
@@ -31,8 +32,11 @@ namespace DSharpPlus.Entities
 
             this._attachments = other._attachments; // the attachments cannot change, thus no need to copy and reallocate.
             this._embeds = new List<DiscordEmbed>(other._embeds);
-            this._mentionedChannels = new List<DiscordChannel>(other._mentionedChannels);
-            this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
+            
+            if (other._mentionedChannels != null) 
+                this._mentionedChannels = new List<DiscordChannel>(other._mentionedChannels);
+            if (other._mentionedRoles != null)
+                this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
             this._mentionedUsers = new List<DiscordUser>(other._mentionedUsers);
             this._reactions = new List<DiscordReaction>(other._reactions);
 
@@ -124,6 +128,8 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         Lazy<IReadOnlyList<DiscordUser>> _mentionedUsersLazy;
 
+        // TODO this will probably throw an exception in DMs since it tries to wrap around a null List...
+        // this is probably low priority but need to find out a clean way to solve it...
         /// <summary>
         /// Gets roles mentioned by this message.
         /// </summary>
@@ -156,7 +162,7 @@ namespace DSharpPlus.Entities
             => this._attachmentsLazy.Value;
 
         [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordAttachment> _attachments;
+        internal List<DiscordAttachment> _attachments = new List<DiscordAttachment>();
         [JsonIgnore]
         private Lazy<IReadOnlyList<DiscordAttachment>> _attachmentsLazy;
 
@@ -168,7 +174,7 @@ namespace DSharpPlus.Entities
             => this._embedsLazy.Value;
 
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordEmbed> _embeds;
+        internal List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
         [JsonIgnore]
         private Lazy<IReadOnlyList<DiscordEmbed>> _embedsLazy;
 
@@ -180,7 +186,7 @@ namespace DSharpPlus.Entities
             => this._reactionsLazy.Value;
 
         [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordReaction> _reactions;
+        internal List<DiscordReaction> _reactions = new List<DiscordReaction>();
         [JsonIgnore]
         private Lazy<IReadOnlyList<DiscordReaction>> _reactionsLazy;
 
