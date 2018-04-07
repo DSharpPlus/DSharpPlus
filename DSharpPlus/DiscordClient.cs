@@ -1543,7 +1543,7 @@ namespace DSharpPlus
             var event_message = message;
 
             DiscordMessage oldmsg = null;
-            if (this.Configuration.MessageCacheSize > 0 && !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
+            if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
             {
                 message = event_message;
                 guild = message.Channel?.Guild;
@@ -1651,7 +1651,7 @@ namespace DSharpPlus
             foreach (var message_id in messageIds)
             {
                 DiscordMessage msg = null;
-                if (this.Configuration.MessageCacheSize > 0 && !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
+                if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
                 {
                     msg = new DiscordMessage
                     {
