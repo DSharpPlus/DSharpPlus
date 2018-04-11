@@ -66,6 +66,14 @@ namespace DSharpPlus
                 throw new NotImplementedException("OAuth2 Only supports the Bearer token currently");
         }
 
+        public DiscordRestClient(DiscordConfiguration config, Scope[] scopes) : base (config)
+        {
+            this.scopes = scopes;
+            disposed = false;
+            if (Configuration.TokenType != TokenType.Bearer)
+                throw new NotImplementedException("OAuth2 Only supports the Bearer token currently");
+        }
+
         public override async Task InitializeAsync()
         {
             if (this.CurrentUser == null && scopes.Contains(Scope.identify))
