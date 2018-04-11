@@ -372,7 +372,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this message.</returns>
         public override string ToString()
         {
-            return string.Concat("Message ", this.Id, "; Attachment count: ", this._attachments.Count, "; Embed count: ", this._embeds.Count, "; Contents: ", this.Content);
+            return $"Message {this.Id}; Attachment count: {this._attachments.Count, "; Embed count: {this._embeds.Count, "; Contents: {this.Content);
         }
 
         /// <summary>
