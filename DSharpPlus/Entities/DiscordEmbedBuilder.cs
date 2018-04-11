@@ -59,12 +59,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets or sets the embed's color.
         /// </summary>
-        public DiscordColor Color
+        public Optional<DiscordColor> Color
         {
             get { return this._color; }
             set { this._color = value; }
         }
-        private DiscordColor _color;
+        private Optional<DiscordColor> _color;
 
         /// <summary>
         /// Gets or sets the embed's timestamp.
@@ -454,7 +454,7 @@ namespace DSharpPlus.Entities
                 Title = this._title,
                 Description = this._description,
                 Url = this._url,
-                _color = this._color.Value,
+                _color = this._color.HasValue ? this._color.Value.Value : Optional<int>.FromNoValue(),
                 Timestamp = this._timestamp
             };
 

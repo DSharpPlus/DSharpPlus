@@ -13,6 +13,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -325,8 +326,17 @@ namespace DSharpPlus
             Task SocketOnConnect()
                 => this._socketOpened.InvokeAsync();
 
-            Task SocketOnMessage(SocketMessageEventArgs e)
-                => HandleSocketMessageAsync(e.Message);
+            async Task SocketOnMessage(SocketMessageEventArgs e)
+            {
+                try
+                {
+                    await HandleSocketMessageAsync(e.Message);
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.LogMessage(LogLevel.Error, "Websocket", $"Socket swallowed an exception: {ex} This is bad!!!!", DateTime.Now);
+                }
+            }
 
             Task SocketOnError(SocketErrorEventArgs e)
                 => this._socketErrored.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
@@ -701,11 +711,11 @@ namespace DSharpPlus
                     break;
 
                 case "message_create":
-                    await OnMessageCreateEventAsync(dat.ToObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>()).ConfigureAwait(false);
+                    await OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>()).ConfigureAwait(false);
                     break;
 
                 case "message_update":
-                    await OnMessageUpdateEventAsync(dat.ToObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>()).ConfigureAwait(false);
+                    await OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>()).ConfigureAwait(false);
                     break;
 
                 // delete event does *not* include message object 
@@ -1543,7 +1553,7 @@ namespace DSharpPlus
             var event_message = message;
 
             DiscordMessage oldmsg = null;
-            if (this.Configuration.MessageCacheSize > 0 && !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
+            if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
             {
                 message = event_message;
                 guild = message.Channel?.Guild;
@@ -1651,7 +1661,7 @@ namespace DSharpPlus
             foreach (var message_id in messageIds)
             {
                 DiscordMessage msg = null;
-                if (this.Configuration.MessageCacheSize > 0 && !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
+                if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
                 {
                     msg = new DiscordMessage
                     {
@@ -1744,7 +1754,7 @@ namespace DSharpPlus
 
             var vstate_new = gld._voice_states.FirstOrDefault(xvs => xvs.UserId == uid);
             var vstate_old = vstate_new != null ? new DiscordVoiceState(vstate_new) : null;
-            if (vstate_new == null)
+			if (vstate_new == null)
             {
                 vstate_new = raw.ToObject<DiscordVoiceState>();
                 vstate_new.Discord = this;
@@ -2251,7 +2261,7 @@ namespace DSharpPlus
 
             var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
             var request = new RestRequest(this, bucket, url, RestRequestMethod.GET, headers);
-            _ = this.ApiClient.Rest.ExecuteRequestAsync(request);
+            DebugLogger.LogTaskFault(this.ApiClient.Rest.ExecuteRequestAsync(request), LogLevel.Error, "DSharpPlus", "Error while executing request: ");
             var response = await request.WaitForCompletionAsync().ConfigureAwait(false);
 
             var jo = JObject.Parse(response.Response);

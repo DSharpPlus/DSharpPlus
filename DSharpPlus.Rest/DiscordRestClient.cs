@@ -92,7 +92,6 @@ namespace DSharpPlus
             }
         }
 
-
         public async Task InitializeCacheAsync()
         {
             await InitializeAsync().ConfigureAwait(false);
@@ -125,12 +124,16 @@ namespace DSharpPlus
                 throw new NotSupportedException("this is only Supported with the bot scope!");
         }
 
-        public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, string name, string region, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications,
-            MfaLevel? mfa_level, ExplicitContentFilter? explicit_content_filter, ulong? afk_channel_id, int? afk_timeout, string iconb64, ulong? owner_id, string splashb64, string reason)
+        public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
+            Optional<string> region, Optional<VerificationLevel> verification_level,
+            Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
+            Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
+            Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
+            Optional<ulong?> systemChannelId, string reason)
         {
             if (scopes.Contains(Scope.bot))
-                return ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64,
-                owner_id, splashb64, reason);
+                return ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64, 
+                owner_id, splashb64, systemChannelId, reason);
             else
                 throw new NotSupportedException("this is only Supported with the bot scope!");
         }
@@ -188,7 +191,12 @@ namespace DSharpPlus
                     var tms = await this.ApiClient.ListGuildMembersAsync(guild_id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
                     recd = tms.Count;
 
+<<<<<<< HEAD
+                    var usr = new DiscordUser(xtm.User) { Discord = this };
+                    this.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
+=======
                     foreach (var xtm in tms)
+>>>>>>> refs/remotes/origin/master
                     {
                         if (this.UserCache.ContainsKey(xtm.User.Id))
                             continue;
@@ -213,7 +221,14 @@ namespace DSharpPlus
                     recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
                 }
 
+<<<<<<< HEAD
+                var tm = tms.LastOrDefault();
+                last = tm?.User.Id ?? 0;
+
+                recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
+=======
                 return new ReadOnlyCollection<DiscordMember>(recmbr);
+>>>>>>> refs/remotes/origin/master
             }
             else
                 throw new NotSupportedException("this is only Supported with the bot scope!");
@@ -237,9 +252,13 @@ namespace DSharpPlus
 
         public Task UpdateRolePositionAsync(ulong guild_id, ulong role_id, int position, string reason = null)
         {
+<<<<<<< HEAD
+            var rgrrps = new List<RestGuildRoleReorderPayload>()
+=======
             if (scopes.Contains(Scope.bot))
             {
                 List<RestGuildRoleReorderPayload> rgrrps = new List<RestGuildRoleReorderPayload>()
+>>>>>>> refs/remotes/origin/master
             {
                 new RestGuildRoleReorderPayload { RoleId = role_id }
             };
@@ -251,7 +270,7 @@ namespace DSharpPlus
 
         public Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason)
         {
-            List<RestGuildChannelReorderPayload> rgcrps = new List<RestGuildChannelReorderPayload>()
+            var rgcrps = new List<RestGuildChannelReorderPayload>()
             {
                 new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position }
             };
@@ -544,6 +563,12 @@ namespace DSharpPlus
                 throw new NotSupportedException("this is only Supported with the bot scope!");
         }
 
+<<<<<<< HEAD
+        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
+            Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
+            Optional<ulong> voice_channel_id, string reason)
+            => ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, reason);
+=======
         public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, string nick, IEnumerable<ulong> role_ids, bool? mute, bool? deaf, ulong? voice_channel_id, string reason)
         {
             if (scopes.Contains(Scope.bot))
@@ -551,6 +576,7 @@ namespace DSharpPlus
             else
                 throw new NotSupportedException("this is only Supported with the bot scope!");
         }
+>>>>>>> refs/remotes/origin/master
 
         public Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
         {

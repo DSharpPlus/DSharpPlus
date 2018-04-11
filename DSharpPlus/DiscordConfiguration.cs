@@ -100,6 +100,12 @@ namespace DSharpPlus
         public IWebProxy Proxy { internal get; set; } = null;
 
         /// <summary>
+        /// <para>Sets the timeout for HTTP requests</para>
+        /// <para>Defaults to 10 seconds. Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</para>
+        /// </summary>
+        public TimeSpan HttpTimeout { internal get; set; } = TimeSpan.FromSeconds(10);
+
+        /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
         /// <para>Use <see cref="WebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
         /// <para>Defaults to <see cref="WebSocketClient.CreateNew(IWebProxy)"/>.</para>
@@ -148,20 +154,21 @@ namespace DSharpPlus
         {
 			if (other != null)
 			{
-				this.Token = other.Token;
-				this.TokenType = other.TokenType;
-				this.LogLevel = other.LogLevel;
-				this.UseInternalLogHandler = other.UseInternalLogHandler;
-				this.DateTimeFormat = other.DateTimeFormat;
-				this.LargeThreshold = other.LargeThreshold;
-				this.AutoReconnect = other.AutoReconnect;
-				this.ShardId = other.ShardId;
-				this.ShardCount = other.ShardCount;
-				this.GatewayCompressionLevel = other.GatewayCompressionLevel;
-				this.MessageCacheSize = other.MessageCacheSize;
-				this.AutomaticGuildSync = other.AutomaticGuildSync;
-				this.WebSocketClientFactory = other.WebSocketClientFactory;
-				this.UdpClientFactory = other.UdpClientFactory;
+            this.Token = other.Token;
+            this.TokenType = other.TokenType;
+            this.LogLevel = other.LogLevel;
+            this.UseInternalLogHandler = other.UseInternalLogHandler;
+            this.DateTimeFormat = other.DateTimeFormat;
+            this.LargeThreshold = other.LargeThreshold;
+            this.AutoReconnect = other.AutoReconnect;
+            this.ShardId = other.ShardId;
+            this.ShardCount = other.ShardCount;
+            this.GatewayCompressionLevel = other.GatewayCompressionLevel;
+            this.MessageCacheSize = other.MessageCacheSize;
+            this.AutomaticGuildSync = other.AutomaticGuildSync;
+            this.WebSocketClientFactory = other.WebSocketClientFactory;
+            this.UdpClientFactory = other.UdpClientFactory;
+            this.Proxy = other.Proxy;
 			}
         }
     }

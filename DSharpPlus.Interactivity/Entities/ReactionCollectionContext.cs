@@ -53,7 +53,7 @@ namespace DSharpPlus.Interactivity
                 if (Reactions[dr] == 0)
                     Reactions.TryRemove(dr, out int something);
                 // Just making sure no double member slipped in :^)
-                //_membersvoted.RemoveAll(x => x == m); <-- this might cause issues
+                _membersvoted.RemoveAll(x => x == m);
                 // Though that should be impossible?
             }
         }

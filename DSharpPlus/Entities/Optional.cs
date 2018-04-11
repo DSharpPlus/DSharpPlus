@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus.Entities
 {
@@ -34,6 +35,18 @@ namespace DSharpPlus.Entities
         public Optional(T value)
         {
             this._val = value;
+            this.HasValue = true;
+        }
+
+        /// <summary>
+        /// FOR INTERNAL USE ONLY! See <see cref="OptionalJsonConverter.ReadJson"/>. Having a method that takes an
+        /// object and casts it saves a lot of time building type parameters.
+        /// <p>Creates a new <see cref="Optional{T}"/> with specified value.</p>
+        /// </summary>
+        /// <param name="value">Value of this option.</param>
+        internal Optional(object value)
+        {
+            this._val = (T) value; // not a safe cast.
             this.HasValue = true;
         }
 
@@ -132,5 +145,10 @@ namespace DSharpPlus.Entities
 
         public static bool operator !=(Optional<T> opt, T t) 
             => !opt.Equals(t);
+
+        public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper)
+        {
+            return HasValue ? new Optional<TTarget>(mapper(Value)) : default;
+        }
     }
 }
