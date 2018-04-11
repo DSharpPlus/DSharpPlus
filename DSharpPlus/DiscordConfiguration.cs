@@ -152,6 +152,8 @@ namespace DSharpPlus
         /// <param name="other">Client configuration to clone.</param>
         public DiscordConfiguration(DiscordConfiguration other)
         {
+			if (other != null)
+			{
             this.Token = other.Token;
             this.TokenType = other.TokenType;
             this.LogLevel = other.LogLevel;
@@ -167,6 +169,7 @@ namespace DSharpPlus
             this.WebSocketClientFactory = other.WebSocketClientFactory;
             this.UdpClientFactory = other.UdpClientFactory;
             this.Proxy = other.Proxy;
+			}
         }
     }
 }
