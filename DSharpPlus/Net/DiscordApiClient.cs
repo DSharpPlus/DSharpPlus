@@ -1844,9 +1844,14 @@ namespace DSharpPlus.Net
         {
             var route = string.Concat(Endpoints.OAUTH2, Endpoints.APPLICATIONS, "/:app_id");
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { app_id }, out var path);
-
-            var url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+			//HACK: Replace with better solution
+			//(The Replace)
+			Uri url;
+			if (app_id == "@me" && Discord.Configuration.TokenType == TokenType.Bearer)
+				url = new Uri(string.Concat(Utilities.GetApiBaseUri().Replace("/v7", ""), path));
+			else
+				url = new Uri(string.Concat(Utilities.GetApiBaseUri(), path));
+			var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var app = JsonConvert.DeserializeObject<DiscordApplication>(res.Response);
             app.Discord = this.Discord;
