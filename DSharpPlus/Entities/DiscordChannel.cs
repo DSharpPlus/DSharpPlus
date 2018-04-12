@@ -583,12 +583,12 @@ namespace DSharpPlus.Entities
         public override string ToString()
         {
             if (this.Type == ChannelType.Category)
-                return string.Concat("Channel Category ", this.Name, " (", this.Id, ")");
+                return $"Channel Category {this.Name} ({this.Id})";
             if (this.Type == ChannelType.Text)
-                return string.Concat("Channel #", this.Name, " (", this.Id, ")");
+                return $"Channel #{this.Name} ({this.Id})";
             if (!string.IsNullOrWhiteSpace(this.Name))
-                return string.Concat("Channel ", this.Name, " (", this.Id, ")");
-            return string.Concat("Channel ", this.Id);
+                return $"Channel {this.Name} ({this.Id})";
+            return $"Channel {this.Id}";
         }
         #endregion
 

@@ -1548,7 +1548,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this guild.</returns>
         public override string ToString()
         {
-            return string.Concat("Guild ", this.Id, "; ", this.Name);
+            return $"Guild {this.Id}; {this.Name}";
         }
 
         /// <summary>
