@@ -149,24 +149,25 @@ namespace DSharpPlus
         /// <param name="other">Client configuration to clone.</param>
         public DiscordConfiguration(DiscordConfiguration other)
         {
-			if (other != null)
-			{
-            this.Token = other.Token;
-            this.TokenType = other.TokenType;
-            this.LogLevel = other.LogLevel;
-            this.UseInternalLogHandler = other.UseInternalLogHandler;
-            this.DateTimeFormat = other.DateTimeFormat;
-            this.LargeThreshold = other.LargeThreshold;
-            this.AutoReconnect = other.AutoReconnect;
-            this.ShardId = other.ShardId;
-            this.ShardCount = other.ShardCount;
-            this.GatewayCompressionLevel = other.GatewayCompressionLevel;
-            this.MessageCacheSize = other.MessageCacheSize;
-            this.AutomaticGuildSync = other.AutomaticGuildSync;
-            this.WebSocketClientFactory = other.WebSocketClientFactory;
-            this.UdpClientFactory = other.UdpClientFactory;
-            this.Proxy = other.Proxy;
-            this.HttpTimeout = other.HttpTimeout;
+            if (other != null)
+            {
+                this.Token = other.Token;
+                this.TokenType = other.TokenType;
+                this.LogLevel = other.LogLevel;
+                this.UseInternalLogHandler = other.UseInternalLogHandler;
+                this.DateTimeFormat = other.DateTimeFormat;
+                this.LargeThreshold = other.LargeThreshold;
+                this.AutoReconnect = other.AutoReconnect;
+                this.ShardId = other.ShardId;
+                this.ShardCount = other.ShardCount;
+                this.GatewayCompressionLevel = other.GatewayCompressionLevel;
+                this.MessageCacheSize = other.MessageCacheSize;
+                this.AutomaticGuildSync = other.AutomaticGuildSync;
+                this.WebSocketClientFactory = other.WebSocketClientFactory;
+                this.UdpClientFactory = other.UdpClientFactory;
+                this.Proxy = other.Proxy;
+                this.HttpTimeout = other.HttpTimeout;
+            }
         }
     }
 }
