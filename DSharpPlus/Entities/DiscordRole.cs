@@ -131,7 +131,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this role.</returns>
         public override string ToString()
         {
-            return string.Concat("Role ", this.Id, "; ", this.Name);
+            return $"Role {this.Id}; {this.Name}";
         }
 
         /// <summary>

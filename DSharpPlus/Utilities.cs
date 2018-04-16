@@ -48,7 +48,7 @@ namespace DSharpPlus
                 vs = v.ToString(3);
             }
 
-            VersionHeader = string.Concat("DiscordBot (https://github.com/NaamloosDT/DSharpPlus, v", vs, ")");
+            VersionHeader = $"DiscordBot (https://github.com/NaamloosDT/DSharpPlus, v{vs})";
         }
 
         internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
@@ -59,6 +59,12 @@ namespace DSharpPlus
 
         internal static string GetApiBaseUri() 
             => Endpoints.BASE_URI;
+
+        internal static Uri GetApiUriFor(string path)
+            => new Uri($"{GetApiBaseUri()}{path}");
+
+        internal static Uri GetApiUriFor(string path, string queryString)
+            => new Uri($"{GetApiBaseUri()}{path}{queryString}");
 
         internal static string GetFormattedToken(BaseDiscordClient client)
         {

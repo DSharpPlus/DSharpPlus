@@ -133,10 +133,7 @@ namespace DSharpPlus
             internal get => this._udpClientFactory;
             set
             {
-                if (value == null)
-                    throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
-
-                this._udpClientFactory = value;
+                this._udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
             }
         }
         private UdpClientFactoryDelegate _udpClientFactory = DspUdpClient.CreateNew;
@@ -169,7 +166,7 @@ namespace DSharpPlus
             this.WebSocketClientFactory = other.WebSocketClientFactory;
             this.UdpClientFactory = other.UdpClientFactory;
             this.Proxy = other.Proxy;
-			}
+            this.HttpTimeout = other.HttpTimeout;
         }
     }
 }
