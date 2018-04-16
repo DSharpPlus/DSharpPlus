@@ -78,7 +78,7 @@ namespace DSharpPlus
         /// <param name="alt_text">Alt text to display on hover.</param>
         /// <returns>Formatted url.</returns>
         public static string MaskedUrl(string text, Uri url, string alt_text = "") 
-            => string.Concat("[", text, "](", url.ToString(), !string.IsNullOrWhiteSpace(alt_text) ? $" \"{alt_text}\"" : "", ")");
+            => $"[{text}]({url}{(!string.IsNullOrWhiteSpace(alt_text) ? $" \"{alt_text}\"" : "")})";
 
         /// <summary>
         /// Escapes all markdown formatting from specified text.
@@ -86,7 +86,7 @@ namespace DSharpPlus
         /// <param name="text">Text to sanitize.</param>
         /// <returns>Sanitized text.</returns>
         public static string Sanitize(string text) 
-            => MdSanitizeRegex.Replace(text, m => string.Concat("\\", m.Groups[1].Value));
+            => MdSanitizeRegex.Replace(text, m => $"\\{m.Groups[1].Value}");
 
         /// <summary>
         /// Removes all markdown formatting from specified text.

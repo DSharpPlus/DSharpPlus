@@ -56,7 +56,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this optional value.</returns>
         public override string ToString()
         {
-            return string.Concat("Optional<", typeof(T), "> (", this.HasValue ? this.Value.ToString() : "<no value>", ")");
+            return $"Optional<{typeof(T)}> ({(this.HasValue ? this.Value.ToString() : "<no value>")})";
         }
 
         /// <summary>
