@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -96,71 +96,156 @@ namespace DSharpPlus
         internal static string GetUserAgent()
             => VersionHeader;
 
-        internal static bool ContainsUserMentions(string message)
+        /// <summary>
+        /// Check whether a message contains any user mentions.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>Whether the message contained any user mentions.</returns>
+        public static bool ContainsUserMentions(string message)
         {
             string pattern = @"<@(\d+)>";
             Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
-        internal static bool ContainsNicknameMentions(string message)
+        /// <summary>
+        /// Check whether a message contains any nickname mentions.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>Whether the message contained any nickname mentions.</returns>
+        public static bool ContainsNicknameMentions(string message)
         {
             string pattern = @"<@!(\d+)>";
             Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
-        internal static bool ContainsChannelMentions(string message)
+        /// <summary>
+        /// Check whether a message contains any channel mentions.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>Whether the message contained any channel mentions.</returns>
+        public static bool ContainsChannelMentions(string message)
         {
             string pattern = @"<#(\d+)>";
             Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
-        internal static bool ContainsRoleMentions(string message)
+        /// <summary>
+        /// Check whether a message contains any role mentions.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>Whether the message contained any role mentions.</returns>
+        public static bool ContainsRoleMentions(string message)
         {
             string pattern = @"<@&(\d+)>";
             Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
-        internal static bool ContainsEmojis(string message)
+        /// <summary>
+        /// Check whether a message contains any emojis.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>Whether the message contained any emojis.</returns>
+        public static bool ContainsEmojis(string message)
         {
             string pattern = @"<:(.*):(\d+)>";
             Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
-        internal static IEnumerable<ulong> GetUserMentions(DiscordMessage message)
+        /// <summary>
+        /// Get the user mentions in a message.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>User mentions in the message.</returns>
+        public static IEnumerable<ulong> GetUserMentions(string message)
         {
             var regex = new Regex(@"<@!?(\d+)>", RegexOptions.ECMAScript);
-            var matches = regex.Matches(message.Content);
+            var matches = regex.Matches(message);
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
-        internal static IEnumerable<ulong> GetRoleMentions(DiscordMessage message)
+        /// <summary>
+        /// Get the user mentions in a <see cref="DiscordMessage"/>.
+        /// </summary>
+        /// <param name="message"><see cref="DiscordMessage"/> to check.</param>
+        /// <returns>User mentions in the <see cref="DiscordMessage"/>.</returns>
+        public static IEnumerable<ulong> GetUserMentions(DiscordMessage message)
+        {
+            return GetUserMentions(message.Content);
+        }
+
+        /// <summary>
+        /// Get the role mentions in a message.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>Role mentions in the message.</returns>
+        public static IEnumerable<ulong> GetRoleMentions(string message)
         {
             var regex = new Regex(@"<@&(\d+)>", RegexOptions.ECMAScript);
-            var matches = regex.Matches(message.Content);
+            var matches = regex.Matches(message);
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
-        internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
+        /// <summary>
+        /// Get the role mentions in a <see cref="DiscordMessage"/>.
+        /// </summary>
+        /// <param name="message"><see cref="DiscordMessage"/> to check.</param>
+        /// <returns>Role mentions in the <see cref="DiscordMessage"/>.</returns>
+        public static IEnumerable<ulong> GetRoleMentions(DiscordMessage message)
+        {
+            return GetRoleMentions(message.Content);
+        }
+
+        /// <summary>
+        /// Get the channel mentions in a message.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>Channel mentions in the message.</returns>
+        public static IEnumerable<ulong> GetChannelMentions(string message)
         {
             var regex = new Regex(@"<#(\d+)>", RegexOptions.ECMAScript);
-            var matches = regex.Matches(message.Content);
+            var matches = regex.Matches(message);
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
-        internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
+        /// <summary>
+        /// Get the channel mentions in a <see cref="DiscordMessage"/>.
+        /// </summary>
+        /// <param name="message"><see cref="DiscordMessage"/> to check.</param>
+        /// <returns>Channel mentions in the <see cref="DiscordMessage"/>.</returns>
+        public static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
+        {
+            return GetChannelMentions(message.Content);
+        }
+
+        /// <summary>
+        /// Get the emojis in a message.
+        /// </summary>
+        /// <param name="message">Message to check.</param>
+        /// <returns>Emojis in the message.</returns>
+        public static IEnumerable<ulong> GetEmojis(string message)
         {
             var regex = new Regex(@"<:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
-            var matches = regex.Matches(message.Content);
+            var matches = regex.Matches(message);
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Get the emojis in a <see cref="DiscordMessage"/>.
+        /// </summary>
+        /// <param name="message"><see cref="DiscordMessage"/> to check.</param>
+        /// <returns>Emojis in the <see cref="DiscordMessage"/>.</returns>
+        public static IEnumerable<ulong> GetEmojis(DiscordMessage message)
+        {
+            return GetEmojis(message.Content);
         }
 
         /// <summary>
@@ -235,7 +320,7 @@ namespace DSharpPlus
             return millis - 62_135_596_800_000;
 #endif
         }
-        
+
         /// <summary>
         /// Converts this <see cref="Permissions"/> into human-readable format.
         /// </summary>
