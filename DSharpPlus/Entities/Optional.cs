@@ -37,19 +37,7 @@ namespace DSharpPlus.Entities
             this._val = value;
             this.HasValue = true;
         }
-
-        /// <summary>
-        /// FOR INTERNAL USE ONLY! See <see cref="OptionalJsonConverter.ReadJson"/>. Having a method that takes an
-        /// object and casts it saves a lot of time building type parameters.
-        /// <p>Creates a new <see cref="Optional{T}"/> with specified value.</p>
-        /// </summary>
-        /// <param name="value">Value of this option.</param>
-        internal Optional(object value)
-        {
-            this._val = (T) value; // not a safe cast.
-            this.HasValue = true;
-        }
-
+        
         /// <summary>
         /// Returns a string representation of this optional value.
         /// </summary>
