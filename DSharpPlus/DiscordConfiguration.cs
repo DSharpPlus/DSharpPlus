@@ -100,17 +100,18 @@ namespace DSharpPlus
         public IWebProxy Proxy { internal get; set; } = null;
 
         /// <summary>
+        /// <para>Sets the timeout for HTTP requests.</para>
+        /// <para>Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</para>
+        /// <para>Defaults to 10 seconds.</para>
+        /// </summary>
+        public TimeSpan HttpTimeout { internal get; set; } = TimeSpan.FromSeconds(10);
+
+        /// <summary>
         /// <para>Defines that the client should attempt to reconnect indefinitely.</para>
         /// <para>This is typically a very bad idea to set to <c>true</c>, as it will swallow all connection errors.</para>
         /// <para>Defaults to false.</para>
         /// </summary>
         public bool ReconnectIndefinitely { internal get; set; } = false;
-
-        /// <summary>
-        /// <para>Sets the timeout for HTTP requests</para>
-        /// <para>Defaults to 10 seconds. Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</para>
-        /// </summary>
-        public TimeSpan HttpTimeout { internal get; set; } = TimeSpan.FromSeconds(10);
 
         /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
@@ -170,9 +171,9 @@ namespace DSharpPlus
             this.AutomaticGuildSync = other.AutomaticGuildSync;
             this.WebSocketClientFactory = other.WebSocketClientFactory;
             this.UdpClientFactory = other.UdpClientFactory;
-            this.ReconnectIndefinitely = other.ReconnectIndefinitely;
             this.Proxy = other.Proxy;
             this.HttpTimeout = other.HttpTimeout;
+            this.ReconnectIndefinitely = other.ReconnectIndefinitely;
         }
     }
 }
