@@ -70,5 +70,8 @@ namespace DSharpPlus.Net
 
         protected internal void SetFaulted(Exception ex) 
             => this.RequestTaskSource.SetException(ex);
+
+        protected internal bool TrySetFaulted(Exception ex) 
+            => this.RequestTaskSource.TrySetException(ex);
     }
 }

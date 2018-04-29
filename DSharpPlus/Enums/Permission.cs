@@ -14,7 +14,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public static bool HasPermission(this Permissions p, Permissions permission)
         {
-            if ((p & permission) != 0)
+            if ((p & permission) == permission)
                 return true;
             return false;
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus.Entities
 {
@@ -36,14 +37,14 @@ namespace DSharpPlus.Entities
             this._val = value;
             this.HasValue = true;
         }
-
+        
         /// <summary>
         /// Returns a string representation of this optional value.
         /// </summary>
         /// <returns>String representation of this optional value.</returns>
         public override string ToString()
         {
-            return string.Concat("Optional<", typeof(T), "> (", this.HasValue ? this.Value.ToString() : "<no value>", ")");
+            return $"Optional<{typeof(T)}> ({(this.HasValue ? this.Value.ToString() : "<no value>")})";
         }
 
         /// <summary>
@@ -132,5 +133,10 @@ namespace DSharpPlus.Entities
 
         public static bool operator !=(Optional<T> opt, T t) 
             => !opt.Equals(t);
+
+        public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper)
+        {
+            return HasValue ? new Optional<TTarget>(mapper(Value)) : default;
+        }
     }
 }

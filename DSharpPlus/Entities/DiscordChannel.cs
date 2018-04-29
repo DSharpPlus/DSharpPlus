@@ -139,7 +139,7 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                if (this.Guild != null)
+                if (this.Guild == null)
                     throw new InvalidOperationException("Cannot query users outside of guild channels.");
 
                 if (this.Type == ChannelType.Voice)
@@ -171,7 +171,7 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
-                throw new ArgumentException("Cannot send a file to a non-text channel");
+                throw new ArgumentException("Cannot send a text message to a non-text channel");
             if (string.IsNullOrWhiteSpace(content) && embed == null)
                 throw new ArgumentNullException("Must provide either content, embed or both, and content may not consist only of whitespace");
             if (content != null && content.Length > 2000)
@@ -503,7 +503,8 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Voice)
                 throw new ArgumentException("Cannot place member in a non-voice channel!"); // be a little more angery, let em learn!!1
             
-            await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, null, null, null, null, this.Id, null).ConfigureAwait(false);
+            await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
+                default, this.Id, null).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -582,12 +583,12 @@ namespace DSharpPlus.Entities
         public override string ToString()
         {
             if (this.Type == ChannelType.Category)
-                return string.Concat("Channel Category ", this.Name, " (", this.Id, ")");
+                return $"Channel Category {this.Name} ({this.Id})";
             if (this.Type == ChannelType.Text)
-                return string.Concat("Channel #", this.Name, " (", this.Id, ")");
+                return $"Channel #{this.Name} ({this.Id})";
             if (!string.IsNullOrWhiteSpace(this.Name))
-                return string.Concat("Channel ", this.Name, " (", this.Id, ")");
-            return string.Concat("Channel ", this.Id);
+                return $"Channel {this.Name} ({this.Id})";
+            return $"Channel {this.Id}";
         }
         #endregion
 

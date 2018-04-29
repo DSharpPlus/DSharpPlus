@@ -492,7 +492,7 @@ namespace DSharpPlus.Interactivity
 				await Task.Yield();
 				if (e.Message.Id == message.Id)
 				{
-					rcc.RemoveReaction(e.Emoji);
+					rcc.RemoveReaction(e.Emoji, e.User.Id);
 				}
 			}
 
