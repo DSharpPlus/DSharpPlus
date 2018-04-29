@@ -226,7 +226,7 @@ namespace DSharpPlus
                 this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
             this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}", DateTime.Now);
 
-            while (i-- > 0)
+            while (i-- > 0 || this.Configuration.ReconnectIndefinitely)
             {
                 try
                 {
@@ -249,11 +249,13 @@ namespace DSharpPlus
                 catch (Exception ex)
                 {
                     cex = ex;
-                    if (i <= 0) break;
+                    if (i <= 0 && !this.Configuration.ReconnectIndefinitely) break;
 
                     this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Connection attempt failed, retrying in {w / 1000}s", DateTime.Now);
                     await Task.Delay(w).ConfigureAwait(false);
-                    w *= 2;
+
+                    if (i > 0)
+                        w *= 2;
                 }
             }
 

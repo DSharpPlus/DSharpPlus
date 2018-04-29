@@ -100,6 +100,13 @@ namespace DSharpPlus
         public IWebProxy Proxy { internal get; set; } = null;
 
         /// <summary>
+        /// <para>Defines that the client should attempt to reconnect indefinitely.</para>
+        /// <para>This is typically a very bad idea to set to <c>true</c>, as it will swallow all connection errors.</para>
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool ReconnectIndefinitely { internal get; set; } = false;
+
+        /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
         /// <para>Use <see cref="WebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
         /// <para>Defaults to <see cref="WebSocketClient.CreateNew(IWebProxy)"/>.</para>
@@ -160,6 +167,7 @@ namespace DSharpPlus
             this.AutomaticGuildSync = other.AutomaticGuildSync;
             this.WebSocketClientFactory = other.WebSocketClientFactory;
             this.UdpClientFactory = other.UdpClientFactory;
+            this.ReconnectIndefinitely = other.ReconnectIndefinitely;
         }
     }
 }
