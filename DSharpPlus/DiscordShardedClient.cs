@@ -190,6 +190,16 @@ namespace DSharpPlus
         private AsyncEvent<GuildDeleteEventArgs> _guildUnavailable;
 
         /// <summary>
+        /// Fired when all guilds finish streaming from Discord.
+        /// </summary>
+        public event AsyncEventHandler<GuildDownloadCompletedEventArgs> GuildDownloadCompleted
+        {
+            add { this._guildDownloadCompleted.Register(value); }
+            remove { this._guildDownloadCompleted.Unregister(value); }
+        }
+        private AsyncEvent<GuildDownloadCompletedEventArgs> _guildDownloadCompleted;
+
+        /// <summary>
         /// Fired when a message is created.
         /// </summary>
         public event AsyncEventHandler<MessageCreateEventArgs> MessageCreated
@@ -539,6 +549,7 @@ namespace DSharpPlus
             this._guildUpdated = new AsyncEvent<GuildUpdateEventArgs>(this.EventErrorHandler, "GUILD_UPDATED");
             this._guildDeleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
             this._guildUnavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
+            this._guildDownloadCompleted = new AsyncEvent<GuildDownloadCompletedEventArgs>(this.EventErrorHandler, "GUILD_DOWNLOAD_COMPLETED");
             this._messageCreated = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
             this._presenceUpdated = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATED");
             this._guildBanAdded = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADDED");
@@ -641,6 +652,7 @@ namespace DSharpPlus
                 client.GuildUpdated += this.Client_GuildUpdated;
                 client.GuildDeleted += this.Client_GuildDeleted;
                 client.GuildUnavailable += this.Client_GuildUnavailable;
+                client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
                 client.MessageCreated += this.Client_MessageCreated;
                 client.PresenceUpdated += this.Client_PresenceUpdate;
                 client.GuildBanAdded += this.Client_GuildBanAdd;
@@ -770,6 +782,9 @@ namespace DSharpPlus
 
         private Task Client_GuildUnavailable(GuildDeleteEventArgs e) 
             => this._guildUnavailable.InvokeAsync(e);
+
+        private Task Client_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
+            => this._guildDownloadCompleted.InvokeAsync(e);
 
         private Task Client_MessageCreated(MessageCreateEventArgs e) 
             => this._messageCreated.InvokeAsync(e);
