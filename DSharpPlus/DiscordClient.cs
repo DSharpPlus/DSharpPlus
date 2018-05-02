@@ -153,6 +153,7 @@ namespace DSharpPlus
             this._guildUpdated = new AsyncEvent<GuildUpdateEventArgs>(this.EventErrorHandler, "GUILD_UPDATED");
             this._guildDeleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
             this._guildUnavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
+            this._guildDownloadCompletedEv = new AsyncEvent<GuildDownloadCompletedEventArgs>(this.EventErrorHandler, "GUILD_DOWNLOAD_COMPLETED");
             this._messageCreated = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
             this._presenceUpdated = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATEED");
             this._guildBanAdded = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADD");
@@ -227,7 +228,7 @@ namespace DSharpPlus
                 this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
             this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}", DateTime.Now);
 
-            while (i-- > 0)
+            while (i-- > 0 || this.Configuration.ReconnectIndefinitely)
             {
                 try
                 {
@@ -250,11 +251,13 @@ namespace DSharpPlus
                 catch (Exception ex)
                 {
                     cex = ex;
-                    if (i <= 0) break;
+                    if (i <= 0 && !this.Configuration.ReconnectIndefinitely) break;
 
                     this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Connection attempt failed, retrying in {w / 1000}s", DateTime.Now);
                     await Task.Delay(w).ConfigureAwait(false);
-                    w *= 2;
+
+                    if (i > 0)
+                        w *= 2;
                 }
             }
 
@@ -1098,6 +1101,7 @@ namespace DSharpPlus
                 xr._guild_id = guild.Id;
             }
 
+            var old = Volatile.Read(ref this._guildDownloadCompleted);
             var dcompl = this._guilds.Values.All(xg => !xg.IsUnavailable);
             Volatile.Write(ref this._guildDownloadCompleted, dcompl);
 
@@ -1105,6 +1109,9 @@ namespace DSharpPlus
                 await this._guildAvailable.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
             else
                 await this._guildCreated.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+
+            if (dcompl && !old)
+                await this._guildDownloadCompletedEv.InvokeAsync(new GuildDownloadCompletedEventArgs(this)).ConfigureAwait(false);
         }
 
         internal async Task OnGuildUpdateEventAsync(DiscordGuild guild, JArray rawMembers)
@@ -2470,6 +2477,16 @@ namespace DSharpPlus
             remove { this._guildUnavailable.Unregister(value); }
         }
         private AsyncEvent<GuildDeleteEventArgs> _guildUnavailable;
+
+        /// <summary>
+        /// Fired when all guilds finish streaming from Discord.
+        /// </summary>
+        public event AsyncEventHandler<GuildDownloadCompletedEventArgs> GuildDownloadCompleted
+        {
+            add { this._guildDownloadCompletedEv.Register(value); }
+            remove { this._guildDownloadCompletedEv.Unregister(value); }
+        }
+        private AsyncEvent<GuildDownloadCompletedEventArgs> _guildDownloadCompletedEv;
 
         /// <summary>
         /// Fired when a message is created.

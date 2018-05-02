@@ -31,15 +31,49 @@ namespace DSharpPlus.Test
 		//    await ctx.RespondAsync("naam check your shitcode");
 		//}
 
+		[Command("pages")]
+		public async Task PagesAsync(CommandContext ctx)
+		{
+			var i = ctx.Client.GetInteractivity();
+			var pages = new List<Page>();
+			pages.Add(new Page() { Content = "meme1" });
+			pages.Add(new Page() { Content = "meme2" });
+			pages.Add(new Page() { Content = "meme3" });
+			pages.Add(new Page() { Content = "meme4" });
+			pages.Add(new Page() { Content = "meme5" });
+			pages.Add(new Page() { Content = "meme6" });
+
+			var emojis = new PaginationEmojis(ctx.Client);
+			emojis.Left = DiscordEmoji.FromName(ctx.Client, ":joy:");
+
+			await i.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: emojis);
+		}
+
+		[Command("embedcolor")]
+		public async Task EmbedColorAsync(CommandContext ctx)
+		{
+			var e = new DiscordEmbedBuilder()
+				.WithTitle("without color")
+				.Build();
+
+			var e2 = new DiscordEmbedBuilder()
+				.WithTitle("with color")
+				.WithColor(DiscordColor.PhthaloBlue)
+				.Build();
+
+			await ctx.RespondAsync(embed: e);
+			await ctx.RespondAsync(embed: e2);
+		}
+
 		[Command("chekpin")]
-		public async Task ChekPins(CommandContext ctx)
+		public async Task ChekPinsAsync(CommandContext ctx)
 		{
 			await ctx.Channel.GetPinnedMessagesAsync();
 			await ctx.RespondAsync("u got mail!");
 		}
 
 		[Command("vsdb")]
-		public async Task VStateDebug(CommandContext ctx)
+		public async Task VStateDebugAsync(CommandContext ctx)
 		{
 			if (ctx.Member.VoiceState == null)
 				await ctx.RespondAsync("voice state is null");

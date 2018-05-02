@@ -55,6 +55,7 @@ namespace DSharpPlus.Test
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
             Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
+            Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -189,6 +190,12 @@ namespace DSharpPlus.Test
         private Task Discord_VoiceStateUpdated(VoiceStateUpdateEventArgs e)
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSP Test", $"Voice state change for {e.User}: {e.Before?.IsServerMuted}->{e.After.IsServerMuted} {e.Before?.IsServerDeafened}->{e.After.IsServerDeafened}", DateTime.Now);
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
+        {
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "DPS Test", "All guilds are now downloaded.", DateTime.Now);
             return Task.CompletedTask;
         }
 

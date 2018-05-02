@@ -110,14 +110,13 @@ namespace DSharpPlus.Net.Serialization
             JsonSerializer serializer)
         {
             var genericType = objectType.GenericTypeArguments[0];
-            
-            // TODO will this crash with Single finding more than one if T happens to be object?
+
             var constructor = objectType.GetTypeInfo().DeclaredConstructors
-                .Single(e => e.GetParameters()[0].ParameterType == typeof(object));
+                .Single(e => e.GetParameters()[0].ParameterType == genericType);
             
             try
             {
-                return constructor.Invoke(new[] {reader.Value});
+                return constructor.Invoke(new[] { Convert.ChangeType(reader.Value, genericType)});
             }
             catch
             {

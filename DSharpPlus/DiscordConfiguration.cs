@@ -100,10 +100,18 @@ namespace DSharpPlus
         public IWebProxy Proxy { internal get; set; } = null;
 
         /// <summary>
-        /// <para>Sets the timeout for HTTP requests</para>
-        /// <para>Defaults to 10 seconds. Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</para>
+        /// <para>Sets the timeout for HTTP requests.</para>
+        /// <para>Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</para>
+        /// <para>Defaults to 10 seconds.</para>
         /// </summary>
         public TimeSpan HttpTimeout { internal get; set; } = TimeSpan.FromSeconds(10);
+
+        /// <summary>
+        /// <para>Defines that the client should attempt to reconnect indefinitely.</para>
+        /// <para>This is typically a very bad idea to set to <c>true</c>, as it will swallow all connection errors.</para>
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool ReconnectIndefinitely { internal get; set; } = false;
 
         /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
@@ -151,22 +159,23 @@ namespace DSharpPlus
         {
             if (other != null)
             {
-                this.Token = other.Token;
-                this.TokenType = other.TokenType;
-                this.LogLevel = other.LogLevel;
-                this.UseInternalLogHandler = other.UseInternalLogHandler;
-                this.DateTimeFormat = other.DateTimeFormat;
-                this.LargeThreshold = other.LargeThreshold;
-                this.AutoReconnect = other.AutoReconnect;
-                this.ShardId = other.ShardId;
-                this.ShardCount = other.ShardCount;
-                this.GatewayCompressionLevel = other.GatewayCompressionLevel;
-                this.MessageCacheSize = other.MessageCacheSize;
-                this.AutomaticGuildSync = other.AutomaticGuildSync;
-                this.WebSocketClientFactory = other.WebSocketClientFactory;
-                this.UdpClientFactory = other.UdpClientFactory;
-                this.Proxy = other.Proxy;
-                this.HttpTimeout = other.HttpTimeout;
+              this.Token = other.Token;
+              this.TokenType = other.TokenType;
+              this.LogLevel = other.LogLevel;
+              this.UseInternalLogHandler = other.UseInternalLogHandler;
+              this.DateTimeFormat = other.DateTimeFormat;
+              this.LargeThreshold = other.LargeThreshold;
+              this.AutoReconnect = other.AutoReconnect;
+              this.ShardId = other.ShardId;
+              this.ShardCount = other.ShardCount;
+              this.GatewayCompressionLevel = other.GatewayCompressionLevel;
+              this.MessageCacheSize = other.MessageCacheSize;
+              this.AutomaticGuildSync = other.AutomaticGuildSync;
+              this.WebSocketClientFactory = other.WebSocketClientFactory;
+              this.UdpClientFactory = other.UdpClientFactory;
+              this.Proxy = other.Proxy;
+              this.HttpTimeout = other.HttpTimeout;
+              this.ReconnectIndefinitely = other.ReconnectIndefinitely;
             }
         }
     }
