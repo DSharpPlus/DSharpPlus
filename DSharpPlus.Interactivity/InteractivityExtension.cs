@@ -612,8 +612,10 @@ namespace DSharpPlus.Interactivity
 		#endregion
 
 		#region Pagination
-		public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> message_pages, TimeSpan? timeoutoverride = null, TimeoutBehaviour? timeoutbehaviouroverride = null)
+		public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> message_pages, TimeSpan? timeoutoverride = null,
+			TimeoutBehaviour? timeoutbehaviouroverride = null, PaginationEmojis emojis = null)
 		{
+
 			if (channel == null)
 				throw new ArgumentNullException(nameof(channel));
 			if (user == null)
@@ -623,7 +625,7 @@ namespace DSharpPlus.Interactivity
 			if (message_pages.Count() < 1)
 				throw new InvalidOperationException("This method can only be executed with a minimum of one page!");
 
-			if(message_pages.Count() == 1)
+			if (message_pages.Count() == 1)
 			{
 				await this.Client.SendMessageAsync(channel, string.IsNullOrEmpty(message_pages.First().Content) ? "" : message_pages.First().Content, embed: message_pages.First().Embed).ConfigureAwait(false);
 				return;
@@ -654,7 +656,7 @@ namespace DSharpPlus.Interactivity
 				Timeout = timeout
 			};
 
-			await this.GeneratePaginationReactions(m).ConfigureAwait(false);
+			await this.GeneratePaginationReactions(m, emojis).ConfigureAwait(false);
 
 			try
 			{
@@ -698,7 +700,7 @@ namespace DSharpPlus.Interactivity
 					ct.Dispose();
 					ct = new CancellationTokenSource(timeout);
 					ct.Token.Register(() => tsc.TrySetResult(null));
-					await this.DoPagination(e.Emoji, m, pm, ct).ConfigureAwait(false);
+					await this.DoPagination(e.Emoji, m, pm, ct, emojis).ConfigureAwait(false);
 				}
 			}
 
@@ -709,13 +711,13 @@ namespace DSharpPlus.Interactivity
 					ct.Dispose();
 					ct = new CancellationTokenSource(timeout);
 					ct.Token.Register(() => tsc.TrySetResult(null));
-					await this.DoPagination(e.Emoji, m, pm, ct).ConfigureAwait(false);
+					await this.DoPagination(e.Emoji, m, pm, ct, emojis).ConfigureAwait(false);
 				}
 			}
 
 			async Task ReactionClearHandler(MessageReactionsClearEventArgs e)
 			{
-				await this.GeneratePaginationReactions(m).ConfigureAwait(false);
+				await this.GeneratePaginationReactions(m, emojis).ConfigureAwait(false);
 			}
 			#endregion
 		}
@@ -762,19 +764,19 @@ namespace DSharpPlus.Interactivity
 			return result;
 		}
 
-		public async Task GeneratePaginationReactions(DiscordMessage message)
+		public async Task GeneratePaginationReactions(DiscordMessage message, PaginationEmojis emojis)
 		{
 			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏮")).ConfigureAwait(false);
-			await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "◀")).ConfigureAwait(false);
-			await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏹")).ConfigureAwait(false);
-			await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "▶")).ConfigureAwait(false);
-			await message.CreateReactionAsync(DiscordEmoji.FromUnicode(this.Client, "⏭")).ConfigureAwait(false);
+			await message.CreateReactionAsync(emojis.SkipLeft).ConfigureAwait(false);
+			await message.CreateReactionAsync(emojis.Left).ConfigureAwait(false);
+			await message.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
+			await message.CreateReactionAsync(emojis.Right).ConfigureAwait(false);
+			await message.CreateReactionAsync(emojis.SkipRight).ConfigureAwait(false);
 		}
 
-		public async Task DoPagination(DiscordEmoji emoji, DiscordMessage message, PaginatedMessage paginatedmessage, CancellationTokenSource canceltoken)
+		public async Task DoPagination(DiscordEmoji emoji, DiscordMessage message, PaginatedMessage paginatedmessage, CancellationTokenSource canceltoken, PaginationEmojis emojis)
 		{
 			if (message == null)
 				throw new ArgumentNullException(nameof(message));
@@ -786,32 +788,32 @@ namespace DSharpPlus.Interactivity
 				throw new ArgumentNullException(nameof(canceltoken));
 
 			#region The "good" shit
-			switch (emoji.Name)
+			// used brackets everywhere for the sake of consistency
+			if (emoji == emojis.SkipLeft)
 			{
-				case "⏮":
-					paginatedmessage.CurrentIndex = 0;
-					break;
-
-				case "◀":
-					if (paginatedmessage.CurrentIndex != 0)
-						paginatedmessage.CurrentIndex--;
-					break;
-
-				case "⏹":
-					canceltoken.Cancel();
-					return;
-
-				case "▶":
-					if (paginatedmessage.CurrentIndex != paginatedmessage.Pages.Count() - 1)
-						paginatedmessage.CurrentIndex++;
-					break;
-
-				case "⏭":
-					paginatedmessage.CurrentIndex = paginatedmessage.Pages.Count() - 1;
-					break;
-
-				default:
-					return;
+				paginatedmessage.CurrentIndex = 0;
+			}
+			else if (emoji == emojis.Left)
+			{
+				if (paginatedmessage.CurrentIndex != 0)
+					paginatedmessage.CurrentIndex--;
+			}
+			else if (emoji == emojis.Stop)
+			{
+				canceltoken.Cancel();
+			}
+			else if (emoji == emojis.Right)
+			{
+				if (paginatedmessage.CurrentIndex != paginatedmessage.Pages.Count() - 1)
+					paginatedmessage.CurrentIndex++;
+			}
+			else if (emoji == emojis.SkipRight)
+			{
+				paginatedmessage.CurrentIndex = paginatedmessage.Pages.Count() - 1;
+			}
+			else
+			{
+				return;
 			}
 
 			await message.ModifyAsync((string.IsNullOrEmpty(paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Content)) ? "" : paginatedmessage.Pages.ToArray()[paginatedmessage.CurrentIndex].Content,
