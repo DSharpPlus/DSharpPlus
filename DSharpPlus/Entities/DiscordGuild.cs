@@ -1073,25 +1073,25 @@ namespace DSharpPlus.Entities
 
                                 case "$add":
 
-                                    var AddedDeletedRoles = xc.NewValues.Where(A => !_roles.Any(Role => Role.Id == (ulong)A["id"])).Select(xo => new DiscordRole()
+                                    var addeddeletedroles = xc.NewValues.Where(A => !_roles.Any(Role => Role.Id == (ulong)A["id"])).Select(xo => new DiscordRole()
                                     {
                                         Id = (ulong)xo["id"],
                                         Name = null
                                     });
-                                    var AddedExistingroles = xc.NewValues.Where(A => _roles.Any(Role => Role.Id == (ulong)A["id"])).Select(o=> { return _roles.FirstOrDefault(xr => xr.Id == (ulong)o["id"]); } ).ToList();
-                                    AddedExistingroles.AddRange(AddedDeletedRoles);
-                                    entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(AddedExistingroles);
+                                    var addedexistingroles = xc.NewValues.Where(A => _roles.Any(Role => Role.Id == (ulong)A["id"])).Select(o=> { return _roles.FirstOrDefault(xr => xr.Id == (ulong)o["id"]); } ).ToList();
+                                    addedexistingroles.AddRange(addeddeletedroles);
+                                    entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(addedexistingroles);
                                     break;
 
                                 case "$remove":
-                                    var RemovedDeletedRoles = xc.NewValues.Where(A => !_roles.Any(Role => Role.Id == (ulong)A["id"])).Select(xo => new DiscordRole()
+                                    var removeddeletedroles = xc.NewValues.Where(A => !_roles.Any(Role => Role.Id == (ulong)A["id"])).Select(xo => new DiscordRole()
                                     {
                                         Id = (ulong)xo["id"],
                                         Name = null
                                     });
-                                    var RemovedExistingroles = xc.NewValues.Where(A => _roles.Any(Role => Role.Id == (ulong)A["id"])).Select(o => { return _roles.FirstOrDefault(xr => xr.Id == (ulong)o["id"]); }).ToList();
-                                    RemovedExistingroles.AddRange(RemovedDeletedRoles);
-                                    entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(xul => this._roles.FirstOrDefault(xr => xr.Id == xul)).ToList());
+                                    var removedexistingroles = xc.NewValues.Where(A => _roles.Any(Role => Role.Id == (ulong)A["id"])).Select(o => { return _roles.FirstOrDefault(xr => xr.Id == (ulong)o["id"]); }).ToList();
+                                    removedexistingroles.AddRange(removeddeletedroles);
+                                    entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(removedexistingroles);
                                     break;
 
                                 default:
