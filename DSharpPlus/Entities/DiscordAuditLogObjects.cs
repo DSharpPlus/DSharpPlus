@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace DSharpPlus.Entities
 {
@@ -251,7 +252,7 @@ namespace DSharpPlus.Entities
         /// Gets the description of member's deaf status change.
         /// </summary>
         public PropertyChange<bool?> DeafenChange { get; internal set; }
-
+ 
         internal DiscordAuditLogMemberUpdateEntry() { }
     }
 
