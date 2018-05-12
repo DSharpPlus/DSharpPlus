@@ -151,7 +151,7 @@ namespace DSharpPlus.Entities
         public override string Discriminator
         {
             get { return this.User.Discriminator; }
-            internal set { this.User.Username = value; }
+            internal set { this.User.Discriminator = value; }
         }
 
         /// <summary>
