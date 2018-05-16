@@ -323,7 +323,13 @@ namespace DSharpPlus
                 Query = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream ? "v=6&encoding=json&compress=zlib-stream" : "v=6&encoding=json"
             };
 
-            await ConnectionSemaphore.WaitAsync().ConfigureAwait(false);
+            var released = await ConnectionSemaphore.WaitAsync(TimeSpan.FromMilliseconds(10000)).ConfigureAwait(false);
+	    if (!released)
+	    {
+	        // the exception message here doesn't matter, since it is ignored in the catch block in ConnectAsync
+		// however we can still make it look pretty in case you set VS to break on all exceptions
+	        throw new Exception("Connection was dropped mid-handshake (HELLO payload was not received within 10 seconds)");
+	    }
             await _webSocketClient.ConnectAsync(gwuri.Uri).ConfigureAwait(false);
 
             Task SocketOnConnect()
