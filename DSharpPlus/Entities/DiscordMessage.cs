@@ -19,10 +19,16 @@ namespace DSharpPlus.Entities
         {
             this._attachmentsLazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
             this._embedsLazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));
-            this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => 
-	        this._mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels) : new DiscordChannel[0]);
-            this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => 
-	        this._mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(this._mentionedRoles) : new DiscordRole[0]);
+            this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => {
+                if (this._mentionedChannels != null)
+                    return new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels);
+                return new DiscordChannel[0];
+            });
+            this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => {
+                if (this._mentionedRoles != null)
+                    return new ReadOnlyCollection<DiscordRole>(this._mentionedRoles);
+                return new DiscordRole[0];
+            });
             this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
             this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
         }
