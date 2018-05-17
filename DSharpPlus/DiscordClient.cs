@@ -1429,7 +1429,7 @@ namespace DSharpPlus
                 IsHoisted = role_new.IsHoisted,
                 Id = role_new.Id,
                 IsManaged = role_new.IsManaged,
-                IsMentionable = role_new.IsManaged,
+                IsMentionable = role_new.IsMentionable,
                 Name = role_new.Name,
                 Permissions = role_new.Permissions,
                 Position = role_new.Position
