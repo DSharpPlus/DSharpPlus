@@ -593,10 +593,10 @@ namespace DSharpPlus
         internal async Task HandleDispatchAsync(GatewayPayload payload)
         {
             if (!(payload.Data is JObject dat))
-	        {
+            {
                 DebugLogger.LogMessage(LogLevel.Warning, "Websocket:Dispatch", $"Invalid payload body, you can probably ignore this message: {payload.OpCode}:{payload.EventName}\n{payload.Data}", DateTime.Now);
                 return;
-	        }
+            }
 
             DiscordChannel chn;
             ulong gid;
@@ -682,7 +682,10 @@ namespace DSharpPlus
                 case "guild_member_remove":
                     gid = (ulong)dat["guild_id"];
                     if (!this._guilds.ContainsKey(gid))
-                    { this.DebugLogger.LogMessage(LogLevel.Error, "Websocket:Dispatch", $"Could not find {gid.ToString(CultureInfo.InvariantCulture)} in guild cache.", DateTime.Now); return; }
+                    {
+                        this.DebugLogger.LogMessage(LogLevel.Error, "Websocket:Dispatch", $"Could not find {gid.ToString(CultureInfo.InvariantCulture)} in guild cache.", DateTime.Now);
+                        return;
+                    }
                     await OnGuildMemberRemoveEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid]).ConfigureAwait(false);
                     break;
 
