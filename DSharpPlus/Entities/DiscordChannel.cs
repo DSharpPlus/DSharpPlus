@@ -143,7 +143,7 @@ namespace DSharpPlus.Entities
                     throw new InvalidOperationException("Cannot query users outside of guild channels.");
 
                 if (this.Type == ChannelType.Voice)
-                    return Guild.Members.Where(x => x.VoiceState?.ChannelId == this?.Id);
+                    return Guild.Members.Where(x => x.VoiceState?.ChannelId == this.Id);
 
                 return Guild.Members.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels);
             }
