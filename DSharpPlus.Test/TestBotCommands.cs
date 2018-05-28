@@ -443,7 +443,19 @@ namespace DSharpPlus.Test
 		}
 	}
 
-	public class TestBotService
+    [DebugCheck]
+    public class CheckTestModule : BaseCommandModule
+    {
+        [Command]
+        public Task DebugCommandAsync(CommandContext ctx, [RemainingText] string arg)
+            => ctx.RespondAsync(arg);
+
+        [Command, Priority(1)]
+        public Task DebugCommandAsync(CommandContext ctx, int arg)
+            => ctx.RespondAsync(arg.ToString("#,##0"));
+    }
+
+    public class TestBotService
 	{
 		public int CommandCounter => this._cmd_counter;
 		private volatile int _cmd_counter;
@@ -470,4 +482,13 @@ namespace DSharpPlus.Test
 			return $"0x{ptr:x16}";
 		}
 	}
+
+    public class DebugCheckAttribute : CheckBaseAttribute
+    {
+        public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
+        {
+            ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "Test-Check", "Testing check", DateTime.Now);
+            return Task.FromResult(true);
+        }
+    }
 }
