@@ -35,7 +35,7 @@ namespace DSharpPlus.CommandsNext
         {
             this.Config = new CommandsNextConfiguration(cfg);
             this.TopLevelCommands = new Dictionary<string, Command>();
-            this._registered_commands_lazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
+            this._registeredCommandsLazy = new Lazy<IReadOnlyDictionary<string, Command>>(() => new ReadOnlyDictionary<string, Command>(this.TopLevelCommands));
             this.HelpFormatter = new HelpFormatterFactory();
             this.HelpFormatter.SetFormatterType<DefaultHelpFormatter>();
 
@@ -153,7 +153,7 @@ namespace DSharpPlus.CommandsNext
         #endregion
 
         #region Command Handler
-        public async Task HandleCommandsAsync(MessageCreateEventArgs e)
+        private async Task HandleCommandsAsync(MessageCreateEventArgs e)
         {
             // Let the bot do its things
             await Task.Yield();
@@ -243,10 +243,10 @@ namespace DSharpPlus.CommandsNext
         /// Gets a dictionary of registered top-level commands.
         /// </summary>
         public IReadOnlyDictionary<string, Command> RegisteredCommands
-            => this._registered_commands_lazy.Value;
+            => this._registeredCommandsLazy.Value;
 
         private Dictionary<string, Command> TopLevelCommands { get; set; }
-        private Lazy<IReadOnlyDictionary<string, Command>> _registered_commands_lazy;
+        private Lazy<IReadOnlyDictionary<string, Command>> _registeredCommandsLazy;
 
         /// <summary>
         /// Registers all commands from a given assembly. The command classes need to be public to be considered for registration.

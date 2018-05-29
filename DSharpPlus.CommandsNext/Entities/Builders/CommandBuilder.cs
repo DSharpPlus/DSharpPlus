@@ -161,7 +161,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <returns>This builder.</returns>
         public CommandBuilder WithExecutionChecks(params CheckBaseAttribute[] checks)
         {
-            this.ExecutionCheckList.AddRange(checks);
+            this.ExecutionCheckList.AddRange(checks.Except(this.ExecutionCheckList));
             return this;
         }
 
@@ -172,7 +172,8 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <returns>This builder.</returns>
         public CommandBuilder WithExecutionCheck(CheckBaseAttribute check)
         {
-            this.ExecutionCheckList.Add(check);
+            if (!this.ExecutionCheckList.Contains(check))
+                this.ExecutionCheckList.Add(check);
             return this;
         }
 
