@@ -291,8 +291,12 @@ namespace DSharpPlus.CommandsNext
             this.RegisterCommands(t, null, out var tcmds);
 
             if (t == typeof(DefaultHelpModule) && Config.DefaultHelpChecks != null)
-                foreach (var check in Config.DefaultHelpChecks)
-                    tcmds[0].WithExecutionCheck(check);
+            {
+                var checks = Config.DefaultHelpChecks.ToArray();
+
+                for (int i = 0; i < tcmds.Count; i++)
+                    tcmds[i].WithExecutionChecks(checks);
+            }
 
             if (tcmds != null)
                 foreach (var xc in tcmds)
