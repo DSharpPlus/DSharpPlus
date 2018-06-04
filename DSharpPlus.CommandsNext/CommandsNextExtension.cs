@@ -290,6 +290,10 @@ namespace DSharpPlus.CommandsNext
 
             this.RegisterCommands(t, null, out var tcmds);
 
+            if (t == typeof(DefaultHelpModule) && Config.DefaultHelpChecks != null)
+                foreach (var check in Config.DefaultHelpChecks)
+                    tcmds[0].WithExecutionCheck(check);
+
             if (tcmds != null)
                 foreach (var xc in tcmds)
                     this.AddToCommandDictionary(xc.Build(null));
@@ -376,8 +380,7 @@ namespace DSharpPlus.CommandsNext
                     continue;
 
                 var attrs = m.GetCustomAttributes();
-                var cattr = attrs.FirstOrDefault(xa => xa is CommandAttribute) as CommandAttribute;
-                if (cattr == null)
+                if (!(attrs.FirstOrDefault(xa => xa is CommandAttribute) is CommandAttribute cattr))
                     continue;
 
                 var cname = cattr.Name;
