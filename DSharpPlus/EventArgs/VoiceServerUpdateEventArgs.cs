@@ -24,10 +24,10 @@ namespace DSharpPlus.EventArgs
         public string Endpoint { get; internal set; }
 
 		/// <summary>
-		/// Gets the voice connection token.
+		/// Gets the voice connection token. Do not share this.
 		/// </summary>
 		[JsonProperty("token")]
-		internal string VoiceToken { get; set; }
+		public string VoiceToken { get; set; }
 
         internal VoiceServerUpdateEventArgs(DiscordClient client) : base(client) { }
     }
