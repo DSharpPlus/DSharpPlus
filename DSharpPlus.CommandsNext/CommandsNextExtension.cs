@@ -148,7 +148,22 @@ namespace DSharpPlus.CommandsNext
             this.Client.MessageCreated += this.HandleCommandsAsync;
 
             if (this.Config.EnableDefaultHelp)
-                this.RegisterCommands<DefaultHelpModule>();
+            {
+                this.RegisterCommands(typeof(DefaultHelpModule), null, out var tcmds);
+
+                if (this.Config.DefaultHelpChecks != null)
+                {
+                    var checks = this.Config.DefaultHelpChecks.ToArray();
+
+                    for (int i = 0; i < tcmds.Count; i++)
+                        tcmds[i].WithExecutionChecks(checks);
+                }
+
+                if (tcmds != null)
+                    foreach (var xc in tcmds)
+                        this.AddToCommandDictionary(xc.Build(null));
+            }
+
         }
         #endregion
 
@@ -289,14 +304,6 @@ namespace DSharpPlus.CommandsNext
                 throw new ArgumentNullException(nameof(t), "Type must be a class, which cannot be abstract or static.");
 
             this.RegisterCommands(t, null, out var tcmds);
-
-            if (t == typeof(DefaultHelpModule) && Config.DefaultHelpChecks != null)
-            {
-                var checks = Config.DefaultHelpChecks.ToArray();
-
-                for (int i = 0; i < tcmds.Count; i++)
-                    tcmds[i].WithExecutionChecks(checks);
-            }
 
             if (tcmds != null)
                 foreach (var xc in tcmds)
