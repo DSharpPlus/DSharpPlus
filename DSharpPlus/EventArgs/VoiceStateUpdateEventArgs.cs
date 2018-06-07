@@ -35,7 +35,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the ID of voice session.
         /// </summary>
-        public string SessionId { get; internal set; }
+        internal string SessionId { get; internal set; }
 
         internal VoiceStateUpdateEventArgs(DiscordClient client) : base(client) { }
     }
