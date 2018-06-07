@@ -34,7 +34,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild icon's url.
         /// </summary>
         [JsonIgnore]
-        public string IconUrl 
+        public string IconUrl
             => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.jpg" : null;
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild splash's url.
         /// </summary>
         [JsonIgnore]
-        public string SplashUrl 
+        public string SplashUrl
             => !string.IsNullOrWhiteSpace(this.SplashHash) ? $"https://cdn.discordapp.com/splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{SplashHash}.jpg" : null;
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild's owner.
         /// </summary>
         [JsonIgnore]
-        public DiscordMember Owner 
+        public DiscordMember Owner
             => this.Members.FirstOrDefault(xm => xm.Id == this.OwnerId) ?? this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild's voice region.
         /// </summary>
         [JsonIgnore]
-        public DiscordVoiceRegion VoiceRegion 
+        public DiscordVoiceRegion VoiceRegion
             => this.Discord.VoiceRegions[this.VoiceRegionId];
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild's AFK voice channel.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel AfkChannel 
+        public DiscordChannel AfkChannel
             => this.Channels.FirstOrDefault(xc => xc.Id == this.AfkChannelId);
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace DSharpPlus.Entities
         /// Gets the channel from the guild's embed.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel EmbedChannel 
+        public DiscordChannel EmbedChannel
             => this.Channels.FirstOrDefault(xc => xc.Id == this.EmbedChannelId);
 
         /// <summary>
@@ -142,12 +142,12 @@ namespace DSharpPlus.Entities
         public DiscordChannel SystemChannel => SystemChannelId.HasValue
             ? this.Channels.FirstOrDefault(xc => xc.Id == SystemChannelId)
             : null;
-        
+
         /// <summary>
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordRole> Roles 
+        public IReadOnlyList<DiscordRole> Roles
             => this._roles_lazy.Value;
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
@@ -159,7 +159,7 @@ namespace DSharpPlus.Entities
         /// Gets a collection of this guild's emojis.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordEmoji> Emojis 
+        public IReadOnlyList<DiscordEmoji> Emojis
             => this._emojis_lazy.Value;
 
         [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
@@ -207,7 +207,7 @@ namespace DSharpPlus.Entities
         /// Gets a collection of all the voice states for this guilds.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordVoiceState> VoiceStates 
+        public IReadOnlyList<DiscordVoiceState> VoiceStates
             => this._voice_states_lazy.Value;
 
         [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
@@ -219,7 +219,7 @@ namespace DSharpPlus.Entities
         /// Gets a collection of all the members that belong to this guild.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordMember> Members 
+        public IReadOnlyList<DiscordMember> Members
             => this._members_lazy.Value;
 
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
@@ -231,7 +231,7 @@ namespace DSharpPlus.Entities
         /// Gets a collection of all the channels associated with this guild.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordChannel> Channels 
+        public IReadOnlyList<DiscordChannel> Channels
             => this._channels_lazy.Value;
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
@@ -243,7 +243,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild member for current user.
         /// </summary>
         [JsonIgnore]
-        public DiscordMember CurrentMember 
+        public DiscordMember CurrentMember
             => this._current_member_lazy.Value;
 
         [JsonIgnore]
@@ -253,14 +253,14 @@ namespace DSharpPlus.Entities
         /// Gets the @everyone role for this guild.
         /// </summary>
         [JsonIgnore]
-        public DiscordRole EveryoneRole 
+        public DiscordRole EveryoneRole
             => this._roles.FirstOrDefault(xr => xr.Id == this.Id);
 
         /// <summary>
         /// Gets whether the current user is the guild's owner.
         /// </summary>
         [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
-        public bool IsOwner 
+        public bool IsOwner
             => this.OwnerId == this.Discord.CurrentUser.Id;
 
         // I need to work on this
@@ -305,7 +305,7 @@ namespace DSharpPlus.Entities
         /// Deletes this guild. Requires the caller to be the owner of the guild.
         /// </summary>
         /// <returns></returns>
-        public Task DeleteAsync() 
+        public Task DeleteAsync()
             => this.Discord.ApiClient.DeleteGuildAsync(this.Id);
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace DSharpPlus.Entities
         /// <param name="delete_message_days">How many days to remove messages from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null) 
+        public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null)
             => this.Discord.ApiClient.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
 
         /// <summary>
@@ -357,7 +357,7 @@ namespace DSharpPlus.Entities
         /// <param name="delete_message_days">How many days to remove messages from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task BanMemberAsync(ulong user_id, int delete_message_days = 0, string reason = null) 
+        public Task BanMemberAsync(ulong user_id, int delete_message_days = 0, string reason = null)
             => this.Discord.ApiClient.CreateGuildBanAsync(this.Id, user_id, delete_message_days, reason);
 
         /// <summary>
@@ -366,7 +366,7 @@ namespace DSharpPlus.Entities
         /// <param name="user">User to unban.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task UnbanMemberAsync(DiscordUser user, string reason = null) 
+        public Task UnbanMemberAsync(DiscordUser user, string reason = null)
             => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user.Id, reason);
 
         /// <summary>
@@ -375,21 +375,21 @@ namespace DSharpPlus.Entities
         /// <param name="user_id">ID of the user to unban.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task UnbanMemberAsync(ulong user_id, string reason = null) 
+        public Task UnbanMemberAsync(ulong user_id, string reason = null)
             => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user_id, reason);
 
         /// <summary>
         /// Leaves this guild.
         /// </summary>
         /// <returns></returns>
-        public Task LeaveAsync() 
+        public Task LeaveAsync()
             => this.Discord.ApiClient.LeaveGuildAsync(Id);
 
         /// <summary>
         /// Gets the bans for this guild.
         /// </summary>
         /// <returns>Collection of bans in this guild.</returns>
-        public Task<IReadOnlyList<DiscordBan>> GetBansAsync() 
+        public Task<IReadOnlyList<DiscordBan>> GetBansAsync()
             => this.Discord.ApiClient.GetGuildBansAsync(Id);
 
         /// <summary>
@@ -403,7 +403,7 @@ namespace DSharpPlus.Entities
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, string reason = null)
         => this.CreateChannelAsync(name, ChannelType.Text, parent, null, null, overwrites, nsfw, reason);
-        
+
         /// <summary>
         /// Creates a new channel category in this guild.
         /// </summary>
@@ -413,7 +413,7 @@ namespace DSharpPlus.Entities
         /// <returns>The newly-created channel category.</returns>
         public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
         => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, reason);
-        
+
         /// <summary>
         /// Creates a new voice channel in this guild.
         /// </summary>
@@ -426,7 +426,7 @@ namespace DSharpPlus.Entities
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
         => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, reason);
-        
+
         /// <summary>
         /// Creates a new channel in this guild.
         /// </summary>
@@ -467,7 +467,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="days">Minimum number of inactivity days required for users to be pruned.</param>
         /// <returns>Number of users that will be pruned.</returns>
-        public Task<int> GetPruneCountAsync(int days) 
+        public Task<int> GetPruneCountAsync(int days)
             => this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days);
 
         /// <summary>
@@ -476,14 +476,14 @@ namespace DSharpPlus.Entities
         /// <param name="days">Minimum number of inactivity days required for users to be pruned.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>Number of users pruned.</returns>
-        public Task<int> PruneAsync(int days, string reason = null) 
+        public Task<int> PruneAsync(int days, string reason = null)
             => this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, reason);
 
         /// <summary>
         /// Gets integrations attached to this guild.
         /// </summary>
         /// <returns>Collection of integrations attached to this guild.</returns>
-        public Task<IReadOnlyList<DiscordIntegration>> GetIntegrationsAsync() 
+        public Task<IReadOnlyList<DiscordIntegration>> GetIntegrationsAsync()
             => this.Discord.ApiClient.GetGuildIntegrationsAsync(this.Id);
 
         /// <summary>
@@ -491,7 +491,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="integration">Integration to attach.</param>
         /// <returns>The integration after being attached to the guild.</returns>
-        public Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration) 
+        public Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration)
             => this.Discord.ApiClient.CreateGuildIntegrationAsync(Id, integration.Type, integration.Id);
 
         /// <summary>
@@ -502,7 +502,7 @@ namespace DSharpPlus.Entities
         /// <param name="expire_grace_period">Length of grace period which allows for renewing the integration.</param>
         /// <param name="enable_emoticons">Whether emotes should be synced from this integration.</param>
         /// <returns>The modified integration.</returns>
-        public Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expire_behaviour, int expire_grace_period, bool enable_emoticons) 
+        public Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expire_behaviour, int expire_grace_period, bool enable_emoticons)
             => this.Discord.ApiClient.ModifyGuildIntegrationAsync(Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
 
         /// <summary>
@@ -510,7 +510,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="integration">Integration to remove.</param>
         /// <returns></returns>
-        public Task DeleteIntegrationAsync(DiscordIntegration integration) 
+        public Task DeleteIntegrationAsync(DiscordIntegration integration)
             => this.Discord.ApiClient.DeleteGuildIntegrationAsync(Id, integration);
 
         /// <summary>
@@ -518,14 +518,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="integration">Integration to synchronize.</param>
         /// <returns></returns>
-        public Task SyncIntegrationAsync(DiscordIntegration integration) 
+        public Task SyncIntegrationAsync(DiscordIntegration integration)
             => this.Discord.ApiClient.SyncGuildIntegrationAsync(Id, integration.Id);
 
         /// <summary>
         /// Gets the guild widget.
         /// </summary>
         /// <returns>This guild's widget.</returns>
-        public Task<DiscordGuildEmbed> GetEmbedAsync() 
+        public Task<DiscordGuildEmbed> GetEmbedAsync()
             => this.Discord.ApiClient.GetGuildEmbedAsync(Id);
 
         /// <summary>
@@ -545,14 +545,14 @@ namespace DSharpPlus.Entities
         /// Gets all the invites created for all the channels in this guild.
         /// </summary>
         /// <returns>A collection of invites.</returns>
-        public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync() 
+        public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
             => this.Discord.ApiClient.GetGuildInvitesAsync(this.Id);
 
         /// <summary>
         /// Gets all the webhooks created for all the channels in this guild.
         /// </summary>
         /// <returns>A collection of webhooks this guild has.</returns>
-        public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync() 
+        public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync()
             => this.Discord.ApiClient.GetGuildWebhooksAsync(this.Id);
 
         /// <summary>
@@ -571,57 +571,11 @@ namespace DSharpPlus.Entities
             return mbr;
         }
 
-		/// <summary>
-		/// Disconnects to a Channel without VNext (e.g. for lavalink)
-		/// </summary>
-		/// <returns></returns>
-		public async Task ConnectWithoutVnext(DiscordChannel channel)
-		{
-			if(channel.Type != ChannelType.Voice)
-				throw new InvalidOperationException("This is NOT a voice channel!");
-
-			var dsc = (DiscordClient)this.Discord;
-			var payload = new GatewayPayload()
-			{
-				OpCode = GatewayOpCode.VoiceStateUpdate,
-				Data = new VoiceStateUpdate()
-				{
-					ChannelId = channel.Id,
-					GuildId = this.Id,
-					Deafen = false,
-					Mute = false
-				}
-			};
-
-			dsc._webSocketClient.SendMessage(JsonConvert.SerializeObject(payload));
-		}
-
-		/// <summary>
-		/// Disconnects from a Channel without VNext (e.g. for lavalink)
-		/// </summary>
-		/// <returns></returns>
-		public async Task DisonnectVoiceWithoutVnext()
-		{
-			var dsc = (DiscordClient)this.Discord;
-			var payload = new GatewayPayload()
-			{
-				OpCode = GatewayOpCode.VoiceStateUpdate,
-				Data = new VoiceStateUpdate()
-				{
-					GuildId = this.Id,
-					Deafen = false,
-					Mute = false
-				}
-			};
-
-			dsc._webSocketClient.SendMessage(JsonConvert.SerializeObject(payload));
-		}
-
-		/// <summary>
-		/// Requests a full list of members from Discord.
-		/// </summary>
-		/// <returns>A collection of all members in this guild.</returns>
-		public async Task<IReadOnlyList<DiscordMember>> GetAllMembersAsync()
+        /// <summary>
+        /// Requests a full list of members from Discord.
+        /// </summary>
+        /// <returns>A collection of all members in this guild.</returns>
+        public async Task<IReadOnlyList<DiscordMember>> GetAllMembersAsync()
         {
             var recmbr = new List<DiscordMember>(this.MemberCount + 1);
 
@@ -681,7 +635,7 @@ namespace DSharpPlus.Entities
         /// Gets all the channels this guild has.
         /// </summary>
         /// <returns>A collection of this guild's channels.</returns>
-        public Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync() 
+        public Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync()
             => this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
 
         /// <summary>
@@ -694,7 +648,7 @@ namespace DSharpPlus.Entities
         /// <param name="mentionable">Whether the role is to be mentionable.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created role.</returns>
-        public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null) 
+        public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
             => this.Discord.ApiClient.CreateGuildRole(this.Id, name, permissions, color?.Value, hoist, mentionable, reason);
 
         /// <summary>
@@ -702,7 +656,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="id">ID of the role to get.</param>
         /// <returns>Requested role.</returns>
-        public DiscordRole GetRole(ulong id) 
+        public DiscordRole GetRole(ulong id)
             => this._roles.FirstOrDefault(xr => xr.Id == id);
 
         /// <summary>
@@ -710,7 +664,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="id">ID of the channel to get.</param>
         /// <returns>Requested channel.</returns>
-        public DiscordChannel GetChannel(ulong id) 
+        public DiscordChannel GetChannel(ulong id)
             => this._channels.FirstOrDefault(xc => xc.Id == id);
 
         /// <summary>
@@ -750,7 +704,7 @@ namespace DSharpPlus.Entities
             {
                 if (this.Discord.UserCache.ContainsKey(xau.Id))
                     continue;
-                
+
                 var xtu = new TransportUser
                 {
                     Id = xau.Id,
@@ -1476,7 +1430,7 @@ namespace DSharpPlus.Entities
         /// This can only be done for user tokens.
         /// </summary>
         /// <returns></returns>
-        public Task SyncAsync() 
+        public Task SyncAsync()
             => this.Discord is DiscordClient dc ? dc.SyncGuildsAsync(this) : Task.Delay(0);
 
         /// <summary>
@@ -1494,7 +1448,7 @@ namespace DSharpPlus.Entities
         /// Gets all of this guild's custom emojis.
         /// </summary>
         /// <returns>All of this guild's custom emojis.</returns>
-        public Task<IReadOnlyList<DiscordGuildEmoji>> GetEmojisAsync() 
+        public Task<IReadOnlyList<DiscordGuildEmoji>> GetEmojisAsync()
             => this.Discord.ApiClient.GetGuildEmojisAsync(this.Id);
 
         /// <summary>
@@ -1502,7 +1456,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="id">ID of the emoji to get.</param>
         /// <returns>The requested custom emoji.</returns>
-        public Task<DiscordGuildEmoji> GetEmojiAsync(ulong id) 
+        public Task<DiscordGuildEmoji> GetEmojiAsync(ulong id)
             => this.Discord.ApiClient.GetGuildEmojiAsync(this.Id, id);
 
         /// <summary>
@@ -1658,7 +1612,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First member to compare.</param>
         /// <param name="e2">Second member to compare.</param>
         /// <returns>Whether the two members are not equal.</returns>
-        public static bool operator !=(DiscordGuild e1, DiscordGuild e2) 
+        public static bool operator !=(DiscordGuild e1, DiscordGuild e2)
             => !(e1 == e2);
     }
 
