@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Udp;
-using DSharpPlus.VoiceNext.VoiceEntities;
+using DSharpPlus.VoiceNext.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.VoiceNext
