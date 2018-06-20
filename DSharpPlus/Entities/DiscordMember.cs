@@ -320,7 +320,7 @@ namespace DSharpPlus.Entities
             {
                 await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, mdl.Nickname.Value,
                     mdl.AuditLogReason).ConfigureAwait(false);
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional.FromNoValue(),
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional<string>.FromNoValue(),
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
                     mdl.VoiceChannel.IfPresent(e => e.Id), mdl.AuditLogReason).ConfigureAwait(false);
             }
