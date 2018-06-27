@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -41,7 +41,7 @@ namespace DSharpPlus.Net
             if (values == null || values.Count == 0)
                 return string.Empty;
 
-            var vals_collection = values.Select(xkvp =>
+            var vals_collection = values.Select(xkvp => 
                 $"{WebUtility.UrlEncode(xkvp.Key)}={WebUtility.UrlEncode(xkvp.Value)}");
             var vals = string.Join("&", vals_collection);
 
@@ -179,7 +179,7 @@ namespace DSharpPlus.Net
                 OwnerId = owner_id,
                 SystemChannelId = systemChannelId
             };
-
+            
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
                 headers.Add(REASON_HEADER_NAME, reason);
@@ -971,17 +971,18 @@ namespace DSharpPlus.Net
 
         internal async Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
         {
-            var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.GUILDS}?limit={limit}";
+            var pld = new RestUserGuildListPayload
+            {
+                Limit = limit,
+                After = after,
+                Before = before
+            };
 
-            if (before != null)
-                route += "&before=" + before;
-            if (after != null)
-                route += "&after=" + after;
-
+            var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.GUILDS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             if (this.Discord is DiscordClient)
             {
@@ -992,13 +993,13 @@ namespace DSharpPlus.Net
             else
             {
                 var guilds_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordGuild>>(res.Response);
-
-                var glds = new List<DiscordGuild>();
-                foreach (var gld in guilds_raw)
+                var glds = guilds_raw.Select(xug =>
                 {
-                    glds.Add(await GetGuildAsync(gld.Id));
-                }
-
+                    xug.Discord = this.Discord;
+                    foreach (var r in xug._roles)
+                        r._guild_id = xug.Id;
+                    return xug;
+                });
                 return new ReadOnlyCollection<DiscordGuild>(new List<DiscordGuild>(glds));
             }
         }
