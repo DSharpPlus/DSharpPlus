@@ -45,7 +45,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             if ((pbot & Permissions.Administrator) != 0)
                 return true;
 
-            if ((pbot & this.Permissions) == this.Permissions)
+            if ((pbot & this.Permissions) != 0)
                 return true;
 
             return false;
