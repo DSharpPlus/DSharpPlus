@@ -996,7 +996,7 @@ namespace DSharpPlus.Net
                 var glds = new List<DiscordGuild>();
                 foreach (var gld in guilds_raw)
                 {
-                    glds.Add(await GetGuildAsync(gld.Id));
+                    glds.Add(await GetGuildAsync(gld.Id).ConfigureAwait(false));
                 }
 
                 return new ReadOnlyCollection<DiscordGuild>(new List<DiscordGuild>(glds));
