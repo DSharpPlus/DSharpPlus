@@ -31,8 +31,8 @@ namespace DSharpPlus.Net
         internal RestClient(BaseDiscordClient client)
             : this(client.Configuration.Proxy, client.Configuration.HttpTimeout)
         {
-            this.Discord = client;
-            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
+            Discord = client;
+            HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
         }
 
         internal RestClient(IWebProxy proxy, TimeSpan timeout) // This is for meta-clients, such as the webhook client
@@ -44,17 +44,19 @@ namespace DSharpPlus.Net
                 UseProxy = proxy != null
             };
             if (httphandler.UseProxy) // because mono doesn't implement this properly
+            {
                 httphandler.Proxy = proxy;
+            }
 
-            this.HttpClient = new HttpClient(httphandler)
+            HttpClient = new HttpClient(httphandler)
             {
                 BaseAddress = new Uri(Utilities.GetApiBaseUri()),
                 Timeout = timeout
             };
-            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
+            HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
 
-            this.Buckets = new ConcurrentDictionary<string, RateLimitBucket>();
-            this.GlobalRateLimitEvent = new AsyncManualResetEvent(true);
+            Buckets = new ConcurrentDictionary<string, RateLimitBucket>();
+            GlobalRateLimitEvent = new AsyncManualResetEvent(true);
         }
 
         public RateLimitBucket GetBucket(RestRequestMethod method, string route, object route_params, out string url)
@@ -67,15 +69,25 @@ namespace DSharpPlus.Net
             {
                 var val = xp.GetValue(route_params);
                 if (val is string xs)
+                {
                     rparams[xp.Name] = xs;
+                }
                 else if (val is DateTime dt)
+                {
                     rparams[xp.Name] = dt.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture);
+                }
                 else if (val is DateTimeOffset dto)
+                {
                     rparams[xp.Name] = dto.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture);
+                }
                 else if (val is IFormattable xf)
+                {
                     rparams[xp.Name] = xf.ToString(null, CultureInfo.InvariantCulture);
+                }
                 else
+                {
                     rparams[xp.Name] = val.ToString();
+                }
             }
 
             var guild_id = rparams.ContainsKey("guild_id") ? rparams["guild_id"] : "";
@@ -85,7 +97,7 @@ namespace DSharpPlus.Net
             var id = RateLimitBucket.GenerateId(method, route, guild_id, channel_id, webhook_id);
             
             // using the GetOrAdd version with the factory has no advantages as it will allocate the delegate, closure object and bucket (if needed) instead of just the bucket 
-            RateLimitBucket bucket = this.Buckets.GetOrAdd(id, new RateLimitBucket(method, route, guild_id, channel_id, webhook_id));
+            RateLimitBucket bucket = Buckets.GetOrAdd(id, new RateLimitBucket(method, route, guild_id, channel_id, webhook_id));
 
             url = RouteArgumentRegex.Replace(route, xm => rparams[xm.Groups[1].Value]);
             return bucket;
@@ -94,7 +106,9 @@ namespace DSharpPlus.Net
         public Task ExecuteRequestAsync(BaseRestRequest request)
         {
             if (request == null)
+            {
                 throw new ArgumentNullException(nameof(request));
+            }
 
             return ExecuteRequestAsync(request, null, null);
         }
@@ -104,13 +118,17 @@ namespace DSharpPlus.Net
         {
             try
             {
-                await this.GlobalRateLimitEvent.WaitAsync();
+                await GlobalRateLimitEvent.WaitAsync();
 
                 if (bucket == null)
+                {
                     bucket = request.RateLimitBucket;
+                }
 
                 if (ratelimitTcs == null)
-                    ratelimitTcs = await this.WaitForInitialRateLimit(bucket);
+                {
+                    ratelimitTcs = await WaitForInitialRateLimit(bucket);
+                }
 
                 if (ratelimitTcs == null) // ckeck rate limit only if we are not the probe request
                 {
@@ -131,17 +149,22 @@ namespace DSharpPlus.Net
                             bucket._remaining = 1;
                         }
                         if (delay < TimeSpan.Zero)
+                        {
                             delay = TimeSpan.FromMilliseconds(100);
+                        }
+
                         request.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered, waiting until {bucket.Reset:yyyy-MM-dd HH:mm:ss zzz} ({delay:c})", DateTime.Now);
-                        request.Discord.DebugLogger.LogTaskFault(Task.Delay(delay).ContinueWith(t => this.ExecuteRequestAsync(request, null, null)), LogLevel.Error, "RESET", "Error while executing request: ");
+                        request.Discord.DebugLogger.LogTaskFault(Task.Delay(delay).ContinueWith(t => ExecuteRequestAsync(request, null, null)), LogLevel.Error, "RESET", "Error while executing request: ");
                         return;
                     }
                     request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Request for bucket {bucket}. Allowing.", DateTime.Now);
                 }
                 else
+                {
                     request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Initial Request for bucket {bucket}. Allowing.", DateTime.Now);
+                }
 
-                var req = this.BuildRequest(request);
+                var req = BuildRequest(request);
                 var response = new RestResponse();
                 try
                 {
@@ -158,11 +181,11 @@ namespace DSharpPlus.Net
                 {
                     request.Discord.DebugLogger.LogMessage(LogLevel.Error, "REST", $"Request to {request.Url} triggered an HttpException: {httpex.Message}", DateTime.Now);
                     request.SetFaulted(httpex);
-                    this.FailInitialRateLimitTest(bucket, ratelimitTcs);
+                    FailInitialRateLimitTest(bucket, ratelimitTcs);
                     return;
                 }
 
-                this.UpdateBucket(request, response, ratelimitTcs);
+                UpdateBucket(request, response, ratelimitTcs);
 
                 Exception ex = null;
                 switch (response.ResponseCode)
@@ -185,7 +208,7 @@ namespace DSharpPlus.Net
                         ex = new RateLimitException(request, response);
 
                         // check the limit info and requeue
-                        this.Handle429(response, out var wait, out var global);
+                        Handle429(response, out var wait, out var global);
                         if (wait != null)
                         {
                             if (global)
@@ -193,13 +216,13 @@ namespace DSharpPlus.Net
                                 request.Discord.DebugLogger.LogMessage(LogLevel.Error, "REST", "Global ratelimit hit, cooling down", DateTime.Now);
                                 try
                                 {
-                                    this.GlobalRateLimitEvent.Reset();
+                                    GlobalRateLimitEvent.Reset();
                                     await wait.ConfigureAwait(false);
                                 }
                                 finally
                                 {
                                     // we don't want to wait here until all the blocked requests have been run, additionally Set can never throw an exception that could be suppressed here
-                                    _ = this.GlobalRateLimitEvent.Set();
+                                    _ = GlobalRateLimitEvent.Set();
                                 }
                                 request.Discord.DebugLogger.LogTaskFault(ExecuteRequestAsync(request, bucket, ratelimitTcs), LogLevel.Error, "REST", "Error while retrying request: ");
                             }
@@ -207,7 +230,7 @@ namespace DSharpPlus.Net
                             {
                                 request.Discord.DebugLogger.LogMessage(LogLevel.Error, "REST", $"Ratelimit hit, requeueing request to {request.Url}", DateTime.Now);
                                 await wait.ConfigureAwait(false);
-                                request.Discord.DebugLogger.LogTaskFault(this.ExecuteRequestAsync(request, bucket, ratelimitTcs), LogLevel.Error, "REST", "Error while retrying request: ");
+                                request.Discord.DebugLogger.LogTaskFault(ExecuteRequestAsync(request, bucket, ratelimitTcs), LogLevel.Error, "REST", "Error while retrying request: ");
                             }
 
                             return;
@@ -216,9 +239,13 @@ namespace DSharpPlus.Net
                 }
 
                 if (ex != null)
+                {
                     request.SetFaulted(ex);
+                }
                 else
+                {
                     request.SetCompleted(response);
+                }
             }
             catch (Exception ex)
             {
@@ -226,17 +253,23 @@ namespace DSharpPlus.Net
 
                 // if something went wrong and we couldn't get rate limits for the first request here, allow the next request to run
                 if (bucket != null && ratelimitTcs != null && bucket._limitTesting != 0)
-                    this.FailInitialRateLimitTest(bucket, ratelimitTcs);
+                {
+                    FailInitialRateLimitTest(bucket, ratelimitTcs);
+                }
 
                 if (!request.TrySetFaulted(ex))
+                {
                     throw;
+                }
             }
         }
 
         private void FailInitialRateLimitTest(RateLimitBucket bucket, TaskCompletionSource<bool> ratelimitTcs)
         {
             if (ratelimitTcs == null)
+            {
                 return;
+            }
 
             bucket._limitValid = false;
             bucket._limitTestFinished = null;
@@ -258,7 +291,9 @@ namespace DSharpPlus.Net
                     {
                         // if we got here when the first request was just finishing, we must not create the waiter task as it would signel ExecureRequestAsync to bypass rate limiting
                         if (bucket._limitValid)
+                        {
                             return null;
+                        }
 
                         // allow exactly one request to go through without having rate limits available
                         var ratelimitsTcs = new TaskCompletionSource<bool>();
@@ -269,9 +304,14 @@ namespace DSharpPlus.Net
                 // it can take a couple of cycles for the task to be allocated, so wait until it happens or we are no longer probing for the limits
                 Task waitTask = null;
                 while (bucket._limitTesting != 0 && (waitTask = bucket._limitTestFinished) == null)
-                    await Task.Yield(); 
+                {
+                    await Task.Yield();
+                }
+
                 if (waitTask != null)
+                {
                     await waitTask;
+                }
 
                 // if the request failed and the response did not have rate limit headers we have allow the next request and wait again, thus this is a loop here
             }
@@ -282,8 +322,12 @@ namespace DSharpPlus.Net
         {
             var req = new HttpRequestMessage(new HttpMethod(request.Method.ToString()), request.Url);
             if (request.Headers != null && request.Headers.Any())
+            {
                 foreach (var kvp in request.Headers)
+                {
                     req.Headers.Add(kvp.Key, kvp.Value);
+                }
+            }
 
             if (request is RestRequest nmprequest && !string.IsNullOrWhiteSpace(nmprequest.Payload))
             {
@@ -300,14 +344,20 @@ namespace DSharpPlus.Net
 
                 var content = new MultipartFormDataContent(boundary);
                 if (mprequest.Values != null && mprequest.Values.Any())
+                {
                     foreach (var kvp in mprequest.Values)
+                    {
                         content.Add(new StringContent(kvp.Value), kvp.Key);
+                    }
+                }
 
                 if (mprequest.Files != null && mprequest.Files.Any())
                 {
                     var i = 1;
                     foreach (var f in mprequest.Files)
+                    {
                         content.Add(new StreamContent(f.Value), $"file{(i++).ToString(CultureInfo.InvariantCulture)}", f.Key);
+                    }
                 }
 
                 req.Content = content;
@@ -322,7 +372,10 @@ namespace DSharpPlus.Net
             global = false;
 
             if (response.Headers == null)
+            {
                 return;
+            }
+
             var hs = response.Headers;
 
             // handle the wait
@@ -347,7 +400,10 @@ namespace DSharpPlus.Net
             if (response.Headers == null)
             {
                 if (response.ResponseCode != 429) // do not fail when ratelimit was or the next request will be scheduled hitting the rate limit again
-                    this.FailInitialRateLimitTest(bucket, ratelimitTcs);
+                {
+                    FailInitialRateLimitTest(bucket, ratelimitTcs);
+                }
+
                 return;
             }
 
@@ -356,7 +412,10 @@ namespace DSharpPlus.Net
             if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLowerInvariant() == "true")
             {
                 if (response.ResponseCode != 429)
-                    this.FailInitialRateLimitTest(bucket, ratelimitTcs);
+                {
+                    FailInitialRateLimitTest(bucket, ratelimitTcs);
+                }
+
                 return;
             }
 
@@ -367,7 +426,10 @@ namespace DSharpPlus.Net
             if (!r1 || !r2 || !r3)
             {
                 if (response.ResponseCode != 429)
-                    this.FailInitialRateLimitTest(bucket, ratelimitTcs);
+                {
+                    FailInitialRateLimitTest(bucket, ratelimitTcs);
+                }
+
                 return;
             }
 
@@ -375,7 +437,9 @@ namespace DSharpPlus.Net
             var resettime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(long.Parse(reset, CultureInfo.InvariantCulture));
             var servertime = clienttime;
             if (hs.TryGetValue("Date", out var raw_date))
+            {
                 servertime = DateTimeOffset.Parse(raw_date, CultureInfo.InvariantCulture).ToUniversalTime();
+            }
 
             var resetdelta = resettime - servertime;
             //var difference = clienttime - servertime;
@@ -385,7 +449,10 @@ namespace DSharpPlus.Net
             //    difference = TimeSpan.Zero;
 
             if (request.RateLimitWaitOverride != null)
+            {
                 resetdelta = TimeSpan.FromSeconds(request.RateLimitWaitOverride.Value);
+            }
+
             var newReset = clienttime + resetdelta;
 
 
@@ -411,7 +478,9 @@ namespace DSharpPlus.Net
                 bucket.Reset = newReset;
                 // remaining is reset by TryResetLimit and not the response, just allow that to happen when it is time
                 if (bucket._nextReset == 0)
+                {
                     bucket._nextReset = newReset.UtcTicks;
+                }
             }
         }
     }

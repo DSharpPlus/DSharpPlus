@@ -12,7 +12,7 @@ namespace DSharpPlus.Net.Udp
         /// Gets the amount of data available for this client.
         /// </summary>
         public override int DataAvailable 
-            => this.Client.Available;
+            => Client.Available;
 
         private UdpClient Client { get; set; }
         private ConnectionEndpoint EndPoint { get; set; }
@@ -28,11 +28,11 @@ namespace DSharpPlus.Net.Udp
         /// <param name="endpoint">Endpoint that the client will be communicating with.</param>
         public override void Setup(ConnectionEndpoint endpoint)
         {
-            this.EndPoint = endpoint;
-            this.Client = new UdpClient();
+            EndPoint = endpoint;
+            Client = new UdpClient();
             // TODO: Solve for .NET Standard, this is possibly default behaviour (???)
 #if HAS_NAT_TRAVERSAL
-            this.Client.AllowNatTraversal(true);
+            Client.AllowNatTraversal(true);
 #endif
         }
 
@@ -43,7 +43,7 @@ namespace DSharpPlus.Net.Udp
         /// <param name="data_length">Length of the datagram.</param>
         /// <returns></returns>
         public override Task SendAsync(byte[] data, int data_length)
-            => this.Client.SendAsync(data, data_length, this.EndPoint.Hostname, this.EndPoint.Port);
+            => Client.SendAsync(data, data_length, EndPoint.Hostname, EndPoint.Port);
 
         /// <summary>
         /// Receives a datagram.
@@ -51,7 +51,7 @@ namespace DSharpPlus.Net.Udp
         /// <returns>The received bytes.</returns>
         public override async Task<byte[]> ReceiveAsync()
         {
-            var result = await this.Client.ReceiveAsync().ConfigureAwait(false);
+            var result = await Client.ReceiveAsync().ConfigureAwait(false);
             return result.Buffer;
         }
 

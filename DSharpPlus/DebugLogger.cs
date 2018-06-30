@@ -11,33 +11,35 @@ namespace DSharpPlus
 
         internal DebugLogger(BaseDiscordClient client)
         {
-            this.Level = client.Configuration.LogLevel;
-            this.DateTimeFormat = client.Configuration.DateTimeFormat;
+            Level = client.Configuration.LogLevel;
+            DateTimeFormat = client.Configuration.DateTimeFormat;
         }
 
         internal DebugLogger(LogLevel level, string timeformatting)
         {
-            this.Level = level;
-            this.DateTimeFormat = timeformatting;
+            Level = level;
+            DateTimeFormat = timeformatting;
         }
 
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
-            if (level <= this.Level)
+            if (level <= Level)
             {
                 //message = message.Replace("\r", "");
                 //var lines = new[] { message };
                 //if (message.Contains('\n'))
                 //    lines = message.Split('\n');
                 //foreach (var line in lines)
-                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
+                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = DateTimeFormat });
             }
         }
 
         public void LogTaskFault(Task task, LogLevel level, string application, string message)
         {
             if (task == null)
+            {
                 throw new ArgumentNullException(nameof(task));
+            }
 
             task.ContinueWith(t => LogMessage(level, application, message + t.Exception, DateTime.Now), TaskContinuationOptions.OnlyOnFaulted);
         }
@@ -69,7 +71,7 @@ namespace DSharpPlus
                     break;
             }
 
-            Console.Write($"[{e.Timestamp.ToString(this.DateTimeFormat)}] [{e.Application}] [{e.Level}]");
+            Console.Write($"[{e.Timestamp.ToString(DateTimeFormat)}] [{e.Application}] [{e.Level}]");
             Console.ResetColor();
             Console.WriteLine($" {e.Message}");
 #endif
@@ -109,7 +111,7 @@ namespace DSharpPlus
 
             public override string ToString()
             {
-                return $"[{Timestamp.ToString(this.TimeFormatting)}] [{Application}] [{Level}] {Message}";
+                return $"[{Timestamp.ToString(TimeFormatting)}] [{Application}] [{Level}] {Message}";
             }
         }
     }

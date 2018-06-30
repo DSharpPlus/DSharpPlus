@@ -9,7 +9,7 @@
 
         protected DiscordEventArgs(DiscordClient client)
         {
-            this.Client = client;
+            Client = client;
         }
     }
 }

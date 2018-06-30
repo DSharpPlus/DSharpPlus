@@ -61,9 +61,9 @@ namespace DSharpPlus
         /// <param name="timeout">Timeout to use for HTTP requests. Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</param>
         public DiscordWebhookClient(IWebProxy proxy, TimeSpan timeout)
         {
-            this._apiclient = new DiscordApiClient(proxy, timeout);
-            this._hooks = new List<DiscordWebhook>();
-            this.Webhooks = new ReadOnlyCollection<DiscordWebhook>(this._hooks);
+            _apiclient = new DiscordApiClient(proxy, timeout);
+            _hooks = new List<DiscordWebhook>();
+            Webhooks = new ReadOnlyCollection<DiscordWebhook>(_hooks);
         }
 
         /// <summary>
@@ -75,11 +75,16 @@ namespace DSharpPlus
         public async Task<DiscordWebhook> AddWebhookAsync(ulong id, string token)
         {
             if (string.IsNullOrWhiteSpace(token))
+            {
                 throw new ArgumentNullException(nameof(token));
+            }
+
             token = token.Trim();
 
             if (_hooks.Any(x => x.Id == id))
+            {
                 throw new InvalidOperationException("This webhook is registered with this client.");
+            }
 
             var wh = await _apiclient.GetWebhookWithTokenAsync(id, token).ConfigureAwait(false);
             _hooks.Add(wh);
@@ -95,16 +100,22 @@ namespace DSharpPlus
         public Task<DiscordWebhook> AddWebhookAsync(Uri url)
         {
             if (url == null)
+            {
                 throw new ArgumentNullException(nameof(url));
+            }
 
             var m = WebhookRegex.Match(url.ToString());
             if (!m.Success)
+            {
                 throw new ArgumentException("Invalid webhook URL supplied.", nameof(url));
+            }
 
             var idraw = m.Groups["id"];
             var tokenraw = m.Groups["token"];
             if (!ulong.TryParse(idraw.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
+            {
                 throw new ArgumentException("Invalid webhook URL supplied.", nameof(url));
+            }
 
             var token = tokenraw.Value;
             return AddWebhookAsync(id, token);
@@ -119,10 +130,14 @@ namespace DSharpPlus
         public async Task<DiscordWebhook> AddWebhookAsync(ulong id, BaseDiscordClient client)
         {
             if (client == null)
+            {
                 throw new ArgumentNullException(nameof(client));
+            }
 
             if (_hooks.Any(x => x.Id == id))
+            {
                 throw new ArgumentException("This webhook is already registered with this client.");
+            }
 
             var wh = await client.ApiClient.GetWebhookAsync(id).ConfigureAwait(false);
             // personally I don't think we need to override anything.
@@ -154,10 +169,14 @@ namespace DSharpPlus
         public DiscordWebhook AddWebhook(DiscordWebhook webhook)
         {
             if (webhook == null)
+            {
                 throw new ArgumentNullException(nameof(webhook));
+            }
 
             if (_hooks.Any(x => x.Id == webhook.Id))
+            {
                 throw new ArgumentException("This webhook is already registered with this client.");
+            }
 
             // see line 110-113 for explanation
             //var nwh = new DiscordWebhook()
@@ -185,10 +204,12 @@ namespace DSharpPlus
         public DiscordWebhook RemoveWebhook(ulong id)
         {
             if (!_hooks.Any(x => x.Id == id))
+            {
                 throw new ArgumentException("This webhook is not registered with this client.");
+            }
 
-            var wh = this.GetRegisteredWebhook(id);
-            this._hooks.Remove(wh);
+            var wh = GetRegisteredWebhook(id);
+            _hooks.Remove(wh);
             return wh;
         }
 
@@ -198,7 +219,7 @@ namespace DSharpPlus
         /// <param name="id">ID of the registered webhook to retrieve.</param>
         /// <returns>The requested webhook.</returns>
         public DiscordWebhook GetRegisteredWebhook(ulong id)
-            => this._hooks.FirstOrDefault(xw => xw.Id == id);
+            => _hooks.FirstOrDefault(xw => xw.Id == id);
 
         /// <summary>
         /// Broadcasts a message to all registered webhooks.
@@ -216,7 +237,7 @@ namespace DSharpPlus
             {
                 try
                 {
-                    await hook.ExecuteAsync(content, username_override ?? this.Username, avatar_override ?? this.AvatarUrl, tts, embeds).ConfigureAwait(false);
+                    await hook.ExecuteAsync(content, username_override ?? Username, avatar_override ?? AvatarUrl, tts, embeds).ConfigureAwait(false);
                 }
                 catch (NotFoundException)
                 {
@@ -225,7 +246,9 @@ namespace DSharpPlus
             }
             // Removing dead webhooks from collection
             foreach (var xwh in deadhooks)
+            {
                 _hooks.Remove(xwh);
+            }
         }
     }
 }

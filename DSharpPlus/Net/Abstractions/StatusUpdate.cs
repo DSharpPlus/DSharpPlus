@@ -31,7 +31,7 @@ namespace DSharpPlus.Net.Abstractions
         {
             get
             {
-                switch (this.Status)
+                switch (Status)
                 {
                     case UserStatus.Online:
                         return "online";

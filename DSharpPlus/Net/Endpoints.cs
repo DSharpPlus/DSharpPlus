@@ -1,6 +1,6 @@
 ﻿namespace DSharpPlus.Net
 {
-    internal static class Endpoints
+    public static class Endpoints
     {
         public const string BASE_URI = "https://discordapp.com/api/v7";
 

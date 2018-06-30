@@ -41,7 +41,9 @@ namespace DSharpPlus
             var vs = "";
             var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             if (iv != null)
+            {
                 vs = iv.InformationalVersion;
+            }
             else
             {
                 var v = a.GetName().Version;
@@ -51,13 +53,28 @@ namespace DSharpPlus
             VersionHeader = $"DiscordBot (https://github.com/NaamloosDT/DSharpPlus, v{vs})";
         }
 
+        internal static T AddOrUpdate<T>(this List<T> list, T add, Action<T, T> update, Func<T, T, bool> equal) where T : class
+        {
+            T oldT = list.FirstOrDefault(t => equal(t, add));
+            if (oldT != null)
+            {
+                update(oldT, add);
+                return oldT;
+            }
+            else
+            {
+                list.Add(add);
+                return add;
+            }
+        }
+
         internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
         {
             Random r = new Random();
             return r.Next(ping, int.MaxValue);
         }
 
-        internal static string GetApiBaseUri() 
+        internal static string GetApiBaseUri()
             => Endpoints.BASE_URI;
 
         internal static Uri GetApiUriFor(string path)
@@ -66,13 +83,13 @@ namespace DSharpPlus
         internal static Uri GetApiUriFor(string path, string queryString)
             => new Uri($"{GetApiBaseUri()}{path}{queryString}");
 
-        internal static string GetFormattedToken(BaseDiscordClient client)
+        public static string GetFormattedToken(BaseDiscordClient client)
         {
             return GetFormattedToken(client.Configuration);
         }
 
         internal static string GetFormattedToken(DiscordConfiguration config)
-        { 
+        {
             switch (config.TokenType)
             {
                 case TokenType.Bearer:
@@ -136,7 +153,9 @@ namespace DSharpPlus
             var regex = new Regex(@"<@!?(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
+            {
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
         }
 
         internal static IEnumerable<ulong> GetRoleMentions(DiscordMessage message)
@@ -144,7 +163,9 @@ namespace DSharpPlus
             var regex = new Regex(@"<@&(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
+            {
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
         }
 
         internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
@@ -152,7 +173,9 @@ namespace DSharpPlus
             var regex = new Regex(@"<#(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
+            {
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
         }
 
         internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
@@ -160,7 +183,9 @@ namespace DSharpPlus
             var regex = new Regex(@"<:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
+            {
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+            }
         }
 
         /// <summary>
@@ -185,7 +210,9 @@ namespace DSharpPlus
             catch (Exception)
             {
                 if (shouldThrow)
+                {
                     throw;
+                }
 
                 return DateTimeOffset.MinValue;
             }
@@ -202,6 +229,7 @@ namespace DSharpPlus
             try
             {
 #if !(NETSTANDARD1_1 || NET45)
+
                 return DateTimeOffset.FromUnixTimeMilliseconds(unixTime);
 #else
                 // below constant taken from 
@@ -213,7 +241,9 @@ namespace DSharpPlus
             catch (Exception)
             {
                 if (shouldThrow)
+                {
                     throw;
+                }
 
                 return DateTimeOffset.MinValue;
             }
@@ -235,7 +265,7 @@ namespace DSharpPlus
             return millis - 62_135_596_800_000;
 #endif
         }
-        
+
         /// <summary>
         /// Converts this <see cref="Permissions"/> into human-readable format.
         /// </summary>
@@ -244,7 +274,9 @@ namespace DSharpPlus
         public static string ToPermissionString(this Permissions perm)
         {
             if (perm == Permissions.None)
+            {
                 return PermissionStrings[perm];
+            }
 
             perm &= PermissionMethods.FULL_PERMS;
 
@@ -264,8 +296,12 @@ namespace DSharpPlus
         public static bool Contains(this string str, params char[] characters)
         {
             foreach (var xc in str)
+            {
                 if (characters.Contains(xc))
+                {
                     return true;
+                }
+            }
 
             return false;
         }

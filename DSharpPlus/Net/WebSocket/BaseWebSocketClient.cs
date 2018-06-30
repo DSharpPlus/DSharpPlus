@@ -49,7 +49,7 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public BaseWebSocketClient(IWebProxy proxy)
         {
-            this.Proxy = proxy;
+            Proxy = proxy;
         }
 
         /// <summary>
@@ -89,9 +89,9 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public virtual void Dispose()
         {
-            this.StreamDecompressor?.Dispose();
-            this.CompressedStream?.Dispose();
-            this.DecompressedStream?.Dispose();
+            StreamDecompressor?.Dispose();
+            CompressedStream?.Dispose();
+            DecompressedStream?.Dispose();
         }
 
         /// <summary>

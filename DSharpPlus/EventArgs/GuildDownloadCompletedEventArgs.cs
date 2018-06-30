@@ -11,7 +11,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the dictionary of guilds that just finished downloading.
         /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordGuild> Guilds => this.Client.Guilds;
+        public IReadOnlyDictionary<ulong, DiscordGuild> Guilds => Client.Guilds;
 
         internal GuildDownloadCompletedEventArgs(DiscordClient client) : base(client) { }
     }

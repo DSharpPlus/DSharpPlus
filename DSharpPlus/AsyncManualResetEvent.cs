@@ -23,7 +23,9 @@ namespace DSharpPlus
             _tsc = new TaskCompletionSource<bool>();
 
             if (initialState)
+            {
                 _tsc.TrySetResult(true);
+            }
         }
 
         public Task WaitAsync() { return _tsc.Task; }
@@ -37,7 +39,9 @@ namespace DSharpPlus
                 var tsc = _tsc;
 
                 if (!tsc.Task.IsCompleted || Interlocked.CompareExchange(ref _tsc, new TaskCompletionSource<bool>(), tsc) == tsc)
+                {
                     return;
+                }
             }
         }
     }

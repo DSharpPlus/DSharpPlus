@@ -22,7 +22,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordColor Color
-            => new DiscordColor(this._color);
+            => new DiscordColor(_color);
 
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
         internal int _color;
@@ -75,19 +75,23 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task ModifyPositionAsync(int position, string reason = null)
         {
-            var roles = this.Discord.Guilds[this._guild_id].Roles.Where(xr => xr.Id != this.Id).OrderByDescending(xr => xr.Position).ToArray();
+            var roles = Discord.Guilds[_guild_id].Roles.Where(xr => xr.Id != Id).OrderByDescending(xr => xr.Position).ToArray();
             var pmds = new RestGuildRoleReorderPayload[roles.Length];
             for (var i = 0; i < roles.Length; i++)
             {
                 pmds[i] = new RestGuildRoleReorderPayload { RoleId = roles[i].Id };
 
-                if (roles[i].Id == this.Id)
+                if (roles[i].Id == Id)
+                {
                     pmds[i].Position = position;
+                }
                 else
+                {
                     pmds[i].Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position;
+                }
             }
 
-            return this.Discord.ApiClient.ModifyGuildRolePosition(this.Id, pmds, reason);
+            return Discord.ApiClient.ModifyGuildRolePosition(Id, pmds, reason);
         }
 
         /// <summary>
@@ -101,14 +105,14 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason why we made this change</param>
         /// <returns></returns>
         public Task UpdateAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, Id, name, permissions, color?.Value, hoist, mentionable, reason);
+            => Discord.ApiClient.ModifyGuildRoleAsync(_guild_id, Id, name, permissions, color?.Value, hoist, mentionable, reason);
 
         /// <summary>
         /// Deletes this role.
         /// </summary>
         /// <param name="reason">Reason as to why this role has been deleted.</param>
         /// <returns></returns>
-        public Task DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteRoleAsync(this._guild_id, this.Id, reason);
+        public Task DeleteAsync(string reason = null) => Discord.ApiClient.DeleteRoleAsync(_guild_id, Id, reason);
         #endregion
 
         internal DiscordRole() { }
@@ -121,7 +125,10 @@ namespace DSharpPlus.Entities
         public PermissionLevel CheckPermission(Permissions permission)
         {
             if ((Permissions & permission) != 0)
+            {
                 return PermissionLevel.Allowed;
+            }
+
             return PermissionLevel.Unset;
         }
 
@@ -131,7 +138,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this role.</returns>
         public override string ToString()
         {
-            return $"Role {this.Id}; {this.Name}";
+            return $"Role {Id}; {Name}";
         }
 
         /// <summary>
@@ -141,7 +148,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordRole"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordRole);
+            return Equals(obj as DiscordRole);
         }
 
         /// <summary>
@@ -152,12 +159,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordRole e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id;
+            return Id == e.Id;
         }
 
         /// <summary>
@@ -166,7 +177,7 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordRole"/>.</returns>
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            return Id.GetHashCode();
         }
 
         /// <summary>
@@ -181,10 +192,14 @@ namespace DSharpPlus.Entities
             var o2 = e2 as object;
 
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            {
                 return false;
+            }
 
             if (o1 == null && o2 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id;
         }

@@ -49,13 +49,13 @@ namespace DSharpPlus.Net
         /// <param name="ratelimit_wait_override">Override for ratelimit bucket wait time.</param>
         internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, double? ratelimit_wait_override = null)
         {
-            this.Discord = client;
-            this.RateLimitBucket = bucket;
-            this.RequestTaskSource = new TaskCompletionSource<RestResponse>();
-            this.Url = url;
-            this.Method = method;
-            this.Headers = headers != null ? new ReadOnlyDictionary<string, string>(headers) : null;
-            this.RateLimitWaitOverride = ratelimit_wait_override;
+            Discord = client;
+            RateLimitBucket = bucket;
+            RequestTaskSource = new TaskCompletionSource<RestResponse>();
+            Url = url;
+            Method = method;
+            Headers = headers != null ? new ReadOnlyDictionary<string, string>(headers) : null;
+            RateLimitWaitOverride = ratelimit_wait_override;
         }
 
         /// <summary>
@@ -63,15 +63,15 @@ namespace DSharpPlus.Net
         /// </summary>
         /// <returns>HTTP response to this request.</returns>
         public Task<RestResponse> WaitForCompletionAsync() 
-            => this.RequestTaskSource.Task;
+            => RequestTaskSource.Task;
 
         protected internal void SetCompleted(RestResponse response) 
-            => this.RequestTaskSource.SetResult(response);
+            => RequestTaskSource.SetResult(response);
 
         protected internal void SetFaulted(Exception ex) 
-            => this.RequestTaskSource.SetException(ex);
+            => RequestTaskSource.SetException(ex);
 
         protected internal bool TrySetFaulted(Exception ex) 
-            => this.RequestTaskSource.TrySetException(ex);
+            => RequestTaskSource.TrySetException(ex);
     }
 }

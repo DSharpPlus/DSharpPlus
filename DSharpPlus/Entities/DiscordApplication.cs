@@ -21,7 +21,8 @@ namespace DSharpPlus.Entities
         /// Gets the application's icon.
         /// </summary>
         public string Icon 
-            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
+            => !string.IsNullOrWhiteSpace(IconHash) ? $"https://cdn.discordapp.com/app-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.png?size=1024" : null;
+
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         internal string IconHash { get; set; }
 
@@ -72,7 +73,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string CoverImageUrl 
-            => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
+            => $"https://cdn.discordapp.com/app-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{CoverImageHash}.png?size=1024";
 
         [JsonIgnore]
         private IReadOnlyList<DiscordApplicationAsset> Assets { get; set; }
@@ -88,14 +89,20 @@ namespace DSharpPlus.Entities
         public string GetAvatarUrl(ImageFormat fmt, ushort size = 1024)
         {
             if (fmt == ImageFormat.Unknown)
+            {
                 throw new ArgumentException("You must specify valid image format.", nameof(fmt));
+            }
 
             if (size < 16 || size > 2048)
+            {
                 throw new ArgumentOutOfRangeException(nameof(size));
+            }
 
             var log = Math.Log(size, 2);
             if (log < 4 || log > 11 || log % 1 != 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(size));
+            }
 
             var sfmt = "";
             switch (fmt)
@@ -121,10 +128,10 @@ namespace DSharpPlus.Entities
             }
 
             var ssize = size.ToString(CultureInfo.InvariantCulture);
-            if (!string.IsNullOrWhiteSpace(this.CoverImageHash))
+            if (!string.IsNullOrWhiteSpace(CoverImageHash))
             {
-                var id = this.Id.ToString(CultureInfo.InvariantCulture);
-                return $"https://cdn.discordapp.com/avatars/{id}/{this.CoverImageHash}.{sfmt}?size={ssize}";
+                var id = Id.ToString(CultureInfo.InvariantCulture);
+                return $"https://cdn.discordapp.com/avatars/{id}/{CoverImageHash}.{sfmt}?size={ssize}";
             }
             else
             {
@@ -138,10 +145,12 @@ namespace DSharpPlus.Entities
         /// <returns>This application's assets.</returns>
         public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync()
         {
-            if (this.Assets == null)
-                this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this).ConfigureAwait(false);
+            if (Assets == null)
+            {
+                Assets = await Discord.ApiClient.GetApplicationAssetsAsync(this).ConfigureAwait(false);
+            }
 
-            return this.Assets;
+            return Assets;
         }
 
         public string GenerateBotOAuth(Permissions permissions = Permissions.None)
@@ -150,7 +159,7 @@ namespace DSharpPlus.Entities
             // Split it up so it isn't annoying and blue
             // 
             // :blobthonkang: -emzi
-            return "https://" + $"discordapp.com/oauth2/authorize?client_id={this.Id.ToString(CultureInfo.InvariantCulture)}&scope=bot&permissions={((long)permissions).ToString(CultureInfo.InvariantCulture)}";
+            return "https://" + $"discordapp.com/oauth2/authorize?client_id={Id.ToString(CultureInfo.InvariantCulture)}&scope=bot&permissions={((long)permissions).ToString(CultureInfo.InvariantCulture)}";
         }
 
         /// <summary>
@@ -160,7 +169,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordApplication"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordApplication);
+            return Equals(obj as DiscordApplication);
         }
 
         /// <summary>
@@ -170,13 +179,17 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordApplication"/> is equal to this <see cref="DiscordApplication"/>.</returns>
         public bool Equals(DiscordApplication e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id;
+            return Id == e.Id;
         }
 
         /// <summary>
@@ -185,7 +198,7 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            return Id.GetHashCode();
         }
 
         /// <summary>
@@ -200,10 +213,14 @@ namespace DSharpPlus.Entities
             var o2 = e2 as object;
 
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            {
                 return false;
+            }
 
             if (o1 == null && o2 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id;
         }
@@ -262,13 +279,13 @@ namespace DSharpPlus.Entities
         /// Gets the Url of this asset.
         /// </summary>
         public override Uri Url 
-            => new Uri($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
+            => new Uri($"https://cdn.discordapp.com/app-assets/{Application.Id.ToString(CultureInfo.InvariantCulture)}/{Id}.png");
 
         internal DiscordApplicationAsset() { }
 
         internal DiscordApplicationAsset(DiscordApplication app)
         {
-            this.Discord = app.Discord;
+            Discord = app.Discord;
         }
 
         /// <summary>
@@ -278,7 +295,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordApplicationAsset);
+            return Equals(obj as DiscordApplicationAsset);
         }
 
         /// <summary>
@@ -289,12 +306,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordApplicationAsset e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id;
+            return Id == e.Id;
         }
 
         /// <summary>
@@ -303,7 +324,7 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            return Id.GetHashCode();
         }
 
         /// <summary>
@@ -318,10 +339,14 @@ namespace DSharpPlus.Entities
             var o2 = e2 as object;
 
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            {
                 return false;
+            }
 
             if (o1 == null && o2 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id;
         }
@@ -342,15 +367,15 @@ namespace DSharpPlus.Entities
         /// Gets the URL of this asset.
         /// </summary>
         public override Uri Url
-            => this._url.Value;
+            => _url.Value;
 
         private Lazy<Uri> _url;
 
         public DiscordSpotifyAsset()
         {
-            this._url = new Lazy<Uri>(() =>
+            _url = new Lazy<Uri>(() =>
             {
-                var ids = this.Id.Split(':');
+                var ids = Id.Split(':');
                 var id = ids[1];
                 return new Uri($"https://i.scdn.co/image/{id}");
             });

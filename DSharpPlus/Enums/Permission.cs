@@ -15,7 +15,10 @@ namespace DSharpPlus
         public static bool HasPermission(this Permissions p, Permissions permission)
         {
             if ((p & permission) == permission)
+            {
                 return true;
+            }
+
             return false;
         }
 
@@ -255,7 +258,7 @@ namespace DSharpPlus
         /// <param name="str">Readable name for this permission.</param>
         public PermissionStringAttribute(string str)
         {
-            this.String = str;
+            String = str;
         }
     }
 }

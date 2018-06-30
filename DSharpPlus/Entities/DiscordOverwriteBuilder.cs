@@ -43,7 +43,7 @@ namespace DSharpPlus.Entities
         /// <returns>This builder.</returns>
         public DiscordOverwriteBuilder Allow(Permissions permission)
         {
-            this.Allowed |= permission;
+            Allowed |= permission;
             return this;
         }
 
@@ -54,7 +54,7 @@ namespace DSharpPlus.Entities
         /// <returns>This builder.</returns>
         public DiscordOverwriteBuilder Deny(Permissions permission)
         {
-            this.Denied |= permission;
+            Denied |= permission;
             return this;
         }
 
@@ -65,8 +65,8 @@ namespace DSharpPlus.Entities
         /// <returns>This builder.</returns>
         public DiscordOverwriteBuilder For(DiscordMember member)
         {
-            this.Target = member;
-            this.Type = OverwriteType.Member;
+            Target = member;
+            Type = OverwriteType.Member;
             return this;
         }
 
@@ -77,8 +77,8 @@ namespace DSharpPlus.Entities
         /// <returns>This builder.</returns>
         public DiscordOverwriteBuilder For(DiscordRole role)
         {
-            this.Target = role;
-            this.Type = OverwriteType.Role;
+            Target = role;
+            Type = OverwriteType.Role;
             return this;
         }
 
@@ -89,10 +89,10 @@ namespace DSharpPlus.Entities
         /// <returns>This builder.</returns>
         public async Task<DiscordOverwriteBuilder> FromAsync(DiscordOverwrite other)
         {
-            this.Allowed = other.Allowed;
-            this.Denied = other.Denied;
-            this.Type = other.Type;
-            this.Target = this.Type == OverwriteType.Member ? await other.GetMemberAsync().ConfigureAwait(false) as SnowflakeObject : await other.GetRoleAsync().ConfigureAwait(false) as SnowflakeObject;
+            Allowed = other.Allowed;
+            Denied = other.Denied;
+            Type = other.Type;
+            Target = Type == OverwriteType.Member ? await other.GetMemberAsync().ConfigureAwait(false) as SnowflakeObject : await other.GetRoleAsync().ConfigureAwait(false) as SnowflakeObject;
 
             return this;
         }
@@ -105,10 +105,10 @@ namespace DSharpPlus.Entities
         {
             return new DiscordRestOverwrite()
             {
-                Allow = this.Allowed,
-                Deny = this.Denied,
-                Id = this.Target.Id,
-                Type = this.Type,
+                Allow = Allowed,
+                Deny = Denied,
+                Id = Target.Id,
+                Type = Type,
             };
         }
     }

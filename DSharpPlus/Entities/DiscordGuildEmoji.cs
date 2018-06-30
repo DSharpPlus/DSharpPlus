@@ -28,7 +28,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified emoji.</returns>
         public Task<DiscordGuildEmoji> ModifyAsync(string name, IEnumerable<DiscordRole> roles = null, string reason = null) 
-            => this.Guild.ModifyEmojiAsync(this, name, roles, reason);
+            => Guild.ModifyEmojiAsync(this, name, roles, reason);
 
         /// <summary>
         /// Deletes this emoji.
@@ -36,6 +36,6 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit log.</param>
         /// <returns></returns>
         public Task DeleteAsync(string reason = null) 
-            => this.Guild.DeleteEmojiAsync(this, reason);
+            => Guild.DeleteEmojiAsync(this, reason);
     }
 }

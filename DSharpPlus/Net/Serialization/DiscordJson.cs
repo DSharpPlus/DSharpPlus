@@ -53,11 +53,15 @@ namespace DSharpPlus.Net.Serialization
             var type = property.PropertyType;
             
             if (!type.GetTypeInfo().IsGenericType)
+            {
                 return property;
+            }
 
             if (type.GetGenericTypeDefinition() != typeof(Optional<>))
+            {
                 return property;
-            
+            }
+
             // we cache the PropertyInfo object here (it's captured in closure). we don't have direct 
             // access to the property value so we have to reflect into it from the parent instance
             // we use UnderlyingName instead of PropertyName in case the C# name is different from the Json name.
@@ -128,7 +132,10 @@ namespace DSharpPlus.Net.Serialization
 
         public override bool CanConvert(Type objectType)
         {
-            if (!objectType.GetTypeInfo().IsGenericType) return false;
+            if (!objectType.GetTypeInfo().IsGenericType)
+            {
+                return false;
+            }
 
             return objectType.GetGenericTypeDefinition() == typeof(Optional<>);
         }

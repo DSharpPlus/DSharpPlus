@@ -16,7 +16,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the channel for which the message was acknowledged.
         /// </summary>
         public DiscordChannel Channel 
-            => this.Message.Channel;
+            => Message.Channel;
 
         internal MessageAcknowledgeEventArgs(DiscordClient client) : base(client) { }
     }

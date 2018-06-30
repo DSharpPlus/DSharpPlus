@@ -7,60 +7,78 @@ using System.Collections.ObjectModel;
 using System.IO;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using System.ComponentModel;
+
+#if WINDOWS_UWP
+using Windows.UI.Xaml.Media;
+using Windows.UI;
+using Media = Windows.UI;
+#elif WINDOWS_WPF
+using System.Windows.Media;
+using Media = System.Windows.Media;
+#endif
 
 namespace DSharpPlus.Entities
 {
     /// <summary>
     /// Represents a Discord guild member.
     /// </summary>
-    public class DiscordMember : DiscordUser, IEquatable<DiscordMember>
+    public class DiscordMember : DiscordUser, IEquatable<DiscordMember>, INotifyPropertyChanged
     {
         internal DiscordMember()
         {
-            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
+            _role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(_role_ids));
         }
 
         internal DiscordMember(DiscordUser user)
         {
-            this.Discord = user.Discord;
+            Discord = user.Discord;
 
-            this.Id = user.Id;
+            Id = user.Id;
 
-            this._role_ids = new List<ulong>();
-            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
+            _role_ids = new List<ulong>();
+            _role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(_role_ids));
         }
 
         internal DiscordMember(TransportMember mbr)
         {
-            this.Id = mbr.User.Id;
-            this.IsDeafened = mbr.IsDeafened;
-            this.IsMuted = mbr.IsMuted;
-            this.JoinedAt = mbr.JoinedAt;
-            this.Nickname = mbr.Nickname;
+            Id = mbr.User.Id;
+            IsDeafened = mbr.IsDeafened;
+            IsMuted = mbr.IsMuted;
+            JoinedAt = mbr.JoinedAt;
+            Nickname = mbr.Nickname;
 
-            this._role_ids = mbr.Roles ?? new List<ulong>();
-            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
+            _role_ids = mbr.Roles ?? new List<ulong>();
+            _role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(_role_ids));
         }
 
         /// <summary>
         /// Gets this member's nickname.
         /// </summary>
         [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
-        public string Nickname { get; internal set; }
+        public string Nickname
+        {
+            get => _nickname;
+            internal set
+            {
+                OnPropertySet(ref _nickname, value);
+                InvokePropertyChanged(nameof(DisplayName));
+            }
+        }
 
         /// <summary>
         /// Gets this member's display name.
         /// </summary>
         [JsonIgnore]
-        public string DisplayName 
-            => this.Nickname ?? this.Username;
+        public string DisplayName
+            => Nickname ?? Username;
 
         /// <summary>
         /// List of role ids
         /// </summary>
         [JsonIgnore]
-        internal IReadOnlyList<ulong> RoleIds 
-            => this._role_ids_lazy.Value;
+        internal IReadOnlyList<ulong> RoleIds
+            => _role_ids_lazy.Value;
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _role_ids;
@@ -71,8 +89,8 @@ namespace DSharpPlus.Entities
         /// Gets the list of roles associated with this member.
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<DiscordRole> Roles 
-            => this.RoleIds.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+        public IEnumerable<DiscordRole> Roles
+            => RoleIds.Select(xid => Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
 
         /// <summary>
         /// Gets the color associated with this user's top color-giving role, otherwise 0 (no color).
@@ -82,12 +100,20 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                var role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color.Value != 0);
+                var role = Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color.Value != 0);
                 if (role != null)
+                {
                     return role.Color;
+                }
+
                 return new DiscordColor();
             }
         }
+
+#if WINDOWS_UWP || WINDOWS_WPF
+        [JsonIgnore]
+        public SolidColorBrush ColorBrush => Color.Value != default(DiscordColor).Value ? new SolidColorBrush(Media.Color.FromArgb(255, Color.R, Color.G, Color.B)) : null;
+#endif
 
         /// <summary>
         /// Date the user joined the guild
@@ -111,38 +137,39 @@ namespace DSharpPlus.Entities
         /// Gets this member's voice state.
         /// </summary>
         [JsonIgnore]
-        public DiscordVoiceState VoiceState 
-            => this.Discord.Guilds[this._guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == this.Id);
+        public DiscordVoiceState VoiceState
+            => Discord.Guilds[_guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == Id);
 
         [JsonIgnore]
         internal ulong _guild_id = 0;
+        private string _nickname;
 
         /// <summary>
         /// Gets the guild of which this member is a part of.
         /// </summary>
         [JsonIgnore]
-        public DiscordGuild Guild 
-            => this.Discord.Guilds[_guild_id];
+        public DiscordGuild Guild
+            => Discord.Guilds[_guild_id];
 
         /// <summary>
         /// Gets whether this member is the Guild owner.
         /// </summary>
         [JsonIgnore]
-        public bool IsOwner 
-            => this.Id == this.Guild.OwnerId;
+        public bool IsOwner
+            => Id == Guild.OwnerId;
 
-        #region Overriden user properties
+#region Overriden user properties
         [JsonIgnore]
-        internal DiscordUser User 
-            => this.Discord.UserCache[this.Id];
+        internal DiscordUser User
+            => Discord.UserCache[Id];
 
         /// <summary>
         /// Gets this member's username.
         /// </summary>
         public override string Username
         {
-            get { return this.User.Username; }
-            internal set { this.User.Username = value; }
+            get { return User.Username; }
+            internal set { User.Username = value; }
         }
 
         /// <summary>
@@ -150,8 +177,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override string Discriminator
         {
-            get { return this.User.Discriminator; }
-            internal set { this.User.Username = value; }
+            get { return User.Discriminator; }
+            internal set { User.Username = value; }
         }
 
         /// <summary>
@@ -159,8 +186,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override string AvatarHash
         {
-            get { return this.User.AvatarHash; }
-            internal set { this.User.AvatarHash = value; }
+            get { return User.AvatarHash; }
+            internal set { User.AvatarHash = value; }
         }
 
         /// <summary>
@@ -168,8 +195,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override bool IsBot
         {
-            get { return this.User.IsBot; }
-            internal set { this.User.IsBot = value; }
+            get { return User.IsBot; }
+            internal set { User.IsBot = value; }
         }
 
         /// <summary>
@@ -177,8 +204,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override string Email
         {
-            get { return this.User.Email; }
-            internal set { this.User.Email = value; }
+            get { return User.Email; }
+            internal set { User.Email = value; }
         }
 
         /// <summary>
@@ -186,8 +213,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override bool? MfaEnabled
         {
-            get { return this.User.MfaEnabled; }
-            internal set { this.User.MfaEnabled = value; }
+            get { return User.MfaEnabled; }
+            internal set { User.MfaEnabled = value; }
         }
 
         /// <summary>
@@ -195,17 +222,17 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override bool? Verified
         {
-            get { return this.User.Verified; }
-            internal set { this.User.Verified = value; }
+            get { return User.Verified; }
+            internal set { User.Verified = value; }
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// Creates a direct message channel to this member.
         /// </summary>
         /// <returns>Direct message channel to this member.</returns>
-        public Task<DiscordDmChannel> CreateDmChannelAsync() 
-            => this.Discord.ApiClient.CreateDmAsync(this.Id);
+        public Task<DiscordDmChannel> CreateDmChannelAsync()
+            => Discord.ApiClient.CreateDmAsync(Id);
 
         /// <summary>
         /// Sends a direct message to this member. Creates a direct message channel if one does not exist already.
@@ -216,10 +243,12 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendMessageAsync(string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
-            if (this.IsBot && this.Discord.CurrentUser.IsBot)
+            if (IsBot && Discord.CurrentUser.IsBot)
+            {
                 throw new ArgumentException("Bots cannot DM each other");
-            
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
+            }
+
+            var chn = await CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendMessageAsync(content, is_tts, embed).ConfigureAwait(false);
         }
 
@@ -234,10 +263,12 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
-            if (this.IsBot && this.Discord.CurrentUser.IsBot)
+            if (IsBot && Discord.CurrentUser.IsBot)
+            {
                 throw new ArgumentException("Bots cannot DM each other");
-            
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
+            }
+
+            var chn = await CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendFileAsync(file_data, file_name, content, is_tts, embed).ConfigureAwait(false);
         }
 
@@ -252,7 +283,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
+            var chn = await CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendFileAsync(file_data, content, is_tts, embed).ConfigureAwait(false);
         }
 
@@ -266,7 +297,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
+            var chn = await CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendFileAsync(file_path, content, is_tts, embed).ConfigureAwait(false);
         }
 #endif
@@ -281,7 +312,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
+            var chn = await CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendMultipleFilesAsync(files, content, is_tts, embed).ConfigureAwait(false);
         }
 
@@ -291,17 +322,17 @@ namespace DSharpPlus.Entities
         /// <param name="mute">Whether the member is to be muted.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task SetMuteAsync(bool mute, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, mute, default, default, reason);
-        
+        public Task SetMuteAsync(bool mute, string reason = null)
+            => Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, Id, default, default, mute, default, default, reason);
+
         /// <summary>
         /// Sets this member's voice deaf status.
         /// </summary>
         /// <param name="deaf">Whether the member is to be deafened.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task SetDeafAsync(bool deaf, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, default, deaf, default, reason);
+        public Task SetDeafAsync(bool deaf, string reason = null)
+            => Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, Id, default, default, default, deaf, default, reason);
 
         /// <summary>
         /// Modifies this member.
@@ -314,19 +345,21 @@ namespace DSharpPlus.Entities
             action(mdl);
 
             if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value.Type != ChannelType.Voice)
-                throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
-
-            if (mdl.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
             {
-                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, mdl.Nickname.Value,
+                throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
+            }
+
+            if (mdl.Nickname.HasValue && Discord.CurrentUser.Id == Id)
+            {
+                await Discord.ApiClient.ModifyCurrentMemberNicknameAsync(Guild.Id, mdl.Nickname.Value,
                     mdl.AuditLogReason).ConfigureAwait(false);
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, null,
+                await Discord.ApiClient.ModifyGuildMemberAsync(Guild.Id, Id, null,
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
                     mdl.VoiceChannel.IfPresent(e => e.Id), mdl.AuditLogReason).ConfigureAwait(false);
             }
             else
             {
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname,
+                await Discord.ApiClient.ModifyGuildMemberAsync(Guild.Id, Id, mdl.Nickname,
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
                     mdl.VoiceChannel.IfPresent(e => e.Id), mdl.AuditLogReason).ConfigureAwait(false);
             }
@@ -338,8 +371,8 @@ namespace DSharpPlus.Entities
         /// <param name="role">Role to grant.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task GrantRoleAsync(DiscordRole role, string reason = null) 
-            => this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+        public Task GrantRoleAsync(DiscordRole role, string reason = null)
+            => Discord.ApiClient.AddGuildMemberRoleAsync(Guild.Id, Id, role.Id, reason);
 
         /// <summary>
         /// Revokes a role from a member.
@@ -347,8 +380,8 @@ namespace DSharpPlus.Entities
         /// <param name="role">Role to revoke.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task RevokeRoleAsync(DiscordRole role, string reason = null) 
-            => this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+        public Task RevokeRoleAsync(DiscordRole role, string reason = null)
+            => Discord.ApiClient.RemoveGuildMemberRoleAsync(Guild.Id, Id, role.Id, reason);
 
         /// <summary>
         /// Sets the member's roles to ones specified.
@@ -356,8 +389,8 @@ namespace DSharpPlus.Entities
         /// <param name="roles">Roles to set.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
+        public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null)
+            => Discord.ApiClient.ModifyGuildMemberAsync(Guild.Id, Id, default,
                 new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, reason);
 
         /// <summary>
@@ -366,10 +399,10 @@ namespace DSharpPlus.Entities
         /// <param name="delete_message_days">How many days to remove messages from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task BanAsync(int delete_message_days = 0, string reason = null) 
-            => this.Guild.BanMemberAsync(this, delete_message_days, reason);
+        public Task BanAsync(int delete_message_days = 0, string reason = null)
+            => Guild.BanMemberAsync(this, delete_message_days, reason);
 
-        public Task UnbanAsync(string reason = null) => this.Guild.UnbanMemberAsync(this, reason);
+        public Task UnbanAsync(string reason = null) => Guild.UnbanMemberAsync(this, reason);
 
         /// <summary>
         /// Kicks this member from their guild.
@@ -377,14 +410,14 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task RemoveAsync(string reason = null)
-            => this.Discord.ApiClient.RemoveGuildMemberAsync(this._guild_id, this.Id, reason);
+            => Discord.ApiClient.RemoveGuildMemberAsync(_guild_id, Id, reason);
 
         /// <summary>
         /// Moves this member to the specified voice channel
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
-        public Task PlaceInAsync(DiscordChannel channel) 
+        public Task PlaceInAsync(DiscordChannel channel)
             => channel.PlaceMemberAsync(this);
 
         /// <summary>
@@ -392,7 +425,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">Channel to calculate permissions for.</param>
         /// <returns>Calculated permissions for this member in the channel.</returns>
-        public Permissions PermissionsIn(DiscordChannel channel) 
+        public Permissions PermissionsIn(DiscordChannel channel)
             => channel.PermissionsFor(this);
 
         /// <summary>
@@ -401,7 +434,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this member.</returns>
         public override string ToString()
         {
-            return $"Member {this.Id}; {this.Username}#{this.Discriminator} ({this.DisplayName})";
+            return $"Member {Id}; {Username}#{Discriminator} ({DisplayName})";
         }
 
         /// <summary>
@@ -411,7 +444,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordMember);
+            return Equals(obj as DiscordMember);
         }
 
         /// <summary>
@@ -422,12 +455,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordMember e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id && this._guild_id == e._guild_id;
+            return Id == e.Id && _guild_id == e._guild_id;
         }
 
         /// <summary>
@@ -438,8 +475,8 @@ namespace DSharpPlus.Entities
         {
             int hash = 13;
 
-            hash = (hash * 7) + this.Id.GetHashCode();
-            hash = (hash * 7) + this._guild_id.GetHashCode();
+            hash = (hash * 7) + Id.GetHashCode();
+            hash = (hash * 7) + _guild_id.GetHashCode();
 
             return hash;
         }
@@ -456,10 +493,14 @@ namespace DSharpPlus.Entities
             var o2 = e2 as object;
 
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            {
                 return false;
+            }
 
             if (o1 == null && o2 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id && e1._guild_id == e2._guild_id;
         }
@@ -470,7 +511,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First member to compare.</param>
         /// <param name="e2">Second member to compare.</param>
         /// <returns>Whether the two members are not equal.</returns>
-        public static bool operator !=(DiscordMember e1, DiscordMember e2) 
+        public static bool operator !=(DiscordMember e1, DiscordMember e2)
             => !(e1 == e2);
     }
 }

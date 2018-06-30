@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -44,37 +45,49 @@ namespace DSharpPlus
 
         public AsyncEvent(Action<string, Exception> errhandler, string event_name)
         {
-            this.Handlers = new List<AsyncEventHandler>();
-            this.ErrorHandler = errhandler;
-            this.EventName = event_name;
+            Handlers = new List<AsyncEventHandler>();
+            ErrorHandler = errhandler;
+            EventName = event_name;
         }
 
         public void Register(AsyncEventHandler handler)
         {
             if (handler == null)
+            {
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
+            }
 
-            lock (this._lock)
-                this.Handlers.Add(handler);
+            lock (_lock)
+            {
+                Handlers.Add(handler);
+            }
         }
 
         public void Unregister(AsyncEventHandler handler)
         {
             if (handler == null)
+            {
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
+            }
 
-            lock (this._lock)
-                this.Handlers.Remove(handler);
+            lock (_lock)
+            {
+                Handlers.Remove(handler);
+            }
         }
 
         public async Task InvokeAsync()
         {
             AsyncEventHandler[] handlers = null;
-            lock (this._lock)
-                handlers = this.Handlers.ToArray();
+            lock (_lock)
+            {
+                handlers = Handlers.ToArray();
+            }
 
             if (!handlers.Any())
+            {
                 return;
+            }
 
             var exs = new List<Exception>(handlers.Length);
             for (var i = 0; i < handlers.Length; i++)
@@ -90,7 +103,9 @@ namespace DSharpPlus
             }
 
             if (exs.Any())
-                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
+            {
+                ErrorHandler(EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
+            }
         }
     }
 
@@ -107,37 +122,50 @@ namespace DSharpPlus
 
         public AsyncEvent(Action<string, Exception> errhandler, string event_name)
         {
-            this.Handlers = new List<AsyncEventHandler<T>>();
-            this.ErrorHandler = errhandler;
-            this.EventName = event_name;
+            Handlers = new List<AsyncEventHandler<T>>();
+            ErrorHandler = errhandler;
+            EventName = event_name;
         }
 
         public void Register(AsyncEventHandler<T> handler)
         {
             if (handler == null)
+            {
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
+            }
 
-            lock (this._lock)
-                this.Handlers.Add(handler);
+            lock (_lock)
+            {
+                Handlers.Add(handler);
+            }
         }
 
         public void Unregister(AsyncEventHandler<T> handler)
         {
             if (handler == null)
+            {
                 throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
+            }
 
-            lock (this._lock)
-                this.Handlers.Remove(handler);
+            lock (_lock)
+            {
+                Handlers.Remove(handler);
+            }
         }
 
+        [DebuggerNonUserCode]
         public async Task InvokeAsync(T e)
         {
             AsyncEventHandler<T>[] handlers = null;
-            lock (this._lock)
-                handlers = this.Handlers.ToArray();
+            lock (_lock)
+            {
+                handlers = Handlers.ToArray();
+            }
 
             if (!handlers.Any())
+            {
                 return;
+            }
 
             var exs = new List<Exception>(handlers.Length);
             for (var i = 0; i < handlers.Length; i++)
@@ -147,7 +175,9 @@ namespace DSharpPlus
                     await handlers[i](e).ConfigureAwait(false);
 
                     if (e.Handled)
+                    {
                         break;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -156,7 +186,9 @@ namespace DSharpPlus
             }
 
             if (exs.Any())
-                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
+            {
+                ErrorHandler(EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
+            }
         }
     }
 }

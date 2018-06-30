@@ -65,7 +65,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordActivity()
         {
-            this.ActivityType = ActivityType.Playing;
+            ActivityType = ActivityType.Playing;
         }
 
         /// <summary>
@@ -74,8 +74,8 @@ namespace DSharpPlus.Entities
         /// <param name="name">Name of the activity.</param>
         public DiscordActivity(string name)
         {
-            this.Name = name;
-            this.ActivityType = ActivityType.Playing;
+            Name = name;
+            ActivityType = ActivityType.Playing;
         }
 
         /// <summary>
@@ -85,35 +85,41 @@ namespace DSharpPlus.Entities
         /// <param name="type">Type of the activity.</param>
         public DiscordActivity(string name, ActivityType type)
         {
-            this.Name = name;
-            this.ActivityType = type;
+            Name = name;
+            ActivityType = type;
         }
 
         internal DiscordActivity(TransportActivity rawActivity)
         {
-            this.UpdateWith(rawActivity);
+            UpdateWith(rawActivity);
         }
 
         internal DiscordActivity(DiscordActivity other)
         {
-            this.Name = other.Name;
-            this.ActivityType = other.ActivityType;
-            this.StreamUrl = other.StreamUrl;
-            this.RichPresence = new DiscordRichPresence(other.RichPresence);
+            Name = other.Name;
+            ActivityType = other.ActivityType;
+            StreamUrl = other.StreamUrl;
+            RichPresence = new DiscordRichPresence(other.RichPresence);
         }
 
         internal void UpdateWith(TransportActivity rawActivity)
         {
-            this.Name = rawActivity?.Name;
-            this.ActivityType = rawActivity != null ? rawActivity.ActivityType : ActivityType.Playing;
-            this.StreamUrl = rawActivity?.StreamUrl;
+            Name = rawActivity?.Name;
+            ActivityType = rawActivity != null ? rawActivity.ActivityType : ActivityType.Playing;
+            StreamUrl = rawActivity?.StreamUrl;
 
-            if (rawActivity?.IsRichPresence() == true && this.RichPresence != null)
-                this.RichPresence.UpdateWith(rawActivity);
+            if (rawActivity?.IsRichPresence() == true && RichPresence != null)
+            {
+                RichPresence.UpdateWith(rawActivity);
+            }
             else if (rawActivity?.IsRichPresence() == true)
-                this.RichPresence = new DiscordRichPresence(rawActivity);
+            {
+                RichPresence = new DiscordRichPresence(rawActivity);
+            }
             else
-                this.RichPresence = null;
+            {
+                RichPresence = null;
+            }
         }
     }
 
@@ -206,65 +212,76 @@ namespace DSharpPlus.Entities
 
         internal DiscordRichPresence(TransportActivity rawGame)
         {
-            this.UpdateWith(rawGame);
+            UpdateWith(rawGame);
         }
 
         internal DiscordRichPresence(DiscordRichPresence other)
         {
-            this.Details = other.Details;
-            this.State = other.State;
-            this.Application = other.Application;
-            this.Instance = other.Instance;
-            this.LargeImageText = other.LargeImageText;
-            this.SmallImageText = other.SmallImageText;
-            this.LargeImage = other.LargeImage;
-            this.SmallImage = other.SmallImage;
-            this.CurrentPartySize = other.CurrentPartySize;
-            this.MaximumPartySize = other.MaximumPartySize;
-            this.PartyId = other.PartyId;
-            this.StartTimestamp = other.StartTimestamp;
-            this.EndTimestamp = other.EndTimestamp;
-            this.JoinSecret = other.JoinSecret;
-            this.MatchSecret = other.MatchSecret;
-            this.SpectateSecret = other.SpectateSecret;
+            Details = other.Details;
+            State = other.State;
+            Application = other.Application;
+            Instance = other.Instance;
+            LargeImageText = other.LargeImageText;
+            SmallImageText = other.SmallImageText;
+            LargeImage = other.LargeImage;
+            SmallImage = other.SmallImage;
+            CurrentPartySize = other.CurrentPartySize;
+            MaximumPartySize = other.MaximumPartySize;
+            PartyId = other.PartyId;
+            StartTimestamp = other.StartTimestamp;
+            EndTimestamp = other.EndTimestamp;
+            JoinSecret = other.JoinSecret;
+            MatchSecret = other.MatchSecret;
+            SpectateSecret = other.SpectateSecret;
         }
 
         internal void UpdateWith(TransportActivity rawGame)
         {
-            this.Details = rawGame?.Details;
-            this.State = rawGame?.State;
-            this.Application = rawGame?.ApplicationId != null ? new DiscordApplication { Id = rawGame.ApplicationId.Value } : null;
-            this.Instance = rawGame?.Instance;
-            this.LargeImageText = rawGame?.Assets?.LargeImageText;
-            this.SmallImageText = rawGame?.Assets?.SmallImageText;
+            Details = rawGame?.Details;
+            State = rawGame?.State;
+            Application = rawGame?.ApplicationId != null ? new DiscordApplication { Id = rawGame.ApplicationId.Value } : null;
+            Instance = rawGame?.Instance;
+            LargeImageText = rawGame?.Assets?.LargeImageText;
+            SmallImageText = rawGame?.Assets?.SmallImageText;
             //this.LargeImage = rawGame?.Assets?.LargeImage != null ? new DiscordApplicationAsset { Application = this.Application, Id = rawGame.Assets.LargeImage.Value, Type = ApplicationAssetType.LargeImage } : null;
             //this.SmallImage = rawGame?.Assets?.SmallImage != null ? new DiscordApplicationAsset { Application = this.Application, Id = rawGame.Assets.SmallImage.Value, Type = ApplicationAssetType.SmallImage } : null;
-            this.CurrentPartySize = rawGame?.Party?.Size?.Current;
-            this.MaximumPartySize = rawGame?.Party?.Size?.Maximum;
+            CurrentPartySize = rawGame?.Party?.Size?.Current;
+            MaximumPartySize = rawGame?.Party?.Size?.Maximum;
             if (rawGame?.Party != null && ulong.TryParse(rawGame.Party.Id, NumberStyles.Number, CultureInfo.InvariantCulture, out var partyId))
-                this.PartyId = partyId;
-            this.StartTimestamp = rawGame?.Timestamps?.Start;
-            this.EndTimestamp = rawGame?.Timestamps?.End;
-            this.JoinSecret = rawGame?.Secrets?.Join;
-            this.MatchSecret = rawGame?.Secrets?.Match;
-            this.SpectateSecret = rawGame?.Secrets?.Spectate;
+            {
+                PartyId = partyId;
+            }
+
+            StartTimestamp = rawGame?.Timestamps?.Start;
+            EndTimestamp = rawGame?.Timestamps?.End;
+            JoinSecret = rawGame?.Secrets?.Join;
+            MatchSecret = rawGame?.Secrets?.Match;
+            SpectateSecret = rawGame?.Secrets?.Spectate;
 
             var lid = rawGame?.Assets?.LargeImage;
             if (lid != null)
             {
                 if (lid.StartsWith("spotify:"))
-                    this.LargeImage = new DiscordSpotifyAsset { Id = lid };
+                {
+                    LargeImage = new DiscordSpotifyAsset { Id = lid };
+                }
                 else if (ulong.TryParse(lid, NumberStyles.Number, CultureInfo.InvariantCulture, out var ulid))
-                    this.LargeImage = new DiscordApplicationAsset { Id = lid, Application = this.Application, Type = ApplicationAssetType.LargeImage };
+                {
+                    LargeImage = new DiscordApplicationAsset { Id = lid, Application = Application, Type = ApplicationAssetType.LargeImage };
+                }
             }
 
             var sid = rawGame?.Assets?.SmallImage;
             if (sid != null)
             {
                 if (sid.StartsWith("spotify:"))
-                    this.SmallImage = new DiscordSpotifyAsset { Id = sid };
+                {
+                    SmallImage = new DiscordSpotifyAsset { Id = sid };
+                }
                 else if (ulong.TryParse(sid, NumberStyles.Number, CultureInfo.InvariantCulture, out var usid))
-                    this.SmallImage = new DiscordApplicationAsset { Id = sid, Application = this.Application, Type = ApplicationAssetType.LargeImage };
+                {
+                    SmallImage = new DiscordApplicationAsset { Id = sid, Application = Application, Type = ApplicationAssetType.LargeImage };
+                }
             }
         }
     }

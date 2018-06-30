@@ -48,7 +48,7 @@ namespace DSharpPlus.Entities
         /// Gets the default avatar url for this webhook.
         /// </summary>
         public string AvatarUrl 
-            => $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024";
+            => $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024";
 
         /// <summary>
         /// Gets the secure token of this webhook.
@@ -68,12 +68,18 @@ namespace DSharpPlus.Entities
         {
             var avatarb64 = Optional<string>.FromNoValue();
             if (avatar.HasValue && avatar.Value != null)
+            {
                 using (var imgtool = new ImageTool(avatar.Value))
+                {
                     avatarb64 = imgtool.GetBase64();
+                }
+            }
             else if (avatar.HasValue)
+            {
                 avatarb64 = null;
-                    
-            return this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, avatarb64, Token);
+            }
+
+            return Discord.ApiClient.ModifyWebhookAsync(Id, name, avatarb64, Token);
         }
 
         /// <summary>
@@ -81,7 +87,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns></returns>
         public Task DeleteAsync() 
-            => this.Discord.ApiClient.DeleteWebhookAsync(this.Id, Token);
+            => Discord.ApiClient.DeleteWebhookAsync(Id, Token);
 
         /// <summary>
         /// Executes this webhook.
@@ -93,7 +99,7 @@ namespace DSharpPlus.Entities
         /// <param name="embeds">Embeds to attach to the message being sent.</param>
         /// <returns></returns>
         public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null) 
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
+            => (Discord?.ApiClient ?? ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds);
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.
@@ -101,7 +107,7 @@ namespace DSharpPlus.Entities
         /// <param name="json">JSON containing Slack-compatible payload for this webhook.</param>
         /// <returns></returns>
         public Task ExecuteSlackAsync(string json) 
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
+            => (Discord?.ApiClient ?? ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
 
         /// <summary>
         /// Executes this webhook in GitHub compatibility mode.
@@ -109,7 +115,7 @@ namespace DSharpPlus.Entities
         /// <param name="json">JSON containing GitHub-compatible payload for this webhook.</param>
         /// <returns></returns>
         public Task ExecuteGithubAsync(string json) 
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
+            => (Discord?.ApiClient ?? ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordWebhook"/> is equal to another object.
@@ -118,7 +124,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordWebhook"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordWebhook);
+            return Equals(obj as DiscordWebhook);
         }
 
         /// <summary>
@@ -129,12 +135,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordWebhook e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id;
+            return Id == e.Id;
         }
 
         /// <summary>
@@ -143,7 +153,7 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordWebhook"/>.</returns>
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            return Id.GetHashCode();
         }
 
         /// <summary>
@@ -158,10 +168,14 @@ namespace DSharpPlus.Entities
             var o2 = e2 as object;
 
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            {
                 return false;
+            }
 
             if (o1 == null && o2 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id;
         }

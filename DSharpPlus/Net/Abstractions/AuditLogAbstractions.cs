@@ -49,15 +49,15 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonIgnore]
         public IEnumerable<JObject> OldValues 
-            => (this.OldValue as JArray)?.ToObject<IEnumerable<JObject>>();
+            => (OldValue as JArray)?.ToObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
         public ulong OldValueUlong 
-            => (ulong)this.OldValue;
+            => (ulong)OldValue;
 
         [JsonIgnore]
         public string OldValueString 
-            => (string)this.OldValue;
+            => (string)OldValue;
 
         // this can be a string or an array
         [JsonProperty("new_value")]
@@ -65,15 +65,15 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonIgnore]
         public IEnumerable<JObject> NewValues 
-            => (this.NewValue as JArray)?.ToObject<IEnumerable<JObject>>();
+            => (NewValue as JArray)?.ToObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
         public ulong NewValueUlong 
-            => (ulong)this.NewValue;
+            => (ulong)NewValue;
 
         [JsonIgnore]
         public string NewValueString 
-            => (string)this.NewValue;
+            => (string)NewValue;
 
         [JsonProperty("key")]
         public string Key { get; set; }

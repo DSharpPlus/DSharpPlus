@@ -6,8 +6,10 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a user presence.
     /// </summary>
-    public class DiscordPresence
+    public class DiscordPresence : PropertyChangedBase
     {
+        private string _internalStatus;
+
         [JsonIgnore]
         internal DiscordClient Discord { get; set; }
 
@@ -18,8 +20,8 @@ namespace DSharpPlus.Entities
         /// Gets the user that owns this presence.
         /// </summary>
         [JsonIgnore]
-        public DiscordUser User 
-            => this.Discord.InternalGetCachedUser(this.InternalUser.Id);
+        public DiscordUser User
+            => Discord.InternalGetCachedUser(InternalUser.Id);
 
         /// <summary>
         /// Gets the game this user is playing.
@@ -29,9 +31,17 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportActivity RawActivity { get; set; }
-        
+
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-        internal string InternalStatus { get; set; }
+        internal string InternalStatus
+        {
+            get => _internalStatus;
+            set
+            {
+                OnPropertySet(ref _internalStatus, value);
+                InvokePropertyChanged(nameof(Status));
+            }
+        }
 
         /// <summary>
         /// Gets this user's status.
@@ -41,7 +51,7 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                switch (this.InternalStatus.ToLowerInvariant())
+                switch (InternalStatus?.ToLowerInvariant())
                 {
                     case "online":
                         return UserStatus.Online;
@@ -69,18 +79,18 @@ namespace DSharpPlus.Entities
         /// Gets the guild for which this presence was set.
         /// </summary>
         [JsonIgnore]
-        public DiscordGuild Guild 
-            => this.GuildId != 0 ? this.Discord._guilds[this.GuildId] : null;
+        public DiscordGuild Guild
+            => GuildId != 0 ? Discord._guilds[GuildId] : null;
 
         internal DiscordPresence() { }
 
         internal DiscordPresence(DiscordPresence other)
         {
-            this.Discord = other.Discord;
-            this.Activity = other.Activity;
-            this.RawActivity = other.RawActivity;
-            this.InternalStatus = other.InternalStatus;
-            this.InternalUser = new TransportUser(other.InternalUser);
+            Discord = other.Discord;
+            Activity = other.Activity;
+            RawActivity = other.RawActivity;
+            InternalStatus = other.InternalStatus;
+            InternalUser = new TransportUser(other.InternalUser);
         }
     }
 }

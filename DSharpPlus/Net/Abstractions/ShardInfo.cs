@@ -44,7 +44,10 @@ namespace DSharpPlus.Net.Abstractions
         {
             var arr = serializer.Deserialize<JToken>(reader) as JArray;
             if (arr == null || arr.Count != 2)
+            {
                 throw new JsonSerializationException("Expected array of length 2");
+            }
+
             return arr;
         }
 

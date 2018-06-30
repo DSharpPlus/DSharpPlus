@@ -79,7 +79,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task<DiscordInvite> DeleteAsync(string reason = null) 
-            => this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);
+            => Discord.ApiClient.DeleteInviteAsync(Code, reason);
 
         /*
          * Disabled due to API restrictions.
@@ -99,7 +99,7 @@ namespace DSharpPlus.Entities
         /// <returns>A discord.gg invite link.</returns>
         public override string ToString()
         {
-            return $"https://discord.gg/{this.Code}";
+            return $"https://discord.gg/{Code}";
         }
     }
 }

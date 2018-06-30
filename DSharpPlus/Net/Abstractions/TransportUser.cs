@@ -19,6 +19,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsBot { get; internal set; }
 
+        [JsonProperty("premium", NullValueHandling = NullValueHandling.Ignore)]
+        public bool IsPremium { get; internal set; }
+
         [JsonProperty("mfa_enabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool? MfaEnabled { get; internal set; }
 
@@ -32,14 +35,14 @@ namespace DSharpPlus.Net.Abstractions
 
         internal TransportUser(TransportUser other)
         {
-            this.Id = other.Id;
-            this.Username = other.Username;
-            this.Discriminator = other.Discriminator;
-            this.AvatarHash = other.AvatarHash;
-            this.IsBot = other.IsBot;
-            this.MfaEnabled = other.MfaEnabled;
-            this.Verified = other.Verified;
-            this.Email = other.Email;
+            Id = other.Id;
+            Username = other.Username;
+            Discriminator = other.Discriminator;
+            AvatarHash = other.AvatarHash;
+            IsBot = other.IsBot;
+            MfaEnabled = other.MfaEnabled;
+            Verified = other.Verified;
+            Email = other.Email;
         }
     }
 }

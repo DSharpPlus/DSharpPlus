@@ -52,12 +52,12 @@ namespace DSharpPlus.VoiceNext.Codec
             if (!AllowedChannelCounts.Contains(channels))
                 throw new ArgumentOutOfRangeException(nameof(channels), string.Concat("Channel count must be one of ", string.Join(", ", AllowedChannelCounts)));
 
-            this.SampleRate = sampleRate;
-            this.Channels = channels;
-            this.Application = application;
-            
-            this.Encoder = CreateEncoder(this.SampleRate, this.Channels, (int)this.Application, out var err);
-            this.CheckForError(err);
+            SampleRate = sampleRate;
+            Channels = channels;
+            Application = application;
+
+            Encoder = CreateEncoder(SampleRate, Channels, (int)Application, out var err);
+            CheckForError(err);
 
             var sig = OpusSignal.Auto;
             switch (application)
@@ -71,27 +71,27 @@ namespace DSharpPlus.VoiceNext.Codec
                     break;
             }
 
-            err = EncoderControl(this.Encoder, OpusControl.SetSignal, (int)sig);
-            this.CheckForError(err);
+            err = EncoderControl(Encoder, OpusControl.SetSignal, (int)sig);
+            CheckForError(err);
 
-            err = EncoderControl(this.Encoder, OpusControl.SetPacketLossPercent, 15);
-            this.CheckForError(err);
+            err = EncoderControl(Encoder, OpusControl.SetPacketLossPercent, 15);
+            CheckForError(err);
 
-            err = EncoderControl(this.Encoder, OpusControl.SetInBandFec, 1);
-            this.CheckForError(err);
+            err = EncoderControl(Encoder, OpusControl.SetInBandFec, 1);
+            CheckForError(err);
 
-            err = EncoderControl(this.Encoder, OpusControl.SetBitrate, 131072);
-            this.CheckForError(err);
+            err = EncoderControl(Encoder, OpusControl.SetBitrate, 131072);
+            CheckForError(err);
 
 #if !NETSTANDARD1_1
-            this.Decoder = CreateDecoder(this.SampleRate, this.Channels, out err);
-            this.CheckForError(err);
+            Decoder = CreateDecoder(SampleRate, Channels, out err);
+            CheckForError(err);
 #endif
         }
 
         ~OpusCodec()
         {
-            this.Dispose();
+            Dispose();
         }
 
         static OpusCodec()
@@ -102,13 +102,13 @@ namespace DSharpPlus.VoiceNext.Codec
 
         public unsafe byte[] Encode(byte[] pcmData, int offset, int count, int bitRate = 16)
         {
-            if (this.IsDisposed)
-                throw new ObjectDisposedException(nameof(this.Encoder), "Encoder is disposed");
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(Encoder), "Encoder is disposed");
 
             var frame = new byte[count];
             Array.Copy(pcmData, offset, frame, 0, frame.Length);
 
-            var frame_size = this.FrameCount(frame.Length, bitRate);
+            var frame_size = FrameCount(frame.Length, bitRate);
             var encdata = IntPtr.Zero;
             var enc = new byte[frame.Length];
             int len = 0;
@@ -116,7 +116,7 @@ namespace DSharpPlus.VoiceNext.Codec
             fixed (byte* encptr = enc)
             {
                 encdata = new IntPtr(encptr);
-                len = Encode(this.Encoder, frame, frame_size, encdata, enc.Length);
+                len = Encode(Encoder, frame, frame_size, encdata, enc.Length);
             }
 
             if (len < 0)
@@ -129,12 +129,12 @@ namespace DSharpPlus.VoiceNext.Codec
 #if !NETSTANDARD1_1
         public unsafe byte[] Decode(byte[] opusData, int offset, int count, int bitRate = 16)
         {
-            if (this.IsDisposed)
-                throw new ObjectDisposedException(nameof(this.Decoder), "Decoder is disposed");
+            if (IsDisposed)
+                throw new ObjectDisposedException(nameof(Decoder), "Decoder is disposed");
 
             var frame = new byte[PCM_SAMPLE_SIZE];
             
-            var frame_size = this.FrameCount(frame.Length, bitRate);
+            var frame_size = FrameCount(frame.Length, bitRate);
             var decdata = IntPtr.Zero;
             var len = 0;
             var opus = new byte[count];
@@ -143,7 +143,7 @@ namespace DSharpPlus.VoiceNext.Codec
             fixed (byte* decptr = frame)
             {
                 decdata = new IntPtr(decptr);
-                len = Decode(this.Decoder, opus, frame_size, decdata, frame.Length, 0);
+                len = Decode(Decoder, opus, frame_size, decdata, frame.Length, 0);
             }
 
             if (len < 0)
@@ -156,20 +156,20 @@ namespace DSharpPlus.VoiceNext.Codec
 
         public void Dispose()
         {
-            if (this.IsDisposed)
+            if (IsDisposed)
                 return;
             
-            if (this.Encoder != IntPtr.Zero)
-                DestroyEncoder(this.Encoder);
-            this.Encoder = IntPtr.Zero;
+            if (Encoder != IntPtr.Zero)
+                DestroyEncoder(Encoder);
+            Encoder = IntPtr.Zero;
 
 #if !NETSTANDARD1_1
-            if (this.Decoder != IntPtr.Zero)
-                DestroyDecoder(this.Decoder);
-            this.Decoder = IntPtr.Zero;
+            if (Decoder != IntPtr.Zero)
+                DestroyDecoder(Decoder);
+            Decoder = IntPtr.Zero;
 #endif
 
-            this.IsDisposed = true;
+            IsDisposed = true;
         }
 
         private int FrameCount(int length, int bitRate)

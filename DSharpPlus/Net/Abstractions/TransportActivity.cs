@@ -53,10 +53,10 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public ulong? ApplicationId
         {
-            get { return this.ApplicationIdStr != null ? (ulong?)ulong.Parse(this.ApplicationIdStr, CultureInfo.InvariantCulture) : null; }
+            get { return ApplicationIdStr != null ? (ulong?)ulong.Parse(ApplicationIdStr, CultureInfo.InvariantCulture) : null; }
             internal set
             {
-                this.ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
+                ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
             }
         }
 
@@ -108,16 +108,18 @@ namespace DSharpPlus.Net.Abstractions
         internal TransportActivity(DiscordActivity game)
         {
             if (game == null)
+            {
                 return;
+            }
 
-            this.Name = game.Name;
-            this.ActivityType = game.ActivityType;
-            this.StreamUrl = game.StreamUrl;
+            Name = game.Name;
+            ActivityType = game.ActivityType;
+            StreamUrl = game.StreamUrl;
         }
 
         public bool IsRichPresence()
         {
-            return this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
+            return Details != null || State != null || ApplicationId != null || Instance != null || Party != null || Assets != null || Secrets != null || Timestamps != null;
         }
 
         /// <summary>
@@ -195,7 +197,7 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? Start 
-                => this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(this._start.Value, false) : null;
+                => _start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(_start.Value, false) : null;
 
             [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
             internal long? _start;
@@ -205,7 +207,7 @@ namespace DSharpPlus.Net.Abstractions
             /// </summary>
             [JsonIgnore]
             public DateTimeOffset? End 
-                => this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(this._end.Value, false) : null;
+                => _end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(_end.Value, false) : null;
 
             [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
             internal long? _end;
@@ -259,7 +261,10 @@ namespace DSharpPlus.Net.Abstractions
         {
             var arr = serializer.Deserialize<JToken>(reader) as JArray;
             if (arr == null || arr.Count != 2)
+            {
                 throw new JsonSerializationException("Expected array of length 2");
+            }
+
             return arr;
         }
 

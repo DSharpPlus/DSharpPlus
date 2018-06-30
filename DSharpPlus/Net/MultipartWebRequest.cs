@@ -24,8 +24,8 @@ namespace DSharpPlus.Net
             IDictionary<string, Stream> files = null, double? ratelimit_wait_override = null)
             : base(client, bucket, url, method, headers, ratelimit_wait_override)
         {
-            this.Values = values != null ? new ReadOnlyDictionary<string, string>(values) : null;
-            this.Files = files != null ? new ReadOnlyDictionary<string, Stream>(files) : null;
+            Values = values != null ? new ReadOnlyDictionary<string, string>(values) : null;
+            Files = files != null ? new ReadOnlyDictionary<string, Stream>(files) : null;
         }
     }
 }

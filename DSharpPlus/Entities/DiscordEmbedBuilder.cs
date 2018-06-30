@@ -15,12 +15,15 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string Title
         {
-            get { return this._title; }
+            get { return _title; }
             set
             {
                 if (value != null && value.Length > 256)
+                {
                     throw new ArgumentException("Title length cannot exceed 256 characters.", nameof(value));
-                this._title = value;
+                }
+
+                _title = value;
             }
         }
         private string _title;
@@ -30,12 +33,15 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string Description
         {
-            get { return this._description; }
+            get { return _description; }
             set
             {
                 if (value != null && value.Length > 2048)
+                {
                     throw new ArgumentException("Description length cannot exceed 2048 characters.", nameof(value));
-                this._description = value;
+                }
+
+                _description = value;
             }
         }
         private string _description;
@@ -45,13 +51,17 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string Url
         {
-            get { return this._url?.ToString(); }
+            get { return _url?.ToString(); }
             set
             {
                 if (string.IsNullOrEmpty(value))
-                    this._url = null;
+                {
+                    _url = null;
+                }
                 else
-                    this._url = new Uri(value);
+                {
+                    _url = new Uri(value);
+                }
             }
         }
         private Uri _url;
@@ -61,8 +71,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public Optional<DiscordColor> Color
         {
-            get { return this._color; }
-            set { this._color = value; }
+            get { return _color; }
+            set { _color = value; }
         }
         private Optional<DiscordColor> _color;
 
@@ -71,8 +81,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DateTimeOffset? Timestamp
         {
-            get { return this._timestamp; }
-            set { this._timestamp = value; }
+            get { return _timestamp; }
+            set { _timestamp = value; }
         }
         private DateTimeOffset? _timestamp;
 
@@ -81,13 +91,17 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string ImageUrl
         {
-            get { return this._image_uri?.ToString(); }
+            get { return _image_uri?.ToString(); }
             set
             {
                 if (string.IsNullOrEmpty(value))
-                    this._image_uri = null;
+                {
+                    _image_uri = null;
+                }
                 else
-                    this._image_uri = new Uri(value);
+                {
+                    _image_uri = new Uri(value);
+                }
             }
         }
         private Uri _image_uri;
@@ -97,13 +111,17 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string ThumbnailUrl
         {
-            get { return this._thumbnail_uri?.ToString(); }
+            get { return _thumbnail_uri?.ToString(); }
             set
             {
                 if (string.IsNullOrEmpty(value))
-                    this._thumbnail_uri = null;
+                {
+                    _thumbnail_uri = null;
+                }
                 else
-                    this._thumbnail_uri = new Uri(value);
+                {
+                    _thumbnail_uri = new Uri(value);
+                }
             }
         }
         private Uri _thumbnail_uri;
@@ -130,7 +148,7 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder()
         {
             _fields = new List<DiscordEmbedField>();
-            this.Fields = new ReadOnlyCollection<DiscordEmbedField>(this._fields);
+            Fields = new ReadOnlyCollection<DiscordEmbedField>(_fields);
         }
 
         /// <summary>
@@ -139,32 +157,38 @@ namespace DSharpPlus.Entities
         /// <param name="original">Embed to use as prototype.</param>
         public DiscordEmbedBuilder(DiscordEmbed original)
         {
-            this.Title = original.Title;
-            this.Description = original.Description;
-            this.Url = original.Url?.ToString();
-            this.Color = original.Color;
-            this.Timestamp = original.Timestamp;
+            Title = original.Title;
+            Description = original.Description;
+            Url = original.Url?.ToString();
+            Color = original.Color;
+            Timestamp = original.Timestamp;
 
             if (original.Author != null)
-                this.Author = new EmbedAuthor
+            {
+                Author = new EmbedAuthor
                 {
                     IconUrl = original.Author.IconUrl?.ToString(),
                     Name = original.Author.Name,
                     Url = original.Author.Url?.ToString()
                 };
+            }
 
             if (original.Footer != null)
-                this.Footer = new EmbedFooter
+            {
+                Footer = new EmbedFooter
                 {
                     IconUrl = original.Footer.IconUrl?.ToString(),
                     Text = original.Footer.Text
                 };
+            }
 
-            this._fields = original.Fields?.ToList() ?? new List<DiscordEmbedField>();
-            this.Fields = new ReadOnlyCollection<DiscordEmbedField>(this._fields);
+            _fields = original.Fields?.ToList() ?? new List<DiscordEmbedField>();
+            Fields = new ReadOnlyCollection<DiscordEmbedField>(_fields);
 
-            while (this._fields.Count > 25)
-                this._fields.RemoveAt(this._fields.Count - 1);
+            while (_fields.Count > 25)
+            {
+                _fields.RemoveAt(_fields.Count - 1);
+            }
         }
 
         /// <summary>
@@ -174,7 +198,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithTitle(string title)
         {
-            this.Title = title;
+            Title = title;
             return this;
         }
 
@@ -185,7 +209,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithDescription(string description)
         {
-            this.Description = description;
+            Description = description;
             return this;
         }
 
@@ -196,7 +220,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithUrl(string url)
         {
-            this.Url = url;
+            Url = url;
             return this;
         }
 
@@ -207,7 +231,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithUrl(Uri url)
         {
-            this._url = url;
+            _url = url;
             return this;
         }
 
@@ -218,7 +242,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithColor(DiscordColor color)
         {
-            this.Color = color;
+            Color = color;
             return this;
         }
 
@@ -229,7 +253,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithTimestamp(DateTimeOffset? timestamp)
         {
-            this.Timestamp = timestamp;
+            Timestamp = timestamp;
             return this;
         }
 
@@ -241,9 +265,14 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder WithTimestamp(DateTime? timestamp)
         {
             if (timestamp == null)
-                this.Timestamp = null;
+            {
+                Timestamp = null;
+            }
             else
-                this.Timestamp = new DateTimeOffset(timestamp.Value);
+            {
+                Timestamp = new DateTimeOffset(timestamp.Value);
+            }
+
             return this;
         }
 
@@ -254,7 +283,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithTimestamp(ulong snowflake)
         {
-            this.Timestamp = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(snowflake >> 22);
+            Timestamp = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(snowflake >> 22);
             return this;
         }
 
@@ -265,7 +294,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithImageUrl(string url)
         {
-            this.ImageUrl = url;
+            ImageUrl = url;
             return this;
         }
 
@@ -276,7 +305,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithImageUrl(Uri url)
         {
-            this._image_uri = url;
+            _image_uri = url;
             return this;
         }
 
@@ -287,7 +316,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithThumbnailUrl(string url)
         {
-            this.ThumbnailUrl = url;
+            ThumbnailUrl = url;
             return this;
         }
 
@@ -298,7 +327,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithThumbnailUrl(Uri url)
         {
-            this._thumbnail_uri = url;
+            _thumbnail_uri = url;
             return this;
         }
 
@@ -312,14 +341,19 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder WithAuthor(string name = null, string url = null, string icon_url = null)
         {
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(icon_url))
-                this.Author = null;
+            {
+                Author = null;
+            }
             else
-                this.Author = new EmbedAuthor
+            {
+                Author = new EmbedAuthor
                 {
                     Name = name,
                     Url = url,
                     IconUrl = icon_url
                 };
+            }
+
             return this;
         }
 
@@ -355,16 +389,23 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder WithFooter(string text = null, string icon_url = null)
         {
             if (text != null && text.Length > 2048)
+            {
                 throw new ArgumentException("Footer text length cannot exceed 2048 characters.");
+            }
 
             if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(icon_url))
-                this.Footer = null;
+            {
+                Footer = null;
+            }
             else
-                this.Footer = new EmbedFooter
+            {
+                Footer = new EmbedFooter
                 {
                     Text = text,
                     IconUrl = icon_url
                 };
+            }
+
             return this;
         }
 
@@ -404,27 +445,42 @@ namespace DSharpPlus.Entities
             if (string.IsNullOrWhiteSpace(name))
             {
                 if (name == null)
+                {
                     throw new ArgumentNullException(nameof(name));
+                }
                 else
+                {
                     throw new ArgumentException($"{nameof(name)} cannot be empty or whitespace.");
+                }
             }
             if (string.IsNullOrWhiteSpace(value))
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(nameof(value));
+                }
                 else
+                {
                     throw new ArgumentException($"{nameof(value)} cannot be empty or whitespace.");
+                }
             }
 
             if (name.Length > 256)
+            {
                 throw new ArgumentException("Embed field name length cannot exceed 256 characters.");
+            }
+
             if (value.Length > 1024)
+            {
                 throw new ArgumentException("Embed field value length cannot exceed 1024 characters.");
+            }
 
-            if (this._fields.Count >= 25)
+            if (_fields.Count >= 25)
+            {
                 throw new InvalidOperationException("Cannot add more than 25 fields.");
+            }
 
-            this._fields.Add(new DiscordEmbedField
+            _fields.Add(new DiscordEmbedField
             {
                 Inline = inline,
                 Name = name,
@@ -439,7 +495,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder ClearFields()
         {
-            this._fields.Clear();
+            _fields.Clear();
             return this;
         }
 
@@ -451,35 +507,46 @@ namespace DSharpPlus.Entities
         {
             var embed = new DiscordEmbed
             {
-                Title = this._title,
-                Description = this._description,
-                Url = this._url,
-                _color = this._color.HasValue ? this._color.Value.Value : Optional<int>.FromNoValue(),
-                Timestamp = this._timestamp
+                Title = _title,
+                Description = _description,
+                Url = _url,
+                _color = _color.HasValue ? _color.Value.Value : Optional<int>.FromNoValue(),
+                Timestamp = _timestamp
             };
 
-            if (this.Footer != null)
+            if (Footer != null)
+            {
                 embed.Footer = new DiscordEmbedFooter
                 {
-                    Text = this.Footer.Text,
-                    IconUrl = this.Footer.IconUrl != null ? new Uri(this.Footer.IconUrl) : null
+                    Text = Footer.Text,
+                    IconUrl = Footer.IconUrl != null ? new Uri(Footer.IconUrl) : null
                 };
+            }
 
-            if (this.Author != null)
+            if (Author != null)
+            {
                 embed.Author = new DiscordEmbedAuthor
                 {
-                    Name = this.Author.Name,
-                    Url = this.Author.Url != null ? new Uri(this.Author.Url) : null,
-                    IconUrl = this.Author.IconUrl != null ? new Uri(this.Author.IconUrl) : null
+                    Name = Author.Name,
+                    Url = Author.Url != null ? new Uri(Author.Url) : null,
+                    IconUrl = Author.IconUrl != null ? new Uri(Author.IconUrl) : null
                 };
+            }
 
-            if (this._image_uri != null)
-                embed.Image = new DiscordEmbedImage { Url = this._image_uri };
-            if (this._thumbnail_uri != null)
-                embed.Thumbnail = new DiscordEmbedThumbnail { Url = this._thumbnail_uri };
+            if (_image_uri != null)
+            {
+                embed.Image = new DiscordEmbedImage { Url = _image_uri };
+            }
 
-            if (this._fields.Any())
-                embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(this._fields)); // copy the list, don't wrap it, prevents mutation
+            if (_thumbnail_uri != null)
+            {
+                embed.Thumbnail = new DiscordEmbedThumbnail { Url = _thumbnail_uri };
+            }
+
+            if (_fields.Any())
+            {
+                embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(_fields)); // copy the list, don't wrap it, prevents mutation
+            }
 
             return embed;
         }
@@ -498,12 +565,15 @@ namespace DSharpPlus.Entities
             /// </summary>
             public string Name
             {
-                get { return this._name; }
+                get { return _name; }
                 set
                 {
                     if (value != null && value.Length > 256)
+                    {
                         throw new ArgumentException("Author name length cannot exceed 256 characters.");
-                    this._name = value;
+                    }
+
+                    _name = value;
                 }
             }
             private string _name;
@@ -513,13 +583,17 @@ namespace DSharpPlus.Entities
             /// </summary>
             public string Url
             {
-                get { return this._uri?.ToString(); }
+                get { return _uri?.ToString(); }
                 set
                 {
                     if (string.IsNullOrEmpty(value))
-                        this._uri = null;
+                    {
+                        _uri = null;
+                    }
                     else
-                        this._uri = new Uri(value);
+                    {
+                        _uri = new Uri(value);
+                    }
                 }
             }
             private Uri _uri;
@@ -529,13 +603,17 @@ namespace DSharpPlus.Entities
             /// </summary>
             public string IconUrl
             {
-                get { return this._icon_uri?.ToString(); }
+                get { return _icon_uri?.ToString(); }
                 set
                 {
                     if (string.IsNullOrEmpty(value))
-                        this._icon_uri = null;
+                    {
+                        _icon_uri = null;
+                    }
                     else
-                        this._icon_uri = new Uri(value);
+                    {
+                        _icon_uri = new Uri(value);
+                    }
                 }
             }
             private Uri _icon_uri;
@@ -548,12 +626,15 @@ namespace DSharpPlus.Entities
             /// </summary>
             public string Text
             {
-                get { return this._text; }
+                get { return _text; }
                 set
                 {
                     if (value != null && value.Length > 2048)
+                    {
                         throw new ArgumentException("Footer text length cannot exceed 2048 characters.");
-                    this._text = value;
+                    }
+
+                    _text = value;
                 }
             }
             private string _text;
@@ -563,13 +644,17 @@ namespace DSharpPlus.Entities
             /// </summary>
             public string IconUrl
             {
-                get { return this._icon_uri?.ToString(); }
+                get { return _icon_uri?.ToString(); }
                 set
                 {
                     if (string.IsNullOrEmpty(value))
-                        this._icon_uri = null;
+                    {
+                        _icon_uri = null;
+                    }
                     else
-                        this._icon_uri = new Uri(value);
+                    {
+                        _icon_uri = new Uri(value);
+                    }
                 }
             }
             private Uri _icon_uri;

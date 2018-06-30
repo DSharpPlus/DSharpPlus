@@ -11,60 +11,95 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordUser : SnowflakeObject, IEquatable<DiscordUser>
     {
+        private string _username;
+        private string _discriminator;
+        private string _avatarHash;
+
         internal DiscordUser() { }
         internal DiscordUser(TransportUser transport)
         {
-            this.Id = transport.Id;
-            this.Username = transport.Username;
-            this.Discriminator = transport.Discriminator;
-            this.AvatarHash = transport.AvatarHash;
-            this.IsBot = transport.IsBot;
-            this.MfaEnabled = transport.MfaEnabled;
-            this.Verified = transport.Verified;
-            this.Email = transport.Email;
+            Id = transport.Id;
+            Username = transport.Username;
+            Discriminator = transport.Discriminator;
+            AvatarHash = transport.AvatarHash;
+            IsBot = transport.IsBot;
+            MfaEnabled = transport.MfaEnabled;
+            Verified = transport.Verified;
+            Email = transport.Email;
         }
 
         /// <summary>
         /// Gets this user's username.
         /// </summary>
         [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual string Username { get; internal set; }
+        public virtual string Username { get => _username; internal set => OnPropertySet(ref _username, value); }
 
         /// <summary>
         /// Gets the user's 4-digit discriminator.
         /// </summary>
         [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual string Discriminator { get; internal set; }
+        public virtual string Discriminator
+        {
+            get => _discriminator;
+            internal set
+            {
+                OnPropertySet(ref _discriminator, value);
+                InvokePropertyChanged(nameof(DiscriminatorInt));
+                InvokePropertyChanged(nameof(DefaultAvatarUrl));
+            }
+        }
 
         [JsonIgnore]
-        internal int DiscriminatorInt 
-            => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
+        internal int DiscriminatorInt
+            => int.Parse(Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Gets the user's avatar hash.
         /// </summary>
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual string AvatarHash { get; internal set; }
+        public virtual string AvatarHash
+        {
+            get => _avatarHash; internal set
+            {
+                OnPropertySet(ref _avatarHash, value);
+                InvokePropertyChanged(nameof(AvatarUrl));
+                InvokePropertyChanged(nameof(NonAnimatedAvatarUrl));
+            }
+        }
 
         /// <summary>
         /// Gets the user's avatar URL.
         /// </summary>
         [JsonIgnore]
-        public string AvatarUrl 
-            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+        public string AvatarUrl
+            => !string.IsNullOrWhiteSpace(AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=128" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=128") : DefaultAvatarUrl;
+
+        /// <summary>
+        /// Gets the user's avatar URL.
+        /// </summary>
+        [JsonIgnore]
+        public string NonAnimatedAvatarUrl
+            => !string.IsNullOrWhiteSpace(AvatarHash) ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=128" : DefaultAvatarUrl;
+
 
         /// <summary>
         /// Gets the URL of default avatar for this user.
         /// </summary>
         [JsonIgnore]
-        public string DefaultAvatarUrl 
-            => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
+        public string DefaultAvatarUrl
+            => $"https://cdn.discordapp.com/embed/avatars/{(DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=128";
 
         /// <summary>
         /// Gets whether the user is a bot.
         /// </summary>
         [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
         public virtual bool IsBot { get; internal set; }
+
+        /// <summary>
+        /// Does the current user have Discord Nitro
+        /// </summary>
+        [JsonIgnore]
+        public bool HasNitro { get; internal set; }
 
         /// <summary>
         /// Gets whether the user has multi-factor authentication enabled.
@@ -88,15 +123,15 @@ namespace DSharpPlus.Entities
         /// Gets the user's mention string.
         /// </summary>
         [JsonIgnore]
-        public string Mention 
+        public string Mention
             => Formatter.Mention(this, this is DiscordMember);
 
         /// <summary>
         /// Gets whether this user is the Client which created this object.
         /// </summary>
         [JsonIgnore]
-        public bool IsCurrent 
-            => this.Id == this.Discord.CurrentUser.Id;
+        public bool IsCurrent
+            => Id == Discord.CurrentUser.Id;
 
         /// <summary>
         /// Unbans this user from a guild.
@@ -104,7 +139,7 @@ namespace DSharpPlus.Entities
         /// <param name="guild">Guild to unban this user from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task UnbanAsync(DiscordGuild guild, string reason = null) 
+        public Task UnbanAsync(DiscordGuild guild, string reason = null)
             => guild.UnbanMemberAsync(this, reason);
 
         /// <summary>
@@ -115,8 +150,11 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                if (this.Discord is DiscordClient dc)
-                    return dc.Presences.ContainsKey(this.Id) ? dc.Presences[this.Id] : null;
+                if (Discord is DiscordClient dc)
+                {
+                    return dc.Presences.TryGetValue(Id, out var p) ? p : null;
+                }
+
                 return null;
             }
         }
@@ -130,14 +168,20 @@ namespace DSharpPlus.Entities
         public string GetAvatarUrl(ImageFormat fmt, ushort size = 1024)
         {
             if (fmt == ImageFormat.Unknown)
+            {
                 throw new ArgumentException("You must specify valid image format.", nameof(fmt));
+            }
 
             if (size < 16 || size > 2048)
+            {
                 throw new ArgumentOutOfRangeException(nameof(size));
+            }
 
             var log = Math.Log(size, 2);
             if (log < 4 || log > 11 || log % 1 != 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(size));
+            }
 
             var sfmt = "";
             switch (fmt)
@@ -163,14 +207,14 @@ namespace DSharpPlus.Entities
             }
 
             var ssize = size.ToString(CultureInfo.InvariantCulture);
-            if (!string.IsNullOrWhiteSpace(this.AvatarHash))
+            if (!string.IsNullOrWhiteSpace(AvatarHash))
             {
-                var id = this.Id.ToString(CultureInfo.InvariantCulture);
-                return $"https://cdn.discordapp.com/avatars/{id}/{this.AvatarHash}.{sfmt}?size={ssize}";
+                var id = Id.ToString(CultureInfo.InvariantCulture);
+                return $"https://cdn.discordapp.com/avatars/{id}/{AvatarHash}.{sfmt}?size={ssize}";
             }
             else
             {
-                var type = (this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture);
+                var type = (DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture);
                 return $"https://cdn.discordapp.com/embed/avatars/{type}.{sfmt}?size={ssize}";
             }
         }
@@ -181,7 +225,7 @@ namespace DSharpPlus.Entities
         /// <returns>String representation of this user.</returns>
         public override string ToString()
         {
-            return $"User {this.Id}; {this.Username}#{this.Discriminator}";
+            return $"User {Id}; {Username}#{Discriminator}";
         }
 
         /// <summary>
@@ -191,7 +235,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as DiscordUser);
+            return Equals(obj as DiscordUser);
         }
 
         /// <summary>
@@ -202,12 +246,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordUser e)
         {
             if (ReferenceEquals(e, null))
+            {
                 return false;
+            }
 
             if (ReferenceEquals(this, e))
+            {
                 return true;
+            }
 
-            return this.Id == e.Id;
+            return Id == e.Id;
         }
 
         /// <summary>
@@ -216,7 +264,7 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordUser"/>.</returns>
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            return Id.GetHashCode();
         }
 
         /// <summary>
@@ -231,10 +279,14 @@ namespace DSharpPlus.Entities
             var o2 = e2 as object;
 
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+            {
                 return false;
+            }
 
             if (o1 == null && o2 == null)
+            {
                 return true;
+            }
 
             return e1.Id == e2.Id;
         }
@@ -245,7 +297,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First user to compare.</param>
         /// <param name="e2">Second user to compare.</param>
         /// <returns>Whether the two users are not equal.</returns>
-        public static bool operator !=(DiscordUser e1, DiscordUser e2) 
+        public static bool operator !=(DiscordUser e1, DiscordUser e2)
             => !(e1 == e2);
     }
 }

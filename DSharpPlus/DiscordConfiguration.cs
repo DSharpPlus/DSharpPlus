@@ -15,13 +15,15 @@ namespace DSharpPlus
         /// </summary>
         public string Token
         {
-            internal get => this._token;
+            internal get => _token;
             set
             {
                 if (string.IsNullOrWhiteSpace(value))
+                {
                     throw new ArgumentNullException(nameof(value), "Token cannot be null, empty, or all whitespace.");
+                }
 
-                this._token = value.Trim();
+                _token = value.Trim();
             }
         }
         private string _token = "";
@@ -115,18 +117,20 @@ namespace DSharpPlus
 
         /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
-        /// <para>Use <see cref="WebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
-        /// <para>Defaults to <see cref="WebSocketClient.CreateNew(IWebProxy)"/>.</para>
+        /// <para>Use <see cref="OldWebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
+        /// <para>Defaults to <see cref="OldWebSocketClient.CreateNew(IWebProxy)"/>.</para>
         /// </summary>
         public WebSocketClientFactoryDelegate WebSocketClientFactory
         {
-            internal get => this._webSocketClientFactory;
+            internal get => _webSocketClientFactory;
             set
             {
                 if (value == null)
+                {
                     throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
+                }
 
-                this._webSocketClientFactory = value;
+                _webSocketClientFactory = value;
             }
         }
         private WebSocketClientFactoryDelegate _webSocketClientFactory = WebSocketClient.CreateNew;
@@ -138,10 +142,10 @@ namespace DSharpPlus
         /// </summary>
         public UdpClientFactoryDelegate UdpClientFactory
         {
-            internal get => this._udpClientFactory;
+            internal get => _udpClientFactory;
             set
             {
-                this._udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
+                _udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
             }
         }
         private UdpClientFactoryDelegate _udpClientFactory = DspUdpClient.CreateNew;
@@ -157,23 +161,23 @@ namespace DSharpPlus
         /// <param name="other">Client configuration to clone.</param>
         public DiscordConfiguration(DiscordConfiguration other)
         {
-            this.Token = other.Token;
-            this.TokenType = other.TokenType;
-            this.LogLevel = other.LogLevel;
-            this.UseInternalLogHandler = other.UseInternalLogHandler;
-            this.DateTimeFormat = other.DateTimeFormat;
-            this.LargeThreshold = other.LargeThreshold;
-            this.AutoReconnect = other.AutoReconnect;
-            this.ShardId = other.ShardId;
-            this.ShardCount = other.ShardCount;
-            this.GatewayCompressionLevel = other.GatewayCompressionLevel;
-            this.MessageCacheSize = other.MessageCacheSize;
-            this.AutomaticGuildSync = other.AutomaticGuildSync;
-            this.WebSocketClientFactory = other.WebSocketClientFactory;
-            this.UdpClientFactory = other.UdpClientFactory;
-            this.Proxy = other.Proxy;
-            this.HttpTimeout = other.HttpTimeout;
-            this.ReconnectIndefinitely = other.ReconnectIndefinitely;
+            Token = other.Token;
+            TokenType = other.TokenType;
+            LogLevel = other.LogLevel;
+            UseInternalLogHandler = other.UseInternalLogHandler;
+            DateTimeFormat = other.DateTimeFormat;
+            LargeThreshold = other.LargeThreshold;
+            AutoReconnect = other.AutoReconnect;
+            ShardId = other.ShardId;
+            ShardCount = other.ShardCount;
+            GatewayCompressionLevel = other.GatewayCompressionLevel;
+            MessageCacheSize = other.MessageCacheSize;
+            AutomaticGuildSync = other.AutomaticGuildSync;
+            WebSocketClientFactory = other.WebSocketClientFactory;
+            UdpClientFactory = other.UdpClientFactory;
+            Proxy = other.Proxy;
+            HttpTimeout = other.HttpTimeout;
+            ReconnectIndefinitely = other.ReconnectIndefinitely;
         }
     }
 }

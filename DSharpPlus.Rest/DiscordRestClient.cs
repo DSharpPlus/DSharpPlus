@@ -65,7 +65,7 @@ namespace DSharpPlus
             => ApiClient.LeaveGuildAsync(guild_id);
 
         public Task<DiscordMember> AddGuildMemberAsync(ulong guild_id, ulong user_id, string access_token, string nick, IEnumerable<DiscordRole> roles, bool muted, bool deafened) 
-            => ApiClient.AddGuildMemberAsync(guild_id, user_id, this.Configuration.Token, nick, roles, muted, deafened);
+            => ApiClient.AddGuildMemberAsync(guild_id, user_id, Configuration.Token, nick, roles, muted, deafened);
 
         public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
         {
@@ -75,16 +75,16 @@ namespace DSharpPlus
             var last = 0ul;
             while (recd == 1000)
             {
-                var tms = await this.ApiClient.ListGuildMembersAsync(guild_id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
+                var tms = await ApiClient.ListGuildMembersAsync(guild_id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
                 recd = tms.Count;
 
                 foreach (var xtm in tms)
                 {
-                    if (this.UserCache.ContainsKey(xtm.User.Id))
+                    if (UserCache.ContainsKey(xtm.User.Id))
                         continue;
 
                     var usr = new DiscordUser(xtm.User) { Discord = this };
-                    this.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
+                    UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
                     {
                         old.Username = usr.Username;
                         old.Discord = usr.Discord;
@@ -115,7 +115,7 @@ namespace DSharpPlus
             {
                 new RestGuildRoleReorderPayload { RoleId = role_id }
             };
-            return this.ApiClient.ModifyGuildRolePosition(guild_id, rgrrps, reason);
+            return ApiClient.ModifyGuildRolePosition(guild_id, rgrrps, reason);
         }
 
         public Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason)
@@ -124,7 +124,7 @@ namespace DSharpPlus
             {
                 new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position }
             };
-            return this.ApiClient.ModifyGuildChannelPosition(guild_id, rgcrps, reason);
+            return ApiClient.ModifyGuildChannelPosition(guild_id, rgcrps, reason);
         }
         #endregion
 
@@ -215,7 +215,7 @@ namespace DSharpPlus
         public Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> access_tokens, IDictionary<ulong, string> nicks)
         {
             var a = access_tokens.ToList();
-            a.Add(this.Configuration.Token);
+            a.Add(Configuration.Token);
             return ApiClient.CreateGroupDmAsync(a, nicks);
         }
 
@@ -339,7 +339,7 @@ namespace DSharpPlus
                 using (var imgtool = new ImageTool(avatar))
                     av64 = imgtool.GetBase64();
 
-            return this.ApiClient.CreateWebhookAsync(channel_id, name, av64, reason);
+            return ApiClient.CreateWebhookAsync(channel_id, name, av64, reason);
         }
 
         public Task<IReadOnlyList<DiscordWebhook>> GetChannelWebhooksAsync(ulong channel_id) 
@@ -364,7 +364,7 @@ namespace DSharpPlus
                 using (var imgtool = new ImageTool(avatar))
                     av64 = imgtool.GetBase64();
 
-            return this.ApiClient.ModifyWebhookAsync(webhook_id, name, av64, reason);
+            return ApiClient.ModifyWebhookAsync(webhook_id, name, av64, reason);
         }
 
         public Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, string base64_avatar, string webhook_token, string reason)
@@ -377,7 +377,7 @@ namespace DSharpPlus
                 using (var imgtool = new ImageTool(avatar))
                     av64 = imgtool.GetBase64();
 
-            return this.ApiClient.ModifyWebhookAsync(webhook_id, name, av64, webhook_token, reason);
+            return ApiClient.ModifyWebhookAsync(webhook_id, name, av64, webhook_token, reason);
         }
 
         public Task DeleteWebhookAsync(ulong webhook_id, string reason) 

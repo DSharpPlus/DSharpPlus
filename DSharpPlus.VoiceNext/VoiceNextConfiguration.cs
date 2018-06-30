@@ -30,8 +30,8 @@ namespace DSharpPlus.VoiceNext
         /// <param name="other">Configuration the properties of which are to be copied.</param>
         public VoiceNextConfiguration(VoiceNextConfiguration other)
         {
-            this.VoiceApplication = other.VoiceApplication;
-            this.EnableIncoming = other.EnableIncoming;
+            VoiceApplication = other.VoiceApplication;
+            EnableIncoming = other.EnableIncoming;
         }
     }
 }

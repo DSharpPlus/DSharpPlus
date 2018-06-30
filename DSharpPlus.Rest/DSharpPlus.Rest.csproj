@@ -6,8 +6,8 @@
   <PropertyGroup>
     <AssemblyName>DSharpPlus.Rest</AssemblyName>
     <RootNamespace>DSharpPlus.Rest</RootNamespace>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <OutputType>Library</OutputType> 
+    <TargetFrameworks>netstandard1.6;</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -15,9 +15,5 @@
     <Description>A Rest-only client for DSharpPlus.</Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp rest-api oauth2</PackageTags>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
-  </ItemGroup>
 
 </Project>
