@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System;
+using DSharpPlus.Net.Models;
 
 namespace DSharpPlus
 {
@@ -52,7 +53,35 @@ namespace DSharpPlus
             => ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64, 
                 owner_id, splashb64, systemChannelId, reason);
 
-        public Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id) 
+		public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Action<GuildEditModel> action)
+		{
+			var mdl = new GuildEditModel();
+			action(mdl);
+
+			if (mdl.AfkChannel.HasValue)
+				if (mdl.AfkChannel.Value.Type != ChannelType.Voice)
+					throw new ArgumentException("AFK channel needs to be a voice channel!");
+
+			var iconb64 = Optional<string>.FromNoValue();
+			if (mdl.Icon.HasValue && mdl.Icon.Value != null)
+				using (var imgtool = new ImageTool(mdl.Icon.Value))
+					iconb64 = imgtool.GetBase64();
+			else if (mdl.Icon.HasValue)
+				iconb64 = null;
+
+			var splashb64 = Optional<string>.FromNoValue();
+			if (mdl.Splash.HasValue && mdl.Splash.Value != null)
+				using (var imgtool = new ImageTool(mdl.Splash.Value))
+					splashb64 = imgtool.GetBase64();
+			else if (mdl.Splash.HasValue)
+				splashb64 = null;
+
+			return await this.ApiClient.ModifyGuildAsync(guild_id, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
+				mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
+				splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+		}
+
+		public Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id) 
             => ApiClient.GetGuildBansAsync(guild_id);
 
         public Task CreateGuildBanAsync(ulong guild_id, ulong user_id, int delete_message_days, string reason) 
@@ -139,6 +168,15 @@ namespace DSharpPlus
 
         public Task ModifyChannelAsync(ulong id, string name, int? position, string topic, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
             => ApiClient.ModifyChannelAsync(id, name, position, topic, parent, bitrate, user_limit, reason);
+
+		public Task ModifyChannelAsync(ulong channel_id, Action<ChannelEditModel> action)
+		{
+			var mdl = new ChannelEditModel();
+			action(mdl);
+
+			return this.ApiClient.ModifyChannelAsync(channel_id, mdl.Name, mdl.Position, mdl.Topic,
+				mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.AuditLogReason);
+		}
 
         public Task<DiscordChannel> GetChannelAsync(ulong id) 
             => ApiClient.GetChannelAsync(id);
@@ -257,7 +295,32 @@ namespace DSharpPlus
             Optional<ulong> voice_channel_id, string reason)
             => ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, reason);
 
-        public Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
+		public async Task ModifyAsync(ulong member_id, ulong guild_id, Action<MemberEditModel> action)
+		{
+			var mdl = new MemberEditModel();
+			action(mdl);
+
+			if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value.Type != ChannelType.Voice)
+				throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
+
+			if (mdl.Nickname.HasValue && this.CurrentUser.Id == member_id)
+			{
+				await this.ApiClient.ModifyCurrentMemberNicknameAsync(guild_id, mdl.Nickname.Value,
+					mdl.AuditLogReason).ConfigureAwait(false);
+				await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, Optional<string>.FromNoValue(),
+					mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
+					mdl.VoiceChannel.IfPresent(e => e.Id), mdl.AuditLogReason).ConfigureAwait(false);
+			}
+			else
+			{
+				await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, mdl.Nickname,
+					mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
+					mdl.VoiceChannel.IfPresent(e => e.Id), mdl.AuditLogReason).ConfigureAwait(false);
+			}
+		}
+
+
+		public Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
             => ApiClient.ModifyCurrentMemberNicknameAsync(guild_id, nick, reason);
         #endregion
 
@@ -268,10 +331,18 @@ namespace DSharpPlus
         public Task<DiscordGuild> GetGuildAsync(ulong guild_id) 
             => ApiClient.GetGuildAsync(guild_id);
 
-        public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
-            => ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color, hoist, mentionable, reason);
+        public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason)
+            => ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, (color.HasValue? (int?)color.Value.Value : null), hoist, mentionable, reason);
 
-        public Task DeleteRoleAsync(ulong guild_id, ulong role_id, string reason)
+		public Task ModifyAsync(ulong role_id, ulong guild_id, Action<RoleEditModel> action)
+		{
+			var mdl = new RoleEditModel();
+			action(mdl);
+
+			return ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+		}
+
+		public Task DeleteRoleAsync(ulong guild_id, ulong role_id, string reason)
             => ApiClient.DeleteRoleAsync(guild_id, role_id, reason);
 
         public Task<DiscordRole> CreateGuildRole(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
