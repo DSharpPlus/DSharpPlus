@@ -571,11 +571,57 @@ namespace DSharpPlus.Entities
             return mbr;
         }
 
-        /// <summary>
-        /// Requests a full list of members from Discord.
-        /// </summary>
-        /// <returns>A collection of all members in this guild.</returns>
-        public async Task<IReadOnlyList<DiscordMember>> GetAllMembersAsync()
+		/// <summary>
+		/// Disconnects to a Channel without VNext (e.g. for lavalink)
+		/// </summary>
+		/// <returns></returns>
+		public async Task ConnectWithoutVnext(DiscordChannel channel)
+		{
+			if(channel.Type != ChannelType.Voice)
+				throw new InvalidOperationException("This is NOT a voice channel!");
+
+			var dsc = (DiscordClient)this.Discord;
+			var payload = new GatewayPayload()
+			{
+				OpCode = GatewayOpCode.VoiceStateUpdate,
+				Data = new VoiceStateUpdate()
+				{
+					ChannelId = channel.Id,
+					GuildId = this.Id,
+					Deafen = false,
+					Mute = false
+				}
+			};
+
+			dsc._webSocketClient.SendMessage(JsonConvert.SerializeObject(payload));
+		}
+
+		/// <summary>
+		/// Disconnects from a Channel without VNext (e.g. for lavalink)
+		/// </summary>
+		/// <returns></returns>
+		public async Task DisonnectVoiceWithoutVnext()
+		{
+			var dsc = (DiscordClient)this.Discord;
+			var payload = new GatewayPayload()
+			{
+				OpCode = GatewayOpCode.VoiceStateUpdate,
+				Data = new VoiceStateUpdate()
+				{
+					GuildId = this.Id,
+					Deafen = false,
+					Mute = false
+				}
+			};
+
+			dsc._webSocketClient.SendMessage(JsonConvert.SerializeObject(payload));
+		}
+
+		/// <summary>
+		/// Requests a full list of members from Discord.
+		/// </summary>
+		/// <returns>A collection of all members in this guild.</returns>
+		public async Task<IReadOnlyList<DiscordMember>> GetAllMembersAsync()
         {
             var recmbr = new List<DiscordMember>(this.MemberCount + 1);
 
