@@ -484,7 +484,7 @@ namespace DSharpPlus.CommandsNext
             public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
             {
                 var toplevel = ctx.CommandsNext.TopLevelCommands.Values.Distinct();
-                var helpbuilder = ctx.CommandsNext.HelpFormatter.Create(ctx.Services, ctx.CommandsNext);
+                var helpbuilder = ctx.CommandsNext.HelpFormatter.Create(ctx);
 
                 if (command != null && command.Any())
                 {

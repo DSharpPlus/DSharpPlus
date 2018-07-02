@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext.Converters
 {
@@ -11,12 +10,12 @@ namespace DSharpPlus.CommandsNext.Converters
 
         public void SetFormatterType<T>() where T : BaseHelpFormatter
         {
-            this.Factory = ActivatorUtilities.CreateFactory(typeof(T), new[] { typeof(CommandsNextExtension) });
+            this.Factory = ActivatorUtilities.CreateFactory(typeof(T), new[] { typeof(CommandContext) });
         }
 
-        public BaseHelpFormatter Create(IServiceProvider services, CommandsNextExtension cnext)
+        public BaseHelpFormatter Create(CommandContext ctx)
         {
-            return this.Factory(services, new object[] { cnext }) as BaseHelpFormatter;
+            return this.Factory(ctx.Services, new object[] { ctx }) as BaseHelpFormatter;
         }
     }
 }

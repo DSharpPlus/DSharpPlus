@@ -17,9 +17,9 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <summary>
         /// Creates a new default help formatter.
         /// </summary>
-        /// <param name="cnext">CommandsNext instance this formatter is for.</param>
-        public DefaultHelpFormatter(CommandsNextExtension cnext)
-            : base(cnext)
+        /// <param name="ctx">Context in which this formatter is being invoked.</param>
+        public DefaultHelpFormatter(CommandContext ctx)
+            : base(ctx)
         {
             this.EmbedBuilder = new DiscordEmbedBuilder()
                 .WithTitle("Help")

@@ -12,8 +12,8 @@ namespace DSharpPlus.Test
         private TestBotService Service { get; }
         private StringBuilder Content { get; }
 
-        public TestBotHelpFormatter(TestBotService dep, CommandsNextExtension cnext)
-            : base(cnext)
+        public TestBotHelpFormatter(TestBotService dep, CommandContext ctx)
+            : base(ctx)
         {
             this.Service = dep;
             this.Content = new StringBuilder();
