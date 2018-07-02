@@ -1,13 +1,7 @@
-﻿using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-using DSharpPlus.Lavalink.VoiceEntities;
+﻿using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Udp;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Lavalink
@@ -17,16 +11,11 @@ namespace DSharpPlus.Lavalink
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; set; }
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; set; }
 
-        private bool _connected;
-
         /// <summary>
         /// Creates a new instance of this Lavalink extension.
         /// </summary>
-        /// <param name="config">Configuration for this extension.</param>
-        internal LavalinkExtension(LavalinkConfiguration config)
-        {
-
-        }
+        internal LavalinkExtension()
+        { }
 
         /// <summary>
         /// DO NOT USE THIS MANUALLY.
@@ -46,19 +35,12 @@ namespace DSharpPlus.Lavalink
         }
 
         /// <summary>
-        /// Connect to Lavalink.
+        /// Connect to a Lavalink node.
         /// </summary>
-        /// <returns></returns>
-        public async Task StartAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Disconnect from Lavalink.
-        /// </summary>
-        /// <returns></returns>
-        public async Task StopAsync()
+        /// <param name="server">Address and port of the Lavalink server to connect to.</param>
+        /// <param name="password">Password for the server.</param>
+        /// <returns>The established Lavalink connection.</returns>
+        public async Task<LavalinkConnection> ConnectAsync(ConnectionEndpoint server, string password)
         {
             throw new NotImplementedException();
         }
