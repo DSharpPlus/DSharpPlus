@@ -655,6 +655,8 @@ namespace DSharpPlus.Interactivity
 				Pages = pages,
 				Timeout = timeout
 			};
+			
+			emojis = emojis ?? new PaginationEmojis(this.Client);
 
 			await this.GeneratePaginationReactions(m, emojis).ConfigureAwait(false);
 
