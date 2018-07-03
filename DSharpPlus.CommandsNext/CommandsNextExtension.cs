@@ -335,7 +335,7 @@ namespace DSharpPlus.CommandsNext
 
                         cgbldr.WithName(mdl_name);
                         
-                        foreach (var mi in ti.DeclaredMethods.Where(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null))
+                        foreach (var mi in CommandsNextUtilities.GetAllMethods(ti).Where(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null))
                             cgbldr.WithOverload(new CommandOverloadBuilder(mi));
                         break;
 
