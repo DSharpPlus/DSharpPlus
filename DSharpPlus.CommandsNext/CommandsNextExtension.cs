@@ -367,7 +367,7 @@ namespace DSharpPlus.CommandsNext
                 cgbldr = null;
 
             // candidate methods
-            var ms = ti.DeclaredMethods;
+            var ms = CommandsNextUtilities.GetAllMethods(ti);
             var cmds = new List<CommandBuilder>();
             var cblds = new Dictionary<string, CommandBuilder>();
             foreach (var m in ms)
