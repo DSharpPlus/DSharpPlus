@@ -31,6 +31,14 @@ namespace DSharpPlus.Entities
             });
             this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
             this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
+            this._jumpLink = new Lazy<Uri>(() =>
+            {
+                var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.ToString(CultureInfo.InvariantCulture);
+                var cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
+                var mid = this.Id.ToString(CultureInfo.InvariantCulture);
+
+                return new Uri($"https://discordapp.com/channels/{gid}/{cid}/{mid}");
+            });
         }
         
         internal DiscordMessage(DiscordMessage other)
@@ -230,6 +238,13 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public bool WebhookMessage 
             => this.WebhookId != null;
+
+        /// <summary>
+        /// Gets the jump link to this message.
+        /// </summary>
+        [JsonIgnore]
+        public Uri JumpLink => this._jumpLink.Value;
+        private Lazy<Uri> _jumpLink;
 
         /// <summary>
         /// Edits the message.
