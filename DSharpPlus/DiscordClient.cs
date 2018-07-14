@@ -1037,7 +1037,7 @@ namespace DSharpPlus
             }
         }
 
-        internal async Task OnChannelPinsUpdate(DiscordChannel channel, DateTimeOffset lastPinTimestamp)
+        internal async Task OnChannelPinsUpdate(DiscordChannel channel, DateTimeOffset? lastPinTimestamp)
         {
             if (channel == null)
                 return;
