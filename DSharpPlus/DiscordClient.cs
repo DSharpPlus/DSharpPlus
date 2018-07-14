@@ -632,7 +632,7 @@ namespace DSharpPlus
                 case "channel_pins_update":
                     cid = (ulong)dat["channel_id"];
 		    var ts = (string)dat["last_pin_timestamp"];
-                    await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : null).ConfigureAwait(false);
+                    await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
                     break;
 
                 case "guild_create":
