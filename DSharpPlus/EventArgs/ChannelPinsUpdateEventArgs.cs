@@ -16,7 +16,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the timestamp of the latest pin.
         /// </summary>
-        public DateTimeOffset LastPinTimestamp { get; internal set; }
+        public DateTimeOffset? LastPinTimestamp { get; internal set; }
 
         internal ChannelPinsUpdateEventArgs(DiscordClient client) : base(client) { }
     }

@@ -631,7 +631,8 @@ namespace DSharpPlus
 
                 case "channel_pins_update":
                     cid = (ulong)dat["channel_id"];
-                    await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), DateTimeOffset.Parse((string)dat["last_pin_timestamp"], CultureInfo.InvariantCulture)).ConfigureAwait(false);
+		    var ts = (string)dat["last_pin_timestamp"];
+                    await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
                     break;
 
                 case "guild_create":
@@ -1036,7 +1037,7 @@ namespace DSharpPlus
             }
         }
 
-        internal async Task OnChannelPinsUpdate(DiscordChannel channel, DateTimeOffset lastPinTimestamp)
+        internal async Task OnChannelPinsUpdate(DiscordChannel channel, DateTimeOffset? lastPinTimestamp)
         {
             if (channel == null)
                 return;
