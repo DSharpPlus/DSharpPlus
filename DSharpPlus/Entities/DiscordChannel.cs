@@ -612,7 +612,7 @@ namespace DSharpPlus.Entities
                 return def;
             }
 
-            if (Guild.OwnerId == mbr.Id)
+            if (Guild.OwnerId == mbr?.Id)
             {
                 return ~def;
             }
