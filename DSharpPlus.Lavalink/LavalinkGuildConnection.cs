@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -23,6 +24,8 @@ namespace DSharpPlus.Lavalink
 
         private LavalinkNodeConnection Node { get; }
         internal DiscordChannel Channel { get; set; }
+        internal string GuildIdString => this.GuildId.ToString(CultureInfo.InvariantCulture);
+        internal ulong GuildId => this.Channel.Guild.Id;
         internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; }
 
         internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, VoiceStateUpdateEventArgs vstu)
@@ -45,14 +48,14 @@ namespace DSharpPlus.Lavalink
 
             Volatile.Write(ref this._isDisposed, true);
 
-            this.Node.SendPayload(new LavalinkDestroy(this.Channel));
+            this.Node.SendPayload(new LavalinkDestroy(this));
 
             var vsd = new VoiceDispatch
             {
                 OpCode = 4,
                 Payload = new VoiceStateUpdatePayload
                 {
-                    GuildId = this.Channel.Guild.Id,
+                    GuildId = this.GuildId,
                     ChannelId = null,
                     Deafened = false,
                     Muted = false
@@ -70,12 +73,12 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="track">Track to play.</param>
         /// <returns></returns>
-        public async Task PlayAsync(LavalinkTrack track)
+        public void Play(LavalinkTrack track)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            throw new NotImplementedException();
+            this.Node.SendPayload(new LavalinkPlay(this, track));
         }
 
         /// <summary>
@@ -85,7 +88,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="start">Timestamp to start playback at.</param>
         /// <param name="end">Timestamp to stop playback at.</param>
         /// <returns></returns>
-        public async Task PlayPartialAsync(LavalinkTrack track, TimeSpan start, TimeSpan end)
+        public void PlayPartial(LavalinkTrack track, TimeSpan start, TimeSpan end)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -93,43 +96,43 @@ namespace DSharpPlus.Lavalink
             if (start.TotalMilliseconds < 0 || end <= start)
                 throw new ArgumentException("Both start and end timestamps need to be greater or equal to zero, and the end timestamp needs to be greater than start timestamp.");
 
-            throw new NotImplementedException();
+            this.Node.SendPayload(new LavalinkPlayPartial(this, track, start, end));
         }
 
         /// <summary>
         /// Stops the player completely.
         /// </summary>
         /// <returns></returns>
-        public async Task StopAsync()
+        public void Stop()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            throw new NotImplementedException();
+            this.Node.SendPayload(new LavalinkStop(this));
         }
 
         /// <summary>
         /// Pauses the player.
         /// </summary>
         /// <returns></returns>
-        public async Task PauseAsync()
+        public void Pause()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            throw new NotImplementedException();
+            this.Node.SendPayload(new LavalinkPause(this, true));
         }
 
         /// <summary>
         /// Resumes playback.
         /// </summary>
         /// <returns></returns>
-        public async Task ResumeAsync()
+        public void Resume()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            throw new NotImplementedException();
+            this.Node.SendPayload(new LavalinkPause(this, false));
         }
 
         /// <summary>
@@ -137,12 +140,12 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="position">Position to seek to.</param>
         /// <returns></returns>
-        public async Task SeekAsync(TimeSpan position)
+        public void Seek(TimeSpan position)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            throw new NotImplementedException();
+            this.Node.SendPayload(new LavalinkSeek(this, position));
         }
 
         /// <summary>
@@ -150,7 +153,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="volume">Volume to set. Needs to be greater or equal to 0, and less than or equal to 150. 100 means 100% and is the default value.</param>
         /// <returns></returns>
-        public async Task SetVolumeAsync(int volume)
+        public void SetVolume(int volume)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -158,7 +161,7 @@ namespace DSharpPlus.Lavalink
             if (volume < 0 || volume > 150)
                 throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 150.");
 
-            throw new NotImplementedException();
+            this.Node.SendPayload(new LavalinkVolume(this, volume));
         }
 
         internal event ChannelDisconnectedEventHandler ChannelDisconnected;

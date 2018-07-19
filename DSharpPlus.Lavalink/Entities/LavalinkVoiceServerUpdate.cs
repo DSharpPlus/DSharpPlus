@@ -35,7 +35,7 @@ namespace DSharpPlus.Lavalink.Entities
         internal LavalinkVoiceServerUpdate Event { get; }
 
         public LavalinkVoiceUpdate(VoiceStateUpdateEventArgs vstu, VoiceServerUpdateEventArgs vsrvu)
-            : base("voiceUpdate")
+            : base("voiceUpdate", vstu.Guild.Id.ToString(CultureInfo.InvariantCulture))
         {
             this.GuildId = vstu.Guild.Id.ToString(CultureInfo.InvariantCulture);
             this.SessionId = vstu.SessionId;

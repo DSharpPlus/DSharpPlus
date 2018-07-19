@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -80,6 +82,82 @@ namespace DSharpPlus.Test
 
             this.LavalinkVoice.Disconnect();
             await ctx.RespondAsync("Disconnected.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Queues tracks for playback.")]
+        public async Task PlayAsync(CommandContext ctx, [RemainingText] string uri)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            var tracks = await this.Lavalink.GetTracksAsync(new Uri(uri));
+            var track = tracks.First();
+            this.LavalinkVoice.Play(track);
+
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Queues tracks for playback.")]
+        public async Task PlayPartialAsync(CommandContext ctx, TimeSpan start, TimeSpan stop, [RemainingText] string uri)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            var tracks = await this.Lavalink.GetTracksAsync(new Uri(uri));
+            var track = tracks.First();
+            this.LavalinkVoice.PlayPartial(track, start, stop);
+
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Pauses playback.")]
+        public async Task PauseAsync(CommandContext ctx)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            this.LavalinkVoice.Pause();
+            await ctx.RespondAsync("Paused.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Resumes playback.")]
+        public async Task ResumeAsync(CommandContext ctx)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            this.LavalinkVoice.Resume();
+            await ctx.RespondAsync("Resumed.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Stops playback.")]
+        public async Task StopAsync(CommandContext ctx)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            this.LavalinkVoice.Stop();
+            await ctx.RespondAsync("Stopped.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Seeks in the current track.")]
+        public async Task SeekAsync(CommandContext ctx, TimeSpan position)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            this.LavalinkVoice.Seek(position);
+            await ctx.RespondAsync($"Seeking to {position}.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Changes playback volume.")]
+        public async Task VolumeAsync(CommandContext ctx, int volume)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            this.LavalinkVoice.SetVolume(volume);
+            await ctx.RespondAsync($"Volume set to {volume}%.").ConfigureAwait(false);
         }
     }
 }
