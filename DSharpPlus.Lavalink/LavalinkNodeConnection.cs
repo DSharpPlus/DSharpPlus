@@ -242,7 +242,24 @@ namespace DSharpPlus.Lavalink
         /// <returns>Channel connection, which allows for playback control.</returns>
         public LavalinkGuildConnection GetConnection(DiscordGuild guild)
             => this.ConnectedGuilds.ContainsKey(guild.Id) ? this.ConnectedGuilds[guild.Id] : null;
-
+        
+        /// <summary>
+        /// Searches YouTube for specified terms.
+        /// </summary>
+        /// <param name="searchQuery">What to search for.</param>
+        /// <returns>A collection of tracks matching the criteria.</returns>
+        public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(string searchQuery)
+        {
+            var str = WebUtility.UrlEncode($"ytsearch:{searchQuery}");
+            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
+            return this.InternalResolveTracksAsync(tracksUri);
+        }
+        
+        /// <summary>
+        /// Loads tracks from specified URL.
+        /// </summary>
+        /// <param name="uri">URL to load tracks from.</param>
+        /// <returns>A collection of tracks from the URL.</returns>
         public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(Uri uri)
         {
             var str = WebUtility.UrlEncode(uri.ToString());
@@ -251,6 +268,11 @@ namespace DSharpPlus.Lavalink
         }
 
 #if !NETSTANDARD1_1
+        /// <summary>
+        /// Loads tracks from a local file.
+        /// </summary>
+        /// <param name="file">File to load tracks from.</param>
+        /// <returns>A collection of tracks from the file.</returns>
         public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(FileInfo file)
         {
             var str = WebUtility.UrlEncode(file.FullName);
