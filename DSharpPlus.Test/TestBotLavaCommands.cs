@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -15,6 +16,7 @@ namespace DSharpPlus.Test
     {
         private LavalinkNodeConnection Lavalink { get; set; }
         private LavalinkGuildConnection LavalinkVoice { get; set; }
+        private DiscordChannel ContextChannel { get; set; }
 
         [Command, Description("Connects to Lavalink")]
         public async Task ConnectAsync(CommandContext ctx, string hostname, int port, string password)
@@ -81,7 +83,17 @@ namespace DSharpPlus.Test
             }
 
             this.LavalinkVoice = await this.Lavalink.ConnectAsync(vc);
+            this.LavalinkVoice.PlaybackFinished += this.LavalinkVoice_PlaybackFinished;
             await ctx.RespondAsync("Connected.").ConfigureAwait(false);
+        }
+
+        private async Task LavalinkVoice_PlaybackFinished(Lavalink.EventArgs.TrackFinishEventArgs e)
+        {
+            if (this.ContextChannel == null)
+                return;
+            
+            await this.ContextChannel.SendMessageAsync($"Playback of {Formatter.Bold(Formatter.Sanitize(e.Track.Title))} by {Formatter.Bold(Formatter.Sanitize(e.Track.Author))} finished.").ConfigureAwait(false);
+            this.ContextChannel = null;
         }
 
         [Command, Description("Leaves a voice channel.")]
@@ -100,6 +112,8 @@ namespace DSharpPlus.Test
         {
             if (this.LavalinkVoice == null)
                 return;
+
+            this.ContextChannel = ctx.Channel;
 
             var tracks = await this.Lavalink.GetTracksAsync(new Uri(uri));
             var track = tracks.First();
@@ -182,6 +196,50 @@ namespace DSharpPlus.Test
 
             this.LavalinkVoice.SetVolume(volume);
             await ctx.RespondAsync($"Volume set to {volume}%.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Shows what's being currently played."), Aliases("np")]
+        public async Task NowPlayingAsync(CommandContext ctx)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            var state = this.LavalinkVoice.CurrentState;
+            var track = state.CurrentTrack;
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))} [{state.PlaybackPosition}/{track.Length}].").ConfigureAwait(false);
+        }
+
+        [Command, Description("Displays Lavalink statistics.")]
+        public async Task StatsAsync(CommandContext ctx)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            var stats = this.Lavalink.Statistics;
+            var sb = new StringBuilder();
+            sb.Append("Lavalink resources usage statistics: ```")
+                .Append("Uptime:                    ").Append(stats.Uptime).AppendLine()
+                .Append("Players:                   ").AppendFormat("{0} active / {1} total", stats.ActivePlayers, stats.TotalPlayers).AppendLine()
+                .Append("CPU Cores:                 ").Append(stats.CpuCoreCount).AppendLine()
+                .Append("CPU Usage:                 ").AppendFormat("{0:#,##0.0%} lavalink / {1:#,##0.0%} system", stats.CpuLavalinkLoad, stats.CpuSystemLoad).AppendLine()
+                .Append("RAM Usage:                 ").AppendFormat("{0} allocated / {1} used / {2} free / {3} reservable", SizeToString(stats.RamAllocated), SizeToString(stats.RamUsed), SizeToString(stats.RamFree), SizeToString(stats.RamReservable)).AppendLine()
+                .Append("Audio frames (per minute): ").AppendFormat("{0:#,##0} sent / {1:#,##0} nulled / {2:#,##0} deficit", stats.AverageSentFramesPerMinute, stats.AverageNulledFramesPerMinute, stats.AverageDeficitFramesPerMinute).AppendLine()
+                .Append("```");
+            await ctx.RespondAsync(sb.ToString()).ConfigureAwait(false);
+        }
+
+        private static string[] Units = new[] { "", "ki", "Mi", "Gi" };
+        private static string SizeToString(long l)
+        {
+            double d = l;
+            int u = 0;
+            while (d >= 900 && u < Units.Length - 2)
+            {
+                u++;
+                d /= 1024;
+            }
+
+            return $"{d:#,##0.00} {Units[u]}B";
         }
     }
 }

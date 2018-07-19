@@ -37,7 +37,7 @@ namespace DSharpPlus.Lavalink
         [JsonIgnore]
         public TimeSpan Length => TimeSpan.FromMilliseconds(this._length);
         [JsonProperty("length")]
-        private long _length;
+        internal long _length;
 
         /// <summary>
         /// Gets whether the track is a stream.
@@ -51,7 +51,7 @@ namespace DSharpPlus.Lavalink
         [JsonIgnore]
         public TimeSpan Position => TimeSpan.FromMilliseconds(this._position);
         [JsonProperty("position")]
-        private long _position;
+        internal long _position;
 
         /// <summary>
         /// Gets the title of the track.

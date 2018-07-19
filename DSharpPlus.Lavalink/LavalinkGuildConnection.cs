@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink.Entities;
+using DSharpPlus.Lavalink.EventArgs;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink
@@ -17,10 +18,55 @@ namespace DSharpPlus.Lavalink
     public sealed class LavalinkGuildConnection
     {
         /// <summary>
+        /// Triggered whenever Lavalink updates player status.
+        /// </summary>
+        public event AsyncEventHandler<PlayerUpdateEventArgs> PlayerUpdated
+        {
+            add { this._playerUpdated.Register(value); }
+            remove { this._playerUpdated.Unregister(value); }
+        }
+        private AsyncEvent<PlayerUpdateEventArgs> _playerUpdated;
+
+        /// <summary>
+        /// Triggered whenever playback of a track finishes.
+        /// </summary>
+        public event AsyncEventHandler<TrackFinishEventArgs> PlaybackFinished
+        {
+            add { this._playbackFinished.Register(value); }
+            remove { this._playbackFinished.Unregister(value); }
+        }
+        private AsyncEvent<TrackFinishEventArgs> _playbackFinished;
+
+        /// <summary>
+        /// Triggered whenever playback of a track gets stuck.
+        /// </summary>
+        public event AsyncEventHandler<TrackStuckEventArgs> TrackStuck
+        {
+            add { this._trackStuck.Register(value); }
+            remove { this._trackStuck.Unregister(value); }
+        }
+        private AsyncEvent<TrackStuckEventArgs> _trackStuck;
+
+        /// <summary>
+        /// Triggered whenever playback of a track encounters an error.
+        /// </summary>
+        public event AsyncEventHandler<TrackExceptionEventArgs> TrackException 
+        {
+            add { this._trackException.Register(value); }
+            remove { this._trackException.Unregister(value); }
+        }
+        private AsyncEvent<TrackExceptionEventArgs> _trackException;
+
+        /// <summary>
         /// Gets whether this channel is still connected.
         /// </summary>
         public bool IsConnected => !Volatile.Read(ref this._isDisposed);
         private bool _isDisposed = false;
+
+        /// <summary>
+        /// Gets the current player state.
+        /// </summary>
+        public LavalinkPlayerState CurrentState { get; }
 
         private LavalinkNodeConnection Node { get; }
         internal DiscordChannel Channel { get; set; }
@@ -33,8 +79,14 @@ namespace DSharpPlus.Lavalink
             this.Node = node;
             this.Channel = channel;
             this.VoiceStateUpdate = vstu;
+            this.CurrentState = new LavalinkPlayerState();
 
             Volatile.Write(ref this._isDisposed, false);
+
+            this._playerUpdated = new AsyncEvent<PlayerUpdateEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_PLAYER_UPDATE");
+            this._playbackFinished = new AsyncEvent<TrackFinishEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_PLAYBACK_FINISHED");
+            this._trackStuck = new AsyncEvent<TrackStuckEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_TRACK_STUCK");
+            this._trackException = new AsyncEvent<TrackExceptionEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_TRACK_EXCEPTION");
         }
 
         /// <summary>
@@ -82,6 +134,7 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
+            this.CurrentState.CurrentTrack = track;
             this.Node.SendPayload(new LavalinkPlay(this, track));
         }
 
@@ -100,6 +153,7 @@ namespace DSharpPlus.Lavalink
             if (start.TotalMilliseconds < 0 || end <= start)
                 throw new ArgumentException("Both start and end timestamps need to be greater or equal to zero, and the end timestamp needs to be greater than start timestamp.");
 
+            this.CurrentState.CurrentTrack = track;
             this.Node.SendPayload(new LavalinkPlayPartial(this, track, start, end));
         }
 
@@ -166,6 +220,34 @@ namespace DSharpPlus.Lavalink
                 throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 150.");
 
             this.Node.SendPayload(new LavalinkVolume(this, volume));
+        }
+
+        internal Task InternalUpdatePlayerStateAsync(LavalinkState newState)
+        {
+            this.CurrentState.LastUpdate = newState.Time;
+            this.CurrentState.PlaybackPosition = newState.Position;
+
+            return this._playerUpdated.InvokeAsync(new PlayerUpdateEventArgs(this, newState.Time, newState.Position));
+        }
+
+        internal Task InternalPlaybackFinishedAsync(TrackFinishData e)
+        {
+            this.CurrentState.CurrentTrack = default;
+
+            var ea = new TrackFinishEventArgs(this, LavalinkUtil.DecodeTrack(e.Track), e.Reason);
+            return this._playbackFinished.InvokeAsync(ea);
+        }
+
+        internal Task InternalTrackStuckAsync(TrackStuckData e)
+        {
+            var ea = new TrackStuckEventArgs(this, e.Threshold, LavalinkUtil.DecodeTrack(e.Track));
+            return this._trackStuck.InvokeAsync(ea);
+        }
+
+        internal Task InternalTrackExceptionAsync(TrackExceptionData e)
+        {
+            var ea = new TrackExceptionEventArgs(this, e.Error, LavalinkUtil.DecodeTrack(e.Track));
+            return this._trackException.InvokeAsync(ea);
         }
 
         internal event ChannelDisconnectedEventHandler ChannelDisconnected;
