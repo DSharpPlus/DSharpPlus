@@ -334,13 +334,13 @@ namespace DSharpPlus
         public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason)
             => ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, (color.HasValue? (int?)color.Value.Value : null), hoist, mentionable, reason);
 
-		public Task ModifyAsync(ulong role_id, ulong guild_id, Action<RoleEditModel> action)
-		{
-			var mdl = new RoleEditModel();
-			action(mdl);
+        //public Task ModifyAsync(ulong role_id, ulong guild_id, Action<RoleEditModel> action)
+        //{
+        //    var mdl = new RoleEditModel();
+        //    action(mdl);
 
-			return ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
-		}
+        //    return ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+        //}
 
 		public Task DeleteRoleAsync(ulong guild_id, ulong role_id, string reason)
             => ApiClient.DeleteRoleAsync(guild_id, role_id, reason);
