@@ -59,8 +59,9 @@ namespace DSharpPlus.Lavalink
         /// Connects to this voice channel using Lavalink.
         /// </summary>
         /// <param name="channel">Channel to connect to.</param>
+        /// <param name="node">Lavalink node to connect through.</param>
         /// <returns>If successful, the Lavalink client.</returns>
-        public static Task<LavalinkClient> ConnectAsync(this DiscordChannel channel)
+        public static Task ConnectAsync(this DiscordChannel channel, LavalinkNodeConnection node)
         {
             if (channel == null)
                 throw new NullReferenceException();
@@ -78,11 +79,7 @@ namespace DSharpPlus.Lavalink
             if (lava == null)
                 throw new InvalidOperationException("Lavalink is not initialized for this Discord client.");
 
-            var llc = lava.GetClient(channel.Guild);
-            if (llc != null)
-                throw new InvalidOperationException("Lavalink is already connected in this guild.");
-
-            return lava.ConnectAsync(channel);
+            return node.ConnectAsync(channel);
         }
     }
 }

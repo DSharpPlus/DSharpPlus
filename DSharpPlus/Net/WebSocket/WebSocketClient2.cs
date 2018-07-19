@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
@@ -24,8 +25,9 @@ namespace DSharpPlus.Net.WebSocket
         /// Connects to the WebSocket server.
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
+        /// <param name="customHeaders">Custom headers to send with the request.</param>
         /// <returns></returns>
-        public override Task ConnectAsync(Uri uri)
+        public override Task ConnectAsync(Uri uri, IReadOnlyDictionary<string, string> customHeaders = null)
         {
             throw new PlatformNotSupportedException("Microsoft WebSocket client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }

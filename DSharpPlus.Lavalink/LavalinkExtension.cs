@@ -1,21 +1,22 @@
-﻿using DSharpPlus.EventArgs;
-using DSharpPlus.Net.Udp;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using DSharpPlus.Net.Udp;
 
 namespace DSharpPlus.Lavalink
 {
     public sealed class LavalinkExtension : BaseExtension
     {
-        private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; set; }
-        private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; set; }
+
+        private ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
 
         /// <summary>
         /// Creates a new instance of this Lavalink extension.
         /// </summary>
         internal LavalinkExtension()
-        { }
+        {
+            this.ConnectedNodes = new ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>();
+        }
 
         /// <summary>
         /// DO NOT USE THIS MANUALLY.
@@ -28,31 +29,35 @@ namespace DSharpPlus.Lavalink
                 throw new InvalidOperationException("What did I tell you?");
 
             this.Client = client;
-
-            this.Client.VoiceStateUpdated += this.Client_VoiceStateUpdate;
-            this.Client.VoiceServerUpdated += this.Client_VoiceServerUpdate;
-            this._connected = false;
         }
 
         /// <summary>
         /// Connect to a Lavalink node.
         /// </summary>
-        /// <param name="server">Address and port of the Lavalink server to connect to.</param>
-        /// <param name="password">Password for the server.</param>
+        /// <param name="config">Lavalink client configuration.</param>
         /// <returns>The established Lavalink connection.</returns>
-        public async Task<LavalinkConnection> ConnectAsync(ConnectionEndpoint server, string password)
+        public async Task<LavalinkNodeConnection> ConnectAsync(LavalinkConfiguration config)
         {
-            throw new NotImplementedException();
+            if (this.ConnectedNodes.ContainsKey(config.SocketEndpoint))
+                return this.ConnectedNodes[config.SocketEndpoint];
+
+            var con = new LavalinkNodeConnection(this.Client, config);
+            con.NodeDisconnected += this.Con_NodeDisconnected;
+            this.ConnectedNodes[con.NodeEndpoint] = con;
+            await con.StartAsync().ConfigureAwait(false);
+
+            return con;
         }
 
-        private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+        /// <summary>
+        /// Gets the lavalink node connection for specified endpoint.
+        /// </summary>
+        /// <param name="endpoint">Endpoint at which the node resides.</param>
+        /// <returns>Lavalink node connection.</returns>
+        public LavalinkNodeConnection GetNodeConnection(ConnectionEndpoint endpoint)
+            => this.ConnectedNodes[endpoint];
 
-        private async Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+        private void Con_NodeDisconnected(LavalinkNodeConnection node)
+            => this.ConnectedNodes.TryRemove(node.NodeEndpoint, out _);
     }
 }

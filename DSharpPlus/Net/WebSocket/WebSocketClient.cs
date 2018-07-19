@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -47,8 +48,9 @@ namespace DSharpPlus.Net.WebSocket
         /// Connects to the WebSocket server.
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
+        /// <param name="customHeaders">Custom headers to send with the request.</param>
         /// <returns></returns>
-        public override async Task ConnectAsync(Uri uri)
+        public override async Task ConnectAsync(Uri uri, IReadOnlyDictionary<string, string> customHeaders = null)
         {
             this.SocketMessageQueue = new ConcurrentQueue<string>();
             this.TokenSource = new CancellationTokenSource();
@@ -60,12 +62,16 @@ namespace DSharpPlus.Net.WebSocket
             this.DecompressedStream = new MemoryStream();
             this.CompressedStream = new MemoryStream();
             this.StreamDecompressor = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
-
+            
             this.Socket = new ClientWebSocket();
             this.Socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
             if (this.Proxy != null) // because mono doesn't implement this properly
                 this.Socket.Options.Proxy = this.Proxy;
 
+            if (customHeaders != null)
+                foreach (var kvp in customHeaders)
+                    this.Socket.Options.SetRequestHeader(kvp.Key, kvp.Value);
+        
             await Socket.ConnectAsync(uri, this.Token).ConfigureAwait(false);
             await OnConnectedAsync().ConfigureAwait(false);
             this.WsListener = Task.Run(this.ListenAsync, this.Token);

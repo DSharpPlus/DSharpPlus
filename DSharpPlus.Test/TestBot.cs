@@ -9,6 +9,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Lavalink;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,7 @@ namespace DSharpPlus.Test
         private VoiceNextExtension VoiceService { get; }
         private CommandsNextExtension CommandsNextService { get; }
         private InteractivityExtension InteractivityService { get; }
+        private LavalinkExtension LavalinkService { get; }
         private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg, int shardid)
@@ -103,6 +105,7 @@ namespace DSharpPlus.Test
             };
 
             this.InteractivityService = Discord.UseInteractivity(icfg);
+            this.LavalinkService = Discord.UseLavalink();
         }
 
         public async Task RunAsync()

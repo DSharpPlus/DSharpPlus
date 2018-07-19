@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="../DSharpPlus.targets" />
@@ -19,6 +19,10 @@
   
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46' Or '$(TargetFramework)' == 'net47'">
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   
 </Project>

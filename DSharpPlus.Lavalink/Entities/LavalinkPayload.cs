@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities
 {
-    class LavalinkPayload
+    internal abstract class LavalinkPayload
     {
+        [JsonProperty("op")]
+        public string Operation { get; }
+
+        internal LavalinkPayload(string opcode)
+        {
+            this.Operation = opcode;
+        }
     }
 }

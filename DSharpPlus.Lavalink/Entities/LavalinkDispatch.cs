@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace DSharpPlus.Lavalink.VoiceEntities
+namespace DSharpPlus.Lavalink.Entities
 {
     internal sealed class VoiceDispatch
     {
