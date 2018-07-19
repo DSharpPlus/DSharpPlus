@@ -242,7 +242,14 @@ namespace DSharpPlus.Lavalink
         /// <returns>Channel connection, which allows for playback control.</returns>
         public LavalinkGuildConnection GetConnection(DiscordGuild guild)
             => this.ConnectedGuilds.ContainsKey(guild.Id) ? this.ConnectedGuilds[guild.Id] : null;
-
+        
+        public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(string search)
+        {
+            var str = WebUtility.UrlEncode(search);
+            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier=ytsearch:{str}");
+            return this.InternalResolveTracksAsync(tracksUri);
+        }
+        
         public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(Uri uri)
         {
             var str = WebUtility.UrlEncode(uri.ToString());
