@@ -165,8 +165,6 @@ namespace DSharpPlus.Lavalink
         /// <returns></returns>
         internal Task StartAsync()
         {
-            // set up event passthrough
-            
             return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), new Dictionary<string, string>()
             {
                 ["Authorization"] = this.Configuration.Password,
@@ -240,10 +238,10 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Gets a Lavalink connection to specified Discord channel.
         /// </summary>
-        /// <param name="channel">Channel to get connection for.</param>
+        /// <param name="guild">Guild to get connection for.</param>
         /// <returns>Channel connection, which allows for playback control.</returns>
-        public LavalinkGuildConnection GetConnection(DiscordChannel channel)
-            => this.ConnectedGuilds[channel.Guild.Id];
+        public LavalinkGuildConnection GetConnection(DiscordGuild guild)
+            => this.ConnectedGuilds[guild.Id];
 
         public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(Uri uri)
         {
