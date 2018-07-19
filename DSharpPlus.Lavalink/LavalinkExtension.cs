@@ -68,7 +68,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="endpoint">Endpoint at which the node resides.</param>
         /// <returns>Lavalink node connection.</returns>
         public LavalinkNodeConnection GetNodeConnection(ConnectionEndpoint endpoint)
-            => this.ConnectedNodes[endpoint];
+            => this.ConnectedNodes.ContainsKey(endpoint) ? this.ConnectedNodes[endpoint] : null;
 
         private void Con_NodeDisconnected(LavalinkNodeConnection node)
             => this.ConnectedNodes.TryRemove(node.NodeEndpoint, out _);

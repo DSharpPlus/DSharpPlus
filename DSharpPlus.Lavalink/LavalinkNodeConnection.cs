@@ -241,7 +241,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="guild">Guild to get connection for.</param>
         /// <returns>Channel connection, which allows for playback control.</returns>
         public LavalinkGuildConnection GetConnection(DiscordGuild guild)
-            => this.ConnectedGuilds[guild.Id];
+            => this.ConnectedGuilds.ContainsKey(guild.Id) ? this.ConnectedGuilds[guild.Id] : null;
 
         public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(Uri uri)
         {
