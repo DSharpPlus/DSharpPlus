@@ -25,9 +25,6 @@ namespace DSharpPlus.Lavalink.Entities
 
     internal sealed class LavalinkVoiceUpdate : LavalinkPayload
     {
-        [JsonProperty("guildId")]
-        public string GuildId { get; }
-
         [JsonProperty("sessionId")]
         public string SessionId { get; }
 
@@ -37,7 +34,6 @@ namespace DSharpPlus.Lavalink.Entities
         public LavalinkVoiceUpdate(VoiceStateUpdateEventArgs vstu, VoiceServerUpdateEventArgs vsrvu)
             : base("voiceUpdate", vstu.Guild.Id.ToString(CultureInfo.InvariantCulture))
         {
-            this.GuildId = vstu.Guild.Id.ToString(CultureInfo.InvariantCulture);
             this.SessionId = vstu.SessionId;
             this.Event = new LavalinkVoiceServerUpdate(vsrvu);
         }
