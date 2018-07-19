@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -34,7 +35,15 @@ namespace DSharpPlus.Test
                 SocketEndpoint = new ConnectionEndpoint { Hostname = hostname, Port = port },
                 Password = password
             }).ConfigureAwait(false);
+            this.Lavalink.Disconnected += this.Lavalink_Disconnected;
             await ctx.RespondAsync("Connected to lavalink node.").ConfigureAwait(false);
+        }
+
+        private Task Lavalink_Disconnected(Lavalink.EventArgs.NodeDisconnectedEventArgs e)
+        {
+            this.Lavalink = null;
+            this.LavalinkVoice = null;
+            return Task.CompletedTask;
         }
 
         [Command, Description("Disconnects from Lavalink")]
@@ -51,6 +60,7 @@ namespace DSharpPlus.Test
             }
 
             await this.Lavalink.StopAsync().ConfigureAwait(false);
+            this.Lavalink = null;
             await ctx.RespondAsync("Disconnected from Lavalink node.").ConfigureAwait(false);
         }
 
@@ -81,6 +91,7 @@ namespace DSharpPlus.Test
                 return;
 
             this.LavalinkVoice.Disconnect();
+            this.LavalinkVoice = null;
             await ctx.RespondAsync("Disconnected.").ConfigureAwait(false);
         }
 
@@ -91,6 +102,19 @@ namespace DSharpPlus.Test
                 return;
 
             var tracks = await this.Lavalink.GetTracksAsync(new Uri(uri));
+            var track = tracks.First();
+            this.LavalinkVoice.Play(track);
+
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Queues tracks for playback.")]
+        public async Task PlayFileAsync(CommandContext ctx, [RemainingText] string path)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            var tracks = await this.Lavalink.GetTracksAsync(new FileInfo(path));
             var track = tracks.First();
             this.LavalinkVoice.Play(track);
 

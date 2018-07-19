@@ -1,12 +1,22 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net.Udp;
 
 namespace DSharpPlus.Lavalink
 {
     public sealed class LavalinkExtension : BaseExtension
     {
+        /// <summary>
+        /// Triggered whenever a node disconnects.
+        /// </summary>
+        public event AsyncEventHandler<NodeDisconnectedEventArgs> NodeDisconnected
+        {
+            add { this._nodeDisconnected.Register(value); }
+            remove { this._nodeDisconnected.Unregister(value); }
+        }
+        private AsyncEvent<NodeDisconnectedEventArgs> _nodeDisconnected;
 
         private ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
 
@@ -29,6 +39,8 @@ namespace DSharpPlus.Lavalink
                 throw new InvalidOperationException("What did I tell you?");
 
             this.Client = client;
+
+            this._nodeDisconnected = new AsyncEvent<NodeDisconnectedEventArgs>(this.Client.EventErrorHandler, "LAVALINK_NODE_DISCONNECTED");
         }
 
         /// <summary>
@@ -43,6 +55,7 @@ namespace DSharpPlus.Lavalink
 
             var con = new LavalinkNodeConnection(this.Client, config);
             con.NodeDisconnected += this.Con_NodeDisconnected;
+            con.Disconnected += this.Con_Disconnected;
             this.ConnectedNodes[con.NodeEndpoint] = con;
             await con.StartAsync().ConfigureAwait(false);
 
@@ -59,5 +72,8 @@ namespace DSharpPlus.Lavalink
 
         private void Con_NodeDisconnected(LavalinkNodeConnection node)
             => this.ConnectedNodes.TryRemove(node.NodeEndpoint, out _);
+
+        private Task Con_Disconnected(NodeDisconnectedEventArgs e)
+            => this._nodeDisconnected.InvokeAsync(e);
     }
 }

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink.Entities;
+using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using Newtonsoft.Json;
@@ -35,6 +36,16 @@ namespace DSharpPlus.Lavalink
             remove { this._lavalinkSocketError.Unregister(value); }
         }
         private AsyncEvent<SocketErrorEventArgs> _lavalinkSocketError;
+
+        /// <summary>
+        /// Triggered when this node disconnects.
+        /// </summary>
+        public event AsyncEventHandler<NodeDisconnectedEventArgs> Disconnected
+        {
+            add { this._disconnected.Register(value); }
+            remove { this._disconnected.Unregister(value); }
+        }
+        private AsyncEvent<NodeDisconnectedEventArgs> _disconnected;
 
         /// <summary>
         /// Gets the remote endpoint of this Lavalink node connection.
@@ -66,6 +77,7 @@ namespace DSharpPlus.Lavalink
             this.ConnectedGuilds = new ConcurrentDictionary<ulong, LavalinkGuildConnection>();
 
             this._lavalinkSocketError = new AsyncEvent<SocketErrorEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_SOCKET_ERROR");
+            this._disconnected = new AsyncEvent<NodeDisconnectedEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_NODE_DISCONNECTED");
 
             this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>>();
             this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();
@@ -127,6 +139,7 @@ namespace DSharpPlus.Lavalink
 
             Volatile.Write(ref this._isDisposed, true);
             await this.WebSocket.DisconnectAsync(null).ConfigureAwait(false);
+            await this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -230,7 +243,7 @@ namespace DSharpPlus.Lavalink
 
         private Task WebSocket_OnDisconnect(SocketCloseEventArgs e)
         {
-            if (this.IsConnected)
+            if (this.IsConnected && e.CloseCode != 1001 && e.CloseCode != -1)
             {
                 this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Lavalink", "Connection broken; re-establishing...", DateTime.Now);
                 this.WebSocket = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
@@ -245,10 +258,21 @@ namespace DSharpPlus.Lavalink
                     ["User-Id"] = this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture)
                 });
             }
-            else
+            else if (e.CloseCode != 1001 && e.CloseCode != -1)
             {
                 this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection closed", DateTime.Now);
-                return Task.Delay(0);
+                if (this.NodeDisconnected != null)
+                    this.NodeDisconnected(this);
+                return this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this));
+            }
+            else
+            {
+                this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Lavalink", "Lavalink died", DateTime.Now);
+                foreach (var kvp in this.ConnectedGuilds)
+                    kvp.Value.SendVoiceUpdate();
+                if (this.NodeDisconnected != null)
+                    this.NodeDisconnected(this);
+                return this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this));
             }
         }
 

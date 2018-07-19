@@ -49,7 +49,14 @@ namespace DSharpPlus.Lavalink
             Volatile.Write(ref this._isDisposed, true);
 
             this.Node.SendPayload(new LavalinkDestroy(this));
+            this.SendVoiceUpdate();
 
+            if (this.ChannelDisconnected != null)
+                this.ChannelDisconnected(this);
+        }
+
+        internal void SendVoiceUpdate()
+        {
             var vsd = new VoiceDispatch
             {
                 OpCode = 4,
@@ -63,9 +70,6 @@ namespace DSharpPlus.Lavalink
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
             (this.Channel.Discord as DiscordClient)._webSocketClient.SendMessage(vsj);
-
-            if (this.ChannelDisconnected != null)
-                this.ChannelDisconnected(this);
         }
 
         /// <summary>
