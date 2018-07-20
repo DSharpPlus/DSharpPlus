@@ -364,7 +364,7 @@ namespace DSharpPlus.Test
 		}
 
 		// close your eyes, there are disasters ahead
-		[Group, ModuleLifespan(ModuleLifespan.Transient)]
+		[Group, ModuleLifespan(ModuleLifespan.Transient), TestBotCheck]
 		public class Transient : BaseCommandModule
 		{
 			[Command]

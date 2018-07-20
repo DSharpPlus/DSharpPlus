@@ -504,6 +504,7 @@ namespace DSharpPlus.CommandsNext
         #endregion
 
         #region Default Help
+        [ModuleLifespan(ModuleLifespan.Transient)]
         public class DefaultHelpModule : BaseCommandModule
         {
             [Command("help"), Description("Displays command help.")]
