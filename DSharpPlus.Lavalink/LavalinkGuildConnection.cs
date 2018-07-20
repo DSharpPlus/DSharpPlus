@@ -243,19 +243,19 @@ namespace DSharpPlus.Lavalink
         {
             this.CurrentState.CurrentTrack = default;
 
-            var ea = new TrackFinishEventArgs(this, LavalinkUtil.DecodeTrack(e.Track), e.Reason);
+            var ea = new TrackFinishEventArgs(this, LavalinkUtilities.DecodeTrack(e.Track), e.Reason);
             return this._playbackFinished.InvokeAsync(ea);
         }
 
         internal Task InternalTrackStuckAsync(TrackStuckData e)
         {
-            var ea = new TrackStuckEventArgs(this, e.Threshold, LavalinkUtil.DecodeTrack(e.Track));
+            var ea = new TrackStuckEventArgs(this, e.Threshold, LavalinkUtilities.DecodeTrack(e.Track));
             return this._trackStuck.InvokeAsync(ea);
         }
 
         internal Task InternalTrackExceptionAsync(TrackExceptionData e)
         {
-            var ea = new TrackExceptionEventArgs(this, e.Error, LavalinkUtil.DecodeTrack(e.Track));
+            var ea = new TrackExceptionEventArgs(this, e.Error, LavalinkUtilities.DecodeTrack(e.Track));
             return this._trackException.InvokeAsync(ea);
         }
 

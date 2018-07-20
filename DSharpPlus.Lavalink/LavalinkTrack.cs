@@ -11,7 +11,7 @@ namespace DSharpPlus.Lavalink
         /// Gets or sets the ID of the track to play.
         /// </summary>
         [JsonIgnore]
-        internal string Track { get; set; }
+        public string TrackString { get; set; }
 
         /// <summary>
         /// Gets the identifier of the track.

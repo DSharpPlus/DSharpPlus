@@ -18,7 +18,7 @@ namespace DSharpPlus.Lavalink.Entities
         public LavalinkPlay(LavalinkGuildConnection lvl, LavalinkTrack track)
             : base("play", lvl.GuildIdString)
         {
-            this.Track = track.Track;
+            this.Track = track.TrackString;
         }
     }
 
@@ -36,7 +36,7 @@ namespace DSharpPlus.Lavalink.Entities
         public LavalinkPlayPartial(LavalinkGuildConnection lvl, LavalinkTrack track, TimeSpan start, TimeSpan stop)
             : base("play", lvl.GuildIdString)
         {
-            this.Track = track.Track;
+            this.Track = track.TrackString;
             this.StartTime = (long)start.TotalMilliseconds;
             this.StopTime = (long)stop.TotalMilliseconds;
         }

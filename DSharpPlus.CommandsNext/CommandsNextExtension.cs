@@ -361,6 +361,7 @@ namespace DSharpPlus.CommandsNext
 
                     case HiddenAttribute h:
                         cgbldr.WithHiddenStatus(true);
+                        mdl_hidden = true;
                         break;
 
                     case DescriptionAttribute d:

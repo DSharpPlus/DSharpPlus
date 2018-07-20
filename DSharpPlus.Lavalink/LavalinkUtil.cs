@@ -1,16 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DSharpPlus.Lavalink
 {
-    internal static class LavalinkUtil
+    /// <summary>
+    /// Various utilities for Lavalink.
+    /// </summary>
+    public static class LavalinkUtilities
     {
         private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
+        /// <summary>
+        /// Decodes a Lavalink track string.
+        /// </summary>
+        /// <param name="track">Track string to decode.</param>
+        /// <returns>Decoded Lavalink track.</returns>
         public static LavalinkTrack DecodeTrack(string track)
         {
             var raw = Convert.FromBase64String(track);
@@ -22,7 +27,7 @@ namespace DSharpPlus.Lavalink
 
             var decoded = new LavalinkTrack
             {
-                Track = track
+                TrackString = track
             };
 
             using (var ms = new MemoryStream(msgSize))

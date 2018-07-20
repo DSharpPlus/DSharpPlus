@@ -294,7 +294,7 @@ namespace DSharpPlus.Lavalink
             foreach (var jt in jarr)
             {
                 var track = jt["info"].ToObject<LavalinkTrack>();
-                track.Track = jt["track"].ToString();
+                track.TrackString = jt["track"].ToString();
 
                 tracks.Add(track);
             }
