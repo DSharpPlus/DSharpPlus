@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
+using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -229,6 +231,15 @@ namespace DSharpPlus.CommandsNext
             {
                 try
                 {
+                    IServiceScope scope = null;
+                    if (cmd.Module is TransientCommandModule)
+                    {
+                        scope = ctx.Services.CreateScope();
+                        ctx.ServiceScopeContext = new CommandContext.ServiceContext(ctx.Services, scope);
+
+                        ctx.Services = scope.ServiceProvider;
+                    }
+
                     var fchecks = await cmd.RunChecksAsync(ctx, false).ConfigureAwait(false);
                     if (fchecks.Any())
                         throw new ChecksFailedException(cmd, ctx, fchecks);
