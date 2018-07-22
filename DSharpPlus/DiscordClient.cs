@@ -695,7 +695,7 @@ namespace DSharpPlus
                     await OnGuildMemberUpdateEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"]).ConfigureAwait(false);
                     break;
 
-                case "guild_member_chunk":
+                case "guild_members_chunk":
                     gid = (ulong)dat["guild_id"];
                     await OnGuildMembersChunkEventAsync(dat["members"].ToObject<IEnumerable<TransportMember>>(), this._guilds[gid]).ConfigureAwait(false);
                     break;
@@ -869,7 +869,7 @@ namespace DSharpPlus
 
                     var raw_guild = raw_guild_index[xg.Id];
                     var raw_members = (JArray)raw_guild["members"];
-                    xg._members = new List<DiscordMember>();
+                    xg._members = new HashSet<DiscordMember>();
 
                     if (raw_members != null)
                         foreach (var xj in raw_members)
@@ -1079,7 +1079,7 @@ namespace DSharpPlus
             if (guild._voice_states == null)
                 guild._voice_states = new List<DiscordVoiceState>();
             if (guild._members == null)
-                guild._members = new List<DiscordMember>();
+                guild._members = new HashSet<DiscordMember>();
 
             this.UpdateCachedGuild(event_guild, rawMembers);
 
@@ -1141,7 +1141,7 @@ namespace DSharpPlus
             if (guild._voice_states == null)
                 guild._voice_states = new List<DiscordVoiceState>();
             if (guild._members == null)
-                guild._members = new List<DiscordMember>();
+                guild._members = new HashSet<DiscordMember>();
 
             this.UpdateCachedGuild(event_guild, rawMembers);
 
@@ -1364,9 +1364,7 @@ namespace DSharpPlus
         {
             var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(new DiscordUser(user)) { Discord = this, _guild_id = guild.Id };
 
-            var index = guild._members.FindIndex(xm => xm.Id == mbr.Id);
-            if (index > -1)
-                guild._members.RemoveAt(index);
+            guild._members.Remove(mbr);
             guild.MemberCount--;
 
             var ea = new GuildMemberRemoveEventArgs(this)
@@ -1813,17 +1811,20 @@ namespace DSharpPlus
 
         internal async Task OnGuildMembersChunkEventAsync(IEnumerable<TransportMember> members, DiscordGuild guild)
         {
-            var ids = guild.Members.Select(xm => xm.Id);
-            var mbrs = members.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id })
-                .Where(xm => !ids.Contains(xm.Id));
+            var mbrs = new HashSet<DiscordMember>();
 
-            guild._members.AddRange(mbrs);
+            foreach (var xtm in members)
+            {
+                var mbr = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
+                guild._members.Add(mbr);
+                mbrs.Add(mbr);
+            }
             guild.MemberCount = guild._members.Count;
 
             var ea = new GuildMembersChunkEventArgs(this)
             {
                 Guild = guild,
-                Members = new ReadOnlyCollection<DiscordMember>(new List<DiscordMember>(mbrs))
+                Members = new ReadOnlySet<DiscordMember>(mbrs)
             };
             await this._guildMembersChunked.InvokeAsync(ea).ConfigureAwait(false);
         }

@@ -219,13 +219,13 @@ namespace DSharpPlus.Entities
         /// Gets a collection of all the members that belong to this guild.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordMember> Members
+        public IReadOnlyCollection<DiscordMember> Members
             => this._members_lazy.Value;
 
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordMember> _members;
+        internal HashSet<DiscordMember> _members;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordMember>> _members_lazy;
+        private Lazy<IReadOnlyCollection<DiscordMember>> _members_lazy;
 
         /// <summary>
         /// Gets a collection of all the channels associated with this guild.
@@ -281,7 +281,7 @@ namespace DSharpPlus.Entities
             this._emojis_lazy = new Lazy<IReadOnlyList<DiscordEmoji>>(() => new ReadOnlyCollection<DiscordEmoji>(this._emojis));
             this._voice_states_lazy = new Lazy<IReadOnlyList<DiscordVoiceState>>(() => new ReadOnlyCollection<DiscordVoiceState>(this._voice_states));
             this._channels_lazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._channels));
-            this._members_lazy = new Lazy<IReadOnlyList<DiscordMember>>(() => new ReadOnlyCollection<DiscordMember>(this._members));
+            this._members_lazy = new Lazy<IReadOnlyCollection<DiscordMember>>(() => new ReadOnlySet<DiscordMember>(this._members));
 
             this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.FirstOrDefault(xm => xm.Id == this.Discord.CurrentUser.Id));
         }
@@ -572,25 +572,22 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Requests a full list of members from Discord.
+        /// Retrieves a full list of members from Discord. This method will bypass cache.
         /// </summary>
         /// <returns>A collection of all members in this guild.</returns>
-        public async Task<IReadOnlyList<DiscordMember>> GetAllMembersAsync()
+        public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
         {
-            var recmbr = new List<DiscordMember>(this.MemberCount + 1);
+            var recmbr = new HashSet<DiscordMember>();
 
             var recd = 1000;
             var last = 0ul;
-            while (recd == 1000)
+            while (recd > 0)
             {
                 var tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
                 recd = tms.Count;
-
+                
                 foreach (var xtm in tms)
                 {
-                    if (this.Discord.UserCache.ContainsKey(xtm.User.Id))
-                        continue;
-
                     var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
                     usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
                     {
@@ -600,35 +597,32 @@ namespace DSharpPlus.Entities
 
                         return old;
                     });
+
+                    recmbr.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id });
                 }
 
                 var tm = tms.LastOrDefault();
-                if (tm != null)
-                    last = tm.User.Id;
-                else
-                    last = 0;
-
-                recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id }));
+                last = tm?.User.Id ?? 0;
             }
+            
+            return new ReadOnlySet<DiscordMember>(recmbr);
+        }
 
-            var recids = recmbr.Select(xm => xm.Id);
-
-            // clear the cache of users who weren't received
-            for (int i = 0; i < this._members.Count; i++)
-                if (!recids.Contains(this._members[i].Id))
-                    this._members.RemoveAt(i--);
-
-            var curids = this._members.Select(xm => xm.Id);
-
-            // ignore members who already exist in the cache
-            var newmbr = recmbr.Where(xm => !curids.Contains(xm.Id))
-                .Select(xm => { xm.Discord = this.Discord; xm._guild_id = this.Id; return xm; });
-
-            // add new members
-            this._members.AddRange(newmbr);
-            this.MemberCount = this._members.Count;
-
-            return this.Members;
+        /// <summary>
+        /// Requests that Discord send a complete list of guild members. This method will return immediately.
+        /// </summary>
+        public void RequestAllMembers()
+        {
+            if (!(this.Discord is DiscordClient client))
+                throw new InvalidOperationException("This operation is only valid for regular Discord clients.");
+            
+            var payload = new GatewayPayload
+            {
+                OpCode = GatewayOpCode.RequestGuildMembers,
+                Data = new GatewayRequestGuildMembers(this)
+            };
+            var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
+            client._webSocketClient.SendMessage(payloadStr);
         }
 
         /// <summary>
