@@ -333,7 +333,7 @@ namespace DSharpPlus.Entities
 
         /// <summary>  
         /// Returns a list of messages before a certain message.
-        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="before">Message to fetch before from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(ulong before, int limit = 100)
@@ -341,7 +341,7 @@ namespace DSharpPlus.Entities
         
         /// <summary>  
         /// Returns a list of messages after a certain message.
-        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="after">Message to fetch after from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(ulong after, int limit = 100)
@@ -349,7 +349,7 @@ namespace DSharpPlus.Entities
         
         /// <summary>  
         /// Returns a list of messages around a certain message.
-        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="around">Message to fetch around from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
@@ -357,17 +357,48 @@ namespace DSharpPlus.Entities
 
         /// <summary>  
         /// Returns a list of messages from the last message in the channel.
-        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="limit">The amount of messages to fetch.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100) =>
-            GetMessagesInternalAsync(limit, null, null, null);
+            this.GetMessagesInternalAsync(limit, null, null, null);
 
-        private Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
+        private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
                 throw new ArgumentException("Cannot get the messages of a non-text channel");
 
-            return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
+            //return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
+            if (limit > 100 && around != null)
+                throw new InvalidOperationException("Cannot get more than 100 messages around specified ID.");
+
+            var msgs = new List<DiscordMessage>(limit);
+            var remaining = limit;
+            var lastCount = 0;
+            ulong? last = null;
+            var isBefore = before != null;
+
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, isBefore ? last ?? before : null, !isBefore ? last ?? after : null, around).ConfigureAwait(false);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                if (isBefore)
+                {
+                    msgs.AddRange(fetch);
+                    last = fetch.LastOrDefault()?.Id;
+                }
+                else
+                {
+                    msgs.InsertRange(0, fetch);
+                    last = fetch.FirstOrDefault()?.Id;
+                }
+            }
+            while (remaining > 0 && lastCount > 0);
+
+            return new ReadOnlyCollection<DiscordMessage>(msgs);
         }
 
         /// <summary>
