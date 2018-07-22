@@ -104,11 +104,12 @@ namespace DSharpPlus.Entities
         internal string TimestampRaw { get; set; }
 
         /// <summary>
-        /// Gets the message's edit timestamp.
+        /// Gets the message's edit timestamp. Will be null if the message was not edited.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset EditedTimestamp 
-            => DateTimeOffset.Parse(this.EditedTimestampRaw, CultureInfo.InvariantCulture);
+        public DateTimeOffset? EditedTimestamp 
+            => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw) && DateTimeOffset.TryParse(this.EditedTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ? 
+                (DateTimeOffset?)dto : null;
 
         [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         internal string EditedTimestampRaw { get; set; }
