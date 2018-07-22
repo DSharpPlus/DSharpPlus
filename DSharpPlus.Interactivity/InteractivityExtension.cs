@@ -399,20 +399,21 @@ namespace DSharpPlus.Interactivity
 			#region Handlers
 			async Task ReactionAddHandler(MessageReactionAddEventArgs e)
 			{
-				if (e.Client.CurrentUser.Id != e.User.Id)
+				if (e.Message.Id != message.Id && e.Client.CurrentUser.Id == e.User.Id)
+					return;
+
+				await Task.Yield();
+				if (emojis.Count(x => x == e.Emoji) > 0)
 				{
-					await Task.Yield();
-					if (e.Message.Id == message.Id && emojis.Count(x => x == e.Emoji) > 0)
-					{
-						if (rcc._membersvoted.Contains(e.User.Id))
-							await e.Message.DeleteReactionAsync(e.Emoji, e.User);
-						else
-							rcc.AddReaction(e.Emoji, e.User.Id);
-					}
-					else
-					{
+					if (rcc._membersvoted.Contains(e.User.Id)) // don't allow to vote twice
 						await e.Message.DeleteReactionAsync(e.Emoji, e.User);
-					}
+					else
+						rcc.AddReaction(e.Emoji, e.User.Id);
+				}
+				else
+				{
+					// remove unrelated reactions
+					await e.Message.DeleteReactionAsync(e.Emoji, e.User);
 				}
 			}
 
