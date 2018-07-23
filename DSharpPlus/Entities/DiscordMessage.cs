@@ -290,38 +290,38 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>
-        /// <param name="file_data">Stream containing the data to attach to the message as a file.</param>
-        /// <param name="file_name">Name of the file to be attached.</param>
+        /// <param name="fileName">Name of the file to be attached.</param>
+        /// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, file_data, file_name, content, tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
+            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed);
 
 #if !NETSTANDARD1_1
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>
-        /// <param name="file_data">Stream containing the data to attach to the message as a file.</param>
+        /// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, file_data, Path.GetFileName(file_data.Name), content, tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
+            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed);
 
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>
-        /// <param name="file_path">Path to the file to be attached to the message.</param>
+        /// <param name="filePath">Path to the file to be attached to the message.</param>
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> RespondWithFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> RespondWithFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            using (var fs = File.OpenRead(file_path))
+            using (var fs = File.OpenRead(filePath))
                 return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
         }
 #endif

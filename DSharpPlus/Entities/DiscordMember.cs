@@ -226,48 +226,48 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Sends a direct message with a file attached to this member. Creates a direct message channel if one does not exist already.
         /// </summary>
-        /// <param name="file_data">Stream containing the data to attach as a file.</param>
-        /// <param name="file_name">Name of the file to attach.</param>
+        /// <param name="fileData">Stream containing the data to attach as a file.</param>
+        /// <param name="fileName">Name of the file to attach.</param>
         /// <param name="content">Content of the message to send.</param>
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool is_tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other");
             
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
-            return await chn.SendFileAsync(file_data, file_name, content, is_tts, embed).ConfigureAwait(false);
+            return await chn.SendFileAsync(fileName, fileData, content, is_tts, embed).ConfigureAwait(false);
         }
 
 #if !NETSTANDARD1_1
         /// <summary>
         /// Sends a direct message with a file attached to this member. Creates a direct message channel if one does not exist already.
         /// </summary>
-        /// <param name="file_data">Stream containing the data to attach as a file.</param>
+        /// <param name="fileData">Stream containing the data to attach as a file.</param>
         /// <param name="content">Content of the message to send.</param>
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool is_tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
-            return await chn.SendFileAsync(file_data, content, is_tts, embed).ConfigureAwait(false);
+            return await chn.SendFileAsync(fileData, content, is_tts, embed).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Sends a direct message with a file attached to this member. Creates a direct message channel if one does not exist already.
         /// </summary>
-        /// <param name="file_path">Path to the file to attach to the message.</param>
+        /// <param name="filePath">Path to the file to attach to the message.</param>
         /// <param name="content">Content of the message to send.</param>
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool is_tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
-            return await chn.SendFileAsync(file_path, content, is_tts, embed).ConfigureAwait(false);
+            return await chn.SendFileAsync(filePath, content, is_tts, embed).ConfigureAwait(false);
         }
 #endif
 
