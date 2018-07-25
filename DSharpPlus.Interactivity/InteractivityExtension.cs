@@ -399,7 +399,7 @@ namespace DSharpPlus.Interactivity
 			#region Handlers
 			async Task ReactionAddHandler(MessageReactionAddEventArgs e)
 			{
-				if (e.Message.Id != message.Id && e.Client.CurrentUser.Id == e.User.Id)
+				if (e.Message.Id != message.Id || e.Client.CurrentUser.Id == e.User.Id)
 					return;
 
 				await Task.Yield();
