@@ -1092,18 +1092,17 @@ namespace DSharpPlus.Net
 
         internal async Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
         {
-            var pld = new RestUserGuildListPayload
-            {
-                Limit = limit,
-                After = after,
-                Before = before
-            };
+            var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.GUILDS}?limit={limit}";
 
-            var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.GUILDS}";
+            if (before != null)
+                route += "&before=" + before;
+            if (after != null)
+                route += "&after=" + after;
+
             var bucket = Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await DoRequestAsync(Discord, bucket, url, RestRequestMethod.GET, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await DoRequestAsync(Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             if (Discord is DiscordClient)
             {
@@ -1114,16 +1113,13 @@ namespace DSharpPlus.Net
             else
             {
                 var guilds_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordGuild>>(res.Response);
-                var glds = guilds_raw.Select(xug =>
-                {
-                    xug.Discord = Discord;
-                    foreach (var r in xug._roles)
-                    {
-                        r._guild_id = xug.Id;
-                    }
 
-                    return xug;
-                });
+                var glds = new List<DiscordGuild>();
+                foreach (var gld in guilds_raw)
+                {
+                    glds.Add(await GetGuildAsync(gld.Id));
+                }
+
                 return new ReadOnlyCollection<DiscordGuild>(new List<DiscordGuild>(glds));
             }
         }
