@@ -57,7 +57,15 @@ namespace DSharpPlus.Lavalink
             con.NodeDisconnected += this.Con_NodeDisconnected;
             con.Disconnected += this.Con_Disconnected;
             this.ConnectedNodes[con.NodeEndpoint] = con;
-            await con.StartAsync().ConfigureAwait(false);
+            try
+            {
+                await con.StartAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                this.Con_NodeDisconnected(con);
+                throw;
+            }
 
             return con;
         }
