@@ -1,4 +1,4 @@
-﻿#if WINDOWS_UWP
+﻿#if WINDOWS_UWP || WINDOWS_8
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.WebSocket;
 using System;
@@ -69,7 +69,7 @@ namespace DSharpPlus.Net.WebSocket
                 _rawSocket = new MessageWebSocket();
             }
 
-            return Task.CompletedTask;
+            return Task.Delay(0);
         }
 
         private async void _rawSocket_Closed(IWebSocket sender, WebSocketClosedEventArgs args)
@@ -160,7 +160,7 @@ namespace DSharpPlus.Net.WebSocket
             catch (Exception ex)
             {
                 _error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
-                
+
                 //_disconnect?.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = args.Code, CloseMessage = args.Reason });
             }
         }
@@ -172,7 +172,7 @@ namespace DSharpPlus.Net.WebSocket
 
         protected override Task OnDisconnectedAsync(SocketCloseEventArgs e) => Task.Delay(0);
 
-#region Events
+        #region Events
         /// <summary>
         /// Triggered when the client connects successfully.
         /// </summary>
@@ -217,14 +217,14 @@ namespace DSharpPlus.Net.WebSocket
         {
             if (evname.ToLowerInvariant() == "ws_error")
             {
-                Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
+                Debug.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
             }
             else
             {
                 _error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
-#endregion
+        #endregion
     }
 }
 #endif

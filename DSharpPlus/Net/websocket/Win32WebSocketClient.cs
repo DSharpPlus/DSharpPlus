@@ -1,4 +1,4 @@
-﻿#if !WINDOWS_UWP
+﻿#if !WINDOWS_UWP && !WINDOWS_8
 using System;
 using System.Collections.Concurrent;
 using System.IO;

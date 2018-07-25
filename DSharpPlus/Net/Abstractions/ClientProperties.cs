@@ -22,6 +22,8 @@ namespace DSharpPlus.Net.Abstractions
         public string OperatingSystem =>
 #if WINDOWS_UWP
             "uap10";
+#elif  WINDOWS_8
+            "winrt";
 #else
             $"{Environment.OSVersion.VersionString}";
 #endif

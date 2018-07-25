@@ -272,7 +272,7 @@ namespace DSharpPlus.Entities
             return await chn.SendFileAsync(file_data, file_name, content, is_tts, embed).ConfigureAwait(false);
         }
 
-#if !NETSTANDARD1_1
+#if !NETSTANDARD1_1 && !WINDOWS_8
         /// <summary>
         /// Sends a direct message with a file attached to this member. Creates a direct message channel if one does not exist already.
         /// </summary>

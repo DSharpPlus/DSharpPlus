@@ -198,7 +198,7 @@ namespace DSharpPlus
         {
             try
             {
-#if !(NETSTANDARD1_1 || NET45)
+#if !(NETSTANDARD1_1 || NET45 || WINDOWS_8)
                 return DateTimeOffset.FromUnixTimeSeconds(unixTime);
 #else
                 // below constant taken from 
@@ -228,7 +228,7 @@ namespace DSharpPlus
         {
             try
             {
-#if !(NETSTANDARD1_1 || NET45)
+#if !(NETSTANDARD1_1 || NET45 || WINDOWS_8)
 
                 return DateTimeOffset.FromUnixTimeMilliseconds(unixTime);
 #else
@@ -256,7 +256,7 @@ namespace DSharpPlus
         /// <returns>Calculated Unix time.</returns>
         public static long GetUnixTime(DateTimeOffset dto)
         {
-#if !(NETSTANDARD1_1 || NET45)
+#if !(NETSTANDARD1_1 || NET45 || WINDOWS_8)
             return dto.ToUnixTimeMilliseconds();
 #else
             // below constant taken from 

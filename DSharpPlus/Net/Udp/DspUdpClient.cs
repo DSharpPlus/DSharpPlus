@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿#if !WINDOWS_8
+using System.Net;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net.Udp
@@ -71,3 +72,4 @@ namespace DSharpPlus.Net.Udp
             => new DspUdpClient();
     }
 }
+#endif

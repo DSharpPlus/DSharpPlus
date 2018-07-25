@@ -282,7 +282,7 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null)
             => Discord.ApiClient.UploadFileAsync(ChannelId, file_data, file_name, content, tts, embed);
 
-#if !NETSTANDARD1_1
+#if !NETSTANDARD1_1 && !WINDOWS_8
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>

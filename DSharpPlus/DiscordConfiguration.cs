@@ -135,6 +135,8 @@ namespace DSharpPlus
         }
         private WebSocketClientFactoryDelegate _webSocketClientFactory = WebSocketClient.CreateNew;
 
+#if !WINDOWS_8
+
         /// <summary>
         /// <para>Sets the factory method used to create instances of UDP clients.</para>
         /// <para>Use <see cref="DspUdpClient.CreateNew"/> and equivalents on other implementations to switch out client implementations.</para>
@@ -150,6 +152,7 @@ namespace DSharpPlus
         }
         private UdpClientFactoryDelegate _udpClientFactory = DspUdpClient.CreateNew;
 
+#endif
         /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
@@ -174,7 +177,9 @@ namespace DSharpPlus
             MessageCacheSize = other.MessageCacheSize;
             AutomaticGuildSync = other.AutomaticGuildSync;
             WebSocketClientFactory = other.WebSocketClientFactory;
+#if !WINDOWS_8
             UdpClientFactory = other.UdpClientFactory;
+#endif
             Proxy = other.Proxy;
             HttpTimeout = other.HttpTimeout;
             ReconnectIndefinitely = other.ReconnectIndefinitely;

@@ -234,7 +234,7 @@ namespace DSharpPlus.Entities
             return Discord.ApiClient.UploadFileAsync(Id, file_data, file_name, content, tts, embed);
         }
 
-#if !NETSTANDARD1_1
+#if !NETSTANDARD1_1 && !WINDOWS_8
         /// <summary>
         /// Sends a message containing an attached file to this channel.
         /// </summary>

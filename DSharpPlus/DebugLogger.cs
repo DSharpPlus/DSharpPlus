@@ -46,7 +46,7 @@ namespace DSharpPlus
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
         {
-#if !NETSTANDARD1_1
+#if !NETSTANDARD1_1 && !WINDOWS_8
             switch (e.Level)
             {
                 case LogLevel.Debug:
