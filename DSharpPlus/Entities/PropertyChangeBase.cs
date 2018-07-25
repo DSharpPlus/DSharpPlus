@@ -29,6 +29,7 @@ namespace DSharpPlus.Entities
         private int _handlers;
         private bool _hasHandlers;
         private event PropertyChangedEventHandler _propertyChanged;
+
         public event PropertyChangedEventHandler PropertyChanged
         {
             add
@@ -59,14 +60,14 @@ namespace DSharpPlus.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void InvokePropertyChanged([CallerMemberName] string property = null)
+        public void InvokePropertyChanged([CallerMemberName] string property = null)
         {
             if (_hasHandlers)
             {
 #if WINDOWS_UWP
                 Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(property))).AsTask().Wait();
 #elif WINDOWS_WPF
-                Dispatcher.Invoke(() => _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(property)));
+                Dispatcher.Invoke(() => _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(property)), DispatcherPriority.DataBind);
 #endif
             }
         }

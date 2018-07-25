@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -448,13 +449,7 @@ namespace DSharpPlus
             }
 
             usr = await ApiClient.GetUserAsync(userId).ConfigureAwait(false);
-            usr = UserCache.AddOrUpdate(userId, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = UserCache.AddOrUpdate(userId, usr, (id, old) => UpdateUser(old, usr));
 
             return usr;
         }
@@ -682,7 +677,7 @@ namespace DSharpPlus
 
             if (payload.Data is JObject dat)
             {
-                //DebugLogger.LogMessage(LogLevel.Debug, "Gateway", $"Recieved dispatch: {payload.EventName}", DateTime.Now);
+                DebugLogger.LogMessage(LogLevel.Debug, "Gateway", $"Recieved dispatch: {payload.EventName}", DateTime.Now);
                 switch (payload.EventName.ToLowerInvariant())
                 {
                     case "ready":
@@ -917,13 +912,7 @@ namespace DSharpPlus
                     foreach (var xr in recips_raw)
                     {
                         var xu = new DiscordUser(xr) { Discord = this };
-                        xu = UserCache.AddOrUpdate(xr.Id, xu, (id, old) =>
-                        {
-                            old.Username = xu.Username;
-                            old.Discriminator = xu.Discriminator;
-                            old.AvatarHash = xu.AvatarHash;
-                            return old;
-                        });
+                        xu = UserCache.AddOrUpdate(xr.Id, xu, (id, old) => UpdateUser(old, xu));
 
                         xdc._recipients.Add(xu);
                     }
@@ -974,13 +963,7 @@ namespace DSharpPlus
                             var xtm = xj.ToObject<TransportMember>();
 
                             var xu = new DiscordUser(xtm.User) { Discord = this };
-                            xu = UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
-                            {
-                                old.Username = xu.Username;
-                                old.Discriminator = xu.Discriminator;
-                                old.AvatarHash = xu.AvatarHash;
-                                return old;
-                            });
+                            xu = UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) => UpdateUser(old, xu));
 
                             xg._members.Add(new DiscordMember(xtm) { Discord = this, _guild_id = xg.Id });
                         }
@@ -1013,12 +996,22 @@ namespace DSharpPlus
 
             InvokePropertyChanged(nameof(Guilds));
 
-            if(readStates != null)
+            if (rawRelationships != null)
             {
-                foreach (var dat in readStates.ToObject<DiscordReadState[]>())
+                var rels = rawRelationships.Select(r =>
                 {
-                    dat.Discord = this;
-                    ReadStates[dat.Id] = dat;
+                    var rel = r.ToObject<DiscordRelationship>();
+                    rel.Discord = this;
+
+                    var xu = new DiscordUser(rel.InternalUser) { Discord = this };
+                    xu = UserCache.AddOrUpdate(rel.InternalUser.Id, xu, (id, old) => UpdateUser(old, xu));
+
+                    return rel;
+                });
+
+                foreach (var rel in rels)
+                {
+                    _relationships.Add(rel);
                 }
             }
 
@@ -1029,24 +1022,13 @@ namespace DSharpPlus
                 await OnPresenceUpdateEventAsync(dat as JObject, (JObject)dat["user"]).ConfigureAwait(false);
             }
 
-            if (rawRelationships != null)
+            if (readStates != null)
             {
-                _relationships.AddRange(rawRelationships.Select(r =>
+                foreach (var dat in readStates.ToObject<DiscordReadState[]>())
                 {
-                    var rel = r.ToObject<DiscordRelationship>();
-                    rel.Discord = this;
-
-                    var xu = new DiscordUser(rel.InternalUser) { Discord = this };
-                    xu = UserCache.AddOrUpdate(rel.InternalUser.Id, xu, (id, old) =>
-                    {
-                        old.Username = xu.Username;
-                        old.Discriminator = xu.Discriminator;
-                        old.AvatarHash = xu.AvatarHash;
-                        return old;
-                    });
-
-                    return rel;
-                }));
+                    dat.Discord = this;
+                    ReadStates[dat.Id] = dat;
+                }
             }
 
             if (!Configuration.Token.StartsWith("Bot"))
@@ -1082,13 +1064,7 @@ namespace DSharpPlus
             else
             {
                 var xu = new DiscordUser(rel.InternalUser) { Discord = this };
-                xu = UserCache.AddOrUpdate(rel.InternalUser.Id, xu, (id, old) =>
-                {
-                    old.Username = xu.Username;
-                    old.Discriminator = xu.Discriminator;
-                    old.AvatarHash = xu.AvatarHash;
-                    return old;
-                });
+                xu = UserCache.AddOrUpdate(rel.InternalUser.Id, xu, (id, old) => UpdateUser(old, xu));
                 _relationships.Add(rel);
             }
 
@@ -1493,9 +1469,12 @@ namespace DSharpPlus
             {
                 if (old != null)
                 {
-                    old.InternalUser.Username = usr.Username;
-                    old.InternalUser.Discriminator = usr.Discriminator;
-                    old.InternalUser.AvatarHash = usr.AvatarHash;
+                    if (old.InternalUser.Username != usr.Username)
+                        old.InternalUser.Username = usr.Username;
+                    if (old.InternalUser.Discriminator != usr.Discriminator)
+                        old.InternalUser.Discriminator = usr.Discriminator;
+                    if (old.InternalUser.AvatarHash != usr.AvatarHash)
+                        old.InternalUser.AvatarHash = usr.AvatarHash;
                 }
 
                 if (rawUser["username"] is object)
@@ -1544,13 +1523,7 @@ namespace DSharpPlus
         internal async Task OnGuildBanAddEventAsync(TransportUser user, DiscordGuild guild)
         {
             var usr = new DiscordUser(user) { Discord = this };
-            usr = UserCache.AddOrUpdate(user.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = UserCache.AddOrUpdate(user.Id, usr, (id, old) => UpdateUser(old, usr));
 
             var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             var ea = new GuildBanAddEventArgs(this)
@@ -1564,13 +1537,7 @@ namespace DSharpPlus
         internal async Task OnGuildBanRemoveEventAsync(TransportUser user, DiscordGuild guild)
         {
             var usr = new DiscordUser(user) { Discord = this };
-            usr = UserCache.AddOrUpdate(user.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = UserCache.AddOrUpdate(user.Id, usr, (id, old) => UpdateUser(old, usr));
 
             var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             var ea = new GuildBanRemoveEventArgs(this)
@@ -1607,13 +1574,7 @@ namespace DSharpPlus
         internal async Task OnGuildMemberAddEventAsync(TransportMember member, DiscordGuild guild)
         {
             var usr = new DiscordUser(member.User) { Discord = this };
-            usr = UserCache.AddOrUpdate(member.User.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = UserCache.AddOrUpdate(member.User.Id, usr, (id, old) => UpdateUser(old, usr));
 
             var mbr = new DiscordMember(member)
             {
@@ -1655,13 +1616,7 @@ namespace DSharpPlus
         internal async Task OnGuildMemberUpdateEventAsync(TransportUser user, DiscordGuild guild, IEnumerable<ulong> roles, string nick)
         {
             var usr = new DiscordUser(user) { Discord = this };
-            usr = UserCache.AddOrUpdate(user.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = UserCache.AddOrUpdate(user.Id, usr, (id, old) => UpdateUser(old, usr));
 
             var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
 
@@ -1757,7 +1712,7 @@ namespace DSharpPlus
         internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong messageId)
         {
             DiscordMessage msg = null;
-            if (MessageCache?.TryGet(xm => xm.Id == messageId && xm.ChannelId == chn.Id, out msg) != true)
+            if (MessageCache?.TryGet(xm => xm.Id == messageId && xm.ChannelId == chn?.Id, out msg) != true)
             {
                 msg = new DiscordMessage
                 {
@@ -1790,13 +1745,7 @@ namespace DSharpPlus
             var guild = message.Channel?.Guild;
 
             var usr = new DiscordUser(author) { Discord = this };
-            usr = UserCache.AddOrUpdate(author.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = UserCache.AddOrUpdate(author.Id, usr, (id, old) => UpdateUser(old, usr));
 
             if (guild != null)
             {
@@ -1896,13 +1845,7 @@ namespace DSharpPlus
                 if (author != null)
                 {
                     var usr = new DiscordUser(author) { Discord = this };
-                    usr = UserCache.AddOrUpdate(author.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discriminator = usr.Discriminator;
-                        old.AvatarHash = usr.AvatarHash;
-                        return old;
-                    });
+                    usr = UserCache.AddOrUpdate(author.Id, usr, (id, old) => UpdateUser(old, usr));
 
                     if (guild != null)
                     {
@@ -2395,6 +2338,7 @@ namespace DSharpPlus
         }
 
         //internal async Task StartHeartbeatingAsync()
+        [DebuggerHidden]
         internal void StartHeartbeating()
         {
             DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat", DateTime.Now);
@@ -2594,12 +2538,7 @@ namespace DSharpPlus
 
                     var xu = new DiscordUser(xtm.User) { Discord = this };
                     xu = UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
-                    {
-                        old.Username = xu.Username;
-                        old.Discriminator = xu.Discriminator;
-                        old.AvatarHash = xu.AvatarHash;
-                        return old;
-                    });
+                        UpdateUser(old, xu));
 
                     DiscordMember newmb = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
                     guild._members.AddOrUpdate(newmb, (old, n) =>
@@ -2639,6 +2578,19 @@ namespace DSharpPlus
             // - guild.Large = new_guild.Large;
             // - guild.MemberCount = Math.Max(new_guild.MemberCount, guild._members.Count);
             // - guild.Unavailable = new_guild.Unavailable;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static DiscordUser UpdateUser(DiscordUser old, DiscordUser xu)
+        {
+            if (old.Username != xu.Username)
+                old.Username = xu.Username;
+            if (old.Discriminator != xu.Discriminator)
+                old.Discriminator = xu.Discriminator;
+            if (old.AvatarHash != xu.AvatarHash)
+                old.AvatarHash = xu.AvatarHash;
+
+            return old;
         }
 
         internal async Task InternalUpdateGatewayAsync()

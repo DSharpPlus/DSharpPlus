@@ -246,6 +246,7 @@
     <Compile Include="..\DSharpPlus\Properties\AssemblyInfo.cs" />
     <Compile Include="..\DSharpPlus\RingBuffer.cs" />
     <Compile Include="..\DSharpPlus\Utilities.cs" />
+    <Compile Include="DiscordRestClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
