@@ -66,6 +66,13 @@ namespace DSharpPlus.CommandsNext
         public bool EnableDefaultHelp { internal get; set; } = true;
 
         /// <summary>
+        /// <para>Controls whether the default help will be sent via DMs or not.</para>
+        /// <para>Enabling this will make the bot respond with help via direct messages.</para>
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool DmHelp { internal get; set; } = false;
+
+        /// <summary>
         /// <para>Sets the default pre-execution checks for the built-in help command.</para>
         /// <para>Only applicable if default help is enabled.</para>
         /// <para>Defaults to null.</para>

@@ -593,7 +593,11 @@ namespace DSharpPlus.CommandsNext
                 }
 
                 var hmsg = helpbuilder.Build();
-                await ctx.RespondAsync(hmsg.Content, embed: hmsg.Embed).ConfigureAwait(false);
+
+                if (!ctx.Config.DmHelp || ctx.Channel is DiscordDmChannel || ctx.Guild == null)
+                    await ctx.RespondAsync(hmsg.Content, embed: hmsg.Embed).ConfigureAwait(false);
+                else
+                    await ctx.Member.SendMessageAsync(hmsg.Content, embed: hmsg.Embed).ConfigureAwait(false);
             }
         }
         #endregion
