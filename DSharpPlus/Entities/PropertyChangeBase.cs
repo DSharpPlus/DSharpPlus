@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-#if WINDOWS_UWP
+#if WINDOWS_UWP || WINDOWS_8
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
 #elif WINDOWS_WPF
@@ -18,7 +18,7 @@ namespace DSharpPlus.Entities
 {
     public class PropertyChangedBase : INotifyPropertyChanged
     {
-#if WINDOWS_UWP
+#if WINDOWS_UWP || WINDOWS_8
         public static CoreDispatcher Dispatcher => _dispatcherLazy.Value;
         private static Lazy<CoreDispatcher> _dispatcherLazy = new Lazy<CoreDispatcher>(() => CoreApplication.MainView.CoreWindow.Dispatcher, true);
 #elif WINDOWS_WPF
@@ -64,7 +64,7 @@ namespace DSharpPlus.Entities
         {
             if (_hasHandlers)
             {
-#if WINDOWS_UWP
+#if WINDOWS_UWP || WINDOWS_8
                 Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(property))).AsTask().Wait();
 #elif WINDOWS_WPF
                 Dispatcher.Invoke(() => _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(property)), DispatcherPriority.DataBind);

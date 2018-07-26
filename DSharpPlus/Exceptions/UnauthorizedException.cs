@@ -23,7 +23,7 @@ namespace DSharpPlus.Exceptions
         /// Gets the JSON received.
         /// </summary>
         public string JsonMessage { get; internal set; }
-
+        
         internal UnauthorizedException(BaseRestRequest request, RestResponse response) : base("Unauthorized: " + response.ResponseCode)
         {
             WebRequest = request;
