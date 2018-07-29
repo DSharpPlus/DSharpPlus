@@ -201,8 +201,8 @@ namespace DSharpPlus.CommandsNext
             if (mpos == -1)
                 return;
             
-            if (this.Config.BeforeExecutionCheck != null)
-                if (!this.Config.BeforeExecutionCheck(e.Message))
+            if (this.Config.BeforeExecute != null)
+                if (!this.Config.BeforeExecute(e.Message))
                     return;
 
             var pfx = e.Message.Content.Substring(0, mpos);
