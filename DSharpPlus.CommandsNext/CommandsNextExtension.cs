@@ -200,6 +200,10 @@ namespace DSharpPlus.CommandsNext
 
             if (mpos == -1)
                 return;
+            
+            if (this.Config.BeforeExecute != null)
+                if (!this.Config.BeforeExecute(e.Message))
+                    return;
 
             var pfx = e.Message.Content.Substring(0, mpos);
             var cnt = e.Message.Content.Substring(mpos);
