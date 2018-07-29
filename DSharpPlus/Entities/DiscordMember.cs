@@ -132,18 +132,11 @@ namespace DSharpPlus.Entities
             => this.Id == this.Guild.OwnerId;
 
         /// <summary>
-        /// Gets the Hierachy, the position of the highest role, of this member
+        /// Gets the member's position in the role hierachy, which is the member's highest role's position. Returns <see cref="int.MaxValue"/> for guild's owner.
         /// </summary>
         [JsonIgnore]
-        public int Hierachy
-        {
-            get
-            {
-                if (IsOwner) return int.MaxValue;
-                var highestRole = Roles.FirstOrDefault();
-                return highestRole == null ? 0 : highestRole.Position;
-            }
-        }
+        public int Hierarchy
+            => this.IsOwner ? int.MaxValue : this.Roles.FirstOrDefault()?.Position ?? 0;
 
         #region Overriden user properties
         [JsonIgnore]
