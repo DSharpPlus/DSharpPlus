@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,24 +14,22 @@ namespace DSharpPlus.Net.Serialization
 {
     public static class DiscordJson
     {
-        private static readonly OptionalJsonConverter OptionalJsonConverter = new OptionalJsonConverter();
-
-        private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
+        private static readonly JsonSerializer Serializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
         {
-            Converters = {OptionalJsonConverter},
+            Converters =
+            {
+                new OptionalJsonConverter(),
+                new DiscordUri.DiscordUriJsonConverter(),
+            },
             ContractResolver = new OptionalJsonContractResolver()
-        };
-
-        private static readonly JsonSerializer OptionalJsonSerializer = new JsonSerializer();
-
-        static DiscordJson() => OptionalJsonSerializer.Converters.Add(OptionalJsonConverter);
+        });
 
         /// <summary>Serializes the specified object to a JSON string.</summary>
         /// <param name="value">The object to serialize.</param>
         /// <returns>A JSON string representation of the object.</returns>
         public static string SerializeObject(object value)
         {
-            return JsonConvert.SerializeObject(value, JsonSerializerSettings);
+            return SerializeObjectInternal(value, null, Serializer);
         }
         
         /// <summary>
@@ -40,7 +41,18 @@ namespace DSharpPlus.Net.Serialization
         /// <returns>The converted token</returns>
         public static T ToDiscordObject<T>(this JToken token)
         {
-            return token.ToObject<T>(OptionalJsonSerializer);
+            return token.ToObject<T>(Serializer);
+        }
+        
+        private static string SerializeObjectInternal(object value, Type type, JsonSerializer jsonSerializer)
+        {
+            var stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
+            using (var jsonTextWriter = new JsonTextWriter(stringWriter))
+            {
+                jsonTextWriter.Formatting = jsonSerializer.Formatting;
+                jsonSerializer.Serialize(jsonTextWriter, value, type);
+            }
+            return stringWriter.ToString();
         }
     }
 
