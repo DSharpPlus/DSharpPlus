@@ -131,6 +131,9 @@ namespace DSharpPlus.Entities
         public bool IsOwner 
             => this.Id == this.Guild.OwnerId;
 
+        /// <summary>
+        /// Gets the Hierachy, the position of the highest role, of this member
+        /// </summary>
         [JsonIgnore]
         public int Hierachy
         {
