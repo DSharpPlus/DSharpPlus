@@ -102,7 +102,7 @@ namespace DSharpPlus.CommandsNext
         /// <para>Lets you check something before an execute, if false is returned the execution will stop</para>
         /// <para>Defaults to none (disabled)</para>
         /// </summary>
-        public Func<DiscordMessage, bool> BeforeExecute { internal get; set; } = null;
+        public Func<DiscordMessage, bool> BeforeExecutionCheck { internal get; set; } = null;
 
         /// <summary>
         /// Creates a new instance of <see cref="CommandsNextConfiguration"/>.
