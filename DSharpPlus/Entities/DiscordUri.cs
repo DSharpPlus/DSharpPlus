@@ -89,9 +89,13 @@ namespace DSharpPlus.Net
             public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
                 JsonSerializer serializer)
             {
-                if (!(reader.Value is string s))
+                var val = reader.Value;
+                if (val == null)
+                    return null;
+                
+                if (!(val is string s))
                     throw new JsonReaderException("DiscordUri value invalid format! This is a bug in DSharpPlus. " +
-                                                  $"Include the value in your bug report: [[{reader.Value}]]");
+                                                  $"Include the type in your bug report: [[{reader.TokenType}]]");
                 
                 return IsStandard(s)
                     ? new DiscordUri(new Uri(s))
