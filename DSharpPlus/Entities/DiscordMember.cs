@@ -131,6 +131,20 @@ namespace DSharpPlus.Entities
         public bool IsOwner 
             => this.Id == this.Guild.OwnerId;
 
+        /// <summary>
+        /// Gets the Hierachy, the position of the highest role, of this member
+        /// </summary>
+        [JsonIgnore]
+        public int Hierachy
+        {
+            get
+            {
+                if (IsOwner) return int.MaxValue;
+                var highestRole = Roles.FirstOrDefault();
+                return highestRole == null ? 0 : highestRole.Position;
+            }
+        }
+
         #region Overriden user properties
         [JsonIgnore]
         internal DiscordUser User 
