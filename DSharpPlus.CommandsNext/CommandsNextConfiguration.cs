@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -90,7 +91,7 @@ namespace DSharpPlus.CommandsNext
         /// <para>Objects in this provider are used when instantiating command modules. This allows passing data around without resorting to static members.</para>
         /// <para>Defaults to null.</para>
         /// </summary>
-        public IServiceProvider Services { internal get; set; } = null;
+        public IServiceProvider Services { internal get; set; } = new ServiceCollection().BuildServiceProvider(true);
 
         /// <summary>
         /// <para>Gets whether any extra arguments passed to commands should be ignored or not. If this is set to false, extra arguments will throw, otherwise they will be ignored.</para>
