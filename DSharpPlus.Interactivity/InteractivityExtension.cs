@@ -668,6 +668,16 @@ namespace DSharpPlus.Interactivity
 				this.Client.MessageReactionRemoved += ReactionRemoveHandler;
 
 				await tsc.Task.ConfigureAwait(false);
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+			finally
+			{
+				this.Client.MessageReactionsCleared -= ReactionClearHandler;
+				this.Client.MessageReactionAdded -= ReactionAddHandler;
+				this.Client.MessageReactionRemoved -= ReactionRemoveHandler;
 
 				switch (timeout_behaviour)
 				{
@@ -683,16 +693,6 @@ namespace DSharpPlus.Interactivity
 						await m.DeleteAllReactionsAsync().ConfigureAwait(false);
 						break;
 				}
-			}
-			catch (Exception)
-			{
-				throw;
-			}
-			finally
-			{
-				this.Client.MessageReactionsCleared -= ReactionClearHandler;
-				this.Client.MessageReactionAdded -= ReactionAddHandler;
-				this.Client.MessageReactionRemoved -= ReactionRemoveHandler;
 			}
 
 			#region Handlers
