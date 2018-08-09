@@ -97,8 +97,9 @@ namespace DSharpPlus.Entities
         /// Gets the message's creation timestamp.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset Timestamp 
-            => DateTimeOffset.Parse(this.TimestampRaw, CultureInfo.InvariantCulture);
+        public DateTimeOffset Timestamp
+            => !string.IsNullOrWhiteSpace(this.TimestampRaw) && DateTimeOffset.TryParse(this.TimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
+                dto : this.CreationTimestamp;
 
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
         internal string TimestampRaw { get; set; }
