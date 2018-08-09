@@ -1346,7 +1346,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.MessageDelete:
                         entry = new DiscordAuditLogMessageEntry
                         {
-                            Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.Options?.Id),
+                            Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.Options?.ChannelId),
                             MessageCount = xac.Options?.MessageCount
                         };
 
