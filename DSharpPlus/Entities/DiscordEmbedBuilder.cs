@@ -133,7 +133,8 @@ namespace DSharpPlus.Entities
             this.Url = original.Url?.ToString();
             this.Color = original.Color;
             this.Timestamp = original.Timestamp;
-
+            this.ThumbnailUrl = original.Thumbnail?.Url?.ToString();
+            
             if (original.Author != null)
                 this.Author = new EmbedAuthor
                 {
