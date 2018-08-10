@@ -367,6 +367,12 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
                 throw new ArgumentException("Cannot get the messages of a non-text channel");
 
+            if (limit < 0)
+                throw new ArgumentException("Cannot get a negative number of messages.");
+
+            if (limit == 0)
+                return Array.Empty<DiscordMessage>();
+
             //return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
             if (limit > 100 && around != null)
                 throw new InvalidOperationException("Cannot get more than 100 messages around specified ID.");
