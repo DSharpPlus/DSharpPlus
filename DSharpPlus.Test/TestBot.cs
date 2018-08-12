@@ -110,7 +110,8 @@ namespace DSharpPlus.Test
 
         public async Task RunAsync()
         {
-            await Discord.ConnectAsync().ConfigureAwait(false);
+			var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
+            await Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
             await Task.Delay(-1).ConfigureAwait(false);
         }
 
@@ -160,8 +161,6 @@ namespace DSharpPlus.Test
 
         private Task Discord_Ready(ReadyEventArgs e)
         {
-            if (!this.Config.UseUserToken)
-                this.GameGuard = new Timer(TimerCallback, null, TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(15));
             return Task.CompletedTask;
         }
 
@@ -249,15 +248,6 @@ namespace DSharpPlus.Test
         {
             Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}", DateTime.Now);
             return Task.CompletedTask;
-        }
-
-        private void TimerCallback(object _)
-        {
-            try
-            {
-                this.Discord.UpdateStatusAsync(new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo)).ConfigureAwait(false).GetAwaiter().GetResult();
-            }
-            catch (Exception) { }
         }
     }
 }

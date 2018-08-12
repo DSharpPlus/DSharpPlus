@@ -45,6 +45,7 @@ namespace DSharpPlus
         internal bool _guildDownloadCompleted = false;
 
         internal RingBuffer<DiscordMessage> MessageCache { get; }
+		internal StatusUpdate _status = null;
         #endregion
 
         #region Public Variables
@@ -217,12 +218,26 @@ namespace DSharpPlus
         /// Connects to the gateway
         /// </summary>
         /// <returns></returns>
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(DiscordActivity activity = null, UserStatus ? status = null, DateTimeOffset? idlesince = null)
         {
             var w = 7500;
             var i = 5;
             var s = false;
             Exception cex = null;
+
+			if (activity == null && status == null && idlesince == null)
+				this._status = null;
+			else
+			{
+				var since_unix = idlesince != null ? (long?)Utilities.GetUnixTime(idlesince.Value) : null;
+				this._status = new StatusUpdate()
+				{
+					Activity = new TransportActivity(activity),
+					Status = (UserStatus)(status ?? (UserStatus?)UserStatus.Online),
+					IdleSince = since_unix,
+					IsAFK = idlesince != null
+				};
+			}
 
             if (this.Configuration.TokenType != TokenType.Bot)
                 this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
@@ -1990,7 +2005,7 @@ namespace DSharpPlus
             {
                 this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _sessionId = "";
-                await SendIdentifyAsync().ConfigureAwait(false);
+                await SendIdentifyAsync(_status).ConfigureAwait(false);
             }
         }
 
@@ -2004,7 +2019,7 @@ namespace DSharpPlus
             this._heartbeatTask.Start();
 
             if (_sessionId == "")
-                await SendIdentifyAsync().ConfigureAwait(false);
+                await SendIdentifyAsync(_status).ConfigureAwait(false);
             else
                 await SendResumeAsync().ConfigureAwait(false);
 
@@ -2068,6 +2083,9 @@ namespace DSharpPlus
                 IsAFK = idleSince != null,
                 Status = userStatus ?? UserStatus.Online
             };
+
+			// Solution to have status persist between sessions
+			this._status = status;
             var status_update = new GatewayPayload
             {
                 OpCode = GatewayOpCode.StatusUpdate,
@@ -2137,18 +2155,19 @@ namespace DSharpPlus
             Interlocked.Increment(ref this._skippedHeartbeats);
         }
 
-        internal Task SendIdentifyAsync()
+        internal Task SendIdentifyAsync(StatusUpdate status)
         {
-            var identify = new GatewayIdentify
-            {
-                Token = Utilities.GetFormattedToken(this),
-                Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
-                LargeThreshold = this.Configuration.LargeThreshold,
-                ShardInfo = new ShardInfo
-                {
-                    ShardId = this.Configuration.ShardId,
-                    ShardCount = this.Configuration.ShardCount
-                }
+			var identify = new GatewayIdentify
+			{
+				Token = Utilities.GetFormattedToken(this),
+				Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
+				LargeThreshold = this.Configuration.LargeThreshold,
+				ShardInfo = new ShardInfo
+				{
+					ShardId = this.Configuration.ShardId,
+					ShardCount = this.Configuration.ShardCount
+				},
+				Presence = status
             };
             var payload = new GatewayPayload
             {
