@@ -473,6 +473,9 @@ namespace DSharpPlus
 
         public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji)
             => ApiClient.GetReactionsAsync(channel_id, message_id, emoji);
+	    
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, DiscordEmoji emoji)
+            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji.ToReactionString());
 
         public Task DeleteAllReactionsAsync(ulong channel_id, ulong message_id, string reason)
             => ApiClient.DeleteAllReactionsAsync(channel_id, message_id, reason);
