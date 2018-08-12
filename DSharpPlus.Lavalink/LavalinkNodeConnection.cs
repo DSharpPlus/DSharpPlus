@@ -359,8 +359,8 @@ namespace DSharpPlus.Lavalink
                                 await lvl_evts.InternalTrackStuckAsync(new TrackStuckData { Track = jsonData["track"].ToString(), Threshold = (long)jsonData["thresholdMs"] }).ConfigureAwait(false);
                             break;
                         case EventType.TrackExceptionEvent:
-                            if (this.ConnectedGuilds.TryGetValue(guildId, out var lvl_evts))
-                                await lvl_evts.InternalTrackExceptionAsync(new TrackExceptionData { Track = jsonData["track"].ToString(), Error = jsonData["error"].ToString() }).ConfigureAwait(false);
+                            if (this.ConnectedGuilds.TryGetValue(guildId, out var lvl_evte))
+                                await lvl_evte.InternalTrackExceptionAsync(new TrackExceptionData { Track = jsonData["track"].ToString(), Error = jsonData["error"].ToString() }).ConfigureAwait(false);
                             break;
                     }
                     break;
