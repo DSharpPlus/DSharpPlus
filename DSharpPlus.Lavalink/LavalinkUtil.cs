@@ -13,7 +13,7 @@ namespace DSharpPlus.Lavalink
         private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
         /// <summary>
-        /// Indicates whether a new track should be started on receiving this event. If this is false, either this event is
+        /// Indicates whether a new track should be started after reciving this TrackEndReason. If this is false, either this event is
         /// already triggered because another track started (REPLACED) or because the player is stopped (STOPPED, CLEANUP).
         /// </summary>
         public static bool MayStartNext(this TrackEndReason reason)
