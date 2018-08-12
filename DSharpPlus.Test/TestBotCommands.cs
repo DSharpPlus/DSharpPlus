@@ -31,6 +31,15 @@ namespace DSharpPlus.Test
 		//    await ctx.RespondAsync("naam check your shitcode");
 		//}
 
+		[Command("intext")]
+		public async Task IntExtAsync(CommandContext ctx)
+		{
+			var mes = await ctx.Channel.WaitForMessageAsync(ctx.User, x => x == "ayy");
+
+			if (mes != null)
+				await mes.Message.RespondAsync("lmao");
+		}
+
 		[Command("pages")]
 		public async Task PagesAsync(CommandContext ctx)
 		{
