@@ -233,7 +233,7 @@ namespace DSharpPlus
 				this._status = new StatusUpdate()
 				{
 					Activity = new TransportActivity(activity),
-					Status = (UserStatus)(status ?? (UserStatus?)UserStatus.Online),
+					Status = status ?? UserStatus.Online,
 					IdleSince = since_unix,
 					IsAFK = idlesince != null
 				};
