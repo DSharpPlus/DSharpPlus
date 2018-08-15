@@ -34,34 +34,34 @@ namespace DSharpPlus.CommandsNext.Builders
         /// </summary>
         public Delegate Callable { get; set; }
 
+        private object InvocationTarget { get; }
+
         /// <summary>
         /// Creates a new command overload builder from specified method.
         /// </summary>
         /// <param name="method">Method to use for this overload.</param>
         public CommandOverloadBuilder(MethodInfo method)
-        {
+            : this(method, null)
+        { }
+
+        /// <summary>
+        /// Creates a new command overload builder from specified delegate.
+        /// </summary>
+        /// <param name="method">Delegate to use for this overload.</param>
+        public CommandOverloadBuilder(Delegate method)
+            : this(method.GetMethodInfo(), method.Target)
+        { }
+
+        private CommandOverloadBuilder(MethodInfo method, object target)
+        { 
             if (!method.IsCommandCandidate(out var prms))
                 throw new ArgumentException("Specified method is not suitable for a command.", nameof(method));
 
-            //// create a method which will instantiate the module
-            //var tcm = typeof(ICommandModule);
-            //var tcmi = tcm.GetTypeInfo();
-            //var tmi = tcmi.GetDeclaredMethod("GetInstance");
-
-            //var iep = Expression.Parameter(typeof(ICommandModule), "module");
-            //var ies = Expression.Parameter(typeof(IServiceProvider), "services");
-            //var iec = Expression.Call(iep, tmi, ies);
-            //var iev = Expression.Convert(iec, method.DeclaringType);
-
-            //// create the argument array
-            //var ea = new ParameterExpression[prms.Length + 2];
-            //ea[0] = iep;
-            //ea[1] = ies;
-            //ea[2] = Expression.Parameter(typeof(CommandContext), "ctx");
+            this.InvocationTarget = target;
 
             // create the argument array
             var ea = new ParameterExpression[prms.Length + 1];
-            var iep = Expression.Parameter(method.DeclaringType, "instance");
+            var iep = Expression.Parameter(target?.GetType() ?? method.DeclaringType, "instance");
             ea[0] = iep;
             ea[1] = Expression.Parameter(typeof(CommandContext), "ctx");
 
@@ -120,13 +120,26 @@ namespace DSharpPlus.CommandsNext.Builders
             this.Callable = el.Compile();
         }
 
+        /// <summary>
+        /// Sets the priority for this command overload.
+        /// </summary>
+        /// <param name="priority">Priority for this command overload.</param>
+        /// <returns>This builder.</returns>
+        public CommandOverloadBuilder WithPriority(int priority)
+        {
+            this.Priority = priority;
+
+            return this;
+        }
+
         internal CommandOverload Build()
         {
             var ovl = new CommandOverload()
             {
                 Arguments = this.Arguments,
                 Priority = this.Priority,
-                Callable = this.Callable
+                Callable = this.Callable,
+                InvocationTarget = this.InvocationTarget
             };
 
             return ovl;

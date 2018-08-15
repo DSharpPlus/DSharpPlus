@@ -58,6 +58,13 @@ namespace DSharpPlus.CommandsNext.Builders
         private List<Attribute> CustomAttributeList { get; }
 
         /// <summary>
+        /// Creates a new module-less command builder.
+        /// </summary>
+        public CommandBuilder()
+            : this(null)
+        { }
+
+        /// <summary>
         /// Creates a new command builder.
         /// </summary>
         /// <param name="module">Module on which this command is to be defined.</param>
@@ -161,7 +168,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <returns>This builder.</returns>
         public CommandBuilder WithExecutionChecks(params CheckBaseAttribute[] checks)
         {
-            this.ExecutionCheckList.AddRange(checks);
+            this.ExecutionCheckList.AddRange(checks.Except(this.ExecutionCheckList));
             return this;
         }
 
@@ -172,7 +179,8 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <returns>This builder.</returns>
         public CommandBuilder WithExecutionCheck(CheckBaseAttribute check)
         {
-            this.ExecutionCheckList.Add(check);
+            if (!this.ExecutionCheckList.Contains(check))
+                this.ExecutionCheckList.Add(check);
             return this;
         }
 

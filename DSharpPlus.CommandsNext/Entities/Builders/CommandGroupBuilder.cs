@@ -17,6 +17,13 @@ namespace DSharpPlus.CommandsNext.Builders
         private List<CommandBuilder> ChildrenList { get; }
 
         /// <summary>
+        /// Creates a new module-less command group builder.
+        /// </summary>
+        public CommandGroupBuilder()
+            : this(null)
+        { }
+
+        /// <summary>
         /// Creates a new command group builder.
         /// </summary>
         /// <param name="module">Module on which this group is to be defined.</param>

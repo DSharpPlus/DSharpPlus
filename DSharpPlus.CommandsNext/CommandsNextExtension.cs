@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
+using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -57,6 +59,7 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DateTime)] = new DateTimeConverter(),
                 [typeof(DateTimeOffset)] = new DateTimeOffsetConverter(),
                 [typeof(TimeSpan)] = new TimeSpanConverter(),
+                [typeof(Uri)] = new UriConverter(),
                 [typeof(DiscordUser)] = new DiscordUserConverter(),
                 [typeof(DiscordMember)] = new DiscordMemberConverter(),
                 [typeof(DiscordRole)] = new DiscordRoleConverter(),
@@ -85,6 +88,7 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DateTime)] = "date and time",
                 [typeof(DateTimeOffset)] = "date and time",
                 [typeof(TimeSpan)] = "time span",
+                [typeof(Uri)] = "URL",
                 [typeof(DiscordUser)] = "user",
                 [typeof(DiscordMember)] = "member",
                 [typeof(DiscordRole)] = "role",
@@ -145,26 +149,38 @@ namespace DSharpPlus.CommandsNext
             this._executed = new AsyncEvent<CommandExecutionEventArgs>(this.Client.EventErrorHandler, "COMMAND_EXECUTED");
             this._error = new AsyncEvent<CommandErrorEventArgs>(this.Client.EventErrorHandler, "COMMAND_ERRORED");
 
-            this.Client.MessageCreated += this.HandleCommandsAsync;
+            if (this.Config.UseDefaultCommandHandler)
+                this.Client.MessageCreated += this.HandleCommandsAsync;
+            else
+                this.Client.DebugLogger.LogMessage(LogLevel.Warning, "CommandsNext", "Default command handler is not attached. If this was intentional, you can ignore this message.", DateTime.Now);
 
             if (this.Config.EnableDefaultHelp)
-                this.RegisterCommands<DefaultHelpModule>();
+            {
+                this.RegisterCommands(typeof(DefaultHelpModule), null, out var tcmds);
+
+                if (this.Config.DefaultHelpChecks != null)
+                {
+                    var checks = this.Config.DefaultHelpChecks.ToArray();
+
+                    for (int i = 0; i < tcmds.Count; i++)
+                        tcmds[i].WithExecutionChecks(checks);
+                }
+
+                if (tcmds != null)
+                    foreach (var xc in tcmds)
+                        this.AddToCommandDictionary(xc.Build(null));
+            }
+
         }
         #endregion
 
-        #region Command Handler
+        #region Command Handling
         private async Task HandleCommandsAsync(MessageCreateEventArgs e)
         {
-            // Let the bot do its things
-            await Task.Yield();
-
             if (e.Author.IsBot) // bad bot
                 return;
 
             if (!this.Config.EnableDms && e.Channel.IsPrivate)
-                return;
-
-            if (this.Config.Selfbot && e.Author.Id != this.Client.CurrentUser.Id)
                 return;
 
             var mpos = -1;
@@ -184,57 +200,156 @@ namespace DSharpPlus.CommandsNext
 
             var pfx = e.Message.Content.Substring(0, mpos);
             var cnt = e.Message.Content.Substring(mpos);
-            int sp = 0;
-            var cms = CommandsNextUtilities.ExtractNextArgument(cnt, ref sp);
 
-            var cmd = this.TopLevelCommands.ContainsKey(cms) ? this.TopLevelCommands[cms] : null;
-            if (cmd == null && !this.Config.CaseSensitive)
-                cmd = this.TopLevelCommands.FirstOrDefault(xkvp => xkvp.Key.ToLowerInvariant() == cms.ToLowerInvariant()).Value;
+            var __ = 0;
+            var fname = cnt.ExtractNextArgument(ref __);
 
+            var cmd = this.FindCommand(cnt, out var args);
+            var ctx = this.CreateContext(e.Message, pfx, cmd, args);
+            if (cmd == null)
+            {
+                await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(fname) }).ConfigureAwait(false);
+                return;
+            }
+
+            _ = Task.Run(async () => await this.ExecuteCommandAsync(ctx));
+        }
+
+        /// <summary>
+        /// Finds a specified command by its qualified name, then separates arguments.
+        /// </summary>
+        /// <param name="commandString">Qualified name of the command, optionally with arguments.</param>
+        /// <param name="rawArguments">Separated arguments.</param>
+        /// <returns>Found command or null if none was found.</returns>
+        public Command FindCommand(string commandString, out string rawArguments)
+        {
+            rawArguments = null;
+
+            var ignoreCase = !this.Config.CaseSensitive;
+            var pos = 0;
+            var next = commandString.ExtractNextArgument(ref pos);
+            if (next == null)
+                return null;
+
+            if (!this.RegisteredCommands.TryGetValue(next, out var cmd))
+            {
+                if (!ignoreCase)
+                    return null;
+
+                next = next.ToLowerInvariant();
+                var cmdKvp = this.RegisteredCommands.FirstOrDefault(x => x.Key.ToLowerInvariant() == next);
+                if (cmdKvp.Value == null)
+                    return null;
+
+                cmd = cmdKvp.Value;
+            }
+
+            if (!(cmd is CommandGroup))
+            {
+                rawArguments = commandString.Substring(pos).Trim();
+                return cmd;
+            }
+            
+            while (cmd is CommandGroup)
+            {
+                var cm2 = cmd as CommandGroup;
+                var oldPos = pos;
+                next = commandString.ExtractNextArgument(ref pos);
+                if (next == null)
+                    break;
+
+                if (ignoreCase)
+                {
+                    next = next.ToLowerInvariant();
+                    cmd = cm2.Children.FirstOrDefault(x => x.Name.ToLowerInvariant() == next || x.Aliases?.Any(xx => xx.ToLowerInvariant() == next) == true);
+                }
+                else
+                {
+                    cmd = cm2.Children.FirstOrDefault(x => x.Name == next || x.Aliases?.Contains(next) == true);
+                }
+
+                if (cmd == null)
+                {
+                    cmd = cm2;
+                    pos = oldPos;
+                    break;
+                }
+            }
+
+            rawArguments = commandString.Substring(pos).Trim();
+            return cmd;
+        }
+
+        /// <summary>
+        /// Creates a command execution context from specified arguments.
+        /// </summary>
+        /// <param name="msg">Message to use for context.</param>
+        /// <param name="prefix">Command prefix, used to execute commands.</param>
+        /// <param name="cmd">Command to execute.</param>
+        /// <param name="rawArguments">Raw arguments to pass to command.</param>
+        /// <returns>Created command execution context.</returns>
+        public CommandContext CreateContext(DiscordMessage msg, string prefix, Command cmd, string rawArguments = null)
+        {
             var ctx = new CommandContext
             {
                 Client = this.Client,
                 Command = cmd,
-                Message = e.Message,
-                //RawArguments = new ReadOnlyCollection<string>(arg.ToList()),
+                Message = msg,
                 Config = this.Config,
-                RawArgumentString = cnt.Substring(sp),
-                Prefix = pfx,
+                RawArgumentString = rawArguments ?? "",
+                Prefix = prefix,
                 CommandsNext = this,
                 Services = this.Services
             };
 
-            if (cmd == null)
+            if (cmd != null && (cmd.Module is TransientCommandModule || cmd.Module == null))
             {
-                await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(cms) }).ConfigureAwait(false);
-                return;
+                var scope = ctx.Services.CreateScope();
+                ctx.ServiceScopeContext = new CommandContext.ServiceContext(ctx.Services, scope);
+                ctx.Services = scope.ServiceProvider;
             }
 
-            _ = Task.Run(async () =>
+            return ctx;
+        }
+
+        /// <summary>
+        /// Executes specified command from given context.
+        /// </summary>
+        /// <param name="ctx">Context to execute command from.</param>
+        /// <returns></returns>
+        public async Task ExecuteCommandAsync(CommandContext ctx)
+        {
+            try
             {
-                try
-                {
-                    var fchecks = await cmd.RunChecksAsync(ctx, false).ConfigureAwait(false);
-                    if (fchecks.Any())
-                        throw new ChecksFailedException(cmd, ctx, fchecks);
+                var cmd = ctx.Command;
+                await this.RunAllChecksAsync(cmd, ctx).ConfigureAwait(false);
 
-                    var res = await cmd.ExecuteAsync(ctx).ConfigureAwait(false);
+                var res = await cmd.ExecuteAsync(ctx).ConfigureAwait(false);
 
-                    if (res.IsSuccessful)
-                        await this._executed.InvokeAsync(new CommandExecutionEventArgs { Context = res.Context }).ConfigureAwait(false);
-                    else
-                        await this._error.InvokeAsync(new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception }).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = ex }).ConfigureAwait(false);
-                }
-                finally
-                {
-                    if (ctx.ServiceScopeContext.IsInitialized)
-                        ctx.ServiceScopeContext.Dispose();
-                }
-            });
+                if (res.IsSuccessful)
+                    await this._executed.InvokeAsync(new CommandExecutionEventArgs { Context = res.Context }).ConfigureAwait(false);
+                else
+                    await this._error.InvokeAsync(new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception }).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await this._error.InvokeAsync(new CommandErrorEventArgs { Context = ctx, Exception = ex }).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (ctx.ServiceScopeContext.IsInitialized)
+                    ctx.ServiceScopeContext.Dispose();
+            }
+        }
+
+        private async Task RunAllChecksAsync(Command cmd, CommandContext ctx)
+        {
+            if (cmd.Parent != null)
+                await this.RunAllChecksAsync(cmd.Parent, ctx).ConfigureAwait(false);
+
+            var fchecks = await cmd.RunChecksAsync(ctx, false).ConfigureAwait(false);
+            if (fchecks.Any())
+                throw new ChecksFailedException(cmd, ctx, fchecks);
         }
         #endregion
 
@@ -246,7 +361,7 @@ namespace DSharpPlus.CommandsNext
             => this._registeredCommandsLazy.Value;
 
         private Dictionary<string, Command> TopLevelCommands { get; set; }
-        private Lazy<IReadOnlyDictionary<string, Command>> _registeredCommandsLazy;
+        private readonly Lazy<IReadOnlyDictionary<string, Command>> _registeredCommandsLazy;
 
         /// <summary>
         /// Registers all commands from a given assembly. The command classes need to be public to be considered for registration.
@@ -305,6 +420,10 @@ namespace DSharpPlus.CommandsNext
                 .WithLifespan(lifespan != null ? lifespan.Lifespan : ModuleLifespan.Singleton)
                 .Build(this.Services);
 
+            // restrict parent lifespan to more or equally restrictive
+            if (currentParent?.Module is TransientCommandModule && lifespan.Lifespan != ModuleLifespan.Transient)
+                throw new InvalidOperationException("In a transient module, child modules can only be transient.");
+
             // check if we are anything
             var cgbldr = new CommandGroupBuilder(module);
             var is_mdl = false;
@@ -346,6 +465,7 @@ namespace DSharpPlus.CommandsNext
 
                     case HiddenAttribute h:
                         cgbldr.WithHiddenStatus(true);
+                        mdl_hidden = true;
                         break;
 
                     case DescriptionAttribute d:
@@ -376,8 +496,7 @@ namespace DSharpPlus.CommandsNext
                     continue;
 
                 var attrs = m.GetCustomAttributes();
-                var cattr = attrs.FirstOrDefault(xa => xa is CommandAttribute) as CommandAttribute;
-                if (cattr == null)
+                if (!(attrs.FirstOrDefault(xa => xa is CommandAttribute) is CommandAttribute cattr))
                     continue;
 
                 var cname = cattr.Name;
@@ -462,6 +581,26 @@ namespace DSharpPlus.CommandsNext
             commands = cmds;
         }
 
+        public void RegisterCommands(params CommandBuilder[] cmds)
+        {
+            foreach (var cmd in cmds)
+                this.AddToCommandDictionary(cmd.Build(null));
+        }
+
+        /// <summary>
+        /// Unregisters specified commands from CommandsNext.
+        /// </summary>
+        /// <param name="cmds">Commands to unregister.</param>
+        public void UnregisterCommands(params Command[] cmds)
+        {
+            if (cmds.Any(x => x.Parent != null))
+                throw new InvalidOperationException("Cannot unregister nested commands.");
+
+            var keys = this.RegisteredCommands.Where(x => cmds.Contains(x.Value)).Select(x => x.Key).ToList();
+            foreach (var key in keys)
+                this.TopLevelCommands.Remove(key);
+        }
+
         private void AddToCommandDictionary(Command cmd)
         {
             if (cmd.Parent != null)
@@ -478,13 +617,14 @@ namespace DSharpPlus.CommandsNext
         #endregion
 
         #region Default Help
+        [ModuleLifespan(ModuleLifespan.Transient)]
         public class DefaultHelpModule : BaseCommandModule
         {
             [Command("help"), Description("Displays command help.")]
             public async Task DefaultHelpAsync(CommandContext ctx, [Description("Command to provide help for.")] params string[] command)
             {
                 var toplevel = ctx.CommandsNext.TopLevelCommands.Values.Distinct();
-                var helpbuilder = ctx.CommandsNext.HelpFormatter.Create(ctx.Services, ctx.CommandsNext);
+                var helpbuilder = ctx.CommandsNext.HelpFormatter.Create(ctx);
 
                 if (command != null && command.Any())
                 {
@@ -564,20 +704,27 @@ namespace DSharpPlus.CommandsNext
                 }
 
                 var hmsg = helpbuilder.Build();
-                await ctx.RespondAsync(hmsg.Content, embed: hmsg.Embed).ConfigureAwait(false);
+
+                if (!ctx.Config.DmHelp || ctx.Channel is DiscordDmChannel || ctx.Guild == null)
+                    await ctx.RespondAsync(hmsg.Content, embed: hmsg.Embed).ConfigureAwait(false);
+                else
+                    await ctx.Member.SendMessageAsync(hmsg.Content, embed: hmsg.Embed).ConfigureAwait(false);
             }
         }
         #endregion
 
         #region Sudo
         /// <summary>
-        /// Creates a fake message and executes a command using said message as context. Note that any command that looks the message up might throw.
+        /// Creates a fake command context to execute commands with.
         /// </summary>
-        /// <param name="user">User to execute as.</param>
-        /// <param name="channel">Channel to execute in.</param>
-        /// <param name="message">Contents of the fake message.</param>
-        /// <returns></returns>
-        public async Task SudoAsync(DiscordUser user, DiscordChannel channel, string message)
+        /// <param name="actor">The user or member to use as message author.</param>
+        /// <param name="channel">The channel the message is supposed to appear from.</param>
+        /// <param name="messageContents">Contents of the message.</param>
+        /// <param name="prefix">Command prefix, used to execute commands.</param>
+        /// <param name="cmd">Command to execute.</param>
+        /// <param name="rawArguments">Raw arguments to pass to command.</param>
+        /// <returns>Created fake context.</returns>
+        public CommandContext CreateFakeContext(DiscordUser actor, DiscordChannel channel, string messageContents, string prefix, Command cmd, string rawArguments = null)
         {
             var eph = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
             var dtn = DateTimeOffset.UtcNow;
@@ -587,12 +734,12 @@ namespace DSharpPlus.CommandsNext
             var msg = new DiscordMessage
             {
                 Discord = this.Client,
-                Author = user,
+                Author = actor,
                 ChannelId = channel.Id,
-                Content = message,
+                Content = messageContents,
                 Id = ts << 22,
                 Pinned = false,
-                MentionEveryone = message.Contains("@everyone"),
+                MentionEveryone = messageContents.Contains("@everyone"),
                 IsTTS = false,
                 _attachments = new List<DiscordAttachment>(),
                 _embeds = new List<DiscordEmbed>(),
@@ -622,7 +769,26 @@ namespace DSharpPlus.CommandsNext
             msg._mentionedRoles = mentioned_roles;
             msg._mentionedChannels = mentioned_channels;
 
-            await this.HandleCommandsAsync(new MessageCreateEventArgs(this.Client) { Message = msg }).ConfigureAwait(false);
+            var ctx = new CommandContext
+            {
+                Client = this.Client,
+                Command = cmd,
+                Message = msg,
+                Config = this.Config,
+                RawArgumentString = rawArguments ?? "",
+                Prefix = prefix,
+                CommandsNext = this,
+                Services = this.Services
+            };
+
+            if (cmd != null && (cmd.Module is TransientCommandModule || cmd.Module == null))
+            {
+                var scope = ctx.Services.CreateScope();
+                ctx.ServiceScopeContext = new CommandContext.ServiceContext(ctx.Services, scope);
+                ctx.Services = scope.ServiceProvider;
+            }
+
+            return ctx;
         }
         #endregion
 

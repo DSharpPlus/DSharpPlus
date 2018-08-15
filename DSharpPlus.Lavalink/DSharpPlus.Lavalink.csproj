@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../DSharpPlus.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>DSharpPlus.Lavalink</AssemblyName>
+    <RootNamespace>DSharpPlus.Lavalink</RootNamespace>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>DSharpPlus.Lavalink</PackageId>
+    <Description>Lavalink implementation for DSharpPlus. Lavalink is an easy and lightweight method of streaming audio to Discord.</Description>
+    <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp audio voice radio music lavalink lavaplayer</PackageTags>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46' Or '$(TargetFramework)' == 'net47'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  
+</Project>

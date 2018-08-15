@@ -9,17 +9,22 @@ namespace DSharpPlus.CommandsNext.Converters
     public abstract class BaseHelpFormatter
     {
         /// <summary>
+        /// Gets the context in which this formatter is being invoked.
+        /// </summary>
+        protected CommandContext Context { get; }
+
+        /// <summary>
         /// Gets the CommandsNext extension which constructed this help formatter.
         /// </summary>
-        protected CommandsNextExtension CommandsNext { get; }
+        protected CommandsNextExtension CommandsNext => this.Context.CommandsNext;
 
         /// <summary>
         /// Creates a new help formatter for specified CommandsNext extension instance.
         /// </summary>
-        /// <param name="cnext">CommandsNext instance this formatter is for.</param>
-        public BaseHelpFormatter(CommandsNextExtension cnext)
+        /// <param name="ctx">Context in which this formatter is being invoked.</param>
+        public BaseHelpFormatter(CommandContext ctx)
         {
-            this.CommandsNext = cnext;
+            this.Context = ctx;
         }
 
         /// <summary>

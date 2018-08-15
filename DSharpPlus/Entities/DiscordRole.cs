@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using System.Linq;
+using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities
 {
@@ -87,7 +88,7 @@ namespace DSharpPlus.Entities
                     pmds[i].Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position;
             }
 
-            return this.Discord.ApiClient.ModifyGuildRolePosition(this.Id, pmds, reason);
+            return this.Discord.ApiClient.ModifyGuildRolePosition(this._guild_id, pmds, reason);
         }
 
         /// <summary>
@@ -100,8 +101,16 @@ namespace DSharpPlus.Entities
         /// <param name="mentionable">Whether this role is mentionable</param>
         /// <param name="reason">Reason why we made this change</param>
         /// <returns></returns>
-        public Task UpdateAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
+        public Task ModifyAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
             => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, Id, name, permissions, color?.Value, hoist, mentionable, reason);
+
+		public Task ModifyAsync(Action<RoleEditModel> action)
+		{
+			var mdl = new RoleEditModel();
+			action(mdl);
+
+			return this.ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+		}
 
         /// <summary>
         /// Deletes this role.

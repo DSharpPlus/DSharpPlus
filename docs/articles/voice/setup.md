@@ -25,7 +25,7 @@ If that fails, try `ls -d1 /etc/* | grep '\-release$' | head -n 1 | xargs cat`. 
 
 ![Identify - GNU/Linux](/images/05_03_identify_gnulinux_osrelease.png "Identifying non-LSB-compatible GNU/Linux system")
 
-### Mac OS X
+### macOS
 
 You use Mac, not much to identify here.
 
@@ -93,7 +93,7 @@ Depending on your distro and version, you might need to install different packag
 
 `$ sudo emerge -atv opus libsodium`
 
-### Mac OS X
+### macOS
 
 **NOTE**: I do not own a Mac, therefore the below might require tweaking:
 
@@ -147,11 +147,11 @@ caused to your system.
 
 `$ sudo emerge -atv ffmpeg`
 
-### Mac OS X
+### macOS
 
 **NOTE**: I do not own a Mac, therefore the below might require tweaking:
 
-`$ brew install ffmpeg --with-fdk-aac --with-ffplay --with-freetype --with-frei0r --with-libass --with-libvo-aacenc --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-opus --with-rtmpdump --with-schroedinger --with-speex --with-theora --with-tools`
+`$ brew install ffmpeg --with-fdk-aac --with-sdl2 --with-freetype --with-frei0r --with-libass --with-libvorbis --with-libvpx --with-opencore-amr --with-openjpeg --with-opus --with-rtmpdump --with-speex --with-theora --with-tools`
 
 ### FreeBSD
 

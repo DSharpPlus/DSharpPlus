@@ -13,7 +13,7 @@ using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.EventArgs;
-using DSharpPlus.VoiceNext.VoiceEntities;
+using DSharpPlus.VoiceNext.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

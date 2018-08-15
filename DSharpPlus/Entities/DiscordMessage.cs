@@ -19,10 +19,26 @@ namespace DSharpPlus.Entities
         {
             this._attachmentsLazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
             this._embedsLazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));
-            this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels));
-            this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._mentionedRoles));
+            this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => {
+                if (this._mentionedChannels != null)
+                    return new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels);
+                return new DiscordChannel[0];
+            });
+            this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => {
+                if (this._mentionedRoles != null)
+                    return new ReadOnlyCollection<DiscordRole>(this._mentionedRoles);
+                return new DiscordRole[0];
+            });
             this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
             this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
+            this._jumpLink = new Lazy<Uri>(() =>
+            {
+                var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.ToString(CultureInfo.InvariantCulture);
+                var cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
+                var mid = this.Id.ToString(CultureInfo.InvariantCulture);
+
+                return new Uri($"https://discordapp.com/channels/{gid}/{cid}/{mid}");
+            });
         }
         
         internal DiscordMessage(DiscordMessage other)
@@ -81,18 +97,20 @@ namespace DSharpPlus.Entities
         /// Gets the message's creation timestamp.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset Timestamp 
-            => DateTimeOffset.Parse(this.TimestampRaw, CultureInfo.InvariantCulture);
+        public DateTimeOffset Timestamp
+            => !string.IsNullOrWhiteSpace(this.TimestampRaw) && DateTimeOffset.TryParse(this.TimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
+                dto : this.CreationTimestamp;
 
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
         internal string TimestampRaw { get; set; }
 
         /// <summary>
-        /// Gets the message's edit timestamp.
+        /// Gets the message's edit timestamp. Will be null if the message was not edited.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset EditedTimestamp 
-            => DateTimeOffset.Parse(this.EditedTimestampRaw, CultureInfo.InvariantCulture);
+        public DateTimeOffset? EditedTimestamp 
+            => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw) && DateTimeOffset.TryParse(this.EditedTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ? 
+                (DateTimeOffset?)dto : null;
 
         [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         internal string EditedTimestampRaw { get; set; }
@@ -224,6 +242,13 @@ namespace DSharpPlus.Entities
             => this.WebhookId != null;
 
         /// <summary>
+        /// Gets the jump link to this message.
+        /// </summary>
+        [JsonIgnore]
+        public Uri JumpLink => this._jumpLink.Value;
+        private Lazy<Uri> _jumpLink;
+
+        /// <summary>
         /// Edits the message.
         /// </summary>
         /// <param name="content">New content.</param>
@@ -266,38 +291,38 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>
-        /// <param name="file_data">Stream containing the data to attach to the message as a file.</param>
-        /// <param name="file_name">Name of the file to be attached.</param>
+        /// <param name="fileName">Name of the file to be attached.</param>
+        /// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, file_data, file_name, content, tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
+            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed);
 
 #if !NETSTANDARD1_1
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>
-        /// <param name="file_data">Stream containing the data to attach to the message as a file.</param>
+        /// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, file_data, Path.GetFileName(file_data.Name), content, tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
+            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed);
 
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>
-        /// <param name="file_path">Path to the file to be attached to the message.</param>
+        /// <param name="filePath">Path to the file to be attached to the message.</param>
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> RespondWithFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> RespondWithFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            using (var fs = File.OpenRead(file_path))
+            using (var fs = File.OpenRead(filePath))
                 return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
         }
 #endif

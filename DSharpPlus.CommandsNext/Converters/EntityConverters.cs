@@ -69,6 +69,9 @@ namespace DSharpPlus.CommandsNext.Converters
 
         public async Task<Optional<DiscordMember>> ConvertAsync(string value, CommandContext ctx)
         {
+            if (ctx.Guild == null)
+                return Optional<DiscordMember>.FromNoValue();
+
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
                 var result = await ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false);
@@ -114,29 +117,29 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public Task<Optional<DiscordChannel>> ConvertAsync(string value, CommandContext ctx)
+        public async Task<Optional<DiscordChannel>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid))
             {
-                var result = ctx.Guild.Channels.FirstOrDefault(xc => xc.Id == cid);
+                var result = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
                 var ret = result != null ? Optional<DiscordChannel>.FromValue(result) : Optional<DiscordChannel>.FromNoValue();
-                return Task.FromResult(ret);
+                return ret;
             }
 
             var m = ChannelRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cid))
             {
-                var result = ctx.Guild.Channels.FirstOrDefault(xc => xc.Id == cid);
+                var result = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
                 var ret = result != null ? Optional<DiscordChannel>.FromValue(result) : Optional<DiscordChannel>.FromNoValue();
-                return Task.FromResult(ret);
+                return ret;
             }
 
             var cs = ctx.Config.CaseSensitive;
             if (!cs)
                 value = value.ToLowerInvariant();
 
-            var chn = ctx.Guild.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
-            return Task.FromResult(chn != null ? Optional<DiscordChannel>.FromValue(chn) : Optional<DiscordChannel>.FromNoValue());
+            var chn = ctx.Guild?.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
+            return chn != null ? Optional<DiscordChannel>.FromValue(chn) : Optional<DiscordChannel>.FromNoValue();
         }
     }
 
@@ -155,6 +158,9 @@ namespace DSharpPlus.CommandsNext.Converters
 
         public Task<Optional<DiscordRole>> ConvertAsync(string value, CommandContext ctx)
         {
+            if (ctx.Guild == null)
+                return Task.FromResult(Optional<DiscordRole>.FromNoValue());
+
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var rid))
             {
                 var result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
 {
@@ -36,6 +37,9 @@ namespace DSharpPlus.Net.Abstractions
         /// </summary>
         [JsonProperty("shard")]
         public ShardInfo ShardInfo { get; set; }
+
+		[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
+		public StatusUpdate Presence { get; set; } = null;
     }
 
     /// <summary>

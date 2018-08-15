@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Net;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -12,13 +13,13 @@ namespace DSharpPlus.Entities
         /// Gets the source url of the image.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public Uri Url { get; internal set; }
+        public DiscordUri Url { get; internal set; }
 
         /// <summary>
         /// Gets a proxied url of the image.
         /// </summary>
         [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
-        public Uri ProxyUrl { get; internal set; }
+        public DiscordUri ProxyUrl { get; internal set; }
 
         /// <summary>
         /// Gets the height of the image.

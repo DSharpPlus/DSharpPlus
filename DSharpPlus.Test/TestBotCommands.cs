@@ -31,22 +31,35 @@ namespace DSharpPlus.Test
 		//    await ctx.RespondAsync("naam check your shitcode");
 		//}
 
+		[Command("intext")]
+		public async Task IntExtAsync(CommandContext ctx)
+		{
+			var mes = await ctx.Channel.WaitForMessageAsync(ctx.User, x => x == "ayy");
+
+			if (mes != null)
+				await mes.Message.RespondAsync("lmao");
+		}
+
 		[Command("pages")]
 		public async Task PagesAsync(CommandContext ctx)
 		{
 			var i = ctx.Client.GetInteractivity();
-			var pages = new List<Page>();
-			pages.Add(new Page() { Content = "meme1" });
-			pages.Add(new Page() { Content = "meme2" });
-			pages.Add(new Page() { Content = "meme3" });
-			pages.Add(new Page() { Content = "meme4" });
-			pages.Add(new Page() { Content = "meme5" });
-			pages.Add(new Page() { Content = "meme6" });
+            var pages = new List<Page>
+            {
+                new Page() { Content = "meme1" },
+                new Page() { Content = "meme2" },
+                new Page() { Content = "meme3" },
+                new Page() { Content = "meme4" },
+                new Page() { Content = "meme5" },
+                new Page() { Content = "meme6" }
+            };
 
-			var emojis = new PaginationEmojis(ctx.Client);
-			emojis.Left = DiscordEmoji.FromName(ctx.Client, ":joy:");
+            var emojis = new PaginationEmojis(ctx.Client)
+            {
+                Left = DiscordEmoji.FromName(ctx.Client, ":joy:")
+            };
 
-			await i.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: emojis);
+            await i.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: emojis);
 		}
 
 		[Command("embedcolor")]
@@ -148,8 +161,16 @@ namespace DSharpPlus.Test
 		[Command("sudo"), Description("Run a command as another user."), Hidden, RequireOwner]
 		public async Task SudoAsync(CommandContext ctx, DiscordUser user, [RemainingText] string content)
 		{
-			await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content).ConfigureAwait(false);
+            //await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content).ConfigureAwait(false);
+
+            var cmd = ctx.CommandsNext.FindCommand(content, out var args);
+            var fctx = ctx.CommandsNext.CreateFakeContext(user, ctx.Channel, content, ctx.Prefix, cmd, args);
+            await ctx.CommandsNext.ExecuteCommandAsync(fctx).ConfigureAwait(false);
 		}
+
+        [Command("whoami"), Description("Displays information about the user running this command.")]
+        public Task WhoAmIAsync(CommandContext ctx)
+            => ctx.RespondAsync($"{ctx.User.Id} / {ctx.User.Username} / {ctx.User.Discriminator} / {ctx.User.GetAvatarUrl(ImageFormat.WebP, 1024)}");
 
 		[Group("bind"), Description("Various argument binder testing commands.")]
 		public class Binding : BaseCommandModule
@@ -364,7 +385,7 @@ namespace DSharpPlus.Test
 		}
 
 		// close your eyes, there are disasters ahead
-		[Group, ModuleLifespan(ModuleLifespan.Transient)]
+		[Group, ModuleLifespan(ModuleLifespan.Transient), TestBotCheck]
 		public class Transient : BaseCommandModule
 		{
 			[Command]
@@ -443,7 +464,19 @@ namespace DSharpPlus.Test
 		}
 	}
 
-	public class TestBotService
+    [DebugCheck]
+    public class CheckTestModule : BaseCommandModule
+    {
+        [Command]
+        public Task DebugCommandAsync(CommandContext ctx, [RemainingText] string arg)
+            => ctx.RespondAsync(arg);
+
+        [Command, Priority(1)]
+        public Task DebugCommandAsync(CommandContext ctx, int arg)
+            => ctx.RespondAsync(arg.ToString("#,##0"));
+    }
+
+    public class TestBotService
 	{
 		public int CommandCounter => this._cmd_counter;
 		private volatile int _cmd_counter;
@@ -470,4 +503,13 @@ namespace DSharpPlus.Test
 			return $"0x{ptr:x16}";
 		}
 	}
+
+    public class DebugCheckAttribute : CheckBaseAttribute
+    {
+        public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
+        {
+            ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "Test-Check", "Testing check", DateTime.Now);
+            return Task.FromResult(true);
+        }
+    }
 }

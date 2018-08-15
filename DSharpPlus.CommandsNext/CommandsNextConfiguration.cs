@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -43,12 +44,6 @@ namespace DSharpPlus.CommandsNext
         public bool EnableMentionPrefix { internal get; set; } = true;
 
         /// <summary>
-        /// <para>Sets whether the bot should only respond to messages from its own account. This is useful for selfbots.</para>
-        /// <para>Defaults to false.</para>
-        /// </summary>
-        public bool Selfbot { internal get; set; } = false;
-
-        /// <summary>
         /// <para>Sets whether the commands should be case-sensitive.</para>
         /// <para>Defaults to false.</para>
         /// </summary>
@@ -64,6 +59,13 @@ namespace DSharpPlus.CommandsNext
         /// <para>Defaults to true.</para>
         /// </summary>
         public bool EnableDefaultHelp { internal get; set; } = true;
+
+        /// <summary>
+        /// <para>Controls whether the default help will be sent via DMs or not.</para>
+        /// <para>Enabling this will make the bot respond with help via direct messages.</para>
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool DmHelp { internal get; set; } = false;
 
         /// <summary>
         /// <para>Sets the default pre-execution checks for the built-in help command.</para>
@@ -83,13 +85,20 @@ namespace DSharpPlus.CommandsNext
         /// <para>Objects in this provider are used when instantiating command modules. This allows passing data around without resorting to static members.</para>
         /// <para>Defaults to null.</para>
         /// </summary>
-        public IServiceProvider Services { internal get; set; } = null;
+        public IServiceProvider Services { internal get; set; } = new ServiceCollection().BuildServiceProvider(true);
 
         /// <summary>
         /// <para>Gets whether any extra arguments passed to commands should be ignored or not. If this is set to false, extra arguments will throw, otherwise they will be ignored.</para>
         /// <para>Defaults to false.</para>
         /// </summary>
         public bool IgnoreExtraArguments { internal get; set; } = false;
+
+        /// <summary>
+        /// <para>Gets or sets whether to automatically enable handling commands.</para>
+        /// <para>If this is set to false, you will need to manually handle each incoming message and pass it to CommandsNext.</para>
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool UseDefaultCommandHandler { internal get; set; } = true;
 
         /// <summary>
         /// Creates a new instance of <see cref="CommandsNextConfiguration"/>.
@@ -109,7 +118,7 @@ namespace DSharpPlus.CommandsNext
             this.EnableDms = other.EnableDms;
             this.EnableMentionPrefix = other.EnableMentionPrefix;
             this.IgnoreExtraArguments = other.IgnoreExtraArguments;
-            this.Selfbot = other.Selfbot;
+            this.UseDefaultCommandHandler = other.UseDefaultCommandHandler;
             this.Services = other.Services;
             this.StringPrefixes = other.StringPrefixes?.ToArray();
         }

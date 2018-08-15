@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Net;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -24,13 +25,13 @@ namespace DSharpPlus.Entities
         /// Gets the url of the author's icon.
         /// </summary>
         [JsonProperty("icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public Uri IconUrl { get; set; }
+        public DiscordUri IconUrl { get; set; }
 
         /// <summary>
         /// Gets the proxied url of the author's icon.
         /// </summary>
         [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public Uri ProxyIconUrl { get; internal set; }
+        public DiscordUri ProxyIconUrl { get; internal set; }
 
         internal DiscordEmbedAuthor() { }
     }

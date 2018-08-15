@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using DSharpPlus.Net;
 
 namespace DSharpPlus.Entities
 {
@@ -82,15 +83,9 @@ namespace DSharpPlus.Entities
         public string ImageUrl
         {
             get { return this._image_uri?.ToString(); }
-            set
-            {
-                if (string.IsNullOrEmpty(value))
-                    this._image_uri = null;
-                else
-                    this._image_uri = new Uri(value);
-            }
+            set { this._image_uri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value); }
         }
-        private Uri _image_uri;
+        private DiscordUri _image_uri;
 
         /// <summary>
         /// Gets or sets the thumbnail's image url.
@@ -98,15 +93,9 @@ namespace DSharpPlus.Entities
         public string ThumbnailUrl
         {
             get { return this._thumbnail_uri?.ToString(); }
-            set
-            {
-                if (string.IsNullOrEmpty(value))
-                    this._thumbnail_uri = null;
-                else
-                    this._thumbnail_uri = new Uri(value);
-            }
+            set { this._thumbnail_uri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value); }
         }
-        private Uri _thumbnail_uri;
+        private DiscordUri _thumbnail_uri;
 
         /// <summary>
         /// Gets the embed's author.
@@ -144,7 +133,8 @@ namespace DSharpPlus.Entities
             this.Url = original.Url?.ToString();
             this.Color = original.Color;
             this.Timestamp = original.Timestamp;
-
+            this.ThumbnailUrl = original.Thumbnail?.Url?.ToString();
+            
             if (original.Author != null)
                 this.Author = new EmbedAuthor
                 {
@@ -276,7 +266,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithImageUrl(Uri url)
         {
-            this._image_uri = url;
+            this._image_uri = new DiscordUri(url);
             return this;
         }
 
@@ -298,7 +288,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithThumbnailUrl(Uri url)
         {
-            this._thumbnail_uri = url;
+            this._thumbnail_uri = new DiscordUri(url);
             return this;
         }
 
@@ -462,7 +452,7 @@ namespace DSharpPlus.Entities
                 embed.Footer = new DiscordEmbedFooter
                 {
                     Text = this.Footer.Text,
-                    IconUrl = this.Footer.IconUrl != null ? new Uri(this.Footer.IconUrl) : null
+                    IconUrl = this.Footer.IconUrl != null ? new DiscordUri(this.Footer.IconUrl) : null
                 };
 
             if (this.Author != null)
@@ -470,7 +460,7 @@ namespace DSharpPlus.Entities
                 {
                     Name = this.Author.Name,
                     Url = this.Author.Url != null ? new Uri(this.Author.Url) : null,
-                    IconUrl = this.Author.IconUrl != null ? new Uri(this.Author.IconUrl) : null
+                    IconUrl = this.Author.IconUrl != null ? new DiscordUri(this.Author.IconUrl) : null
                 };
 
             if (this._image_uri != null)
@@ -530,15 +520,9 @@ namespace DSharpPlus.Entities
             public string IconUrl
             {
                 get { return this._icon_uri?.ToString(); }
-                set
-                {
-                    if (string.IsNullOrEmpty(value))
-                        this._icon_uri = null;
-                    else
-                        this._icon_uri = new Uri(value);
-                }
+                set { this._icon_uri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value); }
             }
-            private Uri _icon_uri;
+            private DiscordUri _icon_uri;
         }
 
         public class EmbedFooter
@@ -564,15 +548,9 @@ namespace DSharpPlus.Entities
             public string IconUrl
             {
                 get { return this._icon_uri?.ToString(); }
-                set
-                {
-                    if (string.IsNullOrEmpty(value))
-                        this._icon_uri = null;
-                    else
-                        this._icon_uri = new Uri(value);
-                }
+                set { this._icon_uri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value); }
             }
-            private Uri _icon_uri;
+            private DiscordUri _icon_uri;
         }
     }
 }

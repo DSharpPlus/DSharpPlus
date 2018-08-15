@@ -1,4 +1,5 @@
 ﻿using System;
+using DSharpPlus.Net;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -18,13 +19,13 @@ namespace DSharpPlus.Entities
         /// Gets the url of the footer's icon.
         /// </summary>
         [JsonProperty("icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public Uri IconUrl { get; internal set; }
+        public DiscordUri IconUrl { get; internal set; }
 
         /// <summary>
         /// Gets the proxied url of the footer's icon.
         /// </summary>
         [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
-        public Uri ProxyIconUrl { get; internal set; }
+        public DiscordUri ProxyIconUrl { get; internal set; }
 
         internal DiscordEmbedFooter() { }
     }

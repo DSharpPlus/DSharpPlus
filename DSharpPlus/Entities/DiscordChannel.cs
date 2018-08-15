@@ -143,7 +143,7 @@ namespace DSharpPlus.Entities
                     throw new InvalidOperationException("Cannot query users outside of guild channels.");
 
                 if (this.Type == ChannelType.Voice)
-                    return Guild.Members.Where(x => x.VoiceState.ChannelId == this.Id);
+                    return Guild.Members.Where(x => x.VoiceState?.ChannelId == this.Id);
 
                 return Guild.Members.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels);
             }
@@ -183,52 +183,52 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Sends a message containing an attached file to this channel.
         /// </summary>
-        /// <param name="file_data">Stream containing the data to attach to the message as a file.</param>
-        /// <param name="file_name">Name of the file to attach to the message.</param>
+        /// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
+        /// <param name="fileName">Name of the file to attach to the message.</param>
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendFileAsync(Stream file_data, string file_name, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
                 throw new ArgumentException("Cannot send a file to a non-text channel");
 
-            return this.Discord.ApiClient.UploadFileAsync(this.Id, file_data, file_name, content, tts, embed);
+            return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed);
         }
 
 #if !NETSTANDARD1_1
         /// <summary>
         /// Sends a message containing an attached file to this channel.
         /// </summary>
-        /// <param name="file_data">Stream containing the data to attach to the message as a file.</param>
+        /// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendFileAsync(FileStream file_data, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
                 throw new ArgumentException("Cannot send a file to a non-text channel");
 
-            return this.Discord.ApiClient.UploadFileAsync(this.Id, file_data, Path.GetFileName(file_data.Name), content,
+            return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, Path.GetFileName(fileData.Name), content,
                 tts, embed);
         }
 
         /// <summary>
         /// Sends a message containing an attached file to this channel.
         /// </summary>
-        /// <param name="file_path">Path to the file to be attached to the message.</param>
+        /// <param name="filePath">Path to the file to be attached to the message.</param>
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> SendFileAsync(string file_path, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
                 throw new ArgumentException("Cannot send a file to a non-text channel");
 
-            using (var fs = File.OpenRead(file_path))
+            using (var fs = File.OpenRead(filePath))
                 return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
         }
 #endif
@@ -333,7 +333,7 @@ namespace DSharpPlus.Entities
 
         /// <summary>  
         /// Returns a list of messages before a certain message.
-        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="before">Message to fetch before from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(ulong before, int limit = 100)
@@ -341,7 +341,7 @@ namespace DSharpPlus.Entities
         
         /// <summary>  
         /// Returns a list of messages after a certain message.
-        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="after">Message to fetch after from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(ulong after, int limit = 100)
@@ -349,7 +349,7 @@ namespace DSharpPlus.Entities
         
         /// <summary>  
         /// Returns a list of messages around a certain message.
-        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="around">Message to fetch around from.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
@@ -357,17 +357,54 @@ namespace DSharpPlus.Entities
 
         /// <summary>  
         /// Returns a list of messages from the last message in the channel.
-        /// <param name="limit">The amount of messages to fetch, up to a maximum of 100</param>
+        /// <param name="limit">The amount of messages to fetch.</param>
         /// </summary> 
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100) =>
-            GetMessagesInternalAsync(limit, null, null, null);
+            this.GetMessagesInternalAsync(limit, null, null, null);
 
-        private Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
+        private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
                 throw new ArgumentException("Cannot get the messages of a non-text channel");
 
-            return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
+            if (limit < 0)
+                throw new ArgumentException("Cannot get a negative number of messages.");
+
+            if (limit == 0)
+                return new DiscordMessage[0];
+
+            //return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
+            if (limit > 100 && around != null)
+                throw new InvalidOperationException("Cannot get more than 100 messages around specified ID.");
+
+            var msgs = new List<DiscordMessage>(limit);
+            var remaining = limit;
+            var lastCount = 0;
+            ulong? last = null;
+            var isBefore = before != null;
+
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, isBefore ? last ?? before : null, !isBefore ? last ?? after : null, around).ConfigureAwait(false);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                if (isBefore)
+                {
+                    msgs.AddRange(fetch);
+                    last = fetch.LastOrDefault()?.Id;
+                }
+                else
+                {
+                    msgs.InsertRange(0, fetch);
+                    last = fetch.FirstOrDefault()?.Id;
+                }
+            }
+            while (remaining > 0 && lastCount > 0);
+
+            return new ReadOnlyCollection<DiscordMessage>(msgs);
         }
 
         /// <summary>
@@ -376,16 +413,21 @@ namespace DSharpPlus.Entities
         /// <param name="messages"></param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
+        public async Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
         {
             // don't enumerate more than once
-            var msgs = messages as DiscordMessage[] ?? messages.ToArray();
+            var msgs = messages.Where(x => x.Channel.Id == this.Id).Select(x => x.Id).ToArray();
             if (messages == null || !msgs.Any())
                 throw new ArgumentException("You need to specify at least one message to delete.");
 
             if (msgs.Count() < 2)
-                return this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single().Id, reason);
-            return this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Where(xm => xm.Channel.Id == this.Id).Select(xm => xm.Id), reason);
+            {
+                await this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single(), reason).ConfigureAwait(false);
+                return;
+            }
+            
+            for (var i = 0; i < msgs.Count(); i += 100)
+                await this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Skip(i).Take(100), reason).ConfigureAwait(false);
         }
 
         /// <summary>

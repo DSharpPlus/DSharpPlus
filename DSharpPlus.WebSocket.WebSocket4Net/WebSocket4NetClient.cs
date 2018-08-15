@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,8 +37,9 @@ namespace DSharpPlus.Net.WebSocket
         /// Connects to the WebSocket server.
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
+        /// <param name="customHeaders">Custom headers to send with the request.</param>
         /// <returns></returns>
-        public override Task ConnectAsync(Uri uri)
+        public override Task ConnectAsync(Uri uri, IReadOnlyDictionary<string, string> customHeaders = null)
         {
             this.StreamDecompressor?.Dispose();
             this.CompressedStream?.Dispose();
@@ -46,7 +49,7 @@ namespace DSharpPlus.Net.WebSocket
             this.CompressedStream = new MemoryStream();
             this.StreamDecompressor = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
 
-            _socket = new ws4net.WebSocket(uri.ToString());
+            _socket = new ws4net.WebSocket(uri.ToString(), customHeaderItems: customHeaders?.ToList());
             if (this.Proxy != null) // fuck this, I ain't working with that shit
                 throw new NotImplementedException("Proxies are not supported on non-Microsoft WebSocket client implementations.");
 

@@ -113,7 +113,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>Message that was sent.</returns>
         public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool isTTS = false, DiscordEmbed embed = null) 
-            => this.Message.RespondWithFileAsync(fileData, fileName, content, isTTS, embed);
+            => this.Message.RespondWithFileAsync(fileName, fileData, content, isTTS, embed);
 
 #if !NETSTANDARD1_1
         /// <summary>
