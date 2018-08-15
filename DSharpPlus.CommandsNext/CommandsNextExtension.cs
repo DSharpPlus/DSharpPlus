@@ -704,7 +704,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="cmd">Command to execute.</param>
         /// <param name="rawArguments">Raw arguments to pass to command.</param>
         /// <returns>Created fake context.</returns>
-        public CommandContext CreateFakeConext(DiscordUser actor, DiscordChannel channel, string messageContents, string prefix, Command cmd, string rawArguments = null)
+        public CommandContext CreateFakeContext(DiscordUser actor, DiscordChannel channel, string messageContents, string prefix, Command cmd, string rawArguments = null)
         {
             var eph = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
             var dtn = DateTimeOffset.UtcNow;

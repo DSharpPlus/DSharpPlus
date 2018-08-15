@@ -164,7 +164,7 @@ namespace DSharpPlus.Test
             //await ctx.Client.GetCommandsNext().SudoAsync(user, ctx.Channel, content).ConfigureAwait(false);
 
             var cmd = ctx.CommandsNext.FindCommand(content, out var args);
-            var fctx = ctx.CommandsNext.CreateFakeConext(user, ctx.Channel, content, ctx.Prefix, cmd, args);
+            var fctx = ctx.CommandsNext.CreateFakeContext(user, ctx.Channel, content, ctx.Prefix, cmd, args);
             await ctx.CommandsNext.ExecuteCommandAsync(fctx).ConfigureAwait(false);
 		}
 
