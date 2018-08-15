@@ -296,7 +296,7 @@ namespace DSharpPlus.CommandsNext
                 Command = cmd,
                 Message = msg,
                 Config = this.Config,
-                RawArgumentString = rawArguments,
+                RawArgumentString = rawArguments ?? "",
                 Prefix = prefix,
                 CommandsNext = this,
                 Services = this.Services
@@ -755,7 +755,7 @@ namespace DSharpPlus.CommandsNext
                 Command = cmd,
                 Message = msg,
                 Config = this.Config,
-                RawArgumentString = rawArguments,
+                RawArgumentString = rawArguments ?? "",
                 Prefix = prefix,
                 CommandsNext = this,
                 Services = this.Services
