@@ -58,6 +58,13 @@ namespace DSharpPlus.CommandsNext.Builders
         private List<Attribute> CustomAttributeList { get; }
 
         /// <summary>
+        /// Creates a new module-less command builder.
+        /// </summary>
+        public CommandBuilder()
+            : this(null)
+        { }
+
+        /// <summary>
         /// Creates a new command builder.
         /// </summary>
         /// <param name="module">Module on which this command is to be defined.</param>

@@ -302,7 +302,7 @@ namespace DSharpPlus.CommandsNext
                 Services = this.Services
             };
 
-            if (cmd != null &&  cmd.Module is TransientCommandModule)
+            if (cmd != null && (cmd.Module is TransientCommandModule || cmd.Module == null))
             {
                 var scope = ctx.Services.CreateScope();
                 ctx.ServiceScopeContext = new CommandContext.ServiceContext(ctx.Services, scope);
@@ -581,6 +581,26 @@ namespace DSharpPlus.CommandsNext
             commands = cmds;
         }
 
+        public void RegisterCommands(params CommandBuilder[] cmds)
+        {
+            foreach (var cmd in cmds)
+                this.AddToCommandDictionary(cmd.Build(null));
+        }
+
+        /// <summary>
+        /// Unregisters specified commands from CommandsNext.
+        /// </summary>
+        /// <param name="cmds">Commands to unregister.</param>
+        public void UnregisterCommands(params Command[] cmds)
+        {
+            if (cmds.Any(x => x.Parent != null))
+                throw new InvalidOperationException("Cannot unregister nested commands.");
+
+            var keys = this.RegisteredCommands.Where(x => cmds.Contains(x.Value)).Select(x => x.Key).ToList();
+            foreach (var key in keys)
+                this.TopLevelCommands.Remove(key);
+        }
+
         private void AddToCommandDictionary(Command cmd)
         {
             if (cmd.Parent != null)
@@ -761,7 +781,7 @@ namespace DSharpPlus.CommandsNext
                 Services = this.Services
             };
 
-            if (cmd != null && cmd.Module is TransientCommandModule)
+            if (cmd != null && (cmd.Module is TransientCommandModule || cmd.Module == null))
             {
                 var scope = ctx.Services.CreateScope();
                 ctx.ServiceScopeContext = new CommandContext.ServiceContext(ctx.Services, scope);
