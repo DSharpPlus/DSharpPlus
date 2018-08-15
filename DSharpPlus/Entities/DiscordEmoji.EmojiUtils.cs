@@ -6,9 +6,9 @@ namespace DSharpPlus.Entities
 {
     public partial class DiscordEmoji
     {
-        private static IDictionary<string, string> UnicodeEmojis { get; }
-        private static IDictionary<string, string> DiscordNameLookup { get; }
-        internal static string[] UnicodeEmojiList { get; }
+        private static IReadOnlyDictionary<string, string> UnicodeEmojis { get; }
+        private static IReadOnlyDictionary<string, string> DiscordNameLookup { get; }
+        internal static IReadOnlyList<string> UnicodeEmojiList { get; }
 
         static DiscordEmoji()
         {
@@ -2018,8 +2018,9 @@ namespace DSharpPlus.Entities
             
             DiscordNameLookup = UnicodeEmojis.ToDictionary(xg => xg.Value, xg => xg.Key);
             
-            UnicodeEmojiList = UnicodeEmojis.Values.Distinct().ToArray();
-            Array.Sort(UnicodeEmojiList);
+            var emojiArray = UnicodeEmojis.Values.Distinct().ToArray();
+            Array.Sort(emojiArray);
+            UnicodeEmojiList = emojiArray;
         }
     }
 }
