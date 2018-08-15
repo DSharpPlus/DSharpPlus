@@ -61,7 +61,7 @@ namespace DSharpPlus.CommandsNext.Builders
 
             // create the argument array
             var ea = new ParameterExpression[prms.Length + 1];
-            var iep = Expression.Parameter(target == null ? method.DeclaringType : target.GetType(), "instance");
+            var iep = Expression.Parameter(target?.GetType() ?? method.DeclaringType, "instance");
             ea[0] = iep;
             ea[1] = Expression.Parameter(typeof(CommandContext), "ctx");
 
