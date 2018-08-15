@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using DSharpPlus.Lavalink.EventArgs;
 
 namespace DSharpPlus.Lavalink
 {
@@ -11,6 +12,13 @@ namespace DSharpPlus.Lavalink
     {
         private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
+        /// <summary>
+        /// Indicates whether a new track should be started after reciving this TrackEndReason. If this is false, either this event is
+        /// already triggered because another track started (REPLACED) or because the player is stopped (STOPPED, CLEANUP).
+        /// </summary>
+        public static bool MayStartNext(this TrackEndReason reason)
+            => reason == TrackEndReason.Finished || reason == TrackEndReason.LoadFailed;
+        
         /// <summary>
         /// Decodes a Lavalink track string.
         /// </summary>
