@@ -1,2024 +1,2025 @@
+using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace DSharpPlus.Entities
 {
-    public partial class DiscordEmoji : SnowflakeObject
+    public partial class DiscordEmoji
     {
-        private static IImmutableDictionary<string, string> UnicodeEmojis { get; set; }
-        private static IImmutableDictionary<string, string> DiscordNameLookup { get; set; }
-        internal static ImmutableArray<string> UnicodeEmojiList { get; set; }
+        private static IDictionary<string, string> UnicodeEmojis { get; }
+        private static IDictionary<string, string> DiscordNameLookup { get; }
+        internal static string[] UnicodeEmojiList { get; }
 
         static DiscordEmoji()
         {
-            var edictBuilder = ImmutableDictionary.CreateBuilder<string, string>();
-            edictBuilder.Add(",:(", "\U0001f613");
-            edictBuilder.Add(",:)", "\U0001f605");
-            edictBuilder.Add(",:-(", "\U0001f613");
-            edictBuilder.Add(",:-)", "\U0001f605");
-            edictBuilder.Add(",=(", "\U0001f613");
-            edictBuilder.Add(",=)", "\U0001f605");
-            edictBuilder.Add(",=-(", "\U0001f613");
-            edictBuilder.Add(",=-)", "\U0001f605");
-            edictBuilder.Add("0:)", "\U0001f607");
-            edictBuilder.Add("0:-)", "\U0001f607");
-            edictBuilder.Add("0=)", "\U0001f607");
-            edictBuilder.Add("0=-)", "\U0001f607");
-            edictBuilder.Add("8-)", "\U0001f60e");
-            edictBuilder.Add(":\")", "\U0001f60a");
-            edictBuilder.Add(":$", "\U0001f612");
-            edictBuilder.Add(":'(", "\U0001f622");
-            edictBuilder.Add(":')", "\U0001f602");
-            edictBuilder.Add(":'-(", "\U0001f622");
-            edictBuilder.Add(":'-)", "\U0001f602");
-            edictBuilder.Add(":'-D", "\U0001f602");
-            edictBuilder.Add(":'D", "\U0001f602");
-            edictBuilder.Add(":(", "\U0001f626");
-            edictBuilder.Add(":)", "\U0001f603");
-            edictBuilder.Add(":*", "\U0001f617");
-            edictBuilder.Add(":+1:", "\U0001f44d");
-            edictBuilder.Add(":+1::skin-tone-1:", "\U0001f44d\U0001f3fb");
-            edictBuilder.Add(":+1::skin-tone-2:", "\U0001f44d\U0001f3fc");
-            edictBuilder.Add(":+1::skin-tone-3:", "\U0001f44d\U0001f3fd");
-            edictBuilder.Add(":+1::skin-tone-4:", "\U0001f44d\U0001f3fe");
-            edictBuilder.Add(":+1::skin-tone-5:", "\U0001f44d\U0001f3ff");
-            edictBuilder.Add(":,'(", "\U0001f62d");
-            edictBuilder.Add(":,'-(", "\U0001f62d");
-            edictBuilder.Add(":,(", "\U0001f622");
-            edictBuilder.Add(":,)", "\U0001f602");
-            edictBuilder.Add(":,-(", "\U0001f622");
-            edictBuilder.Add(":,-)", "\U0001f602");
-            edictBuilder.Add(":,-D", "\U0001f602");
-            edictBuilder.Add(":,D", "\U0001f602");
-            edictBuilder.Add(":-\")", "\U0001f60a");
-            edictBuilder.Add(":-$", "\U0001f612");
-            edictBuilder.Add(":-(", "\U0001f626");
-            edictBuilder.Add(":-)", "\U0001f603");
-            edictBuilder.Add(":-*", "\U0001f617");
-            edictBuilder.Add(":-/", "\U0001f615");
-            edictBuilder.Add(":-1:", "\U0001f44e");
-            edictBuilder.Add(":-1::skin-tone-1:", "\U0001f44e\U0001f3fb");
-            edictBuilder.Add(":-1::skin-tone-2:", "\U0001f44e\U0001f3fc");
-            edictBuilder.Add(":-1::skin-tone-3:", "\U0001f44e\U0001f3fd");
-            edictBuilder.Add(":-1::skin-tone-4:", "\U0001f44e\U0001f3fe");
-            edictBuilder.Add(":-1::skin-tone-5:", "\U0001f44e\U0001f3ff");
-            edictBuilder.Add(":-@", "\U0001f621");
-            edictBuilder.Add(":-\\", "\U0001f615");
-            edictBuilder.Add(":-D", "\U0001f604");
-            edictBuilder.Add(":-O", "\U0001f62e");
-            edictBuilder.Add(":-o", "\U0001f62e");
-            edictBuilder.Add(":-P", "\U0001f61b");
-            edictBuilder.Add(":-S", "\U0001f612");
-            edictBuilder.Add(":-Z", "\U0001f612");
-            edictBuilder.Add(":-|", "\U0001f610");
-            edictBuilder.Add(":100:", "\U0001f4af");
-            edictBuilder.Add(":1234:", "\U0001f522");
-            edictBuilder.Add(":8ball:", "\U0001f3b1");
-            edictBuilder.Add(":@", "\U0001f621");
-            edictBuilder.Add(":a:", "\U0001f170");
-            edictBuilder.Add(":ab:", "\U0001f18e");
-            edictBuilder.Add(":abc:", "\U0001f524");
-            edictBuilder.Add(":abcd:", "\U0001f521");
-            edictBuilder.Add(":accept:", "\U0001f251");
-            edictBuilder.Add(":aerial_tramway:", "\U0001f6a1");
-            edictBuilder.Add(":airplane:", "\u2708");
-            edictBuilder.Add(":airplane_arriving:", "\U0001f6ec");
-            edictBuilder.Add(":airplane_departure:", "\U0001f6eb");
-            edictBuilder.Add(":airplane_small:", "\U0001f6e9");
-            edictBuilder.Add(":alarm_clock:", "\u23f0");
-            edictBuilder.Add(":alembic:", "\u2697");
-            edictBuilder.Add(":alien:", "\U0001f47d");
-            edictBuilder.Add(":ambulance:", "\U0001f691");
-            edictBuilder.Add(":amphora:", "\U0001f3fa");
-            edictBuilder.Add(":anchor:", "\u2693");
-            edictBuilder.Add(":angel:", "\U0001f47c");
-            edictBuilder.Add(":angel::skin-tone-1:", "\U0001f47c\U0001f3fb");
-            edictBuilder.Add(":angel::skin-tone-2:", "\U0001f47c\U0001f3fc");
-            edictBuilder.Add(":angel::skin-tone-3:", "\U0001f47c\U0001f3fd");
-            edictBuilder.Add(":angel::skin-tone-4:", "\U0001f47c\U0001f3fe");
-            edictBuilder.Add(":angel::skin-tone-5:", "\U0001f47c\U0001f3ff");
-            edictBuilder.Add(":anger:", "\U0001f4a2");
-            edictBuilder.Add(":anger_right:", "\U0001f5ef");
-            edictBuilder.Add(":angry:", "\U0001f620");
-            edictBuilder.Add(":anguished:", "\U0001f627");
-            edictBuilder.Add(":ant:", "\U0001f41c");
-            edictBuilder.Add(":apple:", "\U0001f34e");
-            edictBuilder.Add(":aquarius:", "\u2652");
-            edictBuilder.Add(":aries:", "\u2648");
-            edictBuilder.Add(":arrow_backward:", "\u25c0");
-            edictBuilder.Add(":arrow_double_down:", "\u23ec");
-            edictBuilder.Add(":arrow_double_up:", "\u23eb");
-            edictBuilder.Add(":arrow_down:", "\u2b07");
-            edictBuilder.Add(":arrow_down_small:", "\U0001f53d");
-            edictBuilder.Add(":arrow_forward:", "\u25b6");
-            edictBuilder.Add(":arrow_heading_down:", "\u2935");
-            edictBuilder.Add(":arrow_heading_up:", "\u2934");
-            edictBuilder.Add(":arrow_left:", "\u2b05");
-            edictBuilder.Add(":arrow_lower_left:", "\u2199");
-            edictBuilder.Add(":arrow_lower_right:", "\u2198");
-            edictBuilder.Add(":arrow_right:", "\u27a1");
-            edictBuilder.Add(":arrow_right_hook:", "\u21aa");
-            edictBuilder.Add(":arrow_up:", "\u2b06");
-            edictBuilder.Add(":arrow_up_down:", "\u2195");
-            edictBuilder.Add(":arrow_up_small:", "\U0001f53c");
-            edictBuilder.Add(":arrow_upper_left:", "\u2196");
-            edictBuilder.Add(":arrow_upper_right:", "\u2197");
-            edictBuilder.Add(":arrows_clockwise:", "\U0001f503");
-            edictBuilder.Add(":arrows_counterclockwise:", "\U0001f504");
-            edictBuilder.Add(":art:", "\U0001f3a8");
-            edictBuilder.Add(":articulated_lorry:", "\U0001f69b");
-            edictBuilder.Add(":asterisk:", "*\u20e3");
-            edictBuilder.Add(":astonished:", "\U0001f632");
-            edictBuilder.Add(":athletic_shoe:", "\U0001f45f");
-            edictBuilder.Add(":atm:", "\U0001f3e7");
-            edictBuilder.Add(":atom:", "\u269b");
-            edictBuilder.Add(":avocado:", "\U0001f951");
-            edictBuilder.Add(":b:", "\U0001f171");
-            edictBuilder.Add(":baby:", "\U0001f476");
-            edictBuilder.Add(":baby::skin-tone-1:", "\U0001f476\U0001f3fb");
-            edictBuilder.Add(":baby::skin-tone-2:", "\U0001f476\U0001f3fc");
-            edictBuilder.Add(":baby::skin-tone-3:", "\U0001f476\U0001f3fd");
-            edictBuilder.Add(":baby::skin-tone-4:", "\U0001f476\U0001f3fe");
-            edictBuilder.Add(":baby::skin-tone-5:", "\U0001f476\U0001f3ff");
-            edictBuilder.Add(":baby_bottle:", "\U0001f37c");
-            edictBuilder.Add(":baby_chick:", "\U0001f424");
-            edictBuilder.Add(":baby_symbol:", "\U0001f6bc");
-            edictBuilder.Add(":back:", "\U0001f519");
-            edictBuilder.Add(":bacon:", "\U0001f953");
-            edictBuilder.Add(":badminton:", "\U0001f3f8");
-            edictBuilder.Add(":baggage_claim:", "\U0001f6c4");
-            edictBuilder.Add(":balloon:", "\U0001f388");
-            edictBuilder.Add(":ballot_box:", "\U0001f5f3");
-            edictBuilder.Add(":ballot_box_with_check:", "\u2611");
-            edictBuilder.Add(":bamboo:", "\U0001f38d");
-            edictBuilder.Add(":banana:", "\U0001f34c");
-            edictBuilder.Add(":bangbang:", "\u203c");
-            edictBuilder.Add(":bank:", "\U0001f3e6");
-            edictBuilder.Add(":bar_chart:", "\U0001f4ca");
-            edictBuilder.Add(":barber:", "\U0001f488");
-            edictBuilder.Add(":baseball:", "\u26be");
-            edictBuilder.Add(":basketball:", "\U0001f3c0");
-            edictBuilder.Add(":basketball_player:", "\u26f9");
-            edictBuilder.Add(":basketball_player::skin-tone-1:", "\u26f9\U0001f3fb");
-            edictBuilder.Add(":basketball_player::skin-tone-2:", "\u26f9\U0001f3fc");
-            edictBuilder.Add(":basketball_player::skin-tone-3:", "\u26f9\U0001f3fd");
-            edictBuilder.Add(":basketball_player::skin-tone-4:", "\u26f9\U0001f3fe");
-            edictBuilder.Add(":basketball_player::skin-tone-5:", "\u26f9\U0001f3ff");
-            edictBuilder.Add(":bat:", "\U0001f987");
-            edictBuilder.Add(":bath:", "\U0001f6c0");
-            edictBuilder.Add(":bath::skin-tone-1:", "\U0001f6c0\U0001f3fb");
-            edictBuilder.Add(":bath::skin-tone-2:", "\U0001f6c0\U0001f3fc");
-            edictBuilder.Add(":bath::skin-tone-3:", "\U0001f6c0\U0001f3fd");
-            edictBuilder.Add(":bath::skin-tone-4:", "\U0001f6c0\U0001f3fe");
-            edictBuilder.Add(":bath::skin-tone-5:", "\U0001f6c0\U0001f3ff");
-            edictBuilder.Add(":bathtub:", "\U0001f6c1");
-            edictBuilder.Add(":battery:", "\U0001f50b");
-            edictBuilder.Add(":beach:", "\U0001f3d6");
-            edictBuilder.Add(":beach_umbrella:", "\u26f1");
-            edictBuilder.Add(":bear:", "\U0001f43b");
-            edictBuilder.Add(":bed:", "\U0001f6cf");
-            edictBuilder.Add(":bee:", "\U0001f41d");
-            edictBuilder.Add(":beer:", "\U0001f37a");
-            edictBuilder.Add(":beers:", "\U0001f37b");
-            edictBuilder.Add(":beetle:", "\U0001f41e");
-            edictBuilder.Add(":beginner:", "\U0001f530");
-            edictBuilder.Add(":bell:", "\U0001f514");
-            edictBuilder.Add(":bellhop:", "\U0001f6ce");
-            edictBuilder.Add(":bento:", "\U0001f371");
-            edictBuilder.Add(":bicyclist:", "\U0001f6b4");
-            edictBuilder.Add(":bicyclist::skin-tone-1:", "\U0001f6b4\U0001f3fb");
-            edictBuilder.Add(":bicyclist::skin-tone-2:", "\U0001f6b4\U0001f3fc");
-            edictBuilder.Add(":bicyclist::skin-tone-3:", "\U0001f6b4\U0001f3fd");
-            edictBuilder.Add(":bicyclist::skin-tone-4:", "\U0001f6b4\U0001f3fe");
-            edictBuilder.Add(":bicyclist::skin-tone-5:", "\U0001f6b4\U0001f3ff");
-            edictBuilder.Add(":bike:", "\U0001f6b2");
-            edictBuilder.Add(":bikini:", "\U0001f459");
-            edictBuilder.Add(":biohazard:", "\u2623");
-            edictBuilder.Add(":bird:", "\U0001f426");
-            edictBuilder.Add(":birthday:", "\U0001f382");
-            edictBuilder.Add(":black_circle:", "\u26ab");
-            edictBuilder.Add(":black_heart:", "\U0001f5a4");
-            edictBuilder.Add(":black_joker:", "\U0001f0cf");
-            edictBuilder.Add(":black_large_square:", "\u2b1b");
-            edictBuilder.Add(":black_medium_small_square:", "\u25fe");
-            edictBuilder.Add(":black_medium_square:", "\u25fc");
-            edictBuilder.Add(":black_nib:", "\u2712");
-            edictBuilder.Add(":black_small_square:", "\u25aa");
-            edictBuilder.Add(":black_square_button:", "\U0001f532");
-            edictBuilder.Add(":blossom:", "\U0001f33c");
-            edictBuilder.Add(":blowfish:", "\U0001f421");
-            edictBuilder.Add(":blue_book:", "\U0001f4d8");
-            edictBuilder.Add(":blue_car:", "\U0001f699");
-            edictBuilder.Add(":blue_heart:", "\U0001f499");
-            edictBuilder.Add(":blush:", "\U0001f60a");
-            edictBuilder.Add(":boar:", "\U0001f417");
-            edictBuilder.Add(":boat:", "\u26f5");
-            edictBuilder.Add(":bomb:", "\U0001f4a3");
-            edictBuilder.Add(":book:", "\U0001f4d6");
-            edictBuilder.Add(":bookmark:", "\U0001f516");
-            edictBuilder.Add(":bookmark_tabs:", "\U0001f4d1");
-            edictBuilder.Add(":books:", "\U0001f4da");
-            edictBuilder.Add(":boom:", "\U0001f4a5");
-            edictBuilder.Add(":boot:", "\U0001f462");
-            edictBuilder.Add(":bouquet:", "\U0001f490");
-            edictBuilder.Add(":bow:", "\U0001f647");
-            edictBuilder.Add(":bow::skin-tone-1:", "\U0001f647\U0001f3fb");
-            edictBuilder.Add(":bow::skin-tone-2:", "\U0001f647\U0001f3fc");
-            edictBuilder.Add(":bow::skin-tone-3:", "\U0001f647\U0001f3fd");
-            edictBuilder.Add(":bow::skin-tone-4:", "\U0001f647\U0001f3fe");
-            edictBuilder.Add(":bow::skin-tone-5:", "\U0001f647\U0001f3ff");
-            edictBuilder.Add(":bow_and_arrow:", "\U0001f3f9");
-            edictBuilder.Add(":bowling:", "\U0001f3b3");
-            edictBuilder.Add(":boxing_glove:", "\U0001f94a");
-            edictBuilder.Add(":boy:", "\U0001f466");
-            edictBuilder.Add(":boy::skin-tone-1:", "\U0001f466\U0001f3fb");
-            edictBuilder.Add(":boy::skin-tone-2:", "\U0001f466\U0001f3fc");
-            edictBuilder.Add(":boy::skin-tone-3:", "\U0001f466\U0001f3fd");
-            edictBuilder.Add(":boy::skin-tone-4:", "\U0001f466\U0001f3fe");
-            edictBuilder.Add(":boy::skin-tone-5:", "\U0001f466\U0001f3ff");
-            edictBuilder.Add(":bread:", "\U0001f35e");
-            edictBuilder.Add(":bride_with_veil:", "\U0001f470");
-            edictBuilder.Add(":bride_with_veil::skin-tone-1:", "\U0001f470\U0001f3fb");
-            edictBuilder.Add(":bride_with_veil::skin-tone-2:", "\U0001f470\U0001f3fc");
-            edictBuilder.Add(":bride_with_veil::skin-tone-3:", "\U0001f470\U0001f3fd");
-            edictBuilder.Add(":bride_with_veil::skin-tone-4:", "\U0001f470\U0001f3fe");
-            edictBuilder.Add(":bride_with_veil::skin-tone-5:", "\U0001f470\U0001f3ff");
-            edictBuilder.Add(":bridge_at_night:", "\U0001f309");
-            edictBuilder.Add(":briefcase:", "\U0001f4bc");
-            edictBuilder.Add(":broken_heart:", "\U0001f494");
-            edictBuilder.Add(":bug:", "\U0001f41b");
-            edictBuilder.Add(":bulb:", "\U0001f4a1");
-            edictBuilder.Add(":bullettrain_front:", "\U0001f685");
-            edictBuilder.Add(":bullettrain_side:", "\U0001f684");
-            edictBuilder.Add(":burrito:", "\U0001f32f");
-            edictBuilder.Add(":bus:", "\U0001f68c");
-            edictBuilder.Add(":busstop:", "\U0001f68f");
-            edictBuilder.Add(":bust_in_silhouette:", "\U0001f464");
-            edictBuilder.Add(":busts_in_silhouette:", "\U0001f465");
-            edictBuilder.Add(":butterfly:", "\U0001f98b");
-            edictBuilder.Add(":cactus:", "\U0001f335");
-            edictBuilder.Add(":cake:", "\U0001f370");
-            edictBuilder.Add(":calendar:", "\U0001f4c6");
-            edictBuilder.Add(":calendar_spiral:", "\U0001f5d3");
-            edictBuilder.Add(":call_me:", "\U0001f919");
-            edictBuilder.Add(":call_me::skin-tone-1:", "\U0001f919\U0001f3fb");
-            edictBuilder.Add(":call_me::skin-tone-2:", "\U0001f919\U0001f3fc");
-            edictBuilder.Add(":call_me::skin-tone-3:", "\U0001f919\U0001f3fd");
-            edictBuilder.Add(":call_me::skin-tone-4:", "\U0001f919\U0001f3fe");
-            edictBuilder.Add(":call_me::skin-tone-5:", "\U0001f919\U0001f3ff");
-            edictBuilder.Add(":calling:", "\U0001f4f2");
-            edictBuilder.Add(":camel:", "\U0001f42b");
-            edictBuilder.Add(":camera:", "\U0001f4f7");
-            edictBuilder.Add(":camera_with_flash:", "\U0001f4f8");
-            edictBuilder.Add(":camping:", "\U0001f3d5");
-            edictBuilder.Add(":cancer:", "\u264b");
-            edictBuilder.Add(":candle:", "\U0001f56f");
-            edictBuilder.Add(":candy:", "\U0001f36c");
-            edictBuilder.Add(":canoe:", "\U0001f6f6");
-            edictBuilder.Add(":capital_abcd:", "\U0001f520");
-            edictBuilder.Add(":capricorn:", "\u2651");
-            edictBuilder.Add(":card_box:", "\U0001f5c3");
-            edictBuilder.Add(":card_index:", "\U0001f4c7");
-            edictBuilder.Add(":carousel_horse:", "\U0001f3a0");
-            edictBuilder.Add(":carrot:", "\U0001f955");
-            edictBuilder.Add(":cartwheel:", "\U0001f938");
-            edictBuilder.Add(":cartwheel::skin-tone-1:", "\U0001f938\U0001f3fb");
-            edictBuilder.Add(":cartwheel::skin-tone-2:", "\U0001f938\U0001f3fc");
-            edictBuilder.Add(":cartwheel::skin-tone-3:", "\U0001f938\U0001f3fd");
-            edictBuilder.Add(":cartwheel::skin-tone-4:", "\U0001f938\U0001f3fe");
-            edictBuilder.Add(":cartwheel::skin-tone-5:", "\U0001f938\U0001f3ff");
-            edictBuilder.Add(":cat2:", "\U0001f408");
-            edictBuilder.Add(":cat:", "\U0001f431");
-            edictBuilder.Add(":cd:", "\U0001f4bf");
-            edictBuilder.Add(":chains:", "\u26d3");
-            edictBuilder.Add(":champagne:", "\U0001f37e");
-            edictBuilder.Add(":champagne_glass:", "\U0001f942");
-            edictBuilder.Add(":chart:", "\U0001f4b9");
-            edictBuilder.Add(":chart_with_downwards_trend:", "\U0001f4c9");
-            edictBuilder.Add(":chart_with_upwards_trend:", "\U0001f4c8");
-            edictBuilder.Add(":checkered_flag:", "\U0001f3c1");
-            edictBuilder.Add(":cheese:", "\U0001f9c0");
-            edictBuilder.Add(":cherries:", "\U0001f352");
-            edictBuilder.Add(":cherry_blossom:", "\U0001f338");
-            edictBuilder.Add(":chestnut:", "\U0001f330");
-            edictBuilder.Add(":chicken:", "\U0001f414");
-            edictBuilder.Add(":children_crossing:", "\U0001f6b8");
-            edictBuilder.Add(":chipmunk:", "\U0001f43f");
-            edictBuilder.Add(":chocolate_bar:", "\U0001f36b");
-            edictBuilder.Add(":christmas_tree:", "\U0001f384");
-            edictBuilder.Add(":church:", "\u26ea");
-            edictBuilder.Add(":cinema:", "\U0001f3a6");
-            edictBuilder.Add(":circus_tent:", "\U0001f3aa");
-            edictBuilder.Add(":city_dusk:", "\U0001f306");
-            edictBuilder.Add(":city_sunrise:", "\U0001f307");
-            edictBuilder.Add(":city_sunset:", "\U0001f307");
-            edictBuilder.Add(":cityscape:", "\U0001f3d9");
-            edictBuilder.Add(":cl:", "\U0001f191");
-            edictBuilder.Add(":clap:", "\U0001f44f");
-            edictBuilder.Add(":clap::skin-tone-1:", "\U0001f44f\U0001f3fb");
-            edictBuilder.Add(":clap::skin-tone-2:", "\U0001f44f\U0001f3fc");
-            edictBuilder.Add(":clap::skin-tone-3:", "\U0001f44f\U0001f3fd");
-            edictBuilder.Add(":clap::skin-tone-4:", "\U0001f44f\U0001f3fe");
-            edictBuilder.Add(":clap::skin-tone-5:", "\U0001f44f\U0001f3ff");
-            edictBuilder.Add(":clapper:", "\U0001f3ac");
-            edictBuilder.Add(":classical_building:", "\U0001f3db");
-            edictBuilder.Add(":clipboard:", "\U0001f4cb");
-            edictBuilder.Add(":clock1030:", "\U0001f565");
-            edictBuilder.Add(":clock10:", "\U0001f559");
-            edictBuilder.Add(":clock1130:", "\U0001f566");
-            edictBuilder.Add(":clock11:", "\U0001f55a");
-            edictBuilder.Add(":clock1230:", "\U0001f567");
-            edictBuilder.Add(":clock12:", "\U0001f55b");
-            edictBuilder.Add(":clock130:", "\U0001f55c");
-            edictBuilder.Add(":clock1:", "\U0001f550");
-            edictBuilder.Add(":clock230:", "\U0001f55d");
-            edictBuilder.Add(":clock2:", "\U0001f551");
-            edictBuilder.Add(":clock330:", "\U0001f55e");
-            edictBuilder.Add(":clock3:", "\U0001f552");
-            edictBuilder.Add(":clock430:", "\U0001f55f");
-            edictBuilder.Add(":clock4:", "\U0001f553");
-            edictBuilder.Add(":clock530:", "\U0001f560");
-            edictBuilder.Add(":clock5:", "\U0001f554");
-            edictBuilder.Add(":clock630:", "\U0001f561");
-            edictBuilder.Add(":clock6:", "\U0001f555");
-            edictBuilder.Add(":clock730:", "\U0001f562");
-            edictBuilder.Add(":clock7:", "\U0001f556");
-            edictBuilder.Add(":clock830:", "\U0001f563");
-            edictBuilder.Add(":clock8:", "\U0001f557");
-            edictBuilder.Add(":clock930:", "\U0001f564");
-            edictBuilder.Add(":clock9:", "\U0001f558");
-            edictBuilder.Add(":clock:", "\U0001f570");
-            edictBuilder.Add(":closed_book:", "\U0001f4d5");
-            edictBuilder.Add(":closed_lock_with_key:", "\U0001f510");
-            edictBuilder.Add(":closed_umbrella:", "\U0001f302");
-            edictBuilder.Add(":cloud:", "\u2601");
-            edictBuilder.Add(":cloud_lightning:", "\U0001f329");
-            edictBuilder.Add(":cloud_rain:", "\U0001f327");
-            edictBuilder.Add(":cloud_snow:", "\U0001f328");
-            edictBuilder.Add(":cloud_tornado:", "\U0001f32a");
-            edictBuilder.Add(":clown:", "\U0001f921");
-            edictBuilder.Add(":clubs:", "\u2663");
-            edictBuilder.Add(":cocktail:", "\U0001f378");
-            edictBuilder.Add(":coffee:", "\u2615");
-            edictBuilder.Add(":coffin:", "\u26b0");
-            edictBuilder.Add(":cold_sweat:", "\U0001f630");
-            edictBuilder.Add(":collision:", "\U0001f4a5");
-            edictBuilder.Add(":comet:", "\u2604");
-            edictBuilder.Add(":compression:", "\U0001f5dc");
-            edictBuilder.Add(":computer:", "\U0001f4bb");
-            edictBuilder.Add(":confetti_ball:", "\U0001f38a");
-            edictBuilder.Add(":confounded:", "\U0001f616");
-            edictBuilder.Add(":confused:", "\U0001f615");
-            edictBuilder.Add(":congratulations:", "\u3297");
-            edictBuilder.Add(":construction:", "\U0001f6a7");
-            edictBuilder.Add(":construction_site:", "\U0001f3d7");
-            edictBuilder.Add(":construction_worker:", "\U0001f477");
-            edictBuilder.Add(":construction_worker::skin-tone-1:", "\U0001f477\U0001f3fb");
-            edictBuilder.Add(":construction_worker::skin-tone-2:", "\U0001f477\U0001f3fc");
-            edictBuilder.Add(":construction_worker::skin-tone-3:", "\U0001f477\U0001f3fd");
-            edictBuilder.Add(":construction_worker::skin-tone-4:", "\U0001f477\U0001f3fe");
-            edictBuilder.Add(":construction_worker::skin-tone-5:", "\U0001f477\U0001f3ff");
-            edictBuilder.Add(":control_knobs:", "\U0001f39b");
-            edictBuilder.Add(":convenience_store:", "\U0001f3ea");
-            edictBuilder.Add(":cookie:", "\U0001f36a");
-            edictBuilder.Add(":cooking:", "\U0001f373");
-            edictBuilder.Add(":cool:", "\U0001f192");
-            edictBuilder.Add(":cop:", "\U0001f46e");
-            edictBuilder.Add(":cop::skin-tone-1:", "\U0001f46e\U0001f3fb");
-            edictBuilder.Add(":cop::skin-tone-2:", "\U0001f46e\U0001f3fc");
-            edictBuilder.Add(":cop::skin-tone-3:", "\U0001f46e\U0001f3fd");
-            edictBuilder.Add(":cop::skin-tone-4:", "\U0001f46e\U0001f3fe");
-            edictBuilder.Add(":cop::skin-tone-5:", "\U0001f46e\U0001f3ff");
-            edictBuilder.Add(":copyright:", "\u00a9");
-            edictBuilder.Add(":corn:", "\U0001f33d");
-            edictBuilder.Add(":couch:", "\U0001f6cb");
-            edictBuilder.Add(":couple:", "\U0001f46b");
-            edictBuilder.Add(":couple_mm:", "\U0001f468\u200d\u2764\ufe0f\u200d\U0001f468");
-            edictBuilder.Add(":couple_with_heart:", "\U0001f491");
-            edictBuilder.Add(":couple_ww:", "\U0001f469\u200d\u2764\ufe0f\u200d\U0001f469");
-            edictBuilder.Add(":couplekiss:", "\U0001f48f");
-            edictBuilder.Add(":cow2:", "\U0001f404");
-            edictBuilder.Add(":cow:", "\U0001f42e");
-            edictBuilder.Add(":cowboy:", "\U0001f920");
-            edictBuilder.Add(":crab:", "\U0001f980");
-            edictBuilder.Add(":crayon:", "\U0001f58d");
-            edictBuilder.Add(":credit_card:", "\U0001f4b3");
-            edictBuilder.Add(":crescent_moon:", "\U0001f319");
-            edictBuilder.Add(":cricket:", "\U0001f3cf");
-            edictBuilder.Add(":crocodile:", "\U0001f40a");
-            edictBuilder.Add(":croissant:", "\U0001f950");
-            edictBuilder.Add(":cross:", "\u271d");
-            edictBuilder.Add(":crossed_flags:", "\U0001f38c");
-            edictBuilder.Add(":crossed_swords:", "\u2694");
-            edictBuilder.Add(":crown:", "\U0001f451");
-            edictBuilder.Add(":cruise_ship:", "\U0001f6f3");
-            edictBuilder.Add(":cry:", "\U0001f622");
-            edictBuilder.Add(":crying_cat_face:", "\U0001f63f");
-            edictBuilder.Add(":crystal_ball:", "\U0001f52e");
-            edictBuilder.Add(":cucumber:", "\U0001f952");
-            edictBuilder.Add(":cupid:", "\U0001f498");
-            edictBuilder.Add(":curly_loop:", "\u27b0");
-            edictBuilder.Add(":currency_exchange:", "\U0001f4b1");
-            edictBuilder.Add(":curry:", "\U0001f35b");
-            edictBuilder.Add(":custard:", "\U0001f36e");
-            edictBuilder.Add(":customs:", "\U0001f6c3");
-            edictBuilder.Add(":cyclone:", "\U0001f300");
-            edictBuilder.Add(":D", "\U0001f604");
-            edictBuilder.Add(":dagger:", "\U0001f5e1");
-            edictBuilder.Add(":dancer:", "\U0001f483");
-            edictBuilder.Add(":dancer::skin-tone-1:", "\U0001f483\U0001f3fb");
-            edictBuilder.Add(":dancer::skin-tone-2:", "\U0001f483\U0001f3fc");
-            edictBuilder.Add(":dancer::skin-tone-3:", "\U0001f483\U0001f3fd");
-            edictBuilder.Add(":dancer::skin-tone-4:", "\U0001f483\U0001f3fe");
-            edictBuilder.Add(":dancer::skin-tone-5:", "\U0001f483\U0001f3ff");
-            edictBuilder.Add(":dancers:", "\U0001f46f");
-            edictBuilder.Add(":dango:", "\U0001f361");
-            edictBuilder.Add(":dark_sunglasses:", "\U0001f576");
-            edictBuilder.Add(":dart:", "\U0001f3af");
-            edictBuilder.Add(":dash:", "\U0001f4a8");
-            edictBuilder.Add(":date:", "\U0001f4c5");
-            edictBuilder.Add(":deciduous_tree:", "\U0001f333");
-            edictBuilder.Add(":deer:", "\U0001f98c");
-            edictBuilder.Add(":department_store:", "\U0001f3ec");
-            edictBuilder.Add(":desert:", "\U0001f3dc");
-            edictBuilder.Add(":desktop:", "\U0001f5a5");
-            edictBuilder.Add(":diamond_shape_with_a_dot_inside:", "\U0001f4a0");
-            edictBuilder.Add(":diamonds:", "\u2666");
-            edictBuilder.Add(":disappointed:", "\U0001f61e");
-            edictBuilder.Add(":disappointed_relieved:", "\U0001f625");
-            edictBuilder.Add(":dividers:", "\U0001f5c2");
-            edictBuilder.Add(":dizzy:", "\U0001f4ab");
-            edictBuilder.Add(":dizzy_face:", "\U0001f635");
-            edictBuilder.Add(":do_not_litter:", "\U0001f6af");
-            edictBuilder.Add(":dog2:", "\U0001f415");
-            edictBuilder.Add(":dog:", "\U0001f436");
-            edictBuilder.Add(":dollar:", "\U0001f4b5");
-            edictBuilder.Add(":dolls:", "\U0001f38e");
-            edictBuilder.Add(":dolphin:", "\U0001f42c");
-            edictBuilder.Add(":door:", "\U0001f6aa");
-            edictBuilder.Add(":doughnut:", "\U0001f369");
-            edictBuilder.Add(":dove:", "\U0001f54a");
-            edictBuilder.Add(":dragon:", "\U0001f409");
-            edictBuilder.Add(":dragon_face:", "\U0001f432");
-            edictBuilder.Add(":dress:", "\U0001f457");
-            edictBuilder.Add(":dromedary_camel:", "\U0001f42a");
-            edictBuilder.Add(":drooling_face:", "\U0001f924");
-            edictBuilder.Add(":droplet:", "\U0001f4a7");
-            edictBuilder.Add(":drum:", "\U0001f941");
-            edictBuilder.Add(":duck:", "\U0001f986");
-            edictBuilder.Add(":dvd:", "\U0001f4c0");
-            edictBuilder.Add(":eagle:", "\U0001f985");
-            edictBuilder.Add(":ear:", "\U0001f442");
-            edictBuilder.Add(":ear::skin-tone-1:", "\U0001f442\U0001f3fb");
-            edictBuilder.Add(":ear::skin-tone-2:", "\U0001f442\U0001f3fc");
-            edictBuilder.Add(":ear::skin-tone-3:", "\U0001f442\U0001f3fd");
-            edictBuilder.Add(":ear::skin-tone-4:", "\U0001f442\U0001f3fe");
-            edictBuilder.Add(":ear::skin-tone-5:", "\U0001f442\U0001f3ff");
-            edictBuilder.Add(":ear_of_rice:", "\U0001f33e");
-            edictBuilder.Add(":earth_africa:", "\U0001f30d");
-            edictBuilder.Add(":earth_americas:", "\U0001f30e");
-            edictBuilder.Add(":earth_asia:", "\U0001f30f");
-            edictBuilder.Add(":egg:", "\U0001f95a");
-            edictBuilder.Add(":eggplant:", "\U0001f346");
-            edictBuilder.Add(":eight:", "8\u20e3");
-            edictBuilder.Add(":eight_pointed_black_star:", "\u2734");
-            edictBuilder.Add(":eight_spoked_asterisk:", "\u2733");
-            edictBuilder.Add(":eject:", "\u23cf");
-            edictBuilder.Add(":electric_plug:", "\U0001f50c");
-            edictBuilder.Add(":elephant:", "\U0001f418");
-            edictBuilder.Add(":email:", "\U0001f4e7");
-            edictBuilder.Add(":end:", "\U0001f51a");
-            edictBuilder.Add(":envelope:", "\u2709");
-            edictBuilder.Add(":envelope_with_arrow:", "\U0001f4e9");
-            edictBuilder.Add(":euro:", "\U0001f4b6");
-            edictBuilder.Add(":european_castle:", "\U0001f3f0");
-            edictBuilder.Add(":european_post_office:", "\U0001f3e4");
-            edictBuilder.Add(":evergreen_tree:", "\U0001f332");
-            edictBuilder.Add(":exclamation:", "\u2757");
-            edictBuilder.Add(":expressionless:", "\U0001f611");
-            edictBuilder.Add(":eye:", "\U0001f441");
-            edictBuilder.Add(":eye_in_speech_bubble:", "\U0001f441\u200d\U0001f5e8");
-            edictBuilder.Add(":eyeglasses:", "\U0001f453");
-            edictBuilder.Add(":eyes:", "\U0001f440");
-            edictBuilder.Add(":face_palm:", "\U0001f926");
-            edictBuilder.Add(":face_palm::skin-tone-1:", "\U0001f926\U0001f3fb");
-            edictBuilder.Add(":face_palm::skin-tone-2:", "\U0001f926\U0001f3fc");
-            edictBuilder.Add(":face_palm::skin-tone-3:", "\U0001f926\U0001f3fd");
-            edictBuilder.Add(":face_palm::skin-tone-4:", "\U0001f926\U0001f3fe");
-            edictBuilder.Add(":face_palm::skin-tone-5:", "\U0001f926\U0001f3ff");
-            edictBuilder.Add(":facepunch:", "\U0001f44a");
-            edictBuilder.Add(":facepunch::skin-tone-1:", "\U0001f44a\U0001f3fb");
-            edictBuilder.Add(":facepunch::skin-tone-2:", "\U0001f44a\U0001f3fc");
-            edictBuilder.Add(":facepunch::skin-tone-3:", "\U0001f44a\U0001f3fd");
-            edictBuilder.Add(":facepunch::skin-tone-4:", "\U0001f44a\U0001f3fe");
-            edictBuilder.Add(":facepunch::skin-tone-5:", "\U0001f44a\U0001f3ff");
-            edictBuilder.Add(":factory:", "\U0001f3ed");
-            edictBuilder.Add(":fallen_leaf:", "\U0001f342");
-            edictBuilder.Add(":family:", "\U0001f46a");
-            edictBuilder.Add(":family_mmb:", "\U0001f468\u200d\U0001f468\u200d\U0001f466");
-            edictBuilder.Add(":family_mmbb:", "\U0001f468\u200d\U0001f468\u200d\U0001f466\u200d\U0001f466");
-            edictBuilder.Add(":family_mmg:", "\U0001f468\u200d\U0001f468\u200d\U0001f467");
-            edictBuilder.Add(":family_mmgb:", "\U0001f468\u200d\U0001f468\u200d\U0001f467\u200d\U0001f466");
-            edictBuilder.Add(":family_mmgg:", "\U0001f468\u200d\U0001f468\u200d\U0001f467\u200d\U0001f467");
-            edictBuilder.Add(":family_mwbb:", "\U0001f468\u200d\U0001f469\u200d\U0001f466\u200d\U0001f466");
-            edictBuilder.Add(":family_mwg:", "\U0001f468\u200d\U0001f469\u200d\U0001f467");
-            edictBuilder.Add(":family_mwgb:", "\U0001f468\u200d\U0001f469\u200d\U0001f467\u200d\U0001f466");
-            edictBuilder.Add(":family_mwgg:", "\U0001f468\u200d\U0001f469\u200d\U0001f467\u200d\U0001f467");
-            edictBuilder.Add(":family_wwb:", "\U0001f469\u200d\U0001f469\u200d\U0001f466");
-            edictBuilder.Add(":family_wwbb:", "\U0001f469\u200d\U0001f469\u200d\U0001f466\u200d\U0001f466");
-            edictBuilder.Add(":family_wwg:", "\U0001f469\u200d\U0001f469\u200d\U0001f467");
-            edictBuilder.Add(":family_wwgb:", "\U0001f469\u200d\U0001f469\u200d\U0001f467\u200d\U0001f466");
-            edictBuilder.Add(":family_wwgg:", "\U0001f469\u200d\U0001f469\u200d\U0001f467\u200d\U0001f467");
-            edictBuilder.Add(":fast_forward:", "\u23e9");
-            edictBuilder.Add(":fax:", "\U0001f4e0");
-            edictBuilder.Add(":fearful:", "\U0001f628");
-            edictBuilder.Add(":feet:", "\U0001f43e");
-            edictBuilder.Add(":fencer:", "\U0001f93a");
-            edictBuilder.Add(":ferris_wheel:", "\U0001f3a1");
-            edictBuilder.Add(":ferry:", "\u26f4");
-            edictBuilder.Add(":field_hockey:", "\U0001f3d1");
-            edictBuilder.Add(":file_cabinet:", "\U0001f5c4");
-            edictBuilder.Add(":file_folder:", "\U0001f4c1");
-            edictBuilder.Add(":film_frames:", "\U0001f39e");
-            edictBuilder.Add(":fingers_crossed:", "\U0001f91e");
-            edictBuilder.Add(":fingers_crossed::skin-tone-1:", "\U0001f91e\U0001f3fb");
-            edictBuilder.Add(":fingers_crossed::skin-tone-2:", "\U0001f91e\U0001f3fc");
-            edictBuilder.Add(":fingers_crossed::skin-tone-3:", "\U0001f91e\U0001f3fd");
-            edictBuilder.Add(":fingers_crossed::skin-tone-4:", "\U0001f91e\U0001f3fe");
-            edictBuilder.Add(":fingers_crossed::skin-tone-5:", "\U0001f91e\U0001f3ff");
-            edictBuilder.Add(":fire:", "\U0001f525");
-            edictBuilder.Add(":fire_engine:", "\U0001f692");
-            edictBuilder.Add(":fireworks:", "\U0001f386");
-            edictBuilder.Add(":first_place:", "\U0001f947");
-            edictBuilder.Add(":first_quarter_moon:", "\U0001f313");
-            edictBuilder.Add(":first_quarter_moon_with_face:", "\U0001f31b");
-            edictBuilder.Add(":fish:", "\U0001f41f");
-            edictBuilder.Add(":fish_cake:", "\U0001f365");
-            edictBuilder.Add(":fishing_pole_and_fish:", "\U0001f3a3");
-            edictBuilder.Add(":fist:", "\u270a");
-            edictBuilder.Add(":fist::skin-tone-1:", "\u270a\U0001f3fb");
-            edictBuilder.Add(":fist::skin-tone-2:", "\u270a\U0001f3fc");
-            edictBuilder.Add(":fist::skin-tone-3:", "\u270a\U0001f3fd");
-            edictBuilder.Add(":fist::skin-tone-4:", "\u270a\U0001f3fe");
-            edictBuilder.Add(":fist::skin-tone-5:", "\u270a\U0001f3ff");
-            edictBuilder.Add(":five:", "5\u20e3");
-            edictBuilder.Add(":flag_ac:", "\U0001f1e6\U0001f1e8");
-            edictBuilder.Add(":flag_ad:", "\U0001f1e6\U0001f1e9");
-            edictBuilder.Add(":flag_ae:", "\U0001f1e6\U0001f1ea");
-            edictBuilder.Add(":flag_af:", "\U0001f1e6\U0001f1eb");
-            edictBuilder.Add(":flag_ag:", "\U0001f1e6\U0001f1ec");
-            edictBuilder.Add(":flag_ai:", "\U0001f1e6\U0001f1ee");
-            edictBuilder.Add(":flag_al:", "\U0001f1e6\U0001f1f1");
-            edictBuilder.Add(":flag_am:", "\U0001f1e6\U0001f1f2");
-            edictBuilder.Add(":flag_ao:", "\U0001f1e6\U0001f1f4");
-            edictBuilder.Add(":flag_aq:", "\U0001f1e6\U0001f1f6");
-            edictBuilder.Add(":flag_ar:", "\U0001f1e6\U0001f1f7");
-            edictBuilder.Add(":flag_as:", "\U0001f1e6\U0001f1f8");
-            edictBuilder.Add(":flag_at:", "\U0001f1e6\U0001f1f9");
-            edictBuilder.Add(":flag_au:", "\U0001f1e6\U0001f1fa");
-            edictBuilder.Add(":flag_aw:", "\U0001f1e6\U0001f1fc");
-            edictBuilder.Add(":flag_ax:", "\U0001f1e6\U0001f1fd");
-            edictBuilder.Add(":flag_az:", "\U0001f1e6\U0001f1ff");
-            edictBuilder.Add(":flag_ba:", "\U0001f1e7\U0001f1e6");
-            edictBuilder.Add(":flag_bb:", "\U0001f1e7\U0001f1e7");
-            edictBuilder.Add(":flag_bd:", "\U0001f1e7\U0001f1e9");
-            edictBuilder.Add(":flag_be:", "\U0001f1e7\U0001f1ea");
-            edictBuilder.Add(":flag_bf:", "\U0001f1e7\U0001f1eb");
-            edictBuilder.Add(":flag_bg:", "\U0001f1e7\U0001f1ec");
-            edictBuilder.Add(":flag_bh:", "\U0001f1e7\U0001f1ed");
-            edictBuilder.Add(":flag_bi:", "\U0001f1e7\U0001f1ee");
-            edictBuilder.Add(":flag_bj:", "\U0001f1e7\U0001f1ef");
-            edictBuilder.Add(":flag_bl:", "\U0001f1e7\U0001f1f1");
-            edictBuilder.Add(":flag_black:", "\U0001f3f4");
-            edictBuilder.Add(":flag_bm:", "\U0001f1e7\U0001f1f2");
-            edictBuilder.Add(":flag_bn:", "\U0001f1e7\U0001f1f3");
-            edictBuilder.Add(":flag_bo:", "\U0001f1e7\U0001f1f4");
-            edictBuilder.Add(":flag_bq:", "\U0001f1e7\U0001f1f6");
-            edictBuilder.Add(":flag_br:", "\U0001f1e7\U0001f1f7");
-            edictBuilder.Add(":flag_bs:", "\U0001f1e7\U0001f1f8");
-            edictBuilder.Add(":flag_bt:", "\U0001f1e7\U0001f1f9");
-            edictBuilder.Add(":flag_bv:", "\U0001f1e7\U0001f1fb");
-            edictBuilder.Add(":flag_bw:", "\U0001f1e7\U0001f1fc");
-            edictBuilder.Add(":flag_by:", "\U0001f1e7\U0001f1fe");
-            edictBuilder.Add(":flag_bz:", "\U0001f1e7\U0001f1ff");
-            edictBuilder.Add(":flag_ca:", "\U0001f1e8\U0001f1e6");
-            edictBuilder.Add(":flag_cc:", "\U0001f1e8\U0001f1e8");
-            edictBuilder.Add(":flag_cd:", "\U0001f1e8\U0001f1e9");
-            edictBuilder.Add(":flag_cf:", "\U0001f1e8\U0001f1eb");
-            edictBuilder.Add(":flag_cg:", "\U0001f1e8\U0001f1ec");
-            edictBuilder.Add(":flag_ch:", "\U0001f1e8\U0001f1ed");
-            edictBuilder.Add(":flag_ci:", "\U0001f1e8\U0001f1ee");
-            edictBuilder.Add(":flag_ck:", "\U0001f1e8\U0001f1f0");
-            edictBuilder.Add(":flag_cl:", "\U0001f1e8\U0001f1f1");
-            edictBuilder.Add(":flag_cm:", "\U0001f1e8\U0001f1f2");
-            edictBuilder.Add(":flag_cn:", "\U0001f1e8\U0001f1f3");
-            edictBuilder.Add(":flag_co:", "\U0001f1e8\U0001f1f4");
-            edictBuilder.Add(":flag_cp:", "\U0001f1e8\U0001f1f5");
-            edictBuilder.Add(":flag_cr:", "\U0001f1e8\U0001f1f7");
-            edictBuilder.Add(":flag_cu:", "\U0001f1e8\U0001f1fa");
-            edictBuilder.Add(":flag_cv:", "\U0001f1e8\U0001f1fb");
-            edictBuilder.Add(":flag_cw:", "\U0001f1e8\U0001f1fc");
-            edictBuilder.Add(":flag_cx:", "\U0001f1e8\U0001f1fd");
-            edictBuilder.Add(":flag_cy:", "\U0001f1e8\U0001f1fe");
-            edictBuilder.Add(":flag_cz:", "\U0001f1e8\U0001f1ff");
-            edictBuilder.Add(":flag_de:", "\U0001f1e9\U0001f1ea");
-            edictBuilder.Add(":flag_dg:", "\U0001f1e9\U0001f1ec");
-            edictBuilder.Add(":flag_dj:", "\U0001f1e9\U0001f1ef");
-            edictBuilder.Add(":flag_dk:", "\U0001f1e9\U0001f1f0");
-            edictBuilder.Add(":flag_dm:", "\U0001f1e9\U0001f1f2");
-            edictBuilder.Add(":flag_do:", "\U0001f1e9\U0001f1f4");
-            edictBuilder.Add(":flag_dz:", "\U0001f1e9\U0001f1ff");
-            edictBuilder.Add(":flag_ea:", "\U0001f1ea\U0001f1e6");
-            edictBuilder.Add(":flag_ec:", "\U0001f1ea\U0001f1e8");
-            edictBuilder.Add(":flag_ee:", "\U0001f1ea\U0001f1ea");
-            edictBuilder.Add(":flag_eg:", "\U0001f1ea\U0001f1ec");
-            edictBuilder.Add(":flag_eh:", "\U0001f1ea\U0001f1ed");
-            edictBuilder.Add(":flag_er:", "\U0001f1ea\U0001f1f7");
-            edictBuilder.Add(":flag_es:", "\U0001f1ea\U0001f1f8");
-            edictBuilder.Add(":flag_et:", "\U0001f1ea\U0001f1f9");
-            edictBuilder.Add(":flag_eu:", "\U0001f1ea\U0001f1fa");
-            edictBuilder.Add(":flag_fi:", "\U0001f1eb\U0001f1ee");
-            edictBuilder.Add(":flag_fj:", "\U0001f1eb\U0001f1ef");
-            edictBuilder.Add(":flag_fk:", "\U0001f1eb\U0001f1f0");
-            edictBuilder.Add(":flag_fm:", "\U0001f1eb\U0001f1f2");
-            edictBuilder.Add(":flag_fo:", "\U0001f1eb\U0001f1f4");
-            edictBuilder.Add(":flag_fr:", "\U0001f1eb\U0001f1f7");
-            edictBuilder.Add(":flag_ga:", "\U0001f1ec\U0001f1e6");
-            edictBuilder.Add(":flag_gb:", "\U0001f1ec\U0001f1e7");
-            edictBuilder.Add(":flag_gd:", "\U0001f1ec\U0001f1e9");
-            edictBuilder.Add(":flag_ge:", "\U0001f1ec\U0001f1ea");
-            edictBuilder.Add(":flag_gf:", "\U0001f1ec\U0001f1eb");
-            edictBuilder.Add(":flag_gg:", "\U0001f1ec\U0001f1ec");
-            edictBuilder.Add(":flag_gh:", "\U0001f1ec\U0001f1ed");
-            edictBuilder.Add(":flag_gi:", "\U0001f1ec\U0001f1ee");
-            edictBuilder.Add(":flag_gl:", "\U0001f1ec\U0001f1f1");
-            edictBuilder.Add(":flag_gm:", "\U0001f1ec\U0001f1f2");
-            edictBuilder.Add(":flag_gn:", "\U0001f1ec\U0001f1f3");
-            edictBuilder.Add(":flag_gp:", "\U0001f1ec\U0001f1f5");
-            edictBuilder.Add(":flag_gq:", "\U0001f1ec\U0001f1f6");
-            edictBuilder.Add(":flag_gr:", "\U0001f1ec\U0001f1f7");
-            edictBuilder.Add(":flag_gs:", "\U0001f1ec\U0001f1f8");
-            edictBuilder.Add(":flag_gt:", "\U0001f1ec\U0001f1f9");
-            edictBuilder.Add(":flag_gu:", "\U0001f1ec\U0001f1fa");
-            edictBuilder.Add(":flag_gw:", "\U0001f1ec\U0001f1fc");
-            edictBuilder.Add(":flag_gy:", "\U0001f1ec\U0001f1fe");
-            edictBuilder.Add(":flag_hk:", "\U0001f1ed\U0001f1f0");
-            edictBuilder.Add(":flag_hm:", "\U0001f1ed\U0001f1f2");
-            edictBuilder.Add(":flag_hn:", "\U0001f1ed\U0001f1f3");
-            edictBuilder.Add(":flag_hr:", "\U0001f1ed\U0001f1f7");
-            edictBuilder.Add(":flag_ht:", "\U0001f1ed\U0001f1f9");
-            edictBuilder.Add(":flag_hu:", "\U0001f1ed\U0001f1fa");
-            edictBuilder.Add(":flag_ic:", "\U0001f1ee\U0001f1e8");
-            edictBuilder.Add(":flag_id:", "\U0001f1ee\U0001f1e9");
-            edictBuilder.Add(":flag_ie:", "\U0001f1ee\U0001f1ea");
-            edictBuilder.Add(":flag_il:", "\U0001f1ee\U0001f1f1");
-            edictBuilder.Add(":flag_im:", "\U0001f1ee\U0001f1f2");
-            edictBuilder.Add(":flag_in:", "\U0001f1ee\U0001f1f3");
-            edictBuilder.Add(":flag_io:", "\U0001f1ee\U0001f1f4");
-            edictBuilder.Add(":flag_iq:", "\U0001f1ee\U0001f1f6");
-            edictBuilder.Add(":flag_ir:", "\U0001f1ee\U0001f1f7");
-            edictBuilder.Add(":flag_is:", "\U0001f1ee\U0001f1f8");
-            edictBuilder.Add(":flag_it:", "\U0001f1ee\U0001f1f9");
-            edictBuilder.Add(":flag_je:", "\U0001f1ef\U0001f1ea");
-            edictBuilder.Add(":flag_jm:", "\U0001f1ef\U0001f1f2");
-            edictBuilder.Add(":flag_jo:", "\U0001f1ef\U0001f1f4");
-            edictBuilder.Add(":flag_jp:", "\U0001f1ef\U0001f1f5");
-            edictBuilder.Add(":flag_ke:", "\U0001f1f0\U0001f1ea");
-            edictBuilder.Add(":flag_kg:", "\U0001f1f0\U0001f1ec");
-            edictBuilder.Add(":flag_kh:", "\U0001f1f0\U0001f1ed");
-            edictBuilder.Add(":flag_ki:", "\U0001f1f0\U0001f1ee");
-            edictBuilder.Add(":flag_km:", "\U0001f1f0\U0001f1f2");
-            edictBuilder.Add(":flag_kn:", "\U0001f1f0\U0001f1f3");
-            edictBuilder.Add(":flag_kp:", "\U0001f1f0\U0001f1f5");
-            edictBuilder.Add(":flag_kr:", "\U0001f1f0\U0001f1f7");
-            edictBuilder.Add(":flag_kw:", "\U0001f1f0\U0001f1fc");
-            edictBuilder.Add(":flag_ky:", "\U0001f1f0\U0001f1fe");
-            edictBuilder.Add(":flag_kz:", "\U0001f1f0\U0001f1ff");
-            edictBuilder.Add(":flag_la:", "\U0001f1f1\U0001f1e6");
-            edictBuilder.Add(":flag_lb:", "\U0001f1f1\U0001f1e7");
-            edictBuilder.Add(":flag_lc:", "\U0001f1f1\U0001f1e8");
-            edictBuilder.Add(":flag_li:", "\U0001f1f1\U0001f1ee");
-            edictBuilder.Add(":flag_lk:", "\U0001f1f1\U0001f1f0");
-            edictBuilder.Add(":flag_lr:", "\U0001f1f1\U0001f1f7");
-            edictBuilder.Add(":flag_ls:", "\U0001f1f1\U0001f1f8");
-            edictBuilder.Add(":flag_lt:", "\U0001f1f1\U0001f1f9");
-            edictBuilder.Add(":flag_lu:", "\U0001f1f1\U0001f1fa");
-            edictBuilder.Add(":flag_lv:", "\U0001f1f1\U0001f1fb");
-            edictBuilder.Add(":flag_ly:", "\U0001f1f1\U0001f1fe");
-            edictBuilder.Add(":flag_ma:", "\U0001f1f2\U0001f1e6");
-            edictBuilder.Add(":flag_mc:", "\U0001f1f2\U0001f1e8");
-            edictBuilder.Add(":flag_md:", "\U0001f1f2\U0001f1e9");
-            edictBuilder.Add(":flag_me:", "\U0001f1f2\U0001f1ea");
-            edictBuilder.Add(":flag_mf:", "\U0001f1f2\U0001f1eb");
-            edictBuilder.Add(":flag_mg:", "\U0001f1f2\U0001f1ec");
-            edictBuilder.Add(":flag_mh:", "\U0001f1f2\U0001f1ed");
-            edictBuilder.Add(":flag_mk:", "\U0001f1f2\U0001f1f0");
-            edictBuilder.Add(":flag_ml:", "\U0001f1f2\U0001f1f1");
-            edictBuilder.Add(":flag_mm:", "\U0001f1f2\U0001f1f2");
-            edictBuilder.Add(":flag_mn:", "\U0001f1f2\U0001f1f3");
-            edictBuilder.Add(":flag_mo:", "\U0001f1f2\U0001f1f4");
-            edictBuilder.Add(":flag_mp:", "\U0001f1f2\U0001f1f5");
-            edictBuilder.Add(":flag_mq:", "\U0001f1f2\U0001f1f6");
-            edictBuilder.Add(":flag_mr:", "\U0001f1f2\U0001f1f7");
-            edictBuilder.Add(":flag_ms:", "\U0001f1f2\U0001f1f8");
-            edictBuilder.Add(":flag_mt:", "\U0001f1f2\U0001f1f9");
-            edictBuilder.Add(":flag_mu:", "\U0001f1f2\U0001f1fa");
-            edictBuilder.Add(":flag_mv:", "\U0001f1f2\U0001f1fb");
-            edictBuilder.Add(":flag_mw:", "\U0001f1f2\U0001f1fc");
-            edictBuilder.Add(":flag_mx:", "\U0001f1f2\U0001f1fd");
-            edictBuilder.Add(":flag_my:", "\U0001f1f2\U0001f1fe");
-            edictBuilder.Add(":flag_mz:", "\U0001f1f2\U0001f1ff");
-            edictBuilder.Add(":flag_na:", "\U0001f1f3\U0001f1e6");
-            edictBuilder.Add(":flag_nc:", "\U0001f1f3\U0001f1e8");
-            edictBuilder.Add(":flag_ne:", "\U0001f1f3\U0001f1ea");
-            edictBuilder.Add(":flag_nf:", "\U0001f1f3\U0001f1eb");
-            edictBuilder.Add(":flag_ng:", "\U0001f1f3\U0001f1ec");
-            edictBuilder.Add(":flag_ni:", "\U0001f1f3\U0001f1ee");
-            edictBuilder.Add(":flag_nl:", "\U0001f1f3\U0001f1f1");
-            edictBuilder.Add(":flag_no:", "\U0001f1f3\U0001f1f4");
-            edictBuilder.Add(":flag_np:", "\U0001f1f3\U0001f1f5");
-            edictBuilder.Add(":flag_nr:", "\U0001f1f3\U0001f1f7");
-            edictBuilder.Add(":flag_nu:", "\U0001f1f3\U0001f1fa");
-            edictBuilder.Add(":flag_nz:", "\U0001f1f3\U0001f1ff");
-            edictBuilder.Add(":flag_om:", "\U0001f1f4\U0001f1f2");
-            edictBuilder.Add(":flag_pa:", "\U0001f1f5\U0001f1e6");
-            edictBuilder.Add(":flag_pe:", "\U0001f1f5\U0001f1ea");
-            edictBuilder.Add(":flag_pf:", "\U0001f1f5\U0001f1eb");
-            edictBuilder.Add(":flag_pg:", "\U0001f1f5\U0001f1ec");
-            edictBuilder.Add(":flag_ph:", "\U0001f1f5\U0001f1ed");
-            edictBuilder.Add(":flag_pk:", "\U0001f1f5\U0001f1f0");
-            edictBuilder.Add(":flag_pl:", "\U0001f1f5\U0001f1f1");
-            edictBuilder.Add(":flag_pm:", "\U0001f1f5\U0001f1f2");
-            edictBuilder.Add(":flag_pn:", "\U0001f1f5\U0001f1f3");
-            edictBuilder.Add(":flag_pr:", "\U0001f1f5\U0001f1f7");
-            edictBuilder.Add(":flag_ps:", "\U0001f1f5\U0001f1f8");
-            edictBuilder.Add(":flag_pt:", "\U0001f1f5\U0001f1f9");
-            edictBuilder.Add(":flag_pw:", "\U0001f1f5\U0001f1fc");
-            edictBuilder.Add(":flag_py:", "\U0001f1f5\U0001f1fe");
-            edictBuilder.Add(":flag_qa:", "\U0001f1f6\U0001f1e6");
-            edictBuilder.Add(":flag_re:", "\U0001f1f7\U0001f1ea");
-            edictBuilder.Add(":flag_ro:", "\U0001f1f7\U0001f1f4");
-            edictBuilder.Add(":flag_rs:", "\U0001f1f7\U0001f1f8");
-            edictBuilder.Add(":flag_ru:", "\U0001f1f7\U0001f1fa");
-            edictBuilder.Add(":flag_rw:", "\U0001f1f7\U0001f1fc");
-            edictBuilder.Add(":flag_sa:", "\U0001f1f8\U0001f1e6");
-            edictBuilder.Add(":flag_sb:", "\U0001f1f8\U0001f1e7");
-            edictBuilder.Add(":flag_sc:", "\U0001f1f8\U0001f1e8");
-            edictBuilder.Add(":flag_sd:", "\U0001f1f8\U0001f1e9");
-            edictBuilder.Add(":flag_se:", "\U0001f1f8\U0001f1ea");
-            edictBuilder.Add(":flag_sg:", "\U0001f1f8\U0001f1ec");
-            edictBuilder.Add(":flag_sh:", "\U0001f1f8\U0001f1ed");
-            edictBuilder.Add(":flag_si:", "\U0001f1f8\U0001f1ee");
-            edictBuilder.Add(":flag_sj:", "\U0001f1f8\U0001f1ef");
-            edictBuilder.Add(":flag_sk:", "\U0001f1f8\U0001f1f0");
-            edictBuilder.Add(":flag_sl:", "\U0001f1f8\U0001f1f1");
-            edictBuilder.Add(":flag_sm:", "\U0001f1f8\U0001f1f2");
-            edictBuilder.Add(":flag_sn:", "\U0001f1f8\U0001f1f3");
-            edictBuilder.Add(":flag_so:", "\U0001f1f8\U0001f1f4");
-            edictBuilder.Add(":flag_sr:", "\U0001f1f8\U0001f1f7");
-            edictBuilder.Add(":flag_ss:", "\U0001f1f8\U0001f1f8");
-            edictBuilder.Add(":flag_st:", "\U0001f1f8\U0001f1f9");
-            edictBuilder.Add(":flag_sv:", "\U0001f1f8\U0001f1fb");
-            edictBuilder.Add(":flag_sx:", "\U0001f1f8\U0001f1fd");
-            edictBuilder.Add(":flag_sy:", "\U0001f1f8\U0001f1fe");
-            edictBuilder.Add(":flag_sz:", "\U0001f1f8\U0001f1ff");
-            edictBuilder.Add(":flag_ta:", "\U0001f1f9\U0001f1e6");
-            edictBuilder.Add(":flag_tc:", "\U0001f1f9\U0001f1e8");
-            edictBuilder.Add(":flag_td:", "\U0001f1f9\U0001f1e9");
-            edictBuilder.Add(":flag_tf:", "\U0001f1f9\U0001f1eb");
-            edictBuilder.Add(":flag_tg:", "\U0001f1f9\U0001f1ec");
-            edictBuilder.Add(":flag_th:", "\U0001f1f9\U0001f1ed");
-            edictBuilder.Add(":flag_tj:", "\U0001f1f9\U0001f1ef");
-            edictBuilder.Add(":flag_tk:", "\U0001f1f9\U0001f1f0");
-            edictBuilder.Add(":flag_tl:", "\U0001f1f9\U0001f1f1");
-            edictBuilder.Add(":flag_tm:", "\U0001f1f9\U0001f1f2");
-            edictBuilder.Add(":flag_tn:", "\U0001f1f9\U0001f1f3");
-            edictBuilder.Add(":flag_to:", "\U0001f1f9\U0001f1f4");
-            edictBuilder.Add(":flag_tr:", "\U0001f1f9\U0001f1f7");
-            edictBuilder.Add(":flag_tt:", "\U0001f1f9\U0001f1f9");
-            edictBuilder.Add(":flag_tv:", "\U0001f1f9\U0001f1fb");
-            edictBuilder.Add(":flag_tw:", "\U0001f1f9\U0001f1fc");
-            edictBuilder.Add(":flag_tz:", "\U0001f1f9\U0001f1ff");
-            edictBuilder.Add(":flag_ua:", "\U0001f1fa\U0001f1e6");
-            edictBuilder.Add(":flag_ug:", "\U0001f1fa\U0001f1ec");
-            edictBuilder.Add(":flag_um:", "\U0001f1fa\U0001f1f2");
-            edictBuilder.Add(":flag_us:", "\U0001f1fa\U0001f1f8");
-            edictBuilder.Add(":flag_uy:", "\U0001f1fa\U0001f1fe");
-            edictBuilder.Add(":flag_uz:", "\U0001f1fa\U0001f1ff");
-            edictBuilder.Add(":flag_va:", "\U0001f1fb\U0001f1e6");
-            edictBuilder.Add(":flag_vc:", "\U0001f1fb\U0001f1e8");
-            edictBuilder.Add(":flag_ve:", "\U0001f1fb\U0001f1ea");
-            edictBuilder.Add(":flag_vg:", "\U0001f1fb\U0001f1ec");
-            edictBuilder.Add(":flag_vi:", "\U0001f1fb\U0001f1ee");
-            edictBuilder.Add(":flag_vn:", "\U0001f1fb\U0001f1f3");
-            edictBuilder.Add(":flag_vu:", "\U0001f1fb\U0001f1fa");
-            edictBuilder.Add(":flag_wf:", "\U0001f1fc\U0001f1eb");
-            edictBuilder.Add(":flag_white:", "\U0001f3f3");
-            edictBuilder.Add(":flag_ws:", "\U0001f1fc\U0001f1f8");
-            edictBuilder.Add(":flag_xk:", "\U0001f1fd\U0001f1f0");
-            edictBuilder.Add(":flag_ye:", "\U0001f1fe\U0001f1ea");
-            edictBuilder.Add(":flag_yt:", "\U0001f1fe\U0001f1f9");
-            edictBuilder.Add(":flag_za:", "\U0001f1ff\U0001f1e6");
-            edictBuilder.Add(":flag_zm:", "\U0001f1ff\U0001f1f2");
-            edictBuilder.Add(":flag_zw:", "\U0001f1ff\U0001f1fc");
-            edictBuilder.Add(":flags:", "\U0001f38f");
-            edictBuilder.Add(":flashlight:", "\U0001f526");
-            edictBuilder.Add(":fleur_de_lis:", "\u269c");
-            edictBuilder.Add(":flipper:", "\U0001f42c");
-            edictBuilder.Add(":floppy_disk:", "\U0001f4be");
-            edictBuilder.Add(":flower_playing_cards:", "\U0001f3b4");
-            edictBuilder.Add(":flushed:", "\U0001f633");
-            edictBuilder.Add(":fog:", "\U0001f32b");
-            edictBuilder.Add(":foggy:", "\U0001f301");
-            edictBuilder.Add(":football:", "\U0001f3c8");
-            edictBuilder.Add(":footprints:", "\U0001f463");
-            edictBuilder.Add(":fork_and_knife:", "\U0001f374");
-            edictBuilder.Add(":fork_knife_plate:", "\U0001f37d");
-            edictBuilder.Add(":fountain:", "\u26f2");
-            edictBuilder.Add(":four:", "4\u20e3");
-            edictBuilder.Add(":four_leaf_clover:", "\U0001f340");
-            edictBuilder.Add(":fox:", "\U0001f98a");
-            edictBuilder.Add(":frame_photo:", "\U0001f5bc");
-            edictBuilder.Add(":free:", "\U0001f193");
-            edictBuilder.Add(":french_bread:", "\U0001f956");
-            edictBuilder.Add(":fried_shrimp:", "\U0001f364");
-            edictBuilder.Add(":fries:", "\U0001f35f");
-            edictBuilder.Add(":frog:", "\U0001f438");
-            edictBuilder.Add(":frowning2:", "\u2639");
-            edictBuilder.Add(":frowning:", "\U0001f626");
-            edictBuilder.Add(":fuelpump:", "\u26fd");
-            edictBuilder.Add(":full_moon:", "\U0001f315");
-            edictBuilder.Add(":full_moon_with_face:", "\U0001f31d");
-            edictBuilder.Add(":game_die:", "\U0001f3b2");
-            edictBuilder.Add(":gear:", "\u2699");
-            edictBuilder.Add(":gem:", "\U0001f48e");
-            edictBuilder.Add(":gemini:", "\u264a");
-            edictBuilder.Add(":ghost:", "\U0001f47b");
-            edictBuilder.Add(":gift:", "\U0001f381");
-            edictBuilder.Add(":gift_heart:", "\U0001f49d");
-            edictBuilder.Add(":girl:", "\U0001f467");
-            edictBuilder.Add(":girl::skin-tone-1:", "\U0001f467\U0001f3fb");
-            edictBuilder.Add(":girl::skin-tone-2:", "\U0001f467\U0001f3fc");
-            edictBuilder.Add(":girl::skin-tone-3:", "\U0001f467\U0001f3fd");
-            edictBuilder.Add(":girl::skin-tone-4:", "\U0001f467\U0001f3fe");
-            edictBuilder.Add(":girl::skin-tone-5:", "\U0001f467\U0001f3ff");
-            edictBuilder.Add(":globe_with_meridians:", "\U0001f310");
-            edictBuilder.Add(":goal:", "\U0001f945");
-            edictBuilder.Add(":goat:", "\U0001f410");
-            edictBuilder.Add(":golf:", "\u26f3");
-            edictBuilder.Add(":golfer:", "\U0001f3cc");
-            edictBuilder.Add(":golfer::skin-tone-1:", "\U0001f3cc\U0001f3fb");
-            edictBuilder.Add(":golfer::skin-tone-2:", "\U0001f3cc\U0001f3fc");
-            edictBuilder.Add(":golfer::skin-tone-3:", "\U0001f3cc\U0001f3fd");
-            edictBuilder.Add(":golfer::skin-tone-4:", "\U0001f3cc\U0001f3fe");
-            edictBuilder.Add(":golfer::skin-tone-5:", "\U0001f3cc\U0001f3ff");
-            edictBuilder.Add(":gorilla:", "\U0001f98d");
-            edictBuilder.Add(":grapes:", "\U0001f347");
-            edictBuilder.Add(":green_apple:", "\U0001f34f");
-            edictBuilder.Add(":green_book:", "\U0001f4d7");
-            edictBuilder.Add(":green_heart:", "\U0001f49a");
-            edictBuilder.Add(":grey_exclamation:", "\u2755");
-            edictBuilder.Add(":grey_question:", "\u2754");
-            edictBuilder.Add(":grimacing:", "\U0001f62c");
-            edictBuilder.Add(":grin:", "\U0001f601");
-            edictBuilder.Add(":grinning:", "\U0001f600");
-            edictBuilder.Add(":guardsman:", "\U0001f482");
-            edictBuilder.Add(":guardsman::skin-tone-1:", "\U0001f482\U0001f3fb");
-            edictBuilder.Add(":guardsman::skin-tone-2:", "\U0001f482\U0001f3fc");
-            edictBuilder.Add(":guardsman::skin-tone-3:", "\U0001f482\U0001f3fd");
-            edictBuilder.Add(":guardsman::skin-tone-4:", "\U0001f482\U0001f3fe");
-            edictBuilder.Add(":guardsman::skin-tone-5:", "\U0001f482\U0001f3ff");
-            edictBuilder.Add(":guitar:", "\U0001f3b8");
-            edictBuilder.Add(":gun:", "\U0001f52b");
-            edictBuilder.Add(":haircut:", "\U0001f487");
-            edictBuilder.Add(":haircut::skin-tone-1:", "\U0001f487\U0001f3fb");
-            edictBuilder.Add(":haircut::skin-tone-2:", "\U0001f487\U0001f3fc");
-            edictBuilder.Add(":haircut::skin-tone-3:", "\U0001f487\U0001f3fd");
-            edictBuilder.Add(":haircut::skin-tone-4:", "\U0001f487\U0001f3fe");
-            edictBuilder.Add(":haircut::skin-tone-5:", "\U0001f487\U0001f3ff");
-            edictBuilder.Add(":hamburger:", "\U0001f354");
-            edictBuilder.Add(":hammer:", "\U0001f528");
-            edictBuilder.Add(":hammer_pick:", "\u2692");
-            edictBuilder.Add(":hamster:", "\U0001f439");
-            edictBuilder.Add(":hand:", "\u270b");
-            edictBuilder.Add(":hand::skin-tone-1:", "\u270b\U0001f3fb");
-            edictBuilder.Add(":hand::skin-tone-2:", "\u270b\U0001f3fc");
-            edictBuilder.Add(":hand::skin-tone-3:", "\u270b\U0001f3fd");
-            edictBuilder.Add(":hand::skin-tone-4:", "\u270b\U0001f3fe");
-            edictBuilder.Add(":hand::skin-tone-5:", "\u270b\U0001f3ff");
-            edictBuilder.Add(":hand_splayed:", "\U0001f590");
-            edictBuilder.Add(":hand_splayed::skin-tone-1:", "\U0001f590\U0001f3fb");
-            edictBuilder.Add(":hand_splayed::skin-tone-2:", "\U0001f590\U0001f3fc");
-            edictBuilder.Add(":hand_splayed::skin-tone-3:", "\U0001f590\U0001f3fd");
-            edictBuilder.Add(":hand_splayed::skin-tone-4:", "\U0001f590\U0001f3fe");
-            edictBuilder.Add(":hand_splayed::skin-tone-5:", "\U0001f590\U0001f3ff");
-            edictBuilder.Add(":handbag:", "\U0001f45c");
-            edictBuilder.Add(":handball:", "\U0001f93e");
-            edictBuilder.Add(":handball::skin-tone-1:", "\U0001f93e\U0001f3fb");
-            edictBuilder.Add(":handball::skin-tone-2:", "\U0001f93e\U0001f3fc");
-            edictBuilder.Add(":handball::skin-tone-3:", "\U0001f93e\U0001f3fd");
-            edictBuilder.Add(":handball::skin-tone-4:", "\U0001f93e\U0001f3fe");
-            edictBuilder.Add(":handball::skin-tone-5:", "\U0001f93e\U0001f3ff");
-            edictBuilder.Add(":handshake:", "\U0001f91d");
-            edictBuilder.Add(":hash:", "#\u20e3");
-            edictBuilder.Add(":hatched_chick:", "\U0001f425");
-            edictBuilder.Add(":hatching_chick:", "\U0001f423");
-            edictBuilder.Add(":head_bandage:", "\U0001f915");
-            edictBuilder.Add(":headphones:", "\U0001f3a7");
-            edictBuilder.Add(":hear_no_evil:", "\U0001f649");
-            edictBuilder.Add(":heart:", "\u2764");
-            edictBuilder.Add(":heart_decoration:", "\U0001f49f");
-            edictBuilder.Add(":heart_exclamation:", "\u2763");
-            edictBuilder.Add(":heart_eyes:", "\U0001f60d");
-            edictBuilder.Add(":heart_eyes_cat:", "\U0001f63b");
-            edictBuilder.Add(":heartbeat:", "\U0001f493");
-            edictBuilder.Add(":heartpulse:", "\U0001f497");
-            edictBuilder.Add(":hearts:", "\u2665");
-            edictBuilder.Add(":heavy_check_mark:", "\u2714");
-            edictBuilder.Add(":heavy_division_sign:", "\u2797");
-            edictBuilder.Add(":heavy_dollar_sign:", "\U0001f4b2");
-            edictBuilder.Add(":heavy_exclamation_mark:", "\u2757");
-            edictBuilder.Add(":heavy_minus_sign:", "\u2796");
-            edictBuilder.Add(":heavy_multiplication_x:", "\u2716");
-            edictBuilder.Add(":heavy_plus_sign:", "\u2795");
-            edictBuilder.Add(":helicopter:", "\U0001f681");
-            edictBuilder.Add(":helmet_with_cross:", "\u26d1");
-            edictBuilder.Add(":herb:", "\U0001f33f");
-            edictBuilder.Add(":hibiscus:", "\U0001f33a");
-            edictBuilder.Add(":high_brightness:", "\U0001f506");
-            edictBuilder.Add(":high_heel:", "\U0001f460");
-            edictBuilder.Add(":hocho:", "\U0001f52a");
-            edictBuilder.Add(":hockey:", "\U0001f3d2");
-            edictBuilder.Add(":hole:", "\U0001f573");
-            edictBuilder.Add(":homes:", "\U0001f3d8");
-            edictBuilder.Add(":honey_pot:", "\U0001f36f");
-            edictBuilder.Add(":honeybee:", "\U0001f41d");
-            edictBuilder.Add(":horse:", "\U0001f434");
-            edictBuilder.Add(":horse_racing:", "\U0001f3c7");
-            edictBuilder.Add(":horse_racing::skin-tone-1:", "\U0001f3c7\U0001f3fb");
-            edictBuilder.Add(":horse_racing::skin-tone-2:", "\U0001f3c7\U0001f3fc");
-            edictBuilder.Add(":horse_racing::skin-tone-3:", "\U0001f3c7\U0001f3fd");
-            edictBuilder.Add(":horse_racing::skin-tone-4:", "\U0001f3c7\U0001f3fe");
-            edictBuilder.Add(":horse_racing::skin-tone-5:", "\U0001f3c7\U0001f3ff");
-            edictBuilder.Add(":hospital:", "\U0001f3e5");
-            edictBuilder.Add(":hot_pepper:", "\U0001f336");
-            edictBuilder.Add(":hotdog:", "\U0001f32d");
-            edictBuilder.Add(":hotel:", "\U0001f3e8");
-            edictBuilder.Add(":hotsprings:", "\u2668");
-            edictBuilder.Add(":hourglass:", "\u231b");
-            edictBuilder.Add(":hourglass_flowing_sand:", "\u23f3");
-            edictBuilder.Add(":house:", "\U0001f3e0");
-            edictBuilder.Add(":house_abandoned:", "\U0001f3da");
-            edictBuilder.Add(":house_with_garden:", "\U0001f3e1");
-            edictBuilder.Add(":hugging:", "\U0001f917");
-            edictBuilder.Add(":hushed:", "\U0001f62f");
-            edictBuilder.Add(":ice_cream:", "\U0001f368");
-            edictBuilder.Add(":ice_skate:", "\u26f8");
-            edictBuilder.Add(":icecream:", "\U0001f366");
-            edictBuilder.Add(":id:", "\U0001f194");
-            edictBuilder.Add(":ideograph_advantage:", "\U0001f250");
-            edictBuilder.Add(":imp:", "\U0001f47f");
-            edictBuilder.Add(":inbox_tray:", "\U0001f4e5");
-            edictBuilder.Add(":incoming_envelope:", "\U0001f4e8");
-            edictBuilder.Add(":information_desk_person:", "\U0001f481");
-            edictBuilder.Add(":information_desk_person::skin-tone-1:", "\U0001f481\U0001f3fb");
-            edictBuilder.Add(":information_desk_person::skin-tone-2:", "\U0001f481\U0001f3fc");
-            edictBuilder.Add(":information_desk_person::skin-tone-3:", "\U0001f481\U0001f3fd");
-            edictBuilder.Add(":information_desk_person::skin-tone-4:", "\U0001f481\U0001f3fe");
-            edictBuilder.Add(":information_desk_person::skin-tone-5:", "\U0001f481\U0001f3ff");
-            edictBuilder.Add(":information_source:", "\u2139");
-            edictBuilder.Add(":innocent:", "\U0001f607");
-            edictBuilder.Add(":interrobang:", "\u2049");
-            edictBuilder.Add(":iphone:", "\U0001f4f1");
-            edictBuilder.Add(":island:", "\U0001f3dd");
-            edictBuilder.Add(":izakaya_lantern:", "\U0001f3ee");
-            edictBuilder.Add(":jack_o_lantern:", "\U0001f383");
-            edictBuilder.Add(":japan:", "\U0001f5fe");
-            edictBuilder.Add(":japanese_castle:", "\U0001f3ef");
-            edictBuilder.Add(":japanese_goblin:", "\U0001f47a");
-            edictBuilder.Add(":japanese_ogre:", "\U0001f479");
-            edictBuilder.Add(":jeans:", "\U0001f456");
-            edictBuilder.Add(":joy:", "\U0001f602");
-            edictBuilder.Add(":joy_cat:", "\U0001f639");
-            edictBuilder.Add(":joystick:", "\U0001f579");
-            edictBuilder.Add(":juggling:", "\U0001f939");
-            edictBuilder.Add(":juggling::skin-tone-1:", "\U0001f939\U0001f3fb");
-            edictBuilder.Add(":juggling::skin-tone-2:", "\U0001f939\U0001f3fc");
-            edictBuilder.Add(":juggling::skin-tone-3:", "\U0001f939\U0001f3fd");
-            edictBuilder.Add(":juggling::skin-tone-4:", "\U0001f939\U0001f3fe");
-            edictBuilder.Add(":juggling::skin-tone-5:", "\U0001f939\U0001f3ff");
-            edictBuilder.Add(":kaaba:", "\U0001f54b");
-            edictBuilder.Add(":key2:", "\U0001f5dd");
-            edictBuilder.Add(":key:", "\U0001f511");
-            edictBuilder.Add(":keyboard:", "\u2328");
-            edictBuilder.Add(":keycap_ten:", "\U0001f51f");
-            edictBuilder.Add(":kimono:", "\U0001f458");
-            edictBuilder.Add(":kiss:", "\U0001f48b");
-            edictBuilder.Add(":kiss_mm:", "\U0001f468\u200d\u2764\ufe0f\u200d\U0001f48b\u200d\U0001f468");
-            edictBuilder.Add(":kiss_ww:", "\U0001f469\u200d\u2764\ufe0f\u200d\U0001f48b\u200d\U0001f469");
-            edictBuilder.Add(":kissing:", "\U0001f617");
-            edictBuilder.Add(":kissing_cat:", "\U0001f63d");
-            edictBuilder.Add(":kissing_closed_eyes:", "\U0001f61a");
-            edictBuilder.Add(":kissing_heart:", "\U0001f618");
-            edictBuilder.Add(":kissing_smiling_eyes:", "\U0001f619");
-            edictBuilder.Add(":kiwi:", "\U0001f95d");
-            edictBuilder.Add(":knife:", "\U0001f52a");
-            edictBuilder.Add(":koala:", "\U0001f428");
-            edictBuilder.Add(":koko:", "\U0001f201");
-            edictBuilder.Add(":label:", "\U0001f3f7");
-            edictBuilder.Add(":lantern:", "\U0001f3ee");
-            edictBuilder.Add(":large_blue_circle:", "\U0001f535");
-            edictBuilder.Add(":large_blue_diamond:", "\U0001f537");
-            edictBuilder.Add(":large_orange_diamond:", "\U0001f536");
-            edictBuilder.Add(":last_quarter_moon:", "\U0001f317");
-            edictBuilder.Add(":last_quarter_moon_with_face:", "\U0001f31c");
-            edictBuilder.Add(":laughing:", "\U0001f606");
-            edictBuilder.Add(":leaves:", "\U0001f343");
-            edictBuilder.Add(":ledger:", "\U0001f4d2");
-            edictBuilder.Add(":left_facing_fist:", "\U0001f91b");
-            edictBuilder.Add(":left_facing_fist::skin-tone-1:", "\U0001f91b\U0001f3fb");
-            edictBuilder.Add(":left_facing_fist::skin-tone-2:", "\U0001f91b\U0001f3fc");
-            edictBuilder.Add(":left_facing_fist::skin-tone-3:", "\U0001f91b\U0001f3fd");
-            edictBuilder.Add(":left_facing_fist::skin-tone-4:", "\U0001f91b\U0001f3fe");
-            edictBuilder.Add(":left_facing_fist::skin-tone-5:", "\U0001f91b\U0001f3ff");
-            edictBuilder.Add(":left_luggage:", "\U0001f6c5");
-            edictBuilder.Add(":left_right_arrow:", "\u2194");
-            edictBuilder.Add(":leftwards_arrow_with_hook:", "\u21a9");
-            edictBuilder.Add(":lemon:", "\U0001f34b");
-            edictBuilder.Add(":leo:", "\u264c");
-            edictBuilder.Add(":leopard:", "\U0001f406");
-            edictBuilder.Add(":level_slider:", "\U0001f39a");
-            edictBuilder.Add(":levitate:", "\U0001f574");
-            edictBuilder.Add(":levitate::skin-tone-1:", "\U0001f574\U0001f3fb");
-            edictBuilder.Add(":levitate::skin-tone-2:", "\U0001f574\U0001f3fc");
-            edictBuilder.Add(":levitate::skin-tone-3:", "\U0001f574\U0001f3fd");
-            edictBuilder.Add(":levitate::skin-tone-4:", "\U0001f574\U0001f3fe");
-            edictBuilder.Add(":levitate::skin-tone-5:", "\U0001f574\U0001f3ff");
-            edictBuilder.Add(":libra:", "\u264e");
-            edictBuilder.Add(":lifter:", "\U0001f3cb");
-            edictBuilder.Add(":lifter::skin-tone-1:", "\U0001f3cb\U0001f3fb");
-            edictBuilder.Add(":lifter::skin-tone-2:", "\U0001f3cb\U0001f3fc");
-            edictBuilder.Add(":lifter::skin-tone-3:", "\U0001f3cb\U0001f3fd");
-            edictBuilder.Add(":lifter::skin-tone-4:", "\U0001f3cb\U0001f3fe");
-            edictBuilder.Add(":lifter::skin-tone-5:", "\U0001f3cb\U0001f3ff");
-            edictBuilder.Add(":light_rail:", "\U0001f688");
-            edictBuilder.Add(":link:", "\U0001f517");
-            edictBuilder.Add(":lion_face:", "\U0001f981");
-            edictBuilder.Add(":lips:", "\U0001f444");
-            edictBuilder.Add(":lipstick:", "\U0001f484");
-            edictBuilder.Add(":lizard:", "\U0001f98e");
-            edictBuilder.Add(":lock:", "\U0001f512");
-            edictBuilder.Add(":lock_with_ink_pen:", "\U0001f50f");
-            edictBuilder.Add(":lollipop:", "\U0001f36d");
-            edictBuilder.Add(":loop:", "\u27bf");
-            edictBuilder.Add(":loud_sound:", "\U0001f50a");
-            edictBuilder.Add(":loudspeaker:", "\U0001f4e2");
-            edictBuilder.Add(":love_hotel:", "\U0001f3e9");
-            edictBuilder.Add(":love_letter:", "\U0001f48c");
-            edictBuilder.Add(":low_brightness:", "\U0001f505");
-            edictBuilder.Add(":lying_face:", "\U0001f925");
-            edictBuilder.Add(":m:", "\u24c2");
-            edictBuilder.Add(":mag:", "\U0001f50d");
-            edictBuilder.Add(":mag_right:", "\U0001f50e");
-            edictBuilder.Add(":mahjong:", "\U0001f004");
-            edictBuilder.Add(":mailbox:", "\U0001f4eb");
-            edictBuilder.Add(":mailbox_closed:", "\U0001f4ea");
-            edictBuilder.Add(":mailbox_with_mail:", "\U0001f4ec");
-            edictBuilder.Add(":mailbox_with_no_mail:", "\U0001f4ed");
-            edictBuilder.Add(":man:", "\U0001f468");
-            edictBuilder.Add(":man::skin-tone-1:", "\U0001f468\U0001f3fb");
-            edictBuilder.Add(":man::skin-tone-2:", "\U0001f468\U0001f3fc");
-            edictBuilder.Add(":man::skin-tone-3:", "\U0001f468\U0001f3fd");
-            edictBuilder.Add(":man::skin-tone-4:", "\U0001f468\U0001f3fe");
-            edictBuilder.Add(":man::skin-tone-5:", "\U0001f468\U0001f3ff");
-            edictBuilder.Add(":man_dancing:", "\U0001f57a");
-            edictBuilder.Add(":man_dancing::skin-tone-1:", "\U0001f57a\U0001f3fb");
-            edictBuilder.Add(":man_dancing::skin-tone-2:", "\U0001f57a\U0001f3fc");
-            edictBuilder.Add(":man_dancing::skin-tone-3:", "\U0001f57a\U0001f3fd");
-            edictBuilder.Add(":man_dancing::skin-tone-4:", "\U0001f57a\U0001f3fe");
-            edictBuilder.Add(":man_dancing::skin-tone-5:", "\U0001f57a\U0001f3ff");
-            edictBuilder.Add(":man_in_tuxedo:", "\U0001f935");
-            edictBuilder.Add(":man_in_tuxedo::skin-tone-1:", "\U0001f935\U0001f3fb");
-            edictBuilder.Add(":man_in_tuxedo::skin-tone-2:", "\U0001f935\U0001f3fc");
-            edictBuilder.Add(":man_in_tuxedo::skin-tone-3:", "\U0001f935\U0001f3fd");
-            edictBuilder.Add(":man_in_tuxedo::skin-tone-4:", "\U0001f935\U0001f3fe");
-            edictBuilder.Add(":man_in_tuxedo::skin-tone-5:", "\U0001f935\U0001f3ff");
-            edictBuilder.Add(":man_with_gua_pi_mao:", "\U0001f472");
-            edictBuilder.Add(":man_with_gua_pi_mao::skin-tone-1:", "\U0001f472\U0001f3fb");
-            edictBuilder.Add(":man_with_gua_pi_mao::skin-tone-2:", "\U0001f472\U0001f3fc");
-            edictBuilder.Add(":man_with_gua_pi_mao::skin-tone-3:", "\U0001f472\U0001f3fd");
-            edictBuilder.Add(":man_with_gua_pi_mao::skin-tone-4:", "\U0001f472\U0001f3fe");
-            edictBuilder.Add(":man_with_gua_pi_mao::skin-tone-5:", "\U0001f472\U0001f3ff");
-            edictBuilder.Add(":man_with_turban:", "\U0001f473");
-            edictBuilder.Add(":man_with_turban::skin-tone-1:", "\U0001f473\U0001f3fb");
-            edictBuilder.Add(":man_with_turban::skin-tone-2:", "\U0001f473\U0001f3fc");
-            edictBuilder.Add(":man_with_turban::skin-tone-3:", "\U0001f473\U0001f3fd");
-            edictBuilder.Add(":man_with_turban::skin-tone-4:", "\U0001f473\U0001f3fe");
-            edictBuilder.Add(":man_with_turban::skin-tone-5:", "\U0001f473\U0001f3ff");
-            edictBuilder.Add(":mans_shoe:", "\U0001f45e");
-            edictBuilder.Add(":map:", "\U0001f5fa");
-            edictBuilder.Add(":maple_leaf:", "\U0001f341");
-            edictBuilder.Add(":martial_arts_uniform:", "\U0001f94b");
-            edictBuilder.Add(":mask:", "\U0001f637");
-            edictBuilder.Add(":massage:", "\U0001f486");
-            edictBuilder.Add(":massage::skin-tone-1:", "\U0001f486\U0001f3fb");
-            edictBuilder.Add(":massage::skin-tone-2:", "\U0001f486\U0001f3fc");
-            edictBuilder.Add(":massage::skin-tone-3:", "\U0001f486\U0001f3fd");
-            edictBuilder.Add(":massage::skin-tone-4:", "\U0001f486\U0001f3fe");
-            edictBuilder.Add(":massage::skin-tone-5:", "\U0001f486\U0001f3ff");
-            edictBuilder.Add(":meat_on_bone:", "\U0001f356");
-            edictBuilder.Add(":medal:", "\U0001f3c5");
-            edictBuilder.Add(":mega:", "\U0001f4e3");
-            edictBuilder.Add(":melon:", "\U0001f348");
-            edictBuilder.Add(":memo:", "\U0001f4dd");
-            edictBuilder.Add(":menorah:", "\U0001f54e");
-            edictBuilder.Add(":mens:", "\U0001f6b9");
-            edictBuilder.Add(":metal:", "\U0001f918");
-            edictBuilder.Add(":metal::skin-tone-1:", "\U0001f918\U0001f3fb");
-            edictBuilder.Add(":metal::skin-tone-2:", "\U0001f918\U0001f3fc");
-            edictBuilder.Add(":metal::skin-tone-3:", "\U0001f918\U0001f3fd");
-            edictBuilder.Add(":metal::skin-tone-4:", "\U0001f918\U0001f3fe");
-            edictBuilder.Add(":metal::skin-tone-5:", "\U0001f918\U0001f3ff");
-            edictBuilder.Add(":metro:", "\U0001f687");
-            edictBuilder.Add(":microphone2:", "\U0001f399");
-            edictBuilder.Add(":microphone:", "\U0001f3a4");
-            edictBuilder.Add(":microscope:", "\U0001f52c");
-            edictBuilder.Add(":middle_finger:", "\U0001f595");
-            edictBuilder.Add(":middle_finger::skin-tone-1:", "\U0001f595\U0001f3fb");
-            edictBuilder.Add(":middle_finger::skin-tone-2:", "\U0001f595\U0001f3fc");
-            edictBuilder.Add(":middle_finger::skin-tone-3:", "\U0001f595\U0001f3fd");
-            edictBuilder.Add(":middle_finger::skin-tone-4:", "\U0001f595\U0001f3fe");
-            edictBuilder.Add(":middle_finger::skin-tone-5:", "\U0001f595\U0001f3ff");
-            edictBuilder.Add(":military_medal:", "\U0001f396");
-            edictBuilder.Add(":milk:", "\U0001f95b");
-            edictBuilder.Add(":milky_way:", "\U0001f30c");
-            edictBuilder.Add(":minibus:", "\U0001f690");
-            edictBuilder.Add(":minidisc:", "\U0001f4bd");
-            edictBuilder.Add(":mobile_phone_off:", "\U0001f4f4");
-            edictBuilder.Add(":money_mouth:", "\U0001f911");
-            edictBuilder.Add(":money_with_wings:", "\U0001f4b8");
-            edictBuilder.Add(":moneybag:", "\U0001f4b0");
-            edictBuilder.Add(":monkey:", "\U0001f412");
-            edictBuilder.Add(":monkey_face:", "\U0001f435");
-            edictBuilder.Add(":monorail:", "\U0001f69d");
-            edictBuilder.Add(":moon:", "\U0001f314");
-            edictBuilder.Add(":mortar_board:", "\U0001f393");
-            edictBuilder.Add(":mosque:", "\U0001f54c");
-            edictBuilder.Add(":motor_scooter:", "\U0001f6f5");
-            edictBuilder.Add(":motorboat:", "\U0001f6e5");
-            edictBuilder.Add(":motorcycle:", "\U0001f3cd");
-            edictBuilder.Add(":motorway:", "\U0001f6e3");
-            edictBuilder.Add(":mount_fuji:", "\U0001f5fb");
-            edictBuilder.Add(":mountain:", "\u26f0");
-            edictBuilder.Add(":mountain_bicyclist:", "\U0001f6b5");
-            edictBuilder.Add(":mountain_bicyclist::skin-tone-1:", "\U0001f6b5\U0001f3fb");
-            edictBuilder.Add(":mountain_bicyclist::skin-tone-2:", "\U0001f6b5\U0001f3fc");
-            edictBuilder.Add(":mountain_bicyclist::skin-tone-3:", "\U0001f6b5\U0001f3fd");
-            edictBuilder.Add(":mountain_bicyclist::skin-tone-4:", "\U0001f6b5\U0001f3fe");
-            edictBuilder.Add(":mountain_bicyclist::skin-tone-5:", "\U0001f6b5\U0001f3ff");
-            edictBuilder.Add(":mountain_cableway:", "\U0001f6a0");
-            edictBuilder.Add(":mountain_railway:", "\U0001f69e");
-            edictBuilder.Add(":mountain_snow:", "\U0001f3d4");
-            edictBuilder.Add(":mouse2:", "\U0001f401");
-            edictBuilder.Add(":mouse:", "\U0001f42d");
-            edictBuilder.Add(":mouse_three_button:", "\U0001f5b1");
-            edictBuilder.Add(":movie_camera:", "\U0001f3a5");
-            edictBuilder.Add(":moyai:", "\U0001f5ff");
-            edictBuilder.Add(":mrs_claus:", "\U0001f936");
-            edictBuilder.Add(":mrs_claus::skin-tone-1:", "\U0001f936\U0001f3fb");
-            edictBuilder.Add(":mrs_claus::skin-tone-2:", "\U0001f936\U0001f3fc");
-            edictBuilder.Add(":mrs_claus::skin-tone-3:", "\U0001f936\U0001f3fd");
-            edictBuilder.Add(":mrs_claus::skin-tone-4:", "\U0001f936\U0001f3fe");
-            edictBuilder.Add(":mrs_claus::skin-tone-5:", "\U0001f936\U0001f3ff");
-            edictBuilder.Add(":muscle:", "\U0001f4aa");
-            edictBuilder.Add(":muscle::skin-tone-1:", "\U0001f4aa\U0001f3fb");
-            edictBuilder.Add(":muscle::skin-tone-2:", "\U0001f4aa\U0001f3fc");
-            edictBuilder.Add(":muscle::skin-tone-3:", "\U0001f4aa\U0001f3fd");
-            edictBuilder.Add(":muscle::skin-tone-4:", "\U0001f4aa\U0001f3fe");
-            edictBuilder.Add(":muscle::skin-tone-5:", "\U0001f4aa\U0001f3ff");
-            edictBuilder.Add(":mushroom:", "\U0001f344");
-            edictBuilder.Add(":musical_keyboard:", "\U0001f3b9");
-            edictBuilder.Add(":musical_note:", "\U0001f3b5");
-            edictBuilder.Add(":musical_score:", "\U0001f3bc");
-            edictBuilder.Add(":mute:", "\U0001f507");
-            edictBuilder.Add(":nail_care:", "\U0001f485");
-            edictBuilder.Add(":nail_care::skin-tone-1:", "\U0001f485\U0001f3fb");
-            edictBuilder.Add(":nail_care::skin-tone-2:", "\U0001f485\U0001f3fc");
-            edictBuilder.Add(":nail_care::skin-tone-3:", "\U0001f485\U0001f3fd");
-            edictBuilder.Add(":nail_care::skin-tone-4:", "\U0001f485\U0001f3fe");
-            edictBuilder.Add(":nail_care::skin-tone-5:", "\U0001f485\U0001f3ff");
-            edictBuilder.Add(":name_badge:", "\U0001f4db");
-            edictBuilder.Add(":nauseated_face:", "\U0001f922");
-            edictBuilder.Add(":necktie:", "\U0001f454");
-            edictBuilder.Add(":negative_squared_cross_mark:", "\u274e");
-            edictBuilder.Add(":nerd:", "\U0001f913");
-            edictBuilder.Add(":neutral_face:", "\U0001f610");
-            edictBuilder.Add(":new:", "\U0001f195");
-            edictBuilder.Add(":new_moon:", "\U0001f311");
-            edictBuilder.Add(":new_moon_with_face:", "\U0001f31a");
-            edictBuilder.Add(":newspaper2:", "\U0001f5de");
-            edictBuilder.Add(":newspaper:", "\U0001f4f0");
-            edictBuilder.Add(":ng:", "\U0001f196");
-            edictBuilder.Add(":night_with_stars:", "\U0001f303");
-            edictBuilder.Add(":nine:", "9\u20e3");
-            edictBuilder.Add(":no_bell:", "\U0001f515");
-            edictBuilder.Add(":no_bicycles:", "\U0001f6b3");
-            edictBuilder.Add(":no_entry:", "\u26d4");
-            edictBuilder.Add(":no_entry_sign:", "\U0001f6ab");
-            edictBuilder.Add(":no_good:", "\U0001f645");
-            edictBuilder.Add(":no_good::skin-tone-1:", "\U0001f645\U0001f3fb");
-            edictBuilder.Add(":no_good::skin-tone-2:", "\U0001f645\U0001f3fc");
-            edictBuilder.Add(":no_good::skin-tone-3:", "\U0001f645\U0001f3fd");
-            edictBuilder.Add(":no_good::skin-tone-4:", "\U0001f645\U0001f3fe");
-            edictBuilder.Add(":no_good::skin-tone-5:", "\U0001f645\U0001f3ff");
-            edictBuilder.Add(":no_mobile_phones:", "\U0001f4f5");
-            edictBuilder.Add(":no_mouth:", "\U0001f636");
-            edictBuilder.Add(":no_pedestrians:", "\U0001f6b7");
-            edictBuilder.Add(":no_smoking:", "\U0001f6ad");
-            edictBuilder.Add(":non_potable_water:", "\U0001f6b1");
-            edictBuilder.Add(":nose:", "\U0001f443");
-            edictBuilder.Add(":nose::skin-tone-1:", "\U0001f443\U0001f3fb");
-            edictBuilder.Add(":nose::skin-tone-2:", "\U0001f443\U0001f3fc");
-            edictBuilder.Add(":nose::skin-tone-3:", "\U0001f443\U0001f3fd");
-            edictBuilder.Add(":nose::skin-tone-4:", "\U0001f443\U0001f3fe");
-            edictBuilder.Add(":nose::skin-tone-5:", "\U0001f443\U0001f3ff");
-            edictBuilder.Add(":notebook:", "\U0001f4d3");
-            edictBuilder.Add(":notebook_with_decorative_cover:", "\U0001f4d4");
-            edictBuilder.Add(":notepad_spiral:", "\U0001f5d2");
-            edictBuilder.Add(":notes:", "\U0001f3b6");
-            edictBuilder.Add(":nut_and_bolt:", "\U0001f529");
-            edictBuilder.Add(":O", "\U0001f62e");
-            edictBuilder.Add(":o", "\U0001f62e");
-            edictBuilder.Add(":o2:", "\U0001f17e");
-            edictBuilder.Add(":o:", "\u2b55");
-            edictBuilder.Add(":ocean:", "\U0001f30a");
-            edictBuilder.Add(":octagonal_sign:", "\U0001f6d1");
-            edictBuilder.Add(":octopus:", "\U0001f419");
-            edictBuilder.Add(":oden:", "\U0001f362");
-            edictBuilder.Add(":office:", "\U0001f3e2");
-            edictBuilder.Add(":oil:", "\U0001f6e2");
-            edictBuilder.Add(":ok:", "\U0001f197");
-            edictBuilder.Add(":ok_hand:", "\U0001f44c");
-            edictBuilder.Add(":ok_hand::skin-tone-1:", "\U0001f44c\U0001f3fb");
-            edictBuilder.Add(":ok_hand::skin-tone-2:", "\U0001f44c\U0001f3fc");
-            edictBuilder.Add(":ok_hand::skin-tone-3:", "\U0001f44c\U0001f3fd");
-            edictBuilder.Add(":ok_hand::skin-tone-4:", "\U0001f44c\U0001f3fe");
-            edictBuilder.Add(":ok_hand::skin-tone-5:", "\U0001f44c\U0001f3ff");
-            edictBuilder.Add(":ok_woman:", "\U0001f646");
-            edictBuilder.Add(":ok_woman::skin-tone-1:", "\U0001f646\U0001f3fb");
-            edictBuilder.Add(":ok_woman::skin-tone-2:", "\U0001f646\U0001f3fc");
-            edictBuilder.Add(":ok_woman::skin-tone-3:", "\U0001f646\U0001f3fd");
-            edictBuilder.Add(":ok_woman::skin-tone-4:", "\U0001f646\U0001f3fe");
-            edictBuilder.Add(":ok_woman::skin-tone-5:", "\U0001f646\U0001f3ff");
-            edictBuilder.Add(":older_man:", "\U0001f474");
-            edictBuilder.Add(":older_man::skin-tone-1:", "\U0001f474\U0001f3fb");
-            edictBuilder.Add(":older_man::skin-tone-2:", "\U0001f474\U0001f3fc");
-            edictBuilder.Add(":older_man::skin-tone-3:", "\U0001f474\U0001f3fd");
-            edictBuilder.Add(":older_man::skin-tone-4:", "\U0001f474\U0001f3fe");
-            edictBuilder.Add(":older_man::skin-tone-5:", "\U0001f474\U0001f3ff");
-            edictBuilder.Add(":older_woman:", "\U0001f475");
-            edictBuilder.Add(":older_woman::skin-tone-1:", "\U0001f475\U0001f3fb");
-            edictBuilder.Add(":older_woman::skin-tone-2:", "\U0001f475\U0001f3fc");
-            edictBuilder.Add(":older_woman::skin-tone-3:", "\U0001f475\U0001f3fd");
-            edictBuilder.Add(":older_woman::skin-tone-4:", "\U0001f475\U0001f3fe");
-            edictBuilder.Add(":older_woman::skin-tone-5:", "\U0001f475\U0001f3ff");
-            edictBuilder.Add(":om_symbol:", "\U0001f549");
-            edictBuilder.Add(":on:", "\U0001f51b");
-            edictBuilder.Add(":oncoming_automobile:", "\U0001f698");
-            edictBuilder.Add(":oncoming_bus:", "\U0001f68d");
-            edictBuilder.Add(":oncoming_police_car:", "\U0001f694");
-            edictBuilder.Add(":oncoming_taxi:", "\U0001f696");
-            edictBuilder.Add(":one:", "1\u20e3");
-            edictBuilder.Add(":open_book:", "\U0001f4d6");
-            edictBuilder.Add(":open_file_folder:", "\U0001f4c2");
-            edictBuilder.Add(":open_hands:", "\U0001f450");
-            edictBuilder.Add(":open_hands::skin-tone-1:", "\U0001f450\U0001f3fb");
-            edictBuilder.Add(":open_hands::skin-tone-2:", "\U0001f450\U0001f3fc");
-            edictBuilder.Add(":open_hands::skin-tone-3:", "\U0001f450\U0001f3fd");
-            edictBuilder.Add(":open_hands::skin-tone-4:", "\U0001f450\U0001f3fe");
-            edictBuilder.Add(":open_hands::skin-tone-5:", "\U0001f450\U0001f3ff");
-            edictBuilder.Add(":open_mouth:", "\U0001f62e");
-            edictBuilder.Add(":ophiuchus:", "\u26ce");
-            edictBuilder.Add(":orange_book:", "\U0001f4d9");
-            edictBuilder.Add(":orthodox_cross:", "\u2626");
-            edictBuilder.Add(":outbox_tray:", "\U0001f4e4");
-            edictBuilder.Add(":owl:", "\U0001f989");
-            edictBuilder.Add(":ox:", "\U0001f402");
-            edictBuilder.Add(":P", "\U0001f61b");
-            edictBuilder.Add(":package:", "\U0001f4e6");
-            edictBuilder.Add(":page_facing_up:", "\U0001f4c4");
-            edictBuilder.Add(":page_with_curl:", "\U0001f4c3");
-            edictBuilder.Add(":pager:", "\U0001f4df");
-            edictBuilder.Add(":paintbrush:", "\U0001f58c");
-            edictBuilder.Add(":palm_tree:", "\U0001f334");
-            edictBuilder.Add(":pancakes:", "\U0001f95e");
-            edictBuilder.Add(":panda_face:", "\U0001f43c");
-            edictBuilder.Add(":paperclip:", "\U0001f4ce");
-            edictBuilder.Add(":paperclips:", "\U0001f587");
-            edictBuilder.Add(":park:", "\U0001f3de");
-            edictBuilder.Add(":parking:", "\U0001f17f");
-            edictBuilder.Add(":part_alternation_mark:", "\u303d");
-            edictBuilder.Add(":partly_sunny:", "\u26c5");
-            edictBuilder.Add(":passport_control:", "\U0001f6c2");
-            edictBuilder.Add(":pause_button:", "\u23f8");
-            edictBuilder.Add(":paw_prints:", "\U0001f43e");
-            edictBuilder.Add(":peace:", "\u262e");
-            edictBuilder.Add(":peach:", "\U0001f351");
-            edictBuilder.Add(":peanuts:", "\U0001f95c");
-            edictBuilder.Add(":pear:", "\U0001f350");
-            edictBuilder.Add(":pen_ballpoint:", "\U0001f58a");
-            edictBuilder.Add(":pen_fountain:", "\U0001f58b");
-            edictBuilder.Add(":pencil2:", "\u270f");
-            edictBuilder.Add(":pencil:", "\U0001f4dd");
-            edictBuilder.Add(":penguin:", "\U0001f427");
-            edictBuilder.Add(":pensive:", "\U0001f614");
-            edictBuilder.Add(":performing_arts:", "\U0001f3ad");
-            edictBuilder.Add(":persevere:", "\U0001f623");
-            edictBuilder.Add(":person_frowning:", "\U0001f64d");
-            edictBuilder.Add(":person_frowning::skin-tone-1:", "\U0001f64d\U0001f3fb");
-            edictBuilder.Add(":person_frowning::skin-tone-2:", "\U0001f64d\U0001f3fc");
-            edictBuilder.Add(":person_frowning::skin-tone-3:", "\U0001f64d\U0001f3fd");
-            edictBuilder.Add(":person_frowning::skin-tone-4:", "\U0001f64d\U0001f3fe");
-            edictBuilder.Add(":person_frowning::skin-tone-5:", "\U0001f64d\U0001f3ff");
-            edictBuilder.Add(":person_with_blond_hair:", "\U0001f471");
-            edictBuilder.Add(":person_with_blond_hair::skin-tone-1:", "\U0001f471\U0001f3fb");
-            edictBuilder.Add(":person_with_blond_hair::skin-tone-2:", "\U0001f471\U0001f3fc");
-            edictBuilder.Add(":person_with_blond_hair::skin-tone-3:", "\U0001f471\U0001f3fd");
-            edictBuilder.Add(":person_with_blond_hair::skin-tone-4:", "\U0001f471\U0001f3fe");
-            edictBuilder.Add(":person_with_blond_hair::skin-tone-5:", "\U0001f471\U0001f3ff");
-            edictBuilder.Add(":person_with_pouting_face:", "\U0001f64e");
-            edictBuilder.Add(":person_with_pouting_face::skin-tone-1:", "\U0001f64e\U0001f3fb");
-            edictBuilder.Add(":person_with_pouting_face::skin-tone-2:", "\U0001f64e\U0001f3fc");
-            edictBuilder.Add(":person_with_pouting_face::skin-tone-3:", "\U0001f64e\U0001f3fd");
-            edictBuilder.Add(":person_with_pouting_face::skin-tone-4:", "\U0001f64e\U0001f3fe");
-            edictBuilder.Add(":person_with_pouting_face::skin-tone-5:", "\U0001f64e\U0001f3ff");
-            edictBuilder.Add(":phone:", "\u260e");
-            edictBuilder.Add(":pick:", "\u26cf");
-            edictBuilder.Add(":pig2:", "\U0001f416");
-            edictBuilder.Add(":pig:", "\U0001f437");
-            edictBuilder.Add(":pig_nose:", "\U0001f43d");
-            edictBuilder.Add(":pill:", "\U0001f48a");
-            edictBuilder.Add(":pineapple:", "\U0001f34d");
-            edictBuilder.Add(":ping_pong:", "\U0001f3d3");
-            edictBuilder.Add(":pisces:", "\u2653");
-            edictBuilder.Add(":pizza:", "\U0001f355");
-            edictBuilder.Add(":place_of_worship:", "\U0001f6d0");
-            edictBuilder.Add(":play_pause:", "\u23ef");
-            edictBuilder.Add(":point_down:", "\U0001f447");
-            edictBuilder.Add(":point_down::skin-tone-1:", "\U0001f447\U0001f3fb");
-            edictBuilder.Add(":point_down::skin-tone-2:", "\U0001f447\U0001f3fc");
-            edictBuilder.Add(":point_down::skin-tone-3:", "\U0001f447\U0001f3fd");
-            edictBuilder.Add(":point_down::skin-tone-4:", "\U0001f447\U0001f3fe");
-            edictBuilder.Add(":point_down::skin-tone-5:", "\U0001f447\U0001f3ff");
-            edictBuilder.Add(":point_left:", "\U0001f448");
-            edictBuilder.Add(":point_left::skin-tone-1:", "\U0001f448\U0001f3fb");
-            edictBuilder.Add(":point_left::skin-tone-2:", "\U0001f448\U0001f3fc");
-            edictBuilder.Add(":point_left::skin-tone-3:", "\U0001f448\U0001f3fd");
-            edictBuilder.Add(":point_left::skin-tone-4:", "\U0001f448\U0001f3fe");
-            edictBuilder.Add(":point_left::skin-tone-5:", "\U0001f448\U0001f3ff");
-            edictBuilder.Add(":point_right:", "\U0001f449");
-            edictBuilder.Add(":point_right::skin-tone-1:", "\U0001f449\U0001f3fb");
-            edictBuilder.Add(":point_right::skin-tone-2:", "\U0001f449\U0001f3fc");
-            edictBuilder.Add(":point_right::skin-tone-3:", "\U0001f449\U0001f3fd");
-            edictBuilder.Add(":point_right::skin-tone-4:", "\U0001f449\U0001f3fe");
-            edictBuilder.Add(":point_right::skin-tone-5:", "\U0001f449\U0001f3ff");
-            edictBuilder.Add(":point_up:", "\u261d");
-            edictBuilder.Add(":point_up::skin-tone-1:", "\u261d\U0001f3fb");
-            edictBuilder.Add(":point_up::skin-tone-2:", "\u261d\U0001f3fc");
-            edictBuilder.Add(":point_up::skin-tone-3:", "\u261d\U0001f3fd");
-            edictBuilder.Add(":point_up::skin-tone-4:", "\u261d\U0001f3fe");
-            edictBuilder.Add(":point_up::skin-tone-5:", "\u261d\U0001f3ff");
-            edictBuilder.Add(":point_up_2:", "\U0001f446");
-            edictBuilder.Add(":point_up_2::skin-tone-1:", "\U0001f446\U0001f3fb");
-            edictBuilder.Add(":point_up_2::skin-tone-2:", "\U0001f446\U0001f3fc");
-            edictBuilder.Add(":point_up_2::skin-tone-3:", "\U0001f446\U0001f3fd");
-            edictBuilder.Add(":point_up_2::skin-tone-4:", "\U0001f446\U0001f3fe");
-            edictBuilder.Add(":point_up_2::skin-tone-5:", "\U0001f446\U0001f3ff");
-            edictBuilder.Add(":police_car:", "\U0001f693");
-            edictBuilder.Add(":poodle:", "\U0001f429");
-            edictBuilder.Add(":poop:", "\U0001f4a9");
-            edictBuilder.Add(":popcorn:", "\U0001f37f");
-            edictBuilder.Add(":post_office:", "\U0001f3e3");
-            edictBuilder.Add(":postal_horn:", "\U0001f4ef");
-            edictBuilder.Add(":postbox:", "\U0001f4ee");
-            edictBuilder.Add(":potable_water:", "\U0001f6b0");
-            edictBuilder.Add(":potato:", "\U0001f954");
-            edictBuilder.Add(":pouch:", "\U0001f45d");
-            edictBuilder.Add(":poultry_leg:", "\U0001f357");
-            edictBuilder.Add(":pound:", "\U0001f4b7");
-            edictBuilder.Add(":pouting_cat:", "\U0001f63e");
-            edictBuilder.Add(":pray:", "\U0001f64f");
-            edictBuilder.Add(":pray::skin-tone-1:", "\U0001f64f\U0001f3fb");
-            edictBuilder.Add(":pray::skin-tone-2:", "\U0001f64f\U0001f3fc");
-            edictBuilder.Add(":pray::skin-tone-3:", "\U0001f64f\U0001f3fd");
-            edictBuilder.Add(":pray::skin-tone-4:", "\U0001f64f\U0001f3fe");
-            edictBuilder.Add(":pray::skin-tone-5:", "\U0001f64f\U0001f3ff");
-            edictBuilder.Add(":prayer_beads:", "\U0001f4ff");
-            edictBuilder.Add(":pregnant_woman:", "\U0001f930");
-            edictBuilder.Add(":pregnant_woman::skin-tone-1:", "\U0001f930\U0001f3fb");
-            edictBuilder.Add(":pregnant_woman::skin-tone-2:", "\U0001f930\U0001f3fc");
-            edictBuilder.Add(":pregnant_woman::skin-tone-3:", "\U0001f930\U0001f3fd");
-            edictBuilder.Add(":pregnant_woman::skin-tone-4:", "\U0001f930\U0001f3fe");
-            edictBuilder.Add(":pregnant_woman::skin-tone-5:", "\U0001f930\U0001f3ff");
-            edictBuilder.Add(":prince:", "\U0001f934");
-            edictBuilder.Add(":prince::skin-tone-1:", "\U0001f934\U0001f3fb");
-            edictBuilder.Add(":prince::skin-tone-2:", "\U0001f934\U0001f3fc");
-            edictBuilder.Add(":prince::skin-tone-3:", "\U0001f934\U0001f3fd");
-            edictBuilder.Add(":prince::skin-tone-4:", "\U0001f934\U0001f3fe");
-            edictBuilder.Add(":prince::skin-tone-5:", "\U0001f934\U0001f3ff");
-            edictBuilder.Add(":princess:", "\U0001f478");
-            edictBuilder.Add(":princess::skin-tone-1:", "\U0001f478\U0001f3fb");
-            edictBuilder.Add(":princess::skin-tone-2:", "\U0001f478\U0001f3fc");
-            edictBuilder.Add(":princess::skin-tone-3:", "\U0001f478\U0001f3fd");
-            edictBuilder.Add(":princess::skin-tone-4:", "\U0001f478\U0001f3fe");
-            edictBuilder.Add(":princess::skin-tone-5:", "\U0001f478\U0001f3ff");
-            edictBuilder.Add(":printer:", "\U0001f5a8");
-            edictBuilder.Add(":projector:", "\U0001f4fd");
-            edictBuilder.Add(":punch:", "\U0001f44a");
-            edictBuilder.Add(":punch::skin-tone-1:", "\U0001f44a\U0001f3fb");
-            edictBuilder.Add(":punch::skin-tone-2:", "\U0001f44a\U0001f3fc");
-            edictBuilder.Add(":punch::skin-tone-3:", "\U0001f44a\U0001f3fd");
-            edictBuilder.Add(":punch::skin-tone-4:", "\U0001f44a\U0001f3fe");
-            edictBuilder.Add(":punch::skin-tone-5:", "\U0001f44a\U0001f3ff");
-            edictBuilder.Add(":purple_heart:", "\U0001f49c");
-            edictBuilder.Add(":purse:", "\U0001f45b");
-            edictBuilder.Add(":pushpin:", "\U0001f4cc");
-            edictBuilder.Add(":put_litter_in_its_place:", "\U0001f6ae");
-            edictBuilder.Add(":question:", "\u2753");
-            edictBuilder.Add(":rabbit2:", "\U0001f407");
-            edictBuilder.Add(":rabbit:", "\U0001f430");
-            edictBuilder.Add(":race_car:", "\U0001f3ce");
-            edictBuilder.Add(":racehorse:", "\U0001f40e");
-            edictBuilder.Add(":radio:", "\U0001f4fb");
-            edictBuilder.Add(":radio_button:", "\U0001f518");
-            edictBuilder.Add(":radioactive:", "\u2622");
-            edictBuilder.Add(":rage:", "\U0001f621");
-            edictBuilder.Add(":railway_car:", "\U0001f683");
-            edictBuilder.Add(":railway_track:", "\U0001f6e4");
-            edictBuilder.Add(":rainbow:", "\U0001f308");
-            edictBuilder.Add(":raised_back_of_hand:", "\U0001f91a");
-            edictBuilder.Add(":raised_back_of_hand::skin-tone-1:", "\U0001f91a\U0001f3fb");
-            edictBuilder.Add(":raised_back_of_hand::skin-tone-2:", "\U0001f91a\U0001f3fc");
-            edictBuilder.Add(":raised_back_of_hand::skin-tone-3:", "\U0001f91a\U0001f3fd");
-            edictBuilder.Add(":raised_back_of_hand::skin-tone-4:", "\U0001f91a\U0001f3fe");
-            edictBuilder.Add(":raised_back_of_hand::skin-tone-5:", "\U0001f91a\U0001f3ff");
-            edictBuilder.Add(":raised_hand:", "\u270b");
-            edictBuilder.Add(":raised_hand::skin-tone-1:", "\u270b\U0001f3fb");
-            edictBuilder.Add(":raised_hand::skin-tone-2:", "\u270b\U0001f3fc");
-            edictBuilder.Add(":raised_hand::skin-tone-3:", "\u270b\U0001f3fd");
-            edictBuilder.Add(":raised_hand::skin-tone-4:", "\u270b\U0001f3fe");
-            edictBuilder.Add(":raised_hand::skin-tone-5:", "\u270b\U0001f3ff");
-            edictBuilder.Add(":raised_hands:", "\U0001f64c");
-            edictBuilder.Add(":raised_hands::skin-tone-1:", "\U0001f64c\U0001f3fb");
-            edictBuilder.Add(":raised_hands::skin-tone-2:", "\U0001f64c\U0001f3fc");
-            edictBuilder.Add(":raised_hands::skin-tone-3:", "\U0001f64c\U0001f3fd");
-            edictBuilder.Add(":raised_hands::skin-tone-4:", "\U0001f64c\U0001f3fe");
-            edictBuilder.Add(":raised_hands::skin-tone-5:", "\U0001f64c\U0001f3ff");
-            edictBuilder.Add(":raising_hand:", "\U0001f64b");
-            edictBuilder.Add(":raising_hand::skin-tone-1:", "\U0001f64b\U0001f3fb");
-            edictBuilder.Add(":raising_hand::skin-tone-2:", "\U0001f64b\U0001f3fc");
-            edictBuilder.Add(":raising_hand::skin-tone-3:", "\U0001f64b\U0001f3fd");
-            edictBuilder.Add(":raising_hand::skin-tone-4:", "\U0001f64b\U0001f3fe");
-            edictBuilder.Add(":raising_hand::skin-tone-5:", "\U0001f64b\U0001f3ff");
-            edictBuilder.Add(":ram:", "\U0001f40f");
-            edictBuilder.Add(":ramen:", "\U0001f35c");
-            edictBuilder.Add(":rat:", "\U0001f400");
-            edictBuilder.Add(":record_button:", "\u23fa");
-            edictBuilder.Add(":recycle:", "\u267b");
-            edictBuilder.Add(":red_car:", "\U0001f697");
-            edictBuilder.Add(":red_circle:", "\U0001f534");
-            edictBuilder.Add(":regional_indicator_a:", "\U0001f1e6");
-            edictBuilder.Add(":regional_indicator_b:", "\U0001f1e7");
-            edictBuilder.Add(":regional_indicator_c:", "\U0001f1e8");
-            edictBuilder.Add(":regional_indicator_d:", "\U0001f1e9");
-            edictBuilder.Add(":regional_indicator_e:", "\U0001f1ea");
-            edictBuilder.Add(":regional_indicator_f:", "\U0001f1eb");
-            edictBuilder.Add(":regional_indicator_g:", "\U0001f1ec");
-            edictBuilder.Add(":regional_indicator_h:", "\U0001f1ed");
-            edictBuilder.Add(":regional_indicator_i:", "\U0001f1ee");
-            edictBuilder.Add(":regional_indicator_j:", "\U0001f1ef");
-            edictBuilder.Add(":regional_indicator_k:", "\U0001f1f0");
-            edictBuilder.Add(":regional_indicator_l:", "\U0001f1f1");
-            edictBuilder.Add(":regional_indicator_m:", "\U0001f1f2");
-            edictBuilder.Add(":regional_indicator_n:", "\U0001f1f3");
-            edictBuilder.Add(":regional_indicator_o:", "\U0001f1f4");
-            edictBuilder.Add(":regional_indicator_p:", "\U0001f1f5");
-            edictBuilder.Add(":regional_indicator_q:", "\U0001f1f6");
-            edictBuilder.Add(":regional_indicator_r:", "\U0001f1f7");
-            edictBuilder.Add(":regional_indicator_s:", "\U0001f1f8");
-            edictBuilder.Add(":regional_indicator_t:", "\U0001f1f9");
-            edictBuilder.Add(":regional_indicator_u:", "\U0001f1fa");
-            edictBuilder.Add(":regional_indicator_v:", "\U0001f1fb");
-            edictBuilder.Add(":regional_indicator_w:", "\U0001f1fc");
-            edictBuilder.Add(":regional_indicator_x:", "\U0001f1fd");
-            edictBuilder.Add(":regional_indicator_y:", "\U0001f1fe");
-            edictBuilder.Add(":regional_indicator_z:", "\U0001f1ff");
-            edictBuilder.Add(":registered:", "\u00ae");
-            edictBuilder.Add(":relaxed:", "\u263a");
-            edictBuilder.Add(":relieved:", "\U0001f60c");
-            edictBuilder.Add(":reminder_ribbon:", "\U0001f397");
-            edictBuilder.Add(":repeat:", "\U0001f501");
-            edictBuilder.Add(":repeat_one:", "\U0001f502");
-            edictBuilder.Add(":restroom:", "\U0001f6bb");
-            edictBuilder.Add(":revolving_hearts:", "\U0001f49e");
-            edictBuilder.Add(":rewind:", "\u23ea");
-            edictBuilder.Add(":rhino:", "\U0001f98f");
-            edictBuilder.Add(":ribbon:", "\U0001f380");
-            edictBuilder.Add(":rice:", "\U0001f35a");
-            edictBuilder.Add(":rice_ball:", "\U0001f359");
-            edictBuilder.Add(":rice_cracker:", "\U0001f358");
-            edictBuilder.Add(":rice_scene:", "\U0001f391");
-            edictBuilder.Add(":right_facing_fist:", "\U0001f91c");
-            edictBuilder.Add(":right_facing_fist::skin-tone-1:", "\U0001f91c\U0001f3fb");
-            edictBuilder.Add(":right_facing_fist::skin-tone-2:", "\U0001f91c\U0001f3fc");
-            edictBuilder.Add(":right_facing_fist::skin-tone-3:", "\U0001f91c\U0001f3fd");
-            edictBuilder.Add(":right_facing_fist::skin-tone-4:", "\U0001f91c\U0001f3fe");
-            edictBuilder.Add(":right_facing_fist::skin-tone-5:", "\U0001f91c\U0001f3ff");
-            edictBuilder.Add(":ring:", "\U0001f48d");
-            edictBuilder.Add(":robot:", "\U0001f916");
-            edictBuilder.Add(":rocket:", "\U0001f680");
-            edictBuilder.Add(":rofl:", "\U0001f923");
-            edictBuilder.Add(":roller_coaster:", "\U0001f3a2");
-            edictBuilder.Add(":rolling_eyes:", "\U0001f644");
-            edictBuilder.Add(":rooster:", "\U0001f413");
-            edictBuilder.Add(":rose:", "\U0001f339");
-            edictBuilder.Add(":rosette:", "\U0001f3f5");
-            edictBuilder.Add(":rotating_light:", "\U0001f6a8");
-            edictBuilder.Add(":round_pushpin:", "\U0001f4cd");
-            edictBuilder.Add(":rowboat:", "\U0001f6a3");
-            edictBuilder.Add(":rowboat::skin-tone-1:", "\U0001f6a3\U0001f3fb");
-            edictBuilder.Add(":rowboat::skin-tone-2:", "\U0001f6a3\U0001f3fc");
-            edictBuilder.Add(":rowboat::skin-tone-3:", "\U0001f6a3\U0001f3fd");
-            edictBuilder.Add(":rowboat::skin-tone-4:", "\U0001f6a3\U0001f3fe");
-            edictBuilder.Add(":rowboat::skin-tone-5:", "\U0001f6a3\U0001f3ff");
-            edictBuilder.Add(":rugby_football:", "\U0001f3c9");
-            edictBuilder.Add(":runner:", "\U0001f3c3");
-            edictBuilder.Add(":runner::skin-tone-1:", "\U0001f3c3\U0001f3fb");
-            edictBuilder.Add(":runner::skin-tone-2:", "\U0001f3c3\U0001f3fc");
-            edictBuilder.Add(":runner::skin-tone-3:", "\U0001f3c3\U0001f3fd");
-            edictBuilder.Add(":runner::skin-tone-4:", "\U0001f3c3\U0001f3fe");
-            edictBuilder.Add(":runner::skin-tone-5:", "\U0001f3c3\U0001f3ff");
-            edictBuilder.Add(":running:", "\U0001f3c3");
-            edictBuilder.Add(":running::skin-tone-1:", "\U0001f3c3\U0001f3fb");
-            edictBuilder.Add(":running::skin-tone-2:", "\U0001f3c3\U0001f3fc");
-            edictBuilder.Add(":running::skin-tone-3:", "\U0001f3c3\U0001f3fd");
-            edictBuilder.Add(":running::skin-tone-4:", "\U0001f3c3\U0001f3fe");
-            edictBuilder.Add(":running::skin-tone-5:", "\U0001f3c3\U0001f3ff");
-            edictBuilder.Add(":running_shirt_with_sash:", "\U0001f3bd");
-            edictBuilder.Add(":s", "\U0001f612");
-            edictBuilder.Add(":sa:", "\U0001f202");
-            edictBuilder.Add(":sagittarius:", "\u2650");
-            edictBuilder.Add(":sailboat:", "\u26f5");
-            edictBuilder.Add(":sake:", "\U0001f376");
-            edictBuilder.Add(":salad:", "\U0001f957");
-            edictBuilder.Add(":sandal:", "\U0001f461");
-            edictBuilder.Add(":santa:", "\U0001f385");
-            edictBuilder.Add(":santa::skin-tone-1:", "\U0001f385\U0001f3fb");
-            edictBuilder.Add(":santa::skin-tone-2:", "\U0001f385\U0001f3fc");
-            edictBuilder.Add(":santa::skin-tone-3:", "\U0001f385\U0001f3fd");
-            edictBuilder.Add(":santa::skin-tone-4:", "\U0001f385\U0001f3fe");
-            edictBuilder.Add(":santa::skin-tone-5:", "\U0001f385\U0001f3ff");
-            edictBuilder.Add(":satellite:", "\U0001f4e1");
-            edictBuilder.Add(":satellite_orbital:", "\U0001f6f0");
-            edictBuilder.Add(":satisfied:", "\U0001f606");
-            edictBuilder.Add(":saxophone:", "\U0001f3b7");
-            edictBuilder.Add(":scales:", "\u2696");
-            edictBuilder.Add(":school:", "\U0001f3eb");
-            edictBuilder.Add(":school_satchel:", "\U0001f392");
-            edictBuilder.Add(":scissors:", "\u2702");
-            edictBuilder.Add(":scooter:", "\U0001f6f4");
-            edictBuilder.Add(":scorpion:", "\U0001f982");
-            edictBuilder.Add(":scorpius:", "\u264f");
-            edictBuilder.Add(":scream:", "\U0001f631");
-            edictBuilder.Add(":scream_cat:", "\U0001f640");
-            edictBuilder.Add(":scroll:", "\U0001f4dc");
-            edictBuilder.Add(":seat:", "\U0001f4ba");
-            edictBuilder.Add(":second_place:", "\U0001f948");
-            edictBuilder.Add(":secret:", "\u3299");
-            edictBuilder.Add(":see_no_evil:", "\U0001f648");
-            edictBuilder.Add(":seedling:", "\U0001f331");
-            edictBuilder.Add(":selfie:", "\U0001f933");
-            edictBuilder.Add(":selfie::skin-tone-1:", "\U0001f933\U0001f3fb");
-            edictBuilder.Add(":selfie::skin-tone-2:", "\U0001f933\U0001f3fc");
-            edictBuilder.Add(":selfie::skin-tone-3:", "\U0001f933\U0001f3fd");
-            edictBuilder.Add(":selfie::skin-tone-4:", "\U0001f933\U0001f3fe");
-            edictBuilder.Add(":selfie::skin-tone-5:", "\U0001f933\U0001f3ff");
-            edictBuilder.Add(":seven:", "7\u20e3");
-            edictBuilder.Add(":shallow_pan_of_food:", "\U0001f958");
-            edictBuilder.Add(":shamrock:", "\u2618");
-            edictBuilder.Add(":shark:", "\U0001f988");
-            edictBuilder.Add(":shaved_ice:", "\U0001f367");
-            edictBuilder.Add(":sheep:", "\U0001f411");
-            edictBuilder.Add(":shell:", "\U0001f41a");
-            edictBuilder.Add(":shield:", "\U0001f6e1");
-            edictBuilder.Add(":shinto_shrine:", "\u26e9");
-            edictBuilder.Add(":ship:", "\U0001f6a2");
-            edictBuilder.Add(":shirt:", "\U0001f455");
-            edictBuilder.Add(":shit:", "\U0001f4a9");
-            edictBuilder.Add(":shoe:", "\U0001f45e");
-            edictBuilder.Add(":shopping_bags:", "\U0001f6cd");
-            edictBuilder.Add(":shopping_cart:", "\U0001f6d2");
-            edictBuilder.Add(":shower:", "\U0001f6bf");
-            edictBuilder.Add(":shrimp:", "\U0001f990");
-            edictBuilder.Add(":shrug:", "\U0001f937");
-            edictBuilder.Add(":shrug::skin-tone-1:", "\U0001f937\U0001f3fb");
-            edictBuilder.Add(":shrug::skin-tone-2:", "\U0001f937\U0001f3fc");
-            edictBuilder.Add(":shrug::skin-tone-3:", "\U0001f937\U0001f3fd");
-            edictBuilder.Add(":shrug::skin-tone-4:", "\U0001f937\U0001f3fe");
-            edictBuilder.Add(":shrug::skin-tone-5:", "\U0001f937\U0001f3ff");
-            edictBuilder.Add(":signal_strength:", "\U0001f4f6");
-            edictBuilder.Add(":six:", "6\u20e3");
-            edictBuilder.Add(":six_pointed_star:", "\U0001f52f");
-            edictBuilder.Add(":ski:", "\U0001f3bf");
-            edictBuilder.Add(":skier:", "\u26f7");
-            edictBuilder.Add(":skull:", "\U0001f480");
-            edictBuilder.Add(":skull_crossbones:", "\u2620");
-            edictBuilder.Add(":sleeping:", "\U0001f634");
-            edictBuilder.Add(":sleeping_accommodation:", "\U0001f6cc");
-            edictBuilder.Add(":sleeping_accommodation::skin-tone-1:", "\U0001f6cc\U0001f3fb");
-            edictBuilder.Add(":sleeping_accommodation::skin-tone-2:", "\U0001f6cc\U0001f3fc");
-            edictBuilder.Add(":sleeping_accommodation::skin-tone-3:", "\U0001f6cc\U0001f3fd");
-            edictBuilder.Add(":sleeping_accommodation::skin-tone-4:", "\U0001f6cc\U0001f3fe");
-            edictBuilder.Add(":sleeping_accommodation::skin-tone-5:", "\U0001f6cc\U0001f3ff");
-            edictBuilder.Add(":sleepy:", "\U0001f62a");
-            edictBuilder.Add(":slight_frown:", "\U0001f641");
-            edictBuilder.Add(":slight_smile:", "\U0001f642");
-            edictBuilder.Add(":slot_machine:", "\U0001f3b0");
-            edictBuilder.Add(":small_blue_diamond:", "\U0001f539");
-            edictBuilder.Add(":small_orange_diamond:", "\U0001f538");
-            edictBuilder.Add(":small_red_triangle:", "\U0001f53a");
-            edictBuilder.Add(":small_red_triangle_down:", "\U0001f53b");
-            edictBuilder.Add(":smile:", "\U0001f604");
-            edictBuilder.Add(":smile_cat:", "\U0001f638");
-            edictBuilder.Add(":smiley:", "\U0001f603");
-            edictBuilder.Add(":smiley_cat:", "\U0001f63a");
-            edictBuilder.Add(":smiling_imp:", "\U0001f608");
-            edictBuilder.Add(":smirk:", "\U0001f60f");
-            edictBuilder.Add(":smirk_cat:", "\U0001f63c");
-            edictBuilder.Add(":smoking:", "\U0001f6ac");
-            edictBuilder.Add(":snail:", "\U0001f40c");
-            edictBuilder.Add(":snake:", "\U0001f40d");
-            edictBuilder.Add(":sneezing_face:", "\U0001f927");
-            edictBuilder.Add(":snowboarder:", "\U0001f3c2");
-            edictBuilder.Add(":snowboarder::skin-tone-1:", "\U0001f3c2\U0001f3fb");
-            edictBuilder.Add(":snowboarder::skin-tone-2:", "\U0001f3c2\U0001f3fc");
-            edictBuilder.Add(":snowboarder::skin-tone-3:", "\U0001f3c2\U0001f3fd");
-            edictBuilder.Add(":snowboarder::skin-tone-4:", "\U0001f3c2\U0001f3fe");
-            edictBuilder.Add(":snowboarder::skin-tone-5:", "\U0001f3c2\U0001f3ff");
-            edictBuilder.Add(":snowflake:", "\u2744");
-            edictBuilder.Add(":snowman2:", "\u2603");
-            edictBuilder.Add(":snowman:", "\u26c4");
-            edictBuilder.Add(":sob:", "\U0001f62d");
-            edictBuilder.Add(":soccer:", "\u26bd");
-            edictBuilder.Add(":soon:", "\U0001f51c");
-            edictBuilder.Add(":sos:", "\U0001f198");
-            edictBuilder.Add(":sound:", "\U0001f509");
-            edictBuilder.Add(":space_invader:", "\U0001f47e");
-            edictBuilder.Add(":spades:", "\u2660");
-            edictBuilder.Add(":spaghetti:", "\U0001f35d");
-            edictBuilder.Add(":sparkle:", "\u2747");
-            edictBuilder.Add(":sparkler:", "\U0001f387");
-            edictBuilder.Add(":sparkles:", "\u2728");
-            edictBuilder.Add(":sparkling_heart:", "\U0001f496");
-            edictBuilder.Add(":speak_no_evil:", "\U0001f64a");
-            edictBuilder.Add(":speaker:", "\U0001f508");
-            edictBuilder.Add(":speaking_head:", "\U0001f5e3");
-            edictBuilder.Add(":speech_balloon:", "\U0001f4ac");
-            edictBuilder.Add(":speech_left:", "\U0001f5e8");
-            edictBuilder.Add(":speedboat:", "\U0001f6a4");
-            edictBuilder.Add(":spider:", "\U0001f577");
-            edictBuilder.Add(":spider_web:", "\U0001f578");
-            edictBuilder.Add(":spoon:", "\U0001f944");
-            edictBuilder.Add(":spy:", "\U0001f575");
-            edictBuilder.Add(":spy::skin-tone-1:", "\U0001f575\U0001f3fb");
-            edictBuilder.Add(":spy::skin-tone-2:", "\U0001f575\U0001f3fc");
-            edictBuilder.Add(":spy::skin-tone-3:", "\U0001f575\U0001f3fd");
-            edictBuilder.Add(":spy::skin-tone-4:", "\U0001f575\U0001f3fe");
-            edictBuilder.Add(":spy::skin-tone-5:", "\U0001f575\U0001f3ff");
-            edictBuilder.Add(":squid:", "\U0001f991");
-            edictBuilder.Add(":stadium:", "\U0001f3df");
-            edictBuilder.Add(":star2:", "\U0001f31f");
-            edictBuilder.Add(":star:", "\u2b50");
-            edictBuilder.Add(":star_and_crescent:", "\u262a");
-            edictBuilder.Add(":star_of_david:", "\u2721");
-            edictBuilder.Add(":stars:", "\U0001f320");
-            edictBuilder.Add(":station:", "\U0001f689");
-            edictBuilder.Add(":statue_of_liberty:", "\U0001f5fd");
-            edictBuilder.Add(":steam_locomotive:", "\U0001f682");
-            edictBuilder.Add(":stew:", "\U0001f372");
-            edictBuilder.Add(":stop_button:", "\u23f9");
-            edictBuilder.Add(":stopwatch:", "\u23f1");
-            edictBuilder.Add(":straight_ruler:", "\U0001f4cf");
-            edictBuilder.Add(":strawberry:", "\U0001f353");
-            edictBuilder.Add(":stuck_out_tongue:", "\U0001f61b");
-            edictBuilder.Add(":stuck_out_tongue_closed_eyes:", "\U0001f61d");
-            edictBuilder.Add(":stuck_out_tongue_winking_eye:", "\U0001f61c");
-            edictBuilder.Add(":stuffed_flatbread:", "\U0001f959");
-            edictBuilder.Add(":sun_with_face:", "\U0001f31e");
-            edictBuilder.Add(":sunflower:", "\U0001f33b");
-            edictBuilder.Add(":sunglasses:", "\U0001f60e");
-            edictBuilder.Add(":sunny:", "\u2600");
-            edictBuilder.Add(":sunrise:", "\U0001f305");
-            edictBuilder.Add(":sunrise_over_mountains:", "\U0001f304");
-            edictBuilder.Add(":surfer:", "\U0001f3c4");
-            edictBuilder.Add(":surfer::skin-tone-1:", "\U0001f3c4\U0001f3fb");
-            edictBuilder.Add(":surfer::skin-tone-2:", "\U0001f3c4\U0001f3fc");
-            edictBuilder.Add(":surfer::skin-tone-3:", "\U0001f3c4\U0001f3fd");
-            edictBuilder.Add(":surfer::skin-tone-4:", "\U0001f3c4\U0001f3fe");
-            edictBuilder.Add(":surfer::skin-tone-5:", "\U0001f3c4\U0001f3ff");
-            edictBuilder.Add(":sushi:", "\U0001f363");
-            edictBuilder.Add(":suspension_railway:", "\U0001f69f");
-            edictBuilder.Add(":sweat:", "\U0001f613");
-            edictBuilder.Add(":sweat_drops:", "\U0001f4a6");
-            edictBuilder.Add(":sweat_smile:", "\U0001f605");
-            edictBuilder.Add(":sweet_potato:", "\U0001f360");
-            edictBuilder.Add(":swimmer:", "\U0001f3ca");
-            edictBuilder.Add(":swimmer::skin-tone-1:", "\U0001f3ca\U0001f3fb");
-            edictBuilder.Add(":swimmer::skin-tone-2:", "\U0001f3ca\U0001f3fc");
-            edictBuilder.Add(":swimmer::skin-tone-3:", "\U0001f3ca\U0001f3fd");
-            edictBuilder.Add(":swimmer::skin-tone-4:", "\U0001f3ca\U0001f3fe");
-            edictBuilder.Add(":swimmer::skin-tone-5:", "\U0001f3ca\U0001f3ff");
-            edictBuilder.Add(":symbols:", "\U0001f523");
-            edictBuilder.Add(":synagogue:", "\U0001f54d");
-            edictBuilder.Add(":syringe:", "\U0001f489");
-            edictBuilder.Add(":taco:", "\U0001f32e");
-            edictBuilder.Add(":tada:", "\U0001f389");
-            edictBuilder.Add(":tanabata_tree:", "\U0001f38b");
-            edictBuilder.Add(":tangerine:", "\U0001f34a");
-            edictBuilder.Add(":taurus:", "\u2649");
-            edictBuilder.Add(":taxi:", "\U0001f695");
-            edictBuilder.Add(":tea:", "\U0001f375");
-            edictBuilder.Add(":telephone:", "\u260e");
-            edictBuilder.Add(":telephone_receiver:", "\U0001f4de");
-            edictBuilder.Add(":telescope:", "\U0001f52d");
-            edictBuilder.Add(":ten:", "\U0001f51f");
-            edictBuilder.Add(":tennis:", "\U0001f3be");
-            edictBuilder.Add(":tent:", "\u26fa");
-            edictBuilder.Add(":thermometer:", "\U0001f321");
-            edictBuilder.Add(":thermometer_face:", "\U0001f912");
-            edictBuilder.Add(":thinking:", "\U0001f914");
-            edictBuilder.Add(":third_place:", "\U0001f949");
-            edictBuilder.Add(":thought_balloon:", "\U0001f4ad");
-            edictBuilder.Add(":three:", "3\u20e3");
-            edictBuilder.Add(":thumbsdown:", "\U0001f44e");
-            edictBuilder.Add(":thumbsdown::skin-tone-1:", "\U0001f44e\U0001f3fb");
-            edictBuilder.Add(":thumbsdown::skin-tone-2:", "\U0001f44e\U0001f3fc");
-            edictBuilder.Add(":thumbsdown::skin-tone-3:", "\U0001f44e\U0001f3fd");
-            edictBuilder.Add(":thumbsdown::skin-tone-4:", "\U0001f44e\U0001f3fe");
-            edictBuilder.Add(":thumbsdown::skin-tone-5:", "\U0001f44e\U0001f3ff");
-            edictBuilder.Add(":thumbsup:", "\U0001f44d");
-            edictBuilder.Add(":thumbsup::skin-tone-1:", "\U0001f44d\U0001f3fb");
-            edictBuilder.Add(":thumbsup::skin-tone-2:", "\U0001f44d\U0001f3fc");
-            edictBuilder.Add(":thumbsup::skin-tone-3:", "\U0001f44d\U0001f3fd");
-            edictBuilder.Add(":thumbsup::skin-tone-4:", "\U0001f44d\U0001f3fe");
-            edictBuilder.Add(":thumbsup::skin-tone-5:", "\U0001f44d\U0001f3ff");
-            edictBuilder.Add(":thunder_cloud_rain:", "\u26c8");
-            edictBuilder.Add(":ticket:", "\U0001f3ab");
-            edictBuilder.Add(":tickets:", "\U0001f39f");
-            edictBuilder.Add(":tiger2:", "\U0001f405");
-            edictBuilder.Add(":tiger:", "\U0001f42f");
-            edictBuilder.Add(":timer:", "\u23f2");
-            edictBuilder.Add(":tired_face:", "\U0001f62b");
-            edictBuilder.Add(":tm:", "\u2122");
-            edictBuilder.Add(":toilet:", "\U0001f6bd");
-            edictBuilder.Add(":tokyo_tower:", "\U0001f5fc");
-            edictBuilder.Add(":tomato:", "\U0001f345");
-            edictBuilder.Add(":tongue:", "\U0001f445");
-            edictBuilder.Add(":tools:", "\U0001f6e0");
-            edictBuilder.Add(":top:", "\U0001f51d");
-            edictBuilder.Add(":tophat:", "\U0001f3a9");
-            edictBuilder.Add(":track_next:", "\u23ed");
-            edictBuilder.Add(":track_previous:", "\u23ee");
-            edictBuilder.Add(":trackball:", "\U0001f5b2");
-            edictBuilder.Add(":tractor:", "\U0001f69c");
-            edictBuilder.Add(":traffic_light:", "\U0001f6a5");
-            edictBuilder.Add(":train2:", "\U0001f686");
-            edictBuilder.Add(":train:", "\U0001f68b");
-            edictBuilder.Add(":tram:", "\U0001f68a");
-            edictBuilder.Add(":triangular_flag_on_post:", "\U0001f6a9");
-            edictBuilder.Add(":triangular_ruler:", "\U0001f4d0");
-            edictBuilder.Add(":trident:", "\U0001f531");
-            edictBuilder.Add(":triumph:", "\U0001f624");
-            edictBuilder.Add(":trolleybus:", "\U0001f68e");
-            edictBuilder.Add(":trophy:", "\U0001f3c6");
-            edictBuilder.Add(":tropical_drink:", "\U0001f379");
-            edictBuilder.Add(":tropical_fish:", "\U0001f420");
-            edictBuilder.Add(":truck:", "\U0001f69a");
-            edictBuilder.Add(":trumpet:", "\U0001f3ba");
-            edictBuilder.Add(":tshirt:", "\U0001f455");
-            edictBuilder.Add(":tulip:", "\U0001f337");
-            edictBuilder.Add(":tumbler_glass:", "\U0001f943");
-            edictBuilder.Add(":turkey:", "\U0001f983");
-            edictBuilder.Add(":turtle:", "\U0001f422");
-            edictBuilder.Add(":tv:", "\U0001f4fa");
-            edictBuilder.Add(":twisted_rightwards_arrows:", "\U0001f500");
-            edictBuilder.Add(":two:", "2\u20e3");
-            edictBuilder.Add(":two_hearts:", "\U0001f495");
-            edictBuilder.Add(":two_men_holding_hands:", "\U0001f46c");
-            edictBuilder.Add(":two_women_holding_hands:", "\U0001f46d");
-            edictBuilder.Add(":u5272:", "\U0001f239");
-            edictBuilder.Add(":u5408:", "\U0001f234");
-            edictBuilder.Add(":u55b6:", "\U0001f23a");
-            edictBuilder.Add(":u6307:", "\U0001f22f");
-            edictBuilder.Add(":u6708:", "\U0001f237");
-            edictBuilder.Add(":u6709:", "\U0001f236");
-            edictBuilder.Add(":u6e80:", "\U0001f235");
-            edictBuilder.Add(":u7121:", "\U0001f21a");
-            edictBuilder.Add(":u7533:", "\U0001f238");
-            edictBuilder.Add(":u7981:", "\U0001f232");
-            edictBuilder.Add(":u7a7a:", "\U0001f233");
-            edictBuilder.Add(":umbrella2:", "\u2602");
-            edictBuilder.Add(":umbrella:", "\u2614");
-            edictBuilder.Add(":unamused:", "\U0001f612");
-            edictBuilder.Add(":underage:", "\U0001f51e");
-            edictBuilder.Add(":unicorn:", "\U0001f984");
-            edictBuilder.Add(":unlock:", "\U0001f513");
-            edictBuilder.Add(":up:", "\U0001f199");
-            edictBuilder.Add(":upside_down:", "\U0001f643");
-            edictBuilder.Add(":urn:", "\u26b1");
-            edictBuilder.Add(":v:", "\u270c");
-            edictBuilder.Add(":v::skin-tone-1:", "\u270c\U0001f3fb");
-            edictBuilder.Add(":v::skin-tone-2:", "\u270c\U0001f3fc");
-            edictBuilder.Add(":v::skin-tone-3:", "\u270c\U0001f3fd");
-            edictBuilder.Add(":v::skin-tone-4:", "\u270c\U0001f3fe");
-            edictBuilder.Add(":v::skin-tone-5:", "\u270c\U0001f3ff");
-            edictBuilder.Add(":vertical_traffic_light:", "\U0001f6a6");
-            edictBuilder.Add(":vhs:", "\U0001f4fc");
-            edictBuilder.Add(":vibration_mode:", "\U0001f4f3");
-            edictBuilder.Add(":video_camera:", "\U0001f4f9");
-            edictBuilder.Add(":video_game:", "\U0001f3ae");
-            edictBuilder.Add(":violin:", "\U0001f3bb");
-            edictBuilder.Add(":virgo:", "\u264d");
-            edictBuilder.Add(":volcano:", "\U0001f30b");
-            edictBuilder.Add(":volleyball:", "\U0001f3d0");
-            edictBuilder.Add(":vs:", "\U0001f19a");
-            edictBuilder.Add(":vulcan:", "\U0001f596");
-            edictBuilder.Add(":vulcan::skin-tone-1:", "\U0001f596\U0001f3fb");
-            edictBuilder.Add(":vulcan::skin-tone-2:", "\U0001f596\U0001f3fc");
-            edictBuilder.Add(":vulcan::skin-tone-3:", "\U0001f596\U0001f3fd");
-            edictBuilder.Add(":vulcan::skin-tone-4:", "\U0001f596\U0001f3fe");
-            edictBuilder.Add(":vulcan::skin-tone-5:", "\U0001f596\U0001f3ff");
-            edictBuilder.Add(":walking:", "\U0001f6b6");
-            edictBuilder.Add(":walking::skin-tone-1:", "\U0001f6b6\U0001f3fb");
-            edictBuilder.Add(":walking::skin-tone-2:", "\U0001f6b6\U0001f3fc");
-            edictBuilder.Add(":walking::skin-tone-3:", "\U0001f6b6\U0001f3fd");
-            edictBuilder.Add(":walking::skin-tone-4:", "\U0001f6b6\U0001f3fe");
-            edictBuilder.Add(":walking::skin-tone-5:", "\U0001f6b6\U0001f3ff");
-            edictBuilder.Add(":waning_crescent_moon:", "\U0001f318");
-            edictBuilder.Add(":waning_gibbous_moon:", "\U0001f316");
-            edictBuilder.Add(":warning:", "\u26a0");
-            edictBuilder.Add(":wastebasket:", "\U0001f5d1");
-            edictBuilder.Add(":watch:", "\u231a");
-            edictBuilder.Add(":water_buffalo:", "\U0001f403");
-            edictBuilder.Add(":water_polo:", "\U0001f93d");
-            edictBuilder.Add(":water_polo::skin-tone-1:", "\U0001f93d\U0001f3fb");
-            edictBuilder.Add(":water_polo::skin-tone-2:", "\U0001f93d\U0001f3fc");
-            edictBuilder.Add(":water_polo::skin-tone-3:", "\U0001f93d\U0001f3fd");
-            edictBuilder.Add(":water_polo::skin-tone-4:", "\U0001f93d\U0001f3fe");
-            edictBuilder.Add(":water_polo::skin-tone-5:", "\U0001f93d\U0001f3ff");
-            edictBuilder.Add(":watermelon:", "\U0001f349");
-            edictBuilder.Add(":wave:", "\U0001f44b");
-            edictBuilder.Add(":wave::skin-tone-1:", "\U0001f44b\U0001f3fb");
-            edictBuilder.Add(":wave::skin-tone-2:", "\U0001f44b\U0001f3fc");
-            edictBuilder.Add(":wave::skin-tone-3:", "\U0001f44b\U0001f3fd");
-            edictBuilder.Add(":wave::skin-tone-4:", "\U0001f44b\U0001f3fe");
-            edictBuilder.Add(":wave::skin-tone-5:", "\U0001f44b\U0001f3ff");
-            edictBuilder.Add(":wavy_dash:", "\u3030");
-            edictBuilder.Add(":waxing_crescent_moon:", "\U0001f312");
-            edictBuilder.Add(":waxing_gibbous_moon:", "\U0001f314");
-            edictBuilder.Add(":wc:", "\U0001f6be");
-            edictBuilder.Add(":weary:", "\U0001f629");
-            edictBuilder.Add(":wedding:", "\U0001f492");
-            edictBuilder.Add(":whale2:", "\U0001f40b");
-            edictBuilder.Add(":whale:", "\U0001f433");
-            edictBuilder.Add(":wheel_of_dharma:", "\u2638");
-            edictBuilder.Add(":wheelchair:", "\u267f");
-            edictBuilder.Add(":white_check_mark:", "\u2705");
-            edictBuilder.Add(":white_circle:", "\u26aa");
-            edictBuilder.Add(":white_flower:", "\U0001f4ae");
-            edictBuilder.Add(":white_large_square:", "\u2b1c");
-            edictBuilder.Add(":white_medium_small_square:", "\u25fd");
-            edictBuilder.Add(":white_medium_square:", "\u25fb");
-            edictBuilder.Add(":white_small_square:", "\u25ab");
-            edictBuilder.Add(":white_square_button:", "\U0001f533");
-            edictBuilder.Add(":white_sun_cloud:", "\U0001f325");
-            edictBuilder.Add(":white_sun_rain_cloud:", "\U0001f326");
-            edictBuilder.Add(":white_sun_small_cloud:", "\U0001f324");
-            edictBuilder.Add(":wilted_rose:", "\U0001f940");
-            edictBuilder.Add(":wind_blowing_face:", "\U0001f32c");
-            edictBuilder.Add(":wind_chime:", "\U0001f390");
-            edictBuilder.Add(":wine_glass:", "\U0001f377");
-            edictBuilder.Add(":wink:", "\U0001f609");
-            edictBuilder.Add(":wolf:", "\U0001f43a");
-            edictBuilder.Add(":woman:", "\U0001f469");
-            edictBuilder.Add(":woman::skin-tone-1:", "\U0001f469\U0001f3fb");
-            edictBuilder.Add(":woman::skin-tone-2:", "\U0001f469\U0001f3fc");
-            edictBuilder.Add(":woman::skin-tone-3:", "\U0001f469\U0001f3fd");
-            edictBuilder.Add(":woman::skin-tone-4:", "\U0001f469\U0001f3fe");
-            edictBuilder.Add(":woman::skin-tone-5:", "\U0001f469\U0001f3ff");
-            edictBuilder.Add(":womans_clothes:", "\U0001f45a");
-            edictBuilder.Add(":womans_hat:", "\U0001f452");
-            edictBuilder.Add(":womens:", "\U0001f6ba");
-            edictBuilder.Add(":worried:", "\U0001f61f");
-            edictBuilder.Add(":wrench:", "\U0001f527");
-            edictBuilder.Add(":wrestlers:", "\U0001f93c");
-            edictBuilder.Add(":writing_hand:", "\u270d");
-            edictBuilder.Add(":writing_hand::skin-tone-1:", "\u270d\U0001f3fb");
-            edictBuilder.Add(":writing_hand::skin-tone-2:", "\u270d\U0001f3fc");
-            edictBuilder.Add(":writing_hand::skin-tone-3:", "\u270d\U0001f3fd");
-            edictBuilder.Add(":writing_hand::skin-tone-4:", "\u270d\U0001f3fe");
-            edictBuilder.Add(":writing_hand::skin-tone-5:", "\u270d\U0001f3ff");
-            edictBuilder.Add(":x:", "\u274c");
-            edictBuilder.Add(":yellow_heart:", "\U0001f49b");
-            edictBuilder.Add(":yen:", "\U0001f4b4");
-            edictBuilder.Add(":yin_yang:", "\u262f");
-            edictBuilder.Add(":yum:", "\U0001f60b");
-            edictBuilder.Add(":z", "\U0001f612");
-            edictBuilder.Add(":zap:", "\u26a1");
-            edictBuilder.Add(":zero:", "0\u20e3");
-            edictBuilder.Add(":zipper_mouth:", "\U0001f910");
-            edictBuilder.Add(":zzz:", "\U0001f4a4");
-            edictBuilder.Add(":|", "\U0001f610");
-            edictBuilder.Add(";(", "\U0001f62d");
-            edictBuilder.Add(";)", "\U0001f609");
-            edictBuilder.Add(";-(", "\U0001f62d");
-            edictBuilder.Add(";-)", "\U0001f609");
-            edictBuilder.Add("</3", "\U0001f494");
-            edictBuilder.Add("<3", "\u2764");
-            edictBuilder.Add("<\\3", "\U0001f494");
-            edictBuilder.Add("=\")", "\U0001f60a");
-            edictBuilder.Add("=$", "\U0001f612");
-            edictBuilder.Add("='(", "\U0001f622");
-            edictBuilder.Add("=')", "\U0001f602");
-            edictBuilder.Add("='-(", "\U0001f622");
-            edictBuilder.Add("='-)", "\U0001f602");
-            edictBuilder.Add("='-D", "\U0001f602");
-            edictBuilder.Add("='D", "\U0001f602");
-            edictBuilder.Add("=(", "\U0001f626");
-            edictBuilder.Add("=)", "\U0001f603");
-            edictBuilder.Add("=*", "\U0001f617");
-            edictBuilder.Add("=,'(", "\U0001f62d");
-            edictBuilder.Add("=,'-(", "\U0001f62d");
-            edictBuilder.Add("=,(", "\U0001f622");
-            edictBuilder.Add("=,)", "\U0001f602");
-            edictBuilder.Add("=,-(", "\U0001f622");
-            edictBuilder.Add("=,-)", "\U0001f602");
-            edictBuilder.Add("=,-D", "\U0001f602");
-            edictBuilder.Add("=,D", "\U0001f602");
-            edictBuilder.Add("=-\")", "\U0001f60a");
-            edictBuilder.Add("=-$", "\U0001f612");
-            edictBuilder.Add("=-(", "\U0001f626");
-            edictBuilder.Add("=-)", "\U0001f603");
-            edictBuilder.Add("=-*", "\U0001f617");
-            edictBuilder.Add("=-/", "\U0001f615");
-            edictBuilder.Add("=-@", "\U0001f621");
-            edictBuilder.Add("=-\\", "\U0001f615");
-            edictBuilder.Add("=-D", "\U0001f604");
-            edictBuilder.Add("=-O", "\U0001f62e");
-            edictBuilder.Add("=-o", "\U0001f62e");
-            edictBuilder.Add("=-P", "\U0001f61b");
-            edictBuilder.Add("=-S", "\U0001f612");
-            edictBuilder.Add("=-Z", "\U0001f612");
-            edictBuilder.Add("=-|", "\U0001f610");
-            edictBuilder.Add("=@", "\U0001f621");
-            edictBuilder.Add("=D", "\U0001f604");
-            edictBuilder.Add("=O", "\U0001f62e");
-            edictBuilder.Add("=o", "\U0001f62e");
-            edictBuilder.Add("=P", "\U0001f61b");
-            edictBuilder.Add("=s", "\U0001f612");
-            edictBuilder.Add("=z", "\U0001f612");
-            edictBuilder.Add("=|", "\U0001f610");
-            edictBuilder.Add(">:(", "\U0001f620");
-            edictBuilder.Add(">:-(", "\U0001f620");
-            edictBuilder.Add(">=(", "\U0001f620");
-            edictBuilder.Add(">=-(", "\U0001f620");
-            edictBuilder.Add("]:(", "\U0001f47f");
-            edictBuilder.Add("]:)", "\U0001f608");
-            edictBuilder.Add("]:-(", "\U0001f47f");
-            edictBuilder.Add("]:-)", "\U0001f608");
-            edictBuilder.Add("]=(", "\U0001f47f");
-            edictBuilder.Add("]=)", "\U0001f608");
-            edictBuilder.Add("]=-(", "\U0001f47f");
-            edictBuilder.Add("]=-)", "\U0001f608");
-            edictBuilder.Add("B-)", "\U0001f60e");
-            edictBuilder.Add("O:)", "\U0001f607");
-            edictBuilder.Add("o:)", "\U0001f607");
-            edictBuilder.Add("o:-)", "\U0001f607");
-            edictBuilder.Add("O:-)", "\U0001f607");
-            edictBuilder.Add("O=)", "\U0001f607");
-            edictBuilder.Add("o=)", "\U0001f607");
-            edictBuilder.Add("O=-)", "\U0001f607");
-            edictBuilder.Add("o=-)", "\U0001f607");
-            edictBuilder.Add("X-)", "\U0001f606");
-            edictBuilder.Add("x-)", "\U0001f606");
-            edictBuilder.Add("♡", "\u2764");
+            UnicodeEmojis = new Dictionary<string, string>
+            {
+                [",:("] = "\U0001f613",
+                [",:)"] = "\U0001f605",
+                [",:-("] = "\U0001f613",
+                [",:-)"] = "\U0001f605",
+                [",=("] = "\U0001f613",
+                [",=)"] = "\U0001f605",
+                [",=-("] = "\U0001f613",
+                [",=-)"] = "\U0001f605",
+                ["0:)"] = "\U0001f607",
+                ["0:-)"] = "\U0001f607",
+                ["0=)"] = "\U0001f607",
+                ["0=-)"] = "\U0001f607",
+                ["8-)"] = "\U0001f60e",
+                [":\")"] = "\U0001f60a",
+                [":$"] = "\U0001f612",
+                [":'("] = "\U0001f622",
+                [":')"] = "\U0001f602",
+                [":'-("] = "\U0001f622",
+                [":'-)"] = "\U0001f602",
+                [":'-D"] = "\U0001f602",
+                [":'D"] = "\U0001f602",
+                [":("] = "\U0001f626",
+                [":)"] = "\U0001f603",
+                [":*"] = "\U0001f617",
+                [":+1:"] = "\U0001f44d",
+                [":+1::skin-tone-1:"] = "\U0001f44d\U0001f3fb",
+                [":+1::skin-tone-2:"] = "\U0001f44d\U0001f3fc",
+                [":+1::skin-tone-3:"] = "\U0001f44d\U0001f3fd",
+                [":+1::skin-tone-4:"] = "\U0001f44d\U0001f3fe",
+                [":+1::skin-tone-5:"] = "\U0001f44d\U0001f3ff",
+                [":,'("] = "\U0001f62d",
+                [":,'-("] = "\U0001f62d",
+                [":,("] = "\U0001f622",
+                [":,)"] = "\U0001f602",
+                [":,-("] = "\U0001f622",
+                [":,-)"] = "\U0001f602",
+                [":,-D"] = "\U0001f602",
+                [":,D"] = "\U0001f602",
+                [":-\")"] = "\U0001f60a",
+                [":-$"] = "\U0001f612",
+                [":-("] = "\U0001f626",
+                [":-)"] = "\U0001f603",
+                [":-*"] = "\U0001f617",
+                [":-/"] = "\U0001f615",
+                [":-1:"] = "\U0001f44e",
+                [":-1::skin-tone-1:"] = "\U0001f44e\U0001f3fb",
+                [":-1::skin-tone-2:"] = "\U0001f44e\U0001f3fc",
+                [":-1::skin-tone-3:"] = "\U0001f44e\U0001f3fd",
+                [":-1::skin-tone-4:"] = "\U0001f44e\U0001f3fe",
+                [":-1::skin-tone-5:"] = "\U0001f44e\U0001f3ff",
+                [":-@"] = "\U0001f621",
+                [":-\\"] = "\U0001f615",
+                [":-D"] = "\U0001f604",
+                [":-O"] = "\U0001f62e",
+                [":-o"] = "\U0001f62e",
+                [":-P"] = "\U0001f61b",
+                [":-S"] = "\U0001f612",
+                [":-Z"] = "\U0001f612",
+                [":-|"] = "\U0001f610",
+                [":100:"] = "\U0001f4af",
+                [":1234:"] = "\U0001f522",
+                [":8ball:"] = "\U0001f3b1",
+                [":@"] = "\U0001f621",
+                [":a:"] = "\U0001f170",
+                [":ab:"] = "\U0001f18e",
+                [":abc:"] = "\U0001f524",
+                [":abcd:"] = "\U0001f521",
+                [":accept:"] = "\U0001f251",
+                [":aerial_tramway:"] = "\U0001f6a1",
+                [":airplane:"] = "\u2708",
+                [":airplane_arriving:"] = "\U0001f6ec",
+                [":airplane_departure:"] = "\U0001f6eb",
+                [":airplane_small:"] = "\U0001f6e9",
+                [":alarm_clock:"] = "\u23f0",
+                [":alembic:"] = "\u2697",
+                [":alien:"] = "\U0001f47d",
+                [":ambulance:"] = "\U0001f691",
+                [":amphora:"] = "\U0001f3fa",
+                [":anchor:"] = "\u2693",
+                [":angel:"] = "\U0001f47c",
+                [":angel::skin-tone-1:"] = "\U0001f47c\U0001f3fb",
+                [":angel::skin-tone-2:"] = "\U0001f47c\U0001f3fc",
+                [":angel::skin-tone-3:"] = "\U0001f47c\U0001f3fd",
+                [":angel::skin-tone-4:"] = "\U0001f47c\U0001f3fe",
+                [":angel::skin-tone-5:"] = "\U0001f47c\U0001f3ff",
+                [":anger:"] = "\U0001f4a2",
+                [":anger_right:"] = "\U0001f5ef",
+                [":angry:"] = "\U0001f620",
+                [":anguished:"] = "\U0001f627",
+                [":ant:"] = "\U0001f41c",
+                [":apple:"] = "\U0001f34e",
+                [":aquarius:"] = "\u2652",
+                [":aries:"] = "\u2648",
+                [":arrow_backward:"] = "\u25c0",
+                [":arrow_double_down:"] = "\u23ec",
+                [":arrow_double_up:"] = "\u23eb",
+                [":arrow_down:"] = "\u2b07",
+                [":arrow_down_small:"] = "\U0001f53d",
+                [":arrow_forward:"] = "\u25b6",
+                [":arrow_heading_down:"] = "\u2935",
+                [":arrow_heading_up:"] = "\u2934",
+                [":arrow_left:"] = "\u2b05",
+                [":arrow_lower_left:"] = "\u2199",
+                [":arrow_lower_right:"] = "\u2198",
+                [":arrow_right:"] = "\u27a1",
+                [":arrow_right_hook:"] = "\u21aa",
+                [":arrow_up:"] = "\u2b06",
+                [":arrow_up_down:"] = "\u2195",
+                [":arrow_up_small:"] = "\U0001f53c",
+                [":arrow_upper_left:"] = "\u2196",
+                [":arrow_upper_right:"] = "\u2197",
+                [":arrows_clockwise:"] = "\U0001f503",
+                [":arrows_counterclockwise:"] = "\U0001f504",
+                [":art:"] = "\U0001f3a8",
+                [":articulated_lorry:"] = "\U0001f69b",
+                [":asterisk:"] = "*\u20e3",
+                [":astonished:"] = "\U0001f632",
+                [":athletic_shoe:"] = "\U0001f45f",
+                [":atm:"] = "\U0001f3e7",
+                [":atom:"] = "\u269b",
+                [":avocado:"] = "\U0001f951",
+                [":b:"] = "\U0001f171",
+                [":baby:"] = "\U0001f476",
+                [":baby::skin-tone-1:"] = "\U0001f476\U0001f3fb",
+                [":baby::skin-tone-2:"] = "\U0001f476\U0001f3fc",
+                [":baby::skin-tone-3:"] = "\U0001f476\U0001f3fd",
+                [":baby::skin-tone-4:"] = "\U0001f476\U0001f3fe",
+                [":baby::skin-tone-5:"] = "\U0001f476\U0001f3ff",
+                [":baby_bottle:"] = "\U0001f37c",
+                [":baby_chick:"] = "\U0001f424",
+                [":baby_symbol:"] = "\U0001f6bc",
+                [":back:"] = "\U0001f519",
+                [":bacon:"] = "\U0001f953",
+                [":badminton:"] = "\U0001f3f8",
+                [":baggage_claim:"] = "\U0001f6c4",
+                [":balloon:"] = "\U0001f388",
+                [":ballot_box:"] = "\U0001f5f3",
+                [":ballot_box_with_check:"] = "\u2611",
+                [":bamboo:"] = "\U0001f38d",
+                [":banana:"] = "\U0001f34c",
+                [":bangbang:"] = "\u203c",
+                [":bank:"] = "\U0001f3e6",
+                [":bar_chart:"] = "\U0001f4ca",
+                [":barber:"] = "\U0001f488",
+                [":baseball:"] = "\u26be",
+                [":basketball:"] = "\U0001f3c0",
+                [":basketball_player:"] = "\u26f9",
+                [":basketball_player::skin-tone-1:"] = "\u26f9\U0001f3fb",
+                [":basketball_player::skin-tone-2:"] = "\u26f9\U0001f3fc",
+                [":basketball_player::skin-tone-3:"] = "\u26f9\U0001f3fd",
+                [":basketball_player::skin-tone-4:"] = "\u26f9\U0001f3fe",
+                [":basketball_player::skin-tone-5:"] = "\u26f9\U0001f3ff",
+                [":bat:"] = "\U0001f987",
+                [":bath:"] = "\U0001f6c0",
+                [":bath::skin-tone-1:"] = "\U0001f6c0\U0001f3fb",
+                [":bath::skin-tone-2:"] = "\U0001f6c0\U0001f3fc",
+                [":bath::skin-tone-3:"] = "\U0001f6c0\U0001f3fd",
+                [":bath::skin-tone-4:"] = "\U0001f6c0\U0001f3fe",
+                [":bath::skin-tone-5:"] = "\U0001f6c0\U0001f3ff",
+                [":bathtub:"] = "\U0001f6c1",
+                [":battery:"] = "\U0001f50b",
+                [":beach:"] = "\U0001f3d6",
+                [":beach_umbrella:"] = "\u26f1",
+                [":bear:"] = "\U0001f43b",
+                [":bed:"] = "\U0001f6cf",
+                [":bee:"] = "\U0001f41d",
+                [":beer:"] = "\U0001f37a",
+                [":beers:"] = "\U0001f37b",
+                [":beetle:"] = "\U0001f41e",
+                [":beginner:"] = "\U0001f530",
+                [":bell:"] = "\U0001f514",
+                [":bellhop:"] = "\U0001f6ce",
+                [":bento:"] = "\U0001f371",
+                [":bicyclist:"] = "\U0001f6b4",
+                [":bicyclist::skin-tone-1:"] = "\U0001f6b4\U0001f3fb",
+                [":bicyclist::skin-tone-2:"] = "\U0001f6b4\U0001f3fc",
+                [":bicyclist::skin-tone-3:"] = "\U0001f6b4\U0001f3fd",
+                [":bicyclist::skin-tone-4:"] = "\U0001f6b4\U0001f3fe",
+                [":bicyclist::skin-tone-5:"] = "\U0001f6b4\U0001f3ff",
+                [":bike:"] = "\U0001f6b2",
+                [":bikini:"] = "\U0001f459",
+                [":biohazard:"] = "\u2623",
+                [":bird:"] = "\U0001f426",
+                [":birthday:"] = "\U0001f382",
+                [":black_circle:"] = "\u26ab",
+                [":black_heart:"] = "\U0001f5a4",
+                [":black_joker:"] = "\U0001f0cf",
+                [":black_large_square:"] = "\u2b1b",
+                [":black_medium_small_square:"] = "\u25fe",
+                [":black_medium_square:"] = "\u25fc",
+                [":black_nib:"] = "\u2712",
+                [":black_small_square:"] = "\u25aa",
+                [":black_square_button:"] = "\U0001f532",
+                [":blossom:"] = "\U0001f33c",
+                [":blowfish:"] = "\U0001f421",
+                [":blue_book:"] = "\U0001f4d8",
+                [":blue_car:"] = "\U0001f699",
+                [":blue_heart:"] = "\U0001f499",
+                [":blush:"] = "\U0001f60a",
+                [":boar:"] = "\U0001f417",
+                [":boat:"] = "\u26f5",
+                [":bomb:"] = "\U0001f4a3",
+                [":book:"] = "\U0001f4d6",
+                [":bookmark:"] = "\U0001f516",
+                [":bookmark_tabs:"] = "\U0001f4d1",
+                [":books:"] = "\U0001f4da",
+                [":boom:"] = "\U0001f4a5",
+                [":boot:"] = "\U0001f462",
+                [":bouquet:"] = "\U0001f490",
+                [":bow:"] = "\U0001f647",
+                [":bow::skin-tone-1:"] = "\U0001f647\U0001f3fb",
+                [":bow::skin-tone-2:"] = "\U0001f647\U0001f3fc",
+                [":bow::skin-tone-3:"] = "\U0001f647\U0001f3fd",
+                [":bow::skin-tone-4:"] = "\U0001f647\U0001f3fe",
+                [":bow::skin-tone-5:"] = "\U0001f647\U0001f3ff",
+                [":bow_and_arrow:"] = "\U0001f3f9",
+                [":bowling:"] = "\U0001f3b3",
+                [":boxing_glove:"] = "\U0001f94a",
+                [":boy:"] = "\U0001f466",
+                [":boy::skin-tone-1:"] = "\U0001f466\U0001f3fb",
+                [":boy::skin-tone-2:"] = "\U0001f466\U0001f3fc",
+                [":boy::skin-tone-3:"] = "\U0001f466\U0001f3fd",
+                [":boy::skin-tone-4:"] = "\U0001f466\U0001f3fe",
+                [":boy::skin-tone-5:"] = "\U0001f466\U0001f3ff",
+                [":bread:"] = "\U0001f35e",
+                [":bride_with_veil:"] = "\U0001f470",
+                [":bride_with_veil::skin-tone-1:"] = "\U0001f470\U0001f3fb",
+                [":bride_with_veil::skin-tone-2:"] = "\U0001f470\U0001f3fc",
+                [":bride_with_veil::skin-tone-3:"] = "\U0001f470\U0001f3fd",
+                [":bride_with_veil::skin-tone-4:"] = "\U0001f470\U0001f3fe",
+                [":bride_with_veil::skin-tone-5:"] = "\U0001f470\U0001f3ff",
+                [":bridge_at_night:"] = "\U0001f309",
+                [":briefcase:"] = "\U0001f4bc",
+                [":broken_heart:"] = "\U0001f494",
+                [":bug:"] = "\U0001f41b",
+                [":bulb:"] = "\U0001f4a1",
+                [":bullettrain_front:"] = "\U0001f685",
+                [":bullettrain_side:"] = "\U0001f684",
+                [":burrito:"] = "\U0001f32f",
+                [":bus:"] = "\U0001f68c",
+                [":busstop:"] = "\U0001f68f",
+                [":bust_in_silhouette:"] = "\U0001f464",
+                [":busts_in_silhouette:"] = "\U0001f465",
+                [":butterfly:"] = "\U0001f98b",
+                [":cactus:"] = "\U0001f335",
+                [":cake:"] = "\U0001f370",
+                [":calendar:"] = "\U0001f4c6",
+                [":calendar_spiral:"] = "\U0001f5d3",
+                [":call_me:"] = "\U0001f919",
+                [":call_me::skin-tone-1:"] = "\U0001f919\U0001f3fb",
+                [":call_me::skin-tone-2:"] = "\U0001f919\U0001f3fc",
+                [":call_me::skin-tone-3:"] = "\U0001f919\U0001f3fd",
+                [":call_me::skin-tone-4:"] = "\U0001f919\U0001f3fe",
+                [":call_me::skin-tone-5:"] = "\U0001f919\U0001f3ff",
+                [":calling:"] = "\U0001f4f2",
+                [":camel:"] = "\U0001f42b",
+                [":camera:"] = "\U0001f4f7",
+                [":camera_with_flash:"] = "\U0001f4f8",
+                [":camping:"] = "\U0001f3d5",
+                [":cancer:"] = "\u264b",
+                [":candle:"] = "\U0001f56f",
+                [":candy:"] = "\U0001f36c",
+                [":canoe:"] = "\U0001f6f6",
+                [":capital_abcd:"] = "\U0001f520",
+                [":capricorn:"] = "\u2651",
+                [":card_box:"] = "\U0001f5c3",
+                [":card_index:"] = "\U0001f4c7",
+                [":carousel_horse:"] = "\U0001f3a0",
+                [":carrot:"] = "\U0001f955",
+                [":cartwheel:"] = "\U0001f938",
+                [":cartwheel::skin-tone-1:"] = "\U0001f938\U0001f3fb",
+                [":cartwheel::skin-tone-2:"] = "\U0001f938\U0001f3fc",
+                [":cartwheel::skin-tone-3:"] = "\U0001f938\U0001f3fd",
+                [":cartwheel::skin-tone-4:"] = "\U0001f938\U0001f3fe",
+                [":cartwheel::skin-tone-5:"] = "\U0001f938\U0001f3ff",
+                [":cat2:"] = "\U0001f408",
+                [":cat:"] = "\U0001f431",
+                [":cd:"] = "\U0001f4bf",
+                [":chains:"] = "\u26d3",
+                [":champagne:"] = "\U0001f37e",
+                [":champagne_glass:"] = "\U0001f942",
+                [":chart:"] = "\U0001f4b9",
+                [":chart_with_downwards_trend:"] = "\U0001f4c9",
+                [":chart_with_upwards_trend:"] = "\U0001f4c8",
+                [":checkered_flag:"] = "\U0001f3c1",
+                [":cheese:"] = "\U0001f9c0",
+                [":cherries:"] = "\U0001f352",
+                [":cherry_blossom:"] = "\U0001f338",
+                [":chestnut:"] = "\U0001f330",
+                [":chicken:"] = "\U0001f414",
+                [":children_crossing:"] = "\U0001f6b8",
+                [":chipmunk:"] = "\U0001f43f",
+                [":chocolate_bar:"] = "\U0001f36b",
+                [":christmas_tree:"] = "\U0001f384",
+                [":church:"] = "\u26ea",
+                [":cinema:"] = "\U0001f3a6",
+                [":circus_tent:"] = "\U0001f3aa",
+                [":city_dusk:"] = "\U0001f306",
+                [":city_sunrise:"] = "\U0001f307",
+                [":city_sunset:"] = "\U0001f307",
+                [":cityscape:"] = "\U0001f3d9",
+                [":cl:"] = "\U0001f191",
+                [":clap:"] = "\U0001f44f",
+                [":clap::skin-tone-1:"] = "\U0001f44f\U0001f3fb",
+                [":clap::skin-tone-2:"] = "\U0001f44f\U0001f3fc",
+                [":clap::skin-tone-3:"] = "\U0001f44f\U0001f3fd",
+                [":clap::skin-tone-4:"] = "\U0001f44f\U0001f3fe",
+                [":clap::skin-tone-5:"] = "\U0001f44f\U0001f3ff",
+                [":clapper:"] = "\U0001f3ac",
+                [":classical_building:"] = "\U0001f3db",
+                [":clipboard:"] = "\U0001f4cb",
+                [":clock1030:"] = "\U0001f565",
+                [":clock10:"] = "\U0001f559",
+                [":clock1130:"] = "\U0001f566",
+                [":clock11:"] = "\U0001f55a",
+                [":clock1230:"] = "\U0001f567",
+                [":clock12:"] = "\U0001f55b",
+                [":clock130:"] = "\U0001f55c",
+                [":clock1:"] = "\U0001f550",
+                [":clock230:"] = "\U0001f55d",
+                [":clock2:"] = "\U0001f551",
+                [":clock330:"] = "\U0001f55e",
+                [":clock3:"] = "\U0001f552",
+                [":clock430:"] = "\U0001f55f",
+                [":clock4:"] = "\U0001f553",
+                [":clock530:"] = "\U0001f560",
+                [":clock5:"] = "\U0001f554",
+                [":clock630:"] = "\U0001f561",
+                [":clock6:"] = "\U0001f555",
+                [":clock730:"] = "\U0001f562",
+                [":clock7:"] = "\U0001f556",
+                [":clock830:"] = "\U0001f563",
+                [":clock8:"] = "\U0001f557",
+                [":clock930:"] = "\U0001f564",
+                [":clock9:"] = "\U0001f558",
+                [":clock:"] = "\U0001f570",
+                [":closed_book:"] = "\U0001f4d5",
+                [":closed_lock_with_key:"] = "\U0001f510",
+                [":closed_umbrella:"] = "\U0001f302",
+                [":cloud:"] = "\u2601",
+                [":cloud_lightning:"] = "\U0001f329",
+                [":cloud_rain:"] = "\U0001f327",
+                [":cloud_snow:"] = "\U0001f328",
+                [":cloud_tornado:"] = "\U0001f32a",
+                [":clown:"] = "\U0001f921",
+                [":clubs:"] = "\u2663",
+                [":cocktail:"] = "\U0001f378",
+                [":coffee:"] = "\u2615",
+                [":coffin:"] = "\u26b0",
+                [":cold_sweat:"] = "\U0001f630",
+                [":collision:"] = "\U0001f4a5",
+                [":comet:"] = "\u2604",
+                [":compression:"] = "\U0001f5dc",
+                [":computer:"] = "\U0001f4bb",
+                [":confetti_ball:"] = "\U0001f38a",
+                [":confounded:"] = "\U0001f616",
+                [":confused:"] = "\U0001f615",
+                [":congratulations:"] = "\u3297",
+                [":construction:"] = "\U0001f6a7",
+                [":construction_site:"] = "\U0001f3d7",
+                [":construction_worker:"] = "\U0001f477",
+                [":construction_worker::skin-tone-1:"] = "\U0001f477\U0001f3fb",
+                [":construction_worker::skin-tone-2:"] = "\U0001f477\U0001f3fc",
+                [":construction_worker::skin-tone-3:"] = "\U0001f477\U0001f3fd",
+                [":construction_worker::skin-tone-4:"] = "\U0001f477\U0001f3fe",
+                [":construction_worker::skin-tone-5:"] = "\U0001f477\U0001f3ff",
+                [":control_knobs:"] = "\U0001f39b",
+                [":convenience_store:"] = "\U0001f3ea",
+                [":cookie:"] = "\U0001f36a",
+                [":cooking:"] = "\U0001f373",
+                [":cool:"] = "\U0001f192",
+                [":cop:"] = "\U0001f46e",
+                [":cop::skin-tone-1:"] = "\U0001f46e\U0001f3fb",
+                [":cop::skin-tone-2:"] = "\U0001f46e\U0001f3fc",
+                [":cop::skin-tone-3:"] = "\U0001f46e\U0001f3fd",
+                [":cop::skin-tone-4:"] = "\U0001f46e\U0001f3fe",
+                [":cop::skin-tone-5:"] = "\U0001f46e\U0001f3ff",
+                [":copyright:"] = "\u00a9",
+                [":corn:"] = "\U0001f33d",
+                [":couch:"] = "\U0001f6cb",
+                [":couple:"] = "\U0001f46b",
+                [":couple_mm:"] = "\U0001f468\u200d\u2764\ufe0f\u200d\U0001f468",
+                [":couple_with_heart:"] = "\U0001f491",
+                [":couple_ww:"] = "\U0001f469\u200d\u2764\ufe0f\u200d\U0001f469",
+                [":couplekiss:"] = "\U0001f48f",
+                [":cow2:"] = "\U0001f404",
+                [":cow:"] = "\U0001f42e",
+                [":cowboy:"] = "\U0001f920",
+                [":crab:"] = "\U0001f980",
+                [":crayon:"] = "\U0001f58d",
+                [":credit_card:"] = "\U0001f4b3",
+                [":crescent_moon:"] = "\U0001f319",
+                [":cricket:"] = "\U0001f3cf",
+                [":crocodile:"] = "\U0001f40a",
+                [":croissant:"] = "\U0001f950",
+                [":cross:"] = "\u271d",
+                [":crossed_flags:"] = "\U0001f38c",
+                [":crossed_swords:"] = "\u2694",
+                [":crown:"] = "\U0001f451",
+                [":cruise_ship:"] = "\U0001f6f3",
+                [":cry:"] = "\U0001f622",
+                [":crying_cat_face:"] = "\U0001f63f",
+                [":crystal_ball:"] = "\U0001f52e",
+                [":cucumber:"] = "\U0001f952",
+                [":cupid:"] = "\U0001f498",
+                [":curly_loop:"] = "\u27b0",
+                [":currency_exchange:"] = "\U0001f4b1",
+                [":curry:"] = "\U0001f35b",
+                [":custard:"] = "\U0001f36e",
+                [":customs:"] = "\U0001f6c3",
+                [":cyclone:"] = "\U0001f300",
+                [":D"] = "\U0001f604",
+                [":dagger:"] = "\U0001f5e1",
+                [":dancer:"] = "\U0001f483",
+                [":dancer::skin-tone-1:"] = "\U0001f483\U0001f3fb",
+                [":dancer::skin-tone-2:"] = "\U0001f483\U0001f3fc",
+                [":dancer::skin-tone-3:"] = "\U0001f483\U0001f3fd",
+                [":dancer::skin-tone-4:"] = "\U0001f483\U0001f3fe",
+                [":dancer::skin-tone-5:"] = "\U0001f483\U0001f3ff",
+                [":dancers:"] = "\U0001f46f",
+                [":dango:"] = "\U0001f361",
+                [":dark_sunglasses:"] = "\U0001f576",
+                [":dart:"] = "\U0001f3af",
+                [":dash:"] = "\U0001f4a8",
+                [":date:"] = "\U0001f4c5",
+                [":deciduous_tree:"] = "\U0001f333",
+                [":deer:"] = "\U0001f98c",
+                [":department_store:"] = "\U0001f3ec",
+                [":desert:"] = "\U0001f3dc",
+                [":desktop:"] = "\U0001f5a5",
+                [":diamond_shape_with_a_dot_inside:"] = "\U0001f4a0",
+                [":diamonds:"] = "\u2666",
+                [":disappointed:"] = "\U0001f61e",
+                [":disappointed_relieved:"] = "\U0001f625",
+                [":dividers:"] = "\U0001f5c2",
+                [":dizzy:"] = "\U0001f4ab",
+                [":dizzy_face:"] = "\U0001f635",
+                [":do_not_litter:"] = "\U0001f6af",
+                [":dog2:"] = "\U0001f415",
+                [":dog:"] = "\U0001f436",
+                [":dollar:"] = "\U0001f4b5",
+                [":dolls:"] = "\U0001f38e",
+                [":dolphin:"] = "\U0001f42c",
+                [":door:"] = "\U0001f6aa",
+                [":doughnut:"] = "\U0001f369",
+                [":dove:"] = "\U0001f54a",
+                [":dragon:"] = "\U0001f409",
+                [":dragon_face:"] = "\U0001f432",
+                [":dress:"] = "\U0001f457",
+                [":dromedary_camel:"] = "\U0001f42a",
+                [":drooling_face:"] = "\U0001f924",
+                [":droplet:"] = "\U0001f4a7",
+                [":drum:"] = "\U0001f941",
+                [":duck:"] = "\U0001f986",
+                [":dvd:"] = "\U0001f4c0",
+                [":eagle:"] = "\U0001f985",
+                [":ear:"] = "\U0001f442",
+                [":ear::skin-tone-1:"] = "\U0001f442\U0001f3fb",
+                [":ear::skin-tone-2:"] = "\U0001f442\U0001f3fc",
+                [":ear::skin-tone-3:"] = "\U0001f442\U0001f3fd",
+                [":ear::skin-tone-4:"] = "\U0001f442\U0001f3fe",
+                [":ear::skin-tone-5:"] = "\U0001f442\U0001f3ff",
+                [":ear_of_rice:"] = "\U0001f33e",
+                [":earth_africa:"] = "\U0001f30d",
+                [":earth_americas:"] = "\U0001f30e",
+                [":earth_asia:"] = "\U0001f30f",
+                [":egg:"] = "\U0001f95a",
+                [":eggplant:"] = "\U0001f346",
+                [":eight:"] = "8\u20e3",
+                [":eight_pointed_black_star:"] = "\u2734",
+                [":eight_spoked_asterisk:"] = "\u2733",
+                [":eject:"] = "\u23cf",
+                [":electric_plug:"] = "\U0001f50c",
+                [":elephant:"] = "\U0001f418",
+                [":email:"] = "\U0001f4e7",
+                [":end:"] = "\U0001f51a",
+                [":envelope:"] = "\u2709",
+                [":envelope_with_arrow:"] = "\U0001f4e9",
+                [":euro:"] = "\U0001f4b6",
+                [":european_castle:"] = "\U0001f3f0",
+                [":european_post_office:"] = "\U0001f3e4",
+                [":evergreen_tree:"] = "\U0001f332",
+                [":exclamation:"] = "\u2757",
+                [":expressionless:"] = "\U0001f611",
+                [":eye:"] = "\U0001f441",
+                [":eye_in_speech_bubble:"] = "\U0001f441\u200d\U0001f5e8",
+                [":eyeglasses:"] = "\U0001f453",
+                [":eyes:"] = "\U0001f440",
+                [":face_palm:"] = "\U0001f926",
+                [":face_palm::skin-tone-1:"] = "\U0001f926\U0001f3fb",
+                [":face_palm::skin-tone-2:"] = "\U0001f926\U0001f3fc",
+                [":face_palm::skin-tone-3:"] = "\U0001f926\U0001f3fd",
+                [":face_palm::skin-tone-4:"] = "\U0001f926\U0001f3fe",
+                [":face_palm::skin-tone-5:"] = "\U0001f926\U0001f3ff",
+                [":facepunch:"] = "\U0001f44a",
+                [":facepunch::skin-tone-1:"] = "\U0001f44a\U0001f3fb",
+                [":facepunch::skin-tone-2:"] = "\U0001f44a\U0001f3fc",
+                [":facepunch::skin-tone-3:"] = "\U0001f44a\U0001f3fd",
+                [":facepunch::skin-tone-4:"] = "\U0001f44a\U0001f3fe",
+                [":facepunch::skin-tone-5:"] = "\U0001f44a\U0001f3ff",
+                [":factory:"] = "\U0001f3ed",
+                [":fallen_leaf:"] = "\U0001f342",
+                [":family:"] = "\U0001f46a",
+                [":family_mmb:"] = "\U0001f468\u200d\U0001f468\u200d\U0001f466",
+                [":family_mmbb:"] = "\U0001f468\u200d\U0001f468\u200d\U0001f466\u200d\U0001f466",
+                [":family_mmg:"] = "\U0001f468\u200d\U0001f468\u200d\U0001f467",
+                [":family_mmgb:"] = "\U0001f468\u200d\U0001f468\u200d\U0001f467\u200d\U0001f466",
+                [":family_mmgg:"] = "\U0001f468\u200d\U0001f468\u200d\U0001f467\u200d\U0001f467",
+                [":family_mwbb:"] = "\U0001f468\u200d\U0001f469\u200d\U0001f466\u200d\U0001f466",
+                [":family_mwg:"] = "\U0001f468\u200d\U0001f469\u200d\U0001f467",
+                [":family_mwgb:"] = "\U0001f468\u200d\U0001f469\u200d\U0001f467\u200d\U0001f466",
+                [":family_mwgg:"] = "\U0001f468\u200d\U0001f469\u200d\U0001f467\u200d\U0001f467",
+                [":family_wwb:"] = "\U0001f469\u200d\U0001f469\u200d\U0001f466",
+                [":family_wwbb:"] = "\U0001f469\u200d\U0001f469\u200d\U0001f466\u200d\U0001f466",
+                [":family_wwg:"] = "\U0001f469\u200d\U0001f469\u200d\U0001f467",
+                [":family_wwgb:"] = "\U0001f469\u200d\U0001f469\u200d\U0001f467\u200d\U0001f466",
+                [":family_wwgg:"] = "\U0001f469\u200d\U0001f469\u200d\U0001f467\u200d\U0001f467",
+                [":fast_forward:"] = "\u23e9",
+                [":fax:"] = "\U0001f4e0",
+                [":fearful:"] = "\U0001f628",
+                [":feet:"] = "\U0001f43e",
+                [":fencer:"] = "\U0001f93a",
+                [":ferris_wheel:"] = "\U0001f3a1",
+                [":ferry:"] = "\u26f4",
+                [":field_hockey:"] = "\U0001f3d1",
+                [":file_cabinet:"] = "\U0001f5c4",
+                [":file_folder:"] = "\U0001f4c1",
+                [":film_frames:"] = "\U0001f39e",
+                [":fingers_crossed:"] = "\U0001f91e",
+                [":fingers_crossed::skin-tone-1:"] = "\U0001f91e\U0001f3fb",
+                [":fingers_crossed::skin-tone-2:"] = "\U0001f91e\U0001f3fc",
+                [":fingers_crossed::skin-tone-3:"] = "\U0001f91e\U0001f3fd",
+                [":fingers_crossed::skin-tone-4:"] = "\U0001f91e\U0001f3fe",
+                [":fingers_crossed::skin-tone-5:"] = "\U0001f91e\U0001f3ff",
+                [":fire:"] = "\U0001f525",
+                [":fire_engine:"] = "\U0001f692",
+                [":fireworks:"] = "\U0001f386",
+                [":first_place:"] = "\U0001f947",
+                [":first_quarter_moon:"] = "\U0001f313",
+                [":first_quarter_moon_with_face:"] = "\U0001f31b",
+                [":fish:"] = "\U0001f41f",
+                [":fish_cake:"] = "\U0001f365",
+                [":fishing_pole_and_fish:"] = "\U0001f3a3",
+                [":fist:"] = "\u270a",
+                [":fist::skin-tone-1:"] = "\u270a\U0001f3fb",
+                [":fist::skin-tone-2:"] = "\u270a\U0001f3fc",
+                [":fist::skin-tone-3:"] = "\u270a\U0001f3fd",
+                [":fist::skin-tone-4:"] = "\u270a\U0001f3fe",
+                [":fist::skin-tone-5:"] = "\u270a\U0001f3ff",
+                [":five:"] = "5\u20e3",
+                [":flag_ac:"] = "\U0001f1e6\U0001f1e8",
+                [":flag_ad:"] = "\U0001f1e6\U0001f1e9",
+                [":flag_ae:"] = "\U0001f1e6\U0001f1ea",
+                [":flag_af:"] = "\U0001f1e6\U0001f1eb",
+                [":flag_ag:"] = "\U0001f1e6\U0001f1ec",
+                [":flag_ai:"] = "\U0001f1e6\U0001f1ee",
+                [":flag_al:"] = "\U0001f1e6\U0001f1f1",
+                [":flag_am:"] = "\U0001f1e6\U0001f1f2",
+                [":flag_ao:"] = "\U0001f1e6\U0001f1f4",
+                [":flag_aq:"] = "\U0001f1e6\U0001f1f6",
+                [":flag_ar:"] = "\U0001f1e6\U0001f1f7",
+                [":flag_as:"] = "\U0001f1e6\U0001f1f8",
+                [":flag_at:"] = "\U0001f1e6\U0001f1f9",
+                [":flag_au:"] = "\U0001f1e6\U0001f1fa",
+                [":flag_aw:"] = "\U0001f1e6\U0001f1fc",
+                [":flag_ax:"] = "\U0001f1e6\U0001f1fd",
+                [":flag_az:"] = "\U0001f1e6\U0001f1ff",
+                [":flag_ba:"] = "\U0001f1e7\U0001f1e6",
+                [":flag_bb:"] = "\U0001f1e7\U0001f1e7",
+                [":flag_bd:"] = "\U0001f1e7\U0001f1e9",
+                [":flag_be:"] = "\U0001f1e7\U0001f1ea",
+                [":flag_bf:"] = "\U0001f1e7\U0001f1eb",
+                [":flag_bg:"] = "\U0001f1e7\U0001f1ec",
+                [":flag_bh:"] = "\U0001f1e7\U0001f1ed",
+                [":flag_bi:"] = "\U0001f1e7\U0001f1ee",
+                [":flag_bj:"] = "\U0001f1e7\U0001f1ef",
+                [":flag_bl:"] = "\U0001f1e7\U0001f1f1",
+                [":flag_black:"] = "\U0001f3f4",
+                [":flag_bm:"] = "\U0001f1e7\U0001f1f2",
+                [":flag_bn:"] = "\U0001f1e7\U0001f1f3",
+                [":flag_bo:"] = "\U0001f1e7\U0001f1f4",
+                [":flag_bq:"] = "\U0001f1e7\U0001f1f6",
+                [":flag_br:"] = "\U0001f1e7\U0001f1f7",
+                [":flag_bs:"] = "\U0001f1e7\U0001f1f8",
+                [":flag_bt:"] = "\U0001f1e7\U0001f1f9",
+                [":flag_bv:"] = "\U0001f1e7\U0001f1fb",
+                [":flag_bw:"] = "\U0001f1e7\U0001f1fc",
+                [":flag_by:"] = "\U0001f1e7\U0001f1fe",
+                [":flag_bz:"] = "\U0001f1e7\U0001f1ff",
+                [":flag_ca:"] = "\U0001f1e8\U0001f1e6",
+                [":flag_cc:"] = "\U0001f1e8\U0001f1e8",
+                [":flag_cd:"] = "\U0001f1e8\U0001f1e9",
+                [":flag_cf:"] = "\U0001f1e8\U0001f1eb",
+                [":flag_cg:"] = "\U0001f1e8\U0001f1ec",
+                [":flag_ch:"] = "\U0001f1e8\U0001f1ed",
+                [":flag_ci:"] = "\U0001f1e8\U0001f1ee",
+                [":flag_ck:"] = "\U0001f1e8\U0001f1f0",
+                [":flag_cl:"] = "\U0001f1e8\U0001f1f1",
+                [":flag_cm:"] = "\U0001f1e8\U0001f1f2",
+                [":flag_cn:"] = "\U0001f1e8\U0001f1f3",
+                [":flag_co:"] = "\U0001f1e8\U0001f1f4",
+                [":flag_cp:"] = "\U0001f1e8\U0001f1f5",
+                [":flag_cr:"] = "\U0001f1e8\U0001f1f7",
+                [":flag_cu:"] = "\U0001f1e8\U0001f1fa",
+                [":flag_cv:"] = "\U0001f1e8\U0001f1fb",
+                [":flag_cw:"] = "\U0001f1e8\U0001f1fc",
+                [":flag_cx:"] = "\U0001f1e8\U0001f1fd",
+                [":flag_cy:"] = "\U0001f1e8\U0001f1fe",
+                [":flag_cz:"] = "\U0001f1e8\U0001f1ff",
+                [":flag_de:"] = "\U0001f1e9\U0001f1ea",
+                [":flag_dg:"] = "\U0001f1e9\U0001f1ec",
+                [":flag_dj:"] = "\U0001f1e9\U0001f1ef",
+                [":flag_dk:"] = "\U0001f1e9\U0001f1f0",
+                [":flag_dm:"] = "\U0001f1e9\U0001f1f2",
+                [":flag_do:"] = "\U0001f1e9\U0001f1f4",
+                [":flag_dz:"] = "\U0001f1e9\U0001f1ff",
+                [":flag_ea:"] = "\U0001f1ea\U0001f1e6",
+                [":flag_ec:"] = "\U0001f1ea\U0001f1e8",
+                [":flag_ee:"] = "\U0001f1ea\U0001f1ea",
+                [":flag_eg:"] = "\U0001f1ea\U0001f1ec",
+                [":flag_eh:"] = "\U0001f1ea\U0001f1ed",
+                [":flag_er:"] = "\U0001f1ea\U0001f1f7",
+                [":flag_es:"] = "\U0001f1ea\U0001f1f8",
+                [":flag_et:"] = "\U0001f1ea\U0001f1f9",
+                [":flag_eu:"] = "\U0001f1ea\U0001f1fa",
+                [":flag_fi:"] = "\U0001f1eb\U0001f1ee",
+                [":flag_fj:"] = "\U0001f1eb\U0001f1ef",
+                [":flag_fk:"] = "\U0001f1eb\U0001f1f0",
+                [":flag_fm:"] = "\U0001f1eb\U0001f1f2",
+                [":flag_fo:"] = "\U0001f1eb\U0001f1f4",
+                [":flag_fr:"] = "\U0001f1eb\U0001f1f7",
+                [":flag_ga:"] = "\U0001f1ec\U0001f1e6",
+                [":flag_gb:"] = "\U0001f1ec\U0001f1e7",
+                [":flag_gd:"] = "\U0001f1ec\U0001f1e9",
+                [":flag_ge:"] = "\U0001f1ec\U0001f1ea",
+                [":flag_gf:"] = "\U0001f1ec\U0001f1eb",
+                [":flag_gg:"] = "\U0001f1ec\U0001f1ec",
+                [":flag_gh:"] = "\U0001f1ec\U0001f1ed",
+                [":flag_gi:"] = "\U0001f1ec\U0001f1ee",
+                [":flag_gl:"] = "\U0001f1ec\U0001f1f1",
+                [":flag_gm:"] = "\U0001f1ec\U0001f1f2",
+                [":flag_gn:"] = "\U0001f1ec\U0001f1f3",
+                [":flag_gp:"] = "\U0001f1ec\U0001f1f5",
+                [":flag_gq:"] = "\U0001f1ec\U0001f1f6",
+                [":flag_gr:"] = "\U0001f1ec\U0001f1f7",
+                [":flag_gs:"] = "\U0001f1ec\U0001f1f8",
+                [":flag_gt:"] = "\U0001f1ec\U0001f1f9",
+                [":flag_gu:"] = "\U0001f1ec\U0001f1fa",
+                [":flag_gw:"] = "\U0001f1ec\U0001f1fc",
+                [":flag_gy:"] = "\U0001f1ec\U0001f1fe",
+                [":flag_hk:"] = "\U0001f1ed\U0001f1f0",
+                [":flag_hm:"] = "\U0001f1ed\U0001f1f2",
+                [":flag_hn:"] = "\U0001f1ed\U0001f1f3",
+                [":flag_hr:"] = "\U0001f1ed\U0001f1f7",
+                [":flag_ht:"] = "\U0001f1ed\U0001f1f9",
+                [":flag_hu:"] = "\U0001f1ed\U0001f1fa",
+                [":flag_ic:"] = "\U0001f1ee\U0001f1e8",
+                [":flag_id:"] = "\U0001f1ee\U0001f1e9",
+                [":flag_ie:"] = "\U0001f1ee\U0001f1ea",
+                [":flag_il:"] = "\U0001f1ee\U0001f1f1",
+                [":flag_im:"] = "\U0001f1ee\U0001f1f2",
+                [":flag_in:"] = "\U0001f1ee\U0001f1f3",
+                [":flag_io:"] = "\U0001f1ee\U0001f1f4",
+                [":flag_iq:"] = "\U0001f1ee\U0001f1f6",
+                [":flag_ir:"] = "\U0001f1ee\U0001f1f7",
+                [":flag_is:"] = "\U0001f1ee\U0001f1f8",
+                [":flag_it:"] = "\U0001f1ee\U0001f1f9",
+                [":flag_je:"] = "\U0001f1ef\U0001f1ea",
+                [":flag_jm:"] = "\U0001f1ef\U0001f1f2",
+                [":flag_jo:"] = "\U0001f1ef\U0001f1f4",
+                [":flag_jp:"] = "\U0001f1ef\U0001f1f5",
+                [":flag_ke:"] = "\U0001f1f0\U0001f1ea",
+                [":flag_kg:"] = "\U0001f1f0\U0001f1ec",
+                [":flag_kh:"] = "\U0001f1f0\U0001f1ed",
+                [":flag_ki:"] = "\U0001f1f0\U0001f1ee",
+                [":flag_km:"] = "\U0001f1f0\U0001f1f2",
+                [":flag_kn:"] = "\U0001f1f0\U0001f1f3",
+                [":flag_kp:"] = "\U0001f1f0\U0001f1f5",
+                [":flag_kr:"] = "\U0001f1f0\U0001f1f7",
+                [":flag_kw:"] = "\U0001f1f0\U0001f1fc",
+                [":flag_ky:"] = "\U0001f1f0\U0001f1fe",
+                [":flag_kz:"] = "\U0001f1f0\U0001f1ff",
+                [":flag_la:"] = "\U0001f1f1\U0001f1e6",
+                [":flag_lb:"] = "\U0001f1f1\U0001f1e7",
+                [":flag_lc:"] = "\U0001f1f1\U0001f1e8",
+                [":flag_li:"] = "\U0001f1f1\U0001f1ee",
+                [":flag_lk:"] = "\U0001f1f1\U0001f1f0",
+                [":flag_lr:"] = "\U0001f1f1\U0001f1f7",
+                [":flag_ls:"] = "\U0001f1f1\U0001f1f8",
+                [":flag_lt:"] = "\U0001f1f1\U0001f1f9",
+                [":flag_lu:"] = "\U0001f1f1\U0001f1fa",
+                [":flag_lv:"] = "\U0001f1f1\U0001f1fb",
+                [":flag_ly:"] = "\U0001f1f1\U0001f1fe",
+                [":flag_ma:"] = "\U0001f1f2\U0001f1e6",
+                [":flag_mc:"] = "\U0001f1f2\U0001f1e8",
+                [":flag_md:"] = "\U0001f1f2\U0001f1e9",
+                [":flag_me:"] = "\U0001f1f2\U0001f1ea",
+                [":flag_mf:"] = "\U0001f1f2\U0001f1eb",
+                [":flag_mg:"] = "\U0001f1f2\U0001f1ec",
+                [":flag_mh:"] = "\U0001f1f2\U0001f1ed",
+                [":flag_mk:"] = "\U0001f1f2\U0001f1f0",
+                [":flag_ml:"] = "\U0001f1f2\U0001f1f1",
+                [":flag_mm:"] = "\U0001f1f2\U0001f1f2",
+                [":flag_mn:"] = "\U0001f1f2\U0001f1f3",
+                [":flag_mo:"] = "\U0001f1f2\U0001f1f4",
+                [":flag_mp:"] = "\U0001f1f2\U0001f1f5",
+                [":flag_mq:"] = "\U0001f1f2\U0001f1f6",
+                [":flag_mr:"] = "\U0001f1f2\U0001f1f7",
+                [":flag_ms:"] = "\U0001f1f2\U0001f1f8",
+                [":flag_mt:"] = "\U0001f1f2\U0001f1f9",
+                [":flag_mu:"] = "\U0001f1f2\U0001f1fa",
+                [":flag_mv:"] = "\U0001f1f2\U0001f1fb",
+                [":flag_mw:"] = "\U0001f1f2\U0001f1fc",
+                [":flag_mx:"] = "\U0001f1f2\U0001f1fd",
+                [":flag_my:"] = "\U0001f1f2\U0001f1fe",
+                [":flag_mz:"] = "\U0001f1f2\U0001f1ff",
+                [":flag_na:"] = "\U0001f1f3\U0001f1e6",
+                [":flag_nc:"] = "\U0001f1f3\U0001f1e8",
+                [":flag_ne:"] = "\U0001f1f3\U0001f1ea",
+                [":flag_nf:"] = "\U0001f1f3\U0001f1eb",
+                [":flag_ng:"] = "\U0001f1f3\U0001f1ec",
+                [":flag_ni:"] = "\U0001f1f3\U0001f1ee",
+                [":flag_nl:"] = "\U0001f1f3\U0001f1f1",
+                [":flag_no:"] = "\U0001f1f3\U0001f1f4",
+                [":flag_np:"] = "\U0001f1f3\U0001f1f5",
+                [":flag_nr:"] = "\U0001f1f3\U0001f1f7",
+                [":flag_nu:"] = "\U0001f1f3\U0001f1fa",
+                [":flag_nz:"] = "\U0001f1f3\U0001f1ff",
+                [":flag_om:"] = "\U0001f1f4\U0001f1f2",
+                [":flag_pa:"] = "\U0001f1f5\U0001f1e6",
+                [":flag_pe:"] = "\U0001f1f5\U0001f1ea",
+                [":flag_pf:"] = "\U0001f1f5\U0001f1eb",
+                [":flag_pg:"] = "\U0001f1f5\U0001f1ec",
+                [":flag_ph:"] = "\U0001f1f5\U0001f1ed",
+                [":flag_pk:"] = "\U0001f1f5\U0001f1f0",
+                [":flag_pl:"] = "\U0001f1f5\U0001f1f1",
+                [":flag_pm:"] = "\U0001f1f5\U0001f1f2",
+                [":flag_pn:"] = "\U0001f1f5\U0001f1f3",
+                [":flag_pr:"] = "\U0001f1f5\U0001f1f7",
+                [":flag_ps:"] = "\U0001f1f5\U0001f1f8",
+                [":flag_pt:"] = "\U0001f1f5\U0001f1f9",
+                [":flag_pw:"] = "\U0001f1f5\U0001f1fc",
+                [":flag_py:"] = "\U0001f1f5\U0001f1fe",
+                [":flag_qa:"] = "\U0001f1f6\U0001f1e6",
+                [":flag_re:"] = "\U0001f1f7\U0001f1ea",
+                [":flag_ro:"] = "\U0001f1f7\U0001f1f4",
+                [":flag_rs:"] = "\U0001f1f7\U0001f1f8",
+                [":flag_ru:"] = "\U0001f1f7\U0001f1fa",
+                [":flag_rw:"] = "\U0001f1f7\U0001f1fc",
+                [":flag_sa:"] = "\U0001f1f8\U0001f1e6",
+                [":flag_sb:"] = "\U0001f1f8\U0001f1e7",
+                [":flag_sc:"] = "\U0001f1f8\U0001f1e8",
+                [":flag_sd:"] = "\U0001f1f8\U0001f1e9",
+                [":flag_se:"] = "\U0001f1f8\U0001f1ea",
+                [":flag_sg:"] = "\U0001f1f8\U0001f1ec",
+                [":flag_sh:"] = "\U0001f1f8\U0001f1ed",
+                [":flag_si:"] = "\U0001f1f8\U0001f1ee",
+                [":flag_sj:"] = "\U0001f1f8\U0001f1ef",
+                [":flag_sk:"] = "\U0001f1f8\U0001f1f0",
+                [":flag_sl:"] = "\U0001f1f8\U0001f1f1",
+                [":flag_sm:"] = "\U0001f1f8\U0001f1f2",
+                [":flag_sn:"] = "\U0001f1f8\U0001f1f3",
+                [":flag_so:"] = "\U0001f1f8\U0001f1f4",
+                [":flag_sr:"] = "\U0001f1f8\U0001f1f7",
+                [":flag_ss:"] = "\U0001f1f8\U0001f1f8",
+                [":flag_st:"] = "\U0001f1f8\U0001f1f9",
+                [":flag_sv:"] = "\U0001f1f8\U0001f1fb",
+                [":flag_sx:"] = "\U0001f1f8\U0001f1fd",
+                [":flag_sy:"] = "\U0001f1f8\U0001f1fe",
+                [":flag_sz:"] = "\U0001f1f8\U0001f1ff",
+                [":flag_ta:"] = "\U0001f1f9\U0001f1e6",
+                [":flag_tc:"] = "\U0001f1f9\U0001f1e8",
+                [":flag_td:"] = "\U0001f1f9\U0001f1e9",
+                [":flag_tf:"] = "\U0001f1f9\U0001f1eb",
+                [":flag_tg:"] = "\U0001f1f9\U0001f1ec",
+                [":flag_th:"] = "\U0001f1f9\U0001f1ed",
+                [":flag_tj:"] = "\U0001f1f9\U0001f1ef",
+                [":flag_tk:"] = "\U0001f1f9\U0001f1f0",
+                [":flag_tl:"] = "\U0001f1f9\U0001f1f1",
+                [":flag_tm:"] = "\U0001f1f9\U0001f1f2",
+                [":flag_tn:"] = "\U0001f1f9\U0001f1f3",
+                [":flag_to:"] = "\U0001f1f9\U0001f1f4",
+                [":flag_tr:"] = "\U0001f1f9\U0001f1f7",
+                [":flag_tt:"] = "\U0001f1f9\U0001f1f9",
+                [":flag_tv:"] = "\U0001f1f9\U0001f1fb",
+                [":flag_tw:"] = "\U0001f1f9\U0001f1fc",
+                [":flag_tz:"] = "\U0001f1f9\U0001f1ff",
+                [":flag_ua:"] = "\U0001f1fa\U0001f1e6",
+                [":flag_ug:"] = "\U0001f1fa\U0001f1ec",
+                [":flag_um:"] = "\U0001f1fa\U0001f1f2",
+                [":flag_us:"] = "\U0001f1fa\U0001f1f8",
+                [":flag_uy:"] = "\U0001f1fa\U0001f1fe",
+                [":flag_uz:"] = "\U0001f1fa\U0001f1ff",
+                [":flag_va:"] = "\U0001f1fb\U0001f1e6",
+                [":flag_vc:"] = "\U0001f1fb\U0001f1e8",
+                [":flag_ve:"] = "\U0001f1fb\U0001f1ea",
+                [":flag_vg:"] = "\U0001f1fb\U0001f1ec",
+                [":flag_vi:"] = "\U0001f1fb\U0001f1ee",
+                [":flag_vn:"] = "\U0001f1fb\U0001f1f3",
+                [":flag_vu:"] = "\U0001f1fb\U0001f1fa",
+                [":flag_wf:"] = "\U0001f1fc\U0001f1eb",
+                [":flag_white:"] = "\U0001f3f3",
+                [":flag_ws:"] = "\U0001f1fc\U0001f1f8",
+                [":flag_xk:"] = "\U0001f1fd\U0001f1f0",
+                [":flag_ye:"] = "\U0001f1fe\U0001f1ea",
+                [":flag_yt:"] = "\U0001f1fe\U0001f1f9",
+                [":flag_za:"] = "\U0001f1ff\U0001f1e6",
+                [":flag_zm:"] = "\U0001f1ff\U0001f1f2",
+                [":flag_zw:"] = "\U0001f1ff\U0001f1fc",
+                [":flags:"] = "\U0001f38f",
+                [":flashlight:"] = "\U0001f526",
+                [":fleur_de_lis:"] = "\u269c",
+                [":flipper:"] = "\U0001f42c",
+                [":floppy_disk:"] = "\U0001f4be",
+                [":flower_playing_cards:"] = "\U0001f3b4",
+                [":flushed:"] = "\U0001f633",
+                [":fog:"] = "\U0001f32b",
+                [":foggy:"] = "\U0001f301",
+                [":football:"] = "\U0001f3c8",
+                [":footprints:"] = "\U0001f463",
+                [":fork_and_knife:"] = "\U0001f374",
+                [":fork_knife_plate:"] = "\U0001f37d",
+                [":fountain:"] = "\u26f2",
+                [":four:"] = "4\u20e3",
+                [":four_leaf_clover:"] = "\U0001f340",
+                [":fox:"] = "\U0001f98a",
+                [":frame_photo:"] = "\U0001f5bc",
+                [":free:"] = "\U0001f193",
+                [":french_bread:"] = "\U0001f956",
+                [":fried_shrimp:"] = "\U0001f364",
+                [":fries:"] = "\U0001f35f",
+                [":frog:"] = "\U0001f438",
+                [":frowning2:"] = "\u2639",
+                [":frowning:"] = "\U0001f626",
+                [":fuelpump:"] = "\u26fd",
+                [":full_moon:"] = "\U0001f315",
+                [":full_moon_with_face:"] = "\U0001f31d",
+                [":game_die:"] = "\U0001f3b2",
+                [":gear:"] = "\u2699",
+                [":gem:"] = "\U0001f48e",
+                [":gemini:"] = "\u264a",
+                [":ghost:"] = "\U0001f47b",
+                [":gift:"] = "\U0001f381",
+                [":gift_heart:"] = "\U0001f49d",
+                [":girl:"] = "\U0001f467",
+                [":girl::skin-tone-1:"] = "\U0001f467\U0001f3fb",
+                [":girl::skin-tone-2:"] = "\U0001f467\U0001f3fc",
+                [":girl::skin-tone-3:"] = "\U0001f467\U0001f3fd",
+                [":girl::skin-tone-4:"] = "\U0001f467\U0001f3fe",
+                [":girl::skin-tone-5:"] = "\U0001f467\U0001f3ff",
+                [":globe_with_meridians:"] = "\U0001f310",
+                [":goal:"] = "\U0001f945",
+                [":goat:"] = "\U0001f410",
+                [":golf:"] = "\u26f3",
+                [":golfer:"] = "\U0001f3cc",
+                [":golfer::skin-tone-1:"] = "\U0001f3cc\U0001f3fb",
+                [":golfer::skin-tone-2:"] = "\U0001f3cc\U0001f3fc",
+                [":golfer::skin-tone-3:"] = "\U0001f3cc\U0001f3fd",
+                [":golfer::skin-tone-4:"] = "\U0001f3cc\U0001f3fe",
+                [":golfer::skin-tone-5:"] = "\U0001f3cc\U0001f3ff",
+                [":gorilla:"] = "\U0001f98d",
+                [":grapes:"] = "\U0001f347",
+                [":green_apple:"] = "\U0001f34f",
+                [":green_book:"] = "\U0001f4d7",
+                [":green_heart:"] = "\U0001f49a",
+                [":grey_exclamation:"] = "\u2755",
+                [":grey_question:"] = "\u2754",
+                [":grimacing:"] = "\U0001f62c",
+                [":grin:"] = "\U0001f601",
+                [":grinning:"] = "\U0001f600",
+                [":guardsman:"] = "\U0001f482",
+                [":guardsman::skin-tone-1:"] = "\U0001f482\U0001f3fb",
+                [":guardsman::skin-tone-2:"] = "\U0001f482\U0001f3fc",
+                [":guardsman::skin-tone-3:"] = "\U0001f482\U0001f3fd",
+                [":guardsman::skin-tone-4:"] = "\U0001f482\U0001f3fe",
+                [":guardsman::skin-tone-5:"] = "\U0001f482\U0001f3ff",
+                [":guitar:"] = "\U0001f3b8",
+                [":gun:"] = "\U0001f52b",
+                [":haircut:"] = "\U0001f487",
+                [":haircut::skin-tone-1:"] = "\U0001f487\U0001f3fb",
+                [":haircut::skin-tone-2:"] = "\U0001f487\U0001f3fc",
+                [":haircut::skin-tone-3:"] = "\U0001f487\U0001f3fd",
+                [":haircut::skin-tone-4:"] = "\U0001f487\U0001f3fe",
+                [":haircut::skin-tone-5:"] = "\U0001f487\U0001f3ff",
+                [":hamburger:"] = "\U0001f354",
+                [":hammer:"] = "\U0001f528",
+                [":hammer_pick:"] = "\u2692",
+                [":hamster:"] = "\U0001f439",
+                [":hand:"] = "\u270b",
+                [":hand::skin-tone-1:"] = "\u270b\U0001f3fb",
+                [":hand::skin-tone-2:"] = "\u270b\U0001f3fc",
+                [":hand::skin-tone-3:"] = "\u270b\U0001f3fd",
+                [":hand::skin-tone-4:"] = "\u270b\U0001f3fe",
+                [":hand::skin-tone-5:"] = "\u270b\U0001f3ff",
+                [":hand_splayed:"] = "\U0001f590",
+                [":hand_splayed::skin-tone-1:"] = "\U0001f590\U0001f3fb",
+                [":hand_splayed::skin-tone-2:"] = "\U0001f590\U0001f3fc",
+                [":hand_splayed::skin-tone-3:"] = "\U0001f590\U0001f3fd",
+                [":hand_splayed::skin-tone-4:"] = "\U0001f590\U0001f3fe",
+                [":hand_splayed::skin-tone-5:"] = "\U0001f590\U0001f3ff",
+                [":handbag:"] = "\U0001f45c",
+                [":handball:"] = "\U0001f93e",
+                [":handball::skin-tone-1:"] = "\U0001f93e\U0001f3fb",
+                [":handball::skin-tone-2:"] = "\U0001f93e\U0001f3fc",
+                [":handball::skin-tone-3:"] = "\U0001f93e\U0001f3fd",
+                [":handball::skin-tone-4:"] = "\U0001f93e\U0001f3fe",
+                [":handball::skin-tone-5:"] = "\U0001f93e\U0001f3ff",
+                [":handshake:"] = "\U0001f91d",
+                [":hash:"] = "#\u20e3",
+                [":hatched_chick:"] = "\U0001f425",
+                [":hatching_chick:"] = "\U0001f423",
+                [":head_bandage:"] = "\U0001f915",
+                [":headphones:"] = "\U0001f3a7",
+                [":hear_no_evil:"] = "\U0001f649",
+                [":heart:"] = "\u2764",
+                [":heart_decoration:"] = "\U0001f49f",
+                [":heart_exclamation:"] = "\u2763",
+                [":heart_eyes:"] = "\U0001f60d",
+                [":heart_eyes_cat:"] = "\U0001f63b",
+                [":heartbeat:"] = "\U0001f493",
+                [":heartpulse:"] = "\U0001f497",
+                [":hearts:"] = "\u2665",
+                [":heavy_check_mark:"] = "\u2714",
+                [":heavy_division_sign:"] = "\u2797",
+                [":heavy_dollar_sign:"] = "\U0001f4b2",
+                [":heavy_exclamation_mark:"] = "\u2757",
+                [":heavy_minus_sign:"] = "\u2796",
+                [":heavy_multiplication_x:"] = "\u2716",
+                [":heavy_plus_sign:"] = "\u2795",
+                [":helicopter:"] = "\U0001f681",
+                [":helmet_with_cross:"] = "\u26d1",
+                [":herb:"] = "\U0001f33f",
+                [":hibiscus:"] = "\U0001f33a",
+                [":high_brightness:"] = "\U0001f506",
+                [":high_heel:"] = "\U0001f460",
+                [":hocho:"] = "\U0001f52a",
+                [":hockey:"] = "\U0001f3d2",
+                [":hole:"] = "\U0001f573",
+                [":homes:"] = "\U0001f3d8",
+                [":honey_pot:"] = "\U0001f36f",
+                [":honeybee:"] = "\U0001f41d",
+                [":horse:"] = "\U0001f434",
+                [":horse_racing:"] = "\U0001f3c7",
+                [":horse_racing::skin-tone-1:"] = "\U0001f3c7\U0001f3fb",
+                [":horse_racing::skin-tone-2:"] = "\U0001f3c7\U0001f3fc",
+                [":horse_racing::skin-tone-3:"] = "\U0001f3c7\U0001f3fd",
+                [":horse_racing::skin-tone-4:"] = "\U0001f3c7\U0001f3fe",
+                [":horse_racing::skin-tone-5:"] = "\U0001f3c7\U0001f3ff",
+                [":hospital:"] = "\U0001f3e5",
+                [":hot_pepper:"] = "\U0001f336",
+                [":hotdog:"] = "\U0001f32d",
+                [":hotel:"] = "\U0001f3e8",
+                [":hotsprings:"] = "\u2668",
+                [":hourglass:"] = "\u231b",
+                [":hourglass_flowing_sand:"] = "\u23f3",
+                [":house:"] = "\U0001f3e0",
+                [":house_abandoned:"] = "\U0001f3da",
+                [":house_with_garden:"] = "\U0001f3e1",
+                [":hugging:"] = "\U0001f917",
+                [":hushed:"] = "\U0001f62f",
+                [":ice_cream:"] = "\U0001f368",
+                [":ice_skate:"] = "\u26f8",
+                [":icecream:"] = "\U0001f366",
+                [":id:"] = "\U0001f194",
+                [":ideograph_advantage:"] = "\U0001f250",
+                [":imp:"] = "\U0001f47f",
+                [":inbox_tray:"] = "\U0001f4e5",
+                [":incoming_envelope:"] = "\U0001f4e8",
+                [":information_desk_person:"] = "\U0001f481",
+                [":information_desk_person::skin-tone-1:"] = "\U0001f481\U0001f3fb",
+                [":information_desk_person::skin-tone-2:"] = "\U0001f481\U0001f3fc",
+                [":information_desk_person::skin-tone-3:"] = "\U0001f481\U0001f3fd",
+                [":information_desk_person::skin-tone-4:"] = "\U0001f481\U0001f3fe",
+                [":information_desk_person::skin-tone-5:"] = "\U0001f481\U0001f3ff",
+                [":information_source:"] = "\u2139",
+                [":innocent:"] = "\U0001f607",
+                [":interrobang:"] = "\u2049",
+                [":iphone:"] = "\U0001f4f1",
+                [":island:"] = "\U0001f3dd",
+                [":izakaya_lantern:"] = "\U0001f3ee",
+                [":jack_o_lantern:"] = "\U0001f383",
+                [":japan:"] = "\U0001f5fe",
+                [":japanese_castle:"] = "\U0001f3ef",
+                [":japanese_goblin:"] = "\U0001f47a",
+                [":japanese_ogre:"] = "\U0001f479",
+                [":jeans:"] = "\U0001f456",
+                [":joy:"] = "\U0001f602",
+                [":joy_cat:"] = "\U0001f639",
+                [":joystick:"] = "\U0001f579",
+                [":juggling:"] = "\U0001f939",
+                [":juggling::skin-tone-1:"] = "\U0001f939\U0001f3fb",
+                [":juggling::skin-tone-2:"] = "\U0001f939\U0001f3fc",
+                [":juggling::skin-tone-3:"] = "\U0001f939\U0001f3fd",
+                [":juggling::skin-tone-4:"] = "\U0001f939\U0001f3fe",
+                [":juggling::skin-tone-5:"] = "\U0001f939\U0001f3ff",
+                [":kaaba:"] = "\U0001f54b",
+                [":key2:"] = "\U0001f5dd",
+                [":key:"] = "\U0001f511",
+                [":keyboard:"] = "\u2328",
+                [":keycap_ten:"] = "\U0001f51f",
+                [":kimono:"] = "\U0001f458",
+                [":kiss:"] = "\U0001f48b",
+                [":kiss_mm:"] = "\U0001f468\u200d\u2764\ufe0f\u200d\U0001f48b\u200d\U0001f468",
+                [":kiss_ww:"] = "\U0001f469\u200d\u2764\ufe0f\u200d\U0001f48b\u200d\U0001f469",
+                [":kissing:"] = "\U0001f617",
+                [":kissing_cat:"] = "\U0001f63d",
+                [":kissing_closed_eyes:"] = "\U0001f61a",
+                [":kissing_heart:"] = "\U0001f618",
+                [":kissing_smiling_eyes:"] = "\U0001f619",
+                [":kiwi:"] = "\U0001f95d",
+                [":knife:"] = "\U0001f52a",
+                [":koala:"] = "\U0001f428",
+                [":koko:"] = "\U0001f201",
+                [":label:"] = "\U0001f3f7",
+                [":lantern:"] = "\U0001f3ee",
+                [":large_blue_circle:"] = "\U0001f535",
+                [":large_blue_diamond:"] = "\U0001f537",
+                [":large_orange_diamond:"] = "\U0001f536",
+                [":last_quarter_moon:"] = "\U0001f317",
+                [":last_quarter_moon_with_face:"] = "\U0001f31c",
+                [":laughing:"] = "\U0001f606",
+                [":leaves:"] = "\U0001f343",
+                [":ledger:"] = "\U0001f4d2",
+                [":left_facing_fist:"] = "\U0001f91b",
+                [":left_facing_fist::skin-tone-1:"] = "\U0001f91b\U0001f3fb",
+                [":left_facing_fist::skin-tone-2:"] = "\U0001f91b\U0001f3fc",
+                [":left_facing_fist::skin-tone-3:"] = "\U0001f91b\U0001f3fd",
+                [":left_facing_fist::skin-tone-4:"] = "\U0001f91b\U0001f3fe",
+                [":left_facing_fist::skin-tone-5:"] = "\U0001f91b\U0001f3ff",
+                [":left_luggage:"] = "\U0001f6c5",
+                [":left_right_arrow:"] = "\u2194",
+                [":leftwards_arrow_with_hook:"] = "\u21a9",
+                [":lemon:"] = "\U0001f34b",
+                [":leo:"] = "\u264c",
+                [":leopard:"] = "\U0001f406",
+                [":level_slider:"] = "\U0001f39a",
+                [":levitate:"] = "\U0001f574",
+                [":levitate::skin-tone-1:"] = "\U0001f574\U0001f3fb",
+                [":levitate::skin-tone-2:"] = "\U0001f574\U0001f3fc",
+                [":levitate::skin-tone-3:"] = "\U0001f574\U0001f3fd",
+                [":levitate::skin-tone-4:"] = "\U0001f574\U0001f3fe",
+                [":levitate::skin-tone-5:"] = "\U0001f574\U0001f3ff",
+                [":libra:"] = "\u264e",
+                [":lifter:"] = "\U0001f3cb",
+                [":lifter::skin-tone-1:"] = "\U0001f3cb\U0001f3fb",
+                [":lifter::skin-tone-2:"] = "\U0001f3cb\U0001f3fc",
+                [":lifter::skin-tone-3:"] = "\U0001f3cb\U0001f3fd",
+                [":lifter::skin-tone-4:"] = "\U0001f3cb\U0001f3fe",
+                [":lifter::skin-tone-5:"] = "\U0001f3cb\U0001f3ff",
+                [":light_rail:"] = "\U0001f688",
+                [":link:"] = "\U0001f517",
+                [":lion_face:"] = "\U0001f981",
+                [":lips:"] = "\U0001f444",
+                [":lipstick:"] = "\U0001f484",
+                [":lizard:"] = "\U0001f98e",
+                [":lock:"] = "\U0001f512",
+                [":lock_with_ink_pen:"] = "\U0001f50f",
+                [":lollipop:"] = "\U0001f36d",
+                [":loop:"] = "\u27bf",
+                [":loud_sound:"] = "\U0001f50a",
+                [":loudspeaker:"] = "\U0001f4e2",
+                [":love_hotel:"] = "\U0001f3e9",
+                [":love_letter:"] = "\U0001f48c",
+                [":low_brightness:"] = "\U0001f505",
+                [":lying_face:"] = "\U0001f925",
+                [":m:"] = "\u24c2",
+                [":mag:"] = "\U0001f50d",
+                [":mag_right:"] = "\U0001f50e",
+                [":mahjong:"] = "\U0001f004",
+                [":mailbox:"] = "\U0001f4eb",
+                [":mailbox_closed:"] = "\U0001f4ea",
+                [":mailbox_with_mail:"] = "\U0001f4ec",
+                [":mailbox_with_no_mail:"] = "\U0001f4ed",
+                [":man:"] = "\U0001f468",
+                [":man::skin-tone-1:"] = "\U0001f468\U0001f3fb",
+                [":man::skin-tone-2:"] = "\U0001f468\U0001f3fc",
+                [":man::skin-tone-3:"] = "\U0001f468\U0001f3fd",
+                [":man::skin-tone-4:"] = "\U0001f468\U0001f3fe",
+                [":man::skin-tone-5:"] = "\U0001f468\U0001f3ff",
+                [":man_dancing:"] = "\U0001f57a",
+                [":man_dancing::skin-tone-1:"] = "\U0001f57a\U0001f3fb",
+                [":man_dancing::skin-tone-2:"] = "\U0001f57a\U0001f3fc",
+                [":man_dancing::skin-tone-3:"] = "\U0001f57a\U0001f3fd",
+                [":man_dancing::skin-tone-4:"] = "\U0001f57a\U0001f3fe",
+                [":man_dancing::skin-tone-5:"] = "\U0001f57a\U0001f3ff",
+                [":man_in_tuxedo:"] = "\U0001f935",
+                [":man_in_tuxedo::skin-tone-1:"] = "\U0001f935\U0001f3fb",
+                [":man_in_tuxedo::skin-tone-2:"] = "\U0001f935\U0001f3fc",
+                [":man_in_tuxedo::skin-tone-3:"] = "\U0001f935\U0001f3fd",
+                [":man_in_tuxedo::skin-tone-4:"] = "\U0001f935\U0001f3fe",
+                [":man_in_tuxedo::skin-tone-5:"] = "\U0001f935\U0001f3ff",
+                [":man_with_gua_pi_mao:"] = "\U0001f472",
+                [":man_with_gua_pi_mao::skin-tone-1:"] = "\U0001f472\U0001f3fb",
+                [":man_with_gua_pi_mao::skin-tone-2:"] = "\U0001f472\U0001f3fc",
+                [":man_with_gua_pi_mao::skin-tone-3:"] = "\U0001f472\U0001f3fd",
+                [":man_with_gua_pi_mao::skin-tone-4:"] = "\U0001f472\U0001f3fe",
+                [":man_with_gua_pi_mao::skin-tone-5:"] = "\U0001f472\U0001f3ff",
+                [":man_with_turban:"] = "\U0001f473",
+                [":man_with_turban::skin-tone-1:"] = "\U0001f473\U0001f3fb",
+                [":man_with_turban::skin-tone-2:"] = "\U0001f473\U0001f3fc",
+                [":man_with_turban::skin-tone-3:"] = "\U0001f473\U0001f3fd",
+                [":man_with_turban::skin-tone-4:"] = "\U0001f473\U0001f3fe",
+                [":man_with_turban::skin-tone-5:"] = "\U0001f473\U0001f3ff",
+                [":mans_shoe:"] = "\U0001f45e",
+                [":map:"] = "\U0001f5fa",
+                [":maple_leaf:"] = "\U0001f341",
+                [":martial_arts_uniform:"] = "\U0001f94b",
+                [":mask:"] = "\U0001f637",
+                [":massage:"] = "\U0001f486",
+                [":massage::skin-tone-1:"] = "\U0001f486\U0001f3fb",
+                [":massage::skin-tone-2:"] = "\U0001f486\U0001f3fc",
+                [":massage::skin-tone-3:"] = "\U0001f486\U0001f3fd",
+                [":massage::skin-tone-4:"] = "\U0001f486\U0001f3fe",
+                [":massage::skin-tone-5:"] = "\U0001f486\U0001f3ff",
+                [":meat_on_bone:"] = "\U0001f356",
+                [":medal:"] = "\U0001f3c5",
+                [":mega:"] = "\U0001f4e3",
+                [":melon:"] = "\U0001f348",
+                [":memo:"] = "\U0001f4dd",
+                [":menorah:"] = "\U0001f54e",
+                [":mens:"] = "\U0001f6b9",
+                [":metal:"] = "\U0001f918",
+                [":metal::skin-tone-1:"] = "\U0001f918\U0001f3fb",
+                [":metal::skin-tone-2:"] = "\U0001f918\U0001f3fc",
+                [":metal::skin-tone-3:"] = "\U0001f918\U0001f3fd",
+                [":metal::skin-tone-4:"] = "\U0001f918\U0001f3fe",
+                [":metal::skin-tone-5:"] = "\U0001f918\U0001f3ff",
+                [":metro:"] = "\U0001f687",
+                [":microphone2:"] = "\U0001f399",
+                [":microphone:"] = "\U0001f3a4",
+                [":microscope:"] = "\U0001f52c",
+                [":middle_finger:"] = "\U0001f595",
+                [":middle_finger::skin-tone-1:"] = "\U0001f595\U0001f3fb",
+                [":middle_finger::skin-tone-2:"] = "\U0001f595\U0001f3fc",
+                [":middle_finger::skin-tone-3:"] = "\U0001f595\U0001f3fd",
+                [":middle_finger::skin-tone-4:"] = "\U0001f595\U0001f3fe",
+                [":middle_finger::skin-tone-5:"] = "\U0001f595\U0001f3ff",
+                [":military_medal:"] = "\U0001f396",
+                [":milk:"] = "\U0001f95b",
+                [":milky_way:"] = "\U0001f30c",
+                [":minibus:"] = "\U0001f690",
+                [":minidisc:"] = "\U0001f4bd",
+                [":mobile_phone_off:"] = "\U0001f4f4",
+                [":money_mouth:"] = "\U0001f911",
+                [":money_with_wings:"] = "\U0001f4b8",
+                [":moneybag:"] = "\U0001f4b0",
+                [":monkey:"] = "\U0001f412",
+                [":monkey_face:"] = "\U0001f435",
+                [":monorail:"] = "\U0001f69d",
+                [":moon:"] = "\U0001f314",
+                [":mortar_board:"] = "\U0001f393",
+                [":mosque:"] = "\U0001f54c",
+                [":motor_scooter:"] = "\U0001f6f5",
+                [":motorboat:"] = "\U0001f6e5",
+                [":motorcycle:"] = "\U0001f3cd",
+                [":motorway:"] = "\U0001f6e3",
+                [":mount_fuji:"] = "\U0001f5fb",
+                [":mountain:"] = "\u26f0",
+                [":mountain_bicyclist:"] = "\U0001f6b5",
+                [":mountain_bicyclist::skin-tone-1:"] = "\U0001f6b5\U0001f3fb",
+                [":mountain_bicyclist::skin-tone-2:"] = "\U0001f6b5\U0001f3fc",
+                [":mountain_bicyclist::skin-tone-3:"] = "\U0001f6b5\U0001f3fd",
+                [":mountain_bicyclist::skin-tone-4:"] = "\U0001f6b5\U0001f3fe",
+                [":mountain_bicyclist::skin-tone-5:"] = "\U0001f6b5\U0001f3ff",
+                [":mountain_cableway:"] = "\U0001f6a0",
+                [":mountain_railway:"] = "\U0001f69e",
+                [":mountain_snow:"] = "\U0001f3d4",
+                [":mouse2:"] = "\U0001f401",
+                [":mouse:"] = "\U0001f42d",
+                [":mouse_three_button:"] = "\U0001f5b1",
+                [":movie_camera:"] = "\U0001f3a5",
+                [":moyai:"] = "\U0001f5ff",
+                [":mrs_claus:"] = "\U0001f936",
+                [":mrs_claus::skin-tone-1:"] = "\U0001f936\U0001f3fb",
+                [":mrs_claus::skin-tone-2:"] = "\U0001f936\U0001f3fc",
+                [":mrs_claus::skin-tone-3:"] = "\U0001f936\U0001f3fd",
+                [":mrs_claus::skin-tone-4:"] = "\U0001f936\U0001f3fe",
+                [":mrs_claus::skin-tone-5:"] = "\U0001f936\U0001f3ff",
+                [":muscle:"] = "\U0001f4aa",
+                [":muscle::skin-tone-1:"] = "\U0001f4aa\U0001f3fb",
+                [":muscle::skin-tone-2:"] = "\U0001f4aa\U0001f3fc",
+                [":muscle::skin-tone-3:"] = "\U0001f4aa\U0001f3fd",
+                [":muscle::skin-tone-4:"] = "\U0001f4aa\U0001f3fe",
+                [":muscle::skin-tone-5:"] = "\U0001f4aa\U0001f3ff",
+                [":mushroom:"] = "\U0001f344",
+                [":musical_keyboard:"] = "\U0001f3b9",
+                [":musical_note:"] = "\U0001f3b5",
+                [":musical_score:"] = "\U0001f3bc",
+                [":mute:"] = "\U0001f507",
+                [":nail_care:"] = "\U0001f485",
+                [":nail_care::skin-tone-1:"] = "\U0001f485\U0001f3fb",
+                [":nail_care::skin-tone-2:"] = "\U0001f485\U0001f3fc",
+                [":nail_care::skin-tone-3:"] = "\U0001f485\U0001f3fd",
+                [":nail_care::skin-tone-4:"] = "\U0001f485\U0001f3fe",
+                [":nail_care::skin-tone-5:"] = "\U0001f485\U0001f3ff",
+                [":name_badge:"] = "\U0001f4db",
+                [":nauseated_face:"] = "\U0001f922",
+                [":necktie:"] = "\U0001f454",
+                [":negative_squared_cross_mark:"] = "\u274e",
+                [":nerd:"] = "\U0001f913",
+                [":neutral_face:"] = "\U0001f610",
+                [":new:"] = "\U0001f195",
+                [":new_moon:"] = "\U0001f311",
+                [":new_moon_with_face:"] = "\U0001f31a",
+                [":newspaper2:"] = "\U0001f5de",
+                [":newspaper:"] = "\U0001f4f0",
+                [":ng:"] = "\U0001f196",
+                [":night_with_stars:"] = "\U0001f303",
+                [":nine:"] = "9\u20e3",
+                [":no_bell:"] = "\U0001f515",
+                [":no_bicycles:"] = "\U0001f6b3",
+                [":no_entry:"] = "\u26d4",
+                [":no_entry_sign:"] = "\U0001f6ab",
+                [":no_good:"] = "\U0001f645",
+                [":no_good::skin-tone-1:"] = "\U0001f645\U0001f3fb",
+                [":no_good::skin-tone-2:"] = "\U0001f645\U0001f3fc",
+                [":no_good::skin-tone-3:"] = "\U0001f645\U0001f3fd",
+                [":no_good::skin-tone-4:"] = "\U0001f645\U0001f3fe",
+                [":no_good::skin-tone-5:"] = "\U0001f645\U0001f3ff",
+                [":no_mobile_phones:"] = "\U0001f4f5",
+                [":no_mouth:"] = "\U0001f636",
+                [":no_pedestrians:"] = "\U0001f6b7",
+                [":no_smoking:"] = "\U0001f6ad",
+                [":non_potable_water:"] = "\U0001f6b1",
+                [":nose:"] = "\U0001f443",
+                [":nose::skin-tone-1:"] = "\U0001f443\U0001f3fb",
+                [":nose::skin-tone-2:"] = "\U0001f443\U0001f3fc",
+                [":nose::skin-tone-3:"] = "\U0001f443\U0001f3fd",
+                [":nose::skin-tone-4:"] = "\U0001f443\U0001f3fe",
+                [":nose::skin-tone-5:"] = "\U0001f443\U0001f3ff",
+                [":notebook:"] = "\U0001f4d3",
+                [":notebook_with_decorative_cover:"] = "\U0001f4d4",
+                [":notepad_spiral:"] = "\U0001f5d2",
+                [":notes:"] = "\U0001f3b6",
+                [":nut_and_bolt:"] = "\U0001f529",
+                [":O"] = "\U0001f62e",
+                [":o"] = "\U0001f62e",
+                [":o2:"] = "\U0001f17e",
+                [":o:"] = "\u2b55",
+                [":ocean:"] = "\U0001f30a",
+                [":octagonal_sign:"] = "\U0001f6d1",
+                [":octopus:"] = "\U0001f419",
+                [":oden:"] = "\U0001f362",
+                [":office:"] = "\U0001f3e2",
+                [":oil:"] = "\U0001f6e2",
+                [":ok:"] = "\U0001f197",
+                [":ok_hand:"] = "\U0001f44c",
+                [":ok_hand::skin-tone-1:"] = "\U0001f44c\U0001f3fb",
+                [":ok_hand::skin-tone-2:"] = "\U0001f44c\U0001f3fc",
+                [":ok_hand::skin-tone-3:"] = "\U0001f44c\U0001f3fd",
+                [":ok_hand::skin-tone-4:"] = "\U0001f44c\U0001f3fe",
+                [":ok_hand::skin-tone-5:"] = "\U0001f44c\U0001f3ff",
+                [":ok_woman:"] = "\U0001f646",
+                [":ok_woman::skin-tone-1:"] = "\U0001f646\U0001f3fb",
+                [":ok_woman::skin-tone-2:"] = "\U0001f646\U0001f3fc",
+                [":ok_woman::skin-tone-3:"] = "\U0001f646\U0001f3fd",
+                [":ok_woman::skin-tone-4:"] = "\U0001f646\U0001f3fe",
+                [":ok_woman::skin-tone-5:"] = "\U0001f646\U0001f3ff",
+                [":older_man:"] = "\U0001f474",
+                [":older_man::skin-tone-1:"] = "\U0001f474\U0001f3fb",
+                [":older_man::skin-tone-2:"] = "\U0001f474\U0001f3fc",
+                [":older_man::skin-tone-3:"] = "\U0001f474\U0001f3fd",
+                [":older_man::skin-tone-4:"] = "\U0001f474\U0001f3fe",
+                [":older_man::skin-tone-5:"] = "\U0001f474\U0001f3ff",
+                [":older_woman:"] = "\U0001f475",
+                [":older_woman::skin-tone-1:"] = "\U0001f475\U0001f3fb",
+                [":older_woman::skin-tone-2:"] = "\U0001f475\U0001f3fc",
+                [":older_woman::skin-tone-3:"] = "\U0001f475\U0001f3fd",
+                [":older_woman::skin-tone-4:"] = "\U0001f475\U0001f3fe",
+                [":older_woman::skin-tone-5:"] = "\U0001f475\U0001f3ff",
+                [":om_symbol:"] = "\U0001f549",
+                [":on:"] = "\U0001f51b",
+                [":oncoming_automobile:"] = "\U0001f698",
+                [":oncoming_bus:"] = "\U0001f68d",
+                [":oncoming_police_car:"] = "\U0001f694",
+                [":oncoming_taxi:"] = "\U0001f696",
+                [":one:"] = "1\u20e3",
+                [":open_book:"] = "\U0001f4d6",
+                [":open_file_folder:"] = "\U0001f4c2",
+                [":open_hands:"] = "\U0001f450",
+                [":open_hands::skin-tone-1:"] = "\U0001f450\U0001f3fb",
+                [":open_hands::skin-tone-2:"] = "\U0001f450\U0001f3fc",
+                [":open_hands::skin-tone-3:"] = "\U0001f450\U0001f3fd",
+                [":open_hands::skin-tone-4:"] = "\U0001f450\U0001f3fe",
+                [":open_hands::skin-tone-5:"] = "\U0001f450\U0001f3ff",
+                [":open_mouth:"] = "\U0001f62e",
+                [":ophiuchus:"] = "\u26ce",
+                [":orange_book:"] = "\U0001f4d9",
+                [":orthodox_cross:"] = "\u2626",
+                [":outbox_tray:"] = "\U0001f4e4",
+                [":owl:"] = "\U0001f989",
+                [":ox:"] = "\U0001f402",
+                [":P"] = "\U0001f61b",
+                [":package:"] = "\U0001f4e6",
+                [":page_facing_up:"] = "\U0001f4c4",
+                [":page_with_curl:"] = "\U0001f4c3",
+                [":pager:"] = "\U0001f4df",
+                [":paintbrush:"] = "\U0001f58c",
+                [":palm_tree:"] = "\U0001f334",
+                [":pancakes:"] = "\U0001f95e",
+                [":panda_face:"] = "\U0001f43c",
+                [":paperclip:"] = "\U0001f4ce",
+                [":paperclips:"] = "\U0001f587",
+                [":park:"] = "\U0001f3de",
+                [":parking:"] = "\U0001f17f",
+                [":part_alternation_mark:"] = "\u303d",
+                [":partly_sunny:"] = "\u26c5",
+                [":passport_control:"] = "\U0001f6c2",
+                [":pause_button:"] = "\u23f8",
+                [":paw_prints:"] = "\U0001f43e",
+                [":peace:"] = "\u262e",
+                [":peach:"] = "\U0001f351",
+                [":peanuts:"] = "\U0001f95c",
+                [":pear:"] = "\U0001f350",
+                [":pen_ballpoint:"] = "\U0001f58a",
+                [":pen_fountain:"] = "\U0001f58b",
+                [":pencil2:"] = "\u270f",
+                [":pencil:"] = "\U0001f4dd",
+                [":penguin:"] = "\U0001f427",
+                [":pensive:"] = "\U0001f614",
+                [":performing_arts:"] = "\U0001f3ad",
+                [":persevere:"] = "\U0001f623",
+                [":person_frowning:"] = "\U0001f64d",
+                [":person_frowning::skin-tone-1:"] = "\U0001f64d\U0001f3fb",
+                [":person_frowning::skin-tone-2:"] = "\U0001f64d\U0001f3fc",
+                [":person_frowning::skin-tone-3:"] = "\U0001f64d\U0001f3fd",
+                [":person_frowning::skin-tone-4:"] = "\U0001f64d\U0001f3fe",
+                [":person_frowning::skin-tone-5:"] = "\U0001f64d\U0001f3ff",
+                [":person_with_blond_hair:"] = "\U0001f471",
+                [":person_with_blond_hair::skin-tone-1:"] = "\U0001f471\U0001f3fb",
+                [":person_with_blond_hair::skin-tone-2:"] = "\U0001f471\U0001f3fc",
+                [":person_with_blond_hair::skin-tone-3:"] = "\U0001f471\U0001f3fd",
+                [":person_with_blond_hair::skin-tone-4:"] = "\U0001f471\U0001f3fe",
+                [":person_with_blond_hair::skin-tone-5:"] = "\U0001f471\U0001f3ff",
+                [":person_with_pouting_face:"] = "\U0001f64e",
+                [":person_with_pouting_face::skin-tone-1:"] = "\U0001f64e\U0001f3fb",
+                [":person_with_pouting_face::skin-tone-2:"] = "\U0001f64e\U0001f3fc",
+                [":person_with_pouting_face::skin-tone-3:"] = "\U0001f64e\U0001f3fd",
+                [":person_with_pouting_face::skin-tone-4:"] = "\U0001f64e\U0001f3fe",
+                [":person_with_pouting_face::skin-tone-5:"] = "\U0001f64e\U0001f3ff",
+                [":phone:"] = "\u260e",
+                [":pick:"] = "\u26cf",
+                [":pig2:"] = "\U0001f416",
+                [":pig:"] = "\U0001f437",
+                [":pig_nose:"] = "\U0001f43d",
+                [":pill:"] = "\U0001f48a",
+                [":pineapple:"] = "\U0001f34d",
+                [":ping_pong:"] = "\U0001f3d3",
+                [":pisces:"] = "\u2653",
+                [":pizza:"] = "\U0001f355",
+                [":place_of_worship:"] = "\U0001f6d0",
+                [":play_pause:"] = "\u23ef",
+                [":point_down:"] = "\U0001f447",
+                [":point_down::skin-tone-1:"] = "\U0001f447\U0001f3fb",
+                [":point_down::skin-tone-2:"] = "\U0001f447\U0001f3fc",
+                [":point_down::skin-tone-3:"] = "\U0001f447\U0001f3fd",
+                [":point_down::skin-tone-4:"] = "\U0001f447\U0001f3fe",
+                [":point_down::skin-tone-5:"] = "\U0001f447\U0001f3ff",
+                [":point_left:"] = "\U0001f448",
+                [":point_left::skin-tone-1:"] = "\U0001f448\U0001f3fb",
+                [":point_left::skin-tone-2:"] = "\U0001f448\U0001f3fc",
+                [":point_left::skin-tone-3:"] = "\U0001f448\U0001f3fd",
+                [":point_left::skin-tone-4:"] = "\U0001f448\U0001f3fe",
+                [":point_left::skin-tone-5:"] = "\U0001f448\U0001f3ff",
+                [":point_right:"] = "\U0001f449",
+                [":point_right::skin-tone-1:"] = "\U0001f449\U0001f3fb",
+                [":point_right::skin-tone-2:"] = "\U0001f449\U0001f3fc",
+                [":point_right::skin-tone-3:"] = "\U0001f449\U0001f3fd",
+                [":point_right::skin-tone-4:"] = "\U0001f449\U0001f3fe",
+                [":point_right::skin-tone-5:"] = "\U0001f449\U0001f3ff",
+                [":point_up:"] = "\u261d",
+                [":point_up::skin-tone-1:"] = "\u261d\U0001f3fb",
+                [":point_up::skin-tone-2:"] = "\u261d\U0001f3fc",
+                [":point_up::skin-tone-3:"] = "\u261d\U0001f3fd",
+                [":point_up::skin-tone-4:"] = "\u261d\U0001f3fe",
+                [":point_up::skin-tone-5:"] = "\u261d\U0001f3ff",
+                [":point_up_2:"] = "\U0001f446",
+                [":point_up_2::skin-tone-1:"] = "\U0001f446\U0001f3fb",
+                [":point_up_2::skin-tone-2:"] = "\U0001f446\U0001f3fc",
+                [":point_up_2::skin-tone-3:"] = "\U0001f446\U0001f3fd",
+                [":point_up_2::skin-tone-4:"] = "\U0001f446\U0001f3fe",
+                [":point_up_2::skin-tone-5:"] = "\U0001f446\U0001f3ff",
+                [":police_car:"] = "\U0001f693",
+                [":poodle:"] = "\U0001f429",
+                [":poop:"] = "\U0001f4a9",
+                [":popcorn:"] = "\U0001f37f",
+                [":post_office:"] = "\U0001f3e3",
+                [":postal_horn:"] = "\U0001f4ef",
+                [":postbox:"] = "\U0001f4ee",
+                [":potable_water:"] = "\U0001f6b0",
+                [":potato:"] = "\U0001f954",
+                [":pouch:"] = "\U0001f45d",
+                [":poultry_leg:"] = "\U0001f357",
+                [":pound:"] = "\U0001f4b7",
+                [":pouting_cat:"] = "\U0001f63e",
+                [":pray:"] = "\U0001f64f",
+                [":pray::skin-tone-1:"] = "\U0001f64f\U0001f3fb",
+                [":pray::skin-tone-2:"] = "\U0001f64f\U0001f3fc",
+                [":pray::skin-tone-3:"] = "\U0001f64f\U0001f3fd",
+                [":pray::skin-tone-4:"] = "\U0001f64f\U0001f3fe",
+                [":pray::skin-tone-5:"] = "\U0001f64f\U0001f3ff",
+                [":prayer_beads:"] = "\U0001f4ff",
+                [":pregnant_woman:"] = "\U0001f930",
+                [":pregnant_woman::skin-tone-1:"] = "\U0001f930\U0001f3fb",
+                [":pregnant_woman::skin-tone-2:"] = "\U0001f930\U0001f3fc",
+                [":pregnant_woman::skin-tone-3:"] = "\U0001f930\U0001f3fd",
+                [":pregnant_woman::skin-tone-4:"] = "\U0001f930\U0001f3fe",
+                [":pregnant_woman::skin-tone-5:"] = "\U0001f930\U0001f3ff",
+                [":prince:"] = "\U0001f934",
+                [":prince::skin-tone-1:"] = "\U0001f934\U0001f3fb",
+                [":prince::skin-tone-2:"] = "\U0001f934\U0001f3fc",
+                [":prince::skin-tone-3:"] = "\U0001f934\U0001f3fd",
+                [":prince::skin-tone-4:"] = "\U0001f934\U0001f3fe",
+                [":prince::skin-tone-5:"] = "\U0001f934\U0001f3ff",
+                [":princess:"] = "\U0001f478",
+                [":princess::skin-tone-1:"] = "\U0001f478\U0001f3fb",
+                [":princess::skin-tone-2:"] = "\U0001f478\U0001f3fc",
+                [":princess::skin-tone-3:"] = "\U0001f478\U0001f3fd",
+                [":princess::skin-tone-4:"] = "\U0001f478\U0001f3fe",
+                [":princess::skin-tone-5:"] = "\U0001f478\U0001f3ff",
+                [":printer:"] = "\U0001f5a8",
+                [":projector:"] = "\U0001f4fd",
+                [":punch:"] = "\U0001f44a",
+                [":punch::skin-tone-1:"] = "\U0001f44a\U0001f3fb",
+                [":punch::skin-tone-2:"] = "\U0001f44a\U0001f3fc",
+                [":punch::skin-tone-3:"] = "\U0001f44a\U0001f3fd",
+                [":punch::skin-tone-4:"] = "\U0001f44a\U0001f3fe",
+                [":punch::skin-tone-5:"] = "\U0001f44a\U0001f3ff",
+                [":purple_heart:"] = "\U0001f49c",
+                [":purse:"] = "\U0001f45b",
+                [":pushpin:"] = "\U0001f4cc",
+                [":put_litter_in_its_place:"] = "\U0001f6ae",
+                [":question:"] = "\u2753",
+                [":rabbit2:"] = "\U0001f407",
+                [":rabbit:"] = "\U0001f430",
+                [":race_car:"] = "\U0001f3ce",
+                [":racehorse:"] = "\U0001f40e",
+                [":radio:"] = "\U0001f4fb",
+                [":radio_button:"] = "\U0001f518",
+                [":radioactive:"] = "\u2622",
+                [":rage:"] = "\U0001f621",
+                [":railway_car:"] = "\U0001f683",
+                [":railway_track:"] = "\U0001f6e4",
+                [":rainbow:"] = "\U0001f308",
+                [":raised_back_of_hand:"] = "\U0001f91a",
+                [":raised_back_of_hand::skin-tone-1:"] = "\U0001f91a\U0001f3fb",
+                [":raised_back_of_hand::skin-tone-2:"] = "\U0001f91a\U0001f3fc",
+                [":raised_back_of_hand::skin-tone-3:"] = "\U0001f91a\U0001f3fd",
+                [":raised_back_of_hand::skin-tone-4:"] = "\U0001f91a\U0001f3fe",
+                [":raised_back_of_hand::skin-tone-5:"] = "\U0001f91a\U0001f3ff",
+                [":raised_hand:"] = "\u270b",
+                [":raised_hand::skin-tone-1:"] = "\u270b\U0001f3fb",
+                [":raised_hand::skin-tone-2:"] = "\u270b\U0001f3fc",
+                [":raised_hand::skin-tone-3:"] = "\u270b\U0001f3fd",
+                [":raised_hand::skin-tone-4:"] = "\u270b\U0001f3fe",
+                [":raised_hand::skin-tone-5:"] = "\u270b\U0001f3ff",
+                [":raised_hands:"] = "\U0001f64c",
+                [":raised_hands::skin-tone-1:"] = "\U0001f64c\U0001f3fb",
+                [":raised_hands::skin-tone-2:"] = "\U0001f64c\U0001f3fc",
+                [":raised_hands::skin-tone-3:"] = "\U0001f64c\U0001f3fd",
+                [":raised_hands::skin-tone-4:"] = "\U0001f64c\U0001f3fe",
+                [":raised_hands::skin-tone-5:"] = "\U0001f64c\U0001f3ff",
+                [":raising_hand:"] = "\U0001f64b",
+                [":raising_hand::skin-tone-1:"] = "\U0001f64b\U0001f3fb",
+                [":raising_hand::skin-tone-2:"] = "\U0001f64b\U0001f3fc",
+                [":raising_hand::skin-tone-3:"] = "\U0001f64b\U0001f3fd",
+                [":raising_hand::skin-tone-4:"] = "\U0001f64b\U0001f3fe",
+                [":raising_hand::skin-tone-5:"] = "\U0001f64b\U0001f3ff",
+                [":ram:"] = "\U0001f40f",
+                [":ramen:"] = "\U0001f35c",
+                [":rat:"] = "\U0001f400",
+                [":record_button:"] = "\u23fa",
+                [":recycle:"] = "\u267b",
+                [":red_car:"] = "\U0001f697",
+                [":red_circle:"] = "\U0001f534",
+                [":regional_indicator_a:"] = "\U0001f1e6",
+                [":regional_indicator_b:"] = "\U0001f1e7",
+                [":regional_indicator_c:"] = "\U0001f1e8",
+                [":regional_indicator_d:"] = "\U0001f1e9",
+                [":regional_indicator_e:"] = "\U0001f1ea",
+                [":regional_indicator_f:"] = "\U0001f1eb",
+                [":regional_indicator_g:"] = "\U0001f1ec",
+                [":regional_indicator_h:"] = "\U0001f1ed",
+                [":regional_indicator_i:"] = "\U0001f1ee",
+                [":regional_indicator_j:"] = "\U0001f1ef",
+                [":regional_indicator_k:"] = "\U0001f1f0",
+                [":regional_indicator_l:"] = "\U0001f1f1",
+                [":regional_indicator_m:"] = "\U0001f1f2",
+                [":regional_indicator_n:"] = "\U0001f1f3",
+                [":regional_indicator_o:"] = "\U0001f1f4",
+                [":regional_indicator_p:"] = "\U0001f1f5",
+                [":regional_indicator_q:"] = "\U0001f1f6",
+                [":regional_indicator_r:"] = "\U0001f1f7",
+                [":regional_indicator_s:"] = "\U0001f1f8",
+                [":regional_indicator_t:"] = "\U0001f1f9",
+                [":regional_indicator_u:"] = "\U0001f1fa",
+                [":regional_indicator_v:"] = "\U0001f1fb",
+                [":regional_indicator_w:"] = "\U0001f1fc",
+                [":regional_indicator_x:"] = "\U0001f1fd",
+                [":regional_indicator_y:"] = "\U0001f1fe",
+                [":regional_indicator_z:"] = "\U0001f1ff",
+                [":registered:"] = "\u00ae",
+                [":relaxed:"] = "\u263a",
+                [":relieved:"] = "\U0001f60c",
+                [":reminder_ribbon:"] = "\U0001f397",
+                [":repeat:"] = "\U0001f501",
+                [":repeat_one:"] = "\U0001f502",
+                [":restroom:"] = "\U0001f6bb",
+                [":revolving_hearts:"] = "\U0001f49e",
+                [":rewind:"] = "\u23ea",
+                [":rhino:"] = "\U0001f98f",
+                [":ribbon:"] = "\U0001f380",
+                [":rice:"] = "\U0001f35a",
+                [":rice_ball:"] = "\U0001f359",
+                [":rice_cracker:"] = "\U0001f358",
+                [":rice_scene:"] = "\U0001f391",
+                [":right_facing_fist:"] = "\U0001f91c",
+                [":right_facing_fist::skin-tone-1:"] = "\U0001f91c\U0001f3fb",
+                [":right_facing_fist::skin-tone-2:"] = "\U0001f91c\U0001f3fc",
+                [":right_facing_fist::skin-tone-3:"] = "\U0001f91c\U0001f3fd",
+                [":right_facing_fist::skin-tone-4:"] = "\U0001f91c\U0001f3fe",
+                [":right_facing_fist::skin-tone-5:"] = "\U0001f91c\U0001f3ff",
+                [":ring:"] = "\U0001f48d",
+                [":robot:"] = "\U0001f916",
+                [":rocket:"] = "\U0001f680",
+                [":rofl:"] = "\U0001f923",
+                [":roller_coaster:"] = "\U0001f3a2",
+                [":rolling_eyes:"] = "\U0001f644",
+                [":rooster:"] = "\U0001f413",
+                [":rose:"] = "\U0001f339",
+                [":rosette:"] = "\U0001f3f5",
+                [":rotating_light:"] = "\U0001f6a8",
+                [":round_pushpin:"] = "\U0001f4cd",
+                [":rowboat:"] = "\U0001f6a3",
+                [":rowboat::skin-tone-1:"] = "\U0001f6a3\U0001f3fb",
+                [":rowboat::skin-tone-2:"] = "\U0001f6a3\U0001f3fc",
+                [":rowboat::skin-tone-3:"] = "\U0001f6a3\U0001f3fd",
+                [":rowboat::skin-tone-4:"] = "\U0001f6a3\U0001f3fe",
+                [":rowboat::skin-tone-5:"] = "\U0001f6a3\U0001f3ff",
+                [":rugby_football:"] = "\U0001f3c9",
+                [":runner:"] = "\U0001f3c3",
+                [":runner::skin-tone-1:"] = "\U0001f3c3\U0001f3fb",
+                [":runner::skin-tone-2:"] = "\U0001f3c3\U0001f3fc",
+                [":runner::skin-tone-3:"] = "\U0001f3c3\U0001f3fd",
+                [":runner::skin-tone-4:"] = "\U0001f3c3\U0001f3fe",
+                [":runner::skin-tone-5:"] = "\U0001f3c3\U0001f3ff",
+                [":running:"] = "\U0001f3c3",
+                [":running::skin-tone-1:"] = "\U0001f3c3\U0001f3fb",
+                [":running::skin-tone-2:"] = "\U0001f3c3\U0001f3fc",
+                [":running::skin-tone-3:"] = "\U0001f3c3\U0001f3fd",
+                [":running::skin-tone-4:"] = "\U0001f3c3\U0001f3fe",
+                [":running::skin-tone-5:"] = "\U0001f3c3\U0001f3ff",
+                [":running_shirt_with_sash:"] = "\U0001f3bd",
+                [":s"] = "\U0001f612",
+                [":sa:"] = "\U0001f202",
+                [":sagittarius:"] = "\u2650",
+                [":sailboat:"] = "\u26f5",
+                [":sake:"] = "\U0001f376",
+                [":salad:"] = "\U0001f957",
+                [":sandal:"] = "\U0001f461",
+                [":santa:"] = "\U0001f385",
+                [":santa::skin-tone-1:"] = "\U0001f385\U0001f3fb",
+                [":santa::skin-tone-2:"] = "\U0001f385\U0001f3fc",
+                [":santa::skin-tone-3:"] = "\U0001f385\U0001f3fd",
+                [":santa::skin-tone-4:"] = "\U0001f385\U0001f3fe",
+                [":santa::skin-tone-5:"] = "\U0001f385\U0001f3ff",
+                [":satellite:"] = "\U0001f4e1",
+                [":satellite_orbital:"] = "\U0001f6f0",
+                [":satisfied:"] = "\U0001f606",
+                [":saxophone:"] = "\U0001f3b7",
+                [":scales:"] = "\u2696",
+                [":school:"] = "\U0001f3eb",
+                [":school_satchel:"] = "\U0001f392",
+                [":scissors:"] = "\u2702",
+                [":scooter:"] = "\U0001f6f4",
+                [":scorpion:"] = "\U0001f982",
+                [":scorpius:"] = "\u264f",
+                [":scream:"] = "\U0001f631",
+                [":scream_cat:"] = "\U0001f640",
+                [":scroll:"] = "\U0001f4dc",
+                [":seat:"] = "\U0001f4ba",
+                [":second_place:"] = "\U0001f948",
+                [":secret:"] = "\u3299",
+                [":see_no_evil:"] = "\U0001f648",
+                [":seedling:"] = "\U0001f331",
+                [":selfie:"] = "\U0001f933",
+                [":selfie::skin-tone-1:"] = "\U0001f933\U0001f3fb",
+                [":selfie::skin-tone-2:"] = "\U0001f933\U0001f3fc",
+                [":selfie::skin-tone-3:"] = "\U0001f933\U0001f3fd",
+                [":selfie::skin-tone-4:"] = "\U0001f933\U0001f3fe",
+                [":selfie::skin-tone-5:"] = "\U0001f933\U0001f3ff",
+                [":seven:"] = "7\u20e3",
+                [":shallow_pan_of_food:"] = "\U0001f958",
+                [":shamrock:"] = "\u2618",
+                [":shark:"] = "\U0001f988",
+                [":shaved_ice:"] = "\U0001f367",
+                [":sheep:"] = "\U0001f411",
+                [":shell:"] = "\U0001f41a",
+                [":shield:"] = "\U0001f6e1",
+                [":shinto_shrine:"] = "\u26e9",
+                [":ship:"] = "\U0001f6a2",
+                [":shirt:"] = "\U0001f455",
+                [":shit:"] = "\U0001f4a9",
+                [":shoe:"] = "\U0001f45e",
+                [":shopping_bags:"] = "\U0001f6cd",
+                [":shopping_cart:"] = "\U0001f6d2",
+                [":shower:"] = "\U0001f6bf",
+                [":shrimp:"] = "\U0001f990",
+                [":shrug:"] = "\U0001f937",
+                [":shrug::skin-tone-1:"] = "\U0001f937\U0001f3fb",
+                [":shrug::skin-tone-2:"] = "\U0001f937\U0001f3fc",
+                [":shrug::skin-tone-3:"] = "\U0001f937\U0001f3fd",
+                [":shrug::skin-tone-4:"] = "\U0001f937\U0001f3fe",
+                [":shrug::skin-tone-5:"] = "\U0001f937\U0001f3ff",
+                [":signal_strength:"] = "\U0001f4f6",
+                [":six:"] = "6\u20e3",
+                [":six_pointed_star:"] = "\U0001f52f",
+                [":ski:"] = "\U0001f3bf",
+                [":skier:"] = "\u26f7",
+                [":skull:"] = "\U0001f480",
+                [":skull_crossbones:"] = "\u2620",
+                [":sleeping:"] = "\U0001f634",
+                [":sleeping_accommodation:"] = "\U0001f6cc",
+                [":sleeping_accommodation::skin-tone-1:"] = "\U0001f6cc\U0001f3fb",
+                [":sleeping_accommodation::skin-tone-2:"] = "\U0001f6cc\U0001f3fc",
+                [":sleeping_accommodation::skin-tone-3:"] = "\U0001f6cc\U0001f3fd",
+                [":sleeping_accommodation::skin-tone-4:"] = "\U0001f6cc\U0001f3fe",
+                [":sleeping_accommodation::skin-tone-5:"] = "\U0001f6cc\U0001f3ff",
+                [":sleepy:"] = "\U0001f62a",
+                [":slight_frown:"] = "\U0001f641",
+                [":slight_smile:"] = "\U0001f642",
+                [":slot_machine:"] = "\U0001f3b0",
+                [":small_blue_diamond:"] = "\U0001f539",
+                [":small_orange_diamond:"] = "\U0001f538",
+                [":small_red_triangle:"] = "\U0001f53a",
+                [":small_red_triangle_down:"] = "\U0001f53b",
+                [":smile:"] = "\U0001f604",
+                [":smile_cat:"] = "\U0001f638",
+                [":smiley:"] = "\U0001f603",
+                [":smiley_cat:"] = "\U0001f63a",
+                [":smiling_imp:"] = "\U0001f608",
+                [":smirk:"] = "\U0001f60f",
+                [":smirk_cat:"] = "\U0001f63c",
+                [":smoking:"] = "\U0001f6ac",
+                [":snail:"] = "\U0001f40c",
+                [":snake:"] = "\U0001f40d",
+                [":sneezing_face:"] = "\U0001f927",
+                [":snowboarder:"] = "\U0001f3c2",
+                [":snowboarder::skin-tone-1:"] = "\U0001f3c2\U0001f3fb",
+                [":snowboarder::skin-tone-2:"] = "\U0001f3c2\U0001f3fc",
+                [":snowboarder::skin-tone-3:"] = "\U0001f3c2\U0001f3fd",
+                [":snowboarder::skin-tone-4:"] = "\U0001f3c2\U0001f3fe",
+                [":snowboarder::skin-tone-5:"] = "\U0001f3c2\U0001f3ff",
+                [":snowflake:"] = "\u2744",
+                [":snowman2:"] = "\u2603",
+                [":snowman:"] = "\u26c4",
+                [":sob:"] = "\U0001f62d",
+                [":soccer:"] = "\u26bd",
+                [":soon:"] = "\U0001f51c",
+                [":sos:"] = "\U0001f198",
+                [":sound:"] = "\U0001f509",
+                [":space_invader:"] = "\U0001f47e",
+                [":spades:"] = "\u2660",
+                [":spaghetti:"] = "\U0001f35d",
+                [":sparkle:"] = "\u2747",
+                [":sparkler:"] = "\U0001f387",
+                [":sparkles:"] = "\u2728",
+                [":sparkling_heart:"] = "\U0001f496",
+                [":speak_no_evil:"] = "\U0001f64a",
+                [":speaker:"] = "\U0001f508",
+                [":speaking_head:"] = "\U0001f5e3",
+                [":speech_balloon:"] = "\U0001f4ac",
+                [":speech_left:"] = "\U0001f5e8",
+                [":speedboat:"] = "\U0001f6a4",
+                [":spider:"] = "\U0001f577",
+                [":spider_web:"] = "\U0001f578",
+                [":spoon:"] = "\U0001f944",
+                [":spy:"] = "\U0001f575",
+                [":spy::skin-tone-1:"] = "\U0001f575\U0001f3fb",
+                [":spy::skin-tone-2:"] = "\U0001f575\U0001f3fc",
+                [":spy::skin-tone-3:"] = "\U0001f575\U0001f3fd",
+                [":spy::skin-tone-4:"] = "\U0001f575\U0001f3fe",
+                [":spy::skin-tone-5:"] = "\U0001f575\U0001f3ff",
+                [":squid:"] = "\U0001f991",
+                [":stadium:"] = "\U0001f3df",
+                [":star2:"] = "\U0001f31f",
+                [":star:"] = "\u2b50",
+                [":star_and_crescent:"] = "\u262a",
+                [":star_of_david:"] = "\u2721",
+                [":stars:"] = "\U0001f320",
+                [":station:"] = "\U0001f689",
+                [":statue_of_liberty:"] = "\U0001f5fd",
+                [":steam_locomotive:"] = "\U0001f682",
+                [":stew:"] = "\U0001f372",
+                [":stop_button:"] = "\u23f9",
+                [":stopwatch:"] = "\u23f1",
+                [":straight_ruler:"] = "\U0001f4cf",
+                [":strawberry:"] = "\U0001f353",
+                [":stuck_out_tongue:"] = "\U0001f61b",
+                [":stuck_out_tongue_closed_eyes:"] = "\U0001f61d",
+                [":stuck_out_tongue_winking_eye:"] = "\U0001f61c",
+                [":stuffed_flatbread:"] = "\U0001f959",
+                [":sun_with_face:"] = "\U0001f31e",
+                [":sunflower:"] = "\U0001f33b",
+                [":sunglasses:"] = "\U0001f60e",
+                [":sunny:"] = "\u2600",
+                [":sunrise:"] = "\U0001f305",
+                [":sunrise_over_mountains:"] = "\U0001f304",
+                [":surfer:"] = "\U0001f3c4",
+                [":surfer::skin-tone-1:"] = "\U0001f3c4\U0001f3fb",
+                [":surfer::skin-tone-2:"] = "\U0001f3c4\U0001f3fc",
+                [":surfer::skin-tone-3:"] = "\U0001f3c4\U0001f3fd",
+                [":surfer::skin-tone-4:"] = "\U0001f3c4\U0001f3fe",
+                [":surfer::skin-tone-5:"] = "\U0001f3c4\U0001f3ff",
+                [":sushi:"] = "\U0001f363",
+                [":suspension_railway:"] = "\U0001f69f",
+                [":sweat:"] = "\U0001f613",
+                [":sweat_drops:"] = "\U0001f4a6",
+                [":sweat_smile:"] = "\U0001f605",
+                [":sweet_potato:"] = "\U0001f360",
+                [":swimmer:"] = "\U0001f3ca",
+                [":swimmer::skin-tone-1:"] = "\U0001f3ca\U0001f3fb",
+                [":swimmer::skin-tone-2:"] = "\U0001f3ca\U0001f3fc",
+                [":swimmer::skin-tone-3:"] = "\U0001f3ca\U0001f3fd",
+                [":swimmer::skin-tone-4:"] = "\U0001f3ca\U0001f3fe",
+                [":swimmer::skin-tone-5:"] = "\U0001f3ca\U0001f3ff",
+                [":symbols:"] = "\U0001f523",
+                [":synagogue:"] = "\U0001f54d",
+                [":syringe:"] = "\U0001f489",
+                [":taco:"] = "\U0001f32e",
+                [":tada:"] = "\U0001f389",
+                [":tanabata_tree:"] = "\U0001f38b",
+                [":tangerine:"] = "\U0001f34a",
+                [":taurus:"] = "\u2649",
+                [":taxi:"] = "\U0001f695",
+                [":tea:"] = "\U0001f375",
+                [":telephone:"] = "\u260e",
+                [":telephone_receiver:"] = "\U0001f4de",
+                [":telescope:"] = "\U0001f52d",
+                [":ten:"] = "\U0001f51f",
+                [":tennis:"] = "\U0001f3be",
+                [":tent:"] = "\u26fa",
+                [":thermometer:"] = "\U0001f321",
+                [":thermometer_face:"] = "\U0001f912",
+                [":thinking:"] = "\U0001f914",
+                [":third_place:"] = "\U0001f949",
+                [":thought_balloon:"] = "\U0001f4ad",
+                [":three:"] = "3\u20e3",
+                [":thumbsdown:"] = "\U0001f44e",
+                [":thumbsdown::skin-tone-1:"] = "\U0001f44e\U0001f3fb",
+                [":thumbsdown::skin-tone-2:"] = "\U0001f44e\U0001f3fc",
+                [":thumbsdown::skin-tone-3:"] = "\U0001f44e\U0001f3fd",
+                [":thumbsdown::skin-tone-4:"] = "\U0001f44e\U0001f3fe",
+                [":thumbsdown::skin-tone-5:"] = "\U0001f44e\U0001f3ff",
+                [":thumbsup:"] = "\U0001f44d",
+                [":thumbsup::skin-tone-1:"] = "\U0001f44d\U0001f3fb",
+                [":thumbsup::skin-tone-2:"] = "\U0001f44d\U0001f3fc",
+                [":thumbsup::skin-tone-3:"] = "\U0001f44d\U0001f3fd",
+                [":thumbsup::skin-tone-4:"] = "\U0001f44d\U0001f3fe",
+                [":thumbsup::skin-tone-5:"] = "\U0001f44d\U0001f3ff",
+                [":thunder_cloud_rain:"] = "\u26c8",
+                [":ticket:"] = "\U0001f3ab",
+                [":tickets:"] = "\U0001f39f",
+                [":tiger2:"] = "\U0001f405",
+                [":tiger:"] = "\U0001f42f",
+                [":timer:"] = "\u23f2",
+                [":tired_face:"] = "\U0001f62b",
+                [":tm:"] = "\u2122",
+                [":toilet:"] = "\U0001f6bd",
+                [":tokyo_tower:"] = "\U0001f5fc",
+                [":tomato:"] = "\U0001f345",
+                [":tongue:"] = "\U0001f445",
+                [":tools:"] = "\U0001f6e0",
+                [":top:"] = "\U0001f51d",
+                [":tophat:"] = "\U0001f3a9",
+                [":track_next:"] = "\u23ed",
+                [":track_previous:"] = "\u23ee",
+                [":trackball:"] = "\U0001f5b2",
+                [":tractor:"] = "\U0001f69c",
+                [":traffic_light:"] = "\U0001f6a5",
+                [":train2:"] = "\U0001f686",
+                [":train:"] = "\U0001f68b",
+                [":tram:"] = "\U0001f68a",
+                [":triangular_flag_on_post:"] = "\U0001f6a9",
+                [":triangular_ruler:"] = "\U0001f4d0",
+                [":trident:"] = "\U0001f531",
+                [":triumph:"] = "\U0001f624",
+                [":trolleybus:"] = "\U0001f68e",
+                [":trophy:"] = "\U0001f3c6",
+                [":tropical_drink:"] = "\U0001f379",
+                [":tropical_fish:"] = "\U0001f420",
+                [":truck:"] = "\U0001f69a",
+                [":trumpet:"] = "\U0001f3ba",
+                [":tshirt:"] = "\U0001f455",
+                [":tulip:"] = "\U0001f337",
+                [":tumbler_glass:"] = "\U0001f943",
+                [":turkey:"] = "\U0001f983",
+                [":turtle:"] = "\U0001f422",
+                [":tv:"] = "\U0001f4fa",
+                [":twisted_rightwards_arrows:"] = "\U0001f500",
+                [":two:"] = "2\u20e3",
+                [":two_hearts:"] = "\U0001f495",
+                [":two_men_holding_hands:"] = "\U0001f46c",
+                [":two_women_holding_hands:"] = "\U0001f46d",
+                [":u5272:"] = "\U0001f239",
+                [":u5408:"] = "\U0001f234",
+                [":u55b6:"] = "\U0001f23a",
+                [":u6307:"] = "\U0001f22f",
+                [":u6708:"] = "\U0001f237",
+                [":u6709:"] = "\U0001f236",
+                [":u6e80:"] = "\U0001f235",
+                [":u7121:"] = "\U0001f21a",
+                [":u7533:"] = "\U0001f238",
+                [":u7981:"] = "\U0001f232",
+                [":u7a7a:"] = "\U0001f233",
+                [":umbrella2:"] = "\u2602",
+                [":umbrella:"] = "\u2614",
+                [":unamused:"] = "\U0001f612",
+                [":underage:"] = "\U0001f51e",
+                [":unicorn:"] = "\U0001f984",
+                [":unlock:"] = "\U0001f513",
+                [":up:"] = "\U0001f199",
+                [":upside_down:"] = "\U0001f643",
+                [":urn:"] = "\u26b1",
+                [":v:"] = "\u270c",
+                [":v::skin-tone-1:"] = "\u270c\U0001f3fb",
+                [":v::skin-tone-2:"] = "\u270c\U0001f3fc",
+                [":v::skin-tone-3:"] = "\u270c\U0001f3fd",
+                [":v::skin-tone-4:"] = "\u270c\U0001f3fe",
+                [":v::skin-tone-5:"] = "\u270c\U0001f3ff",
+                [":vertical_traffic_light:"] = "\U0001f6a6",
+                [":vhs:"] = "\U0001f4fc",
+                [":vibration_mode:"] = "\U0001f4f3",
+                [":video_camera:"] = "\U0001f4f9",
+                [":video_game:"] = "\U0001f3ae",
+                [":violin:"] = "\U0001f3bb",
+                [":virgo:"] = "\u264d",
+                [":volcano:"] = "\U0001f30b",
+                [":volleyball:"] = "\U0001f3d0",
+                [":vs:"] = "\U0001f19a",
+                [":vulcan:"] = "\U0001f596",
+                [":vulcan::skin-tone-1:"] = "\U0001f596\U0001f3fb",
+                [":vulcan::skin-tone-2:"] = "\U0001f596\U0001f3fc",
+                [":vulcan::skin-tone-3:"] = "\U0001f596\U0001f3fd",
+                [":vulcan::skin-tone-4:"] = "\U0001f596\U0001f3fe",
+                [":vulcan::skin-tone-5:"] = "\U0001f596\U0001f3ff",
+                [":walking:"] = "\U0001f6b6",
+                [":walking::skin-tone-1:"] = "\U0001f6b6\U0001f3fb",
+                [":walking::skin-tone-2:"] = "\U0001f6b6\U0001f3fc",
+                [":walking::skin-tone-3:"] = "\U0001f6b6\U0001f3fd",
+                [":walking::skin-tone-4:"] = "\U0001f6b6\U0001f3fe",
+                [":walking::skin-tone-5:"] = "\U0001f6b6\U0001f3ff",
+                [":waning_crescent_moon:"] = "\U0001f318",
+                [":waning_gibbous_moon:"] = "\U0001f316",
+                [":warning:"] = "\u26a0",
+                [":wastebasket:"] = "\U0001f5d1",
+                [":watch:"] = "\u231a",
+                [":water_buffalo:"] = "\U0001f403",
+                [":water_polo:"] = "\U0001f93d",
+                [":water_polo::skin-tone-1:"] = "\U0001f93d\U0001f3fb",
+                [":water_polo::skin-tone-2:"] = "\U0001f93d\U0001f3fc",
+                [":water_polo::skin-tone-3:"] = "\U0001f93d\U0001f3fd",
+                [":water_polo::skin-tone-4:"] = "\U0001f93d\U0001f3fe",
+                [":water_polo::skin-tone-5:"] = "\U0001f93d\U0001f3ff",
+                [":watermelon:"] = "\U0001f349",
+                [":wave:"] = "\U0001f44b",
+                [":wave::skin-tone-1:"] = "\U0001f44b\U0001f3fb",
+                [":wave::skin-tone-2:"] = "\U0001f44b\U0001f3fc",
+                [":wave::skin-tone-3:"] = "\U0001f44b\U0001f3fd",
+                [":wave::skin-tone-4:"] = "\U0001f44b\U0001f3fe",
+                [":wave::skin-tone-5:"] = "\U0001f44b\U0001f3ff",
+                [":wavy_dash:"] = "\u3030",
+                [":waxing_crescent_moon:"] = "\U0001f312",
+                [":waxing_gibbous_moon:"] = "\U0001f314",
+                [":wc:"] = "\U0001f6be",
+                [":weary:"] = "\U0001f629",
+                [":wedding:"] = "\U0001f492",
+                [":whale2:"] = "\U0001f40b",
+                [":whale:"] = "\U0001f433",
+                [":wheel_of_dharma:"] = "\u2638",
+                [":wheelchair:"] = "\u267f",
+                [":white_check_mark:"] = "\u2705",
+                [":white_circle:"] = "\u26aa",
+                [":white_flower:"] = "\U0001f4ae",
+                [":white_large_square:"] = "\u2b1c",
+                [":white_medium_small_square:"] = "\u25fd",
+                [":white_medium_square:"] = "\u25fb",
+                [":white_small_square:"] = "\u25ab",
+                [":white_square_button:"] = "\U0001f533",
+                [":white_sun_cloud:"] = "\U0001f325",
+                [":white_sun_rain_cloud:"] = "\U0001f326",
+                [":white_sun_small_cloud:"] = "\U0001f324",
+                [":wilted_rose:"] = "\U0001f940",
+                [":wind_blowing_face:"] = "\U0001f32c",
+                [":wind_chime:"] = "\U0001f390",
+                [":wine_glass:"] = "\U0001f377",
+                [":wink:"] = "\U0001f609",
+                [":wolf:"] = "\U0001f43a",
+                [":woman:"] = "\U0001f469",
+                [":woman::skin-tone-1:"] = "\U0001f469\U0001f3fb",
+                [":woman::skin-tone-2:"] = "\U0001f469\U0001f3fc",
+                [":woman::skin-tone-3:"] = "\U0001f469\U0001f3fd",
+                [":woman::skin-tone-4:"] = "\U0001f469\U0001f3fe",
+                [":woman::skin-tone-5:"] = "\U0001f469\U0001f3ff",
+                [":womans_clothes:"] = "\U0001f45a",
+                [":womans_hat:"] = "\U0001f452",
+                [":womens:"] = "\U0001f6ba",
+                [":worried:"] = "\U0001f61f",
+                [":wrench:"] = "\U0001f527",
+                [":wrestlers:"] = "\U0001f93c",
+                [":writing_hand:"] = "\u270d",
+                [":writing_hand::skin-tone-1:"] = "\u270d\U0001f3fb",
+                [":writing_hand::skin-tone-2:"] = "\u270d\U0001f3fc",
+                [":writing_hand::skin-tone-3:"] = "\u270d\U0001f3fd",
+                [":writing_hand::skin-tone-4:"] = "\u270d\U0001f3fe",
+                [":writing_hand::skin-tone-5:"] = "\u270d\U0001f3ff",
+                [":x:"] = "\u274c",
+                [":yellow_heart:"] = "\U0001f49b",
+                [":yen:"] = "\U0001f4b4",
+                [":yin_yang:"] = "\u262f",
+                [":yum:"] = "\U0001f60b",
+                [":z"] = "\U0001f612",
+                [":zap:"] = "\u26a1",
+                [":zero:"] = "0\u20e3",
+                [":zipper_mouth:"] = "\U0001f910",
+                [":zzz:"] = "\U0001f4a4",
+                [":|"] = "\U0001f610",
+                [";("] = "\U0001f62d",
+                [";)"] = "\U0001f609",
+                [";-("] = "\U0001f62d",
+                [";-)"] = "\U0001f609",
+                ["</3"] = "\U0001f494",
+                ["<3"] = "\u2764",
+                ["<\\3"] = "\U0001f494",
+                ["=\")"] = "\U0001f60a",
+                ["=$"] = "\U0001f612",
+                ["='("] = "\U0001f622",
+                ["=')"] = "\U0001f602",
+                ["='-("] = "\U0001f622",
+                ["='-)"] = "\U0001f602",
+                ["='-D"] = "\U0001f602",
+                ["='D"] = "\U0001f602",
+                ["=("] = "\U0001f626",
+                ["=)"] = "\U0001f603",
+                ["=*"] = "\U0001f617",
+                ["=,'("] = "\U0001f62d",
+                ["=,'-("] = "\U0001f62d",
+                ["=,("] = "\U0001f622",
+                ["=,)"] = "\U0001f602",
+                ["=,-("] = "\U0001f622",
+                ["=,-)"] = "\U0001f602",
+                ["=,-D"] = "\U0001f602",
+                ["=,D"] = "\U0001f602",
+                ["=-\")"] = "\U0001f60a",
+                ["=-$"] = "\U0001f612",
+                ["=-("] = "\U0001f626",
+                ["=-)"] = "\U0001f603",
+                ["=-*"] = "\U0001f617",
+                ["=-/"] = "\U0001f615",
+                ["=-@"] = "\U0001f621",
+                ["=-\\"] = "\U0001f615",
+                ["=-D"] = "\U0001f604",
+                ["=-O"] = "\U0001f62e",
+                ["=-o"] = "\U0001f62e",
+                ["=-P"] = "\U0001f61b",
+                ["=-S"] = "\U0001f612",
+                ["=-Z"] = "\U0001f612",
+                ["=-|"] = "\U0001f610",
+                ["=@"] = "\U0001f621",
+                ["=D"] = "\U0001f604",
+                ["=O"] = "\U0001f62e",
+                ["=o"] = "\U0001f62e",
+                ["=P"] = "\U0001f61b",
+                ["=s"] = "\U0001f612",
+                ["=z"] = "\U0001f612",
+                ["=|"] = "\U0001f610",
+                [">:("] = "\U0001f620",
+                [">:-("] = "\U0001f620",
+                [">=("] = "\U0001f620",
+                [">=-("] = "\U0001f620",
+                ["]:("] = "\U0001f47f",
+                ["]:)"] = "\U0001f608",
+                ["]:-("] = "\U0001f47f",
+                ["]:-)"] = "\U0001f608",
+                ["]=("] = "\U0001f47f",
+                ["]=)"] = "\U0001f608",
+                ["]=-("] = "\U0001f47f",
+                ["]=-)"] = "\U0001f608",
+                ["B-)"] = "\U0001f60e",
+                ["O:)"] = "\U0001f607",
+                ["o:)"] = "\U0001f607",
+                ["o:-)"] = "\U0001f607",
+                ["O:-)"] = "\U0001f607",
+                ["O=)"] = "\U0001f607",
+                ["o=)"] = "\U0001f607",
+                ["O=-)"] = "\U0001f607",
+                ["o=-)"] = "\U0001f607",
+                ["X-)"] = "\U0001f606",
+                ["x-)"] = "\U0001f606",
+                ["♡"] = "\u2764"
+            };
             
-            UnicodeEmojis = edictBuilder.ToImmutable();
-            DiscordNameLookup = UnicodeEmojis.GroupBy(xkvp => xkvp.Value)
-                .ToImmutableDictionary(xg => xg.Key, xg => xg.First().Key);
+            DiscordNameLookup = UnicodeEmojis.ToDictionary(xg => xg.Value, xg => xg.Key);
             
-            UnicodeEmojiList = UnicodeEmojis.Values.Distinct().OrderBy(xs => xs).ToImmutableArray();
+            UnicodeEmojiList = UnicodeEmojis.Values.Distinct().ToArray();
+            Array.Sort(UnicodeEmojiList);
         }
     }
 }
