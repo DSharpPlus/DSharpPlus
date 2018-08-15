@@ -2016,7 +2016,9 @@ namespace DSharpPlus.Entities
                 ["♡"] = "\u2764"
             };
             
-            DiscordNameLookup = UnicodeEmojis.ToDictionary(xg => xg.Value, xg => xg.Key);
+            DiscordNameLookup = UnicodeEmojis
+                .GroupBy(e => e.Value, (key, xg) => xg.FirstOrDefault())
+                .ToDictionary(xkvp => xkvp.Value, xkvp => xkvp.Key);
             
             var emojiArray = UnicodeEmojis.Values.Distinct().ToArray();
             Array.Sort(emojiArray);
