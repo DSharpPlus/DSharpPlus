@@ -44,12 +44,6 @@ namespace DSharpPlus.CommandsNext
         public bool EnableMentionPrefix { internal get; set; } = true;
 
         /// <summary>
-        /// <para>Sets whether the bot should only respond to messages from its own account. This is useful for selfbots.</para>
-        /// <para>Defaults to false.</para>
-        /// </summary>
-        public bool Selfbot { internal get; set; } = false;
-
-        /// <summary>
         /// <para>Sets whether the commands should be case-sensitive.</para>
         /// <para>Defaults to false.</para>
         /// </summary>
@@ -100,6 +94,13 @@ namespace DSharpPlus.CommandsNext
         public bool IgnoreExtraArguments { internal get; set; } = false;
 
         /// <summary>
+        /// <para>Gets or sets whether to automatically enable handling commands.</para>
+        /// <para>If this is set to false, you will need to manually handle each incoming message and pass it to CommandsNext.</para>
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool UseDefaultCommandHandler { internal get; set; } = true;
+
+        /// <summary>
         /// Creates a new instance of <see cref="CommandsNextConfiguration"/>.
         /// </summary>
         public CommandsNextConfiguration() { }
@@ -117,7 +118,7 @@ namespace DSharpPlus.CommandsNext
             this.EnableDms = other.EnableDms;
             this.EnableMentionPrefix = other.EnableMentionPrefix;
             this.IgnoreExtraArguments = other.IgnoreExtraArguments;
-            this.Selfbot = other.Selfbot;
+            this.UseDefaultCommandHandler = other.UseDefaultCommandHandler;
             this.Services = other.Services;
             this.StringPrefixes = other.StringPrefixes?.ToArray();
         }
