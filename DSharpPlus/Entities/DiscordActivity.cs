@@ -165,12 +165,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets current party size.
         /// </summary>
-        public int? CurrentPartySize { get; internal set; }
+        public long? CurrentPartySize { get; internal set; }
 
         /// <summary>
         /// Gets maximum party size.
         /// </summary>
-        public int? MaximumPartySize { get; internal set; }
+        public long? MaximumPartySize { get; internal set; }
 
         /// <summary>
         /// Gets the party ID.
