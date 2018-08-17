@@ -22,6 +22,7 @@
   
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
 		<Optimize>False</Optimize>
+    <DebugType>Portable</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46' Or '$(TargetFramework)' == 'net47'">

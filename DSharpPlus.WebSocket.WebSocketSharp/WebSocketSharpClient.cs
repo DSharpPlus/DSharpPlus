@@ -47,18 +47,18 @@ namespace DSharpPlus.Net.WebSocket
             this.CompressedStream = new MemoryStream();
             this.StreamDecompressor = new DeflateStream(this.CompressedStream, CompressionMode.Decompress);
 
-            _socket = new wss.WebSocket(uri.ToString());
+            this._socket = new wss.WebSocket(uri.ToString());
             if (this.Proxy != null) // fuck this, I ain't working with that shit
                 throw new NotImplementedException("Proxies are not supported on non-Microsoft WebSocket client implementations.");
 
             if (customHeaders != null && customHeaders.Count > 0) // not implemented in the library
                 throw new NotSupportedException("WS# client does not support specifying custom headers.");
 
-            _socket.OnOpen += HandlerOpen;
-            _socket.OnClose += HandlerClose;
-            _socket.OnMessage += HandlerMessage;
+            this._socket.OnOpen += HandlerOpen;
+            this._socket.OnClose += HandlerClose;
+            this._socket.OnMessage += HandlerMessage;
 
-            _socket.Connect();
+            this._socket.Connect();
             return Task.FromResult<BaseWebSocketClient>(this);
 
             void HandlerOpen(object sender, s.EventArgs e)

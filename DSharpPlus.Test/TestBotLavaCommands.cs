@@ -7,6 +7,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
+using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net.Udp;
 
 namespace DSharpPlus.Test
@@ -87,7 +88,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("Connected.").ConfigureAwait(false);
         }
 
-        private async Task LavalinkVoice_PlaybackFinished(Lavalink.EventArgs.TrackFinishEventArgs e)
+        private async Task LavalinkVoice_PlaybackFinished(TrackFinishEventArgs e)
         {
             if (this.ContextChannel == null)
                 return;
@@ -108,14 +109,14 @@ namespace DSharpPlus.Test
         }
 
         [Command, Description("Queues tracks for playback.")]
-        public async Task PlayAsync(CommandContext ctx, [RemainingText] string uri)
+        public async Task PlayAsync(CommandContext ctx, [RemainingText] Uri uri)
         {
             if (this.LavalinkVoice == null)
                 return;
 
             this.ContextChannel = ctx.Channel;
 
-            var tracks = await this.Lavalink.GetTracksAsync(new Uri(uri));
+            var tracks = await this.Lavalink.GetTracksAsync(uri);
             var track = tracks.First();
             this.LavalinkVoice.Play(track);
 
@@ -136,12 +137,12 @@ namespace DSharpPlus.Test
         }
 
         [Command, Description("Queues tracks for playback.")]
-        public async Task PlayPartialAsync(CommandContext ctx, TimeSpan start, TimeSpan stop, [RemainingText] string uri)
+        public async Task PlayPartialAsync(CommandContext ctx, TimeSpan start, TimeSpan stop, [RemainingText] Uri uri)
         {
             if (this.LavalinkVoice == null)
                 return;
 
-            var tracks = await this.Lavalink.GetTracksAsync(new Uri(uri));
+            var tracks = await this.Lavalink.GetTracksAsync(uri);
             var track = tracks.First();
             this.LavalinkVoice.PlayPartial(track, start, stop);
 
