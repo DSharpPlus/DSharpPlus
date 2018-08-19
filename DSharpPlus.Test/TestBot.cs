@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -58,6 +59,7 @@ namespace DSharpPlus.Test
             Discord.GuildCreated += this.Discord_GuildCreated;
             Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
             Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
+            Discord.GuildUpdated += this.Discord_GuildUpdated;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -290,6 +292,54 @@ namespace DSharpPlus.Test
                 return Task.CompletedTask;
 
             _ = Task.Run(async () => await this.CommandsNextService.ExecuteCommandAsync(ctx));
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_GuildUpdated(GuildUpdateEventArgs e)
+        {
+            var str = new StringBuilder();
+
+            str.AppendLine($"The guild {e.GuildBefore.Name} has been updated.");
+
+            foreach (var prop in typeof(DiscordGuild).GetProperties())
+            {
+                try
+                {
+                    var bfr = prop.GetValue(e.GuildBefore);
+                    var aft = prop.GetValue(e.GuildAfter);
+
+                    if (bfr is null)
+                    {
+                        Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"Property {prop.Name} in before was null.", DateTime.Now);
+                    }
+
+                    if (aft is null)
+                    {
+                        Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"Property {prop.Name} in after was null.", DateTime.Now);
+                    }
+
+                    if (bfr is null || aft is null)
+                    {
+                        continue;
+                    }
+
+                    if (bfr.ToString() == aft.ToString())
+                    {
+                        continue;
+                    }
+
+                    str.AppendLine($" - {prop.Name}: `{bfr}` to `{aft}`");
+                }
+                catch (Exception ex)
+                {
+                    Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"{ex.GetType()}: {ex.Message}", DateTime.Now);
+                }
+            }
+
+            str.AppendLine($" - VoiceRegion: `{e.GuildBefore.VoiceRegion?.Name}` to `{e.GuildAfter.VoiceRegion?.Name}`");
+
+            Console.WriteLine(str);
+
             return Task.CompletedTask;
         }
     }

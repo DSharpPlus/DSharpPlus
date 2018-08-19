@@ -8,9 +8,14 @@ namespace DSharpPlus.EventArgs
     public class GuildUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the guild that was updated.
+        /// Gets the guild before it was updated.
         /// </summary>
-        public DiscordGuild Guild { get; internal set; }
+        public DiscordGuild GuildBefore { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild after it was updated.
+        /// </summary>
+        public DiscordGuild GuildAfter { get; internal set; }
 
         internal GuildUpdateEventArgs(DiscordClient client) : base(client) { }
     }
