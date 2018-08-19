@@ -176,12 +176,12 @@ namespace DSharpPlus.Net.Abstractions
                 /// <summary>
                 /// Gets the current number of players in the party.
                 /// </summary>
-                public int Current { get; internal set; }
+                public long Current { get; internal set; }
 
                 /// <summary>
                 /// Gets the maximum party size.
                 /// </summary>
-                public int Maximum { get; internal set; }
+                public long Maximum { get; internal set; }
             }
         }
 
@@ -250,8 +250,8 @@ namespace DSharpPlus.Net.Abstractions
             var arr = ReadArrayObject(reader, serializer);
             return new TransportActivity.GameParty.GamePartySize
             {
-                Current = (int)arr[0],
-                Maximum = (int)arr[1],
+                Current = (long)arr[0],
+                Maximum = (long)arr[1],
             };
         }
 
