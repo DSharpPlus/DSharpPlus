@@ -1174,12 +1174,18 @@ namespace DSharpPlus
                     SystemChannelId = gld.SystemChannelId,
                     VerificationLevel = gld.VerificationLevel,
                     VoiceRegionId = gld.VoiceRegionId,
-                    _channels = gld._channels,
-                    _emojis = gld._emojis,
-                    _members = gld._members,
-                    _roles = gld._roles,
-                    _voice_states = gld._voice_states
+                    _channels = new List<DiscordChannel>(),
+                    _emojis = new List<DiscordEmoji>(),
+                    _members = new HashSet<DiscordMember>(),
+                    _roles = new List<DiscordRole>(),
+                    _voice_states = new List<DiscordVoiceState>()
                 };
+
+                guild_old._channels.AddRange(gld._channels);
+                guild_old._emojis.AddRange(gld._emojis);
+                guild_old._members.UnionWith(gld._members);
+                guild_old._roles.AddRange(gld._roles);
+                guild_old._voice_states.AddRange(gld._voice_states);
             }
 
             guild.Discord = this;
