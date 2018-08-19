@@ -1139,8 +1139,48 @@ namespace DSharpPlus
 
         internal async Task OnGuildUpdateEventAsync(DiscordGuild guild, JArray rawMembers)
         {
+            DiscordGuild guild_old;
+
             if (!this._guilds.ContainsKey(guild.Id))
+            {
                 this._guilds[guild.Id] = guild;
+                guild_old = null;
+            }
+            else
+            {
+                var gld = this._guilds[guild.Id];
+
+                guild_old = new DiscordGuild
+                {
+                    Discord = gld.Discord,
+                    Name = gld.Name,
+                    AfkChannelId = gld.AfkChannelId,
+                    AfkTimeout = gld.AfkTimeout,
+                    DefaultMessageNotifications = gld.DefaultMessageNotifications,
+                    EmbedChannelId = gld.EmbedChannelId,
+                    EmbedEnabled = gld.EmbedEnabled,
+                    ExplicitContentFilter = gld.ExplicitContentFilter,
+                    Features = gld.Features,
+                    IconHash = gld.IconHash,
+                    Id = gld.Id,
+                    IsLarge = gld.IsLarge,
+                    IsSynced = gld.IsSynced,
+                    IsUnavailable = gld.IsUnavailable,
+                    JoinedAt = gld.JoinedAt,
+                    MemberCount = gld.MemberCount,
+                    MfaLevel = gld.MfaLevel,
+                    OwnerId = gld.OwnerId,
+                    SplashHash = gld.SplashHash,
+                    SystemChannelId = gld.SystemChannelId,
+                    VerificationLevel = gld.VerificationLevel,
+                    VoiceRegionId = gld.VoiceRegionId,
+                    _channels = gld._channels,
+                    _emojis = gld._emojis,
+                    _members = gld._members,
+                    _roles = gld._roles,
+                    _voice_states = gld._voice_states
+                };
+            }
 
             guild.Discord = this;
             guild.IsUnavailable = false;
@@ -1180,7 +1220,7 @@ namespace DSharpPlus
                 xr._guild_id = guild.Id;
             }
 
-            await this._guildUpdated.InvokeAsync(new GuildUpdateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+            await this._guildUpdated.InvokeAsync(new GuildUpdateEventArgs(this) { GuildBefore = guild_old, GuildAfter = guild }).ConfigureAwait(false);
         }
 
         internal async Task OnGuildDeleteEventAsync(DiscordGuild guild, JArray rawMembers)
