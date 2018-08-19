@@ -424,7 +424,7 @@ namespace DSharpPlus.Entities
                 Title = this._title,
                 Description = this._description,
                 Url = this._url,
-                _color = this.Color.HasValue ? this.Color.Value.Value : Optional<int>.FromNoValue(),
+                _color = this.Color.IfPresent(e => e.Value),
                 Timestamp = this.Timestamp
             };
 
