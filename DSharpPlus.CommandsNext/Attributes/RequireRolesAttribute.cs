@@ -46,6 +46,9 @@ namespace DSharpPlus.CommandsNext.Attributes
             switch (this.CheckMode)
             {
                 case RoleCheckMode.All:
+                    return Task.FromResult(this.RoleNames.Count == inc);
+                    
+                case RoleCheckMode.SpecifiedOnly:
                     return Task.FromResult(rnc == inc);
 
                 case RoleCheckMode.None:
@@ -72,6 +75,11 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// Member is required to have all of the specified roles.
         /// </summary>
         All,
+
+        /// <summary>
+        /// Member is required to have exactly the same roles as specified; no extra roles may be present.
+        /// </summary>
+        SpecifiedOnly,
 
         /// <summary>
         /// Member is required to have none of the specified roles.
