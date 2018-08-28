@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -60,6 +61,7 @@ namespace DSharpPlus.Test
             Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
             Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             Discord.GuildUpdated += this.Discord_GuildUpdated;
+            Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -341,6 +343,15 @@ namespace DSharpPlus.Test
             Console.WriteLine(str);
 
             return Task.CompletedTask;
+        }
+
+        private async Task Discord_ChannelDeleted(ChannelDeleteEventArgs e)
+        {
+            var logs = (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete).ConfigureAwait(false)).Cast<DiscordAuditLogChannelEntry>();
+            foreach (var entry in logs)
+            {
+                Console.WriteLine("TargetId: " + entry.TargetId);
+            }
         }
     }
 }

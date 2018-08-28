@@ -585,7 +585,7 @@ namespace DSharpPlus.Entities
             {
                 var tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
                 recd = tms.Count;
-                
+
                 foreach (var xtm in tms)
                 {
                     var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
@@ -604,7 +604,7 @@ namespace DSharpPlus.Entities
                 var tm = tms.LastOrDefault();
                 last = tm?.User.Id ?? 0;
             }
-            
+
             return new ReadOnlySet<DiscordMember>(recmbr);
         }
 
@@ -615,7 +615,7 @@ namespace DSharpPlus.Entities
         {
             if (!(this.Discord is DiscordClient client))
                 throw new InvalidOperationException("This operation is only valid for regular Discord clients.");
-            
+
             var payload = new GatewayPayload
             {
                 OpCode = GatewayOpCode.RequestGuildMembers,
@@ -746,7 +746,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.GuildUpdate:
                         entry = new DiscordAuditLogGuildEntry
                         {
-                            Target = this
+                            Target = this,
+                            TargetId = this.Id
                         };
 
                         var entrygld = entry as DiscordAuditLogGuildEntry;
@@ -863,7 +864,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.ChannelUpdate:
                         entry = new DiscordAuditLogChannelEntry
                         {
-                            Target = this._channels.FirstOrDefault(xch => xch.Id == xac.TargetId.Value)
+                            Target = this._channels.FirstOrDefault(xch => xch.Id == xac.TargetId.Value),
+                            TargetId = xac.TargetId.Value
                         };
 
                         var entrychn = entry as DiscordAuditLogChannelEntry;
@@ -1002,7 +1004,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.Kick:
                         entry = new DiscordAuditLogKickEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null
+                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null,
+                            TargetId = xac.TargetId.Value
                         };
                         break;
 
@@ -1018,7 +1021,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.Unban:
                         entry = new DiscordAuditLogBanEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null
+                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null,
+                            TargetId = xac.TargetId.Value
                         };
                         break;
 
@@ -1026,7 +1030,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.MemberRoleUpdate:
                         entry = new DiscordAuditLogMemberUpdateEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null
+                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : null,
+                            TargetId = xac.TargetId.Value
                         };
 
                         var entrymbu = entry as DiscordAuditLogMemberUpdateEntry;
@@ -1078,7 +1083,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.RoleUpdate:
                         entry = new DiscordAuditLogRoleUpdateEntry
                         {
-                            Target = this._roles.FirstOrDefault(xr => xr.Id == xac.TargetId.Value)
+                            Target = this._roles.FirstOrDefault(xr => xr.Id == xac.TargetId.Value),
+                            TargetId = xac.TargetId.Value
                         };
 
                         var entryrol = entry as DiscordAuditLogRoleUpdateEntry;
@@ -1147,7 +1153,11 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.InviteCreate:
                     case AuditLogActionType.InviteDelete:
                     case AuditLogActionType.InviteUpdate:
-                        entry = new DiscordAuditLogInviteEntry();
+                        entry = new DiscordAuditLogInviteEntry
+                        {
+                            TargetId = xac.TargetId.Value
+                        };
+
                         var inv = new DiscordInvite
                         {
                             Discord = this.Discord,
@@ -1262,7 +1272,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.WebhookUpdate:
                         entry = new DiscordAuditLogWebhookEntry
                         {
-                            Target = ahd.ContainsKey(xac.TargetId.Value) ? ahd[xac.TargetId.Value] : null
+                            Target = ahd.ContainsKey(xac.TargetId.Value) ? ahd[xac.TargetId.Value] : null,
+                            TargetId = xac.TargetId.Value
                         };
 
                         var entrywhk = entry as DiscordAuditLogWebhookEntry;
@@ -1320,7 +1331,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.EmojiUpdate:
                         entry = new DiscordAuditLogEmojiEntry
                         {
-                            Target = this._emojis.FirstOrDefault(xe => xe.Id == xac.TargetId.Value)
+                            Target = this._emojis.FirstOrDefault(xe => xe.Id == xac.TargetId.Value),
+                            TargetId = xac.TargetId.Value
                         };
 
                         var entryemo = entry as DiscordAuditLogEmojiEntry;
@@ -1347,7 +1359,8 @@ namespace DSharpPlus.Entities
                         entry = new DiscordAuditLogMessageEntry
                         {
                             Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.Options?.ChannelId),
-                            MessageCount = xac.Options?.MessageCount
+                            MessageCount = xac.Options?.MessageCount,
+                            TargetId = xac.TargetId.Value
                         };
 
                         var entrymsg = entry as DiscordAuditLogMessageEntry;
