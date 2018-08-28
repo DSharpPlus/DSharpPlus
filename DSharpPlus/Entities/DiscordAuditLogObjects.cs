@@ -53,11 +53,6 @@ namespace DSharpPlus.Entities
         public DiscordGuild Target { get; internal set; }
 
         /// <summary>
-        /// Gets the affected guild id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
-
-        /// <summary>
         /// Gets the the description of guild name's change.
         /// </summary>
         public PropertyChange<string> NameChange { get; internal set; }
@@ -121,11 +116,6 @@ namespace DSharpPlus.Entities
         /// Gets the affected channel.
         /// </summary>
         public DiscordChannel Target { get; internal set; }
-
-        /// <summary>
-        /// Gets the affected channel id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
 
         /// <summary>
         /// Gets the description of channel's name change.
@@ -202,11 +192,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordMember Target { get; internal set; }
 
-        /// <summary>
-        /// Gets the affected member id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
-
         internal DiscordAuditLogKickEntry() { }
     }
 
@@ -232,11 +217,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordMember Target { get; internal set; }
 
-        /// <summary>
-        /// Gets the affected member id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
-
         internal DiscordAuditLogBanEntry() { }
     }
 
@@ -246,11 +226,6 @@ namespace DSharpPlus.Entities
         /// Gets the affected member.
         /// </summary>
         public DiscordMember Target { get; internal set; }
-
-        /// <summary>
-        /// Gets the affected member id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
 
         /// <summary>
         /// Gets the description of member's nickname change.
@@ -286,11 +261,6 @@ namespace DSharpPlus.Entities
         /// Gets the affected role.
         /// </summary>
         public DiscordRole Target { get; internal set; }
-
-        /// <summary>
-        /// Gets the affected role id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
 
         /// <summary>
         /// Gets the description of role's name change.
@@ -331,11 +301,6 @@ namespace DSharpPlus.Entities
         /// Gets the affected invite.
         /// </summary>
         public DiscordInvite Target { get; internal set; }
-
-        /// <summary>
-        /// Gets the affected invite id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
 
         /// <summary>
         /// Gets the description of invite's max age change.
@@ -381,11 +346,6 @@ namespace DSharpPlus.Entities
         /// Gets the affected webhook.
         /// </summary>
         public DiscordWebhook Target { get; internal set; }
-
-        /// <summary>
-        /// Gets the affected webhook id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
         
         /// <summary>
         /// Gets the description of webhook's name change.
@@ -418,11 +378,6 @@ namespace DSharpPlus.Entities
         public DiscordEmoji Target { get; internal set; }
 
         /// <summary>
-        /// Gets the affected emoji id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
-
-        /// <summary>
         /// Gets the description of emoji's name change.
         /// </summary>
         public PropertyChange<string> NameChange { get; internal set; }
@@ -436,11 +391,6 @@ namespace DSharpPlus.Entities
         /// Gets the affected message. Note that more often than not, this will only have ID specified.
         /// </summary>
         public DiscordMessage Target { get; internal set; }
-
-        /// <summary>
-        /// Gets the affected message id.
-        /// </summary>
-        public ulong TargetId { get; internal set; }
 
         /// <summary>
         /// Gets the channel in which the action occured.

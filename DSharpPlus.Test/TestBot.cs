@@ -350,7 +350,7 @@ namespace DSharpPlus.Test
             var logs = (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete).ConfigureAwait(false)).Cast<DiscordAuditLogChannelEntry>();
             foreach (var entry in logs)
             {
-                Console.WriteLine("TargetId: " + entry.TargetId);
+                Console.WriteLine("TargetId: " + entry.Target.Id);
             }
         }
     }
