@@ -71,7 +71,7 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Gets the voice channel associated with this connection.
         /// </summary>
-        public DiscordChannel Channel { get; internal set; }
+        public DiscordChannel Channel => this.VoiceStateUpdate.Channel;
 
         /// <summary>
         /// Gets the guild associated with this connection.
@@ -81,12 +81,11 @@ namespace DSharpPlus.Lavalink
         private LavalinkNodeConnection Node { get; }
         internal string GuildIdString => this.GuildId.ToString(CultureInfo.InvariantCulture);
         internal ulong GuildId => this.Channel.Guild.Id;
-        internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; }
+        internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
 
         internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, VoiceStateUpdateEventArgs vstu)
         {
             this.Node = node;
-            this.Channel = channel;
             this.VoiceStateUpdate = vstu;
             this.CurrentState = new LavalinkPlayerState();
 

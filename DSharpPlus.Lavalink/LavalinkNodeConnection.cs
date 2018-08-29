@@ -425,7 +425,7 @@ namespace DSharpPlus.Lavalink
                 return Task.Delay(0);
 
             if (e.User.Id == this.Discord.CurrentUser.Id && this.ConnectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
-                lvlgc.Channel = e.Channel;
+                lvlgc.VoiceStateUpdate = e;
 
             if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Discord.CurrentUser.Id && this.VoiceStateUpdates.ContainsKey(gld.Id))
             {
