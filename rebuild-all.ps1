@@ -72,7 +72,7 @@ if ($DocsPath -and $DocsPackageName)
 {
     # Yup
     Write-Host "Building documentation"
-    & .\rebuild-docs.ps1 -docspath "$DocsPath" -outputpath "$ArtifactLocation" -packagename "$DocsPackageName"
+    & .\rebuild-docs.ps1 -DocsPath "$DocsPath" -OutputPath "$ArtifactLocation" -PackageName "$DocsPackageName"
     
     # Check if it failed
     if ($LastExitCode -ne 0)
