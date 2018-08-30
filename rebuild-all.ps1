@@ -5,30 +5,33 @@
 # Not specifying documentation options will skip documentation build.
 # 
 # Author:       Emzi0767
-# Version:      2017-09-11 14:20
+# Version:      2018-08-30 14:41
 #
 # Arguments:
-#   .\rebuild-docs.ps1 <output path> <version suffix> [path to docfx] [output path] [docs project path]
+#   .\rebuild-all.ps1 <output path> <configuration> [version suffix] [build-number] [docs output path] [docs package name]
 #
 # Run as:
-#   .\rebuild-lib.ps1 .\path\to\artifact\location version-suffix .\path\to\docfx\project .\path\to\output project-docs
+#   .\rebuild-all.ps1 .\path\to\artifact\location Debug/Release version-suffix build-number .\path\to\docs\output project-docs
 
 param
 (
     [parameter(Mandatory = $true)]
     [string] $ArtifactLocation,
 
+    [parameter(Mandatory = $true)]
+    [string] $Configuration,
+
     [parameter(Mandatory = $false)]
     [string] $VersionSuffix,
+
+	[parameter(Mandatory = $false)]
+	[int] $BuildNumber = -1,
     
     [parameter(Mandatory = $false)]
     [string] $DocsPath,
     
     [parameter(Mandatory = $false)]
-    [string] $DocsPackageName,
-
-    [parameter(Mandatory = $true)]
-    [string] $Configuration
+    [string] $DocsPackageName
 )
 
 # Check if configuration is valid
@@ -39,19 +42,22 @@ if ($Configuration -ne "Debug" -and $Configuration -ne "Release")
 }
 
 # Check if we have a version prefix
-if (-not $VersionSuffix)
+if (-not $VersionSuffix -or -not $BuildNumber -or $BuildNumber -eq -1)
 {
     # Nope
     Write-Host "Building production packages"
+
+	# Invoke the build script
+	& .\rebuild-lib.ps1 -ArtifactLocation "$ArtifactLocation" -Configuration "$Configuration" | Out-Host
 }
 else
 {
     # Yup
-    Write-Host "Building beta packages"
-}
+    Write-Host "Building nightly packages"
 
-# Invoke the build script
-& .\rebuild-lib.ps1 -artifactlocation "$ArtifactLocation" -versionsuffix "$VersionSuffix" -configuration "$Configuration" | Out-Host
+	# Invoke the build script
+	& .\rebuild-lib.ps1 -ArtifactLocation "$ArtifactLocation" -Configuration "$Configuration" -VersionSuffix "$VersionSuffix" -BuildNumber $BuildNumber | Out-Host
+}
 
 # Check if it failed
 if ($LastExitCode -ne 0)

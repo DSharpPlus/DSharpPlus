@@ -4,27 +4,30 @@
 # Rebuilds the entire DSharpPlus project, and places artifacts in specified directory.
 # 
 # Author:       Emzi0767
-# Version:      2017-09-11 14:20
+# Version:      2018-08-30 14:41
 #
 # Arguments:
-#   .\rebuild-lib.ps1 <output path> [version suffix]
+#   .\rebuild-lib.ps1 <output path> <configuration> [version suffix] [build number]
 #
 # Run as:
-#   .\rebuild-lib.ps1 .\path\to\artifact\location version-suffix
+#   .\rebuild-lib.ps1 .\path\to\artifact\location Debug/Release version-suffix build-number
 #
 # or
-#   .\rebuild-lib.ps1 .\path\to\artifact\location
+#   .\rebuild-lib.ps1 .\path\to\artifact\location Debug/Release
 
 param
 (
     [parameter(Mandatory = $true)]
     [string] $ArtifactLocation,
 
+    [parameter(Mandatory = $true)]
+    [string] $Configuration,
+
     [parameter(Mandatory = $false)]
     [string] $VersionSuffix,
 
-    [parameter(Mandatory = $true)]
-    [string] $Configuration
+	[parameter(Mandatory = $false)]
+	[int] $BuildNumber = -1
 )
 
 # Check if configuration is valid
@@ -60,7 +63,7 @@ function Prepare-Environment([string] $target_dir_path)
 }
 
 # Builds everything
-function Build-All([string] $target_dir_path, [string] $version_suffix, [string] $bcfg)
+function Build-All([string] $target_dir_path, [string] $version_suffix, [string] $build_number, [string] $bcfg)
 {
     # Form target path
     $dir = Get-Item "$target_dir_path"
@@ -84,18 +87,28 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
         Write-Host "Restoring packages failed"
         Return $LastExitCode
     }
+
+	# Create build number string
+	if (-not $build_number)
+	{
+		$build_number_string = ""
+	}
+	else
+	{
+		$build_number_string = [int]::Parse($build_number).ToString("00000")
+	}
     
     if ($Env:OS -eq $null)
     {
         # Build and package (if Release) in specified configuration but Linux
         Write-Host "Building everything"
-        if (-not $version_suffix)
+        if (-not $version_suffix -or -not $build_number_string)
         {
             & .\rebuild-linux.ps1 "$target_dir" -Configuration "$bcfg" | Out-Host
         }
         else
         {
-            & .\rebuild-linux.ps1 "$target_dir" -VersionSuffix "$version_suffix" -Configuration "$bcfg" | Out-Host
+            & .\rebuild-linux.ps1 "$target_dir" -Configuration "$bcfg" -VersionSuffix "$version_suffix" -BuildNumber "$build_number_string" | Out-Host
         }
         if ($LastExitCode -ne 0)
         {
@@ -107,13 +120,13 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
     {
         # Build in specified configuration
         Write-Host "Building everything"
-        if (-not $version_suffix)
+        if (-not $version_suffix -or -not $build_number_string)
         {
             & dotnet build -v minimal -c "$bcfg" | Out-Host
         }
         else
         {
-            & dotnet build -v minimal -c "$bcfg" --version-suffix "$version_suffix" | Out-Host
+            & dotnet build -v minimal -c "$bcfg" --version-suffix "$version_suffix" -p:BuildNumber="$build_number_string" | Out-Host
         }
         if ($LastExitCode -ne 0)
         {
@@ -123,13 +136,13 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
         
         # Package for NuGet
         Write-Host "Creating NuGet packages"
-        if (-not $version_suffix)
+        if (-not $version_suffix -or -not $build_number_string)
         {
             & dotnet pack -v minimal -c "$bcfg" --no-build -o "$target_dir" --include-symbols | Out-Host
         }
         else
         {
-            & dotnet pack -v minimal -c "$bcfg" --version-suffix "$version_suffix" --no-build -o "$target_dir" --include-symbols | Out-Host
+            & dotnet pack -v minimal -c "$bcfg" --version-suffix "$version_suffix" -p:BuildNumber="$build_number_string" --no-build -o "$target_dir" --include-symbols | Out-Host
         }
         if ($LastExitCode -ne 0)
         {
@@ -142,16 +155,16 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
 }
 
 # Check if building a beta package
-if ($VersionSuffix)
+if ($VersionSuffix -and $BuildNumber -and $BuildNumber -ne -1)
 {
-    Write-Host "Building beta package with version suffix of `"$VersionSuffix`""
+    Write-Host "Building beta package with version suffix of `"$VersionSuffix-$($BuildNumber.ToString("00000"))`""
 }
 
 # Prepare environment
 Prepare-Environment "$ArtifactLocation"
 
 # Build everything
-$BuildResult = Build-All "$ArtifactLocation" "$VersionSuffix" "$Configuration"
+$BuildResult = Build-All "$ArtifactLocation" "$VersionSuffix" "$BuildNumber" "$Configuration"
 
 # Restore environment
 Restore-Environment

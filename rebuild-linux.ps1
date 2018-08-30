@@ -13,7 +13,7 @@
 #  .\rebuild-linux.ps1 "..\dsp-artifacts"
 # 
 # Or:
-#  .\rebuild-linux.ps1 "..\dsp-artifacts" 00420
+#  .\rebuild-linux.ps1 "..\dsp-artifacts" ci 00420
 # 
 # Or:
 #  .\rebuild-linux.ps1 "..\dsp-artifacts" -configuration Debug
@@ -26,11 +26,14 @@ param
     [parameter(Mandatory = $true)]
     [string] $ArtifactLocation,
 
+    [parameter(Mandatory = $true)]
+    [string] $Configuration,
+
     [parameter(Mandatory = $false)]
     [string] $VersionSuffix,
 
-    [parameter(Mandatory = $true)]
-    [string] $Configuration,
+	[parameter(Mandatory = $false)]
+	[string] $BuildNumber,
 
     [parameter(Mandatory = $false)]
     [string] $Mono
@@ -115,7 +118,7 @@ function Get-FxBasePath([string] $mono_location)
 }
 
 # Build project for specified framework
-function Build-Project([string] $project, [string] $framework, [string] $configuration, [string] $mono, [string] $version_suffix)
+function Build-Project([string] $project, [string] $framework, [string] $configuration, [string] $mono, [string] $version_suffix, [string] $build_number)
 {
     # base arguments for dotnet
     $dotnet_args = ""
@@ -136,7 +139,7 @@ function Build-Project([string] $project, [string] $framework, [string] $configu
         $fxv = $fxv.Substring(1, $fxv.Length - 2)
 
         # construct the args
-        $dotnet_args = "/p:FrameworkPathOverride=`"$mono/$fxv-api`""
+        $dotnet_args = "-p:FrameworkPathOverride=`"$mono/$fxv-api`""
     }
     elseif ($framework.StartsWith("netstandard"))
     {
@@ -165,13 +168,13 @@ function Build-Project([string] $project, [string] $framework, [string] $configu
     }
 
     # invoke dotnet
-    if (-not $version_suffix)
+    if (-not $version_suffix -or -not $build_number)
     {
         & dotnet build -v minimal -c $configuration -f $framework $dotnet_args | Out-Host
     }
     else 
     {
-        & dotnet build -v minimal -c $configuration -f $framework --version-suffix "$version_suffix" $dotnet_args | Out-Host
+        & dotnet build -v minimal -c $configuration -f $framework --version-suffix "$version_suffix" -p:BuildNumber="$build_number" $dotnet_args | Out-Host
     }
     if ($LastExitCode -ne 0)
     {
@@ -236,7 +239,7 @@ foreach ($fx in $frameworks)
 
     $fxv = (($fx.Substring(3) -split "") -join ".")
     $fxv = $fxv.Substring(1, $fxv.Length - 2)
-    $pack_fxs += "/p:FrameworkPathOverride=`"$mono_path/$fxv-api`""
+    $pack_fxs += "-p:FrameworkPathOverride=`"$mono_path/$fxv-api`""
 }
 
 Write-Host "Packaging"
@@ -254,13 +257,13 @@ foreach ($project in $projects)
     Set-Location $project
     Write-Host "Packaging project: $pname"
 
-    if (-not $VersionSuffix)
+    if (-not $VersionSuffix -or -not $BuildNumber)
     {
         & dotnet pack -v minimal -c "$bcfg" --no-build -o "$ArtifactLocation" --include-symbols $pack_fxs | Out-Host
     }
     else
     {
-        & dotnet pack -v minimal -c "$bcfg" --version-suffix "$VersionSuffix" --no-build -o "$ArtifactLocations" --include-symbols $pack_fxs | Out-Host
+        & dotnet pack -v minimal -c "$bcfg" --version-suffix "$VersionSuffix" -p:BuildNumber="$BuildNumber" --no-build -o "$ArtifactLocations" --include-symbols $pack_fxs | Out-Host
     }
     if ($LastExitCode -ne 0)
     {

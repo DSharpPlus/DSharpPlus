@@ -29,13 +29,13 @@
 		<DefineConstants>HAS_ENVIRONMENT;HAS_NAT_TRAVERSAL</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(VersionSuffix)' != ''">
-		<Version>$(VersionPrefix)-beta-$(VersionSuffix)</Version>
-		<AssemblyVersion>$(VersionPrefix).$(VersionSuffix)</AssemblyVersion>
-		<FileVersion>$(VersionPrefix).$(VersionSuffix)</FileVersion>
+	<PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">
+		<Version>$(VersionPrefix)-$(VersionSuffix)-$(BuildNumber)</Version>
+		<AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
+		<FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(VersionSuffix)' == ''">
+	<PropertyGroup Condition="'$(VersionSuffix)' == '' Or '$(BuildNumber)' == ''">
 		<Version>$(VersionPrefix)</Version>
 		<AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
 		<FileVersion>$(VersionPrefix).0</FileVersion>

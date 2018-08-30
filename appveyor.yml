@@ -9,52 +9,7 @@ max_jobs: 1
 image: Visual Studio 2017
 clone_depth: 1
 build_script:
-- ps: >-
-    # Version number
-
-    $VERSION = [int]::Parse($Env:APPVEYOR_BUILD_NUMBER).ToString("00000")
-
-
-    # Branch
-
-    $BRANCH = "$Env:APPVEYOR_REPO_BRANCH"
-
-    $Env:DOCFX_SOURCE_BRANCH_NAME = "$BRANCH"
-
-
-    # Output directory
-
-    $Env:ARTIFACT_DIR = ".\artifacts"
-
-    $dir = New-Item -type directory $env:ARTIFACT_DIR
-
-    $dir = $dir.FullName
-
-
-    # Verbosity
-
-    Write-Host "Build: $VERSION / Branch: $BRANCH"
-
-    Write-Host "Artifacts will be placed in: $dir"
-
-
-    # Check if this is a PR
-
-    if (-not $Env:APPVEYOR_PULL_REQUEST_NUMBER)
-
-    {
-        # Rebuild documentation
-        Write-Host "Commencing complete build"
-        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix "$VERSION" -Configuration "Release" -DocsPath ".\docs" -DocsPackageName "dsharpplus-docs"
-    }
-
-    else
-
-    {
-        # Skip documentation
-        Write-Host "Building from PR ($Env:APPVEYOR_PULL_REQUEST_NUMBER); skipping docs build"
-        & .\rebuild-all.ps1 -ArtifactLocation "$dir" -VersionSuffix "$VERSION" -Configuration "Release"
-    }
+- ps: "# Version number\n$BUILD_NUMBER = [int]$Env:APPVEYOR_BUILD_NUMBER\n$BUILD_SUFFIX = \"nightly\"\n\n# Branch\n$BRANCH = \"$Env:APPVEYOR_REPO_BRANCH\"\n$Env:DOCFX_SOURCE_BRANCH_NAME = \"$BRANCH\"\n\n# Output directory\n$Env:ARTIFACT_DIR = \".\\artifacts\"\n$dir = New-Item -type directory $env:ARTIFACT_DIR\n$dir = $dir.FullName\n\n# Verbosity\nWrite-Host \"Build: $BUILD_NUMBER / Branch: $BRANCH\"\nWrite-Host \"Artifacts will be placed in: $dir\"\n\n# Check if this is a PR\nif (-not $Env:APPVEYOR_PULL_REQUEST_NUMBER)\n{\n    # Rebuild documentation\n    Write-Host \"Commencing complete build\"\n    & .\\rebuild-all.ps1 -ArtifactLocation \"$dir\" -VersionSuffix \"$BUILD_SUFFIX\" -BuildNumber $BUILD_NUMBER -DocsPath \".\\docs\" -DocsPackageName \"dsharpplus-docs\"\n}\nelse\n{\n    # Skip documentation\n    Write-Host \"Building from PR ($Env:APPVEYOR_PULL_REQUEST_NUMBER); skipping docs build\"\n    & .\\rebuild-all.ps1 -ArtifactLocation \"$dir\" -VersionSuffix \"$BUILD_SUFFIX\" -BuildNumber $BUILD_NUMBER \n}"
 artifacts:
 - path: artifacts\*.nupkg
 - path: artifacts\dsharpplus-docs.tar.xz
