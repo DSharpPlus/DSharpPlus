@@ -4,7 +4,7 @@
 # A sub-script of Rebuild-Lib, which handles building the library under Linux.
 # 
 # Author:       Emzi0767
-# Version:      2018-02-03 13:39
+# Version:      2018-08-30 13:39
 # 
 # Arguments: 
 #  .\rebuild-linux.ps1 <output path> [version suffix] [-configuration Debug/Release] [-mono /path/to/mono]
