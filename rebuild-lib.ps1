@@ -154,10 +154,10 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
     Return 0
 }
 
-# Check if building a beta package
+# Check if building a nightly package
 if ($VersionSuffix -and $BuildNumber -and $BuildNumber -ne -1)
 {
-    Write-Host "Building beta package with version suffix of `"$VersionSuffix-$($BuildNumber.ToString("00000"))`""
+    Write-Host "Building nightly package with version suffix of `"$VersionSuffix-$($BuildNumber.ToString("00000"))`""
 }
 
 # Prepare environment
