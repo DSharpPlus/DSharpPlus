@@ -273,7 +273,16 @@ namespace DSharpPlus.Entities
             foreach (var ovr in this._permission_overwrites)
                 ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Bitrate, this.UserLimit, ovrs, this.IsNSFW, reason).ConfigureAwait(false);
+            int? bitrate = this.Bitrate;
+            int? userLimit = this.UserLimit;
+
+            if (this.Type != ChannelType.Voice)
+            {
+                bitrate = null;
+                userLimit = null;
+            }
+
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, bitrate, userLimit, ovrs, this.IsNSFW, reason).ConfigureAwait(false);
         }
 
         /// <summary>

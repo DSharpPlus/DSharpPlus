@@ -31,6 +31,14 @@ namespace DSharpPlus.Test
 		//    await ctx.RespondAsync("naam check your shitcode");
 		//}
 
+	    [Command("clonechannel")]
+	    public async Task CloneChannelAsync(CommandContext ctx, DiscordChannel chan = null)
+	    {
+	        chan = chan ?? ctx.Channel;
+
+	        await chan.CloneAsync().ConfigureAwait(false);
+	    }
+
 		[Command("intext")]
 		public async Task IntExtAsync(CommandContext ctx)
 		{
