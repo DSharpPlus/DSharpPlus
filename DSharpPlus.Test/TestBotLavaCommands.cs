@@ -116,8 +116,8 @@ namespace DSharpPlus.Test
 
             this.ContextChannel = ctx.Channel;
 
-            var tracks = await this.Lavalink.GetTracksAsync(uri);
-            var track = tracks.First();
+            var trackLoad = await this.Lavalink.GetTracksAsync(uri);
+            var track = trackLoad.Tracks.First();
             this.LavalinkVoice.Play(track);
 
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
@@ -129,8 +129,8 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            var tracks = await this.Lavalink.GetTracksAsync(new FileInfo(path));
-            var track = tracks.First();
+            var trackLoad = await this.Lavalink.GetTracksAsync(new FileInfo(path));
+            var track = trackLoad.Tracks.First();
             this.LavalinkVoice.Play(track);
 
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
@@ -142,8 +142,8 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            var tracks = await this.Lavalink.GetTracksAsync(uri);
-            var track = tracks.First();
+            var trackLoad = await this.Lavalink.GetTracksAsync(uri);
+            var track = trackLoad.Tracks.First();
             this.LavalinkVoice.PlayPartial(track, start, stop);
 
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);

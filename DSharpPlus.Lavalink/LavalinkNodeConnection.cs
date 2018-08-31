@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -248,7 +249,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="searchQuery">What to search for.</param>
         /// <returns>A collection of tracks matching the criteria.</returns>
-        public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(string searchQuery)
+        public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery)
         {
             var str = WebUtility.UrlEncode($"ytsearch:{searchQuery}");
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
@@ -260,7 +261,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="uri">URL to load tracks from.</param>
         /// <returns>A collection of tracks from the URL.</returns>
-        public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(Uri uri)
+        public Task<LavalinkLoadResult> GetTracksAsync(Uri uri)
         {
             var str = WebUtility.UrlEncode(uri.ToString());
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
@@ -273,7 +274,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="file">File to load tracks from.</param>
         /// <returns>A collection of tracks from the file.</returns>
-        public Task<IEnumerable<LavalinkTrack>> GetTracksAsync(FileInfo file)
+        public Task<LavalinkLoadResult> GetTracksAsync(FileInfo file)
         {
             var str = WebUtility.UrlEncode(file.FullName);
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
@@ -281,25 +282,58 @@ namespace DSharpPlus.Lavalink
         }
 #endif
 
-        private async Task<IEnumerable<LavalinkTrack>> InternalResolveTracksAsync(Uri uri)
+        private async Task<LavalinkLoadResult> InternalResolveTracksAsync(Uri uri)
         {
+            // this function returns a Lavalink 3-like dataset regardless of input data version
+
             var json = "[]";
             using (var req = await this.Rest.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
             using (var sr = new StreamReader(res, UTF8))
                 json = await sr.ReadToEndAsync().ConfigureAwait(false);
 
-            var jarr = JArray.Parse(json);
-            var tracks = new List<LavalinkTrack>(jarr.Count);
-            foreach (var jt in jarr)
+            var jdata = JToken.Parse(json);
+            if (jdata is JArray jarr)
             {
-                var track = jt["info"].ToObject<LavalinkTrack>();
-                track.TrackString = jt["track"].ToString();
+                // Lavalink 2.x
 
-                tracks.Add(track);
+                var tracks = new List<LavalinkTrack>(jarr.Count);
+                foreach (var jt in jarr)
+                {
+                    var track = jt["info"].ToObject<LavalinkTrack>();
+                    track.TrackString = jt["track"].ToString();
+
+                    tracks.Add(track);
+                }
+
+                return new LavalinkLoadResult
+                {
+                    PlaylistInfo = default,
+                    LoadResultType = tracks.Count == 0 ? LavalinkLoadResultType.LoadFailed : LavalinkLoadResultType.TrackLoaded,
+                    Tracks = tracks
+                };
             }
+            else if (jdata is JObject jo)
+            {
+                // Lavalink 3.x
 
-            return tracks;
+                jarr = jo["tracks"] as JArray;
+                var loadInfo = jo.ToObject<LavalinkLoadResult>();
+                var tracks = new List<LavalinkTrack>(jarr.Count);
+                foreach (var jt in jarr)
+                {
+                    var track = jt["info"].ToObject<LavalinkTrack>();
+                    track.TrackString = jt["track"].ToString();
+
+                    tracks.Add(track);
+                }
+
+                loadInfo.Tracks = new ReadOnlyCollection<LavalinkTrack>(tracks);
+
+                return loadInfo;
+            }
+            else
+                return null;
         }
 
         internal void SendPayload(LavalinkPayload payload)

@@ -72,8 +72,8 @@ namespace DSharpPlus.Net.WebSocket
                 foreach (var kvp in customHeaders)
                     this.Socket.Options.SetRequestHeader(kvp.Key, kvp.Value);
         
-            await Socket.ConnectAsync(uri, this.Token).ConfigureAwait(false);
-            await OnConnectedAsync().ConfigureAwait(false);
+            await this.Socket.ConnectAsync(uri, this.Token).ConfigureAwait(false);
+            await this.OnConnectedAsync().ConfigureAwait(false);
             this.WsListener = Task.Run(this.ListenAsync, this.Token);
         }
 
