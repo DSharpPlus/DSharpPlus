@@ -439,7 +439,7 @@ namespace DSharpPlus.Net
                 Name = name,
                 Position = position,
                 Topic = topic,
-				Nsfw = nsfw,
+                Nsfw = nsfw,
                 Parent = parent.HasValue ? parent.Value : null,
                 ParentSet = parent.HasValue,
                 Bitrate = bitrate,
