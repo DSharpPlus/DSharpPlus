@@ -166,15 +166,15 @@ namespace DSharpPlus
             return ApiClient.CreateGuildChannelAsync(id, name, type, parent, bitrate, user_limit, overwrites, nsfw, reason);
         }
 
-        public Task ModifyChannelAsync(ulong id, string name, int? position, string topic, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
-            => ApiClient.ModifyChannelAsync(id, name, position, topic, parent, bitrate, user_limit, reason);
+        public Task ModifyChannelAsync(ulong id, string name, int? position, string topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
+            => ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, user_limit, reason);
 
 		public Task ModifyChannelAsync(ulong channel_id, Action<ChannelEditModel> action)
 		{
 			var mdl = new ChannelEditModel();
 			action(mdl);
 
-			return this.ApiClient.ModifyChannelAsync(channel_id, mdl.Name, mdl.Position, mdl.Topic,
+			return this.ApiClient.ModifyChannelAsync(channel_id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
 				mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.AuditLogReason);
 		}
 

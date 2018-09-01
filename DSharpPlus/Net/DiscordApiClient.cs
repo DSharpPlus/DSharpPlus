@@ -432,13 +432,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, string topic, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
+        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, string topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
         {
             var pld = new RestChannelModifyPayload
             {
                 Name = name,
                 Position = position,
                 Topic = topic,
+				Nsfw = nsfw,
                 Parent = parent.HasValue ? parent.Value : null,
                 ParentSet = parent.HasValue,
                 Bitrate = bitrate,
