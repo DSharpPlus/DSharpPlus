@@ -12,6 +12,7 @@ namespace DSharpPlus.Net.Models
         public string Name { internal get; set; }
         public int? Position { internal get; set; }
         public string Topic { internal get; set; }
+        public bool? Nsfw { internal get; set; }
         public Optional<DiscordChannel> Parent { internal get; set; }
         public int? Bitrate { internal get; set; }
         public int? Userlimit { internal get; set; }

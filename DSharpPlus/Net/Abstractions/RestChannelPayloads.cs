@@ -35,12 +35,16 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int? Position { get; set; }
-
+        
         [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
         public string Topic { get; set; }
 
+        [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Nsfw { get; set; }
+
         [JsonProperty("parent_id")]
         public ulong? Parent { get; set; }
+
         [JsonIgnore]
         internal bool ParentSet { get; set; } = false;
 
