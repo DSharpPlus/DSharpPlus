@@ -24,8 +24,8 @@ param
     [parameter(Mandatory = $false)]
     [string] $VersionSuffix,
 
-	[parameter(Mandatory = $false)]
-	[int] $BuildNumber = -1,
+    [parameter(Mandatory = $false)]
+    [int] $BuildNumber = -1,
     
     [parameter(Mandatory = $false)]
     [string] $DocsPath,
@@ -47,16 +47,16 @@ if (-not $VersionSuffix -or -not $BuildNumber -or $BuildNumber -eq -1)
     # Nope
     Write-Host "Building production packages"
 
-	# Invoke the build script
-	& .\rebuild-lib.ps1 -ArtifactLocation "$ArtifactLocation" -Configuration "$Configuration" | Out-Host
+    # Invoke the build script
+    & .\rebuild-lib.ps1 -ArtifactLocation "$ArtifactLocation" -Configuration "$Configuration" | Out-Host
 }
 else
 {
     # Yup
     Write-Host "Building nightly packages"
 
-	# Invoke the build script
-	& .\rebuild-lib.ps1 -ArtifactLocation "$ArtifactLocation" -Configuration "$Configuration" -VersionSuffix "$VersionSuffix" -BuildNumber $BuildNumber | Out-Host
+    # Invoke the build script
+    & .\rebuild-lib.ps1 -ArtifactLocation "$ArtifactLocation" -Configuration "$Configuration" -VersionSuffix "$VersionSuffix" -BuildNumber $BuildNumber | Out-Host
 }
 
 # Check if it failed

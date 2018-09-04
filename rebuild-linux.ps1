@@ -32,8 +32,8 @@ param
     [parameter(Mandatory = $false)]
     [string] $VersionSuffix,
 
-	[parameter(Mandatory = $false)]
-	[string] $BuildNumber,
+    [parameter(Mandatory = $false)]
+    [string] $BuildNumber,
 
     [parameter(Mandatory = $false)]
     [string] $Mono

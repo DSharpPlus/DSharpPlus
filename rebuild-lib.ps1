@@ -26,8 +26,8 @@ param
     [parameter(Mandatory = $false)]
     [string] $VersionSuffix,
 
-	[parameter(Mandatory = $false)]
-	[int] $BuildNumber = -1
+    [parameter(Mandatory = $false)]
+    [int] $BuildNumber = -1
 )
 
 # Check if configuration is valid
@@ -88,15 +88,15 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
         Return $LastExitCode
     }
 
-	# Create build number string
-	if (-not $build_number)
-	{
-		$build_number_string = ""
-	}
-	else
-	{
-		$build_number_string = [int]::Parse($build_number).ToString("00000")
-	}
+    # Create build number string
+    if (-not $build_number)
+    {
+        $build_number_string = ""
+    }
+    else
+    {
+        $build_number_string = [int]::Parse($build_number).ToString("00000")
+    }
     
     if ($Env:OS -eq $null)
     {

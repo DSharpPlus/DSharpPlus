@@ -499,29 +499,29 @@ namespace DSharpPlus
         /// Gets the current user.
         /// </summary>
         public DiscordUser CurrentUser 
-            => this._current_user;
+            => this._currentUser;
 
-        private DiscordUser _current_user;
+        private DiscordUser _currentUser;
 
         /// <summary>
         /// Gets the current application.
         /// </summary>
         public DiscordApplication CurrentApplication 
-            => this._current_application;
+            => this._currentApplication;
 
-        private DiscordApplication _current_application;
+        private DiscordApplication _currentApplication;
 
         /// <summary>
         /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
         /// </summary>
         public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions 
-            => this._voice_regions_lazy?.Value;
+            => this._voiceRegionsLazy?.Value;
 
         /// <summary>
         /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
         /// </summary>
         private ConcurrentDictionary<string, DiscordVoiceRegion> InternalVoiceRegions { get; set; }
-        private Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voice_regions_lazy;
+        private Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voiceRegionsLazy;
 
         /// <summary>
         /// Initializes new auto-sharding Discord client.
@@ -626,7 +626,7 @@ namespace DSharpPlus
                 if (this.CurrentUser != null)
                     client.CurrentUser = this.CurrentUser;
 
-                if (this._current_application != null)
+                if (this._currentApplication != null)
                     client.CurrentApplication = this.CurrentApplication;
 
                 if (this.InternalVoiceRegions != null)
@@ -685,16 +685,16 @@ namespace DSharpPlus
                 await client.ConnectAsync().ConfigureAwait(false);
                 this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
 
-                if (this._current_user == null)
-                    this._current_user = client.CurrentUser;
+                if (this._currentUser == null)
+                    this._currentUser = client.CurrentUser;
 
-                if (this._current_application == null)
-                    this._current_application = client.CurrentApplication;
+                if (this._currentApplication == null)
+                    this._currentApplication = client.CurrentApplication;
 
                 if (this.InternalVoiceRegions == null)
                 {
                     this.InternalVoiceRegions = client.InternalVoiceRegions;
-                    this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
+                    this._voiceRegionsLazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
                 }
             }
         }
