@@ -189,10 +189,10 @@ namespace DSharpPlus.VoiceNext
 
             this.UdpClient = this.Discord.Configuration.UdpClientFactory();
             this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
-            this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
-            this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
-            this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
-            this.VoiceWs.OnError += this.VoiceWs_SocketErrored;
+            this.VoiceWs.Disconnected += this.VoiceWS_SocketClosed;
+            this.VoiceWs.MessageReceived += this.VoiceWS_SocketMessage;
+            this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
+            this.VoiceWs.Errored += this.VoiceWs_SocketErrored;
         }
 
         static VoiceNextConnection()
@@ -666,9 +666,9 @@ namespace DSharpPlus.VoiceNext
                 this.TokenSource.Cancel();
                 this.TokenSource = new CancellationTokenSource();
                 this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
-                this.VoiceWs.OnDisconnect += this.VoiceWS_SocketClosed;
-                this.VoiceWs.OnMessage += this.VoiceWS_SocketMessage;
-                this.VoiceWs.OnConnect += this.VoiceWS_SocketOpened;
+                this.VoiceWs.Disconnected += this.VoiceWS_SocketClosed;
+                this.VoiceWs.MessageReceived += this.VoiceWS_SocketMessage;
+                this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
                 await this.ConnectAsync().ConfigureAwait(false);
             }
         }

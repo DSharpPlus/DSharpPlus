@@ -159,7 +159,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Triggered when the client connects successfully.
         /// </summary>
-        public override event AsyncEventHandler OnConnect
+        public override event AsyncEventHandler Connected
         {
             add { _connect.Register(value); }
             remove { _connect.Unregister(value); }
@@ -169,7 +169,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Triggered when the client is disconnected.
         /// </summary>
-        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
+        public override event AsyncEventHandler<SocketCloseEventArgs> Disconnected
         {
             add { _disconnect.Register(value); }
             remove { _disconnect.Unregister(value); }
@@ -179,7 +179,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Triggered when the client receives a message from the remote party.
         /// </summary>
-        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
+        public override event AsyncEventHandler<SocketMessageEventArgs> MessageReceived
         {
             add { _message.Register(value); }
             remove { _message.Unregister(value); }
@@ -189,7 +189,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Triggered when an error occurs in the client.
         /// </summary>
-        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        public override event AsyncEventHandler<SocketErrorEventArgs> Errored
         {
             add { _error.Register(value); }
             remove { _error.Unregister(value); }

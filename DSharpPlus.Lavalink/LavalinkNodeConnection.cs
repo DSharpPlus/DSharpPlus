@@ -152,10 +152,10 @@ namespace DSharpPlus.Lavalink
             this.Rest.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", this.Configuration.Password);
 
             this.WebSocket = client.Configuration.WebSocketClientFactory(client.Configuration.Proxy);
-            this.WebSocket.OnConnect += this.WebSocket_OnConnect;
-            this.WebSocket.OnDisconnect += this.WebSocket_OnDisconnect;
-            this.WebSocket.OnError += this.WebSocket_OnError;
-            this.WebSocket.OnMessage += this.WebSocket_OnMessage;
+            this.WebSocket.Connected += this.WebSocket_OnConnect;
+            this.WebSocket.Disconnected += this.WebSocket_OnDisconnect;
+            this.WebSocket.Errored += this.WebSocket_OnError;
+            this.WebSocket.MessageReceived += this.WebSocket_OnMessage;
 
             Volatile.Write(ref this._isDisposed, false);
         }
@@ -410,10 +410,10 @@ namespace DSharpPlus.Lavalink
             {
                 this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Lavalink", "Connection broken; re-establishing...", DateTime.Now);
                 this.WebSocket = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
-                this.WebSocket.OnConnect += this.WebSocket_OnConnect;
-                this.WebSocket.OnDisconnect += this.WebSocket_OnDisconnect;
-                this.WebSocket.OnError += this.WebSocket_OnError;
-                this.WebSocket.OnMessage += this.WebSocket_OnMessage;
+                this.WebSocket.Connected += this.WebSocket_OnConnect;
+                this.WebSocket.Disconnected += this.WebSocket_OnDisconnect;
+                this.WebSocket.Errored += this.WebSocket_OnError;
+                this.WebSocket.MessageReceived += this.WebSocket_OnMessage;
                 return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), new Dictionary<string, string>()
                 {
                     ["Authorization"] = this.Configuration.Password,
@@ -461,7 +461,7 @@ namespace DSharpPlus.Lavalink
             if (e.User.Id == this.Discord.CurrentUser.Id && this.ConnectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
                 lvlgc.VoiceStateUpdate = e;
 
-            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Discord.CurrentUser.Id && this.VoiceStateUpdates.ContainsKey(gld.Id))
+            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Discord.CurrentUser.Id && e.Channel != null && this.VoiceStateUpdates.ContainsKey(gld.Id))
             {
                 this.VoiceStateUpdates.TryRemove(gld.Id, out var xe);
                 xe.SetResult(e);

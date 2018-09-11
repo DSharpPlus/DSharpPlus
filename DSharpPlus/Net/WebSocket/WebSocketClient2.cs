@@ -82,42 +82,42 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Triggered when the client connects successfully.
         /// </summary>
-        public override event AsyncEventHandler OnConnect
+        public override event AsyncEventHandler Connected
         {
-            add { this._on_connect.Register(value); }
-            remove { this._on_connect.Unregister(value); }
+            add { this._connected.Register(value); }
+            remove { this._connected.Unregister(value); }
         }
-        private AsyncEvent _on_connect;
+        private AsyncEvent _connected;
 
         /// <summary>
         /// Triggered when the client is disconnected.
         /// </summary>
-        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
+        public override event AsyncEventHandler<SocketCloseEventArgs> Disconnected
         {
-            add { this._on_disconnect.Register(value); }
-            remove { this._on_disconnect.Unregister(value); }
+            add { this._disconnected.Register(value); }
+            remove { this._disconnected.Unregister(value); }
         }
-        private AsyncEvent<SocketCloseEventArgs> _on_disconnect;
+        private AsyncEvent<SocketCloseEventArgs> _disconnected;
 
         /// <summary>
         /// Triggered when the client receives a message from the remote party.
         /// </summary>
-        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
+        public override event AsyncEventHandler<SocketMessageEventArgs> MessageReceived
         {
-            add { this._on_message.Register(value); }
-            remove { this._on_message.Unregister(value); }
+            add { this._messageReceived.Register(value); }
+            remove { this._messageReceived.Unregister(value); }
         }
-        private AsyncEvent<SocketMessageEventArgs> _on_message;
+        private AsyncEvent<SocketMessageEventArgs> _messageReceived;
 
         /// <summary>
         /// Triggered when an error occurs in the client.
         /// </summary>
-        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        public override event AsyncEventHandler<SocketErrorEventArgs> Errored
         {
-            add { this._on_error.Register(value); }
-            remove { this._on_error.Unregister(value); }
+            add { this._errored.Register(value); }
+            remove { this._errored.Unregister(value); }
         }
-        private AsyncEvent<SocketErrorEventArgs> _on_error;
+        private AsyncEvent<SocketErrorEventArgs> _errored;
 #pragma warning restore 649
         #endregion
     }

@@ -328,10 +328,10 @@ namespace DSharpPlus
             _cancelTokenSource = new CancellationTokenSource();
             _cancelToken = _cancelTokenSource.Token;
 
-            _webSocketClient.OnConnect += SocketOnConnect;
-            _webSocketClient.OnDisconnect += SocketOnDisconnect;
-            _webSocketClient.OnMessage += SocketOnMessage;
-            _webSocketClient.OnError += SocketOnError;
+            _webSocketClient.Connected += SocketOnConnect;
+            _webSocketClient.Disconnected += SocketOnDisconnect;
+            _webSocketClient.MessageReceived += SocketOnMessage;
+            _webSocketClient.Errored += SocketOnError;
 
             var gwuri = new UriBuilder(this._gatewayUri)
             {

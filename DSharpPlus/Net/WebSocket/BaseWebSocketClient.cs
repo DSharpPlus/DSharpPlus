@@ -99,21 +99,21 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Triggered when the client connects successfully.
         /// </summary>
-        public abstract event AsyncEventHandler OnConnect;
+        public abstract event AsyncEventHandler Connected;
 
         /// <summary>
         /// Triggered when the client is disconnected.
         /// </summary>
-        public abstract event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect;
+        public abstract event AsyncEventHandler<SocketCloseEventArgs> Disconnected;
 
         /// <summary>
         /// Triggered when the client receives a message from the remote party.
         /// </summary>
-        public abstract event AsyncEventHandler<SocketMessageEventArgs> OnMessage;
+        public abstract event AsyncEventHandler<SocketMessageEventArgs> MessageReceived;
 
         /// <summary>
         /// Triggered when an error occurs in the client.
         /// </summary>
-        public abstract event AsyncEventHandler<SocketErrorEventArgs> OnError;
+        public abstract event AsyncEventHandler<SocketErrorEventArgs> Errored;
     }
 }

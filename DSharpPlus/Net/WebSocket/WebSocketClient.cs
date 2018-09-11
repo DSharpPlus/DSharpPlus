@@ -38,10 +38,10 @@ namespace DSharpPlus.Net.WebSocket
         public WebSocketClient(IWebProxy proxy)
             : base(proxy)
         {
-            this._on_connect = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
-            this._on_disconnect = new AsyncEvent<SocketCloseEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
-            this._on_message = new AsyncEvent<SocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
-            this._on_error = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
+            this._connected = new AsyncEvent(this.EventErrorHandler, "WS_CONNECT");
+            this._disconnected = new AsyncEvent<SocketCloseEventArgs>(this.EventErrorHandler, "WS_DISCONNECT");
+            this._messageReceived = new AsyncEvent<SocketMessageEventArgs>(this.EventErrorHandler, "WS_MESSAGE");
+            this._errored = new AsyncEvent<SocketErrorEventArgs>(null, "WS_ERROR");
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace DSharpPlus.Net.WebSocket
             this.WsListener = Task.Run(this.ListenAsync, this.Token);
         }
 
-        private bool close_requested = false;
+        private bool closeRequested = false;
         /// <summary>
         /// Disconnects the WebSocket connection.
         /// </summary>
@@ -86,10 +86,10 @@ namespace DSharpPlus.Net.WebSocket
         public override async Task DisconnectAsync(SocketCloseEventArgs e)
         {
             //if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
-            if (close_requested)
+            if (this.closeRequested)
                 return;
 
-            close_requested = true;
+            this.closeRequested = true;
             try
             {
                 await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", this.Token).ConfigureAwait(false);
@@ -106,7 +106,7 @@ namespace DSharpPlus.Net.WebSocket
                     var cc = this.Socket.CloseStatus != null ? (int)this.Socket.CloseStatus.Value : -1;
                     e = new SocketCloseEventArgs(null) { CloseCode = cc, CloseMessage = this.Socket.CloseStatusDescription ?? "Unknown reason" };
                 }
-                await OnDisconnectedAsync(e).ConfigureAwait(false);
+                await this.OnDisconnectedAsync(e).ConfigureAwait(false);
             }
         }
 
@@ -116,7 +116,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <param name="message">The message to send</param>
         public override void SendMessage(string message)
         {
-            if (Socket.State != WebSocketState.Open)
+            if (this.Socket.State != WebSocketState.Open)
                 return;
 
             this.SocketMessageQueue.Enqueue(message);
@@ -131,7 +131,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         protected override Task OnConnectedAsync()
         {
-            return _on_connect.InvokeAsync();
+            return this._connected.InvokeAsync();
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         protected override Task OnDisconnectedAsync(SocketCloseEventArgs e)
         {
-            _ = this._on_disconnect.InvokeAsync(e).ConfigureAwait(false);
+            _ = this._disconnected.InvokeAsync(e).ConfigureAwait(false);
             return Task.Delay(0);
         }
 
@@ -224,7 +224,7 @@ namespace DSharpPlus.Net.WebSocket
                 close = new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = e.Message };
             }
 
-            await DisconnectAsync(close).ConfigureAwait(false);
+            await this.DisconnectAsync(close).ConfigureAwait(false);
         }
 
         internal async Task ProcessSmqAsync()
@@ -251,13 +251,13 @@ namespace DSharpPlus.Net.WebSocket
                     var cnt = Math.Min(BUFFER_SIZE, buff.Length - off);
 
                     var lm = i == msgc - 1;
-                    await Socket.SendAsync(new ArraySegment<byte>(buff, off, cnt), WebSocketMessageType.Text, lm, this.Token).ConfigureAwait(false);
+                    await this.Socket.SendAsync(new ArraySegment<byte>(buff, off, cnt), WebSocketMessageType.Text, lm, this.Token).ConfigureAwait(false);
                 }
             }
         }
 
         internal Task CallOnMessageAsync(string result)
-            => _on_message.InvokeAsync(new SocketMessageEventArgs() { Message = result });
+            => _messageReceived.InvokeAsync(new SocketMessageEventArgs() { Message = result });
 
         /// <summary>
         /// Creates a new instance of <see cref="WebSocketClient"/>.
@@ -271,49 +271,49 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Triggered when the client connects successfully.
         /// </summary>
-        public override event AsyncEventHandler OnConnect
+        public override event AsyncEventHandler Connected
         {
-            add { this._on_connect.Register(value); }
-            remove { this._on_connect.Unregister(value); }
+            add { this._connected.Register(value); }
+            remove { this._connected.Unregister(value); }
         }
-        private AsyncEvent _on_connect;
+        private AsyncEvent _connected;
 
         /// <summary>
         /// Triggered when the client is disconnected.
         /// </summary>
-        public override event AsyncEventHandler<SocketCloseEventArgs> OnDisconnect
+        public override event AsyncEventHandler<SocketCloseEventArgs> Disconnected
         {
-            add { this._on_disconnect.Register(value); }
-            remove { this._on_disconnect.Unregister(value); }
+            add { this._disconnected.Register(value); }
+            remove { this._disconnected.Unregister(value); }
         }
-        private AsyncEvent<SocketCloseEventArgs> _on_disconnect;
+        private AsyncEvent<SocketCloseEventArgs> _disconnected;
 
         /// <summary>
         /// Triggered when the client receives a message from the remote party.
         /// </summary>
-        public override event AsyncEventHandler<SocketMessageEventArgs> OnMessage
+        public override event AsyncEventHandler<SocketMessageEventArgs> MessageReceived
         {
-            add { this._on_message.Register(value); }
-            remove { this._on_message.Unregister(value); }
+            add { this._messageReceived.Register(value); }
+            remove { this._messageReceived.Unregister(value); }
         }
-        private AsyncEvent<SocketMessageEventArgs> _on_message;
+        private AsyncEvent<SocketMessageEventArgs> _messageReceived;
 
         /// <summary>
         /// Triggered when an error occurs in the client.
         /// </summary>
-        public override event AsyncEventHandler<SocketErrorEventArgs> OnError
+        public override event AsyncEventHandler<SocketErrorEventArgs> Errored
         {
-            add { this._on_error.Register(value); }
-            remove { this._on_error.Unregister(value); }
+            add { this._errored.Register(value); }
+            remove { this._errored.Unregister(value); }
         }
-        private AsyncEvent<SocketErrorEventArgs> _on_error;
+        private AsyncEvent<SocketErrorEventArgs> _errored;
 
         private void EventErrorHandler(string evname, Exception ex)
         {
             if (evname.ToLowerInvariant() == "ws_error")
                 Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
             else
-                this._on_error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
+                this._errored.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
         #endregion
     }
