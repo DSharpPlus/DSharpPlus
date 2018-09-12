@@ -6,10 +6,73 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Interactivity
 {
-	public class InteractivityExtension : BaseExtension
+    #region Extensions
+    public static class ExtensionMethods
+    {
+        public static InteractivityExtension UseInteractivity(this DiscordClient c, InteractivityConfiguration cfg)
+        {
+            if (c.GetExtension<InteractivityExtension>() != null)
+                throw new Exception("Interactivity module is already enabled for this client!");
+
+            var m = new InteractivityExtension(cfg);
+            c.AddExtension(m);
+            return m;
+        }
+
+        public static async Task<IReadOnlyDictionary<int, InteractivityExtension>> UseInteractivityAsync(this DiscordShardedClient c, InteractivityConfiguration cfg)
+        {
+            var modules = new Dictionary<int, InteractivityExtension>();
+            await c.InitializeShardsAsync().ConfigureAwait(false);
+
+            foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
+            {
+                var m = shard.GetExtension<InteractivityExtension>();
+                if (m == null)
+                    m = shard.UseInteractivity(cfg);
+
+                modules[shard.ShardId] = m;
+            }
+
+            return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
+        }
+
+        public static InteractivityExtension GetInteractivity(this DiscordClient c)
+        {
+            return c.GetExtension<InteractivityExtension>();
+        }
+
+        public static IReadOnlyDictionary<int, InteractivityExtension> GetInteractivity(this DiscordShardedClient c)
+        {
+            var modules = new Dictionary<int, InteractivityExtension>();
+
+            c.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+            foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
+                modules.Add(shard.ShardId, shard.GetExtension<InteractivityExtension>());
+
+            return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
+        }
+
+        public static IEnumerable<string> Split(this string str, int chunkSize)
+        {
+            var len = str.Length;
+            var i = 0;
+
+            while (i < len)
+            {
+                var size = Math.Min(len - i, chunkSize);
+                yield return str.Substring(i, size);
+                i += size;
+            }
+        }
+    }
+    #endregion
+
+    public class InteractivityExtension : BaseExtension
 	{
 		private InteractivityConfiguration Config { get; }
 
