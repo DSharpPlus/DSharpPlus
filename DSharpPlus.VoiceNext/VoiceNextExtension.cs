@@ -155,7 +155,7 @@ namespace DSharpPlus.VoiceNext
                 vnc.Channel = e.Channel;
             }
 
-            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Client.CurrentUser.Id && this.VoiceStateUpdates.ContainsKey(gld.Id))
+            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Client.CurrentUser.Id && e.Channel != null && this.VoiceStateUpdates.ContainsKey(gld.Id))
             {
                 this.VoiceStateUpdates.TryRemove(gld.Id, out var xe);
                 xe.SetResult(e);
