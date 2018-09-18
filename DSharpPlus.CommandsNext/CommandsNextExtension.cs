@@ -190,7 +190,7 @@ namespace DSharpPlus.CommandsNext
             if (this.Config.StringPrefixes?.Any() == true)
                 foreach (var pfix in this.Config.StringPrefixes)
                     if (mpos == -1 && !string.IsNullOrWhiteSpace(pfix))
-                        mpos = e.Message.GetStringPrefixLength(pfix);
+                        mpos = e.Message.GetStringPrefixLength(pfix, this.Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
 
             if (mpos == -1 && this.Config.PrefixResolver != null)
                 mpos = await this.Config.PrefixResolver(e.Message).ConfigureAwait(false);

@@ -6,12 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Interactivity
 {
     #region Extensions
-    public static class ExtensionMethods
+    public static partial class InteractivityExtensionMethods
     {
         public static InteractivityExtension UseInteractivity(this DiscordClient c, InteractivityConfiguration cfg)
         {

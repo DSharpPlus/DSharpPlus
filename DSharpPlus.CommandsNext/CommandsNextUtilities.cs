@@ -25,14 +25,15 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="msg">Message to check.</param>
         /// <param name="str">String to check for.</param>
+        /// <param name="comparisonType">Method of string comparison for the purposes of finding prefixes.</param>
         /// <returns>Positive number if the prefix is present, -1 otherwise.</returns>
-        public static int GetStringPrefixLength(this DiscordMessage msg, string str)
+        public static int GetStringPrefixLength(this DiscordMessage msg, string str, StringComparison comparisonType = StringComparison.Ordinal)
         {
             var cnt = msg.Content;
             if (str.Length >= cnt.Length)
                 return -1;
 
-            if (!cnt.StartsWith(str))
+            if (!cnt.StartsWith(str, comparisonType))
                 return -1;
 
             return str.Length;

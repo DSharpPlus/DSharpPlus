@@ -1,14 +1,11 @@
-﻿using DSharpPlus.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus.Interactivity.Extensions
+namespace DSharpPlus.Interactivity
 {
-    public static class Extensions
+    public static partial class InteractivityExtensionMethods
     {
         public static async Task<MessageContext> WaitForMessageAsync(this DiscordChannel chn, DiscordUser user, Func<string, bool> contentpredicate,
             TimeSpan? timeoutoverride = null)

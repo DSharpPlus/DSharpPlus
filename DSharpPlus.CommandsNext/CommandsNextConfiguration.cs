@@ -44,7 +44,8 @@ namespace DSharpPlus.CommandsNext
         public bool EnableMentionPrefix { internal get; set; } = true;
 
         /// <summary>
-        /// <para>Sets whether the commands should be case-sensitive.</para>
+        /// <para>Sets whether strings should be matched in a case-sensitive manner.</para>
+        /// <para>This switch affects the behaviour of default prefix resolver, command searching, and argument conversion.</para>
         /// <para>Defaults to false.</para>
         /// </summary>
         public bool CaseSensitive { internal get; set; } = false;

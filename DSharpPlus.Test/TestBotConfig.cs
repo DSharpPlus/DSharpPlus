@@ -7,9 +7,6 @@ namespace DSharpPlus.Test
         [JsonProperty("token")]
         public string Token { get; private set; } = string.Empty;
 
-        [JsonIgnore]
-        public string CommandPrefix => this.CommandPrefixes[0];
-
         [JsonProperty("command_prefixes")]
         public string[] CommandPrefixes { get; private set; } = new[] { "d#", "d#+"  };
 
