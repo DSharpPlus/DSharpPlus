@@ -240,7 +240,8 @@ namespace DSharpPlus.Lavalink
 
         internal Task InternalPlaybackFinishedAsync(TrackFinishData e)
         {
-            this.CurrentState.CurrentTrack = default;
+            if(e.Reason != TrackEndReason.Replaced)
+                this.CurrentState.CurrentTrack = default;
 
             var ea = new TrackFinishEventArgs(this, LavalinkUtilities.DecodeTrack(e.Track), e.Reason);
             return this._playbackFinished.InvokeAsync(ea);
