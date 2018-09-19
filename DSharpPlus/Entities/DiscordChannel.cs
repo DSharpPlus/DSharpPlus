@@ -390,17 +390,17 @@ namespace DSharpPlus.Entities
             var remaining = limit;
             var lastCount = 0;
             ulong? last = null;
-            var isBefore = before != null;
+            var isAfter = after != null;
 
             do
             {
                 var fetchSize = remaining > 100 ? 100 : remaining;
-                var fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, isBefore ? last ?? before : null, !isBefore ? last ?? after : null, around).ConfigureAwait(false);
+                var fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null, around).ConfigureAwait(false);
 
                 lastCount = fetch.Count;
                 remaining -= lastCount;
 
-                if (isBefore)
+                if (!isAfter)
                 {
                     msgs.AddRange(fetch);
                     last = fetch.LastOrDefault()?.Id;
