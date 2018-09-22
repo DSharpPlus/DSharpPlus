@@ -120,7 +120,7 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Gets the index of the track that was selected in this playlist.
         /// </summary>
-        [JsonProperty("selectedIndex")]
+        [JsonProperty("selectedTrack")]
         public int SelectedTrack { get; internal set; }
     }
 
