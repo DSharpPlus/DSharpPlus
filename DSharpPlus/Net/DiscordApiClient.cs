@@ -102,7 +102,12 @@ namespace DSharpPlus.Net
         private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, string payload = null, double? ratelimit_wait_override = null)
         {
             var req = new RestRequest(client, bucket, url, method, headers, payload, ratelimit_wait_override);
-            Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+
+            if (this.Discord != null)
+                this.Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+            else
+                _ = this.Rest.ExecuteRequestAsync(req);
+
             return req.WaitForCompletionAsync();
         }
 
@@ -110,7 +115,12 @@ namespace DSharpPlus.Net
             IDictionary<string, Stream> files = null, double? ratelimit_wait_override = null)
         {
             var req = new MultipartWebRequest(client, bucket, url, method, headers, values, files, ratelimit_wait_override);
-            Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+
+            if (this.Discord != null)
+                Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+            else
+                _ = this.Rest.ExecuteRequestAsync(req);
+
             return req.WaitForCompletionAsync();
         }
 
