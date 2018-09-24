@@ -22,6 +22,8 @@
     href: commands/dependency_injection.md
   - name: Module lifespans
     href: commands/module_lifespans.md
+  - name: Custom command handlers
+    href: commands/custom_handler.md
 - name: Interactivity
   items:
   - name: Introduction
@@ -34,6 +36,10 @@
     href: voice/send.md
   - name: Receiving
     href: voice/receive.md
+- name: Lavalink
+  items:
+  - name: Introduction
+    href: lavalink/intro.md
 - name: Hosting
   items:
   - name: Running your bot 24/7
