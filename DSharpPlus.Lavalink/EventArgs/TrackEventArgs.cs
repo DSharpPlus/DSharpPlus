@@ -79,7 +79,7 @@
     }
     
     /// <summary>
-    /// Represents event arguments for a truck stuck event.
+    /// Represents event arguments for a track stuck event.
     /// </summary>
     public sealed class TrackStuckEventArgs : AsyncEventArgs
     {
@@ -112,6 +112,9 @@
         public string Track { get; set; }
     }
 
+    /// <summary>
+    /// Represents event arguments for a track exception event.
+    /// </summary>
     public sealed class TrackExceptionEventArgs : AsyncEventArgs
     {
         /// <summary>
