@@ -682,7 +682,6 @@ namespace DSharpPlus.Interactivity
 				switch (timeout_behaviour)
 				{
 					case TimeoutBehaviour.Ignore:
-						await m.DeleteAllReactionsAsync().ConfigureAwait(false);
 						break;
 					case TimeoutBehaviour.DeleteMessage:
 						// deleting a message deletes all reactions anyway
