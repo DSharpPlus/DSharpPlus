@@ -724,6 +724,7 @@ namespace DSharpPlus
             http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
             http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Config));
             var resp = await http.GetAsync(url).ConfigureAwait(false);
+            http.Dispose();
 
             var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
             if (jo["shards"] != null)

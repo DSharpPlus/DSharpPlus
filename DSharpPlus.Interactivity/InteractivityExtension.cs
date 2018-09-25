@@ -118,6 +118,7 @@ namespace DSharpPlus.Interactivity
 			finally
 			{
 				this.Client.MessageCreated -= Handler;
+                ct.Dispose();
 			}
 
 			#region Handler
@@ -173,7 +174,8 @@ namespace DSharpPlus.Interactivity
 			finally
 			{
 				this.Client.MessageReactionAdded -= Handler;
-			}
+                ct.Dispose();
+            }
 
 			#region Handler
 			async Task Handler(MessageReactionAddEventArgs e)
@@ -233,7 +235,8 @@ namespace DSharpPlus.Interactivity
 			finally
 			{
 				this.Client.MessageReactionAdded -= Handler;
-			}
+                ct.Dispose();
+            }
 
 			#region Handler
 			async Task Handler(MessageReactionAddEventArgs e)
@@ -297,7 +300,8 @@ namespace DSharpPlus.Interactivity
 			finally
 			{
 				this.Client.MessageReactionAdded -= Handler;
-			}
+                ct.Dispose();
+            }
 
 			#region Handler
 			async Task Handler(MessageReactionAddEventArgs e)
@@ -361,7 +365,8 @@ namespace DSharpPlus.Interactivity
 			finally
 			{
 				this.Client.MessageReactionAdded -= Handler;
-			}
+                ct.Dispose();
+            }
 
 			#region Handler
 			async Task Handler(MessageReactionAddEventArgs e)
@@ -435,7 +440,8 @@ namespace DSharpPlus.Interactivity
 				this.Client.MessageReactionAdded -= ReactionAddHandler;
 				this.Client.MessageReactionRemoved -= ReactionRemoveHandler;
 				this.Client.MessageReactionsCleared -= ReactionClearHandler;
-			}
+                ct.Dispose();
+            }
 
 			#region Handlers
 			async Task ReactionAddHandler(MessageReactionAddEventArgs e)
@@ -523,7 +529,8 @@ namespace DSharpPlus.Interactivity
 				this.Client.MessageReactionAdded -= ReactionAddHandler;
 				this.Client.MessageReactionRemoved -= ReactionRemoveHandler;
 				this.Client.MessageReactionsCleared -= ReactionClearHandler;
-			}
+                ct.Dispose();
+            }
 
 			#region Handlers
 			async Task ReactionAddHandler(MessageReactionAddEventArgs e)
@@ -594,7 +601,8 @@ namespace DSharpPlus.Interactivity
 			finally
 			{
 				this.Client.TypingStarted -= Handler;
-			}
+                ct.Dispose();
+            }
 
 			#region Handler
 			async Task Handler(TypingStartEventArgs e)
@@ -667,7 +675,8 @@ namespace DSharpPlus.Interactivity
 			finally
 			{
 				this.Client.TypingStarted -= handler;
-			}
+                ct.Dispose();
+            }
 		}
 		#endregion
 
@@ -748,7 +757,9 @@ namespace DSharpPlus.Interactivity
 				this.Client.MessageReactionAdded -= ReactionAddHandler;
 				this.Client.MessageReactionRemoved -= ReactionRemoveHandler;
 
-				switch (timeout_behaviour)
+                ct.Dispose();
+
+                switch (timeout_behaviour)
 				{
 					case TimeoutBehaviour.Ignore:
 						break;
