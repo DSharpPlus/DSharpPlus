@@ -694,3 +694,4 @@ namespace DSharpPlus.VoiceNext
 
 // Naam you still owe me those noodles :^)
 // I remember
+// Alexa, how much is shipping to emzi

@@ -121,7 +121,7 @@ namespace DSharpPlus.Net
                     // Decrement the remaining number of requests as there can be other concurrent requests before this one finishes and has a chance to update the bucket
 #pragma warning disable 420 // interlocked access is always volatile
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
-#pragma warning restore 420
+#pragma warning restore 420 // blaze it
                     {
                         request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for bucket {bucket}. Blocking.", DateTime.Now);
                         var delay = bucket.Reset - now;

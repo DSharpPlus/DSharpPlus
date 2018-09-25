@@ -2,6 +2,9 @@
 
 namespace DSharpPlus.Interactivity
 {
+    /// <summary>
+    /// Configuration class for your Interactivity extension
+    /// </summary>
     public sealed class InteractivityConfiguration
     {
         /// <summary>

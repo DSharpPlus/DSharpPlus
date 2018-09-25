@@ -26,6 +26,10 @@ namespace DSharpPlus
             disposed = false;
         }
 
+        /// <summary>
+        /// Initializes cache
+        /// </summary>
+        /// <returns></returns>
         public async Task InitializeCacheAsync()
         {
             await base.InitializeAsync().ConfigureAwait(false);

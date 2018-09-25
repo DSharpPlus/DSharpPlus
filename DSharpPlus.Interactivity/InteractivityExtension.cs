@@ -86,6 +86,12 @@ namespace DSharpPlus.Interactivity
 		}
 
 		#region Message
+        /// <summary>
+        /// Waits for a message to be received
+        /// </summary>
+        /// <param name="predicate">Expected predicate</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <returns></returns>
 		public async Task<MessageContext> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, TimeSpan? timeoutoverride = null)
 		{
 			if (predicate == null)
@@ -134,6 +140,12 @@ namespace DSharpPlus.Interactivity
 		#endregion
 
 		#region Reaction
+        /// <summary>
+        /// Waits for a reaction to be received
+        /// </summary>
+        /// <param name="predicate">Expected predicate</param>
+        /// <param name="timeoutoverride">TImeout override</param>
+        /// <returns></returns>
 		public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, TimeSpan? timeoutoverride = null)
 		{
 			if (predicate == null)
@@ -184,6 +196,13 @@ namespace DSharpPlus.Interactivity
 			#endregion
 		}
 
+        /// <summary>
+        /// Wait for a reaction by a specific user to be received
+        /// </summary>
+        /// <param name="predicate">Expected predicate</param>
+        /// <param name="user">User that sends the reaction</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <returns></returns>
 		public async Task<ReactionContext> WaitForReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordUser user, TimeSpan? timeoutoverride = null)
 		{
 			if (predicate == null)
@@ -240,6 +259,14 @@ namespace DSharpPlus.Interactivity
 			#endregion
 		}
 
+        /// <summary>
+        /// Wait for a reaction on a specific message by a specific user
+        /// </summary>
+        /// <param name="predicate">Expected predicate</param>
+        /// <param name="message">Message reaction has to be placed on</param>
+        /// <param name="user">User reaction was sent by</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <returns></returns>
 		public async Task<ReactionContext> WaitForMessageReactionAsync(Func<DiscordEmoji, bool> predicate, DiscordMessage message, DiscordUser user = null, TimeSpan? timeoutoverride = null)
 		{
 			if (predicate == null)
@@ -299,6 +326,13 @@ namespace DSharpPlus.Interactivity
 			#endregion
 		}
 
+        /// <summary>
+        /// Wait for any reaction on a specific message
+        /// </summary>
+        /// <param name="message">Message to check</param>
+        /// <param name="user">(optional) User override</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <returns></returns>
 		public async Task<ReactionContext> WaitForMessageReactionAsync(DiscordMessage message, DiscordUser user = null, TimeSpan? timeoutoverride = null)
 		{
 			if (message == null)
@@ -353,6 +387,13 @@ namespace DSharpPlus.Interactivity
 			#endregion
 		}
 
+        /// <summary>
+        /// Creates a poll
+        /// </summary>
+        /// <param name="message">Message poll belongs to</param>
+        /// <param name="emojis">Emojis to poll</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <returns></returns>
 		public async Task<ReactionCollectionContext> CreatePollAsync(DiscordMessage message, IEnumerable<DiscordEmoji> emojis, TimeSpan? timeoutoverride = null)
 		{
 			if (message == null)
@@ -444,6 +485,12 @@ namespace DSharpPlus.Interactivity
 			#endregion
 		}
 
+        /// <summary>
+        /// Collects all reactions on a message
+        /// </summary>
+        /// <param name="message">Message to check</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <returns></returns>
 		public async Task<ReactionCollectionContext> CollectReactionsAsync(DiscordMessage message, TimeSpan? timeoutoverride = null)
 		{
 			if (message == null)
@@ -513,6 +560,12 @@ namespace DSharpPlus.Interactivity
 		// I don't really know anymore why I added this.. -Naam
 		// I think I told you it might be useful, but tbh I have no idea myself -Emzi
 		// Did you? I don't remember either. Nice it's there anyway I guess.. -Naam
+        /// <summary>
+        /// Waits for any user to start typing
+        /// </summary>
+        /// <param name="channel">Channel to check</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <returns></returns>
 		public async Task<TypingContext> WaitForTypingUserAsync(DiscordChannel channel, TimeSpan? timeoutoverride = null)
 		{
 			if (channel == null)
@@ -563,6 +616,12 @@ namespace DSharpPlus.Interactivity
 			#endregion
 		}
 
+        /// <summary>
+        /// Waits for a user to type in any channel
+        /// </summary>
+        /// <param name="user">User to check</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <returns></returns>
 		public async Task<TypingContext> WaitForTypingChannelAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
 		{
 			if (user == null)
@@ -613,6 +672,16 @@ namespace DSharpPlus.Interactivity
 		#endregion
 
 		#region Pagination
+        /// <summary>
+        /// Sends a paginated message
+        /// </summary>
+        /// <param name="channel">Channel to send message to</param>
+        /// <param name="user">User that may interact with this paginated message</param>
+        /// <param name="message_pages">Pages for this message</param>
+        /// <param name="timeoutoverride">Timeout override</param>
+        /// <param name="timeoutbehaviouroverride">Timeout behaviour override</param>
+        /// <param name="emojis">Pagination emoji override</param>
+        /// <returns></returns>
 		public async Task SendPaginatedMessage(DiscordChannel channel, DiscordUser user, IEnumerable<Page> message_pages, TimeSpan? timeoutoverride = null,
 			TimeoutBehaviour? timeoutbehaviouroverride = null, PaginationEmojis emojis = null)
 		{
@@ -724,6 +793,11 @@ namespace DSharpPlus.Interactivity
 			#endregion
 		}
 
+        /// <summary>
+        /// Generates pages in embeds from a long input string
+        /// </summary>
+        /// <param name="input">Input string</param>
+        /// <returns></returns>
 		public IEnumerable<Page> GeneratePagesInEmbeds(string input)
 		{
 			if (String.IsNullOrEmpty(input))
@@ -747,6 +821,11 @@ namespace DSharpPlus.Interactivity
 			return result;
 		}
 
+        /// <summary>
+        /// Generates pages in strings from a long input string
+        /// </summary>
+        /// <param name="input">Input string</param>
+        /// <returns></returns>
 		public IEnumerable<Page> GeneratePagesInStrings(string input)
 		{
 			if (String.IsNullOrEmpty(input))
@@ -766,6 +845,12 @@ namespace DSharpPlus.Interactivity
 			return result;
 		}
 
+        /// <summary>
+        /// Generates pagination reactions
+        /// </summary>
+        /// <param name="message">Message to attach reactions to</param>
+        /// <param name="emojis">Emojis to attach</param>
+        /// <returns></returns>
 		public async Task GeneratePaginationReactions(DiscordMessage message, PaginationEmojis emojis)
 		{
 			if (message == null)
@@ -778,6 +863,15 @@ namespace DSharpPlus.Interactivity
 			await message.CreateReactionAsync(emojis.SkipRight).ConfigureAwait(false);
 		}
 
+        /// <summary>
+        /// Does pagination (for custom handling)
+        /// </summary>
+        /// <param name="emoji">Emoji that was received</param>
+        /// <param name="message">Message reaction belongs to</param>
+        /// <param name="paginatedmessage">Paginated message</param>
+        /// <param name="canceltoken">Cancellation token source</param>
+        /// <param name="emojis">Pagination emoji collection</param>
+        /// <returns></returns>
 		public async Task DoPagination(DiscordEmoji emoji, DiscordMessage message, PaginatedMessage paginatedmessage, CancellationTokenSource canceltoken, PaginationEmojis emojis)
 		{
 			if (message == null)
@@ -825,25 +919,64 @@ namespace DSharpPlus.Interactivity
 		#endregion
 	}
 
+    /// <summary>
+    /// Different kinds of behaviour on pagination timeout
+    /// </summary>
 	public enum TimeoutBehaviour
 	{
 		// is this actually needed?
 		//Default, // ignore
+
+        /// <summary>
+        /// Interactivity ignores message after timeout. No actions are performed
+        /// </summary>
 		Ignore,
+
+        /// <summary>
+        /// Interactivity removes all reactions after timeout
+        /// </summary>
 		DeleteReactions,
+
+        /// <summary>
+        /// Interactivity deletes the message after timeout
+        /// </summary>
 		DeleteMessage
 	}
 
+    /// <summary>
+    /// Information about the paginated message
+    /// </summary>
 	public class PaginatedMessage
 	{
+        /// <summary>
+        /// Pages that belong to this message
+        /// </summary>
 		public IEnumerable<Page> Pages { get; internal set; }
+
+        /// <summary>
+        /// Messages current index
+        /// </summary>
 		public int CurrentIndex { get; internal set; }
+
+        /// <summary>
+        /// Messages timeout
+        /// </summary>
 		public TimeSpan Timeout { get; internal set; }
 	}
 
+    /// <summary>
+    /// One page. This is essentially the "unpaginated" message. Usually you have multiple of these.
+    /// </summary>
 	public class Page
 	{
+        /// <summary>
+        /// Regular text content
+        /// </summary>
 		public string Content { get; set; }
+
+        /// <summary>
+        /// Embed content
+        /// </summary>
 		public DiscordEmbed Embed { get; set; }
 	}
 
@@ -859,3 +992,5 @@ namespace DSharpPlus.Interactivity
 // 2 months and its legal
 
 // send nudes
+
+// nvm let's not

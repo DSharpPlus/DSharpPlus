@@ -4,14 +4,26 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.Interactivity
 {
+    /// <summary>
+    /// Reactions that were collected
+    /// </summary>
     public class ReactionCollectionContext
     {
+        /// <summary>
+        /// Received reactions
+        /// </summary>
         public ConcurrentDictionary<DiscordEmoji, int> Reactions { get; internal set; } = new ConcurrentDictionary<DiscordEmoji, int>();
 
         internal List<ulong> _membersvoted = new List<ulong>();
 
+        /// <summary>
+        /// Interactivity extension responsible
+        /// </summary>
         public InteractivityExtension Interactivity { get; internal set; }
 
+        /// <summary>
+        /// Client that was listened to
+        /// </summary>
         public DiscordClient Client 
             => Interactivity.Client;
 

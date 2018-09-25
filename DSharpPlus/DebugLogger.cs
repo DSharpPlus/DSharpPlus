@@ -21,6 +21,13 @@ namespace DSharpPlus
             this.DateTimeFormat = timeformatting;
         }
 
+        /// <summary>
+        /// Logs a message to this DebugLogger
+        /// </summary>
+        /// <param name="level">Log level (severity of this message)</param>
+        /// <param name="application">What this message applies to</param>
+        /// <param name="message">Message to log</param>
+        /// <param name="timestamp">When this message was sent</param>
         public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
         {
             if (level <= this.Level)
@@ -34,6 +41,13 @@ namespace DSharpPlus
             }
         }
 
+        /// <summary>
+        /// Logs a task fault
+        /// </summary>
+        /// <param name="task">Task that borked</param>
+        /// <param name="level">Log level (severity of this failure)</param>
+        /// <param name="application">What this failure applies to</param>
+        /// <param name="message">Message to attach</param>
         public void LogTaskFault(Task task, LogLevel level, string application, string message)
         {
             if (task == null)
