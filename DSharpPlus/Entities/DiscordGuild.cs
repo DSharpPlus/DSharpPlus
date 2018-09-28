@@ -932,6 +932,14 @@ namespace DSharpPlus.Entities
                                     };
                                     break;
 
+                                case "rate_limit_per_user":
+                                    entrychn.PerUserRateLimitChange = new PropertyChange<int?>
+                                    {
+                                        Before = (int?)(long?)xc.OldValue,
+                                        After = (int?)(long?)xc.NewValue
+                                    };
+                                    break;
+
                                 default:
                                     this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in channel update: {xc.Key}; this should be reported to devs", DateTime.Now);
                                     break;

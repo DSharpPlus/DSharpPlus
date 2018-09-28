@@ -147,6 +147,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         public PropertyChange<string> TopicChange { get; internal set; }
 
+        /// <summary>
+        /// Gets the description of channel's slow mode timeout change.
+        /// </summary>
+        public PropertyChange<int?> PerUserRateLimitChange { get; internal set; }
+
         internal DiscordAuditLogChannelEntry() { }
     }
 
