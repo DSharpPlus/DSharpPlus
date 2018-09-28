@@ -866,7 +866,7 @@ namespace DSharpPlus
                     {
                         xc.GuildId = xg.Id;
                         xc.Discord = this;
-                        foreach (var xo in xc._permission_overwrites)
+                        foreach (var xo in xc._permissionOverwrites)
                         {
                             xo.Discord = this;
                             xo._channel_id = xc.Id;
@@ -953,7 +953,7 @@ namespace DSharpPlus
             else
             {
                 channel.Discord = this;
-                foreach (var xo in channel._permission_overwrites)
+                foreach (var xo in channel._permissionOverwrites)
                 {
                     xo.Discord = this;
                     xo._channel_id = channel.Id;
@@ -988,13 +988,14 @@ namespace DSharpPlus
                     //IsPrivate = channel_new.IsPrivate,
                     LastMessageId = channel_new.LastMessageId,
                     Name = channel_new.Name,
-                    _permission_overwrites = new List<DiscordOverwrite>(channel_new._permission_overwrites),
+                    _permissionOverwrites = new List<DiscordOverwrite>(channel_new._permissionOverwrites),
                     Position = channel_new.Position,
                     Topic = channel_new.Topic,
                     Type = channel_new.Type,
                     UserLimit = channel_new.UserLimit,
                     ParentId = channel_new.ParentId,
-                    IsNSFW = channel_new.IsNSFW
+                    IsNSFW = channel_new.IsNSFW,
+                    PerUserRateLimit = channel_new.PerUserRateLimit
                 };
             }
             else
@@ -1009,16 +1010,17 @@ namespace DSharpPlus
             channel_new.UserLimit = channel.UserLimit;
             channel_new.ParentId = channel.ParentId;
             channel_new.IsNSFW = channel.IsNSFW;
+            channel_new.PerUserRateLimit = channel.PerUserRateLimit;
 
-            channel_new._permission_overwrites.Clear();
+            channel_new._permissionOverwrites.Clear();
 
-            foreach (var po in channel._permission_overwrites)
+            foreach (var po in channel._permissionOverwrites)
             {
                 po.Discord = this;
                 po._channel_id = channel.Id;
             }
 
-            channel_new._permission_overwrites.AddRange(channel._permission_overwrites);
+            channel_new._permissionOverwrites.AddRange(channel._permissionOverwrites);
 
             await this._channelUpdated.InvokeAsync(new ChannelUpdateEventArgs(this) { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old }).ConfigureAwait(false);
         }
@@ -1108,7 +1110,7 @@ namespace DSharpPlus
             {
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
-                foreach (var xo in xc._permission_overwrites)
+                foreach (var xo in xc._permissionOverwrites)
                 {
                     xo.Discord = this;
                     xo._channel_id = xc.Id;
@@ -1210,7 +1212,7 @@ namespace DSharpPlus
             {
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
-                foreach (var xo in xc._permission_overwrites)
+                foreach (var xo in xc._permissionOverwrites)
                 {
                     xo.Discord = this;
                     xo._channel_id = xc.Id;
@@ -2267,7 +2269,7 @@ namespace DSharpPlus
             {
                 var _c = newGuild._channels.Where(xc => !guild._channels.Any(xxc => xxc.Id == xc.Id));
                 foreach (var xc in _c)
-                    foreach (var xo in xc._permission_overwrites)
+                    foreach (var xo in xc._permissionOverwrites)
                     {
                         xo.Discord = this;
                         xo._channel_id = xc.Id;

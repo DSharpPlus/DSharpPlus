@@ -78,12 +78,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordOverwrite> PermissionOverwrites 
-            => this._permission_overwrites_lazy.Value;
+            => this._permissionOverwritesLazy.Value;
 
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordOverwrite> _permission_overwrites = new List<DiscordOverwrite>();
+        internal List<DiscordOverwrite> _permissionOverwrites = new List<DiscordOverwrite>();
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordOverwrite>> _permission_overwrites_lazy;
+        private Lazy<IReadOnlyList<DiscordOverwrite>> _permissionOverwritesLazy;
 
         /// <summary>
         /// Gets the channel's topic. This is applicable to text channels only.
@@ -108,6 +108,13 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
         public int UserLimit { get; internal set; }
+
+        /// <summary>
+        /// <para>Gets the slow mode delay configured for this channel.</para>
+        /// <para>All bots, as well as users with <see cref="Permissions.ManageChannels"/> or <see cref="Permissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
+        /// </summary>
+        [JsonProperty("rate_limit_per_user")]
+        public int? PerUserRateLimit { get; internal set; }
 
         /// <summary>
         /// Gets this channel's mention string.
@@ -157,7 +164,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordChannel()
         {
-            this._permission_overwrites_lazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permission_overwrites));
+            this._permissionOverwritesLazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permissionOverwrites));
         }
 
         #region Methods
@@ -270,19 +277,24 @@ namespace DSharpPlus.Entities
                 throw new InvalidOperationException("Non-guild channels cannot be cloned.");
 
             var ovrs = new List<DiscordOverwriteBuilder>();
-            foreach (var ovr in this._permission_overwrites)
+            foreach (var ovr in this._permissionOverwrites)
                 ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
 
             int? bitrate = this.Bitrate;
             int? userLimit = this.UserLimit;
+            Optional<int?> perUserRateLimit = this.PerUserRateLimit;
 
             if (this.Type != ChannelType.Voice)
             {
                 bitrate = null;
                 userLimit = null;
             }
+            if (this.Type != ChannelType.Text)
+            {
+                perUserRateLimit = Optional<int?>.FromNoValue();
+            }
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, bitrate, userLimit, ovrs, this.IsNSFW, reason).ConfigureAwait(false);
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -308,7 +320,8 @@ namespace DSharpPlus.Entities
             var mdl = new ChannelEditModel();
             action(mdl);
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.AuditLogReason);
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, 
+                mdl.AuditLogReason);
         }
 
         /// <summary>
@@ -596,7 +609,7 @@ namespace DSharpPlus.Entities
             var mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
             // channel overrides for roles that member is in
             var mbRoleOverrides = mbRoles
-                .Select(xr => this._permission_overwrites.FirstOrDefault(xo => xo.Id == xr.Id))
+                .Select(xr => this._permissionOverwrites.FirstOrDefault(xo => xo.Id == xr.Id))
                 .Where(xo => xo != null)
                 .ToList();
 
@@ -604,7 +617,7 @@ namespace DSharpPlus.Entities
             perms |= mbRoles.Aggregate(def, (c, role) => c | role.Permissions);
             
             // assign channel permission overwrites for @everyone pseudo-role
-            var everyoneOverwrites = this._permission_overwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);
+            var everyoneOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);
             if (everyoneOverwrites != null)
             {
                 perms &= ~everyoneOverwrites.Denied;
@@ -617,7 +630,7 @@ namespace DSharpPlus.Entities
             perms |= mbRoleOverrides.Aggregate(def, (c, overs) => c | overs.Allowed);
 
             // channel overrides for just this member
-            var mbOverrides = this._permission_overwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
+            var mbOverrides = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == mbr.Id);
             if (mbOverrides == null) return perms;
             
             // assign channel permission overwrites for just this member

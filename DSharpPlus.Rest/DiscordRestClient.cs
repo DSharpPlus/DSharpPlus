@@ -283,17 +283,18 @@ namespace DSharpPlus
         /// <param name="type">Channel type</param>
         /// <param name="parent">Channel parent id</param>
         /// <param name="bitrate">Voice channel bitrate</param>
-        /// <param name="user_limit">Voice channel user limit</param>
+        /// <param name="userLimit">Voice channel user limit</param>
         /// <param name="overwrites">Channel overwrites</param>
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
+        /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
         {
             if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
 
-            return ApiClient.CreateGuildChannelAsync(id, name, type, parent, bitrate, user_limit, overwrites, nsfw, reason);
+            return ApiClient.CreateGuildChannelAsync(id, name, type, parent, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
         }
 
         /// <summary>
@@ -306,25 +307,27 @@ namespace DSharpPlus
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
         /// <param name="parent">New channel parent</param>
         /// <param name="bitrate">New voice channel bitrate</param>
-        /// <param name="user_limit">New voice channel user limit</param>
+        /// <param name="userLimit">New voice channel user limit</param>
+        /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, string name, int? position, string topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
-            => ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, user_limit, reason);
+        public Task ModifyChannelAsync(ulong id, string name, int? position, string topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, string reason)
+            => ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, reason);
 
         /// <summary>
         /// Modifies a channel
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channelId">Channel id</param>
         /// <param name="action">Channel modifications</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong channel_id, Action<ChannelEditModel> action)
+        public Task ModifyChannelAsync(ulong channelId, Action<ChannelEditModel> action)
         {
             var mdl = new ChannelEditModel();
             action(mdl);
 
-            return this.ApiClient.ModifyChannelAsync(channel_id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.AuditLogReason);
+            return this.ApiClient.ModifyChannelAsync(channelId, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, 
+                mdl.AuditLogReason);
         }
 
         /// <summary>

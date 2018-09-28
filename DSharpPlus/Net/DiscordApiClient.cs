@@ -403,7 +403,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
         {
             List<DiscordRestOverwrite> restoverwrites = new List<DiscordRestOverwrite>();
             if (overwrites != null)
@@ -418,7 +418,8 @@ namespace DSharpPlus.Net
                 Bitrate = bitrate,
                 UserLimit = user_limit,
                 PermissionOverwrites = restoverwrites,
-                Nsfw = nsfw
+                Nsfw = nsfw,
+                PerUserRateLimit = perUserRateLimit
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -433,7 +434,7 @@ namespace DSharpPlus.Net
 
             var ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response);
             ret.Discord = this.Discord;
-            foreach (var xo in ret._permission_overwrites)
+            foreach (var xo in ret._permissionOverwrites)
             {
                 xo.Discord = this.Discord;
                 xo._channel_id = ret.Id;
@@ -442,7 +443,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, string topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, string reason)
+        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, string topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, string reason)
         {
             var pld = new RestChannelModifyPayload
             {
@@ -450,10 +451,10 @@ namespace DSharpPlus.Net
                 Position = position,
                 Topic = topic,
                 Nsfw = nsfw,
-                Parent = parent.HasValue ? parent.Value : null,
-                ParentSet = parent.HasValue,
+                Parent = parent,
                 Bitrate = bitrate,
-                UserLimit = user_limit
+                UserLimit = user_limit,
+                PerUserRateLimit = perUserRateLimit
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -477,7 +478,7 @@ namespace DSharpPlus.Net
 
             var ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response);
             ret.Discord = this.Discord;
-            foreach (var xo in ret._permission_overwrites)
+            foreach (var xo in ret._permissionOverwrites)
             {
                 xo.Discord = this.Discord;
                 xo._channel_id = ret.Id;
@@ -618,7 +619,7 @@ namespace DSharpPlus.Net
             var channels_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordChannel>>(res.Response).Select(xc => { xc.Discord = this.Discord; return xc; });
 
             foreach (var ret in channels_raw)
-                foreach (var xo in ret._permission_overwrites)
+                foreach (var xo in ret._permissionOverwrites)
                 {
                     xo.Discord = this.Discord;
                     xo._channel_id = ret.Id;

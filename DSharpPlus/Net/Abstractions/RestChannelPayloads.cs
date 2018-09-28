@@ -26,6 +26,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Nsfw { get; set; }
+
+        [JsonProperty("rate_limit_per_user")]
+        public Optional<int?> PerUserRateLimit { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload
@@ -43,10 +46,7 @@ namespace DSharpPlus.Net.Abstractions
         public bool? Nsfw { get; set; }
 
         [JsonProperty("parent_id")]
-        public ulong? Parent { get; set; }
-
-        [JsonIgnore]
-        internal bool ParentSet { get; set; } = false;
+        public Optional<ulong?> Parent { get; set; }
 
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
         public int? Bitrate { get; set; }
@@ -54,8 +54,8 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
         public int? UserLimit { get; set; }
 
-        public bool ShouldSerializeParent() 
-            => this.ParentSet;
+        [JsonProperty("rate_limit_per_user")]
+        public Optional<int?> PerUserRateLimit { get; set; }
     }
 
     internal class RestChannelMessageEditPayload

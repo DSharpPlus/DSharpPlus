@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandsNext
     /// <summary>
     /// <para>Represents a delegate for a function that takes a message, and returns the position of the start of command invocation in the message. It has to return -1 if prefix is not present.</para>
     /// <para>
-    /// It is recommended that helper methods <see cref="CommandsNextUtilities.GetStringPrefixLength(DiscordMessage, string)"/> and <see cref="CommandsNextUtilities.GetMentionPrefixLength(DiscordMessage, DiscordUser)"/>
+    /// It is recommended that helper methods <see cref="CommandsNextUtilities.GetStringPrefixLength(DiscordMessage, string, StringComparison)"/> and <see cref="CommandsNextUtilities.GetMentionPrefixLength(DiscordMessage, DiscordUser)"/>
     /// be used internally for checking. Their output can be passed through.
     /// </para>
     /// </summary>
