@@ -83,6 +83,7 @@ namespace DSharpPlus.CommandsNext.Builders
                     DefaultValue = arg.IsOptional ? arg.DefaultValue : null
                 };
 
+                var attrsCustom = new List<Attribute>();
                 var attrs = arg.GetCustomAttributes();
                 foreach (var xa in attrs)
                 {
@@ -101,12 +102,17 @@ namespace DSharpPlus.CommandsNext.Builders
                             ca.Type = arg.ParameterType.GetElementType();
                             ca._isArray = true;
                             break;
+
+                        default:
+                            attrsCustom.Add(xa);
+                            break;
                     }
                 }
 
                 if (i > 2 && !ca.IsOptional && !ca.IsCatchAll && args[i - 3].IsOptional)
                     throw new InvalidOperationException("Non-optional argument cannot appear after an optional one");
 
+                ca.CustomAttributes = new ReadOnlyCollection<Attribute>(attrsCustom);
                 args.Add(ca);
                 ea[i++] = Expression.Parameter(arg.ParameterType, arg.Name);
             }
