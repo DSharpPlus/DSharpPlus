@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net
@@ -26,7 +28,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the headers sent with this request.
         /// </summary>
-        public IReadOnlyDictionary<string, string> Headers { get; }
+        public IReadOnlyDictionary<string, string> Headers { get; } = null;
 
         /// <summary>
         /// Gets the override for the rate limit bucket wait time.
@@ -46,16 +48,22 @@ namespace DSharpPlus.Net
         /// <param name="url">Uri to which this request is going to be sent to.</param>
         /// <param name="method">Method to use for this request,</param>
         /// <param name="headers">Additional headers for this request.</param>
-        /// <param name="ratelimit_wait_override">Override for ratelimit bucket wait time.</param>
-        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, double? ratelimit_wait_override = null)
+        /// <param name="ratelimitWaitOverride">Override for ratelimit bucket wait time.</param>
+        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, double? ratelimitWaitOverride = null)
         {
             this.Discord = client;
             this.RateLimitBucket = bucket;
             this.RequestTaskSource = new TaskCompletionSource<RestResponse>();
             this.Url = url;
             this.Method = method;
-            this.Headers = headers != null ? new ReadOnlyDictionary<string, string>(headers) : null;
-            this.RateLimitWaitOverride = ratelimit_wait_override;
+            this.RateLimitWaitOverride = ratelimitWaitOverride;
+
+            if (headers != null)
+            {
+                headers = headers.Select(x => new KeyValuePair<string, string>(WebUtility.UrlEncode(x.Key), WebUtility.UrlEncode(x.Value)))
+                    .ToDictionary(x => x.Key, x => x.Value);
+                this.Headers = new ReadOnlyDictionary<string, string>(headers);
+            }
         }
 
         /// <summary>
