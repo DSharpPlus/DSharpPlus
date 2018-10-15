@@ -182,6 +182,10 @@ namespace DSharpPlus.Test
         public Task WhoAmIAsync(CommandContext ctx)
             => ctx.RespondAsync($"{ctx.User.Id} / {ctx.User.Username} / {ctx.User.Discriminator} / {ctx.User.GetAvatarUrl(ImageFormat.WebP, 1024)}");
 
+        [Command("instafail"), Description("Tests command creation constraints.")]
+        public Task InstaFailAsync(CommandContext ctx, string arr, params string[] args)
+            => ctx.RespondAsync("If this works then god does not exist.");
+
 		[Group("bind"), Description("Various argument binder testing commands.")]
 		public class Binding : BaseCommandModule
 		{

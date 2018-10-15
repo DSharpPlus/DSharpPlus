@@ -29,11 +29,11 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Positive number if the prefix is present, -1 otherwise.</returns>
         public static int GetStringPrefixLength(this DiscordMessage msg, string str, StringComparison comparisonType = StringComparison.Ordinal)
         {
-            var cnt = msg.Content;
-            if (str.Length >= cnt.Length)
+            var content = msg.Content;
+            if (str.Length >= content.Length)
                 return -1;
 
-            if (!cnt.StartsWith(str, comparisonType))
+            if (!content.StartsWith(str, comparisonType))
                 return -1;
 
             return str.Length;
@@ -47,21 +47,21 @@ namespace DSharpPlus.CommandsNext
         /// <returns>Positive number if the prefix is present, -1 otherwise.</returns>
         public static int GetMentionPrefixLength(this DiscordMessage msg, DiscordUser user)
         {
-            var cnt = msg.Content;
-            if (!cnt.StartsWith("<@"))
+            var content = msg.Content;
+            if (!content.StartsWith("<@"))
                 return -1;
 
-            var cni = cnt.IndexOf('>');
-            if (cni == -1 || cnt.Length <= cni + 2)
+            var cni = content.IndexOf('>');
+            if (cni == -1 || content.Length <= cni + 2)
                 return -1;
 
-            var cnp = cnt.Substring(0, cni + 2);
+            var cnp = content.Substring(0, cni + 2);
             var m = UserRegex.Match(cnp);
             if (!m.Success)
                 return -1;
 
-            var uid = ulong.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
-            if (user.Id != uid)
+            var userId = ulong.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
+            if (user.Id != userId)
                 return -1;
 
             return m.Value.Length;
@@ -73,11 +73,11 @@ namespace DSharpPlus.CommandsNext
             if (string.IsNullOrWhiteSpace(str))
                 return null;
 
-            var in_backtick = false;
-            var in_triple_backtick = false;
-            var in_quote = false;
-            var in_escape = false;
-            var remove = new List<int>(str.Length - startPos);
+            var inBacktick = false;
+            var inTripleBacktick = false;
+            var inQuote = false;
+            var inEscape = false;
+            var removeIndices = new List<int>(str.Length - startPos);
 
             var i = startPos;
             for (; i < str.Length; i++)
@@ -85,75 +85,75 @@ namespace DSharpPlus.CommandsNext
                     break;
             startPos = i;
 
-            var ep = -1;
-            var sp = startPos;
-            for (i = sp; i < str.Length; i++)
+            var endPosition = -1;
+            var startPosition = startPos;
+            for (i = startPosition; i < str.Length; i++)
             {
-                if (char.IsWhiteSpace(str[i]) && !in_quote && !in_triple_backtick && !in_backtick && !in_escape)
-                    ep = i;
+                if (char.IsWhiteSpace(str[i]) && !inQuote && !inTripleBacktick && !inBacktick && !inEscape)
+                    endPosition = i;
 
                 if (str[i] == '\\')
                 {
-                    if (!in_escape && !in_backtick && !in_triple_backtick)
+                    if (!inEscape && !inBacktick && !inTripleBacktick)
                     {
-                        in_escape = true;
+                        inEscape = true;
                         if (str.IndexOf("\\`", i) == i || str.IndexOf("\\\"", i) == i || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
-                            remove.Add(i - sp);
+                            removeIndices.Add(i - startPosition);
                         i++;
                     }
-                    else if ((in_backtick || in_triple_backtick) && str.IndexOf("\\`", i) == i)
+                    else if ((inBacktick || inTripleBacktick) && str.IndexOf("\\`", i) == i)
                     {
-                        in_escape = true;
-                        remove.Add(i - sp);
+                        inEscape = true;
+                        removeIndices.Add(i - startPosition);
                         i++;
                     }
                 }
 
-                if (str[i] == '`' && !in_escape)
+                if (str[i] == '`' && !inEscape)
                 {
-                    var tritick = str.IndexOf("```", i) == i;
-                    if (in_triple_backtick && tritick)
+                    var tripleBacktick = str.IndexOf("```", i) == i;
+                    if (inTripleBacktick && tripleBacktick)
                     {
-                        in_triple_backtick = false;
+                        inTripleBacktick = false;
                         i += 2;
                     }
-                    else if (!in_backtick && tritick)
+                    else if (!inBacktick && tripleBacktick)
                     {
-                        in_triple_backtick = true;
+                        inTripleBacktick = true;
                         i += 2;
                     }
 
-                    if (in_backtick && !tritick)
-                        in_backtick = false;
-                    else if (!in_triple_backtick && tritick)
-                        in_backtick = true;
+                    if (inBacktick && !tripleBacktick)
+                        inBacktick = false;
+                    else if (!inTripleBacktick && tripleBacktick)
+                        inBacktick = true;
                 }
 
-                if (str[i] == '"' && !in_escape && !in_backtick && !in_triple_backtick)
+                if (str[i] == '"' && !inEscape && !inBacktick && !inTripleBacktick)
                 {
-                    remove.Add(i - sp);
+                    removeIndices.Add(i - startPosition);
 
-                    if (!in_quote)
-                        in_quote = true;
+                    if (!inQuote)
+                        inQuote = true;
                     else
-                        in_quote = false;
+                        inQuote = false;
                 }
 
-                if (in_escape)
-                    in_escape = false;
+                if (inEscape)
+                    inEscape = false;
 
-                if (ep != -1)
+                if (endPosition != -1)
                 {
-                    startPos = ep;
-                    if (sp != ep)
-                        return str.Substring(sp, ep - sp).CleanupString(remove);
+                    startPos = endPosition;
+                    if (startPosition != endPosition)
+                        return str.Substring(startPosition, endPosition - startPosition).CleanupString(removeIndices);
                     return null;
                 }
             }
 
             startPos = str.Length;
-            if (startPos != sp)
-                return str.Substring(sp).CleanupString(remove);
+            if (startPos != startPosition)
+                return str.Substring(startPosition).CleanupString(removeIndices);
             return null;
         }
 
@@ -182,74 +182,74 @@ namespace DSharpPlus.CommandsNext
 
         internal static async Task<ArgumentBindingResult> BindArguments(CommandContext ctx, bool ignoreSurplus)
         {
-            var cmd = ctx.Command;
-            var ovl = ctx.Overload;
+            var command = ctx.Command;
+            var overload = ctx.Overload;
 
-            var args = new object[ovl.Arguments.Count + 2];
+            var args = new object[overload.Arguments.Count + 2];
             args[1] = ctx;
-            var argr = new List<string>(ovl.Arguments.Count);
+            var rawArgumentList = new List<string>(overload.Arguments.Count);
 
-            var argstr = ctx.RawArgumentString;
-            var findpos = 0;
-            var argv = "";
-            for (var i = 0; i < ovl.Arguments.Count; i++)
+            var argString = ctx.RawArgumentString;
+            var foundAt = 0;
+            var argValue = "";
+            for (var i = 0; i < overload.Arguments.Count; i++)
             {
-                var arg = ovl.Arguments[i];
+                var arg = overload.Arguments[i];
                 if (arg.IsCatchAll)
                 {
-                    if (arg._isArray)
+                    if (arg.IsArray)
                     {
                         while (true)
                         {
-                            argv = ExtractNextArgument(argstr, ref findpos);
-                            if (argv == null)
+                            argValue = ExtractNextArgument(argString, ref foundAt);
+                            if (argValue == null)
                                 break;
                             
-                            argr.Add(argv);
+                            rawArgumentList.Add(argValue);
                         }
 
                         break;
                     }
                     else
                     {
-                        if (argstr == null)
+                        if (argString == null)
                             break;
 
-                        argv = argstr.Substring(findpos).Trim();
-                        argv = argv == "" ? null : argv;
-                        findpos = argstr.Length;
+                        argValue = argString.Substring(foundAt).Trim();
+                        argValue = argValue == "" ? null : argValue;
+                        foundAt = argString.Length;
 
-                        argr.Add(argv);
+                        rawArgumentList.Add(argValue);
                         break;
                     }
                 }
                 else
                 {
-                    argv = ExtractNextArgument(argstr, ref findpos);
-                    argr.Add(argv);
+                    argValue = ExtractNextArgument(argString, ref foundAt);
+                    rawArgumentList.Add(argValue);
                 }
 
-                if (argv == null && !arg.IsOptional && !arg.IsCatchAll)
+                if (argValue == null && !arg.IsOptional && !arg.IsCatchAll)
                     return new ArgumentBindingResult(new ArgumentException("Not enough arguments supplied to the command."));
-                else if (argv == null)
-                    argr.Add(null);
+                else if (argValue == null)
+                    rawArgumentList.Add(null);
             }
 
-            if (!ignoreSurplus && findpos < argstr.Length)
+            if (!ignoreSurplus && foundAt < argString.Length)
                 return new ArgumentBindingResult(new ArgumentException("Too many arguments were supplied to this command."));
 
-            for (var i = 0; i < ovl.Arguments.Count; i++)
+            for (var i = 0; i < overload.Arguments.Count; i++)
             {
-                var arg = ovl.Arguments[i];
-                if (arg.IsCatchAll && arg._isArray)
+                var arg = overload.Arguments[i];
+                if (arg.IsCatchAll && arg.IsArray)
                 {
-                    var arr = Array.CreateInstance(arg.Type, argr.Count - i);
+                    var array = Array.CreateInstance(arg.Type, rawArgumentList.Count - i);
                     var start = i;
-                    while (i < argr.Count)
+                    while (i < rawArgumentList.Count)
                     {
                         try
                         {
-                            arr.SetValue(await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type).ConfigureAwait(false), i - start);
+                            array.SetValue(await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type).ConfigureAwait(false), i - start);
                         }
                         catch (Exception ex)
                         {
@@ -258,14 +258,14 @@ namespace DSharpPlus.CommandsNext
                         i++;
                     }
 
-                    args[start + 2] = arr;
+                    args[start + 2] = array;
                     break;
                 }
                 else
                 {
                     try
                     { 
-                        args[i + 2] = argr[i] != null ? await ctx.CommandsNext.ConvertArgument(argr[i], ctx, arg.Type).ConfigureAwait(false) : arg.DefaultValue;
+                        args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type).ConfigureAwait(false) : arg.DefaultValue;
                     }
                     catch (Exception ex)
                     {
@@ -274,7 +274,7 @@ namespace DSharpPlus.CommandsNext
                 }
             }
 
-            return new ArgumentBindingResult(args, argr);
+            return new ArgumentBindingResult(args, rawArgumentList);
         }
 
         internal static bool IsModuleCandidateType(this Type type)
@@ -301,8 +301,8 @@ namespace DSharpPlus.CommandsNext
                 return false;
 
             // check if delegate type
-            var dlgt = typeof(Delegate).GetTypeInfo();
-            if (dlgt.IsAssignableFrom(ti))
+            var tdelegate = typeof(Delegate).GetTypeInfo();
+            if (tdelegate.IsAssignableFrom(ti))
                 return false;
 
             // qualifies if any method or type qualifies
@@ -332,26 +332,26 @@ namespace DSharpPlus.CommandsNext
         internal static object CreateInstance(this Type t, IServiceProvider services)
         {
             var ti = t.GetTypeInfo();
-            var cs = ti.DeclaredConstructors
+            var constructors = ti.DeclaredConstructors
                 .Where(xci => xci.IsPublic)
                 .ToArray();
 
-            if (cs.Length != 1)
+            if (constructors.Length != 1)
                 throw new ArgumentException("Specified type does not contain a public constructor or contains more than one public constructor.");
 
-            var constr = cs[0];
-            var prms = constr.GetParameters();
-            var args = new object[prms.Length];
+            var constructor = constructors[0];
+            var constructorArgs = constructor.GetParameters();
+            var args = new object[constructorArgs.Length];
 
-            if (prms.Length != 0 && services == null)
+            if (constructorArgs.Length != 0 && services == null)
                 throw new InvalidOperationException("Dependency collection needs to be specified for parametered constructors.");
 
             // inject via constructor
-            if (prms.Length != 0)
+            if (constructorArgs.Length != 0)
                 for (var i = 0; i < args.Length; i++)
-                    args[i] = services.GetRequiredService(prms[i].ParameterType);
+                    args[i] = services.GetRequiredService(constructorArgs[i].ParameterType);
 
-            var module = Activator.CreateInstance(t, args);
+            var moduleInstance = Activator.CreateInstance(t, args);
 
             // inject into properties
             var props = ti.DeclaredProperties.Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
@@ -360,11 +360,11 @@ namespace DSharpPlus.CommandsNext
                 if (prop.GetCustomAttribute<DontInjectAttribute>() != null)
                     continue;
 
-                var srv = services.GetService(prop.PropertyType);
-                if (srv == null)
+                var service = services.GetService(prop.PropertyType);
+                if (service == null)
                     continue;
 
-                prop.SetValue(module, srv);
+                prop.SetValue(moduleInstance, service);
             }
 
             // inject into fields
@@ -374,14 +374,14 @@ namespace DSharpPlus.CommandsNext
                 if (field.GetCustomAttribute<DontInjectAttribute>() != null)
                     continue;
 
-                var srv = services.GetService(field.FieldType);
-                if (srv == null)
+                var service = services.GetService(field.FieldType);
+                if (service == null)
                     continue;
 
-                field.SetValue(module, srv);
+                field.SetValue(moduleInstance, service);
             }
 
-            return module;
+            return moduleInstance;
         }
     }
 }
