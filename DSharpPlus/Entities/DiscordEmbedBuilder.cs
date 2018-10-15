@@ -94,8 +94,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the embed's fields.
         /// </summary>
-        public IReadOnlyList<DiscordEmbedField> Fields => _fields;
-
+        public IReadOnlyList<DiscordEmbedField> Fields { get; }
         private readonly List<DiscordEmbedField> _fields = new List<DiscordEmbedField>();
 
         /// <summary>
@@ -133,7 +132,9 @@ namespace DSharpPlus.Entities
                     Text = original.Footer.Text
                 };
 
-            this._fields = original.Fields?.ToList() ?? new List<DiscordEmbedField>();
+            if (original.Fields?.Any() == true)
+                foreach (var field in original.Fields)
+                    this._fields.Add(field);
 
             while (this._fields.Count > 25)
                 this._fields.RemoveAt(this._fields.Count - 1);
