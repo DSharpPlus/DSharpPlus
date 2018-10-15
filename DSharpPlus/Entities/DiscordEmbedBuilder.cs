@@ -117,7 +117,7 @@ namespace DSharpPlus.Entities
             this.Color = original.Color;
             this.Timestamp = original.Timestamp;
             this.ThumbnailUrl = original.Thumbnail?.Url?.ToString();
-            
+
             if (original.Author != null)
                 this.Author = new EmbedAuthor
                 {
@@ -448,8 +448,7 @@ namespace DSharpPlus.Entities
             if (this._thumbnailUri != null)
                 embed.Thumbnail = new DiscordEmbedThumbnail { Url = this._thumbnailUri };
 
-            if (this._fields.Any())
-                embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(this._fields)); // copy the list, don't wrap it, prevents mutation
+            embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(this._fields)); // copy the list, don't wrap it, prevents mutation
 
             return embed;
         }
@@ -458,7 +457,7 @@ namespace DSharpPlus.Entities
         /// Implicitly converts this builder to an embed.
         /// </summary>
         /// <param name="builder">Builder to convert.</param>
-        public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder) 
+        public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder)
             => builder?.Build();
 
         public class EmbedAuthor
