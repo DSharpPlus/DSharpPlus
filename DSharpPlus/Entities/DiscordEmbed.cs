@@ -9,11 +9,6 @@ namespace DSharpPlus.Entities
     /// </summary>
     public sealed class DiscordEmbed
     {
-        internal DiscordEmbed()
-        {
-            this._color_lazy = new Lazy<Optional<DiscordColor>>(() => this._color.HasValue ? Optional<DiscordColor>.FromValue(this._color.Value) : Optional<DiscordColor>.FromNoValue());
-        }
-
         /// <summary>
         /// Gets the embed's title.
         /// </summary>
@@ -48,13 +43,13 @@ namespace DSharpPlus.Entities
         /// Gets the embed's color.
         /// </summary>
         [JsonIgnore]
-        public Optional<DiscordColor> Color 
-            => this._color_lazy.Value;
+        public Optional<DiscordColor> Color
+            => this._colorLazy.Value;
 
         [JsonProperty("color", NullValueHandling = NullValueHandling.Include)]
         internal Optional<int> _color;
         [JsonIgnore]
-        private Lazy<Optional<DiscordColor>> _color_lazy;
+        private readonly Lazy<Optional<DiscordColor>> _colorLazy;
 
         /// <summary>
         /// Gets the embed's footer.
@@ -97,5 +92,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordEmbedField> Fields { get; internal set; }
+
+        internal DiscordEmbed()
+        {
+            this._colorLazy = new Lazy<Optional<DiscordColor>>(() => this._color.HasValue ? Optional<DiscordColor>.FromValue(this._color.Value) : Optional<DiscordColor>.FromNoValue());
+        }
     }
 }

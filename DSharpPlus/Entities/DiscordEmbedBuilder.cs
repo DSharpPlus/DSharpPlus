@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs embeds.
     /// </summary>
-    public class DiscordEmbedBuilder
+    public sealed class DiscordEmbedBuilder
     {
         /// <summary>
         /// Gets or sets the embed's title.
@@ -102,6 +102,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordEmbedBuilder()
         {
+            this.Fields = new ReadOnlyCollection<DiscordEmbedField>(this._fields);
         }
 
         /// <summary>
@@ -109,6 +110,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="original">Embed to use as prototype.</param>
         public DiscordEmbedBuilder(DiscordEmbed original)
+            : this()
         {
             this.Title = original.Title;
             this.Description = original.Description;
@@ -133,8 +135,7 @@ namespace DSharpPlus.Entities
                 };
 
             if (original.Fields?.Any() == true)
-                foreach (var field in original.Fields)
-                    this._fields.Add(field);
+                this._fields.AddRange(original.Fields);
 
             while (this._fields.Count > 25)
                 this._fields.RemoveAt(this._fields.Count - 1);
@@ -296,29 +297,6 @@ namespace DSharpPlus.Entities
             return this;
         }
 
-        /* Disabled for the time being, cause ambiguous calls.
-         * /// <summary>
-         * /// Sets the embed's author.
-         * /// </summary>
-         * /// <param name="name">Author's name.</param>
-         * /// <param name="url">Author's url.</param>
-         * /// <param name="icon_url">Author icon's url.</param>
-         * /// <returns>This embed builder.</returns>
-         * public DiscordEmbedBuilder WithAuthor(string name = null, Uri url = null, Uri icon_url = null)
-         * {
-         *     if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(icon_url))
-         *         this.Author = null;
-         *     else
-         *         this.Author = new DiscordEmbedAuthor
-         *         {
-         *             Name = name,
-         *             Url = url,
-         *             IconUrl = icon_url
-         *         };
-         *     return this;
-         * }
-         */
-
         /// <summary>
         /// Sets the embed's footer.
         /// </summary>
@@ -328,7 +306,7 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder WithFooter(string text = null, string iconUrl = null)
         {
             if (text != null && text.Length > 2048)
-                throw new ArgumentException("Footer text length cannot exceed 2048 characters.");
+                throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(text));
 
             if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(iconUrl))
                 this.Footer = null;
@@ -340,30 +318,6 @@ namespace DSharpPlus.Entities
                 };
             return this;
         }
-
-        /* Disabled for the time being, cause ambiguous calls.
-         * /// <summary>
-         * /// Sets the embed's footer.
-         * /// </summary>
-         * /// <param name="text">Footer's text.</param>
-         * /// <param name="icon_url">Footer icon's url.</param>
-         * /// <returns>This embed builder.</returns>
-         * public DiscordEmbedBuilder WithFooter(string text = null, Uri icon_url = null)
-         * {
-         *     if (text != null && text.Length > 2048)
-         *         throw new ArgumentException("Footer text cannot exceed 2048 characters of length.");
-         * 
-         *     if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(icon_url))
-         *         this.Footer = null;
-         *     else
-         *         this.Footer = new DiscordEmbedFooter
-         *         {
-         *             Text = text,
-         *             IconUrl = icon_url
-         *         };
-         *     return this;
-         * }
-         */
 
         /// <summary>
         /// Adds a field to this embed.
@@ -378,13 +332,13 @@ namespace DSharpPlus.Entities
             {
                 if (name == null)
                     throw new ArgumentNullException(nameof(name));
-                throw new ArgumentException($"{nameof(name)} cannot be empty or whitespace.");
+                throw new ArgumentException("Name cannot be empty or whitespace.", nameof(name));
             }
             if (string.IsNullOrWhiteSpace(value))
             {
                 if (value == null)
                     throw new ArgumentNullException(nameof(value));
-                throw new ArgumentException($"{nameof(value)} cannot be empty or whitespace.");
+                throw new ArgumentException("Value cannot be empty or whitespace.", nameof(value));
             }
 
             if (name.Length > 256)
@@ -472,7 +426,7 @@ namespace DSharpPlus.Entities
                 set
                 {
                     if (value != null && value.Length > 256)
-                        throw new ArgumentException("Author name length cannot exceed 256 characters.");
+                        throw new ArgumentException("Author name length cannot exceed 256 characters.", nameof(value));
                     this._name = value;
                 }
             }
@@ -510,7 +464,7 @@ namespace DSharpPlus.Entities
                 set
                 {
                     if (value != null && value.Length > 2048)
-                        throw new ArgumentException("Footer text length cannot exceed 2048 characters.");
+                        throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(value));
                     this._text = value;
                 }
             }
