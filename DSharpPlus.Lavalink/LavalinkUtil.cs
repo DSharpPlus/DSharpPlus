@@ -42,16 +42,16 @@ namespace DSharpPlus.Lavalink
                 var messageHeader = br.ReadInt32();
                 var messageFlags = (int) ((messageHeader & 0xC0000000L) >> 30);
                 var messageSize = messageHeader & 0x3FFFFFFF;
-                if (messageSize != raw.Length)
-                    Console.WriteLine($"Size conflict: {messageSize} but was {raw.Length}");
+                //if (messageSize != raw.Length)
+                //    Warn($"Size conflict: {messageSize} but was {raw.Length}");
                 
                 // https://github.com/sedmelluq/lavaplayer/blob/804cd1038229230052d9b1dee5e6d1741e30e284/main/src/main/java/com/sedmelluq/discord/lavaplayer/player/DefaultAudioPlayerManager.java#L268
 
                 // java bytes are signed
                 // https://docs.oracle.com/javase/7/docs/api/java/io/DataInput.html#readByte()
                 var version = (messageFlags & TRACK_INFO_VERSIONED) != 0 ? (br.ReadSByte() & 0xFF) : 1;
-                if (version != TRACK_INFO_VERSION)
-                    Console.WriteLine($"Version conflict: Expected {TRACK_INFO_VERSION} but got {version}");
+                //if (version != TRACK_INFO_VERSION)
+                //    Warn($"Version conflict: Expected {TRACK_INFO_VERSION} but got {version}");
 
                 decoded.Title = br.ReadJavaUtf8();
 
