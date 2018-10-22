@@ -168,13 +168,13 @@ namespace DSharpPlus.Lavalink
         }
 
         // swap endianness
-		public override decimal ReadDecimal()
-		{
+        public override decimal ReadDecimal()
+        {
             throw new MissingMethodException("This method does not have a Java equivalent");
-		}
+        }
 
         // from https://github.com/Zoltu/Zoltu.EndianAwareBinaryReaderWriter under CC0
-		public override float ReadSingle() => Read(4, BitConverter.ToSingle);
+        public override float ReadSingle() => Read(4, BitConverter.ToSingle);
 
         public override double ReadDouble() => Read(8, BitConverter.ToDouble);
 
@@ -191,39 +191,39 @@ namespace DSharpPlus.Lavalink
         public override ulong ReadUInt64() => Read(8, BitConverter.ToUInt64);
 
         private T Read<T>(int size, Func<byte[], int, T> converter) where T : struct
-		{
-			//Contract.Requires(size >= 0);
-			//Contract.Requires(converter != null);
+        {
+            //Contract.Requires(size >= 0);
+            //Contract.Requires(converter != null);
 
-			var bytes = GetNextBytesNativeEndian(size);
-			return converter(bytes, 0);
-		}
+            var bytes = GetNextBytesNativeEndian(size);
+            return converter(bytes, 0);
+        }
 
-		private byte[] GetNextBytesNativeEndian(int count)
-		{
-			//Contract.Requires(count >= 0);
-			//Contract.Ensures(Contract.Result<Byte[]>() != null);
-			//Contract.Ensures(Contract.Result<Byte[]>().Length == count);
+        private byte[] GetNextBytesNativeEndian(int count)
+        {
+            //Contract.Requires(count >= 0);
+            //Contract.Ensures(Contract.Result<Byte[]>() != null);
+            //Contract.Ensures(Contract.Result<Byte[]>().Length == count);
 
-			var bytes = GetNextBytes(count);
-			if (BitConverter.IsLittleEndian)
-				Array.Reverse(bytes);
-			return bytes;
-		}
+            var bytes = GetNextBytes(count);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            return bytes;
+        }
 
-		private byte[] GetNextBytes(int count)
-		{
-			//Contract.Requires(count >= 0);
-			//Contract.Ensures(Contract.Result<Byte[]>() != null);
-			//Contract.Ensures(Contract.Result<Byte[]>().Length == count);
+        private byte[] GetNextBytes(int count)
+        {
+            //Contract.Requires(count >= 0);
+            //Contract.Ensures(Contract.Result<Byte[]>() != null);
+            //Contract.Ensures(Contract.Result<Byte[]>().Length == count);
 
-			var buffer = new byte[count];
-			var bytesRead = BaseStream.Read(buffer, 0, count);
+            var buffer = new byte[count];
+            var bytesRead = BaseStream.Read(buffer, 0, count);
 
-			if (bytesRead != count)
-				throw new EndOfStreamException();
+            if (bytesRead != count)
+                throw new EndOfStreamException();
 
-			return buffer;
-		}
+            return buffer;
+        }
     }
 }
