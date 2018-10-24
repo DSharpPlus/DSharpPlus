@@ -26,7 +26,7 @@ namespace DSharpPlus.Lavalink
         {
             // https://github.com/sedmelluq/lavaplayer/blob/804cd1038229230052d9b1dee5e6d1741e30e284/main/src/main/java/com/sedmelluq/discord/lavaplayer/player/DefaultAudioPlayerManager.java#L63-L64
             const int TRACK_INFO_VERSIONED = 1;
-            const int TRACK_INFO_VERSION = 2;
+            //const int TRACK_INFO_VERSION = 2;
 
             var raw = Convert.FromBase64String(track);
 
@@ -170,7 +170,11 @@ namespace DSharpPlus.Lavalink
         // swap endianness
         public override decimal ReadDecimal()
         {
+#if !NETSTANDARD1_1
             throw new MissingMethodException("This method does not have a Java equivalent");
+#else
+            throw new InvalidOperationException("This method does not have a Java equivalent");
+#endif
         }
 
         // from https://github.com/Zoltu/Zoltu.EndianAwareBinaryReaderWriter under CC0
