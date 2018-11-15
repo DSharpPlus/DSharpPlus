@@ -253,7 +253,7 @@ namespace DSharpPlus
             {
                 new RestGuildRoleReorderPayload { RoleId = role_id }
             };
-            return this.ApiClient.ModifyGuildRolePosition(guild_id, rgrrps, reason);
+            return this.ApiClient.ModifyGuildRolePositionAsync(guild_id, rgrrps, reason);
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace DSharpPlus
             {
                 new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position }
             };
-            return this.ApiClient.ModifyGuildChannelPosition(guild_id, rgcrps, reason);
+            return this.ApiClient.ModifyGuildChannelPositionAsync(guild_id, rgcrps, reason);
         }
         #endregion
 
@@ -528,7 +528,7 @@ namespace DSharpPlus
         /// <param name="nickname">Dm nickname</param>
         /// <returns></returns>
         public Task JoinGroupDmAsync(ulong channel_id, string nickname)
-            => ApiClient.GroupDmAddRecipientAsync(channel_id, CurrentUser.Id, Configuration.Token, nickname);
+            => ApiClient.AddGroupDmRecipientAsync(channel_id, CurrentUser.Id, Configuration.Token, nickname);
 
         /// <summary>
         /// Adds a member to a group DM
@@ -539,7 +539,7 @@ namespace DSharpPlus
         /// <param name="nickname">Nickname for user</param>
         /// <returns></returns>
         public Task GroupDmAddRecipientAsync(ulong channel_id, ulong user_id, string access_token, string nickname)
-            => ApiClient.GroupDmAddRecipientAsync(channel_id, user_id, access_token, nickname);
+            => ApiClient.AddGroupDmRecipientAsync(channel_id, user_id, access_token, nickname);
 
         /// <summary>
         /// Leaves a group DM
@@ -547,7 +547,7 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <returns></returns>
         public Task LeaveGroupDmAsync(ulong channel_id)
-            => ApiClient.GroupDmRemoveRecipientAsync(channel_id, CurrentUser.Id);
+            => ApiClient.RemoveGroupDmRecipientAsync(channel_id, CurrentUser.Id);
 
         /// <summary>
         /// Removes a member from a group DM
@@ -556,7 +556,7 @@ namespace DSharpPlus
         /// <param name="user_id">User id</param>
         /// <returns></returns>
         public Task GroupDmRemoveRecipientAsync(ulong channel_id, ulong user_id)
-            => ApiClient.GroupDmRemoveRecipientAsync(channel_id, user_id);
+            => ApiClient.RemoveGroupDmRecipientAsync(channel_id, user_id);
 
         /// <summary>
         /// Creates a group DM
@@ -787,7 +787,7 @@ namespace DSharpPlus
         /// <param name="reason">Reason why this role was created</param>
         /// <returns></returns>
         public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
-            => ApiClient.CreateGuildRole(guild_id, name, permissions, color, hoist, mentionable, reason);
+            => ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason);
         #endregion
 
         #region Prune
@@ -1147,35 +1147,35 @@ namespace DSharpPlus
         /// <summary>
         /// Get information about an application
         /// </summary>
-        /// <param name="id">Application id</param>
+        /// <param name="application_id">Application id</param>
         /// <returns></returns>
-        public Task<DiscordApplication> GetApplicationInfoAsync(ulong id)
-            => ApiClient.GetApplicationInfoAsync(id);
+        public Task<DiscordApplication> GetApplicationInfoAsync(ulong application_id)
+            => ApiClient.GetApplicationInfoAsync(application_id);
 
         /// <summary>
         /// Gets assets from an application
         /// </summary>
-        /// <param name="app">Application to get assets from</param>
+        /// <param name="application">Application to get assets from</param>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication app)
-            => ApiClient.GetApplicationAssetsAsync(app);
+        public Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication application)
+            => ApiClient.GetApplicationAssetsAsync(application);
 
         /// <summary>
         /// Acknowledges a message
         /// </summary>
-        /// <param name="msg_id">Message id</param>
-        /// <param name="chn_id">Channel id</param>
+        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel id</param>
         /// <returns></returns>
-        public Task AcknowledgeMessageAsync(ulong msg_id, ulong chn_id)
-            => ApiClient.AcknowledgeMessageAsync(msg_id, chn_id);
+        public Task AcknowledgeMessageAsync(ulong message_id, ulong channel_id)
+            => ApiClient.AcknowledgeMessageAsync(message_id, channel_id);
 
         /// <summary>
         /// Acknowledges a guild
         /// </summary>
-        /// <param name="id">Guild id</param>
+        /// <param name="guild_id">Guild id</param>
         /// <returns></returns>
-        public Task AcknowledgeGuildAsync(ulong id)
-            => ApiClient.AcknowledgeGuildAsync(id);
+        public Task AcknowledgeGuildAsync(ulong guild_id)
+            => ApiClient.AcknowledgeGuildAsync(guild_id);
         #endregion
 
         private bool disposed;

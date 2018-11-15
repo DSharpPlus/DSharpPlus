@@ -350,7 +350,7 @@ namespace DSharpPlus.Entities
                     pmds[i].Position = chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position;
             }
 
-            return this.Discord.ApiClient.ModifyGuildChannelPosition(this.Guild.Id, pmds, reason);
+            return this.Discord.ApiClient.ModifyGuildChannelPositionAsync(this.Guild.Id, pmds, reason);
         }
 
         /// <summary>  

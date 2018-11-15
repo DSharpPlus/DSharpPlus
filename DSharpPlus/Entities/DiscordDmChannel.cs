@@ -48,12 +48,12 @@ namespace DSharpPlus.Entities
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token
         /// </summary>
         public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname) 
-            => this.Discord.ApiClient.GroupDmAddRecipientAsync(this.Id, user_id, accesstoken, nickname);
+            => this.Discord.ApiClient.AddGroupDmRecipientAsync(this.Id, user_id, accesstoken, nickname);
 
         /// <summary>
         /// Only use for Group DMs!
         /// </summary>
         public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken) 
-            => this.Discord.ApiClient.GroupDmRemoveRecipientAsync(this.Id, user_id);
+            => this.Discord.ApiClient.RemoveGroupDmRecipientAsync(this.Id, user_id);
     }
 }
