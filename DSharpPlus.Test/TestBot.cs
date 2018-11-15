@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS0618
+#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -185,14 +185,14 @@ namespace DSharpPlus.Test
 
         private Task Discord_ClientErrored(ClientErrorEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now, e.Exception);
             return Task.CompletedTask;
         }
 
         private Task Discord_SocketError(SocketErrorEventArgs e)
         {
             var ex = e.Exception is AggregateException ae ? ae.InnerException : e.Exception;
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"WS threw an exception: {ex.GetType()}\n{ex.StackTrace}", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"WS threw an exception: {ex.GetType()}", DateTime.Now, ex);
             return Task.CompletedTask;
         }
 
@@ -213,7 +213,7 @@ namespace DSharpPlus.Test
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                 return;
 
-            Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"An exception occured during {e.Context.User.Username}'s invocation of '{e.Context.Command.QualifiedName}': {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"An exception occured during {e.Context.User.Username}'s invocation of '{e.Context.Command.QualifiedName}': {e.Exception.GetType()}", DateTime.Now.Date, e.Exception);
 
             var exs = new List<Exception>();
             if (e.Exception is AggregateException ae)
@@ -253,7 +253,7 @@ namespace DSharpPlus.Test
 
         private Task CommandsNextService_CommandExecuted(CommandExecutionEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}.", DateTime.Now);
             return Task.CompletedTask;
         }
 
@@ -334,7 +334,7 @@ namespace DSharpPlus.Test
                 }
                 catch (Exception ex)
                 {
-                    Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"{ex.GetType()}: {ex.Message}", DateTime.Now);
+                    Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"An exception occurred: {ex.GetType()}", DateTime.Now, ex);
                 }
             }
 

@@ -28,7 +28,8 @@ namespace DSharpPlus
         /// <param name="application">What this message applies to</param>
         /// <param name="message">Message to log</param>
         /// <param name="timestamp">When this message was sent</param>
-        public void LogMessage(LogLevel level, string application, string message, DateTime timestamp)
+        /// <param name="exception">The exception that occurred</param>
+        public void LogMessage(LogLevel level, string application, string message, DateTime timestamp, Exception exception = null)
         {
             if (level <= this.Level)
             {
@@ -37,7 +38,7 @@ namespace DSharpPlus
                 //if (message.Contains('\n'))
                 //    lines = message.Split('\n');
                 //foreach (var line in lines)
-                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
+                LogMessageReceived?.Invoke(this, new DebugLogMessageEventArgs { Level = level, Application = application, Message = message, Exception = exception, Timestamp = timestamp, TimeFormatting = this.DateTimeFormat });
             }
         }
 
@@ -53,7 +54,7 @@ namespace DSharpPlus
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            task.ContinueWith(t => LogMessage(level, application, message + t.Exception, DateTime.Now), TaskContinuationOptions.OnlyOnFaulted);
+            task.ContinueWith(t => LogMessage(level, application, message, DateTime.Now, t.Exception), TaskContinuationOptions.OnlyOnFaulted);
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
@@ -85,7 +86,7 @@ namespace DSharpPlus
 
             Console.Write($"[{e.Timestamp.ToString(this.DateTimeFormat)}] [{e.Application}] [{e.Level}]");
             Console.ResetColor();
-            Console.WriteLine($" {e.Message}");
+            Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
 #endif
         }
 
@@ -115,6 +116,11 @@ namespace DSharpPlus
             public string Message { get; internal set; }
 
             /// <summary>
+            ///  Gets the exception of the message.
+            /// </summary>
+            public Exception Exception { get; internal set; }
+
+            /// <summary>
             /// Gets the timestamp of the message.
             /// </summary>
             public DateTime Timestamp { get; internal set; }
@@ -123,7 +129,7 @@ namespace DSharpPlus
 
             public override string ToString()
             {
-                return $"[{Timestamp.ToString(this.TimeFormatting)}] [{Application}] [{Level}] {Message}";
+                return $"[{Timestamp.ToString(this.TimeFormatting)}] [{Application}] [{Level}] {Message}{(Exception != null ? $"\n{Exception}" : "")}";
             }
         }
     }
