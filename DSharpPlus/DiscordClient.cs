@@ -268,7 +268,7 @@ namespace DSharpPlus
                     cex = ex;
                     if (i <= 0 && !this.Configuration.ReconnectIndefinitely) break;
 
-                    this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Connection attempt failed, retrying in {w / 1000}s", DateTime.Now);
+                    this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Connection attempt failed, retrying in {w / 1000}s", DateTime.Now, ex);
                     await Task.Delay(w).ConfigureAwait(false);
 
                     if (i > 0)
@@ -352,7 +352,7 @@ namespace DSharpPlus
                 }
                 catch (Exception ex)
                 {
-                    DebugLogger.LogMessage(LogLevel.Error, "Websocket", $"Socket swallowed an exception: {ex}", DateTime.Now);
+                    DebugLogger.LogMessage(LogLevel.Error, "Websocket", $"Socket swallowed an exception:", DateTime.Now, ex);
                 }
             }
 
@@ -363,12 +363,12 @@ namespace DSharpPlus
             {
                 _cancelTokenSource.Cancel();
 
-                this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Connection closed", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed. ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}')", DateTime.Now);
                 await this._socketClosed.InvokeAsync(new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
 
                 if (Configuration.AutoReconnect)
                 {
-                    DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting", DateTime.Now);
+                    DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting.", DateTime.Now);
                     await ConnectAsync().ConfigureAwait(false);
                 }
             }
@@ -1555,7 +1555,7 @@ namespace DSharpPlus
             message.Discord = this;
 
             if (message.Channel == null)
-                DebugLogger.LogMessage(LogLevel.Warning, "Event", "Could not find channel last message belonged to", DateTime.Now);
+                DebugLogger.LogMessage(LogLevel.Warning, "Event", "Could not find channel last message belonged to.", DateTime.Now);
             else
                 message.Channel.LastMessageId = message.Id;
 
@@ -2036,7 +2036,7 @@ namespace DSharpPlus
 
         internal async Task OnReconnectAsync()
         {
-            this.DebugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect. ", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect.", DateTime.Now);
 
             await ReconnectAsync().ConfigureAwait(false);
         }
@@ -2051,7 +2051,7 @@ namespace DSharpPlus
             }
             else
             {
-                this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session.", DateTime.Now);
                 _sessionId = "";
                 await SendIdentifyAsync(_status).ConfigureAwait(false);
             }
@@ -2059,7 +2059,7 @@ namespace DSharpPlus
 
         internal async Task OnHelloAsync(GatewayHello hello)
         {
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify.", DateTime.Now);
             //this._waiting_for_ack = false;
             Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
             this._heartbeatInterval = hello.HeartbeatInterval;
@@ -2085,8 +2085,7 @@ namespace DSharpPlus
             var ping = Volatile.Read(ref this._ping);
             ping = (int)(DateTime.Now - this._lastHeartbeat).TotalMilliseconds;
 
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received WebSocket Heartbeat Ack", DateTime.Now);
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Ping {ping.ToString(CultureInfo.InvariantCulture)}ms", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Received WebSocket Heartbeat Ack. Ping: {ping.ToString(CultureInfo.InvariantCulture)}ms", DateTime.Now);
 
             Volatile.Write(ref this._ping, ping);
 
@@ -2102,7 +2101,7 @@ namespace DSharpPlus
         //internal async Task StartHeartbeatingAsync()
         internal void StartHeartbeating()
         {
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat.", DateTime.Now);
             var token = this._cancelToken;
             try
             {
@@ -2188,7 +2187,7 @@ namespace DSharpPlus
 
             Volatile.Write(ref this._lastSequence, seq);
             var _last_heartbeat = DateTimeOffset.Now;
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat.", DateTime.Now);
             var heartbeat = new GatewayPayload
             {
                 OpCode = GatewayOpCode.Heartbeat,
@@ -2846,13 +2845,13 @@ namespace DSharpPlus
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
-            this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occured in {evname}.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occurred in {evname}.", DateTime.Now, ex);
             this._clientErrored.InvokeAsync(new ClientErrorEventArgs(this) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
         {
-            this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occurred in the exception handler.", DateTime.Now, ex);
         }
         #endregion
     }

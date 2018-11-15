@@ -88,7 +88,7 @@ namespace DSharpPlus.Entities
                     pmds[i].Position = roles[i].Position <= position ? roles[i].Position - 1 : roles[i].Position;
             }
 
-            return this.Discord.ApiClient.ModifyGuildRolePosition(this._guild_id, pmds, reason);
+            return this.Discord.ApiClient.ModifyGuildRolePositionAsync(this._guild_id, pmds, reason);
         }
 
         /// <summary>
