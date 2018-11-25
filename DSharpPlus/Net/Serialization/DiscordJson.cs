@@ -26,11 +26,8 @@ namespace DSharpPlus.Net.Serialization
         /// <summary>Serializes the specified object to a JSON string.</summary>
         /// <param name="value">The object to serialize.</param>
         /// <returns>A JSON string representation of the object.</returns>
-        public static string SerializeObject(object value)
-        {
-            return JsonConvert.SerializeObject(value, JsonSerializerSettings);
-        }
-        
+        public static string SerializeObject(object value) => JsonConvert.SerializeObject(value, JsonSerializerSettings);
+
         /// <summary>
         /// Converts this token into an object, passing any properties through extra <see cref="JsonConverter"/>s if
         /// needed.
@@ -38,10 +35,7 @@ namespace DSharpPlus.Net.Serialization
         /// <param name="token">The token to convert</param>
         /// <typeparam name="T">Type to convert to</typeparam>
         /// <returns>The converted token</returns>
-        public static T ToDiscordObject<T>(this JToken token)
-        {
-            return token.ToObject<T>(OptionalJsonSerializer);
-        }
+        public static T ToDiscordObject<T>(this JToken token) => token.ToObject<T>(OptionalJsonSerializer);
     }
 
     public class OptionalJsonContractResolver : DefaultContractResolver

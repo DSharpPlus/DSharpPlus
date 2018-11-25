@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net
@@ -54,8 +55,14 @@ namespace DSharpPlus.Net
             RequestTaskSource = new TaskCompletionSource<RestResponse>();
             Url = url;
             Method = method;
-            Headers = headers != null ? new ReadOnlyDictionary<string, string>(headers) : null;
             RateLimitWaitOverride = ratelimit_wait_override;
+
+            if (headers != null)
+            {
+                headers = headers.Select(x => new KeyValuePair<string, string>(x.Key, Uri.EscapeDataString(x.Value)))
+                    .ToDictionary(x => x.Key, x => x.Value);
+                Headers = new ReadOnlyDictionary<string, string>(headers);
+            }
         }
 
         /// <summary>

@@ -122,10 +122,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordWebhook"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordWebhook);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordWebhook);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordWebhook"/> is equal to another <see cref="DiscordWebhook"/>.
@@ -151,10 +148,7 @@ namespace DSharpPlus.Entities
         /// Gets the hash code for this <see cref="DiscordWebhook"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordWebhook"/>.</returns>
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordWebhook"/> objects are equal.

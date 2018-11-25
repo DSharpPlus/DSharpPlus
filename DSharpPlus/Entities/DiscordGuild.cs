@@ -1,4 +1,8 @@
 ﻿#pragma warning disable CS0618
+using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,10 +10,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Net.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities
 {
@@ -335,6 +335,22 @@ namespace DSharpPlus.Entities
         // public IEnumerable<DiscordChannel> OrderedChannels 
         //    => this._channels.OrderBy(xc => xc.Parent?.Position).ThenBy(xc => xc.Type).ThenBy(xc => xc.Position);
 
+        public bool Unread
+        {
+            get
+            {
+                var currentMember = CurrentMember;
+
+                lock (_channels)
+                {
+                    return (IsOwner ? _channels : _channels.Where(c => c.PermissionsFor(currentMember).HasPermission(Permissions.AccessChannels)))
+                        .Any(r => r.ReadState?.Unread == true);
+                }
+            }
+        }
+
+        public int MentionCount => Channels.Select(r => r.ReadState?.MentionCount ?? 0).Sum();
+
         [JsonIgnore]
         public bool IsSynced { get => _isSynced; set => OnPropertySet(ref _isSynced, value); }
 
@@ -481,8 +497,8 @@ namespace DSharpPlus.Entities
         /// <param name="nsfw">Whether the channel is to be flagged as not safe for work.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, string reason = null)
-        => CreateChannelAsync(name, ChannelType.Text, parent, null, null, overwrites, nsfw, reason);
+        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
+                    => this.CreateChannelAsync(name, ChannelType.Text, parent, null, null, overwrites, nsfw, perUserRateLimit, reason);
 
         /// <summary>
         /// Creates a new channel category in this guild.
@@ -492,7 +508,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel category.</returns>
         public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-        => CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, reason);
+            => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, Optional<int?>.FromNoValue(), reason);
 
         /// <summary>
         /// Creates a new voice channel in this guild.
@@ -505,7 +521,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-        => CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, reason);
+            => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, Optional<int?>.FromNoValue(), reason);
 
         /// <summary>
         /// Creates a new channel in this guild.
@@ -519,7 +535,7 @@ namespace DSharpPlus.Entities
         /// <param name="nsfw">Whether the channel is to be flagged as not safe for work. Applies to text only.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, string reason = null)
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
         {
             if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category)
             {
@@ -531,7 +547,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent));
             }
 
-            return Discord.ApiClient.CreateGuildChannelAsync(Id, name, type, parent?.Id, bitrate, user_limit, overwrites, nsfw, reason);
+            return Discord.ApiClient.CreateGuildChannelAsync(Id, name, type, parent?.Id, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
         }
 
         // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.
@@ -708,7 +724,7 @@ namespace DSharpPlus.Entities
             var recids = recmbr.Select(xm => xm.Id);
 
             // clear the cache of users who weren't received
-            for (int i = 0; i < _members.Count; i++)
+            for (var i = 0; i < _members.Count; i++)
             {
                 if (!recids.Contains(_members[i].Id))
                 {
@@ -1666,32 +1682,23 @@ namespace DSharpPlus.Entities
         /// <para>Default channel is the first channel current member can see.</para>
         /// </summary>
         /// <returns>This member's default guild.</returns>
-        public DiscordChannel GetDefaultChannel()
-        {
-            return _channels.Where(xc => xc.Type == ChannelType.Text)
+        public DiscordChannel GetDefaultChannel() => _channels.Where(xc => xc.Type == ChannelType.Text)
                 .OrderBy(xc => xc.Position)
                 .FirstOrDefault(xc => (xc.PermissionsFor(CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels);
-        }
         #endregion
 
         /// <summary>
         /// Returns a string representation of this guild.
         /// </summary>
         /// <returns>String representation of this guild.</returns>
-        public override string ToString()
-        {
-            return $"Guild {Id}; {Name}";
-        }
+        public override string ToString() => $"Guild {Id}; {Name}";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordGuild"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordGuild"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordGuild);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordGuild);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordGuild"/> is equal to another <see cref="DiscordGuild"/>.
@@ -1717,10 +1724,7 @@ namespace DSharpPlus.Entities
         /// Gets the hash code for this <see cref="DiscordGuild"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordGuild"/>.</returns>
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordGuild"/> objects are equal.

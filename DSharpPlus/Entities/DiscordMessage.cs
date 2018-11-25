@@ -382,20 +382,14 @@ namespace DSharpPlus.Entities
         /// Returns a string representation of this message.
         /// </summary>
         /// <returns>String representation of this message.</returns>
-        public override string ToString()
-        {
-            return $"Message {Id}; Attachment count: {_attachments.Count}; Embed count: {_embeds.Count}; Contents: {Content}";
-        }
+        public override string ToString() => $"Message {Id}; Attachment count: {_attachments.Count}; Embed count: {_embeds.Count}; Contents: {Content}";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMessage"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordMessage"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordMessage);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordMessage);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMessage"/> is equal to another <see cref="DiscordMessage"/>.

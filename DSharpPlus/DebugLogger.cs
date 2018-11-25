@@ -109,10 +109,7 @@ namespace DSharpPlus
 
             internal string TimeFormatting;
 
-            public override string ToString()
-            {
-                return $"[{Timestamp.ToString(TimeFormatting)}] [{Application}] [{Level}] {Message}";
-            }
+            public override string ToString() => $"[{Timestamp.ToString(TimeFormatting)}] [{Application}] [{Level}] {Message}";
         }
     }
 }

@@ -1,4 +1,13 @@
 ﻿#pragma warning disable CS0618
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
+using DSharpPlus.Net;
+using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Serialization;
+using DSharpPlus.Net.WebSocket;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,15 +21,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-using DSharpPlus.Exceptions;
-using DSharpPlus.Net;
-using DSharpPlus.Net.Abstractions;
-using DSharpPlus.Net.Serialization;
-using DSharpPlus.Net.WebSocket;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -47,6 +47,7 @@ namespace DSharpPlus
         internal long _lastSequence;
         internal int _skippedHeartbeats = 0;
         internal bool _guildDownloadCompleted = false;
+        internal int _s;
 
         public int HeartbeatInterval => _heartbeatInterval;
         public BaseWebSocketClient SocketClient => _webSocketClient;
@@ -127,7 +128,8 @@ namespace DSharpPlus
         private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presencesLazy;
 
         private List<DiscordRelationship> _relationships;
-        public IReadOnlyList<DiscordRelationship> Relationships => new ReadOnlyCollection<DiscordRelationship>(_relationships);
+        private Lazy<IReadOnlyList<DiscordRelationship>> _relationshipsLazy;
+        public IReadOnlyList<DiscordRelationship> Relationships => _relationshipsLazy.Value;
         #endregion
 
         #region Connection semaphore
@@ -206,10 +208,12 @@ namespace DSharpPlus
 
             _privateChannels = new List<DiscordDmChannel>();
             _guilds = new Dictionary<ulong, DiscordGuild>();
+            _relationships = new List<DiscordRelationship>();
 
             _privateChannelsLazy = new Lazy<IReadOnlyList<DiscordDmChannel>>(() => new ReadOnlyCollection<DiscordDmChannel>(_privateChannels));
             _guildsLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(_guilds));
             _presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(_presences));
+            _relationshipsLazy = new Lazy<IReadOnlyList<DiscordRelationship>>(() => new ReadOnlyCollection<DiscordRelationship>(_relationships));
 
             if (Configuration.UseInternalLogHandler)
             {
@@ -240,12 +244,26 @@ namespace DSharpPlus
         /// Connects to the gateway
         /// </summary>
         /// <returns></returns>
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(DiscordActivity activity = null, UserStatus? status = null, DateTimeOffset? idlesince = null)
         {
             var w = 7500;
             var i = 5;
             var s = false;
             Exception cex = null;
+
+            if (activity == null && status == null && idlesince == null)
+                _status = null;
+            else
+            {
+                var since_unix = idlesince != null ? (long?)Utilities.GetUnixTime(idlesince.Value) : null;
+                _status = new StatusUpdate()
+                {
+                    Activity = new TransportActivity(activity),
+                    Status = status ?? UserStatus.Online,
+                    IdleSince = since_unix,
+                    IsAFK = idlesince != null
+                };
+            }
 
             if (Configuration.TokenType != TokenType.Bot)
             {
@@ -305,14 +323,15 @@ namespace DSharpPlus
             }
         }
 
-        public Task ReconnectAsync(bool startNewSession = false)
+        public async Task ReconnectAsync(bool startNewSession = false)
         {
             if (startNewSession)
             {
                 _sessionId = "";
             }
 
-            return _webSocketClient.DisconnectAsync(null);
+            if (_cancelTokenSource.IsCancellationRequested)
+                await ConnectAsync();
         }
 
         internal Task InternalReconnectAsync()
@@ -630,12 +649,31 @@ namespace DSharpPlus
             _webSocketClient.SendMessage(guild_syncstr);
             return Task.Delay(0);
         }
+
+        public async Task UpdateUserSettingsAsync(ulong[] guildPositions = null)
+        {
+            if (Configuration.TokenType != TokenType.User)
+            {
+                throw new InvalidOperationException("This can only be done for user tokens.");
+            }
+
+            var bucket = ApiClient.Rest.GetBucket(RestRequestMethod.PATCH, "/users/@me/settings", new { }, out var path);
+            var dictionary = new Dictionary<string, object>() { ["guild_positions"] = guildPositions.Select(p => p.ToString()) };
+            var payload = JsonConvert.SerializeObject(dictionary);
+            var url = Utilities.GetApiUriFor(path);
+
+            var request = new RestRequest(this, bucket, url, RestRequestMethod.PATCH, payload: payload);
+            DebugLogger.LogTaskFault(ApiClient.Rest.ExecuteRequestAsync(request), LogLevel.Error, "DSharpPlus", "Error while executing request: ");
+            var response = await request.WaitForCompletionAsync().ConfigureAwait(false);
+        }
+
         #endregion
 
         #region Websocket (Events)
         internal async Task HandleSocketMessageAsync(string data)
         {
             var payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch:
@@ -899,13 +937,13 @@ namespace DSharpPlus
             _privateChannels = rawDmChannels
                 .Select(xjt =>
                 {
-                    var xdc = xjt.ToObject<DiscordDmChannel>();
-
-                    xdc.Discord = this;
-
                     //xdc._recipients = 
                     //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
                     //    .ToList();
+
+                    var xdc = xjt.ToObject<DiscordDmChannel>();
+
+                    xdc.Discord = this;
 
                     var recips_raw = xjt["recipients"].ToObject<IEnumerable<TransportUser>>();
                     xdc._recipients = new List<DiscordUser>();
@@ -1091,15 +1129,20 @@ namespace DSharpPlus
 
             if (channel.Type == ChannelType.Group || channel.Type == ChannelType.Private)
             {
-                var chn = channel as DiscordDmChannel;
+                var xdc = channel as DiscordDmChannel;
 
-                var recips = rawRecipients.ToObject<IEnumerable<TransportUser>>()
-                    .Select(xtu => InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this });
-                chn._recipients = recips.ToList();
+                xdc.Discord = this;
 
-                _privateChannels.Add(chn);
+                xdc._recipients = new List<DiscordUser>();
+                foreach (var xr in rawRecipients.ToObject<IEnumerable<TransportUser>>())
+                {
+                    var xu = new DiscordUser(xr) { Discord = this };
+                    xu = UserCache.AddOrUpdate(xr.Id, xu, (id, old) => UpdateUser(old, xu));
 
-                await _dmChannelCreated.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = chn }).ConfigureAwait(false);
+                    xdc._recipients.Add(xu);
+                }
+
+                await _dmChannelCreated.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = xdc }).ConfigureAwait(false);
             }
             else
             {
@@ -1147,7 +1190,8 @@ namespace DSharpPlus
                     Type = channel_new.Type,
                     UserLimit = channel_new.UserLimit,
                     ParentId = channel_new.ParentId,
-                    IsNSFW = channel_new.IsNSFW
+                    IsNSFW = channel_new.IsNSFW,
+                    PerUserRateLimit = channel_new.PerUserRateLimit
                 };
             }
             else
@@ -1162,6 +1206,7 @@ namespace DSharpPlus
             channel_new.UserLimit = channel.UserLimit;
             channel_new.ParentId = channel.ParentId;
             channel_new.IsNSFW = channel.IsNSFW;
+            channel_new.PerUserRateLimit = channel.PerUserRateLimit;
 
             channel_new._permission_overwrites.Clear();
 
@@ -1722,9 +1767,26 @@ namespace DSharpPlus
                 };
             }
 
-            DiscordReadState state = ReadStates[chn.Id];
-            state.LastMessageId = messageId;
-            state.MentionCount = 0;
+            if (ReadStates.TryGetValue(chn.Id, out var state))
+            {
+                state.LastMessageId = messageId;
+                state.MentionCount = 0;
+            }
+            else
+            {
+                state = new DiscordReadState
+                {
+                    Id = chn.Id,
+                    LastMessageId = messageId,
+                    MentionCount = 0
+                };
+            }
+
+            ReadStates[chn.Id] = state;
+
+            chn.InvokePropertyChanged("ReadState");
+            chn.Guild?.InvokePropertyChanged("MentionCount");
+            chn.Guild?.InvokePropertyChanged("Unread");
 
             await _messageAcknowledged.InvokeAsync(new MessageAcknowledgeEventArgs(this) { Message = msg }).ConfigureAwait(false);
         }
@@ -1802,23 +1864,26 @@ namespace DSharpPlus
 
             if (message.Channel.ReadState != null)
             {
-                message.Channel.ReadState.LastMessageId = message.Id;
-                message.Channel.ReadState.InvokePropertyChanged("LastMessageId");
-
                 if (author.Id != CurrentUser.Id)
                 {
-
                     if (message.MentionEveryone || message._mentionedUsers.Any(u => u?.Id == CurrentUser.Id))
                     {
                         message.Channel.ReadState.MentionCount += 1;
+                        message.Channel.Guild?.InvokePropertyChanged("MentionCount");
                     }
 
-                    message.Channel.ReadState.InvokePropertyChanged("Unread");
                     message.Channel.InvokePropertyChanged("ReadState");
+                    message.Channel.InvokePropertyChanged("Guild");
                 }
+                else
+                {
+                    message.Channel.ReadState.LastMessageId = message.Id;
+                }
+
+                message.Channel.InvokePropertyChanged(nameof(message.Channel.ReadState));
             }
 
-            MessageCreateEventArgs ea = new MessageCreateEventArgs(this)
+            var ea = new MessageCreateEventArgs(this)
             {
                 Message = message,
 
@@ -1957,6 +2022,8 @@ namespace DSharpPlus
                     MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channel.Id);
                 }
 
+                await _messageDeleted.InvokeAsync(new MessageDeleteEventArgs(this) { Channel = channel, Message = msg });
+
                 msgs.Add(msg);
             }
 
@@ -1998,9 +2065,17 @@ namespace DSharpPlus
         {
             var usr = new DiscordUser(json.ToObject<TransportUser>()) { Discord = this };
 
-            if ((json as JObject).TryGetValue("theme", out var t))
+            if (json.TryGetValue("theme", out var t))
             {
                 UserSettings.Theme = t.ToObject<string>();
+            }
+
+            if (json.TryGetValue("guild_positions", out var jsonPositions))
+            {
+                var positions = jsonPositions.ToObject<List<ulong>>();
+                _guilds = _guilds.OrderBy(k => positions.IndexOf(k.Key)).ToDictionary(k => k.Key, v => v.Value);
+
+                UserSettings.GuildPositions = positions;
             }
 
             InvokePropertyChanged(nameof(UserSettings));
@@ -2287,7 +2362,7 @@ namespace DSharpPlus
             {
                 DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _sessionId = "";
-                await SendIdentifyAsync().ConfigureAwait(false);
+                await SendIdentifyAsync(_status).ConfigureAwait(false);
             }
         }
 
@@ -2302,7 +2377,7 @@ namespace DSharpPlus
 
             if (_sessionId == "")
             {
-                await SendIdentifyAsync().ConfigureAwait(false);
+                await SendIdentifyAsync(_status).ConfigureAwait(false);
             }
             else
             {
@@ -2442,7 +2517,7 @@ namespace DSharpPlus
             Interlocked.Increment(ref _skippedHeartbeats);
         }
 
-        internal Task SendIdentifyAsync()
+        internal Task SendIdentifyAsync(StatusUpdate status)
         {
             var identify = new GatewayIdentify
             {
@@ -2453,7 +2528,8 @@ namespace DSharpPlus
                 {
                     ShardId = Configuration.ShardId,
                     ShardCount = Configuration.ShardCount
-                }
+                },
+                Presence = status
             };
             var payload = new GatewayPayload
             {
@@ -2484,10 +2560,7 @@ namespace DSharpPlus
             return Task.Delay(0);
         }
 
-        internal Task SendGuildSyncAsync()
-        {
-            return SyncGuildsAsync(_guilds.Values.ToArray());
-        }
+        internal Task SendGuildSyncAsync() => SyncGuildsAsync(_guilds.Values.ToArray());
         #endregion
 
         // LINQ :^)
@@ -2540,7 +2613,7 @@ namespace DSharpPlus
                     xu = UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
                         UpdateUser(old, xu));
 
-                    DiscordMember newmb = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
+                    var newmb = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
                     guild._members.AddOrUpdate(newmb, (old, n) =>
                     {
                         old.Nickname = newmb.Nickname;
@@ -3131,6 +3204,7 @@ namespace DSharpPlus
         }
         private AsyncEvent<HeartbeatEventArgs> _heartbeated;
         private DiscordUserSettings _userSettings;
+        private StatusUpdate _status;
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
@@ -3138,10 +3212,7 @@ namespace DSharpPlus
             _clientErrored.InvokeAsync(new ClientErrorEventArgs(this) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        private void Goof(string evname, Exception ex)
-        {
-            DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
-        }
+        private void Goof(string evname, Exception ex) => DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
         #endregion
     }
 }

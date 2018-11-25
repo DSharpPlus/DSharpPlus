@@ -8,7 +8,7 @@ namespace DSharpPlus.Entities
     {
         private static IReadOnlyDictionary<string, string> UnicodeEmojis { get; set; }
         private static IReadOnlyDictionary<string, string> DiscordNameLookup { get; set; }
-        internal static IReadOnlyList<string> UnicodeEmojiList { get; set; }
+        public static IReadOnlyList<string> UnicodeEmojiList { get; set; }
 
         static DiscordEmoji()
         {

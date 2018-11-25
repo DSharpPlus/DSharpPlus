@@ -51,9 +51,6 @@ namespace DSharpPlus.Net.Abstractions
             return arr;
         }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(ShardInfo);
-        }
+        public override bool CanConvert(Type objectType) => objectType == typeof(ShardInfo);
     }
 }

@@ -136,20 +136,14 @@ namespace DSharpPlus.Entities
         /// Returns a string representation of this role.
         /// </summary>
         /// <returns>String representation of this role.</returns>
-        public override string ToString()
-        {
-            return $"Role {Id}; {Name}";
-        }
+        public override string ToString() => $"Role {Id}; {Name}";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordRole"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordRole"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordRole);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordRole);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordRole"/> is equal to another <see cref="DiscordRole"/>.
@@ -175,10 +169,7 @@ namespace DSharpPlus.Entities
         /// Gets the hash code for this <see cref="DiscordRole"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordRole"/>.</returns>
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordRole"/> objects are equal.

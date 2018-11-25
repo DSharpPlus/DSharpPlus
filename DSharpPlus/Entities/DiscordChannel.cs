@@ -129,11 +129,11 @@ namespace DSharpPlus.Entities
                     }
                     else
                     {
-                        return null;
+                        return DiscordReadState.Default;
                     }
                 }
 
-                return null;
+                return DiscordReadState.Default;
             }
         }
 
@@ -186,6 +186,13 @@ namespace DSharpPlus.Entities
         {
             _permission_overwrites_lazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(_permission_overwrites));
         }
+
+        /// <summary>
+        /// <para>Gets the slow mode delay configured for this channel.</para>
+        /// <para>All bots, as well as users with <see cref="Permissions.ManageChannels"/> or <see cref="Permissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
+        /// </summary>
+        [JsonProperty("rate_limit_per_user")]
+        public int? PerUserRateLimit { get; internal set; }
 
         #region Methods
         /// <summary>
@@ -322,7 +329,20 @@ namespace DSharpPlus.Entities
                 ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
             }
 
-            return await Guild.CreateChannelAsync(Name, Type, Parent, Bitrate, UserLimit, ovrs, IsNSFW, reason).ConfigureAwait(false);
+            int? bitrate = Bitrate;
+            int? userLimit = UserLimit;
+            Optional<int?> perUserRateLimit = PerUserRateLimit;
+            if (Type != ChannelType.Voice)
+            {
+                bitrate = null;
+                userLimit = null;
+            }
+            if (Type != ChannelType.Text)
+            {
+                perUserRateLimit = Optional<int?>.FromNoValue();
+            }
+
+            return await Guild.CreateChannelAsync(Name, Type, Parent, bitrate, userLimit, ovrs, IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -349,8 +369,8 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ChannelEditModel();
             action(mdl);
-            return Discord.ApiClient.ModifyChannelAsync(Id, mdl.Name, mdl.Position, mdl.Topic,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.AuditLogReason);
+            return Discord.ApiClient.ModifyChannelAsync(Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.AuditLogReason);
         }
 
         /// <summary>
@@ -691,10 +711,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordChannel"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordChannel);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordChannel);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordChannel"/> is equal to another <see cref="DiscordChannel"/>.
@@ -720,10 +737,7 @@ namespace DSharpPlus.Entities
         /// Gets the hash code for this <see cref="DiscordChannel"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordChannel"/>.</returns>
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordChannel"/> objects are equal.

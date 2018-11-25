@@ -111,20 +111,14 @@ namespace DSharpPlus.Net
         /// Returns a string representation of this bucket.
         /// </summary>
         /// <returns>String representation of this bucket.</returns>
-        public override string ToString()
-        {
-            return $"Rate limit bucket [{Method}:{GuildId}:{ChannelId}:{WebhookId}:{Route}] [{Remaining}/{Maximum}] {Reset}";
-        }
+        public override string ToString() => $"Rate limit bucket [{Method}:{GuildId}:{ChannelId}:{WebhookId}:{Route}] [{Remaining}/{Maximum}] {Reset}";
 
         /// <summary>
         /// Checks whether this <see cref="RateLimitBucket"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="RateLimitBucket"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as RateLimitBucket);
-        }
+        public override bool Equals(object obj) => Equals(obj as RateLimitBucket);
 
         /// <summary>
         /// Checks whether this <see cref="RateLimitBucket"/> is equal to another <see cref="RateLimitBucket"/>.
@@ -150,10 +144,7 @@ namespace DSharpPlus.Net
         /// Gets the hash code for this <see cref="RateLimitBucket"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="RateLimitBucket"/>.</returns>
-        public override int GetHashCode()
-        {
-            return BucketId.GetHashCode();
-        }
+        public override int GetHashCode() => BucketId.GetHashCode();
 
         /// <summary>
         /// Sets remaining number of requests to the maximum when the ratelimit is reset

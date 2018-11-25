@@ -5,6 +5,8 @@ namespace DSharpPlus.Entities
 {
     public class DiscordReadState : PropertyChangedBase
     {
+        public static DiscordReadState Default { get; } = new DiscordReadState();
+
         private int _mentionCount;
         private ulong _lastMessageId;
         private DateTimeOffset _lastPinTimestamp;

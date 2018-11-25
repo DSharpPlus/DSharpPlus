@@ -40,15 +40,12 @@ namespace DSharpPlus.Entities
             _val = value;
             HasValue = true;
         }
-        
+
         /// <summary>
         /// Returns a string representation of this optional value.
         /// </summary>
         /// <returns>String representation of this optional value.</returns>
-        public override string ToString()
-        {
-            return $"Optional<{typeof(T)}> ({(HasValue ? Value.ToString() : "<no value>")})";
-        }
+        public override string ToString() => $"Optional<{typeof(T)}> ({(HasValue ? Value.ToString() : "<no value>")})";
 
         /// <summary>
         /// Checks whether this <see cref="Optional{T}"/> (or its value) are equal to another object.
@@ -109,10 +106,7 @@ namespace DSharpPlus.Entities
         /// Gets the hash code for this <see cref="Optional{T}"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="Optional{T}"/>.</returns>
-        public override int GetHashCode()
-        {
-            return HasValue ? Value.GetHashCode() : 0;
-        }
+        public override int GetHashCode() => HasValue ? Value.GetHashCode() : 0;
 
         /// <summary>
         /// Creates a new <see cref="Optional{T}"/> with specified value and valid state.
@@ -147,9 +141,6 @@ namespace DSharpPlus.Entities
         public static bool operator !=(Optional<T> opt, T t) 
             => !opt.Equals(t);
 
-        public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper)
-        {
-            return HasValue ? new Optional<TTarget>(mapper(Value)) : default;
-        }
+        public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper) => HasValue ? new Optional<TTarget>(mapper(Value)) : default;
     }
 }

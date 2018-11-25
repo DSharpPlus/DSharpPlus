@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DSharpPlus</RootNamespace>
     <AssemblyName>DSharpPlus.WPF</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -72,6 +72,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -90,171 +93,490 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\DSharpPlus\AsyncEvent.cs" />
-    <Compile Include="..\DSharpPlus\AsyncManualResetEvent.cs" />
-    <Compile Include="..\DSharpPlus\BaseDiscordClient.cs" />
-    <Compile Include="..\DSharpPlus\BaseExtension.cs" />
-    <Compile Include="..\DSharpPlus\DebugLogger.cs" />
-    <Compile Include="..\DSharpPlus\DiscordClient.cs" />
-    <Compile Include="..\DSharpPlus\DiscordConfiguration.cs" />
-    <Compile Include="..\DSharpPlus\DiscordShardedClient.cs" />
-    <Compile Include="..\DSharpPlus\DiscordWebhookClient.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordActivity.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordApplication.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordAttachment.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordAuditLogObjects.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordBan.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordChannel.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordColor.Colors.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordColor.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordConnection.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordDmChannel.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbed.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedAuthor.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedBuilder.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedField.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedFooter.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedImage.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedProvider.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedThumbnail.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedVideo.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmoji.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordEmoji.EmojiUtils.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordGuild.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordGuildEmbed.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordGuildEmoji.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordIntegration.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordIntegrationAccount.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordInvite.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordInviteChannel.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordInviteGuild.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordMember.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordMessage.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordOverwrite.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordOverwriteBuilder.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordPresence.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordReaction.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordReadState.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordRelationship.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordRole.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordUser.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordUserSettings.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordVoiceRegion.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordVoiceState.cs" />
-    <Compile Include="..\DSharpPlus\Entities\DiscordWebhook.cs" />
-    <Compile Include="..\DSharpPlus\Entities\Optional.cs" />
-    <Compile Include="..\DSharpPlus\Entities\PropertyChangeBase.cs" />
-    <Compile Include="..\DSharpPlus\Entities\SnowflakeObject.cs" />
-    <Compile Include="..\DSharpPlus\Enums\ChannelType.cs" />
-    <Compile Include="..\DSharpPlus\Enums\GatewayCompressionLevel.cs" />
-    <Compile Include="..\DSharpPlus\Enums\LogLevel.cs" />
-    <Compile Include="..\DSharpPlus\Enums\MentionType.cs" />
-    <Compile Include="..\DSharpPlus\Enums\OverwriteType.cs" />
-    <Compile Include="..\DSharpPlus\Enums\Permission.cs" />
-    <Compile Include="..\DSharpPlus\Enums\RelationshipType.cs" />
-    <Compile Include="..\DSharpPlus\Enums\TokenType.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\ChannelCreateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\ChannelDeleteEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\ChannelPinsUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\ChannelUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\ClientErrorEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\DiscordEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\DMChannelCreateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\DMChannelDeleteEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildBanAddEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildBanRemoveEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildCreateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildDeleteEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildDownloadCompletedEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildEmojisUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildIntegrationsUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildMemberAddEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildMemberRemoveEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildMembersChunkEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildMemberUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildRoleCreateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildRoleDeleteEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildRoleUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\GuildUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\HeartBeatEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\MessageAcknowledgeEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\MessageBulkDeleteEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\MessageCreateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\MessageDeleteEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\MessageReactionAddEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\MessageReactionRemoveEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\MessageReactionsClearEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\MessageUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\PresenceUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\ReadyEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\RelationshipEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\SocketDisconnectEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\TypingStartEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\UnknownEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\UserSettingsUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\UserSpeakingEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\UserUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\VoiceReceiveEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\VoiceServerUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\VoiceStateUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\WebhooksUpdateEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\EventArgs\WebSocketMessageEventArgs.cs" />
-    <Compile Include="..\DSharpPlus\Exceptions\BadRequestException.cs" />
-    <Compile Include="..\DSharpPlus\Exceptions\NotFoundException.cs" />
-    <Compile Include="..\DSharpPlus\Exceptions\RateLimitException.cs" />
-    <Compile Include="..\DSharpPlus\Exceptions\UnauthorizedException.cs" />
-    <Compile Include="..\DSharpPlus\Formatter.cs" />
-    <Compile Include="..\DSharpPlus\ImageTool.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\AuditLogAbstractions.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\ClientProperties.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\GatewayHello.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\GatewayIdentifyResume.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\GatewayOpCode.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\GatewayPayload.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\IOAuth2Payload.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\ReadyPayload.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\RestChannelPayloads.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\RestGuildPayloads.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\RestUserPayloads.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\RestWebhookPayloads.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\ShardInfo.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\StatusUpdate.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\TransportActivity.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\TransportMember.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\TransportUser.cs" />
-    <Compile Include="..\DSharpPlus\net\Abstractions\VoiceStateUpdate.cs" />
-    <Compile Include="..\DSharpPlus\net\BaseRestRequest.cs" />
-    <Compile Include="..\DSharpPlus\net\DiscordApiClient.cs" />
-    <Compile Include="..\DSharpPlus\net\Endpoints.cs" />
-    <Compile Include="..\DSharpPlus\net\Models\BaseEditModel.cs" />
-    <Compile Include="..\DSharpPlus\net\Models\ChannelEditModel.cs" />
-    <Compile Include="..\DSharpPlus\net\Models\GuildEditModel.cs" />
-    <Compile Include="..\DSharpPlus\net\Models\MemberEditModel.cs" />
-    <Compile Include="..\DSharpPlus\net\MultipartWebRequest.cs" />
-    <Compile Include="..\DSharpPlus\net\RateLimitBucket.cs" />
-    <Compile Include="..\DSharpPlus\net\RestClient.cs" />
-    <Compile Include="..\DSharpPlus\net\RestRequest.cs" />
-    <Compile Include="..\DSharpPlus\net\RestRequestMethod.cs" />
-    <Compile Include="..\DSharpPlus\net\RestResponse.cs" />
-    <Compile Include="..\DSharpPlus\net\Serialization\DiscordJson.cs" />
-    <Compile Include="..\DSharpPlus\net\Udp\BaseUdpClient.cs" />
-    <Compile Include="..\DSharpPlus\net\Udp\ConnectionEndpoint.cs" />
-    <Compile Include="..\DSharpPlus\net\Udp\DspUdpClient.cs" />
-    <Compile Include="..\DSharpPlus\net\websocket\BaseWebSocketClient.cs" />
-    <Compile Include="..\DSharpPlus\net\websocket\UwpWebSocketClient.cs" />
-    <Compile Include="..\DSharpPlus\net\websocket\Win32WebSocketClient.cs" />
-    <Compile Include="..\DSharpPlus\Properties\AssemblyInfo.cs" />
-    <Compile Include="..\DSharpPlus\RingBuffer.cs" />
-    <Compile Include="..\DSharpPlus\Utilities.cs" />
-    <Compile Include="DiscordRestClient.cs" />
+    <Compile Include="..\DSharpPlus\AsyncEvent.cs">
+      <Link>AsyncEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\AsyncManualResetEvent.cs">
+      <Link>AsyncManualResetEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\BaseDiscordClient.cs">
+      <Link>BaseDiscordClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\BaseExtension.cs">
+      <Link>BaseExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\DebugLogger.cs">
+      <Link>DebugLogger.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\DiscordClient.cs">
+      <Link>DiscordClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\DiscordConfiguration.cs">
+      <Link>DiscordConfiguration.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\DiscordRestClient.cs">
+      <Link>DiscordRestClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\DiscordShardedClient.cs">
+      <Link>DiscordShardedClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\DiscordWebhookClient.cs">
+      <Link>DiscordWebhookClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordActivity.cs">
+      <Link>Entities\DiscordActivity.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordApplication.cs">
+      <Link>Entities\DiscordApplication.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordAttachment.cs">
+      <Link>Entities\DiscordAttachment.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordAuditLogObjects.cs">
+      <Link>Entities\DiscordAuditLogObjects.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordBan.cs">
+      <Link>Entities\DiscordBan.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordChannel.cs">
+      <Link>Entities\DiscordChannel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordColor.Colors.cs">
+      <Link>Entities\DiscordColor.Colors.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordColor.cs">
+      <Link>Entities\DiscordColor.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordConnection.cs">
+      <Link>Entities\DiscordConnection.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordDmChannel.cs">
+      <Link>Entities\DiscordDmChannel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbed.cs">
+      <Link>Entities\DiscordEmbed.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedAuthor.cs">
+      <Link>Entities\DiscordEmbedAuthor.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedBuilder.cs">
+      <Link>Entities\DiscordEmbedBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedField.cs">
+      <Link>Entities\DiscordEmbedField.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedFooter.cs">
+      <Link>Entities\DiscordEmbedFooter.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedImage.cs">
+      <Link>Entities\DiscordEmbedImage.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedProvider.cs">
+      <Link>Entities\DiscordEmbedProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedThumbnail.cs">
+      <Link>Entities\DiscordEmbedThumbnail.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmbedVideo.cs">
+      <Link>Entities\DiscordEmbedVideo.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmoji.cs">
+      <Link>Entities\DiscordEmoji.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordEmoji.EmojiUtils.cs">
+      <Link>Entities\DiscordEmoji.EmojiUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordGuild.cs">
+      <Link>Entities\DiscordGuild.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordGuildEmbed.cs">
+      <Link>Entities\DiscordGuildEmbed.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordGuildEmoji.cs">
+      <Link>Entities\DiscordGuildEmoji.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordIntegration.cs">
+      <Link>Entities\DiscordIntegration.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordIntegrationAccount.cs">
+      <Link>Entities\DiscordIntegrationAccount.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordInvite.cs">
+      <Link>Entities\DiscordInvite.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordInviteChannel.cs">
+      <Link>Entities\DiscordInviteChannel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordInviteGuild.cs">
+      <Link>Entities\DiscordInviteGuild.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordMember.cs">
+      <Link>Entities\DiscordMember.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordMessage.cs">
+      <Link>Entities\DiscordMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordOverwrite.cs">
+      <Link>Entities\DiscordOverwrite.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordOverwriteBuilder.cs">
+      <Link>Entities\DiscordOverwriteBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordPresence.cs">
+      <Link>Entities\DiscordPresence.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordReaction.cs">
+      <Link>Entities\DiscordReaction.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordReadState.cs">
+      <Link>Entities\DiscordReadState.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordRelationship.cs">
+      <Link>Entities\DiscordRelationship.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordRole.cs">
+      <Link>Entities\DiscordRole.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordUser.cs">
+      <Link>Entities\DiscordUser.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordUserSettings.cs">
+      <Link>Entities\DiscordUserSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordVoiceRegion.cs">
+      <Link>Entities\DiscordVoiceRegion.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordVoiceState.cs">
+      <Link>Entities\DiscordVoiceState.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\DiscordWebhook.cs">
+      <Link>Entities\DiscordWebhook.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\Optional.cs">
+      <Link>Entities\Optional.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Entities\SnowflakeObject.cs">
+      <Link>Entities\SnowflakeObject.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Enums\ChannelType.cs">
+      <Link>Enums\ChannelType.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Enums\GatewayCompressionLevel.cs">
+      <Link>Enums\GatewayCompressionLevel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Enums\LogLevel.cs">
+      <Link>Enums\LogLevel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Enums\MentionType.cs">
+      <Link>Enums\MentionType.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Enums\OverwriteType.cs">
+      <Link>Enums\OverwriteType.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Enums\Permission.cs">
+      <Link>Enums\Permission.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Enums\RelationshipType.cs">
+      <Link>Enums\RelationshipType.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Enums\TokenType.cs">
+      <Link>Enums\TokenType.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\ChannelCreateEventArgs.cs">
+      <Link>EventArgs\ChannelCreateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\ChannelDeleteEventArgs.cs">
+      <Link>EventArgs\ChannelDeleteEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\ChannelPinsUpdateEventArgs.cs">
+      <Link>EventArgs\ChannelPinsUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\ChannelUpdateEventArgs.cs">
+      <Link>EventArgs\ChannelUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\ClientErrorEventArgs.cs">
+      <Link>EventArgs\ClientErrorEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\DiscordEventArgs.cs">
+      <Link>EventArgs\DiscordEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\DMChannelCreateEventArgs.cs">
+      <Link>EventArgs\DMChannelCreateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\DMChannelDeleteEventArgs.cs">
+      <Link>EventArgs\DMChannelDeleteEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildBanAddEventArgs.cs">
+      <Link>EventArgs\GuildBanAddEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildBanRemoveEventArgs.cs">
+      <Link>EventArgs\GuildBanRemoveEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildCreateEventArgs.cs">
+      <Link>EventArgs\GuildCreateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildDeleteEventArgs.cs">
+      <Link>EventArgs\GuildDeleteEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildDownloadCompletedEventArgs.cs">
+      <Link>EventArgs\GuildDownloadCompletedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildEmojisUpdateEventArgs.cs">
+      <Link>EventArgs\GuildEmojisUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildIntegrationsUpdateEventArgs.cs">
+      <Link>EventArgs\GuildIntegrationsUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildMemberAddEventArgs.cs">
+      <Link>EventArgs\GuildMemberAddEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildMemberRemoveEventArgs.cs">
+      <Link>EventArgs\GuildMemberRemoveEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildMembersChunkEventArgs.cs">
+      <Link>EventArgs\GuildMembersChunkEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildMemberUpdateEventArgs.cs">
+      <Link>EventArgs\GuildMemberUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildRoleCreateEventArgs.cs">
+      <Link>EventArgs\GuildRoleCreateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildRoleDeleteEventArgs.cs">
+      <Link>EventArgs\GuildRoleDeleteEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildRoleUpdateEventArgs.cs">
+      <Link>EventArgs\GuildRoleUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\GuildUpdateEventArgs.cs">
+      <Link>EventArgs\GuildUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\HeartBeatEventArgs.cs">
+      <Link>EventArgs\HeartBeatEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\MessageAcknowledgeEventArgs.cs">
+      <Link>EventArgs\MessageAcknowledgeEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\MessageBulkDeleteEventArgs.cs">
+      <Link>EventArgs\MessageBulkDeleteEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\MessageCreateEventArgs.cs">
+      <Link>EventArgs\MessageCreateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\MessageDeleteEventArgs.cs">
+      <Link>EventArgs\MessageDeleteEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\MessageReactionAddEventArgs.cs">
+      <Link>EventArgs\MessageReactionAddEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\MessageReactionRemoveEventArgs.cs">
+      <Link>EventArgs\MessageReactionRemoveEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\MessageReactionsClearEventArgs.cs">
+      <Link>EventArgs\MessageReactionsClearEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\MessageUpdateEventArgs.cs">
+      <Link>EventArgs\MessageUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\PresenceUpdateEventArgs.cs">
+      <Link>EventArgs\PresenceUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\ReadyEventArgs.cs">
+      <Link>EventArgs\ReadyEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\RelationshipEventArgs.cs">
+      <Link>EventArgs\RelationshipEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\SocketDisconnectEventArgs.cs">
+      <Link>EventArgs\SocketDisconnectEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\TypingStartEventArgs.cs">
+      <Link>EventArgs\TypingStartEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\UnknownEventArgs.cs">
+      <Link>EventArgs\UnknownEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\UserSettingsUpdateEventArgs.cs">
+      <Link>EventArgs\UserSettingsUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\UserSpeakingEventArgs.cs">
+      <Link>EventArgs\UserSpeakingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\UserUpdateEventArgs.cs">
+      <Link>EventArgs\UserUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\VoiceReceiveEventArgs.cs">
+      <Link>EventArgs\VoiceReceiveEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\VoiceServerUpdateEventArgs.cs">
+      <Link>EventArgs\VoiceServerUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\VoiceStateUpdateEventArgs.cs">
+      <Link>EventArgs\VoiceStateUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\WebhooksUpdateEventArgs.cs">
+      <Link>EventArgs\WebhooksUpdateEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\EventArgs\WebSocketMessageEventArgs.cs">
+      <Link>EventArgs\WebSocketMessageEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Exceptions\BadRequestException.cs">
+      <Link>Exceptions\BadRequestException.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Exceptions\NotFoundException.cs">
+      <Link>Exceptions\NotFoundException.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Exceptions\RateLimitException.cs">
+      <Link>Exceptions\RateLimitException.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Exceptions\UnauthorizedException.cs">
+      <Link>Exceptions\UnauthorizedException.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Formatter.cs">
+      <Link>Formatter.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\ImageTool.cs">
+      <Link>ImageTool.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\AuditLogAbstractions.cs">
+      <Link>Net\Abstractions\AuditLogAbstractions.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\ClientProperties.cs">
+      <Link>Net\Abstractions\ClientProperties.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\GatewayHello.cs">
+      <Link>Net\Abstractions\GatewayHello.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\GatewayIdentifyResume.cs">
+      <Link>Net\Abstractions\GatewayIdentifyResume.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\GatewayOpCode.cs">
+      <Link>Net\Abstractions\GatewayOpCode.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\GatewayPayload.cs">
+      <Link>Net\Abstractions\GatewayPayload.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\IOAuth2Payload.cs">
+      <Link>Net\Abstractions\IOAuth2Payload.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\ReadyPayload.cs">
+      <Link>Net\Abstractions\ReadyPayload.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\RestChannelPayloads.cs">
+      <Link>Net\Abstractions\RestChannelPayloads.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\RestGuildPayloads.cs">
+      <Link>Net\Abstractions\RestGuildPayloads.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\RestUserPayloads.cs">
+      <Link>Net\Abstractions\RestUserPayloads.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\RestWebhookPayloads.cs">
+      <Link>Net\Abstractions\RestWebhookPayloads.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\ShardInfo.cs">
+      <Link>Net\Abstractions\ShardInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\StatusUpdate.cs">
+      <Link>Net\Abstractions\StatusUpdate.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\TransportActivity.cs">
+      <Link>Net\Abstractions\TransportActivity.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\TransportMember.cs">
+      <Link>Net\Abstractions\TransportMember.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\TransportUser.cs">
+      <Link>Net\Abstractions\TransportUser.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Abstractions\VoiceStateUpdate.cs">
+      <Link>Net\Abstractions\VoiceStateUpdate.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\BaseRestRequest.cs">
+      <Link>Net\BaseRestRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\DiscordApiClient.cs">
+      <Link>Net\DiscordApiClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Endpoints.cs">
+      <Link>Net\Endpoints.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Models\BaseEditModel.cs">
+      <Link>Net\Models\BaseEditModel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Models\ChannelEditModel.cs">
+      <Link>Net\Models\ChannelEditModel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Models\GuildEditModel.cs">
+      <Link>Net\Models\GuildEditModel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Models\MemberEditModel.cs">
+      <Link>Net\Models\MemberEditModel.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\MultipartWebRequest.cs">
+      <Link>Net\MultipartWebRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\RateLimitBucket.cs">
+      <Link>Net\RateLimitBucket.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\RestClient.cs">
+      <Link>Net\RestClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\RestRequest.cs">
+      <Link>Net\RestRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\RestRequestMethod.cs">
+      <Link>Net\RestRequestMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\RestResponse.cs">
+      <Link>Net\RestResponse.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Serialization\DiscordJson.cs">
+      <Link>Net\Serialization\DiscordJson.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Udp\BaseUdpClient.cs">
+      <Link>Net\Udp\BaseUdpClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Udp\ConnectionEndpoint.cs">
+      <Link>Net\Udp\ConnectionEndpoint.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Udp\DspUdpClient.cs">
+      <Link>Net\Udp\DspUdpClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\Udp\IpEndpoint.cs">
+      <Link>Net\Udp\IpEndpoint.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Net\WebSocket\BaseWebSocketClient.cs">
+      <Link>Net\WebSocket\BaseWebSocketClient.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\PropertyChangeBase.cs">
+      <Link>PropertyChangeBase.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\RingBuffer.cs">
+      <Link>RingBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\DSharpPlus\Utilities.cs">
+      <Link>Utilities.cs</Link>
+    </Compile>
+    <Compile Include="AssemblyProperties.cs" />
+    <Compile Include="Net\WebSocket\WebSocketClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.2</Version>
     </PackageReference>
+    <PackageReference Include="System.Memory">
+      <Version>4.5.1</Version>
+    </PackageReference>
     <PackageReference Include="System.Net.WebSockets.Client.Managed">
       <Version>1.0.20</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\Unicord.Shared\Unicord.csproj">
+      <Project>{57e3d333-e860-462d-9d54-306b99496973}</Project>
+      <Name>Unicord</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

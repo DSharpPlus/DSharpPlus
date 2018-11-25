@@ -116,10 +116,7 @@ namespace DSharpPlus.Entities
         /// Gets a string representation of this color.
         /// </summary>
         /// <returns>String representation of this color.</returns>
-        public override string ToString()
-        {
-            return $"#{Value.ToString("X6")}";
-        }
+        public override string ToString() => $"#{Value.ToString("X6")}";
 
         public static implicit operator DiscordColor(int value)
             => new DiscordColor(value);

@@ -142,9 +142,6 @@ namespace DSharpPlus.Entities
             // Values not filled out are values that are not known from a DiscordMember
         }
 
-        public override string ToString()
-        {
-            return $"{UserId.ToString(CultureInfo.InvariantCulture)} in {(GuildId ?? Channel.GuildId).ToString(CultureInfo.InvariantCulture)}";
-        }
+        public override string ToString() => $"{UserId.ToString(CultureInfo.InvariantCulture)} in {(GuildId ?? Channel.GuildId).ToString(CultureInfo.InvariantCulture)}";
     }
 }

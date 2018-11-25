@@ -476,10 +476,7 @@ namespace DSharpPlus
             _clientErrored.InvokeAsync(new ClientErrorEventArgs(null) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        private void Goof(string evname, Exception ex)
-        {
-            DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
-        }
+        private void Goof(string evname, Exception ex) => DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
         #endregion
 
         private DiscordConfiguration Config { get; }

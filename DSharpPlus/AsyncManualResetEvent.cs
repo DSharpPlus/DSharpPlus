@@ -28,9 +28,9 @@ namespace DSharpPlus
             }
         }
 
-        public Task WaitAsync() { return _tsc.Task; }
+        public Task WaitAsync() => _tsc.Task;
 
-        public Task Set() { return Task.Run(() => _tsc.TrySetResult(true)); }
+        public Task Set() => Task.Run(() => _tsc.TrySetResult(true));
 
         public void Reset()
         {

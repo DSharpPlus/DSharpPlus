@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Linq;
-using System.Collections.ObjectModel;
-using System.IO;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 #if WINDOWS_UWP
 using Windows.UI.Xaml.Media;
@@ -70,7 +70,7 @@ namespace DSharpPlus.Entities
         /// Gets this member's display name.
         /// </summary>
         [JsonIgnore]
-        public string DisplayName
+        public override string DisplayName
             => Nickname ?? Username;
 
         /// <summary>
@@ -111,8 +111,23 @@ namespace DSharpPlus.Entities
         }
 
 #if WINDOWS_UWP || WINDOWS_WPF
+        private SolidColorBrush _brush;
+
         [JsonIgnore]
-        public SolidColorBrush ColorBrush => Color.Value != default(DiscordColor).Value ? new SolidColorBrush(Media.Color.FromArgb(255, Color.R, Color.G, Color.B)) : null;
+        public SolidColorBrush ColorBrush
+        {
+            get
+            {
+                if (_brush != null)
+                    return _brush;
+
+                _brush = Color.Value != default(DiscordColor).Value ? new SolidColorBrush(Media.Color.FromArgb(255, Color.R, Color.G, Color.B)) : null;
+#if WINDOWS_WPF
+                _brush?.Freeze();
+#endif
+                return _brush;
+            }
+        }
 #endif
 
         /// <summary>
@@ -158,7 +173,7 @@ namespace DSharpPlus.Entities
         public bool IsOwner
             => Id == Guild.OwnerId;
 
-#region Overriden user properties
+        #region Overriden user properties
         [JsonIgnore]
         internal DiscordUser User
             => Discord.UserCache[Id];
@@ -225,14 +240,7 @@ namespace DSharpPlus.Entities
             get { return User.Verified; }
             internal set { User.Verified = value; }
         }
-#endregion
-
-        /// <summary>
-        /// Creates a direct message channel to this member.
-        /// </summary>
-        /// <returns>Direct message channel to this member.</returns>
-        public Task<DiscordDmChannel> CreateDmChannelAsync()
-            => Discord.ApiClient.CreateDmAsync(Id);
+        #endregion
 
         /// <summary>
         /// Sends a direct message to this member. Creates a direct message channel if one does not exist already.
@@ -432,20 +440,14 @@ namespace DSharpPlus.Entities
         /// Returns a string representation of this member.
         /// </summary>
         /// <returns>String representation of this member.</returns>
-        public override string ToString()
-        {
-            return $"Member {Id}; {Username}#{Discriminator} ({DisplayName})";
-        }
+        public override string ToString() => $"Member {Id}; {Username}#{Discriminator} ({DisplayName})";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMember"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordMember);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordMember);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMember"/> is equal to another <see cref="DiscordMember"/>.
@@ -473,7 +475,7 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordMember"/>.</returns>
         public override int GetHashCode()
         {
-            int hash = 13;
+            var hash = 13;
 
             hash = (hash * 7) + Id.GetHashCode();
             hash = (hash * 7) + _guild_id.GetHashCode();

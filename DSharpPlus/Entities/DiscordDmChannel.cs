@@ -13,8 +13,9 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordDmChannel : DiscordChannel
     {
-        internal DiscordDmChannel()
-            : base()
+        private string _iconHash;
+
+        internal DiscordDmChannel() : base()
         {
             _recipients_lazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(_recipients));
         }
@@ -30,13 +31,12 @@ namespace DSharpPlus.Entities
         internal List<DiscordUser> _recipients;
         [JsonIgnore]
         private Lazy<IReadOnlyList<DiscordUser>> _recipients_lazy;
-        private string _iconHash;
 
         /// <summary>
         /// Gets the hash of this channel's icon.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        public string IconHash { get => _iconHash; internal set => _iconHash = value; }
+        public string IconHash { get => _iconHash; internal set => OnPropertySet(ref _iconHash, value); }
 
         /// <summary>
         /// Gets the URL of this channel's icon.
@@ -46,7 +46,7 @@ namespace DSharpPlus.Entities
             => !string.IsNullOrWhiteSpace(IconHash) ? $"https://cdn.discordapp.com/channel-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.png" : (_recipients.Count == 1 ? _recipients[0].AvatarUrl : null);
 
         [JsonIgnore]
-        public DiscordUser Recipient => _recipients.Count == 1 ? _recipients[0] : null;
+        public DiscordUser Recipient => _recipients?.Count == 1 ? _recipients[0] : null;
 
         /// <summary>
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token

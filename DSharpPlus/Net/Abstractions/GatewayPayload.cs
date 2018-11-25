@@ -14,10 +14,10 @@ namespace DSharpPlus.Net.Abstractions
         public GatewayOpCode OpCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the data of the payload.
+        /// Gets or sets the event name of the payload. Only present for OP 0.
         /// </summary>
-        [JsonProperty("d")]
-        public object Data { get; set; }
+        [JsonProperty("t", NullValueHandling = NullValueHandling.Ignore)]
+        public string EventName { get; set; }
 
         /// <summary>
         /// Gets or sets the sequence number of the payload. Only present for OP 0.
@@ -26,9 +26,9 @@ namespace DSharpPlus.Net.Abstractions
         public int? Sequence { get; set; }
 
         /// <summary>
-        /// Gets or sets the event name of the payload. Only present for OP 0.
+        /// Gets or sets the data of the payload.
         /// </summary>
-        [JsonProperty("t", NullValueHandling = NullValueHandling.Ignore)]
-        public string EventName { get; set; }
+        [JsonProperty("d")]
+        public object Data { get; set; }
     }
 }

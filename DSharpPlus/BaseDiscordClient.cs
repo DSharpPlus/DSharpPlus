@@ -13,7 +13,7 @@ namespace DSharpPlus
     public abstract class BaseDiscordClient : PropertyChangedBase, IDisposable
     {
         internal protected DiscordApiClient ApiClient { get; }
-        internal protected DiscordConfiguration Configuration { get; }
+        public DiscordConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the instance of the logger for this client.

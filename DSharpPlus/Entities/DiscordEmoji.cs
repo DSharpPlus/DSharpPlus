@@ -46,6 +46,21 @@ namespace DSharpPlus.Entities
         [JsonProperty("animated")]
         public bool IsAnimated { get; internal set; }
 
+        public string Unicode
+        {
+            get
+            {
+                if (Id != 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return Name;
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the image URL of this emoji.
         /// </summary>
@@ -56,15 +71,15 @@ namespace DSharpPlus.Entities
             {
                 if (Id == 0)
                 {
-                    throw new InvalidOperationException("Cannot get URL of unicode emojis.");
+                    return "";
                 }
 
                 if (IsAnimated)
                 {
-                    return $"https://cdn.discordapp.com/emojis/{Id.ToString(CultureInfo.InvariantCulture)}.gif";
+                    return $"https://cdn.discordapp.com/emojis/{Id.ToString(CultureInfo.InvariantCulture)}.gif?size=32";
                 }
 
-                return $"https://cdn.discordapp.com/emojis/{Id.ToString(CultureInfo.InvariantCulture)}.png";
+                return $"https://cdn.discordapp.com/emojis/{Id.ToString(CultureInfo.InvariantCulture)}.png?size=32";
             }
         }
 
@@ -114,10 +129,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordEmoji"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordEmoji);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordEmoji);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordEmoji"/> is equal to another <see cref="DiscordEmoji"/>.
@@ -223,10 +235,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="unicode_entity">Unicode entity to create the object from.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromUnicode(string unicode_entity)
-        {
-            return new DiscordEmoji { Name = unicode_entity, Discord = null };
-        }
+        public static DiscordEmoji FromUnicode(string unicode_entity) => new DiscordEmoji { Name = unicode_entity, Discord = null };
 
         /// <summary>
         /// Creates an emoji object from a guild emote.

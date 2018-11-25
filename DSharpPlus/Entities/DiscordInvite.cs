@@ -97,9 +97,6 @@ namespace DSharpPlus.Entities
         /// Converts this invite into an invite link.
         /// </summary>
         /// <returns>A discord.gg invite link.</returns>
-        public override string ToString()
-        {
-            return $"https://discord.gg/{Code}";
-        }
+        public override string ToString() => $"https://discord.gg/{Code}";
     }
 }

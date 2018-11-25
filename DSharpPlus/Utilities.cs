@@ -50,7 +50,8 @@ namespace DSharpPlus
                 vs = v.ToString(3);
             }
 
-            VersionHeader = $"DiscordBot (https://github.com/NaamloosDT/DSharpPlus, v{vs})";
+            // edgy
+            VersionHeader = $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17758";
         }
 
         internal static T AddOrUpdate<T>(this List<T> list, T add, Action<T, T> update, Func<T, T, bool> equal) where T : class
@@ -83,10 +84,7 @@ namespace DSharpPlus
         internal static Uri GetApiUriFor(string path, string queryString)
             => new Uri($"{GetApiBaseUri()}{path}{queryString}");
 
-        public static string GetFormattedToken(BaseDiscordClient client)
-        {
-            return GetFormattedToken(client.Configuration);
-        }
+        public static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
 
         internal static string GetFormattedToken(DiscordConfiguration config)
         {
@@ -254,17 +252,16 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="dto"><see cref="DateTimeOffset"/> to calculate Unix time for.</param>
         /// <returns>Calculated Unix time.</returns>
-        public static long GetUnixTime(DateTimeOffset dto)
-        {
+        public static long GetUnixTime(DateTimeOffset dto) =>
 #if !(NETSTANDARD1_1 || NET45 || WINDOWS_8)
-            return dto.ToUnixTimeMilliseconds();
+            dto.ToUnixTimeMilliseconds();
 #else
             // below constant taken from 
             // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
             var millis = dto.Ticks / TimeSpan.TicksPerMillisecond;
             return millis - 62_135_596_800_000;
 #endif
-        }
+
 
         /// <summary>
         /// Converts this <see cref="Permissions"/> into human-readable format.

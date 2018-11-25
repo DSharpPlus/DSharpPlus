@@ -167,10 +167,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordApplication"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordApplication);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordApplication);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordApplication"/> is equal to another <see cref="DiscordApplication"/>.
@@ -196,10 +193,7 @@ namespace DSharpPlus.Entities
         /// Gets the hash code for this <see cref="DiscordApplication"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordApplication"/> objects are equal.
@@ -293,10 +287,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordApplicationAsset);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordApplicationAsset);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another <see cref="DiscordApplicationAsset"/>.
@@ -322,10 +313,7 @@ namespace DSharpPlus.Entities
         /// Gets the hash code for this <see cref="DiscordApplication"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordApplicationAsset"/> objects are equal.

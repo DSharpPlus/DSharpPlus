@@ -101,16 +101,13 @@ namespace DSharpPlus.Entities
         /// Builds this DiscordOverwrite.
         /// </summary>
         /// <returns>Use this object for creation of new overwrites.</returns>
-        internal DiscordRestOverwrite Build()
+        internal DiscordRestOverwrite Build() => new DiscordRestOverwrite()
         {
-            return new DiscordRestOverwrite()
-            {
-                Allow = Allowed,
-                Deny = Denied,
-                Id = Target.Id,
-                Type = Type,
-            };
-        }
+            Allow = Allowed,
+            Deny = Denied,
+            Id = Target.Id,
+            Type = Type,
+        };
     }
 
     internal struct DiscordRestOverwrite

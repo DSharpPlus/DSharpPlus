@@ -1,5 +1,4 @@
-﻿#if !WINDOWS_8
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net.Udp
@@ -32,8 +31,8 @@ namespace DSharpPlus.Net.Udp
             EndPoint = endpoint;
             Client = new UdpClient();
             // TODO: Solve for .NET Standard, this is possibly default behaviour (???)
-#if HAS_NAT_TRAVERSAL
-            Client.AllowNatTraversal(true);
+#if !WINDOWS_UWP
+            this.Client.AllowNatTraversal(true);
 #endif
         }
 
@@ -72,4 +71,3 @@ namespace DSharpPlus.Net.Udp
             => new DspUdpClient();
     }
 }
-#endif

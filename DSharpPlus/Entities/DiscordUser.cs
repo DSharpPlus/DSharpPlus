@@ -1,8 +1,17 @@
-﻿using System;
+﻿using DSharpPlus.Net.Abstractions;
+using Newtonsoft.Json;
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using DSharpPlus.Net.Abstractions;
-using Newtonsoft.Json;
+
+#if WINDOWS_UWP
+using Windows.UI.Xaml.Media;
+using Windows.UI;
+using Media = Windows.UI;
+#elif WINDOWS_WPF
+using System.Windows.Media;
+using Media = System.Windows.Media;
+#endif
 
 namespace DSharpPlus.Entities
 {
@@ -32,7 +41,17 @@ namespace DSharpPlus.Entities
         /// Gets this user's username.
         /// </summary>
         [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual string Username { get => _username; internal set => OnPropertySet(ref _username, value); }
+        public virtual string Username
+        {
+            get => _username;
+            internal set
+            {
+                OnPropertySet(ref _username, value);
+                InvokePropertyChanged(nameof(DisplayName));
+            }
+        }
+
+        public virtual string DisplayName => Username;
 
         /// <summary>
         /// Gets the user's 4-digit discriminator.
@@ -59,13 +78,19 @@ namespace DSharpPlus.Entities
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string AvatarHash
         {
-            get => _avatarHash; internal set
+            get => _avatarHash;
+            internal set
             {
                 OnPropertySet(ref _avatarHash, value);
                 InvokePropertyChanged(nameof(AvatarUrl));
                 InvokePropertyChanged(nameof(NonAnimatedAvatarUrl));
             }
         }
+
+#if WINDOWS_UWP || WINDOWS_WPF
+        [JsonIgnore]
+        public SolidColorBrush ColorBrush => null;
+#endif
 
         /// <summary>
         /// Gets the user's avatar URL.
@@ -80,8 +105,7 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public string NonAnimatedAvatarUrl
             => !string.IsNullOrWhiteSpace(AvatarHash) ? $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=128" : DefaultAvatarUrl;
-
-
+        
         /// <summary>
         /// Gets the URL of default avatar for this user.
         /// </summary>
@@ -220,23 +244,24 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Creates a direct message channel to this member.
+        /// </summary>
+        /// <returns>Direct message channel to this member.</returns>
+        public Task<DiscordDmChannel> CreateDmChannelAsync()
+            => Discord.ApiClient.CreateDmAsync(Id);
+
+        /// <summary>
         /// Returns a string representation of this user.
         /// </summary>
         /// <returns>String representation of this user.</returns>
-        public override string ToString()
-        {
-            return $"User {Id}; {Username}#{Discriminator}";
-        }
+        public override string ToString() => $"User {Id}; {Username}#{Discriminator}";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordUser"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordUser);
-        }
+        public override bool Equals(object obj) => Equals(obj as DiscordUser);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordUser"/> is equal to another <see cref="DiscordUser"/>.
@@ -262,10 +287,7 @@ namespace DSharpPlus.Entities
         /// Gets the hash code for this <see cref="DiscordUser"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordUser"/>.</returns>
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordUser"/> objects are equal.

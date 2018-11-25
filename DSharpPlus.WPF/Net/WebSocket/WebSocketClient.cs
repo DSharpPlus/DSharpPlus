@@ -1,6 +1,7 @@
-﻿#if !WINDOWS_UWP && !WINDOWS_8
+﻿using DSharpPlus.EventArgs;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -8,7 +9,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Net.WebSocket
 {
@@ -24,10 +24,10 @@ namespace DSharpPlus.Net.WebSocket
 
         private ConcurrentQueue<string> SocketMessageQueue { get; set; }
         private CancellationTokenSource TokenSource { get; set; }
-        private CancellationToken Token 
+        private CancellationToken Token
             => TokenSource.Token;
 
-        private ClientWebSocket Socket { get; set; }
+        private System.Net.WebSockets.Managed.ClientWebSocket Socket { get; set; }
         private Task WsListener { get; set; }
         private Task SocketQueueManager { get; set; }
 
@@ -48,8 +48,9 @@ namespace DSharpPlus.Net.WebSocket
         /// Connects to the WebSocket server.
         /// </summary>
         /// <param name="uri">The URI of the WebSocket server.</param>
+        /// <param name="customHeaders">Custom headers to send with the request.</param>
         /// <returns></returns>
-        public override async Task ConnectAsync(Uri uri)
+        public override async Task ConnectAsync(Uri uri, IReadOnlyDictionary<string, string> customHeaders = null)
         {
             SocketMessageQueue = new ConcurrentQueue<string>();
             TokenSource = new CancellationTokenSource();
@@ -62,12 +63,15 @@ namespace DSharpPlus.Net.WebSocket
             CompressedStream = new MemoryStream();
             StreamDecompressor = new DeflateStream(CompressedStream, CompressionMode.Decompress);
 
-            Socket = new ClientWebSocket();
+            Socket = new System.Net.WebSockets.Managed.ClientWebSocket();
+
             Socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
             if (Proxy != null) // because mono doesn't implement this properly
-            {
                 Socket.Options.Proxy = Proxy;
-            }
+
+            if (customHeaders != null)
+                foreach (var kvp in customHeaders)
+                    Socket.Options.SetRequestHeader(kvp.Key, kvp.Value);
 
             await Socket.ConnectAsync(uri, Token).ConfigureAwait(false);
             await OnConnectedAsync().ConfigureAwait(false);
@@ -84,9 +88,7 @@ namespace DSharpPlus.Net.WebSocket
         {
             //if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
             if (close_requested)
-            {
                 return;
-            }
 
             close_requested = true;
             try
@@ -116,16 +118,12 @@ namespace DSharpPlus.Net.WebSocket
         public override void SendMessage(string message)
         {
             if (Socket.State != WebSocketState.Open)
-            {
                 return;
-            }
 
             SocketMessageQueue.Enqueue(message);
 
             if (SocketQueueManager == null || SocketQueueManager.IsCompleted)
-            {
                 SocketQueueManager = Task.Run(ProcessSmqAsync, Token);
-            }
         }
 
         /// <summary>
@@ -159,7 +157,7 @@ namespace DSharpPlus.Net.WebSocket
             SocketCloseEventArgs close = null;
 
             var token = Token;
-            
+
             try
             {
                 while (!token.IsCancellationRequested && Socket.State == WebSocketState.Open)
@@ -176,9 +174,7 @@ namespace DSharpPlus.Net.WebSocket
                                 close = new SocketCloseEventArgs(null) { CloseCode = cc, CloseMessage = result.CloseStatusDescription };
                             }
                             else
-                            {
                                 ms.Write(buff, 0, result.Count);
-                            }
                         }
                         while (!result.EndOfMessage);
 
@@ -186,22 +182,15 @@ namespace DSharpPlus.Net.WebSocket
                     }
 
                     if (close != null)
-                    {
                         break;
-                    }
 
                     var resultstr = "";
                     if (result.MessageType == WebSocketMessageType.Binary)
                     {
                         if (resultbuff[0] == 0x78)
-                        {
                             await CompressedStream.WriteAsync(resultbuff, 2, resultbuff.Length - 2).ConfigureAwait(false);
-                        }
                         else
-                        {
                             await CompressedStream.WriteAsync(resultbuff, 0, resultbuff.Length).ConfigureAwait(false);
-                        }
-
                         await CompressedStream.FlushAsync().ConfigureAwait(false);
                         CompressedStream.Position = 0;
 
@@ -213,9 +202,7 @@ namespace DSharpPlus.Net.WebSocket
                         if (sfix != ZLIB_STREAM_SUFFIX)
                         {
                             using (var zlib = new DeflateStream(CompressedStream, CompressionMode.Decompress, true))
-                            {
                                 await zlib.CopyToAsync(DecompressedStream).ConfigureAwait(false);
-                            }
                         }
                         else
                         {
@@ -228,7 +215,7 @@ namespace DSharpPlus.Net.WebSocket
                         CompressedStream.Position = 0;
                         CompressedStream.SetLength(0);
                     }
-                    
+
                     resultstr = UTF8.GetString(resultbuff, 0, resultbuff.Length);
                     await CallOnMessageAsync(resultstr).ConfigureAwait(false);
                 }
@@ -249,21 +236,15 @@ namespace DSharpPlus.Net.WebSocket
             while (!token.IsCancellationRequested && Socket.State == WebSocketState.Open)
             {
                 if (SocketMessageQueue.IsEmpty)
-                {
                     break;
-                }
 
                 if (!SocketMessageQueue.TryDequeue(out var message))
-                {
                     break;
-                }
 
                 var buff = UTF8.GetBytes(message);
                 var msgc = buff.Length / BUFFER_SIZE;
                 if (buff.Length % BUFFER_SIZE != 0)
-                {
                     msgc++;
-                }
 
                 for (var i = 0; i < msgc; i++)
                 {
@@ -331,15 +312,10 @@ namespace DSharpPlus.Net.WebSocket
         private void EventErrorHandler(string evname, Exception ex)
         {
             if (evname.ToLowerInvariant() == "ws_error")
-            {
                 Console.WriteLine($"WSERROR: {ex.GetType()} in {evname}!");
-            }
             else
-            {
                 _on_error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
-            }
         }
         #endregion
     }
 }
-#endif

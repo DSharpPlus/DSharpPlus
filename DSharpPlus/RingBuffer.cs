@@ -153,20 +153,14 @@ namespace DSharpPlus
         /// <param name="item">Item to check for.</param>
         /// <returns>Whether the buffer contains the item.</returns>
         /// <exception cref="NotImplementedException" />
-        public bool Contains(T item)
-        {
-            return InternalBuffer.Contains(item);
-        }
+        public bool Contains(T item) => InternalBuffer.Contains(item);
 
         /// <summary>
         /// Checks whether given item is present in the buffer using given predicate to find it.
         /// </summary>
         /// <param name="predicate">Predicate used to check for the item.</param>
         /// <returns>Whether the buffer contains the item.</returns>
-        public bool Contains(Func<T, bool> predicate)
-        {
-            return InternalBuffer.Any(predicate);
-        }
+        public bool Contains(Func<T, bool> predicate) => InternalBuffer.Any(predicate);
 
         /// <summary>
         /// Copies this ring buffer to target array, attempting to maintain the order of items within.
@@ -197,10 +191,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="item">Item to remove.</param>
         /// <returns>Whether an item was removed or not.</returns>
-        public bool Remove(T item)
-        {
-            throw new NotImplementedException("This method is not implemented. Use .Remove(predicate) instead.");
-        }
+        public bool Remove(T item) => throw new NotImplementedException("This method is not implemented. Use .Remove(predicate) instead.");
 
         /// <summary>
         /// Removes an item from the buffer using given predicate to find it.
@@ -241,9 +232,6 @@ namespace DSharpPlus
         /// Returns an enumerator for this ring buffer.
         /// </summary>
         /// <returns>Enumerator for this ring buffer.</returns>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
