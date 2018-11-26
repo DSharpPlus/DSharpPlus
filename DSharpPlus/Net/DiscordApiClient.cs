@@ -912,6 +912,7 @@ namespace DSharpPlus.Net
 
             var ret = JsonConvert.DeserializeObject<DiscordDmChannel>(res.Response);
             ret.Discord = Discord;
+            ret._recipients = new List<DiscordUser>() { Discord.InternalGetCachedUser(recipient_id) };
 
             return ret;
         }
