@@ -114,7 +114,7 @@ namespace DSharpPlus.Entities
         private SolidColorBrush _brush;
 
         [JsonIgnore]
-        public SolidColorBrush ColorBrush
+        public override SolidColorBrush ColorBrush
         {
             get
             {

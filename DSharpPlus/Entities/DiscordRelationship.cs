@@ -29,11 +29,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordUser User
-            => Discord.InternalGetCachedUser(InternalUser.Id);
+            => Discord.InternalGetCachedUser(Id);
 
         [JsonProperty("type")]
         public DiscordRelationshipType RelationshipType { get => _relationshipType; internal set => OnPropertySet(ref _relationshipType, value); }
 
-        int IComparable.CompareTo(object obj) => (InternalUser.Username as IComparable).CompareTo(obj is DiscordRelationship r ? r.InternalUser.Username : obj);
+        int IComparable.CompareTo(object obj) => (Id as IComparable).CompareTo(obj is DiscordRelationship r ? r.Id : obj);
     }
 }

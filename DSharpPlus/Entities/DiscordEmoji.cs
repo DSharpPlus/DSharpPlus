@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -25,7 +25,7 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<ulong> Roles => _rolesLazy.Value;
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<ulong> _roles;
+        internal List<ulong> _roles = null;
         private Lazy<IReadOnlyList<ulong>> _rolesLazy;
 
         /// <summary>
@@ -204,14 +204,14 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First emoji to compare.</param>
         /// <param name="e2">Second emoji to compare.</param>
         /// <returns>Whether the two emoji are not equal.</returns>
-        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2) 
+        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2)
             => !(e1 == e2);
 
         /// <summary>
         /// Implicitly converts this emoji to its string representation.
         /// </summary>
         /// <param name="e1">Emoji to convert.</param>
-        public static implicit operator string(DiscordEmoji e1) 
+        public static implicit operator string(DiscordEmoji e1)
             => e1.ToString();
 
         /// <summary>

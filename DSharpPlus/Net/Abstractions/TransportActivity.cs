@@ -197,7 +197,7 @@ namespace DSharpPlus.Net.Abstractions
                 => _start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(_start.Value, false) : null;
 
             [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
-            internal long? _start;
+            internal long? _start = 0;
 
             /// <summary>
             /// Gets the time the game is going to end.
@@ -207,7 +207,7 @@ namespace DSharpPlus.Net.Abstractions
                 => _end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(_end.Value, false) : null;
 
             [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
-            internal long? _end;
+            internal long? _end = 0;
         }
 
         /// <summary>

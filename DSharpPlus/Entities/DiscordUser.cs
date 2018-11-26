@@ -89,7 +89,7 @@ namespace DSharpPlus.Entities
 
 #if WINDOWS_UWP || WINDOWS_WPF
         [JsonIgnore]
-        public SolidColorBrush ColorBrush => null;
+        public virtual SolidColorBrush ColorBrush => null;
 #endif
 
         /// <summary>

@@ -47,7 +47,6 @@ namespace DSharpPlus
         internal long _lastSequence;
         internal int _skippedHeartbeats = 0;
         internal bool _guildDownloadCompleted = false;
-        internal int _s;
 
         public int HeartbeatInterval => _heartbeatInterval;
         public BaseWebSocketClient SocketClient => _webSocketClient;
@@ -491,6 +490,9 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, bool isTTS = false, DiscordEmbed embed = null)
             => ApiClient.CreateMessageAsync(channel.Id, content, isTTS, embed);
+
+        public Task<DiscordDmChannel> CreateDmChannelAsync(ulong user)
+            => ApiClient.CreateDmAsync(user);
 
         /// <summary>
         /// Creates a guild. This requires the bot to be in less than 10 guilds total.
