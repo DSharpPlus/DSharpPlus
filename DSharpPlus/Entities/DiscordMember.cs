@@ -136,7 +136,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public int Hierarchy
-            => this.IsOwner ? int.MaxValue : this.Roles.Max(x => x.Position);
+            => this.IsOwner ? int.MaxValue : this.RoleIds.Count == 0 ? 0 : this.Roles.Max(x => x.Position);
 
         #region Overriden user properties
         [JsonIgnore]
