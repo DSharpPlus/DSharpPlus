@@ -186,7 +186,7 @@ namespace DSharpPlus
             var recmbr = new List<DiscordMember>();
 
             var recd = 1000;
-            var last = 0ul;
+            var last = after;
             while (recd == 1000)
             {
                 var tms = await this.ApiClient.ListGuildMembersAsync(guild_id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
