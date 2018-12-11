@@ -185,15 +185,18 @@ namespace DSharpPlus
         {
             var recmbr = new List<DiscordMember>();
 
-            var recd = 1000;
+            var recd = limit ?? 1000;
+            var lim = limit ?? 1000;
             var last = after;
-            while (recd == 1000)
+            while (recd == lim)
             {
-                var tms = await this.ApiClient.ListGuildMembersAsync(guild_id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
+                var tms = await this.ApiClient.ListGuildMembersAsync(guild_id, lim, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
                 recd = tms.Count;
 
                 foreach (var xtm in tms)
                 {
+                    last = xtm.User.Id;
+
                     if (this.UserCache.ContainsKey(xtm.User.Id))
                         continue;
 
@@ -207,9 +210,6 @@ namespace DSharpPlus
                         return old;
                     });
                 }
-
-                var tm = tms.LastOrDefault();
-                last = tm?.User.Id ?? 0;
 
                 recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
             }
