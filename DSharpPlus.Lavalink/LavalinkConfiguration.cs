@@ -10,12 +10,12 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Sets the endpoint for Lavalink REST.
         /// </summary>
-        public ConnectionEndpoint RestEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 80);
+        public ConnectionEndpoint RestEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 2333);
 
         /// <summary>
         /// Sets the endpoint for Lavalink Websocket connection.
         /// </summary>
-        public ConnectionEndpoint SocketEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 80);
+        public ConnectionEndpoint SocketEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 2333);
 
         /// <summary>
         /// Sets the password for Lavalink connection.
