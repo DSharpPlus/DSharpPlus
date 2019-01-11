@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Net.Udp;
+using DSharpPlus.Net;
 using DSharpPlus.VoiceNext.Entities;
 using Newtonsoft.Json;
 

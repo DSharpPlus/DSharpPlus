@@ -8,7 +8,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Lavalink.EventArgs;
-using DSharpPlus.Net.Udp;
+using DSharpPlus.Net;
 
 namespace DSharpPlus.Test
 {

@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Net.Udp
+﻿namespace DSharpPlus.Net
 {
     /// <summary>
     /// Represents a network connection endpoint.
@@ -14,6 +14,17 @@
         /// Gets or sets the port associated with this endpoint.
         /// </summary>
         public int Port { get; set; }
+
+        /// <summary>
+        /// Creates a new endpoint structure.
+        /// </summary>
+        /// <param name="hostname">Hostname to connect to.</param>
+        /// <param name="port">Port to use for connection.</param>
+        public ConnectionEndpoint(string hostname, int port)
+        {
+            this.Hostname = hostname;
+            this.Port = port;
+        }
 
         /// <summary>
         /// Gets the hash code of this endpoint.

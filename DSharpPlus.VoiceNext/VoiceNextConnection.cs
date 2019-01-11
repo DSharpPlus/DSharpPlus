@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;

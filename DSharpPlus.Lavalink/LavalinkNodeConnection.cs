@@ -14,7 +14,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
-using DSharpPlus.Net.Udp;
+using DSharpPlus.Net;
 using DSharpPlus.Net.WebSocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
