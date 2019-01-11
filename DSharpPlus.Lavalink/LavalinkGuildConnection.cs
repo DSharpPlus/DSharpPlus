@@ -59,6 +59,16 @@ namespace DSharpPlus.Lavalink
         private AsyncEvent<TrackExceptionEventArgs> _trackException;
 
         /// <summary>
+        /// Triggered whenever Discord Voice WebSocket connection is terminated.
+        /// </summary>
+        public event AsyncEventHandler<WebSocketCloseEventArgs> DiscordWebSocketClosed
+        {
+            add { this._webSocketClosed.Register(value); }
+            remove { this._webSocketClosed.Unregister(value); }
+        }
+        private AsyncEvent<WebSocketCloseEventArgs> _webSocketClosed;
+
+        /// <summary>
         /// Gets whether this channel is still connected.
         /// </summary>
         public bool IsConnected => !Volatile.Read(ref this._isDisposed);
@@ -96,6 +106,7 @@ namespace DSharpPlus.Lavalink
             this._playbackFinished = new AsyncEvent<TrackFinishEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_PLAYBACK_FINISHED");
             this._trackStuck = new AsyncEvent<TrackStuckEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_TRACK_STUCK");
             this._trackException = new AsyncEvent<TrackExceptionEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_TRACK_EXCEPTION");
+            this._webSocketClosed = new AsyncEvent<WebSocketCloseEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_DISCORD_WEBSOCKET_CLOSED");
         }
 
         /// <summary>
@@ -280,6 +291,9 @@ namespace DSharpPlus.Lavalink
             var ea = new TrackExceptionEventArgs(this, e.Error, LavalinkUtilities.DecodeTrack(e.Track));
             return this._trackException.InvokeAsync(ea);
         }
+
+        internal Task InternalWebSocketClosedAsync(WebSocketCloseEventArgs e)
+            => this._webSocketClosed.InvokeAsync(e);
 
         internal event ChannelDisconnectedEventHandler ChannelDisconnected;
     }

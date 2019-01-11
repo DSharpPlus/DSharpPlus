@@ -4,7 +4,8 @@
     {
         TrackEndEvent,
         TrackExceptionEvent,
-        TrackStuckEvent
+        TrackStuckEvent,
+        WebSocketClosedEvent
     }
 
     internal struct TrackFinishData

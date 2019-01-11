@@ -388,13 +388,20 @@ namespace DSharpPlus.Lavalink
                             if (this.ConnectedGuilds.TryGetValue(guildId, out var lvl_evtf))
                                 await lvl_evtf.InternalPlaybackFinishedAsync(new TrackFinishData { Track = jsonData["track"].ToString(), Reason = reason }).ConfigureAwait(false);
                             break;
+
                         case EventType.TrackStuckEvent:
                             if (this.ConnectedGuilds.TryGetValue(guildId, out var lvl_evts))
                                 await lvl_evts.InternalTrackStuckAsync(new TrackStuckData { Track = jsonData["track"].ToString(), Threshold = (long)jsonData["thresholdMs"] }).ConfigureAwait(false);
                             break;
+
                         case EventType.TrackExceptionEvent:
                             if (this.ConnectedGuilds.TryGetValue(guildId, out var lvl_evte))
                                 await lvl_evte.InternalTrackExceptionAsync(new TrackExceptionData { Track = jsonData["track"].ToString(), Error = jsonData["error"].ToString() }).ConfigureAwait(false);
+                            break;
+
+                        case EventType.WebSocketClosedEvent:
+                            if (this.ConnectedGuilds.TryGetValue(guildId, out var lvl_ewsce))
+                                await lvl_ewsce.InternalWebSocketClosedAsync(new WebSocketCloseEventArgs(jsonData["code"].ToObject<int>(), jsonData["reason"].ToString(), jsonData["byRemote"].ToObject<bool>())).ConfigureAwait(false);
                             break;
                     }
                     break;
