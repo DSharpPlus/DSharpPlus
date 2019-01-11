@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+#if !NETSTANDARD1_1
+using System.Security.Cryptography;
+#endif
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,8 +17,8 @@ using DSharpPlus.Net;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
-using DSharpPlus.VoiceNext.EventArgs;
 using DSharpPlus.VoiceNext.Entities;
+using DSharpPlus.VoiceNext.EventArgs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -71,7 +75,13 @@ namespace DSharpPlus.VoiceNext
 
         internal event VoiceDisconnectedEventHandler VoiceDisconnected;
 
-        private const string VOICE_MODE = "xsalsa20_poly1305";
+        private static IReadOnlyDictionary<string, EncryptionMode> VoiceModes = new ReadOnlyDictionary<string, EncryptionMode>(new Dictionary<string, EncryptionMode>()
+        {
+            ["xsalsa20_poly1305_lite"] = EncryptionMode.XSalsa20_Poly1305_Lite,
+            ["xsalsa20_poly1305_suffix"] = EncryptionMode.XSalsa20_Poly1305_Lite,
+            ["xsalsa20_poly1305"] = EncryptionMode.XSalsa20_Poly1305
+        });
+
         private static DateTime UnixEpoch { get { return _unixEpoch.Value; } }
         private static Lazy<DateTime> _unixEpoch;
 
@@ -86,7 +96,7 @@ namespace DSharpPlus.VoiceNext
         private DateTime LastHeartbeat { get; set; }
 
         private CancellationTokenSource TokenSource { get; set; }
-        private CancellationToken Token 
+        private CancellationToken Token
             => this.TokenSource.Token;
 
         internal VoiceServerUpdatePayload ServerData { get; set; }
@@ -100,6 +110,11 @@ namespace DSharpPlus.VoiceNext
         private double SynchronizerTicks { get; set; }
         private double SynchronizerResolution { get; set; }
         private double TickResolution { get; set; }
+        private EncryptionMode SelectedEncryptionMode { get; set; }
+        private uint Nonce { get; set; } = 0;
+#if !NETSTANDARD1_1
+        private RandomNumberGenerator CSPRNG { get; set; } = RandomNumberGenerator.Create();
+#endif
 
         private ushort Sequence { get; set; }
         private uint Timestamp { get; set; }
@@ -216,7 +231,7 @@ namespace DSharpPlus.VoiceNext
             {
                 Scheme = "wss",
                 Host = this.ConnectionEndpoint.Hostname,
-                Query = "encoding=json&v=3"
+                Query = "encoding=json&v=4"
             };
 
             return this.VoiceWs.ConnectAsync(gwuri.Uri);
@@ -277,9 +292,41 @@ namespace DSharpPlus.VoiceNext
 
             var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
 
+            byte[] nonce = null;
+            if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305)
+            {
+                nonce = this.Rtp.MakeNonce(rtp);
+            }
+            else if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Suffix)
+            {
+#if !NETSTANDARD1_1
+                this.CSPRNG.GetBytes(nonce = new byte[SodiumCodec.NONCE_BYTES]);
+#else
+                throw new PlatformNotSupportedException("Suffix encryption mode is not supported on .NET Standard 1.1.");
+#endif
+            }
+            else if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Lite)
+            {
+                nonce = new byte[SodiumCodec.NONCE_BYTES];
+                nonce[3] = (byte)(this.Nonce & 0xFF);
+                nonce[2] = (byte)((this.Nonce >> 8) & 0xFF);
+                nonce[1] = (byte)((this.Nonce >> 16) & 0xFF);
+                nonce[0] = (byte)(this.Nonce >> 24);
+                this.Nonce++;
+            }
+
             var dat = this.Opus.Encode(pcmData, 0, pcmData.Length, bitRate);
-            dat = this.Sodium.Encode(dat, this.Rtp.MakeNonce(rtp), this.Key);
-            dat = this.Rtp.Encode(rtp, dat);
+            dat = this.Sodium.Encode(dat, nonce, this.Key);
+            dat = this.Rtp.Encode(rtp, dat, this.SelectedEncryptionMode);
+
+            if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Suffix)
+            {
+                Array.Copy(nonce, 0, dat, dat.Length - nonce.Length, nonce.Length);
+            }
+            else if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Lite)
+            {
+                Array.Copy(nonce, 0, dat, dat.Length - 4, 4);
+            }
 
             if (this.SynchronizerTicks == 0)
             {
@@ -470,6 +517,7 @@ namespace DSharpPlus.VoiceNext
 #if !NETSTANDARD1_1
             if (this.Configuration.EnableIncoming)
                 this.ReceiverTokenSource.Cancel();
+            this.CSPRNG.Dispose();
 #endif
 
             try
@@ -521,7 +569,7 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private async Task Stage1()
+        private async Task Stage1(VoiceReadyPayload voiceReady)
         {
 #if !NETSTANDARD1_1
             // IP Discovery
@@ -536,7 +584,25 @@ namespace DSharpPlus.VoiceNext
             this.DiscoveredEndpoint = new IpEndpoint { Address = System.Net.IPAddress.Parse(ip), Port = port };
 #endif
 
+            // Select voice encryption mode
+            var selectedEncryptionMode = VoiceModes.Last().Key;
+            foreach (var encryptionMode in VoiceModes)
+            {
+#if NETSTANDARD1_1
+                if (encryptionMode.Value == EncryptionMode.XSalsa20_Poly1305_Suffix)
+                    continue;
+#endif
+
+                if (voiceReady.Modes.Contains(encryptionMode.Key))
+                {
+                    selectedEncryptionMode = encryptionMode.Key;
+                    break;
+                }
+            }
+            this.SelectedEncryptionMode = VoiceModes[selectedEncryptionMode];
+
             // Ready
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Selected encryption mode: {selectedEncryptionMode}", DateTime.Now);
             var vsp = new VoiceDispatch
             {
                 OpCode = 1,
@@ -552,7 +618,7 @@ namespace DSharpPlus.VoiceNext
                         Address = "0.0.0.0",
                         Port = 0,
 #endif
-                        Mode = VOICE_MODE
+                        Mode = selectedEncryptionMode
                     }
                 }
             };
@@ -568,8 +634,16 @@ namespace DSharpPlus.VoiceNext
 #endif
         }
 
-        private Task Stage2()
+        private Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
         {
+            this.SelectedEncryptionMode = VoiceModes[voiceSessionDescription.Mode.ToLowerInvariant()];
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Discord updated encryption mode: {this.SelectedEncryptionMode}", DateTime.Now);
+
+#if NETSTANDARD1_1
+            if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Suffix)
+                throw new PlatformNotSupportedException("Suffix encryption mode is not supported on .NET Standard 1.1.");
+#endif
+
             this.IsInitialized = true;
             this.ReadyWait.SetResult(true);
             return Task.Delay(0);
@@ -586,17 +660,19 @@ namespace DSharpPlus.VoiceNext
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP2 received", DateTime.Now);
                     var vrp = opp.ToObject<VoiceReadyPayload>();
                     this.SSRC = vrp.SSRC;
-                    this.ConnectionEndpoint = new ConnectionEndpoint { Hostname = this.ConnectionEndpoint.Hostname, Port = vrp.Port };
-                    this.HeartbeatInterval = vrp.HeartbeatInterval;
+                    this.ConnectionEndpoint = new ConnectionEndpoint(this.ConnectionEndpoint.Hostname, vrp.Port);
+                    // this is not the valid interval
+                    // oh, discord
+                    //this.HeartbeatInterval = vrp.HeartbeatInterval;
                     this.HeartbeatTask = Task.Run(this.Heartbeat);
-                    await this.Stage1().ConfigureAwait(false);
+                    await this.Stage1(vrp).ConfigureAwait(false);
                     break;
 
                 case 4:
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP4 received", DateTime.Now);
                     var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
-                    await this.Stage2().ConfigureAwait(false);
+                    await this.Stage2(vsd).ConfigureAwait(false);
                     break;
 
                 case 5:
@@ -623,10 +699,8 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 case 8:
-                    // this sends a heartbeat interval that appears to be consistent with regular GW hello
-                    // however opcodes don't match (8 != 10)
-                    // so we suppress it so that users are not alerted
-                    // HELLO
+                    // this sends a heartbeat interval that we need to use for heartbeating
+                    this.HeartbeatInterval = opp["heartbeat_interval"].ToObject<int>();
                     break;
 
                 case 9:

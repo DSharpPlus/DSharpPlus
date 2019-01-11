@@ -12,9 +12,9 @@ namespace DSharpPlus.VoiceNext.Codec
 {
     internal sealed class SodiumCodec
     {
-        private const int KEY_BYTES = 32;
-        private const int NONCE_BYTES = 24;
-        private const int MAC_BYTES = 16;
+        public const int KEY_BYTES = 32;
+        public const int NONCE_BYTES = 24;
+        public const int MAC_BYTES = 16;
 
         [DllImport("libsodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_easy")]
         public static extern int CreateSecretBox(byte[] buffer, byte[] message, long messageLength, byte[] nonce, byte[] key);
@@ -65,5 +65,12 @@ namespace DSharpPlus.VoiceNext.Codec
             return buff;
         }
 #endif
+    }
+
+    public enum EncryptionMode
+    {
+        XSalsa20_Poly1305_Lite,
+        XSalsa20_Poly1305_Suffix,
+        XSalsa20_Poly1305
     }
 }

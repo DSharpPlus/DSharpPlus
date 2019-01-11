@@ -64,12 +64,23 @@ namespace DSharpPlus.VoiceNext.Codec
             ssrc = BitConverter.ToUInt32(header, 8);
         }
 
-        public byte[] Encode(byte[] header, byte[] data)
+        public byte[] Encode(byte[] header, byte[] data, EncryptionMode mode)
         {
             if (header.Length != SIZE_HEADER)
                 throw new ArgumentException(nameof(header), string.Concat("Wrong header size (must be", SIZE_HEADER, ")"));
 
-            var buff = new byte[header.Length + data.Length];
+            var buffLen = header.Length + data.Length;
+            switch (mode)
+            {
+                case EncryptionMode.XSalsa20_Poly1305_Lite:
+                    buffLen += 4;
+                    break;
+
+                case EncryptionMode.XSalsa20_Poly1305_Suffix:
+                    buffLen += 24;
+                    break;
+            }
+            var buff = new byte[buffLen];
 
             Array.Copy(header, 0, buff, 0, header.Length);
             Array.Copy(data, 0, buff, header.Length, data.Length);
