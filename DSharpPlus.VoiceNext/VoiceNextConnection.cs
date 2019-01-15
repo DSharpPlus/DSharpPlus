@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 #if !NETSTANDARD1_1
 using System.Security.Cryptography;
 #endif
@@ -75,13 +78,6 @@ namespace DSharpPlus.VoiceNext
 
         internal event VoiceDisconnectedEventHandler VoiceDisconnected;
 
-        private static IReadOnlyDictionary<string, EncryptionMode> VoiceModes = new ReadOnlyDictionary<string, EncryptionMode>(new Dictionary<string, EncryptionMode>()
-        {
-            ["xsalsa20_poly1305_lite"] = EncryptionMode.XSalsa20_Poly1305_Lite,
-            ["xsalsa20_poly1305_suffix"] = EncryptionMode.XSalsa20_Poly1305_Lite,
-            ["xsalsa20_poly1305"] = EncryptionMode.XSalsa20_Poly1305
-        });
-
         private static DateTime UnixEpoch { get { return _unixEpoch.Value; } }
         private static Lazy<DateTime> _unixEpoch;
 
@@ -104,9 +100,9 @@ namespace DSharpPlus.VoiceNext
         internal bool Resume { get; set; }
 
         private VoiceNextConfiguration Configuration { get; }
-        private OpusCodec Opus { get; set; }
-        private SodiumCodec Sodium { get; set; }
-        private RtpCodec Rtp { get; set; }
+        private Opus Opus { get; set; }
+        private Sodium Sodium { get; set; }
+        private Rtp Rtp { get; set; }
         private double SynchronizerTicks { get; set; }
         private double SynchronizerResolution { get; set; }
         private double TickResolution { get; set; }
@@ -138,6 +134,11 @@ namespace DSharpPlus.VoiceNext
         private CancellationToken ReceiverToken
             => this.ReceiverTokenSource.Token;
 #endif
+
+        /// <summary>
+        /// Gets the audio format used by the Opus encoder.
+        /// </summary>
+        public AudioFormat AudioFormat => this.Configuration.AudioFormat;
 
         /// <summary>
         /// Gets whether this connection is still playing audio.
@@ -174,9 +175,9 @@ namespace DSharpPlus.VoiceNext
             this.TokenSource = new CancellationTokenSource();
 
             this.Configuration = config;
-            this.Opus = new OpusCodec(48000, 2, this.Configuration.VoiceApplication);
-            this.Sodium = new SodiumCodec();
-            this.Rtp = new RtpCodec();
+            this.Opus = new Opus(this.AudioFormat);
+            //this.Sodium = new Sodium();
+            this.Rtp = new Rtp();
 
             this.ServerData = server;
             this.StateData = state;
@@ -276,57 +277,66 @@ namespace DSharpPlus.VoiceNext
         internal Task WaitForReadyAsync() 
             => this.ReadyWait.Task;
 
+        private byte[] PreparePacket(ReadOnlySpan<byte> pcm)
+        {
+            var audioFormat = this.AudioFormat;
+
+            var packetArray = ArrayPool<byte>.Shared.Rent(this.Rtp.CalculatePacketSize(audioFormat.SampleCountToSampleSize(audioFormat.CalculateMaximumFrameSize()), this.SelectedEncryptionMode));
+            var packet = packetArray.AsSpan();
+
+            this.Rtp.EncodeHeader(this.Sequence, this.Timestamp, this.SSRC, packet);
+            var opus = packet.Slice(Rtp.HeaderSize, pcm.Length);
+            this.Opus.Encode(pcm, ref opus);
+            
+            this.Sequence++;
+            this.Timestamp += (uint)audioFormat.CalculateFrameSize(audioFormat.CalculateSampleDuration(pcm.Length));
+
+            Span<byte> nonce = stackalloc byte[Sodium.NonceSize];
+            switch (this.SelectedEncryptionMode)
+            {
+                case EncryptionMode.XSalsa20_Poly1305:
+                    this.Sodium.GenerateNonce(packet.Slice(0, Rtp.HeaderSize), nonce);
+                    break;
+
+#if !NETSTANDARD1_1
+                case EncryptionMode.XSalsa20_Poly1305_Suffix:
+                    this.Sodium.GenerateNonce(nonce);
+                    break;
+#endif
+
+                case EncryptionMode.XSalsa20_Poly1305_Lite:
+                    this.Sodium.GenerateNonce(this.Nonce++, nonce);
+                    break;
+
+                default:
+                    ArrayPool<byte>.Shared.Return(packetArray);
+                    throw new Exception("Unsupported encryption mode.");
+            }
+
+            Span<byte> encrypted = stackalloc byte[Sodium.CalculateTargetSize(opus)];
+            this.Sodium.Encrypt(opus, encrypted, nonce);
+            encrypted.CopyTo(packet.Slice(Rtp.HeaderSize));
+            packet = packet.Slice(0, this.Rtp.CalculatePacketSize(encrypted.Length, this.SelectedEncryptionMode));
+            this.Sodium.AppendNonce(nonce, packet, this.SelectedEncryptionMode);
+
+            var voicePacket = packet.ToArray();
+            ArrayPool<byte>.Shared.Return(packetArray);
+            return voicePacket;
+        }
+
         /// <summary>
         /// Encodes, encrypts, and sends the provided PCM data to the connected voice channel.
         /// </summary>
         /// <param name="pcmData">PCM data to encode, encrypt, and send.</param>
-        /// <param name="blockSize">Millisecond length of the PCM data.</param>
-        /// <param name="bitRate">Bitrate of the PCM data.</param>
         /// <returns>Task representing the sending operation.</returns>
-        public async Task SendAsync(byte[] pcmData, int blockSize, int bitRate = 16)
+        public async Task SendAsync(byte[] pcmData)
         {
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
 
             await this.PlaybackSemaphore.WaitAsync().ConfigureAwait(false);
 
-            var rtp = this.Rtp.Encode(this.Sequence, this.Timestamp, this.SSRC);
-
-            byte[] nonce = null;
-            if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305)
-            {
-                nonce = this.Rtp.MakeNonce(rtp);
-            }
-            else if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Suffix)
-            {
-#if !NETSTANDARD1_1
-                this.CSPRNG.GetBytes(nonce = new byte[SodiumCodec.NONCE_BYTES]);
-#else
-                throw new PlatformNotSupportedException("Suffix encryption mode is not supported on .NET Standard 1.1.");
-#endif
-            }
-            else if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Lite)
-            {
-                nonce = new byte[SodiumCodec.NONCE_BYTES];
-                nonce[3] = (byte)(this.Nonce & 0xFF);
-                nonce[2] = (byte)((this.Nonce >> 8) & 0xFF);
-                nonce[1] = (byte)((this.Nonce >> 16) & 0xFF);
-                nonce[0] = (byte)(this.Nonce >> 24);
-                this.Nonce++;
-            }
-
-            var dat = this.Opus.Encode(pcmData, 0, pcmData.Length, bitRate);
-            dat = this.Sodium.Encode(dat, nonce, this.Key);
-            dat = this.Rtp.Encode(rtp, dat, this.SelectedEncryptionMode);
-
-            if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Suffix)
-            {
-                Array.Copy(nonce, 0, dat, dat.Length - nonce.Length, nonce.Length);
-            }
-            else if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Lite)
-            {
-                Array.Copy(nonce, 0, dat, dat.Length - 4, 4);
-            }
+            var packet = this.PreparePacket(pcmData);
 
             if (this.SynchronizerTicks == 0)
             {
@@ -358,17 +368,14 @@ namespace DSharpPlus.VoiceNext
             }
 
             await this.SendSpeakingAsync(true).ConfigureAwait(false);
-            await this.UdpClient.SendAsync(dat, dat.Length).ConfigureAwait(false);
-
-            this.Sequence++;
-            this.Timestamp += 48 * (uint)blockSize;
+            await this.UdpClient.SendAsync(packet, packet.Length).ConfigureAwait(false);
 
             this.PlaybackSemaphore.Release();
         }
 
 #if !NETSTANDARD1_1
         private async Task VoiceReceiverTask()
-        {
+        {/*
             var token = this.ReceiverToken;
             var client = this.UdpClient;
             while (!token.IsCancellationRequested)
@@ -444,7 +451,7 @@ namespace DSharpPlus.VoiceNext
                     User = user
                 }).ConfigureAwait(false);
             }
-        }
+        */}
 #endif
 
         /// <summary>
@@ -459,9 +466,9 @@ namespace DSharpPlus.VoiceNext
 
             if (!speaking)
             {
-                var nullpcm = new byte[3840];
+                var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
                 for (var i = 0; i < 5; i++)
-                    await this.SendAsync(nullpcm, 20).ConfigureAwait(false);
+                    await this.SendAsync(nullpcm).ConfigureAwait(false);
 
                 this.SynchronizerTicks = 0;
                 if (this.PlayingWait != null)
@@ -530,7 +537,9 @@ namespace DSharpPlus.VoiceNext
 
             this.Opus?.Dispose();
             this.Opus = null;
+            this.Sodium?.Dispose();
             this.Sodium = null;
+            this.Rtp?.Dispose();
             this.Rtp = null;
 
             if (this.VoiceDisconnected != null)
@@ -574,35 +583,44 @@ namespace DSharpPlus.VoiceNext
 #if !NETSTANDARD1_1
             // IP Discovery
             this.UdpClient.Setup(this.ConnectionEndpoint);
+
             var pck = new byte[70];
-            Array.Copy(BitConverter.GetBytes(this.SSRC), 0, pck, pck.Length - 4, 4);
+            PreparePacket(pck);
             await this.UdpClient.SendAsync(pck, pck.Length).ConfigureAwait(false);
+
             var ipd = await this.UdpClient.ReceiveAsync().ConfigureAwait(false);
-            var ipe = Array.IndexOf<byte>(ipd, 0, 4);
-            var ip = new UTF8Encoding(false).GetString(ipd, 4, ipe - 4);
-            var port = BitConverter.ToUInt16(ipd, ipd.Length - 2);
-            this.DiscoveredEndpoint = new IpEndpoint { Address = System.Net.IPAddress.Parse(ip), Port = port };
+            ReadPacket(ipd, out var ip, out var port);
+            this.DiscoveredEndpoint = new IpEndpoint
+            {
+                Address = ip,
+                Port = port
+            };
+            
+            void PreparePacket(byte[] packet)
+            {
+                var ssrc = this.SSRC;
+                var packetSpan = packet.AsSpan();
+                MemoryMarshal.Write(packetSpan, ref ssrc);
+                Helpers.ZeroFill(packetSpan);
+            }
+            
+            void ReadPacket(byte[] packet, out System.Net.IPAddress decodedIp, out ushort decodedPort)
+            {
+                var packetSpan = packet.AsSpan();
+
+                var ipString = new UTF8Encoding(false).GetString(packet, 4, 64 /* 70 - 6 */).TrimEnd('\0');
+                decodedIp = System.Net.IPAddress.Parse(ipString);
+
+                decodedPort = MemoryMarshal.Read<ushort>(packetSpan.Slice(68 /* 70 - 2 */));
+            }
 #endif
 
             // Select voice encryption mode
-            var selectedEncryptionMode = VoiceModes.Last().Key;
-            foreach (var encryptionMode in VoiceModes)
-            {
-#if NETSTANDARD1_1
-                if (encryptionMode.Value == EncryptionMode.XSalsa20_Poly1305_Suffix)
-                    continue;
-#endif
-
-                if (voiceReady.Modes.Contains(encryptionMode.Key))
-                {
-                    selectedEncryptionMode = encryptionMode.Key;
-                    break;
-                }
-            }
-            this.SelectedEncryptionMode = VoiceModes[selectedEncryptionMode];
+            var selectedEncryptionMode = Sodium.SelectMode(voiceReady.Modes);
+            this.SelectedEncryptionMode = selectedEncryptionMode.Value;
 
             // Ready
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Selected encryption mode: {selectedEncryptionMode}", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Selected encryption mode: {selectedEncryptionMode.Key}", DateTime.Now);
             var vsp = new VoiceDispatch
             {
                 OpCode = 1,
@@ -618,7 +636,7 @@ namespace DSharpPlus.VoiceNext
                         Address = "0.0.0.0",
                         Port = 0,
 #endif
-                        Mode = selectedEncryptionMode
+                        Mode = selectedEncryptionMode.Key
                     }
                 }
             };
@@ -636,13 +654,8 @@ namespace DSharpPlus.VoiceNext
 
         private Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
         {
-            this.SelectedEncryptionMode = VoiceModes[voiceSessionDescription.Mode.ToLowerInvariant()];
+            this.SelectedEncryptionMode = Sodium.SupportedModes[voiceSessionDescription.Mode.ToLowerInvariant()];
             this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Discord updated encryption mode: {this.SelectedEncryptionMode}", DateTime.Now);
-
-#if NETSTANDARD1_1
-            if (this.SelectedEncryptionMode == EncryptionMode.XSalsa20_Poly1305_Suffix)
-                throw new PlatformNotSupportedException("Suffix encryption mode is not supported on .NET Standard 1.1.");
-#endif
 
             this.IsInitialized = true;
             this.ReadyWait.SetResult(true);
@@ -672,6 +685,7 @@ namespace DSharpPlus.VoiceNext
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP4 received", DateTime.Now);
                     var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
+                    this.Sodium = new Sodium(this.Key.AsMemory());
                     await this.Stage2(vsd).ConfigureAwait(false);
                     break;
 
@@ -770,3 +784,4 @@ namespace DSharpPlus.VoiceNext
 // Naam you still owe me those noodles :^)
 // I remember
 // Alexa, how much is shipping to emzi
+// NL -> PL is 18.50€ for packages <=2kg it seems (https://www.postnl.nl/en/mail-and-parcels/parcels/international-parcel/)

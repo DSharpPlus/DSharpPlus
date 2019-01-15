@@ -177,7 +177,7 @@ namespace DSharpPlus.Test
                     await ffout.CopyToAsync(ms).ConfigureAwait(false);
                     ms.Position = 0;
 
-                    var buff = new byte[3840]; // buffer to hold the PCM data
+                    var buff = new byte[vnc.AudioFormat.CalculateSampleSize(20)]; // buffer to hold the PCM data
                     var br = 0;
                     while ((br = ms.Read(buff, 0, buff.Length)) > 0)
                     {
@@ -188,7 +188,7 @@ namespace DSharpPlus.Test
                         if (this.Volume != 1.0)
                             this.RescaleVolume(buff);
 
-                        await vnc.SendAsync(buff, 20).ConfigureAwait(false); // we're sending 20ms of data
+                        await vnc.SendAsync(buff).ConfigureAwait(false); // we're sending 20ms of data
                     }
                 }
             }
@@ -260,7 +260,7 @@ namespace DSharpPlus.Test
                         await ffout.CopyToAsync(ms).ConfigureAwait(false);
                         ms.Position = 0;
 
-                        var buff = new byte[3840]; // buffer to hold the PCM data
+                        var buff = new byte[vnc.AudioFormat.CalculateSampleSize(20)]; // buffer to hold the PCM data
                         var br = 0;
                         while (true)
                         {
@@ -270,7 +270,7 @@ namespace DSharpPlus.Test
                                     for (var i = br; i < buff.Length; i++)
                                         buff[i] = 0;
 
-                                await vnc.SendAsync(buff, 20).ConfigureAwait(false); // we're sending 20ms of data
+                                await vnc.SendAsync(buff).ConfigureAwait(false); // we're sending 20ms of data
                                 token.ThrowIfCancellationRequested();
                             }
                             ms.Position = 0;
@@ -365,7 +365,7 @@ namespace DSharpPlus.Test
                     await ffout.CopyToAsync(ms).ConfigureAwait(false);
                     ms.Position = 0;
 
-                    var buff = new byte[3840]; // buffer to hold the PCM data
+                    var buff = new byte[vnc.AudioFormat.CalculateSampleSize(20)]; // buffer to hold the PCM data
                     var br = 0;
                     while ((br = ms.Read(buff, 0, buff.Length)) > 0)
                     {
@@ -373,7 +373,7 @@ namespace DSharpPlus.Test
                             for (var i = br; i < buff.Length; i++)
                                 buff[i] = 0;
 
-                        await vnc.SendAsync(buff, 20).ConfigureAwait(false); // we're sending 20ms of data
+                        await vnc.SendAsync(buff).ConfigureAwait(false); // we're sending 20ms of data
                     }
                 }
             }

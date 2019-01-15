@@ -13,6 +13,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Lavalink;
 using DSharpPlus.VoiceNext;
+using DSharpPlus.VoiceNext.Codec;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Test
@@ -66,7 +67,7 @@ namespace DSharpPlus.Test
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
             {
-                VoiceApplication = VoiceNext.Codec.VoiceApplication.Music,
+                AudioFormat = AudioFormat.Default,
                 EnableIncoming = false
             };
             this.VoiceService = this.Discord.UseVoiceNext(vcfg);
