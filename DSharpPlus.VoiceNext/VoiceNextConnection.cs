@@ -39,6 +39,16 @@ namespace DSharpPlus.VoiceNext
         private AsyncEvent<UserSpeakingEventArgs> _userSpeaking;
 
         /// <summary>
+        /// Triggered whenever a user joins voice in the connected guild.
+        /// </summary>
+        public event AsyncEventHandler<VoiceUserJoinEventArgs> UserJoined
+        {
+            add { this._userJoined.Register(value); }
+            remove { this._userJoined.Unregister(value); }
+        }
+        private AsyncEvent<VoiceUserJoinEventArgs> _userJoined;
+
+        /// <summary>
         /// Triggered whenever a user leaves voice in the connected guild.
         /// </summary>
         public event AsyncEventHandler<VoiceUserLeaveEventArgs> UserLeft
@@ -72,18 +82,19 @@ namespace DSharpPlus.VoiceNext
 
         internal event VoiceDisconnectedEventHandler VoiceDisconnected;
 
-        private static DateTime UnixEpoch { get { return _unixEpoch.Value; } }
-        private static Lazy<DateTime> _unixEpoch;
+        private static DateTimeOffset UnixEpoch { get; } = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         private DiscordClient Discord { get; }
         private DiscordGuild Guild { get; }
-        private ConcurrentDictionary<uint, ulong> SSRCMap { get; }
+#if !NETSTANDARD1_1
+        private ConcurrentDictionary<uint, AudioSender> TransmittingSSRCs { get; }
+#endif
 
         private BaseUdpClient UdpClient { get; }
         private BaseWebSocketClient VoiceWs { get; set; }
         private Task HeartbeatTask { get; set; }
         private int HeartbeatInterval { get; set; }
-        private DateTime LastHeartbeat { get; set; }
+        private DateTimeOffset LastHeartbeat { get; set; }
 
         private CancellationTokenSource TokenSource { get; set; }
         private CancellationToken Token
@@ -158,14 +169,17 @@ namespace DSharpPlus.VoiceNext
             this.Discord = client;
             this.Guild = guild;
             this.Channel = channel;
-            this.SSRCMap = new ConcurrentDictionary<uint, ulong>();
-
-            this._userSpeaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "USER_SPEAKING");
-            this._userLeft = new AsyncEvent<VoiceUserLeaveEventArgs>(this.Discord.EventErrorHandler, "USER_LEFT");
 #if !NETSTANDARD1_1
-            this._voiceReceived = new AsyncEvent<VoiceReceiveEventArgs>(this.Discord.EventErrorHandler, "VOICE_RECEIVED");
+            this.TransmittingSSRCs = new ConcurrentDictionary<uint, AudioSender>();
 #endif
-            this._voiceSocketError = new AsyncEvent<SocketErrorEventArgs>(this.Discord.EventErrorHandler, "VOICE_WS_ERROR");
+
+            this._userSpeaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "VNEXT_USER_SPEAKING");
+            this._userJoined = new AsyncEvent<VoiceUserJoinEventArgs>(this.Discord.EventErrorHandler, "VNEXT_USER_JOINED");
+            this._userLeft = new AsyncEvent<VoiceUserLeaveEventArgs>(this.Discord.EventErrorHandler, "VNEXT_USER_LEFT");
+#if !NETSTANDARD1_1
+            this._voiceReceived = new AsyncEvent<VoiceReceiveEventArgs>(this.Discord.EventErrorHandler, "VNEXT_VOICE_RECEIVED");
+#endif
+            this._voiceSocketError = new AsyncEvent<SocketErrorEventArgs>(this.Discord.EventErrorHandler, "VNEXT_WS_ERROR");
             this.TokenSource = new CancellationTokenSource();
 
             this.Configuration = config;
@@ -204,11 +218,6 @@ namespace DSharpPlus.VoiceNext
             this.VoiceWs.MessageReceived += this.VoiceWS_SocketMessage;
             this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
             this.VoiceWs.Errored += this.VoiceWs_SocketErrored;
-        }
-
-        static VoiceNextConnection()
-        {
-            _unixEpoch = new Lazy<DateTime>(() => new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         }
 
         ~VoiceNextConnection()
@@ -371,19 +380,20 @@ namespace DSharpPlus.VoiceNext
                 this.SendSpeaking(true);
                 await this.UdpClient.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
 
-                if (queue.Count == 0)
+                if (!packet.IsSilence && queue.Count == 0)
                 {
-                    // incorporate this in usual flow
-                    //var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
-                    //var nullpacket = new byte[nullpcm.Length];
-                    //for (var i = 0; i < 5; i++)
-                    //{
-                    //    var nullpacketmem = nullpacket.AsMemory();
-                    //    this.PreparePacket(nullpcm, ref nullpacketmem);
-                    //    this.SendSpeaking(true);
-                    //    await this.UdpClient.SendAsync(nullpacket, nullpacketmem.Length).ConfigureAwait(false);
-                    //}
+                    var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
+                    for (var i = 0; i < 3; i++)
+                    {
+                        var nullpacket = new byte[nullpcm.Length];
+                        var nullpacketmem = nullpacket.AsMemory();
 
+                        this.PreparePacket(nullpcm, ref nullpacketmem);
+                        this.EnqueuePacket(new VoicePacket(nullpacketmem, 20, true));
+                    }
+                }
+                else if (queue.Count == 0)
+                {
                     this.SendSpeaking(false);
                     this.PlayingWait?.SetResult(true);
                 }
@@ -690,7 +700,7 @@ namespace DSharpPlus.VoiceNext
 
             switch (opc)
             {
-                case 2:
+                case 2: // READY
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP2 received", DateTime.Now);
                     var vrp = opp.ToObject<VoiceReadyPayload>();
                     this.SSRC = vrp.SSRC;
@@ -702,7 +712,7 @@ namespace DSharpPlus.VoiceNext
                     await this.Stage1(vrp).ConfigureAwait(false);
                     break;
 
-                case 4:
+                case 4: // SESSION_DESCRIPTION
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP4 received", DateTime.Now);
                     var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
@@ -710,7 +720,7 @@ namespace DSharpPlus.VoiceNext
                     await this.Stage2(vsd).ConfigureAwait(false);
                     break;
 
-                case 5:
+                case 5: // SPEAKING
                     // Don't spam OP5
                     //this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP5 received", DateTime.Now);
                     var spd = opp.ToObject<VoiceSpeakingPayload>();
@@ -720,12 +730,29 @@ namespace DSharpPlus.VoiceNext
                         SSRC = spd.SSRC.Value,
                         User = this.Discord.InternalGetCachedUser(spd.UserId.Value)
                     };
-                    if (!this.SSRCMap.ContainsKey(spk.SSRC))
-                        this.SSRCMap.AddOrUpdate(spk.SSRC, spk.User.Id, (k, v) => spk.User.Id);
+
+#if !NETSTANDARD1_1
+                    if (spk.User != null && this.TransmittingSSRCs.TryGetValue(spk.SSRC, out var txssrc5) && txssrc5.Id == 0)
+                    {
+                        txssrc5.User = spk.User;
+                    }
+                    else
+                    {
+                        var opus = this.Opus.CreateDecoder();
+                        var vtx = new AudioSender(spk.SSRC, opus)
+                        {
+                            User = await this.Discord.GetUserAsync(spd.UserId.Value).ConfigureAwait(false)
+                        };
+
+                        if (!this.TransmittingSSRCs.TryAdd(spk.SSRC, vtx))
+                            this.Opus.DestroyDecoder(opus);
+                    }
+#endif
+
                     await this._userSpeaking.InvokeAsync(spk).ConfigureAwait(false);
                     break;
                     
-                case 6:
+                case 6: // HEARTBEAT ACK
                     var dt = DateTime.Now;
                     var ping = (int)(dt - this.LastHeartbeat).TotalMilliseconds;
                     Volatile.Write(ref this._ping, ping);
@@ -733,24 +760,50 @@ namespace DSharpPlus.VoiceNext
                     this.LastHeartbeat = dt;
                     break;
 
-                case 8:
+                case 8: // HELLO
                     // this sends a heartbeat interval that we need to use for heartbeating
                     this.HeartbeatInterval = opp["heartbeat_interval"].ToObject<int>();
                     break;
 
-                case 9:
+                case 9: // RESUMED
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP9 received", DateTime.Now);
                     this.HeartbeatTask = Task.Run(this.Heartbeat);
                     break;
 
-                case 13:
+                case 12: // CLIENT_CONNECTED
+                    var ujpd = opp.ToObject<VoiceUserJoinPayload>();
+                    var usrj = await this.Discord.GetUserAsync(ujpd.UserId).ConfigureAwait(false);
+
+#if !NETSTANDARD1_1
+                    {
+                        var opus = this.Opus.CreateDecoder();
+                        var vtx = new AudioSender(ujpd.SSRC, opus)
+                        {
+                            User = usrj
+                        };
+
+                        if (!this.TransmittingSSRCs.TryAdd(vtx.SSRC, vtx))
+                            this.Opus.DestroyDecoder(opus);
+                    }
+#endif
+
+                    await this._userJoined.InvokeAsync(new VoiceUserJoinEventArgs(this.Discord) { User = usrj }).ConfigureAwait(false);
+                    break;
+
+                case 13: // CLIENT_DISCONNECTED
                     var ulpd = opp.ToObject<VoiceUserLeavePayload>();
-                    var usr = await this.Discord.GetUserAsync(ulpd.UserId).ConfigureAwait(false);
-                    var ssrc = this.SSRCMap.FirstOrDefault(x => x.Value == ulpd.UserId);
-                    if (ssrc.Value != 0)
-                        this.SSRCMap.TryRemove(ssrc.Key, out _);
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"User '{usr.Username}#{usr.Discriminator}' ({ulpd.UserId.ToString(CultureInfo.InvariantCulture)}) left voice chat in '{this.Channel.Guild.Name}' ({this.Channel.Guild.Id.ToString(CultureInfo.InvariantCulture)})", DateTime.Now);
-                    await this._userLeft.InvokeAsync(new VoiceUserLeaveEventArgs(this.Discord) { User = usr }).ConfigureAwait(false);
+
+#if !NETSTANDARD1_1
+                    var txssrc = this.TransmittingSSRCs.FirstOrDefault(x => x.Value.Id == ulpd.UserId);
+                    if (this.TransmittingSSRCs.ContainsKey(txssrc.Key))
+                    {
+                        this.TransmittingSSRCs.TryRemove(txssrc.Key, out var txssrc13);
+                        this.Opus.DestroyDecoder(txssrc13.Decoder);
+                    }
+#endif
+
+                    var usrl = await this.Discord.GetUserAsync(ulpd.UserId).ConfigureAwait(false);
+                    await this._userLeft.InvokeAsync(new VoiceUserLeaveEventArgs(this.Discord) { User = usrl }).ConfigureAwait(false);
                     break;
 
                 default:

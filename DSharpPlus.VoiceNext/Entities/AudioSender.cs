@@ -1,20 +1,21 @@
 ﻿#if !NETSTANDARD1_1
 using System;
+using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext.Codec;
 
 namespace DSharpPlus.VoiceNext.Entities
 {
-    internal struct AudioSender : IDisposable
+    internal class AudioSender : IDisposable
     {
         public uint SSRC { get; }
-        public ulong Id { get; set; }
+        public ulong Id => this.User?.Id ?? 0;
         public OpusDecoder Decoder { get; }
-
+        public DiscordUser User { get; set; } = null;
+        
         public AudioSender(uint ssrc, OpusDecoder decoder)
         {
             this.SSRC = ssrc;
             this.Decoder = decoder;
-            this.Id = 0;
         }
 
         public void Dispose()
