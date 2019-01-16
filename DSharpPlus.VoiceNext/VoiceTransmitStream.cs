@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.Entities;
 
@@ -71,6 +69,8 @@ namespace DSharpPlus.VoiceNext
         private byte[] PcmBuffer { get; }
         private Memory<byte> PcmMemory { get; }
         private int PcmBufferLength { get; set; }
+        
+        private List<IVoiceFilter> Filters { get; }
 
         internal VoiceTransmitStream(VoiceNextConnection vnc, int pcmBufferDuration)
         {
@@ -79,6 +79,7 @@ namespace DSharpPlus.VoiceNext
             this.PcmBuffer = new byte[vnc.AudioFormat.CalculateSampleSize(pcmBufferDuration)];
             this.PcmMemory = this.PcmBuffer.AsMemory();
             this.PcmBufferLength = 0;
+            this.Filters = new List<IVoiceFilter>();
         }
 
         /// <summary>
@@ -141,10 +142,21 @@ namespace DSharpPlus.VoiceNext
 
                     if (this.PcmBufferLength == this.PcmBuffer.Length)
                     {
+                        var pcm16 = MemoryMarshal.Cast<byte, short>(pcmSpan);
+
+                        // pass through any filters, if applicable
+                        lock (this.Filters)
+                        {
+                            if (this.Filters.Any())
+                            {
+                                foreach (var filter in this.Filters)
+                                    filter.Transform(pcm16, this.Connection.AudioFormat, this.SampleDuration);
+                            }
+                        }
+
                         if (this.VolumeModifier != 1)
                         {
                             // alter volume
-                            var pcm16 = MemoryMarshal.Cast<byte, short>(pcmSpan);
                             for (var i = 0; i < pcm16.Length; i++)
                                 pcm16[i] = (short)(pcm16[i] * this.VolumeModifier);
                         }
@@ -167,10 +179,82 @@ namespace DSharpPlus.VoiceNext
             var pcm = this.PcmMemory.Span;
             Helpers.ZeroFill(pcm.Slice(this.PcmBufferLength));
 
+            var pcm16 = MemoryMarshal.Cast<byte, short>(pcm);
+
+            // pass through any filters, if applicable
+            lock (this.Filters)
+            {
+                if (this.Filters.Any())
+                {
+                    foreach (var filter in this.Filters)
+                        filter.Transform(pcm16, this.Connection.AudioFormat, this.SampleDuration);
+                }
+            }
+
+            if (this.VolumeModifier != 1)
+            {
+                // alter volume
+                for (var i = 0; i < pcm16.Length; i++)
+                    pcm16[i] = (short)(pcm16[i] * this.VolumeModifier);
+            }
+
             var packet = new byte[pcm.Length];
             var packetMemory = packet.AsMemory();
             this.Connection.PreparePacket(pcm, ref packetMemory);
             this.Connection.EnqueuePacket(new VoicePacket(packetMemory, this.PcmBufferDuration));
+        }
+
+        /// <summary>
+        /// Gets the collection of installed PCM filters, in order of their execution.
+        /// </summary>
+        /// <returns>Installed PCM filters, in order of execution.</returns>
+        public IEnumerable<IVoiceFilter> GetInstalledFilters()
+        {
+            foreach (var filter in this.Filters)
+                yield return filter;
+        }
+
+        /// <summary>
+        /// Installs a new PCM filter, with specified execution order.
+        /// </summary>
+        /// <param name="filter">Filter to install.</param>
+        /// <param name="order">Order of the new filter. This determines where the filter will be inserted in the filter stream.</param>
+        public void InstallFilter(IVoiceFilter filter, int order = int.MaxValue)
+        {
+            if (filter == null)
+                throw new ArgumentNullException(nameof(filter));
+
+            if (order < 0)
+                throw new ArgumentOutOfRangeException(nameof(order), "Filter order must be greater than or equal to 0.");
+
+            lock (this.Filters)
+            {
+                var filters = this.Filters;
+                if (order >= filters.Count)
+                    filters.Add(filter);
+                else
+                    filters.Insert(order, filter);
+            }
+        }
+
+        /// <summary>
+        /// Uninstalls an installed PCM filter.
+        /// </summary>
+        /// <param name="filter">Filter to uninstall.</param>
+        /// <returns>Whether the filter was uninstalled.</returns>
+        public bool UninstallFilter(IVoiceFilter filter)
+        {
+            if (filter == null)
+                throw new ArgumentNullException(nameof(filter));
+
+            lock (this.Filters)
+            {
+                var filters = this.Filters;
+                if (!filters.Contains(filter))
+                    return false;
+
+                return filters.Remove(filter);
+            }
         }
     }
 }
