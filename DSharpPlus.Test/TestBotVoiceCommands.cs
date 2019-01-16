@@ -19,7 +19,6 @@ namespace DSharpPlus.Test
         private CancellationTokenSource AudioLoopCancelTokenSource { get; set; }
         private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
         private Task AudioLoopTask { get; set; }
-        private double Volume { get; set; } = 1.0;
 
         private ConcurrentDictionary<uint, ulong> _ssrc_map;
         private ConcurrentDictionary<uint, FileStream> _ssrc_filemap;
@@ -46,23 +45,29 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
-        private unsafe void RescaleVolume(byte[] data)
-        {
-            fixed (byte* ptr8 = data)
-            {
-                var ptr16 = (short*)ptr8;
-                for (var i = 0; i < data.Length / 2; i++)
-                    *(ptr16 + i) = (short)(*(ptr16 + i) * this.Volume);
-            }
-        }
-
         [Command("volume"), RequireOwner]
         public async Task VolumeAsync(CommandContext ctx, double vol = 1.0)
         {
-            if (vol < 0 || vol > 5)
-                throw new ArgumentOutOfRangeException(nameof(vol), "Volume needs to be between 0 and 500% inclusive.");
+            if (vol < 0 || vol > 2.5)
+                throw new ArgumentOutOfRangeException(nameof(vol), "Volume needs to be between 0 and 250% inclusive.");
 
-            this.Volume = vol;
+            var voice = ctx.Client.GetVoiceNext();
+            if (voice == null)
+            {
+                await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
+                return;
+            }
+
+            var vnc = voice.GetConnection(ctx.Guild);
+            if (vnc == null)
+            {
+                await ctx.Message.RespondAsync("Voice is not connected in this guild").ConfigureAwait(false);
+                return;
+            }
+
+            var transmitStream = vnc.GetTransmitStream();
+            transmitStream.VolumeModifier = vol;
+
             await ctx.RespondAsync($"Volume set to {(vol * 100).ToString("0.00")}%").ConfigureAwait(false);
         }
 
@@ -155,7 +160,6 @@ namespace DSharpPlus.Test
 
             Exception exc = null;
             await ctx.Message.RespondAsync($"Playing `{snd}`").ConfigureAwait(false);
-            await vnc.SendSpeakingAsync(true).ConfigureAwait(false);
             try
             {
                 // borrowed from
@@ -171,36 +175,18 @@ namespace DSharpPlus.Test
                 };
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
+                
+                var transmitStream = vnc.GetTransmitStream();
+                await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
+                await transmitStream.FlushAsync().ConfigureAwait(false);
 
-                using (var ms = new MemoryStream()) // if ffmpeg quits fast, that'll hold the data
-                {
-                    await ffout.CopyToAsync(ms).ConfigureAwait(false);
-                    ms.Position = 0;
-
-                    var buff = new byte[vnc.AudioFormat.CalculateSampleSize(20)]; // buffer to hold the PCM data
-                    var br = 0;
-                    while ((br = ms.Read(buff, 0, buff.Length)) > 0)
-                    {
-                        if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
-                            for (var i = br; i < buff.Length; i++)
-                                buff[i] = 0;
-
-                        if (this.Volume != 1.0)
-                            this.RescaleVolume(buff);
-
-                        await vnc.SendAsync(buff).ConfigureAwait(false); // we're sending 20ms of data
-                    }
-                }
+                await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { exc = ex; }
-            finally
-            {
-                await vnc.SendSpeakingAsync(false).ConfigureAwait(false);
-            }
 
             if (exc != null)
                 throw exc;
-        }
+            }
 
         [Command("playloop")]
         public async Task VoicePlayLoop(CommandContext ctx, params string[] filename)
@@ -238,7 +224,6 @@ namespace DSharpPlus.Test
             {
                 var chn = ctx.Channel;
                 var token = this.AudioLoopCancelToken;
-                await vnc.SendSpeakingAsync(true).ConfigureAwait(false);
                 try
                 {
                     // borrowed from
@@ -254,36 +239,15 @@ namespace DSharpPlus.Test
                     };
                     var ffmpeg = Process.Start(ffmpeg_inf);
                     var ffout = ffmpeg.StandardOutput.BaseStream;
+                    
+                    var transmitStream = vnc.GetTransmitStream();
+                    await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
+                    await transmitStream.FlushAsync().ConfigureAwait(false);
 
-                    using (var ms = new MemoryStream()) // this will hold our PCM data
-                    {
-                        await ffout.CopyToAsync(ms).ConfigureAwait(false);
-                        ms.Position = 0;
-
-                        var buff = new byte[vnc.AudioFormat.CalculateSampleSize(20)]; // buffer to hold the PCM data
-                        var br = 0;
-                        while (true)
-                        {
-                            while ((br = ms.Read(buff, 0, buff.Length)) > 0)
-                            {
-                                if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
-                                    for (var i = br; i < buff.Length; i++)
-                                        buff[i] = 0;
-
-                                await vnc.SendAsync(buff).ConfigureAwait(false); // we're sending 20ms of data
-                                token.ThrowIfCancellationRequested();
-                            }
-                            ms.Position = 0;
-                            token.ThrowIfCancellationRequested();
-                        }
-                    }
+                    await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) { }
                 catch (Exception ex) { await chn.SendMessageAsync($"Audio loop crashed: {ex.GetType()}: {ex.Message}").ConfigureAwait(false); }
-                finally
-                {
-                    await vnc.SendSpeakingAsync(false).ConfigureAwait(false);
-                }
             }, this.AudioLoopCancelToken);
         }
 
@@ -343,7 +307,6 @@ namespace DSharpPlus.Test
 
             Exception exc = null;
             await ctx.Message.RespondAsync($"Playing `{snd}`").ConfigureAwait(false);
-            await vnc.SendSpeakingAsync(true).ConfigureAwait(false);
             try
             {
                 // borrowed from
@@ -359,29 +322,14 @@ namespace DSharpPlus.Test
                 };
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
+                
+                var transmitStream = vnc.GetTransmitStream();
+                await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
+                await transmitStream.FlushAsync().ConfigureAwait(false);
 
-                using (var ms = new MemoryStream()) // if ffmpeg quits fast, that'll hold the data
-                {
-                    await ffout.CopyToAsync(ms).ConfigureAwait(false);
-                    ms.Position = 0;
-
-                    var buff = new byte[vnc.AudioFormat.CalculateSampleSize(20)]; // buffer to hold the PCM data
-                    var br = 0;
-                    while ((br = ms.Read(buff, 0, buff.Length)) > 0)
-                    {
-                        if (br < buff.Length) // it's possible we got less than expected, let's null the remaining part of the buffer
-                            for (var i = br; i < buff.Length; i++)
-                                buff[i] = 0;
-
-                        await vnc.SendAsync(buff).ConfigureAwait(false); // we're sending 20ms of data
-                    }
-                }
+                await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { exc = ex; }
-            finally
-            {
-                await vnc.SendSpeakingAsync(false).ConfigureAwait(false);
-            }
 
             if (exc != null)
                 throw exc;

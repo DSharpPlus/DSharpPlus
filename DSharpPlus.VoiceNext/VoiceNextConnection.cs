@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-#if !NETSTANDARD1_1
-using System.Security.Cryptography;
-#endif
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,14 +97,8 @@ namespace DSharpPlus.VoiceNext
         private Opus Opus { get; set; }
         private Sodium Sodium { get; set; }
         private Rtp Rtp { get; set; }
-        private double SynchronizerTicks { get; set; }
-        private double SynchronizerResolution { get; set; }
-        private double TickResolution { get; set; }
         private EncryptionMode SelectedEncryptionMode { get; set; }
         private uint Nonce { get; set; } = 0;
-#if !NETSTANDARD1_1
-        private RandomNumberGenerator CSPRNG { get; set; } = RandomNumberGenerator.Create();
-#endif
 
         private ushort Sequence { get; set; }
         private uint Timestamp { get; set; }
@@ -126,7 +114,13 @@ namespace DSharpPlus.VoiceNext
         private bool IsDisposed { get; set; }
 
         private TaskCompletionSource<bool> PlayingWait { get; set; }
-        private SemaphoreSlim PlaybackSemaphore { get; set; }
+        
+        private ConcurrentQueue<VoicePacket> PacketQueue { get; }
+        private VoiceTransmitStream TransmitStream { get; set; }
+        private Task SenderTask { get; set; }
+        private CancellationTokenSource SenderTokenSource { get; set; }
+        private CancellationToken SenderToken
+            => this.SenderTokenSource.Token;
 
 #if !NETSTANDARD1_1
         private Task ReceiverTask { get; set; }
@@ -144,7 +138,7 @@ namespace DSharpPlus.VoiceNext
         /// Gets whether this connection is still playing audio.
         /// </summary>
         public bool IsPlaying 
-            => this.PlaybackSemaphore.CurrentCount == 0 || (this.PlayingWait != null && !this.PlayingWait.Task.IsCompleted);
+            => this.PlayingWait != null && !this.PlayingWait.Task.IsCompleted;
 
         /// <summary>
         /// Gets the websocket round-trip time in ms.
@@ -202,7 +196,7 @@ namespace DSharpPlus.VoiceNext
             this.IsDisposed = false;
 
             this.PlayingWait = null;
-            this.PlaybackSemaphore = new SemaphoreSlim(1, 1);
+            this.PacketQueue = new ConcurrentQueue<VoicePacket>();
 
             this.UdpClient = this.Discord.Configuration.UdpClientFactory();
             this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
@@ -277,7 +271,7 @@ namespace DSharpPlus.VoiceNext
         internal Task WaitForReadyAsync() 
             => this.ReadyWait.Task;
 
-        private byte[] PreparePacket(ReadOnlySpan<byte> pcm)
+        internal void PreparePacket(ReadOnlySpan<byte> pcm, ref Memory<byte> target)
         {
             var audioFormat = this.AudioFormat;
 
@@ -319,34 +313,38 @@ namespace DSharpPlus.VoiceNext
             packet = packet.Slice(0, this.Rtp.CalculatePacketSize(encrypted.Length, this.SelectedEncryptionMode));
             this.Sodium.AppendNonce(nonce, packet, this.SelectedEncryptionMode);
 
-            var voicePacket = packet.ToArray();
+            target = target.Slice(0, packet.Length);
+            packet.CopyTo(target.Span);
             ArrayPool<byte>.Shared.Return(packetArray);
-            return voicePacket;
         }
 
-        /// <summary>
-        /// Encodes, encrypts, and sends the provided PCM data to the connected voice channel.
-        /// </summary>
-        /// <param name="pcmData">PCM data to encode, encrypt, and send.</param>
-        /// <returns>Task representing the sending operation.</returns>
-        public async Task SendAsync(byte[] pcmData)
+        internal void EnqueuePacket(VoicePacket packet)
+            => this.PacketQueue.Enqueue(packet);
+
+        private async Task VoiceSenderTask()
         {
-            if (!this.IsInitialized)
-                throw new InvalidOperationException("The connection is not initialized");
+            var token = this.SenderToken;
+            var client = this.UdpClient;
+            var queue = this.PacketQueue;
 
-            await this.PlaybackSemaphore.WaitAsync().ConfigureAwait(false);
+            var synchronizerTicks = (double)Stopwatch.GetTimestamp();
+            var synchronizerResolution = (Stopwatch.Frequency * 0.005);
+            var tickResolution = 10_000_000.0 / Stopwatch.Frequency;
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0", CultureInfo.InvariantCulture)}/{synchronizerResolution.ToString(CultureInfo.InvariantCulture)} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
 
-            var packet = this.PreparePacket(pcmData);
-
-            if (this.SynchronizerTicks == 0)
+            while (!token.IsCancellationRequested)
             {
-                this.SynchronizerTicks = Stopwatch.GetTimestamp();
-                this.SynchronizerResolution = (Stopwatch.Frequency * 0.02);
-                this.TickResolution = 10_000_000.0 / Stopwatch.Frequency;
-                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0", CultureInfo.InvariantCulture)}/{this.SynchronizerResolution.ToString(CultureInfo.InvariantCulture)} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
-            }
-            else
-            {
+                var hasPacket = queue.TryDequeue(out var packet);
+
+                byte[] packetArray = null;
+                if (hasPacket)
+                {
+                    if (this.PlayingWait == null || this.PlayingWait.Task.IsCompleted)
+                        this.PlayingWait = new TaskCompletionSource<bool>();
+
+                    packetArray = packet.Bytes.ToArray();
+                }
+
                 // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
                 // 
                 // delay = max(0, self.delay + ((start_time + self.delay * loops) + - time.time()))
@@ -359,18 +357,37 @@ namespace DSharpPlus.VoiceNext
                 //   number of samples sent
                 // time.time()
                 //   DateTime.Now
-                
-                var cts = Math.Max(Stopwatch.GetTimestamp() - this.SynchronizerTicks, 0);
-                if (cts < this.SynchronizerResolution)
-                    await Task.Delay(TimeSpan.FromTicks((long)((this.SynchronizerResolution - cts) * this.TickResolution))).ConfigureAwait(false);
 
-                this.SynchronizerTicks += this.SynchronizerResolution;
+                var durationModifier = hasPacket ? packet.MillisecondDuration / 5 : 4;
+                var cts = Math.Max(Stopwatch.GetTimestamp() - synchronizerTicks, 0);
+                if (cts < synchronizerResolution * durationModifier)
+                    await Task.Delay(TimeSpan.FromTicks((long)(((synchronizerResolution * durationModifier) - cts) * tickResolution))).ConfigureAwait(false);
+
+                synchronizerTicks += synchronizerResolution * durationModifier;
+
+                if (!hasPacket)
+                    continue;
+                    
+                this.SendSpeaking(true);
+                await this.UdpClient.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
+
+                if (queue.Count == 0)
+                {
+                    // incorporate this in usual flow
+                    //var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
+                    //var nullpacket = new byte[nullpcm.Length];
+                    //for (var i = 0; i < 5; i++)
+                    //{
+                    //    var nullpacketmem = nullpacket.AsMemory();
+                    //    this.PreparePacket(nullpcm, ref nullpacketmem);
+                    //    this.SendSpeaking(true);
+                    //    await this.UdpClient.SendAsync(nullpacket, nullpacketmem.Length).ConfigureAwait(false);
+                    //}
+
+                    this.SendSpeaking(false);
+                    this.PlayingWait?.SetResult(true);
+                }
             }
-
-            await this.SendSpeakingAsync(true).ConfigureAwait(false);
-            await this.UdpClient.SendAsync(packet, packet.Length).ConfigureAwait(false);
-
-            this.PlaybackSemaphore.Release();
         }
 
 #if !NETSTANDARD1_1
@@ -459,26 +476,10 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <param name="speaking">Whether the current user is speaking or not.</param>
         /// <returns>A task representing the sending operation.</returns>
-        public async Task SendSpeakingAsync(bool speaking = true)
+        public void SendSpeaking(bool speaking = true)
         {
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
-
-            if (!speaking)
-            {
-                var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
-                for (var i = 0; i < 5; i++)
-                    await this.SendAsync(nullpcm).ConfigureAwait(false);
-
-                this.SynchronizerTicks = 0;
-                if (this.PlayingWait != null)
-                    this.PlayingWait.SetResult(true);
-            }
-            else
-            {
-                if (this.PlayingWait == null || this.PlayingWait.Task.IsCompleted)
-                    this.PlayingWait = new TaskCompletionSource<bool>();
-            }
 
             var pld = new VoiceDispatch
             {
@@ -492,6 +493,22 @@ namespace DSharpPlus.VoiceNext
 
             var plj = JsonConvert.SerializeObject(pld, Formatting.None);
             this.VoiceWs.SendMessage(plj);
+        }
+
+        /// <summary>
+        /// Gets a transmit stream for this connection, optionally specifying a packet size to use with the stream. If a stream is already configured, it will return the existing one.
+        /// </summary>
+        /// <param name="sampleDuration">Duration, in ms, to use for audio packets.</param>
+        /// <returns>Transmit stream.</returns>
+        public VoiceTransmitStream GetTransmitStream(int sampleDuration = 20)
+        {
+            if (!AudioFormat.AllowedSampleDurations.Contains(sampleDuration))
+                throw new ArgumentOutOfRangeException(nameof(sampleDuration), "Invalid PCM sample duration specified.");
+
+            if (this.TransmitStream == null)
+                this.TransmitStream = new VoiceTransmitStream(this, sampleDuration);
+
+            return this.TransmitStream;
         }
 
         /// <summary>
@@ -521,10 +538,10 @@ namespace DSharpPlus.VoiceNext
             this.IsDisposed = true;
             this.IsInitialized = false;
             this.TokenSource.Cancel();
+            this.SenderTokenSource.Cancel();
 #if !NETSTANDARD1_1
             if (this.Configuration.EnableIncoming)
                 this.ReceiverTokenSource.Cancel();
-            this.CSPRNG.Dispose();
 #endif
 
             try
@@ -643,6 +660,9 @@ namespace DSharpPlus.VoiceNext
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
             this.VoiceWs.SendMessage(vsj);
 
+            this.SenderTokenSource = new CancellationTokenSource();
+            this.SenderTask = Task.Run(this.VoiceSenderTask, this.SenderToken);
+
 #if !NETSTANDARD1_1
             if (this.Configuration.EnableIncoming)
             {
@@ -659,6 +679,7 @@ namespace DSharpPlus.VoiceNext
 
             this.IsInitialized = true;
             this.ReadyWait.SetResult(true);
+
             return Task.Delay(0);
         }
 

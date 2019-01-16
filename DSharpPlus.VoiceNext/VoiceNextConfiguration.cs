@@ -1,6 +1,4 @@
-﻿using DSharpPlus.VoiceNext.Codec;
-
-namespace DSharpPlus.VoiceNext
+﻿namespace DSharpPlus.VoiceNext
 {
     /// <summary>
     /// VoiceNext client configuration.

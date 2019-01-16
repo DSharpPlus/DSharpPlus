@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
@@ -21,7 +22,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the received data.
         /// </summary>
-        public IReadOnlyList<byte> Voice { get; internal set; }
+        public ReadOnlyMemory<byte> Voice { get; internal set; }
 
         /// <summary>
         /// Gets the length of the received data.
