@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -129,17 +130,23 @@ namespace DSharpPlus.VoiceNext
         
         private ConcurrentQueue<VoicePacket> PacketQueue { get; }
         private VoiceTransmitStream TransmitStream { get; set; }
+        private ConcurrentDictionary<ulong, long> KeepaliveTimestamps { get; }
+        private ulong _lastKeepalive = 0;
+
         private Task SenderTask { get; set; }
         private CancellationTokenSource SenderTokenSource { get; set; }
         private CancellationToken SenderToken
             => this.SenderTokenSource.Token;
-
-#if !NETSTANDARD1_1
+        
         private Task ReceiverTask { get; set; }
         private CancellationTokenSource ReceiverTokenSource { get; set; }
         private CancellationToken ReceiverToken
             => this.ReceiverTokenSource.Token;
-#endif
+
+        private Task KeepaliveTask { get; set; }
+        private CancellationTokenSource KeepaliveTokenSource { get; set; }
+        private CancellationToken KeepaliveToken
+            => this.KeepaliveTokenSource.Token;
 
         /// <summary>
         /// Gets the audio format used by the Opus encoder.
@@ -155,10 +162,16 @@ namespace DSharpPlus.VoiceNext
         /// <summary>
         /// Gets the websocket round-trip time in ms.
         /// </summary>
-        public int Ping 
-            => Volatile.Read(ref this._ping);
+        public int WebSocketPing 
+            => Volatile.Read(ref this._wsPing);
+        private int _wsPing = 0;
 
-        private int _ping = 0;
+        /// <summary>
+        /// Gets the UDP round-trip time in ms.
+        /// </summary>
+        public int UdpPing
+            => Volatile.Read(ref this._udpPing);
+        private int _udpPing = 0;
 
         /// <summary>
         /// Gets the channel this voice client is connected to.
@@ -212,6 +225,7 @@ namespace DSharpPlus.VoiceNext
 
             this.PlayingWait = null;
             this.PacketQueue = new ConcurrentQueue<VoicePacket>();
+            this.KeepaliveTimestamps = new ConcurrentDictionary<ulong, long>();
 
             this.UdpClient = this.Discord.Configuration.UdpClientFactory();
             this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
@@ -483,40 +497,69 @@ namespace DSharpPlus.VoiceNext
             return true;
         }
 
-        private async Task VoiceReceiverTask()
+        private async Task ProcessVoicePacket(byte[] data)
         {
-            var token = this.SenderToken;
+            try
+            {
+                if (data.Length < 13) // minimum packet length
+                    return;
+
+                var pcm = new byte[this.AudioFormat.CalculateMaximumFrameSize()];
+                var pcmMem = pcm.AsMemory();
+                if (!this.ProcessPacket(data, ref pcmMem, out var vtx, out var audioFormat))
+                    return;
+
+                await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
+                {
+                    SSRC = vtx.SSRC,
+                    User = vtx.User,
+                    Voice = pcmMem,
+                    AudioFormat = audioFormat,
+                    AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmMem.Length)
+                }).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                this.Discord.DebugLogger.LogMessage(LogLevel.Error, "VNext RX", "Exception occured when decoding incoming audio data", DateTime.Now, ex);
+            }
+        }
+#endif
+
+        private void ProcessKeepalive(byte[] data)
+        {
+            try
+            {
+                var keepalive = BinaryPrimitives.ReadUInt64LittleEndian(data);
+
+                if (!this.KeepaliveTimestamps.TryRemove(keepalive, out var timestamp))
+                    return;
+
+                var tdelta = (int)(((Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency) * 1000);
+                Volatile.Write(ref this._wsPing, tdelta);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Received UDP keepalive {keepalive}, ping {tdelta}ms", DateTime.Now);
+            }
+            catch (Exception ex)
+            {
+                this.Discord.DebugLogger.LogMessage(LogLevel.Error, "VNext UDP", "Exception occured when handling keepalive", DateTime.Now, ex);
+            }
+        }
+
+        private async Task UdpReceiverTask()
+        {
+            var token = this.ReceiverToken;
             var client = this.UdpClient;
 
             while (!token.IsCancellationRequested)
             {
-                try
-                {
-                    var data = await client.ReceiveAsync().ConfigureAwait(false);
-                    if (data.Length < 13) // minimum packet length
-                        continue;
-
-                    var pcm = new byte[this.AudioFormat.CalculateMaximumFrameSize()];
-                    var pcmMem = pcm.AsMemory();
-                    if (!this.ProcessPacket(data, ref pcmMem, out var vtx, out var audioFormat))
-                        continue;
-
-                    await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
-                    {
-                        SSRC = vtx.SSRC,
-                        User = vtx.User,
-                        Voice = pcmMem,
-                        AudioFormat = audioFormat,
-                        AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmMem.Length)
-                    }).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Error, "VNext RX", "Exception occured when decoding incoming audio data", DateTime.Now, ex);
-                }
+                var data = await client.ReceiveAsync().ConfigureAwait(false);
+                if (data.Length == 8)
+                    this.ProcessKeepalive(data);
+#if !NETSTANDARD1_1
+                else if (this.Configuration.EnableIncoming)
+                    await this.ProcessVoicePacket(data).ConfigureAwait(false);
+#endif
             }
         }
-#endif
 
         /// <summary>
         /// Sends a speaking status to the connected voice channel.
@@ -610,7 +653,7 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceDisconnected(this.Guild);
         }
 
-        private async Task Heartbeat()
+        private async Task HeartbeatAsync()
         {
             await Task.Yield();
 
@@ -639,6 +682,29 @@ namespace DSharpPlus.VoiceNext
                 {
                     return;
                 }
+            }
+        }
+
+        private async Task KeepaliveAsync()
+        {
+            await Task.Yield();
+
+            var token = this.KeepaliveToken;
+            var client = this.UdpClient;
+
+            while (!token.IsCancellationRequested)
+            {
+                var timestamp = Stopwatch.GetTimestamp();
+                var keepalive = Volatile.Read(ref this._lastKeepalive);
+                Volatile.Write(ref this._lastKeepalive, keepalive + 1);
+                this.KeepaliveTimestamps.TryAdd(keepalive, timestamp);
+
+                var packet = new byte[8];
+                BinaryPrimitives.WriteUInt64LittleEndian(packet, keepalive);
+
+                await client.SendAsync(packet, packet.Length).ConfigureAwait(false);
+
+                await Task.Delay(5000, token);
             }
         }
 
@@ -712,19 +778,18 @@ namespace DSharpPlus.VoiceNext
             this.SenderTokenSource = new CancellationTokenSource();
             this.SenderTask = Task.Run(this.VoiceSenderTask, this.SenderToken);
 
-#if !NETSTANDARD1_1
-            if (this.Configuration.EnableIncoming)
-            {
-                this.ReceiverTokenSource = new CancellationTokenSource();
-                this.ReceiverTask = Task.Run(this.VoiceReceiverTask, this.ReceiverToken);
-            }
-#endif
+            this.ReceiverTokenSource = new CancellationTokenSource();
+            this.ReceiverTask = Task.Run(this.UdpReceiverTask, this.ReceiverToken);
         }
 
         private Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
         {
             this.SelectedEncryptionMode = Sodium.SupportedModes[voiceSessionDescription.Mode.ToLowerInvariant()];
             this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Discord updated encryption mode: {this.SelectedEncryptionMode}", DateTime.Now);
+
+            // start keepalive
+            this.KeepaliveTokenSource = new CancellationTokenSource();
+            this.KeepaliveTask = this.KeepaliveAsync();
 
             // send 3 packets of silence to get things going
             var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
@@ -757,7 +822,7 @@ namespace DSharpPlus.VoiceNext
                     // this is not the valid interval
                     // oh, discord
                     //this.HeartbeatInterval = vrp.HeartbeatInterval;
-                    this.HeartbeatTask = Task.Run(this.Heartbeat);
+                    this.HeartbeatTask = Task.Run(this.HeartbeatAsync);
                     await this.Stage1(vrp).ConfigureAwait(false);
                     break;
 
@@ -804,7 +869,7 @@ namespace DSharpPlus.VoiceNext
                 case 6: // HEARTBEAT ACK
                     var dt = DateTime.Now;
                     var ping = (int)(dt - this.LastHeartbeat).TotalMilliseconds;
-                    Volatile.Write(ref this._ping, ping);
+                    Volatile.Write(ref this._wsPing, ping);
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {ping.ToString("#,##0", CultureInfo.InvariantCulture)}ms", dt);
                     this.LastHeartbeat = dt;
                     break;
@@ -816,7 +881,7 @@ namespace DSharpPlus.VoiceNext
 
                 case 9: // RESUMED
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP9 received", DateTime.Now);
-                    this.HeartbeatTask = Task.Run(this.Heartbeat);
+                    this.HeartbeatTask = Task.Run(this.HeartbeatAsync);
                     break;
 
                 case 12: // CLIENT_CONNECTED
