@@ -76,10 +76,16 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public void Dispose()
         {
-            // TODO: do disposal, unset vars etc
-            _client = null;
-            _event.Unregister(_handler);
-            _event = null;
+            lock (_lock)
+            {
+                this._requests.Clear();
+            }
+
+            this._client = null;
+            this._event.Unregister(_handler);
+            this._event = null;
+            this._handler = null;
+            this._lock = null;
         }
     }
 }

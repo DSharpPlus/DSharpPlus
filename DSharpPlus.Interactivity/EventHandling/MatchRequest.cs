@@ -12,7 +12,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         internal TaskCompletionSource<T> _tcs;
         internal CancellationTokenSource _ct;
         internal Func<T, bool> _predicate;
-        internal TimeSpan? _timeout;
+        internal TimeSpan _timeout;
 
         public MatchRequest(Func<T, bool> predicate, TimeSpan timeout)
         {
