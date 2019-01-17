@@ -190,7 +190,7 @@ namespace DSharpPlus.Test
                 };
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
-                
+
                 var transmitStream = vnc.GetTransmitStream();
                 await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
                 await transmitStream.FlushAsync().ConfigureAwait(false);
@@ -201,7 +201,7 @@ namespace DSharpPlus.Test
 
             if (exc != null)
                 throw exc;
-            }
+        }
 
         [Command("playloop")]
         public async Task VoicePlayLoop(CommandContext ctx, params string[] filename)

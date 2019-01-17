@@ -131,7 +131,6 @@ namespace MyFirstBot
 
             var ffmpeg = this.ffmpegs[ea.SSRC];
             await ffmpeg.StandardInput.BaseStream.WriteAsync(buff, 0, buff.Length);
-            await ffmpeg.StandardInput.BaseStream.FlushAsync();
         }
     }
 }

@@ -53,11 +53,7 @@ If you're in doubt about which libraries to use, follow this flowchart:
 
 ![Natives flowchart](/images/05_05_natives_flowchart.png "Natives - flowchart")
 
-To install those, just extract the .dll files from the inside to the directory where your output executable is. If debugging, 
-it's going to be one of these:
-
-* **.NETFX**: `<project root>\bin\Debug\`
-* **.NET Core**: `<project root>`
+To install those, just add them to your project. Then change their properties so that they are always copied on build.
 
 Do note that when debugging, you will usually need 32-bit natives, regardless of OS architecture.
 

@@ -140,22 +140,23 @@ public async Task Play(CommandContext ctx, [RemainingText] string file)
 	var ffmpeg = Process.Start(psi);
 	var ffout = ffmpeg.StandardOutput.BaseStream;
 
-	var buff = new byte[3840];
-	var br = 0;
-	while ((br = ffout.Read(buff, 0, buff.Length)) > 0)
-	{
-		if (br < buff.Length) // not a full sample, mute the rest
-			for (var i = br; i < buff.Length; i++)
-				buff[i] = 0;
+	var txStream = vnc.GetTransmitStream();
+	await ffout.CopyToAsync(txStream);
+	await txStream.FlushAsync();
 
-		await vnc.SendAsync(buff, 20);
-	}
-
-	await vnc.SendSpeakingAsync(false); // we're not speaking anymore
+	await vnc.WaitForPlaybackFinishAsync(); // wait until playback finishes
 }
 ```
 
 If you did everything right, your bot should now be playing music. If it is, congratulations.
+
+Of note here is the fact that writing to the transmit stream will not block until audio is finished playing. A transmit 
+will split your PCM input into appropriate chunks, prepare them, then enqueue them for sending to Discord. Packets will 
+then be sent at an appropriate rate. VoiceNext offers a method, which allows you to finish for the internal queue to be 
+exhausted (which effectively means the playback has finished).
+
+It's also worth noting that if the PCM data doesn't end on packet boundary (i.e. 20ms), the remainder might be left in 
+the transmit stream's internal buffer. To force the stream to flush the buffer, call `Flush()` (or `FlushAsync()`).
 
 ![Playing](/images/06_03_voice_play.png "Playing audio")
 
