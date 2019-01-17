@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.EventHandling;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Test
@@ -17,21 +19,32 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
-		// disabled cause permissions'n'shit
-		//[Command("testcreateow")]
-		//public async Task TestCreateOwAsync(CommandContext ctx)
-		//{
-		//    List<DiscordOverwriteBuilder> dowbs = new List<DiscordOverwriteBuilder>()
-		//        .Add(new DiscordOverwriteBuilder()
-		//        .Allow(Permissions.ManageChannels)
-		//        .Deny(Permissions.ManageMessages)
-		//        .For(ctx.Member);
+        [Command("testinteractivity")]
+        public async Task TesteAsync(CommandContext ctx)
+        {
+            var _int = ctx.Client.GetInteractivity();
+            var result = await _int.GetMessage(x => x.Content == "e");
+            if(result != null)
+                await ctx.RespondAsync("yeet");
+            else
+                await ctx.RespondAsync("oof");
+        }
 
-		//    await ctx.Guild.CreateTextChannelAsync("memes", overwrites: dowbs);
-		//    await ctx.RespondAsync("naam check your shitcode");
-		//}
+        // disabled cause permissions'n'shit
+        //[Command("testcreateow")]
+        //public async Task TestCreateOwAsync(CommandContext ctx)
+        //{
+        //    List<DiscordOverwriteBuilder> dowbs = new List<DiscordOverwriteBuilder>()
+        //        .Add(new DiscordOverwriteBuilder()
+        //        .Allow(Permissions.ManageChannels)
+        //        .Deny(Permissions.ManageMessages)
+        //        .For(ctx.Member);
 
-	    [Command("clonechannel")]
+        //    await ctx.Guild.CreateTextChannelAsync("memes", overwrites: dowbs);
+        //    await ctx.RespondAsync("naam check your shitcode");
+        //}
+
+        [Command("clonechannel")]
 	    public async Task CloneChannelAsync(CommandContext ctx, DiscordChannel chan = null)
 	    {
 	        chan = chan ?? ctx.Channel;
@@ -39,7 +52,7 @@ namespace DSharpPlus.Test
 	        await chan.CloneAsync().ConfigureAwait(false);
 	    }
 
-		[Command("intext")]
+		/*[Command("intext")]
 		public async Task IntExtAsync(CommandContext ctx)
 		{
 			var mes = await ctx.Channel.WaitForMessageAsync(ctx.User, x => x == "ayy");
@@ -68,7 +81,7 @@ namespace DSharpPlus.Test
             };
 
             await i.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: emojis);
-		}
+		}*/
 
 		[Command("embedcolor")]
 		public async Task EmbedColorAsync(CommandContext ctx)
@@ -104,6 +117,7 @@ namespace DSharpPlus.Test
 				await ctx.RespondAsync($"connected to channel {ctx.Member.VoiceState.Channel.Name}");
 		}
 
+        /*
 		[Command("testpoll")]
 		public async Task TestPollAsync(CommandContext ctx, [RemainingText]string question)
 		{
@@ -124,7 +138,7 @@ namespace DSharpPlus.Test
 			await m.DeleteAllReactionsAsync();
 			await m.ModifyAsync(results);
 			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "sent results", DateTime.Now);
-		}
+		}*/
 
 		[Command("testmodify"), RequireOwner]
 		public async Task TestModifyAsync(CommandContext ctx, DiscordMember m)

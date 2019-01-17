@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity.EventHandling;
 
 namespace DSharpPlus.Interactivity
 {
@@ -62,6 +63,8 @@ namespace DSharpPlus.Interactivity
     {
         private InteractivityConfiguration Config { get; }
 
+        private EventWaiter<MessageCreateEventArgs> MessageCreatedWaiter;
+
         internal InteractivityExtension(InteractivityConfiguration cfg)
         {
             this.Config = new InteractivityConfiguration(cfg);
@@ -70,41 +73,13 @@ namespace DSharpPlus.Interactivity
         protected internal override void Setup(DiscordClient client)
         {
             this.Client = client;
+            this.MessageCreatedWaiter = new EventWaiter<MessageCreateEventArgs>(this.Client);
         }
 
         public async Task<DiscordMessage> GetMessage(Func<DiscordMessage, bool> predicate)
         {
-            if (predicate == null)
-                throw new ArgumentException(nameof(predicate));
-
-            var timeout = this.Config.Timeout;
-
-            var tcs = new TaskCompletionSource<DiscordMessage>();
-            var ct = new CancellationTokenSource(timeout);
-            ct.Token.Register(() => tcs.TrySetResult(null));
-
-            try
-            {
-                this.Client.MessageCreated += handler;
-                return await tcs.Task.ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                this.Client.MessageCreated -= handler;
-                ct.Dispose();
-            }
-
-            async Task handler(MessageCreateEventArgs e)
-            {
-                if (predicate(e.Message))
-                {
-                    tcs.TrySetResult(e.Message);
-                }
-            }
+            var result = await this.MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), Config.Timeout));
+            return result?.Message;
         }
     }
 }
