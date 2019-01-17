@@ -110,6 +110,18 @@ namespace DSharpPlus.VoiceNext.Codec
 
         [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decode")]
         private static unsafe extern int _OpusDecode(IntPtr decoder, byte* opusData, int opusDataLength, byte* data, int frameSize, int decodeFec);
+
+        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_nb_channels")]
+        private static unsafe extern int _OpusGetPacketChanelCount(byte* opusData);
+
+        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_nb_frames")]
+        private static unsafe extern int _OpusGetPacketFrameCount(byte* opusData, int length);
+
+        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_samples_per_frame")]
+        private static unsafe extern int _OpusGetPacketSamplePerFrameCount(byte* opusData, int samplingRate);
+
+        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_ctl")]
+        private static extern int _OpusDecoderControl(IntPtr decoder, OpusControl request, out int value);
 #endif
 
         public static IntPtr OpusCreateEncoder(AudioFormat audioFormat)
@@ -170,6 +182,39 @@ namespace DSharpPlus.VoiceNext.Codec
             }
 
             return len;
+        }
+
+        public static unsafe int OpusDecode(IntPtr decoder, int frameSize, Span<byte> pcm)
+        {
+            var len = 0;
+            
+            fixed (byte* pcmPtr = &pcm.GetPinnableReference())
+                len = _OpusDecode(decoder, null, 0, pcmPtr, frameSize, 1);
+
+            if (len < 0)
+            {
+                var error = (OpusError)len;
+                throw new Exception($"Could not decode PCM data from Opus: {error} ({(int)error}).");
+            }
+
+            return len;
+        }
+
+        public static unsafe void OpusGetPacketMetrics(ReadOnlySpan<byte> opus, int samplingRate, out int channels, out int frames, out int samplesPerFrame, out int frameSize)
+        {
+            fixed (byte* opusPtr = &opus.GetPinnableReference())
+            {
+                frames = _OpusGetPacketFrameCount(opusPtr, opus.Length);
+                samplesPerFrame = _OpusGetPacketSamplePerFrameCount(opusPtr, samplingRate);
+                channels = _OpusGetPacketChanelCount(opusPtr);
+            }
+
+            frameSize = frames * samplesPerFrame;
+        }
+
+        public static void OpusGetLastPacketDuration(IntPtr decoder, out int sampleCount)
+        {
+            _OpusDecoderControl(decoder, OpusControl.GetLastPacketDuration, out sampleCount);
         }
 #endif
 #endregion

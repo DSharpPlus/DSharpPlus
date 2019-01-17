@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -401,20 +402,36 @@ namespace DSharpPlus.VoiceNext
         }
 
 #if !NETSTANDARD1_1
-        private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> pcm, out AudioSender voiceSender)
+        private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> pcm, out AudioSender voiceSender, out AudioFormat outputFormat/*, out IEnumerable<Memory<byte>> fecPackets*/)
         {
             voiceSender = null;
+            outputFormat = default;
+            //fecPackets = null;
             if (!this.Rtp.IsRtpHeader(data))
                 return false;
 
             this.Rtp.DecodeHeader(data, out var sequence, out var timestamp, out var ssrc, out var hasExtension);
 
+            var vtx = this.TransmittingSSRCs[ssrc];
+            voiceSender = vtx;
+            if (sequence <= vtx.LastSequence) // out-of-order packet; discard
+                return false;
+            var gap = vtx.LastSequence != 0 ? sequence - 1 - vtx.LastSequence : 0;
+            //if (gap > 0 && vtx.LastSampleCount != 0)
+            //{
+            //    fecPackets = new List<Memory<byte>>();
+            //    for (var i = 0; i < gap; i++)
+            //    {
+            //        var lastSampleCount = this.Opus.GetLastPacketSampleCount(vtx.Decoder);
+            //        var fecpcm = new byte[this.AudioFormat.SampleCountToSampleSize(lastSampleCount)];
+            //        var fecpcmMem = fecpcm.AsSpan();
+            //        this.Opus.ProcessPacketLoss(vtx.Decoder,  fecpcmMem);
+            //    }
+            //}
+
             Span<byte> nonce = stackalloc byte[Sodium.NonceSize];
             this.Sodium.GetNonce(data, nonce, this.SelectedEncryptionMode);
             this.Rtp.GetDataFromPacket(data, out var encryptedOpus, this.SelectedEncryptionMode);
-            
-            var vtx = this.TransmittingSSRCs[ssrc];
-            voiceSender = vtx;
 
             var opusSize = Sodium.CalculateSourceSize(encryptedOpus);
             var opusArray = ArrayPool<byte>.Shared.Rent(opusSize);
@@ -454,11 +471,12 @@ namespace DSharpPlus.VoiceNext
                 }
 
                 var pcmSpan = pcm.Span;
-                this.Opus.Decode(vtx.Decoder, opus, ref pcmSpan);
+                this.Opus.Decode(vtx.Decoder, opus, ref pcmSpan, out outputFormat, out var sampleCount);
                 pcm = pcm.Slice(0, pcmSpan.Length);
             }
             finally
             {
+                vtx.LastSequence = sequence;
                 ArrayPool<byte>.Shared.Return(opusArray);
             }
 
@@ -480,7 +498,7 @@ namespace DSharpPlus.VoiceNext
 
                     var pcm = new byte[this.AudioFormat.CalculateMaximumFrameSize()];
                     var pcmMem = pcm.AsMemory();
-                    if (!this.ProcessPacket(data, ref pcmMem, out var vtx))
+                    if (!this.ProcessPacket(data, ref pcmMem, out var vtx, out var audioFormat))
                         continue;
 
                     await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
@@ -488,7 +506,7 @@ namespace DSharpPlus.VoiceNext
                         SSRC = vtx.SSRC,
                         User = vtx.User,
                         Voice = pcmMem,
-                        AudioFormat = this.AudioFormat,
+                        AudioFormat = audioFormat,
                         AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmMem.Length)
                     }).ConfigureAwait(false);
                 }

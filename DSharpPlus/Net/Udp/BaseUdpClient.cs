@@ -14,11 +14,6 @@ namespace DSharpPlus.Net.Udp
     public abstract class BaseUdpClient
     {
         /// <summary>
-        /// Gets the amount of data available for this client.
-        /// </summary>
-        public abstract int DataAvailable { get; }
-
-        /// <summary>
         /// Configures the UDP client.
         /// </summary>
         /// <param name="endpoint">Endpoint that the client will be communicating with.</param>
@@ -28,9 +23,9 @@ namespace DSharpPlus.Net.Udp
         /// Sends a datagram.
         /// </summary>
         /// <param name="data">Datagram.</param>
-        /// <param name="data_length">Length of the datagram.</param>
+        /// <param name="dataLength">Length of the datagram.</param>
         /// <returns></returns>
-        public abstract Task SendAsync(byte[] data, int data_length);
+        public abstract Task SendAsync(byte[] data, int dataLength);
 
         /// <summary>
         /// Receives a datagram.

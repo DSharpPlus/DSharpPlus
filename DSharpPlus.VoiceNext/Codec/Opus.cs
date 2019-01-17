@@ -59,15 +59,28 @@ namespace DSharpPlus.VoiceNext.Codec
         }
 
 #if !NETSTANDARD1_1
-        public void Decode(OpusDecoder decoder, ReadOnlySpan<byte> opus, ref Span<byte> target)
+        public void Decode(OpusDecoder decoder, ReadOnlySpan<byte> opus, ref Span<byte> target, out AudioFormat outputFormat, out int sampleCount)
         {
-            var frameSize = this.AudioFormat.CalculateMaximumFrameSize();
-            if (target.Length != frameSize)
+            if (target.Length != this.AudioFormat.CalculateMaximumFrameSize())
                 throw new ArgumentException("PCM target buffer size needs to be equal to maximum buffer size for specified audio format.", nameof(target));
 
-            var sampleCount = Interop.OpusDecode(decoder.Decoder, opus, frameSize, target);
-            var sampleSize = this.AudioFormat.SampleCountToSampleSize(sampleCount);
+            Interop.OpusGetPacketMetrics(opus, this.AudioFormat.SampleRate, out var channels, out var frames, out var samplesPerFrame, out var frameSize);
+            sampleCount = Interop.OpusDecode(decoder.Decoder, opus, frameSize, target);
+
+            outputFormat = this.AudioFormat.ChannelCount != channels ? new AudioFormat(this.AudioFormat.SampleRate, channels, this.AudioFormat.VoiceApplication) : this.AudioFormat;
+            var sampleSize = outputFormat.SampleCountToSampleSize(sampleCount);
             target = target.Slice(0, sampleSize);
+        }
+
+        public void ProcessPacketLoss(OpusDecoder decoder, int frameSize, ref Span<byte> target)
+        {
+            Interop.OpusDecode(decoder.Decoder, frameSize, target);
+        }
+
+        public int GetLastPacketSampleCount(OpusDecoder decoder)
+        {
+            Interop.OpusGetLastPacketDuration(decoder.Decoder, out var sampleCount);
+            return sampleCount;
         }
 
         public OpusDecoder CreateDecoder()
@@ -130,8 +143,8 @@ namespace DSharpPlus.VoiceNext.Codec
             this.Opus = managedOpus;
         }
 
-        internal void Decode(ReadOnlySpan<byte> opus, ref Span<byte> pcm)
-            => this.Opus.Decode(this, opus, ref pcm);
+        internal void Decode(ReadOnlySpan<byte> opus, ref Span<byte> pcm, out AudioFormat outputFormat, out int sampleCount)
+            => this.Opus.Decode(this, opus, ref pcm, out outputFormat, out sampleCount);
 
         /// <summary>
         /// Disposes of this Opus decoder.
@@ -168,7 +181,8 @@ namespace DSharpPlus.VoiceNext.Codec
         SetInBandFec = 4012,
         SetPacketLossPercent = 4014,
         SetSignal = 4024,
-        ResetState = 4028
+        ResetState = 4028,
+        GetLastPacketDuration = 4039
     }
 
     internal enum OpusSignal : int

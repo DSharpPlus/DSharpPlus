@@ -26,13 +26,13 @@ namespace DSharpPlus.Test
         private async Task OnVoiceReceived(VoiceReceiveEventArgs e)
         {
             if (!this._ssrcFilemap.ContainsKey(e.SSRC))
-                this._ssrcFilemap[e.SSRC] = File.Create($"{e.SSRC}.pcm");
+                this._ssrcFilemap[e.SSRC] = File.Create($"{e.SSRC} ({e.AudioFormat.ChannelCount}).pcm");
             var fs = this._ssrcFilemap[e.SSRC];
 
             //e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data.", DateTime.Now);
             var buff = e.Voice.ToArray();
             await fs.WriteAsync(buff, 0, buff.Length).ConfigureAwait(false);
-            await fs.FlushAsync().ConfigureAwait(false);
+            //await fs.FlushAsync().ConfigureAwait(false);
         }
         private Task OnUserSpeaking(UserSpeakingEventArgs e)
         {

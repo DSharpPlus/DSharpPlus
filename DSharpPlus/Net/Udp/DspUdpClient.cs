@@ -1,4 +1,7 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net.Udp
@@ -8,19 +11,22 @@ namespace DSharpPlus.Net.Udp
     /// </summary>
     internal class DspUdpClient : BaseUdpClient
     {
-        /// <summary>
-        /// Gets the amount of data available for this client.
-        /// </summary>
-        public override int DataAvailable 
-            => this.Client.Available;
-
         private UdpClient Client { get; set; }
         private ConnectionEndpoint EndPoint { get; set; }
+        private BlockingCollection<byte[]> PacketQueue { get; }
+
+        private Task ReceiverTask { get; set; }
+        private CancellationTokenSource TokenSource { get; }
+        private CancellationToken Token => this.TokenSource.Token;
 
         /// <summary>
         /// Creates a new UDP client instance.
         /// </summary>
-        public DspUdpClient() { }
+        public DspUdpClient()
+        {
+            this.PacketQueue = new BlockingCollection<byte[]>();
+            this.TokenSource = new CancellationTokenSource();
+        }
 
         /// <summary>
         /// Configures the UDP client.
@@ -34,25 +40,29 @@ namespace DSharpPlus.Net.Udp
 #if HAS_NAT_TRAVERSAL
             this.Client.AllowNatTraversal(true);
 #endif
+
+            this.ReceiverTask = Task.Run(this.ReceiverLoopAsync, this.Token);
         }
 
         /// <summary>
         /// Sends a datagram.
         /// </summary>
         /// <param name="data">Datagram.</param>
-        /// <param name="data_length">Length of the datagram.</param>
+        /// <param name="dataLength">Length of the datagram.</param>
         /// <returns></returns>
-        public override Task SendAsync(byte[] data, int data_length)
-            => this.Client.SendAsync(data, data_length, this.EndPoint.Hostname, this.EndPoint.Port);
+        public override Task SendAsync(byte[] data, int dataLength)
+            => this.Client.SendAsync(data, dataLength, this.EndPoint.Hostname, this.EndPoint.Port);
 
         /// <summary>
         /// Receives a datagram.
         /// </summary>
         /// <returns>The received bytes.</returns>
-        public override async Task<byte[]> ReceiveAsync()
+        public override Task<byte[]> ReceiveAsync()
         {
-            var result = await this.Client.ReceiveAsync().ConfigureAwait(false);
-            return result.Buffer;
+            if (this.PacketQueue.Count > 0)
+                return Task.FromResult(this.PacketQueue.Take());
+
+            return Task.Run(() => this.PacketQueue.Take());
         }
 
         /// <summary>
@@ -60,7 +70,28 @@ namespace DSharpPlus.Net.Udp
         /// </summary>
         public override void Close()
         {
-            // TODO: Solve later
+            this.TokenSource.Cancel();
+#if !NETSTANDARD1_3
+            try
+            { this.Client.Close(); }
+            catch (Exception) { }
+#endif
+
+            // dequeue all the packets
+            this.PacketQueue.Dispose();
+        }
+        
+        private async Task ReceiverLoopAsync()
+        {
+            while (!this.Token.IsCancellationRequested)
+            {
+                try
+                {
+                    var packet = await this.Client.ReceiveAsync().ConfigureAwait(false);
+                    this.PacketQueue.Add(packet.Buffer);
+                }
+                catch (Exception) { }
+            }
         }
 
         /// <summary>
