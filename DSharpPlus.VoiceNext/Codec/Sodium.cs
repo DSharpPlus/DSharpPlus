@@ -197,6 +197,10 @@ namespace DSharpPlus.VoiceNext.Codec
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int CalculateTargetSize(ReadOnlySpan<byte> source)
             => source.Length + Interop.SodiumMacSize;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int CalculateSourceSize(ReadOnlySpan<byte> source)
+            => source.Length - Interop.SodiumMacSize;
     }
 
     /// <summary>

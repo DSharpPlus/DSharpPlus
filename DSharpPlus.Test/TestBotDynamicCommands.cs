@@ -87,6 +87,7 @@ namespace DSharpPlus.Test
                 command.WithAliases(aliases);
 
             ctx.CommandsNext.RegisterCommands(command);
+            await ctx.RespondAsync(DiscordEmoji.FromUnicode("👌").ToString()).ConfigureAwait(false);
 
             Task Func0(CommandContext c)
                 => c.RespondAsync($"{c.Prefix} {c.Command.QualifiedName}");

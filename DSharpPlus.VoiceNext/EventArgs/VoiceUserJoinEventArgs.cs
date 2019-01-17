@@ -9,9 +9,14 @@ namespace DSharpPlus.VoiceNext.EventArgs
     public sealed class VoiceUserJoinEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the user that left voice chat.
+        /// Gets the user who left.
         /// </summary>
         public DiscordUser User { get; internal set; }
+
+        /// <summary>
+        /// Gets the SSRC of the user who joined.
+        /// </summary>
+        public uint SSRC { get; internal set; }
 
         internal VoiceUserJoinEventArgs(DiscordClient discord) : base(discord) { }
     }

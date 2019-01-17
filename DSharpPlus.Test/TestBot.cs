@@ -68,7 +68,7 @@ namespace DSharpPlus.Test
             var vcfg = new VoiceNextConfiguration
             {
                 AudioFormat = AudioFormat.Default,
-                EnableIncoming = false
+                EnableIncoming = true
             };
             this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 

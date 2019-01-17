@@ -29,6 +29,17 @@ namespace DSharpPlus.VoiceNext.Codec
         }
 
 #if !NETSTANDARD1_1
+        public bool IsRtpHeader(ReadOnlySpan<byte> source)
+        {
+            if (source.Length < HeaderSize)
+                return false;
+
+            if ((source[0] != RtpNoExtension && source[0] != RtpExtension) || source[1] != RtpVersion)
+                return false;
+
+            return true;
+        }
+
         public void DecodeHeader(ReadOnlySpan<byte> source, out ushort sequence, out uint timestamp, out uint ssrc, out bool hasExtension)
         {
             if (source.Length < HeaderSize)
@@ -65,7 +76,7 @@ namespace DSharpPlus.VoiceNext.Codec
         }
 
 #if !NETSTANDARD1_1
-        public void GetDataFromPacket(Span<byte> packet, out Span<byte> data, EncryptionMode encryptionMode)
+        public void GetDataFromPacket(ReadOnlySpan<byte> packet, out ReadOnlySpan<byte> data, EncryptionMode encryptionMode)
         {
             switch (encryptionMode)
             {

@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.VoiceNext.EventArgs
 {
     /// <summary>
     /// Represents arguments for VoiceReceived events.
@@ -13,7 +13,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the SSRC of the audio source.
         /// </summary>
         public uint SSRC { get; internal set; }
-        
+
         /// <summary>
         /// Gets the user that sent the audio data.
         /// </summary>
@@ -25,9 +25,14 @@ namespace DSharpPlus.EventArgs
         public ReadOnlyMemory<byte> Voice { get; internal set; }
 
         /// <summary>
-        /// Gets the length of the received data.
+        /// Gets the format of the received PCM data.
         /// </summary>
-        public int VoiceLength { get; internal set; }
+        public AudioFormat AudioFormat { get; internal set; }
+
+        /// <summary>
+        /// Gets the millisecond duration of the PCM audio sample.
+        /// </summary>
+        public int AudioDuration { get; internal set; }
 
         internal VoiceReceiveEventArgs(DiscordClient client) : base(client) { }
     }

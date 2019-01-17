@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext;
+using DSharpPlus.VoiceNext.EventArgs;
 
 namespace DSharpPlus.Test
 {
@@ -19,13 +21,13 @@ namespace DSharpPlus.Test
         private CancellationToken AudioLoopCancelToken => this.AudioLoopCancelTokenSource.Token;
         private Task AudioLoopTask { get; set; }
 
-        private ConcurrentDictionary<uint, ulong> _ssrc_map;
-        private ConcurrentDictionary<uint, FileStream> _ssrc_filemap;
+        private ConcurrentDictionary<uint, ulong> _ssrcMap;
+        private ConcurrentDictionary<uint, FileStream> _ssrcFilemap;
         private async Task OnVoiceReceived(VoiceReceiveEventArgs e)
         {
-            if (!this._ssrc_filemap.ContainsKey(e.SSRC))
-                this._ssrc_filemap[e.SSRC] = File.Create($"{e.SSRC}.pcm");
-            var fs = this._ssrc_filemap[e.SSRC];
+            if (!this._ssrcFilemap.ContainsKey(e.SSRC))
+                this._ssrcFilemap[e.SSRC] = File.Create($"{e.SSRC}.pcm");
+            var fs = this._ssrcFilemap[e.SSRC];
 
             //e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data.", DateTime.Now);
             var buff = e.Voice.ToArray();
@@ -34,13 +36,25 @@ namespace DSharpPlus.Test
         }
         private Task OnUserSpeaking(UserSpeakingEventArgs e)
         {
-            if (this._ssrc_map.ContainsKey(e.SSRC))
+            if (this._ssrcMap.ContainsKey(e.SSRC))
                 return Task.CompletedTask;
 
             if (e.User == null)
                 return Task.CompletedTask;
 
-            this._ssrc_map[e.SSRC] = e.User.Id;
+            this._ssrcMap[e.SSRC] = e.User.Id;
+            return Task.CompletedTask;
+        }
+        private Task OnUserJoined(VoiceUserJoinEventArgs e)
+        {
+            this._ssrcMap.TryAdd(e.SSRC, e.User.Id);
+            return Task.CompletedTask;
+        }
+        private Task OnUserLeft(VoiceUserLeaveEventArgs e)
+        {
+            if (this._ssrcFilemap.TryRemove(e.SSRC, out var pcmFs))
+                pcmFs.Dispose();
+            this._ssrcMap.TryRemove(e.SSRC, out _);
             return Task.CompletedTask;
         }
 
@@ -85,10 +99,12 @@ namespace DSharpPlus.Test
 
             if (ctx.Client.GetVoiceNext().IsIncomingEnabled)
             {
-                this._ssrc_map = new ConcurrentDictionary<uint, ulong>();
-                this._ssrc_filemap = new ConcurrentDictionary<uint, FileStream>();
+                this._ssrcMap = new ConcurrentDictionary<uint, ulong>();
+                this._ssrcFilemap = new ConcurrentDictionary<uint, FileStream>();
                 vnc.VoiceReceived += this.OnVoiceReceived;
                 vnc.UserSpeaking += this.OnUserSpeaking;
+                vnc.UserJoined += this.OnUserJoined;
+                vnc.UserLeft += this.OnUserLeft;
             }
         }
 
@@ -114,12 +130,12 @@ namespace DSharpPlus.Test
                 vnc.UserSpeaking -= this.OnUserSpeaking;
                 vnc.VoiceReceived -= this.OnVoiceReceived;
 
-                foreach (var kvp in this._ssrc_filemap)
+                foreach (var kvp in this._ssrcFilemap)
                     kvp.Value.Dispose();
 
                 using (var fs = File.Create("index.txt"))
                 using (var sw = new StreamWriter(fs, new UTF8Encoding(false)))
-                    foreach (var kvp in this._ssrc_map)
+                    foreach (var kvp in this._ssrcMap)
                         await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value)).ConfigureAwait(false);
             }
 

@@ -401,84 +401,103 @@ namespace DSharpPlus.VoiceNext
         }
 
 #if !NETSTANDARD1_1
-        private async Task VoiceReceiverTask()
-        {/*
-            var token = this.ReceiverToken;
-            var client = this.UdpClient;
-            while (!token.IsCancellationRequested)
-            {
-                if (client.DataAvailable <= 0)
-                    continue;
+        private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> pcm, out AudioSender voiceSender)
+        {
+            voiceSender = null;
+            if (!this.Rtp.IsRtpHeader(data))
+                return false;
 
-                byte[] data = null, header = null;
-                ushort seq = 0;
-                uint ts = 0, ssrc = 0;
-                try
+            this.Rtp.DecodeHeader(data, out var sequence, out var timestamp, out var ssrc, out var hasExtension);
+
+            Span<byte> nonce = stackalloc byte[Sodium.NonceSize];
+            this.Sodium.GetNonce(data, nonce, this.SelectedEncryptionMode);
+            this.Rtp.GetDataFromPacket(data, out var encryptedOpus, this.SelectedEncryptionMode);
+            
+            var vtx = this.TransmittingSSRCs[ssrc];
+            voiceSender = vtx;
+
+            var opusSize = Sodium.CalculateSourceSize(encryptedOpus);
+            var opusArray = ArrayPool<byte>.Shared.Rent(opusSize);
+            var opus = opusArray.AsSpan(0, opusSize);
+            try
+            { 
+                this.Sodium.Decrypt(encryptedOpus, opus, nonce);
+
+                // Strip extensions, if any
+                if (hasExtension)
                 {
-                    data = await client.ReceiveAsync().ConfigureAwait(false);
-
-                    header = new byte[RtpCodec.SIZE_HEADER];
-                    data = this.Rtp.Decode(data, header);
-
-                    var nonce = this.Rtp.MakeNonce(header);
-                    data = this.Sodium.Decode(data, nonce, this.Key);
-
-                    // following is thanks to code from Eris
-                    // https://github.com/abalabahaha/eris/blob/master/lib/voice/VoiceConnection.js#L623
-                    var doff = 0;
-                    this.Rtp.Decode(header, out seq, out ts, out ssrc, out var has_ext);
-                    if (has_ext)
+                    // RFC 5285, 4.2 One-Byte header
+                    // http://www.rfcreader.com/#rfc5285_line186
+                    if (opus[0] == 0xBE && opus[1] == 0xDE)
                     {
-                        if (data[0] == 0xBE && data[1] == 0xDE)
+                        var headerLen = opus[2] << 8 | opus[3];
+                        var i = 4;
+                        for (; i < headerLen + 4; i++)
                         {
-                            // RFC 5285, 4.2 One-Byte header
-                            // http://www.rfcreader.com/#rfc5285_line186
+                            var @byte = opus[i];
 
-                            var hlen = data[2] << 8 | data[3];
-                            var i = 4;
-                            for (; i < hlen + 4; i++)
-                            {
-                                var b = data[i];
-                                // This is unused(?)
-                                //var id = (b >> 4) & 0x0F;
-                                var len = (b & 0x0F) + 1;
-                                i += len;
-                            }
-                            while (data[i] == 0)
-                                i++;
-                            doff = i;
+                            // ID is currently unused since we skip it anyway
+                            //var id = (byte)(@byte >> 4);
+                            var length = (byte)(@byte & 0x0F) + 1;
+
+                            i += length;
                         }
-                        // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
+
+                        // Strip extension padding too
+                        while (opus[i] == 0)
+                            i++;
+
+                        opus = opus.Slice(i);
                     }
 
-                    data = this.Opus.Decode(data, doff, data.Length - doff);
-                }
-                catch { continue; }
-
-                // TODO: wait for ssrc map?
-                DiscordUser user = null;
-                if (this.SSRCMap.ContainsKey(ssrc))
-                {
-                    var id = this.SSRCMap[ssrc];
-                    if (this.Guild != null)
-                        user = this.Guild._members.FirstOrDefault(xm => xm.Id == id) ?? await this.Guild.GetMemberAsync(id).ConfigureAwait(false);
-
-                    if (user == null)
-                        user = this.Discord.InternalGetCachedUser(id);
-
-                    if (user == null)
-                        user = new DiscordUser { Discord = this.Discord, Id = id };
+                    // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
                 }
 
-                await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
-                {
-                    SSRC = ssrc,
-                    Voice = new ReadOnlyCollection<byte>(data),
-                    VoiceLength = 20,
-                    User = user
-                }).ConfigureAwait(false);
+                var pcmSpan = pcm.Span;
+                this.Opus.Decode(vtx.Decoder, opus, ref pcmSpan);
+                pcm = pcm.Slice(0, pcmSpan.Length);
             }
-        */}
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(opusArray);
+            }
+
+            return true;
+        }
+
+        private async Task VoiceReceiverTask()
+        {
+            var token = this.SenderToken;
+            var client = this.UdpClient;
+
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    var data = await client.ReceiveAsync().ConfigureAwait(false);
+                    if (data.Length < 13) // minimum packet length
+                        continue;
+
+                    var pcm = new byte[this.AudioFormat.CalculateMaximumFrameSize()];
+                    var pcmMem = pcm.AsMemory();
+                    if (!this.ProcessPacket(data, ref pcmMem, out var vtx))
+                        continue;
+
+                    await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
+                    {
+                        SSRC = vtx.SSRC,
+                        User = vtx.User,
+                        Voice = pcmMem,
+                        AudioFormat = this.AudioFormat,
+                        AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmMem.Length)
+                    }).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    this.Discord.DebugLogger.LogMessage(LogLevel.Error, "VNext RX", "Exception occured when decoding incoming audio data", DateTime.Now, ex);
+                }
+            }
+        }
 #endif
 
         /// <summary>
@@ -640,6 +659,8 @@ namespace DSharpPlus.VoiceNext
 
                 decodedPort = MemoryMarshal.Read<ushort>(packetSpan.Slice(68 /* 70 - 2 */));
             }
+#else
+            await Task.Yield(); // just stop bothering me VS
 #endif
 
             // Select voice encryption mode
@@ -686,6 +707,16 @@ namespace DSharpPlus.VoiceNext
         {
             this.SelectedEncryptionMode = Sodium.SupportedModes[voiceSessionDescription.Mode.ToLowerInvariant()];
             this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Discord updated encryption mode: {this.SelectedEncryptionMode}", DateTime.Now);
+
+            // send 3 packets of silence to get things going
+            var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
+            for (var i = 0; i < 3; i++)
+            {
+                var nullopus = new byte[nullpcm.Length];
+                var nullopusmem = nullopus.AsMemory();
+                this.PreparePacket(nullpcm, ref nullopusmem);
+                this.EnqueuePacket(new VoicePacket(nullopusmem, 20));
+            }
 
             this.IsInitialized = true;
             this.ReadyWait.SetResult(true);
@@ -787,7 +818,7 @@ namespace DSharpPlus.VoiceNext
                     }
 #endif
 
-                    await this._userJoined.InvokeAsync(new VoiceUserJoinEventArgs(this.Discord) { User = usrj }).ConfigureAwait(false);
+                    await this._userJoined.InvokeAsync(new VoiceUserJoinEventArgs(this.Discord) { User = usrj, SSRC = ujpd.SSRC }).ConfigureAwait(false);
                     break;
 
                 case 13: // CLIENT_DISCONNECTED
@@ -803,7 +834,13 @@ namespace DSharpPlus.VoiceNext
 #endif
 
                     var usrl = await this.Discord.GetUserAsync(ulpd.UserId).ConfigureAwait(false);
-                    await this._userLeft.InvokeAsync(new VoiceUserLeaveEventArgs(this.Discord) { User = usrl }).ConfigureAwait(false);
+                    await this._userLeft.InvokeAsync(new VoiceUserLeaveEventArgs(this.Discord)
+                    {
+                        User = usrl
+#if !NETSTANDARD1_1
+                        ,SSRC = txssrc.Key
+#endif
+                    }).ConfigureAwait(false);
                     break;
 
                 default:

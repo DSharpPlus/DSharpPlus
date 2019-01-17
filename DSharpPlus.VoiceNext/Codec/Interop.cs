@@ -42,7 +42,7 @@ namespace DSharpPlus.VoiceNext.Codec
 
 #if !NETSTANDARD1_1
         [DllImport("sodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_open_easy")]
-        private static unsafe extern int _SodiumSecretBoxOpen(byte* buffer, byte* message, ulong messageLength, byte* nonce, byte* key);
+        private static unsafe extern int _SodiumSecretBoxOpen(byte* buffer, byte* encryptedMessage, ulong encryptedLength, byte* nonce, byte* key);
 #endif
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace DSharpPlus.VoiceNext.Codec
             fixed (byte* targetPtr = &target.GetPinnableReference())
             fixed (byte* keyPtr = &key.GetPinnableReference())
             fixed (byte* noncePtr = &nonce.GetPinnableReference())
-                status = _SodiumSecretBoxOpen(sourcePtr, targetPtr, (ulong)target.Length, noncePtr, keyPtr);
+                status = _SodiumSecretBoxOpen(targetPtr, sourcePtr, (ulong)source.Length, noncePtr, keyPtr);
 
             return status;
         }
