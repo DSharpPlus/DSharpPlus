@@ -59,13 +59,13 @@ namespace DSharpPlus.VoiceNext.Codec
         }
 
 #if !NETSTANDARD1_1
-        public void Decode(OpusDecoder decoder, ReadOnlySpan<byte> opus, ref Span<byte> target, out AudioFormat outputFormat, out int sampleCount)
+        public void Decode(OpusDecoder decoder, ReadOnlySpan<byte> opus, ref Span<byte> target, bool useFec, out AudioFormat outputFormat)
         {
-            if (target.Length != this.AudioFormat.CalculateMaximumFrameSize())
-                throw new ArgumentException("PCM target buffer size needs to be equal to maximum buffer size for specified audio format.", nameof(target));
+            //if (target.Length != this.AudioFormat.CalculateMaximumFrameSize())
+            //    throw new ArgumentException("PCM target buffer size needs to be equal to maximum buffer size for specified audio format.", nameof(target));
 
             Interop.OpusGetPacketMetrics(opus, this.AudioFormat.SampleRate, out var channels, out var frames, out var samplesPerFrame, out var frameSize);
-            sampleCount = Interop.OpusDecode(decoder.Decoder, opus, frameSize, target);
+            var sampleCount = Interop.OpusDecode(decoder.Decoder, opus, frameSize, target, useFec);
 
             outputFormat = this.AudioFormat.ChannelCount != channels ? new AudioFormat(this.AudioFormat.SampleRate, channels, this.AudioFormat.VoiceApplication) : this.AudioFormat;
             var sampleSize = outputFormat.SampleCountToSampleSize(sampleCount);
@@ -142,9 +142,6 @@ namespace DSharpPlus.VoiceNext.Codec
             this.Decoder = decoder;
             this.Opus = managedOpus;
         }
-
-        internal void Decode(ReadOnlySpan<byte> opus, ref Span<byte> pcm, out AudioFormat outputFormat, out int sampleCount)
-            => this.Opus.Decode(this, opus, ref pcm, out outputFormat, out sampleCount);
 
         /// <summary>
         /// Disposes of this Opus decoder.

@@ -167,13 +167,13 @@ namespace DSharpPlus.VoiceNext.Codec
             return decoder;
         }
 
-        public static unsafe int OpusDecode(IntPtr decoder, ReadOnlySpan<byte> opus, int frameSize, Span<byte> pcm)
+        public static unsafe int OpusDecode(IntPtr decoder, ReadOnlySpan<byte> opus, int frameSize, Span<byte> pcm, bool useFec)
         {
             var len = 0;
 
             fixed (byte* opusPtr = &opus.GetPinnableReference())
             fixed (byte* pcmPtr = &pcm.GetPinnableReference())
-                len = _OpusDecode(decoder, opusPtr, opus.Length, pcmPtr, frameSize, 0);
+                len = _OpusDecode(decoder, opusPtr, opus.Length, pcmPtr, frameSize, useFec ? 1 : 0);
 
             if (len < 0)
             {

@@ -416,11 +416,10 @@ namespace DSharpPlus.VoiceNext
         }
 
 #if !NETSTANDARD1_1
-        private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> pcm, out AudioSender voiceSender, out AudioFormat outputFormat/*, out IEnumerable<Memory<byte>> fecPackets*/)
+        private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> pcm, IList<ReadOnlyMemory<byte>> pcmPackets, out AudioSender voiceSender, out AudioFormat outputFormat)
         {
             voiceSender = null;
             outputFormat = default;
-            //fecPackets = null;
             if (!this.Rtp.IsRtpHeader(data))
                 return false;
 
@@ -431,17 +430,9 @@ namespace DSharpPlus.VoiceNext
             if (sequence <= vtx.LastSequence) // out-of-order packet; discard
                 return false;
             var gap = vtx.LastSequence != 0 ? sequence - 1 - vtx.LastSequence : 0;
-            //if (gap > 0 && vtx.LastSampleCount != 0)
-            //{
-            //    fecPackets = new List<Memory<byte>>();
-            //    for (var i = 0; i < gap; i++)
-            //    {
-            //        var lastSampleCount = this.Opus.GetLastPacketSampleCount(vtx.Decoder);
-            //        var fecpcm = new byte[this.AudioFormat.SampleCountToSampleSize(lastSampleCount)];
-            //        var fecpcmMem = fecpcm.AsSpan();
-            //        this.Opus.ProcessPacketLoss(vtx.Decoder,  fecpcmMem);
-            //    }
-            //}
+
+            if (gap >= 5)
+                this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "VNext RX", "5 or more voice packets were dropped when receiving", DateTime.Now);
 
             Span<byte> nonce = stackalloc byte[Sodium.NonceSize];
             this.Sodium.GetNonce(data, nonce, this.SelectedEncryptionMode);
@@ -484,8 +475,28 @@ namespace DSharpPlus.VoiceNext
                     // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
                 }
 
+                if (gap == 1)
+                {
+                    var lastSampleCount = this.Opus.GetLastPacketSampleCount(vtx.Decoder);
+                    var fecpcm = new byte[this.AudioFormat.SampleCountToSampleSize(lastSampleCount)];
+                    var fecpcmMem = fecpcm.AsSpan();
+                    this.Opus.Decode(vtx.Decoder, opus, ref fecpcmMem, true, out _);
+                    pcmPackets.Add(fecpcm.AsMemory(0, fecpcmMem.Length));
+                }
+                else if (gap > 1)
+                {
+                    var lastSampleCount = this.Opus.GetLastPacketSampleCount(vtx.Decoder);
+                    for (var i = 0; i < gap; i++)
+                    {
+                        var fecpcm = new byte[this.AudioFormat.SampleCountToSampleSize(lastSampleCount)];
+                        var fecpcmMem = fecpcm.AsSpan();
+                        this.Opus.ProcessPacketLoss(vtx.Decoder, lastSampleCount, ref fecpcmMem);
+                        pcmPackets.Add(fecpcm.AsMemory(0, fecpcmMem.Length));
+                    }
+                }
+
                 var pcmSpan = pcm.Span;
-                this.Opus.Decode(vtx.Decoder, opus, ref pcmSpan, out outputFormat, out var sampleCount);
+                this.Opus.Decode(vtx.Decoder, opus, ref pcmSpan, false, out outputFormat);
                 pcm = pcm.Slice(0, pcmSpan.Length);
             }
             finally
@@ -499,15 +510,26 @@ namespace DSharpPlus.VoiceNext
 
         private async Task ProcessVoicePacket(byte[] data)
         {
+            if (data.Length < 13) // minimum packet length
+                return;
+
             try
             {
-                if (data.Length < 13) // minimum packet length
-                    return;
-
                 var pcm = new byte[this.AudioFormat.CalculateMaximumFrameSize()];
                 var pcmMem = pcm.AsMemory();
-                if (!this.ProcessPacket(data, ref pcmMem, out var vtx, out var audioFormat))
+                var pcmFillers = new List<ReadOnlyMemory<byte>>();
+                if (!this.ProcessPacket(data, ref pcmMem, pcmFillers, out var vtx, out var audioFormat))
                     return;
+
+                foreach (var pcmFiller in pcmFillers)
+                    await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
+                    {
+                        SSRC = vtx.SSRC,
+                        User = vtx.User,
+                        Voice = pcmFiller,
+                        AudioFormat = audioFormat,
+                        AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmFiller.Length)
+                    }).ConfigureAwait(false);
 
                 await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
                 {
