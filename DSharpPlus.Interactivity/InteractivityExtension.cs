@@ -76,10 +76,17 @@ namespace DSharpPlus.Interactivity
             this.MessageCreatedWaiter = new EventWaiter<MessageCreateEventArgs>(this.Client);
         }
 
+        // These methods have placeholder functionality / placeholder names. This is a big WIP.
         public async Task<DiscordMessage> GetMessage(Func<DiscordMessage, bool> predicate)
         {
             var result = await this.MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), Config.Timeout));
             return result?.Message;
+        }
+
+        public async Task<int> CollectMessages(Func<DiscordMessage, bool> predicate, TimeSpan timespan)
+        {
+            var collected = await this.MessageCreatedWaiter.CollectMatches(new CollectRequest<MessageCreateEventArgs>(x => predicate(x.Message), timespan));
+            return collected.Count;
         }
     }
 }

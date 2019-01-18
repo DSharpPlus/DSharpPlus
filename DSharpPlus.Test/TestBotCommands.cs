@@ -22,12 +22,10 @@ namespace DSharpPlus.Test
         [Command("testinteractivity")]
         public async Task TesteAsync(CommandContext ctx)
         {
+            await ctx.RespondAsync($"Counting messages by {ctx.Member.Mention} for 10 seconds.");
             var _int = ctx.Client.GetInteractivity();
-            var result = await _int.GetMessage(x => x.Content == "e");
-            if(result != null)
-                await ctx.RespondAsync("yeet");
-            else
-                await ctx.RespondAsync("oof");
+            var result = await _int.CollectMessages(x => x.Author.Id == ctx.Member.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromSeconds(10));
+            await ctx.RespondAsync($"I've waited 10 seconds and collected {result} messages by {ctx.Member.Mention}.");
         }
 
         // disabled cause permissions'n'shit
