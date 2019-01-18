@@ -106,7 +106,7 @@ namespace DSharpPlus.Test
             // interactivity service
             var icfg = new InteractivityConfiguration()
             {
-                Timeout = TimeSpan.FromSeconds(5)
+                Timeout = TimeSpan.FromSeconds(30)
             };
 
             this.InteractivityService = Discord.UseInteractivity(icfg);

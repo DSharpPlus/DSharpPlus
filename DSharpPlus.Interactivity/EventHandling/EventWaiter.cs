@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSharpPlus.Interactivity.Concurrency;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         DiscordClient _client;
         AsyncEvent<T> _event;
         AsyncEventHandler<T> _handler;
-        List<MatchRequest<T>> _requests;
+        ConcurrentHashSet<MatchRequest<T>> _requests;
         object _lock = new object();
 
         public EventWaiter(DiscordClient client)
@@ -22,7 +23,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._client = client;
             var tinfo = _client.GetType().GetTypeInfo();
             var handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<T>));
-            this._requests = new List<MatchRequest<T>>();
+            this._requests = new ConcurrentHashSet<MatchRequest<T>>();
             this._event = (AsyncEvent<T>)handler.GetValue(_client);
             this._handler = new AsyncEventHandler<T>(HandleEvent);
             this._event.Register(_handler);
@@ -31,15 +32,12 @@ namespace DSharpPlus.Interactivity.EventHandling
         public async Task<T> WaitForMatch(MatchRequest<T> request)
         {
             T result = null;
-            lock (_lock)
-            {
-                this._requests.Add(request);
-            }
+            this._requests.Add(request);
             try
             {
                 result = await request._tcs.Task;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _client.DebugLogger.LogMessage(LogLevel.Error, "Interactivity", $"Something went wrong waiting for {typeof(T).Name}.", DateTime.Now);
             }
@@ -47,7 +45,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 lock (_lock)
                 {
-                    this._requests.Remove(request);
+                    this._requests.TryRemove(request);
                 }
             }
             return result;
@@ -56,15 +54,11 @@ namespace DSharpPlus.Interactivity.EventHandling
         async Task HandleEvent(T eventargs)
         {
             await Task.Yield();
-            lock (_lock)
+            foreach(var req in _requests)
             {
-                for (int i = 0; i < _requests.Count; i++)
+                if (req._predicate(eventargs))
                 {
-                    var req = _requests[i];
-                    if (req._predicate(eventargs))
-                    {
-                        req._tcs.SetResult(eventargs);
-                    }
+                    req._tcs.TrySetResult(eventargs);
                 }
             }
         }
@@ -76,11 +70,6 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public void Dispose()
         {
-            lock (_lock)
-            {
-                this._requests.Clear();
-            }
-
             this._client = null;
             this._event.Unregister(_handler);
             this._event = null;
