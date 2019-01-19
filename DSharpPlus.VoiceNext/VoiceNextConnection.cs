@@ -747,6 +747,7 @@ namespace DSharpPlus.VoiceNext
                 Address = ip,
                 Port = port
             };
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Endpoint discovery resulted in {ip}:{port}", DateTime.Now);
             
             void PreparePacket(byte[] packet)
             {
@@ -763,9 +764,10 @@ namespace DSharpPlus.VoiceNext
                 var ipString = new UTF8Encoding(false).GetString(packet, 4, 64 /* 70 - 6 */).TrimEnd('\0');
                 decodedIp = System.Net.IPAddress.Parse(ipString);
 
-                decodedPort = MemoryMarshal.Read<ushort>(packetSpan.Slice(68 /* 70 - 2 */));
+                decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(68 /* 70 - 2 */));
             }
 #else
+            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Voice receive not supported - not performing endpoint discovery", DateTime.Now);
             await Task.Yield(); // just stop bothering me VS
 #endif
 
