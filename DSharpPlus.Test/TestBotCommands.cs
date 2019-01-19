@@ -28,9 +28,9 @@ namespace DSharpPlus.Test
             var smirk = DiscordEmoji.FromName(ctx.Client, ":smirk:");
             var sad = DiscordEmoji.FromName(ctx.Client, ":cry:");
 
-            var poll = await _int.WaitPoll(m, smirk, sad);
+            var poll = await _int.WaitPoll(m, new DiscordEmoji[] { smirk, sad }, timeout: TimeSpan.FromSeconds(5));
 
-            await ctx.RespondAsync($"Collected smirk: {poll.First(x => x.Emoji == smirk).Total} sad: {poll.First(x => x.Emoji == sad).Total}");
+            await m.ModifyAsync($"Collected smirk: {poll.First(x => x.Emoji == smirk).Total} sad: {poll.First(x => x.Emoji == sad).Total}");
         }
 
         // disabled cause permissions'n'shit

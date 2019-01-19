@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSharpPlus.Interactivity.Enums;
+using System;
 
 namespace DSharpPlus.Interactivity
 {
@@ -12,6 +13,8 @@ namespace DSharpPlus.Interactivity
         /// <para>Defaults to 1 minute.</para>
         /// </summary>
         public TimeSpan Timeout { internal get; set; } = TimeSpan.FromMinutes(1);
+
+        public PollBehaviour PolBehaviour { internal get; set; } = PollBehaviour.DeleteEmojis;
         /// <summary>
         /// Creates a new instance of <see cref="InteractivityConfiguration"/>.
         /// </summary>

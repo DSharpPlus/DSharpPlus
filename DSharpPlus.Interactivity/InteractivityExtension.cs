@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 
 namespace DSharpPlus.Interactivity
@@ -82,26 +83,20 @@ namespace DSharpPlus.Interactivity
             this.Poller = new Poller(this.Client);
         }
 
-        // These methods have placeholder functionality / placeholder names. This is a big WIP.
-        public async Task<DiscordMessage> GetMessage(Func<DiscordMessage, bool> predicate)
-        {
-            var result = await this.MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), Config.Timeout));
-            return result?.Message;
-        }
-
-        public async Task<int> CollectMessages(Func<DiscordMessage, bool> predicate, TimeSpan timespan)
-        {
-            var collected = await this.MessageCreatedWaiter.CollectMatches(new CollectRequest<MessageCreateEventArgs>(x => predicate(x.Message), timespan));
-            return collected.Count;
-        }
-
-        public async Task<ReadOnlySet<PollEmoji>> WaitPoll(DiscordMessage m, params DiscordEmoji[] emojis)
+        public async Task<ReadOnlySet<PollEmoji>> WaitPoll(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
         {
             foreach(var em in emojis)
             {
                 await m.CreateReactionAsync(em);
             }
-            var res = await Poller.DoPoll(new PollRequest(m, this.Config.Timeout, emojis));
+            var res = await Poller.DoPoll(new PollRequest(m, timeout ?? this.Config.Timeout, emojis));
+
+            var pollbehaviour = behaviour == PollBehaviour.Default ? this.Config.PolBehaviour : behaviour;
+            var thismember = await m.Channel.Guild.GetMemberAsync(Client.CurrentUser.Id);
+
+            if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(Permissions.ManageMessages))
+                await m.DeleteAllReactionsAsync();
+
             return res;
         }
     }
