@@ -59,11 +59,16 @@ namespace DSharpPlus.Interactivity
     }
     #endregion
 
+    /// <summary>
+    /// Extension class for DSharpPlus.Interactivity
+    /// </summary>
     public class InteractivityExtension : BaseExtension
     {
         private InteractivityConfiguration Config { get; }
 
         private EventWaiter<MessageCreateEventArgs> MessageCreatedWaiter;
+
+        private Poller Poller;
 
         internal InteractivityExtension(InteractivityConfiguration cfg)
         {
@@ -74,6 +79,7 @@ namespace DSharpPlus.Interactivity
         {
             this.Client = client;
             this.MessageCreatedWaiter = new EventWaiter<MessageCreateEventArgs>(this.Client);
+            this.Poller = new Poller(this.Client);
         }
 
         // These methods have placeholder functionality / placeholder names. This is a big WIP.
@@ -88,5 +94,16 @@ namespace DSharpPlus.Interactivity
             var collected = await this.MessageCreatedWaiter.CollectMatches(new CollectRequest<MessageCreateEventArgs>(x => predicate(x.Message), timespan));
             return collected.Count;
         }
+
+        public async Task<ReadOnlySet<PollEmoji>> WaitPoll(DiscordMessage m, params DiscordEmoji[] emojis)
+        {
+            foreach(var em in emojis)
+            {
+                await m.CreateReactionAsync(em);
+            }
+            var res = await Poller.DoPoll(new PollRequest(m, this.Config.Timeout, emojis));
+            return res;
+        }
     }
 }
+// InteractivityNext :^)

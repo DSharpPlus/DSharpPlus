@@ -19,13 +19,18 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
-        [Command("testinteractivity")]
+        [Command("testpoll")]
         public async Task TesteAsync(CommandContext ctx)
         {
-            await ctx.RespondAsync($"Counting messages by {ctx.Member.Mention} for 10 seconds.");
+            var m = await ctx.RespondAsync($"Testing poll.");
             var _int = ctx.Client.GetInteractivity();
-            var result = await _int.CollectMessages(x => x.Author.Id == ctx.Member.Id && x.Channel.Id == ctx.Channel.Id, TimeSpan.FromSeconds(10));
-            await ctx.RespondAsync($"I've waited 10 seconds and collected {result} messages by {ctx.Member.Mention}.");
+
+            var smirk = DiscordEmoji.FromName(ctx.Client, ":smirk:");
+            var sad = DiscordEmoji.FromName(ctx.Client, ":cry:");
+
+            var poll = await _int.WaitPoll(m, smirk, sad);
+
+            await ctx.RespondAsync($"Collected smirk: {poll.First(x => x.Emoji == smirk).Total} sad: {poll.First(x => x.Emoji == sad).Total}");
         }
 
         // disabled cause permissions'n'shit
