@@ -1,4 +1,4 @@
-![Logo of DSharpPlus](https://github.com/NaamloosDT/DSharpPlus/raw/master/logo/dsharp+_smaller.png)
+![Logo of DSharpPlus](https://github.com/DSharpPlus/DSharpPlus/raw/master/logo/dsharp+_smaller.png)
 
 # DSharpPlus
 An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards.
@@ -22,8 +22,8 @@ The documentation can be found [**here**](https://dsharpplus.emzi0767.com/).
 * [Making your first bot in C#](https://dsharpplus.emzi0767.com/articles/intro.html).
 
 ## Example bots
-* [Example by Emzi0767](https://github.com/Emzi0767/DSharpPlus-Example-Bot)
-* [Example by Naamloos](https://github.com/NaamloosDT/DSharpPlus-example)
+* [Example by Emzi0767](https://github.com/DSharpPlus/Example-Bots)
+* [Example by Naamloos](https://github.com/DSharpPlus/DSharpPlus-Example)
 
 # Questions?
 Come talk to us here:

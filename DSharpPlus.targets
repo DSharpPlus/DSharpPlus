@@ -14,10 +14,10 @@
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<Authors>Naamloos afroraydude DrCreo Death TiaqoY0 Axiom Emzi0767 contributors</Authors>
 		<Company>DSharpPlus developers</Company>
-		<PackageLicenseUrl>https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
-		<PackageProjectUrl>https://github.com/NaamloosDT/DSharpPlus</PackageProjectUrl>
-		<PackageIconUrl>https://raw.githubusercontent.com/NaamloosDT/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-		<RepositoryUrl>https://github.com/NaamloosDT/DSharpPlus</RepositoryUrl>
+		<PackageLicenseUrl>https://github.com/DSharpPlus/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
+		<PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
+		<RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 	</PropertyGroup>
   
