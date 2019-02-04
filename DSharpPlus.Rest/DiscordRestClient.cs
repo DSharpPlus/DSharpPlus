@@ -656,7 +656,7 @@ namespace DSharpPlus
         /// <param name="before">Gets guild before id</param>
         /// <param name="after">Gets guilds after id</param>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
+        public Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit = 100, ulong? before = null, ulong? after = null)
             => ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
 
         /// <summary>
