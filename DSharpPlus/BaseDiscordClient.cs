@@ -115,10 +115,10 @@ namespace DSharpPlus
                 this.UserCache.AddOrUpdate(this.CurrentUser.Id, this.CurrentUser, (id, xu) => this.CurrentUser);
             }
 
-            if (this.Configuration.TokenType != TokenType.User && this.CurrentApplication == null)
+            if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
                 this.CurrentApplication = await this.GetCurrentApplicationAsync().ConfigureAwait(false);
 
-            if (this.InternalVoiceRegions.Count == 0)
+            if (this.Configuration.TokenType != TokenType.Bearer && this.InternalVoiceRegions.Count == 0)
             {
                 var vrs = await this.ListVoiceRegionsAsync().ConfigureAwait(false);
                 foreach (var xvr in vrs)

@@ -987,7 +987,7 @@ namespace DSharpPlus.Net
             return user_raw;
         }
 
-        internal async Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit, ulong? before, ulong? after)
+        internal async Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit = 100, ulong? before = null, ulong? after = null)
         {
             var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.GUILDS}?limit={limit}";
 
@@ -1009,15 +1009,7 @@ namespace DSharpPlus.Net
             }
             else
             {
-                var guilds_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordGuild>>(res.Response);
-
-                var glds = new List<DiscordGuild>();
-                foreach (var gld in guilds_raw)
-                {
-                    glds.Add(await GetGuildAsync(gld.Id).ConfigureAwait(false));
-                }
-
-                return new ReadOnlyCollection<DiscordGuild>(new List<DiscordGuild>(glds));
+                return new ReadOnlyCollection<DiscordGuild>(JsonConvert.DeserializeObject<List<DiscordGuild>>(res.Response));
             }
         }
 
