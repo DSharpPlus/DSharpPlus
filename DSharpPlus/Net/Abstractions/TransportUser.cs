@@ -28,6 +28,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
         public string Email { get; internal set; }
 
+        [JsonProperty("premium_type", NullValueHandling = NullValueHandling.Ignore)]
+        public int PremiumType { get; internal set; }
+
         internal TransportUser() { }
 
         internal TransportUser(TransportUser other)
@@ -40,6 +43,7 @@ namespace DSharpPlus.Net.Abstractions
             this.MfaEnabled = other.MfaEnabled;
             this.Verified = other.Verified;
             this.Email = other.Email;
+            this.PremiumType = other.PremiumType;
         }
     }
 }
