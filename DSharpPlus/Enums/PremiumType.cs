@@ -3,7 +3,8 @@
     /// <summary>
     /// The type of Nitro subscription on a user's account.
     /// </summary>
-    public enum PremiumType {
+    public enum PremiumType
+    {
         /// <summary>
         /// Includes app perks like animated emojis and avatars, but not games.
         /// </summary>
