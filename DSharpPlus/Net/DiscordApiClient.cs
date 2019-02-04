@@ -1009,7 +1009,7 @@ namespace DSharpPlus.Net
             }
             else
             {
-                return new ReadOnlyCollection<DiscordGuild>(new List<DiscordGuild>(JsonConvert.DeserializeObject<IEnumerable<DiscordGuild>>(res.Response)));
+                return new ReadOnlyCollection<DiscordGuild>(JsonConvert.DeserializeObject<List<DiscordGuild>>(res.Response));
             }
         }
 
