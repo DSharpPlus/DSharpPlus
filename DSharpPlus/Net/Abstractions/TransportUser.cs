@@ -29,7 +29,7 @@ namespace DSharpPlus.Net.Abstractions
         public string Email { get; internal set; }
 
         [JsonProperty("premium_type", NullValueHandling = NullValueHandling.Ignore)]
-        public int PremiumType { get; internal set; }
+        public PremiumType? PremiumType { get; internal set; }
 
         internal TransportUser() { }
 

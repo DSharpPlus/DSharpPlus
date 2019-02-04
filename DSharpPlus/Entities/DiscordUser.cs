@@ -86,10 +86,10 @@ namespace DSharpPlus.Entities
         public virtual string Email { get; internal set; }
 
         /// <summary>
-        /// Gets the user's email address.
+        /// Gets the user's premium type.
         /// </summary>
         [JsonProperty("premium_type", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual int? PremiumType { get; internal set; }
+        public virtual PremiumType? PremiumType { get; internal set; }
 
         /// <summary>
         /// Gets the user's mention string.
