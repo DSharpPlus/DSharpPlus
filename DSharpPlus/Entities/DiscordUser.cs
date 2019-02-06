@@ -23,6 +23,7 @@ namespace DSharpPlus.Entities
             this.Verified = transport.Verified;
             this.Email = transport.Email;
             this.PremiumType = transport.PremiumType;
+            this.Locale = transport.Locale;
         }
 
         /// <summary>
@@ -91,6 +92,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("premium_type", NullValueHandling = NullValueHandling.Ignore)]
         public virtual PremiumType? PremiumType { get; internal set; }
 
+        /// <summary>
+        /// Gets the user's chosen language
+        /// </summary>
+        [JsonProperty("locale", NullValueHandling = NullValueHandling.Ignore)]
+        public virtual string Locale { get; internal set; }
+        
         /// <summary>
         /// Gets the user's mention string.
         /// </summary>

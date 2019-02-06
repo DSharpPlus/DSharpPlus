@@ -205,6 +205,12 @@ namespace DSharpPlus.Entities
             get { return this.User.Verified; }
             internal set { this.User.Verified = value; }
         }
+
+        public override string Locale
+        {
+            get { return this.User.Locale; }
+            internal set { this.User.Locale = value; }
+        }
         #endregion
 
         /// <summary>
