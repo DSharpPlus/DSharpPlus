@@ -206,6 +206,9 @@ namespace DSharpPlus.Entities
             internal set { this.User.Verified = value; }
         }
 
+        /// <summary>
+        /// Gets the user's chosen language
+        /// </summary>
         public override string Locale
         {
             get { return this.User.Locale; }
