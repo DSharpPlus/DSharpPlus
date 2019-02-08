@@ -57,6 +57,12 @@ namespace DSharpPlus.Entities
         internal ulong OwnerId { get; set; }
 
         /// <summary>
+        /// Gets permissions for the user in the guild (does not include channel overrides)
+        /// </summary>
+        [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Permissions? Permissions { get; set; }
+
+        /// <summary>
         /// Gets the guild's owner.
         /// </summary>
         [JsonIgnore]
@@ -1543,7 +1549,7 @@ namespace DSharpPlus.Entities
         {
             return this._channels.Where(xc => xc.Type == ChannelType.Text)
                 .OrderBy(xc => xc.Position)
-                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels);
+                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
         }
         #endregion
 
