@@ -20,9 +20,14 @@ namespace DSharpPlus.VoiceNext.EventArgs
         public DiscordUser User { get; internal set; }
 
         /// <summary>
-        /// Gets the received data.
+        /// Gets the received voice data, decoded to PCM format.
         /// </summary>
-        public ReadOnlyMemory<byte> Voice { get; internal set; }
+        public ReadOnlyMemory<byte> PcmData { get; internal set; }
+
+        /// <summary>
+        /// Gets the received voice data, in Opus format. Note that for packets that were lost and/or compensated for, this will be empty.
+        /// </summary>
+        public ReadOnlyMemory<byte> OpusData { get; internal set; }
 
         /// <summary>
         /// Gets the format of the received PCM data.

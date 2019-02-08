@@ -30,7 +30,7 @@ namespace DSharpPlus.Test
             var fs = this._ssrcFilemap[e.SSRC];
 
             //e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data.", DateTime.Now);
-            var buff = e.Voice.ToArray();
+            var buff = e.PcmData.ToArray();
             await fs.WriteAsync(buff, 0, buff.Length).ConfigureAwait(false);
             //await fs.FlushAsync().ConfigureAwait(false);
         }

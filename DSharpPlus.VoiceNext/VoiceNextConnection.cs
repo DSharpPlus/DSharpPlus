@@ -416,7 +416,7 @@ namespace DSharpPlus.VoiceNext
         }
 
 #if !NETSTANDARD1_1
-        private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> pcm, IList<ReadOnlyMemory<byte>> pcmPackets, out AudioSender voiceSender, out AudioFormat outputFormat)
+        private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> opus, ref Memory<byte> pcm, IList<ReadOnlyMemory<byte>> pcmPackets, out AudioSender voiceSender, out AudioFormat outputFormat)
         {
             voiceSender = null;
             outputFormat = default;
@@ -439,24 +439,24 @@ namespace DSharpPlus.VoiceNext
             this.Rtp.GetDataFromPacket(data, out var encryptedOpus, this.SelectedEncryptionMode);
 
             var opusSize = Sodium.CalculateSourceSize(encryptedOpus);
-            var opusArray = ArrayPool<byte>.Shared.Rent(opusSize);
-            var opus = opusArray.AsSpan(0, opusSize);
+            opus = opus.Slice(0, opusSize);
+            var opusSpan = opus.Span;
             try
             { 
-                this.Sodium.Decrypt(encryptedOpus, opus, nonce);
+                this.Sodium.Decrypt(encryptedOpus, opusSpan, nonce);
 
                 // Strip extensions, if any
                 if (hasExtension)
                 {
                     // RFC 5285, 4.2 One-Byte header
                     // http://www.rfcreader.com/#rfc5285_line186
-                    if (opus[0] == 0xBE && opus[1] == 0xDE)
+                    if (opusSpan[0] == 0xBE && opusSpan[1] == 0xDE)
                     {
-                        var headerLen = opus[2] << 8 | opus[3];
+                        var headerLen = opusSpan[2] << 8 | opusSpan[3];
                         var i = 4;
                         for (; i < headerLen + 4; i++)
                         {
-                            var @byte = opus[i];
+                            var @byte = opusSpan[i];
 
                             // ID is currently unused since we skip it anyway
                             //var id = (byte)(@byte >> 4);
@@ -466,10 +466,10 @@ namespace DSharpPlus.VoiceNext
                         }
 
                         // Strip extension padding too
-                        while (opus[i] == 0)
+                        while (opusSpan[i] == 0)
                             i++;
 
-                        opus = opus.Slice(i);
+                        opusSpan = opusSpan.Slice(i);
                     }
 
                     // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
@@ -480,7 +480,7 @@ namespace DSharpPlus.VoiceNext
                     var lastSampleCount = this.Opus.GetLastPacketSampleCount(vtx.Decoder);
                     var fecpcm = new byte[this.AudioFormat.SampleCountToSampleSize(lastSampleCount)];
                     var fecpcmMem = fecpcm.AsSpan();
-                    this.Opus.Decode(vtx.Decoder, opus, ref fecpcmMem, true, out _);
+                    this.Opus.Decode(vtx.Decoder, opusSpan, ref fecpcmMem, true, out _);
                     pcmPackets.Add(fecpcm.AsMemory(0, fecpcmMem.Length));
                 }
                 else if (gap > 1)
@@ -496,13 +496,12 @@ namespace DSharpPlus.VoiceNext
                 }
 
                 var pcmSpan = pcm.Span;
-                this.Opus.Decode(vtx.Decoder, opus, ref pcmSpan, false, out outputFormat);
+                this.Opus.Decode(vtx.Decoder, opusSpan, ref pcmSpan, false, out outputFormat);
                 pcm = pcm.Slice(0, pcmSpan.Length);
             }
             finally
             {
                 vtx.LastSequence = sequence;
-                ArrayPool<byte>.Shared.Return(opusArray);
             }
 
             return true;
@@ -517,8 +516,10 @@ namespace DSharpPlus.VoiceNext
             {
                 var pcm = new byte[this.AudioFormat.CalculateMaximumFrameSize()];
                 var pcmMem = pcm.AsMemory();
+                var opus = new byte[pcm.Length];
+                var opusMem = opus.AsMemory();
                 var pcmFillers = new List<ReadOnlyMemory<byte>>();
-                if (!this.ProcessPacket(data, ref pcmMem, pcmFillers, out var vtx, out var audioFormat))
+                if (!this.ProcessPacket(data, ref opusMem, ref pcmMem, pcmFillers, out var vtx, out var audioFormat))
                     return;
 
                 foreach (var pcmFiller in pcmFillers)
@@ -526,7 +527,8 @@ namespace DSharpPlus.VoiceNext
                     {
                         SSRC = vtx.SSRC,
                         User = vtx.User,
-                        Voice = pcmFiller,
+                        PcmData = pcmFiller,
+                        OpusData = new byte[0].AsMemory(),
                         AudioFormat = audioFormat,
                         AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmFiller.Length)
                     }).ConfigureAwait(false);
@@ -535,7 +537,8 @@ namespace DSharpPlus.VoiceNext
                 {
                     SSRC = vtx.SSRC,
                     User = vtx.User,
-                    Voice = pcmMem,
+                    PcmData = pcmMem,
+                    OpusData = opusMem,
                     AudioFormat = audioFormat,
                     AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmMem.Length)
                 }).ConfigureAwait(false);
