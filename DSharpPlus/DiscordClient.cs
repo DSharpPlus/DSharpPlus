@@ -2060,7 +2060,6 @@ namespace DSharpPlus
         internal async Task OnHelloAsync(GatewayHello hello)
         {
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify.", DateTime.Now);
-            //this._waiting_for_ack = false;
             Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
             this._heartbeatInterval = hello.HeartbeatInterval;
             this._heartbeatTask = new Task(StartHeartbeating, _cancelToken, TaskCreationOptions.LongRunning);
@@ -2079,11 +2078,9 @@ namespace DSharpPlus
 
         internal async Task OnHeartbeatAckAsync()
         {
-            //_waiting_for_ack = false;
             Interlocked.Decrement(ref this._skippedHeartbeats);
-
-            var ping = Volatile.Read(ref this._ping);
-            ping = (int)(DateTime.Now - this._lastHeartbeat).TotalMilliseconds;
+	    
+            var ping = (int)(DateTime.Now - this._lastHeartbeat).TotalMilliseconds;
 
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Received WebSocket Heartbeat Ack. Ping: {ping.ToString(CultureInfo.InvariantCulture)}ms", DateTime.Now);
 
@@ -2198,7 +2195,6 @@ namespace DSharpPlus
 
             this._lastHeartbeat = DateTimeOffset.Now;
 
-            //_waiting_for_ack = true;
             Interlocked.Increment(ref this._skippedHeartbeats);
         }
 
