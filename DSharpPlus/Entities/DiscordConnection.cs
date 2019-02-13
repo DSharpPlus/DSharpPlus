@@ -6,24 +6,30 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Gets a Discord connection to a 3rd party service.
     /// </summary>
-    public class DiscordConnection : SnowflakeObject
+    public class DiscordConnection
     {
         /// <summary>
-        /// Gets the username of the connected account.
+        /// Gets the id of the connection account
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; }
+        [JsonProperty("id")]
+        public string Id { get; internal set; }
 
         /// <summary>
-        /// Gets the name of the connection service.
+        /// Gets the username of the connection account.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public string Type { get; internal set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets the service of the connection (twitch, youtube, steam, twitter, facebook, spotify, leagueoflegends, reddit)
+        /// </summary>
+        [JsonProperty("type")]
+        public string Type { get; set; }
 
         /// <summary>
         /// Gets whether the connection is revoked.
         /// </summary>
-        [JsonProperty("revoked", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("revoked")]
         public bool IsRevoked { get; internal set; }
 
         /// <summary>
@@ -31,6 +37,36 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("integrations", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordIntegration> Integrations { get; internal set; }
+
+        /// <summary>
+        /// Gets the connection is verified or not.
+        /// </summary>
+        [JsonProperty("verified", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Verified { get; set; }
+
+        /// <summary>
+        /// Gets the connection will show activity or not.
+        /// </summary>
+        [JsonProperty("show_activity", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? ShowActivity { get; set; }
+
+        /// <summary>
+        /// Gets the connection will sync friends or not.
+        /// </summary>
+        [JsonProperty("friend_sync", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? FriendSync { get; set; }
+
+        /// <summary>
+        /// Gets the visibility of the connection.
+        /// </summary>
+        [JsonProperty("visibility", NullValueHandling = NullValueHandling.Ignore)]
+        public long? Visibility { get; set; }
+
+        /// <summary>
+        /// Gets the client instance this object is tied to.
+        /// </summary>
+        [JsonIgnore]
+        internal BaseDiscordClient Discord { get; set; }
 
         internal DiscordConnection() { }
     }
