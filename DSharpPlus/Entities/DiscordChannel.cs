@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Parent 
-            => this.Guild.Channels.FirstOrDefault(xc => xc.Id == this.ParentId);
+            => this.ParentId.HasValue ? this.Guild.Channels.FirstOrDefault(xc => xc.Id == this.ParentId) : null;
 
         /// <summary>
         /// Gets the name of this channel.
