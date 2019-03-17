@@ -48,14 +48,11 @@ namespace DSharpPlus.Net
             return !post ? $"?{vals}" : vals;
         }
 
-        private DiscordMessage PrepareMessage(JToken msgRaw, ulong channelId)
+        private DiscordMessage PrepareMessage(JToken msg_raw)
         {
-            var author = msgRaw["author"].ToObject<TransportUser>();
-            var ret = msgRaw.ToDiscordObject<DiscordMessage>();
+            var author = msg_raw["author"].ToObject<TransportUser>();
+            var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this.Discord;
-
-            if (ret.ChannelId == 0) // not all rest requests will provide a channel, so we have to set a default
-                ret.ChannelId = channelId;
 
             var guild = ret.Channel?.Guild;
 
@@ -72,27 +69,27 @@ namespace DSharpPlus.Net
                 ret.Author = usr;
             }
 
-            var mentionedUsers = new List<DiscordUser>();
-            var mentionedRoles = guild != null ? new List<DiscordRole>() : null;
-            var mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
+            var mentioned_users = new List<DiscordUser>();
+            var mentioned_roles = guild != null ? new List<DiscordRole>() : null;
+            var mentioned_channels = guild != null ? new List<DiscordChannel>() : null;
 
             if (!string.IsNullOrWhiteSpace(ret.Content))
             {
                 if (guild != null)
                 {
-                    mentionedUsers = Utilities.GetUserMentions(ret).Select(xid => guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
-                    mentionedRoles = Utilities.GetRoleMentions(ret).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
-                    mentionedChannels = Utilities.GetChannelMentions(ret).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
+                    mentioned_users = Utilities.GetUserMentions(ret).Select(xid => guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_roles = Utilities.GetRoleMentions(ret).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
+                    mentioned_channels = Utilities.GetChannelMentions(ret).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
                 }
                 else
                 {
-                    mentionedUsers = Utilities.GetUserMentions(ret).Select(this.Discord.InternalGetCachedUser).ToList();
+                    mentioned_users = Utilities.GetUserMentions(ret).Select(this.Discord.InternalGetCachedUser).ToList();
                 }
             }
 
-            ret._mentionedUsers = mentionedUsers;
-            ret._mentionedRoles = mentionedRoles;
-            ret._mentionedChannels = mentionedChannels;
+            ret._mentionedUsers = mentioned_users;
+            ret._mentionedRoles = mentioned_roles;
+            ret._mentionedChannels = mentioned_channels;
 
             if (ret._reactions == null)
                 ret._reactions = new List<DiscordReaction>();
@@ -511,7 +508,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(JObject.Parse(res.Response), channel_id);
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -548,7 +545,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(JObject.Parse(res.Response), channel_id);
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -580,7 +577,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, values: values, files: file).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(JObject.Parse(res.Response), channel_id);
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -612,7 +609,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, values: values, files: files).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(JObject.Parse(res.Response), channel_id);
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -658,7 +655,7 @@ namespace DSharpPlus.Net
             var msgs_raw = JArray.Parse(res.Response);
             var msgs = new List<DiscordMessage>();
             foreach (var xj in msgs_raw)
-                msgs.Add(this.PrepareMessage(xj, channel_id));
+                msgs.Add(this.PrepareMessage(xj));
 
             return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
         }
@@ -671,7 +668,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(JObject.Parse(res.Response), channel_id);
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -695,7 +692,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(JObject.Parse(res.Response), channel_id);
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
         }
@@ -823,7 +820,7 @@ namespace DSharpPlus.Net
             var msgs_raw = JArray.Parse(res.Response);
             var msgs = new List<DiscordMessage>();
             foreach (var xj in msgs_raw)
-                msgs.Add(this.PrepareMessage(xj, channel_id));
+                msgs.Add(this.PrepareMessage(xj));
 
             return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
         }
