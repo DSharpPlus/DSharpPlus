@@ -41,12 +41,20 @@ exports.postTransform = function (model) {
     console.log('hi model: ' + model.type);
     
     model.aliases = [];
-    handleItem(model, model.aliases);
+    //handleItem(model, model.aliases);  // type
     if (model.children) {
-      model.children.forEach(function(item) {
-        handleItem(item, model.aliases);
+      model.children.forEach(function(item) { // "id": "methods" or others
+        //console.log('hi container: ' + item.typePropertyName)
+        if (item.children) {
+          item.children.forEach(function(child) { // actual method (or other member)
+            //console.log('hi member: ' + child.id)
+            handleItem(child, model.aliases);
+          });
+        }
       });
     }
+    
+    model.hasAliases = model.aliases.length > 0;
     
   } catch (e) {
     console.log(Bright + FgRed + '\nFail: ' + e + ',' + Object.keys(e) + Reset);
@@ -59,22 +67,31 @@ function handleItem(item, aliases) {
   //console.log('item: ' + JSON.stringify(item));
   if (item.remarks) {
     console.log('Remarks: ' + item.remarks);
+    var itemAliases = [];
     item.remarks = item.remarks.replace(/\[alias=(['"]|&quot;)(.*?)\1]/g, function($$, $quot, $aliasName) {
       console.log($$);
       console.log($quot);
       console.log($aliasName);
-      aliases.push({
+      var alias = {
         isAlias: true,
         name: item.name[0].value.replace(/^.*?(\(|$)/, $aliasName + '$1'),
-        id: $$,
+        id: $aliasName,
         aliasTo: item.uid,
         
         targetXref: item.specName[0].value
         //targetName: item.name[0].value,
         //targetFullName: item.fullName[0].value
-      });
+      }
+      itemAliases.push(alias.id);
+      aliases.push(alias);
       return '';
     });
-    if (item.remarks.trim().length == 0) item.remarks = null;
+    //item.itemHasAliases = item.aliases.length > 0;
+    item.aliasesString = itemAliases.join(', ');
+    itemAliases = null;
+    
+    item.remarks = item.remarks.trim().replace(/^<p sourcefile=".+?" sourcestartlinenumber="[0-9]+" sourceendlinenumber="[0-9]+">\s*<\/p>$/, '');
+    if (item.remarks.length == 0) item.remarks = null;
+    //console.log('item: ' + JSON.stringify(item));
   }
 }

@@ -401,6 +401,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
+        /// <remarks>[alias="KickAsync"]</remarks>
         public Task RemoveAsync(string reason = null)
             => this.Discord.ApiClient.RemoveGuildMemberAsync(this._guild_id, this.Id, reason);
 

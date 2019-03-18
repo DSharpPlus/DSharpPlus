@@ -98,7 +98,6 @@ namespace DSharpPlus
     /// Represents an asynchronously-handled event.
     /// </summary>
     /// <typeparam name="T">Type of EventArgs for this event.</typeparam>
-    /// <remarks>[alias="MemeEvent"]</remarks>
     public sealed class AsyncEvent<T> where T : AsyncEventArgs
     {
         private readonly object _lock = new object();
