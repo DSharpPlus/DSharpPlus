@@ -71,7 +71,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordGuild Guild 
-            => this.Discord.Guilds.ContainsKey(this.GuildId) ? this.Discord.Guilds[this.GuildId] : null;
+            => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
 
         /// <summary>
         /// Gets a collection of permission overwrites for this channel.

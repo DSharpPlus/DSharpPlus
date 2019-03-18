@@ -457,8 +457,8 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordGuild> GetGuildAsync(ulong id)
         {
-            if (this._guilds.ContainsKey(id))
-                return this._guilds[id];
+            if (this._guilds.TryGetValue(id, out var guild))
+                return guild;
 
             var gld = await this.ApiClient.GetGuildAsync(id).ConfigureAwait(false);
             var chns = await this.ApiClient.GetGuildChannelsAsync(gld.Id).ConfigureAwait(false);
@@ -1079,13 +1079,13 @@ namespace DSharpPlus
                 }
             }
 
-            var exists = this._guilds.ContainsKey(guild.Id);
+            var exists = this._guilds.TryGetValue(guild.Id, out var foundGuild);
 
             guild.Discord = this;
             guild.IsUnavailable = false;
-            var event_guild = guild;
+            var eventGuild = guild;
             if (exists)
-                guild = this._guilds[event_guild.Id];
+                guild = foundGuild;
 
             if (guild._channels == null)
                 guild._channels = new List<DiscordChannel>();
@@ -1098,13 +1098,13 @@ namespace DSharpPlus
             if (guild._members == null)
                 guild._members = new HashSet<DiscordMember>();
 
-            this.UpdateCachedGuild(event_guild, rawMembers);
+            this.UpdateCachedGuild(eventGuild, rawMembers);
 
-            guild.JoinedAt = event_guild.JoinedAt;
-            guild.IsLarge = event_guild.IsLarge;
-            guild.MemberCount = Math.Max(event_guild.MemberCount, guild._members.Count);
-            guild.IsUnavailable = event_guild.IsUnavailable;
-            guild._voice_states.AddRange(event_guild._voice_states);
+            guild.JoinedAt = eventGuild.JoinedAt;
+            guild.IsLarge = eventGuild.IsLarge;
+            guild.MemberCount = Math.Max(eventGuild.MemberCount, guild._members.Count);
+            guild.IsUnavailable = eventGuild.IsUnavailable;
+            guild._voice_states.AddRange(eventGuild._voice_states);
 
             foreach (var xc in guild._channels)
             {
@@ -1233,10 +1233,9 @@ namespace DSharpPlus
 
         internal async Task OnGuildDeleteEventAsync(DiscordGuild guild, JArray rawMembers)
         {
-            if (!this._guilds.ContainsKey(guild.Id))
+            if (!this._guilds.TryGetValue(guild.Id, out var gld))
                 return;
 
-            var gld = this._guilds[guild.Id];
             if (guild.IsUnavailable)
             {
                 gld.IsUnavailable = true;
