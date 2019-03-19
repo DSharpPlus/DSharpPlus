@@ -82,6 +82,9 @@ function Install-DocFX([string] $target_dir_path)
     {
         Return 1
     }
+        
+    # Set TLS version to 1.2
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     
     # Download the release
     # Since GH releases are unreliable, we have to try up to 3 times
@@ -156,7 +159,7 @@ function Install-DocFX([string] $target_dir_path)
 # Downloads and installs latest version of 7-zip CLI
 function Install-7zip([string] $target_dir_path)
 {
-    # First, download 7-zip 9.20 CLI to extract 16.04 CLI
+    # First, download 7-zip 9.20 CLI to extract latest CLI
     # http://www.7-zip.org/a/7za920.zip
     
     Write-Host "Installing 7-zip"
@@ -196,7 +199,7 @@ function Install-7zip([string] $target_dir_path)
     # Extract the 9.20 CLI
     try
     {
-        Write-Host "Extracting 7-zip 16.04 CLI"
+        Write-Host "Extracting 7-zip latest CLI"
         Expand-Archive -path "$target_path" -destinationpath "$target_dir_920"
     }
     catch 
@@ -209,18 +212,19 @@ function Install-7zip([string] $target_dir_path)
     $old_path = $Env:PATH
     $Env:PATH = "$target_dir_920;$old_path"
     
-    # Next, download 16.04 CLI
+    # Next, download latest CLI
     # http://www.7-zip.org/a/7z1604-extra.7z
     
     # Form target path
-    $target_fn = "7z1604-extra.7z"
+    $target_version = "19.00"
+    $target_fn = "7z1900-extra.7z"
     $target_path = Join-Path "$target_dir" "$target_fn"
     
-    # Download the 16.04 CLI
+    # Download the latest CLI
     try
     {
-        Write-Host "Downloading 7-zip 16.04 CLI to $target_path"
-        Invoke-WebRequest -uri "http://www.7-zip.org/a/7z1604-extra.7z" -outfile "$target_path"
+        Write-Host "Downloading 7-zip $target_version CLI to $target_path"
+        Invoke-WebRequest -uri "http://www.7-zip.org/a/$target_fn" -outfile "$target_path"
         Set-Location -Path "$target_dir"
     }
     catch
@@ -228,8 +232,8 @@ function Install-7zip([string] $target_dir_path)
         Return 1
     }
     
-    # Extract the 16.04 CLI
-    Write-Host "Extracting 7-zip 16.04 CLI"
+    # Extract the latest CLI
+    Write-Host "Extracting 7-zip $target_version CLI"
     & 7za x "$target_path" | Out-Host
     if ($LastExitCode -ne 0)
     {
@@ -245,8 +249,8 @@ function Install-7zip([string] $target_dir_path)
     Remove-Item -recurse -force "$target_dir_920"
     Remove-Item -recurse -force "$target_path"
     
-    # Add the 16.04 CLI to PATH
-    Write-Host "Adding 7-zip 16.04 CLI to PATH"
+    # Add the latest CLI to PATH
+    Write-Host "Adding 7-zip $target_version CLI to PATH"
     $target_dir = Join-Path "$target_dir" "x64"
     $Env:PATH = "$target_dir;$old_path"
     Set-Location -path "$current_location"
@@ -260,14 +264,16 @@ function Build-Docs([string] $target_dir_path)
     # Check if documentation source path exists
     if (-not (Test-Path "$target_dir_path"))
     {
-        throw "Specified path does not exist"
+        #Write-Host "Specified path does not exist"
+        Return 65536
     }
     
     # Check if documentation source path is a directory
     $target_path = Get-Item "$target_dir_path"
     if (-not ($target_path -is [System.IO.DirectoryInfo]))
     {
-        throw "Specified path is not a directory"
+        #Write-Host "Specified path is not a directory"
+        Return 65536
     }
     
     # Form target path
@@ -281,14 +287,16 @@ function Build-Docs([string] $target_dir_path)
     # Check if API documentation source path exists
     if (-not (Test-Path "$docs_api"))
     {
-        throw "API build target directory does not exist"
+        #Write-Host "API build target directory does not exist"
+        Return 32768
     }
     
     # Check if API documentation source path is a directory
     $docs_api_dir = Get-Item "$docs_api"
     if (-not ($docs_api_dir -is [System.IO.DirectoryInfo]))
     {
-        throw "API build target directory is not a directory"
+        #Write-Host "API build target directory is not a directory"
+        Return 32768
     }
     
     # Purge old API documentation
@@ -325,25 +333,44 @@ function Build-Docs([string] $target_dir_path)
     Set-Location -path "$target_path"
     
     # Check OS
+    # Null means non-Windows
     if ($Env:OS -eq $null)
     {
         # Generate new API documentation
         & mono "$Env:DOCFX_PATH/docfx.exe" docfx.json | Out-Host
-        
-        # Build new documentation site
-        & mono "$Env:DOCFX_PATH/docfx.exe" build docfx.json | Out-Host
+
+        # Check if successful
+        if ($LastExitCode -eq 0)
+        {
+            # Build new documentation site
+            & mono "$Env:DOCFX_PATH/docfx.exe" build docfx.json | Out-Host
+        }
     }
     else 
     {
         # Generate new API documentation
         & docfx docfx.json | Out-Host
         
-        # Build new documentation site
-        & docfx build docfx.json | Out-Host
+        # Check if successful
+        if ($LastExitCode -eq 0)
+        {
+            # Build new documentation site
+            & docfx build docfx.json | Out-Host
+        }
     }
     
     # Exit back
     Set-Location -path "$current_location"
+    
+    # Check if building was a success
+    if ($LastExitCode -eq 0)
+    {
+        Return 0
+    }
+    else
+    {
+        Return $LastExitCode
+    }
 }
 
 # Packages the build site to a .tar.xz archive
@@ -374,6 +401,16 @@ function Package-Docs([string] $target_dir_path, [string] $output_dir_path, [str
     Write-Host "Packaging docs to $output_path.tar"
     & 7za -r a "$output_path.tar" * | Out-Host
     
+    # Check if prepackaging was a success
+    if ($LastExitCode -eq 0)
+    {
+        Return 0
+    }
+    else
+    {
+        Return $LastExitCode
+    }
+    
     # Go to package's location
     Set-Location -path "$output_path_dir"
     
@@ -391,6 +428,16 @@ function Package-Docs([string] $target_dir_path, [string] $output_dir_path, [str
     
     # Exit back
     Set-Location -path "$current_location"
+    
+    # Check if packaging was a success
+    if ($LastExitCode -eq 0)
+    {
+        Return 0
+    }
+    else
+    {
+        Return $LastExitCode
+    }
 }
 
 # Install DocFX
@@ -418,12 +465,31 @@ if ($Env:OS -ne $null)
 
 # Build and package docs
 # At this point nothing should fail as everything is already set up
-Build-Docs "$DocsPath"
-Package-Docs "$DocsPath" "$OutputPath" "$PackageName"
+$result = Build-Docs "$DocsPath"
+if ($result -eq 0)
+{
+    $result = Package-Docs "$DocsPath" "$OutputPath" "$PackageName"
+    if ($result -ne 0)
+    {
+        Write-Host "Packaging API documentation failed"
+    }
+}
+else
+{
+    Write-Host "Building API documentation failed"
+}
 
 # Restore the environment
-Write-Host "All operations completed"
 Restore-Environment
 
 # All was well, exit with success
-Exit 0
+if ($result -eq 0)
+{
+    Write-Host "All operations completed"
+    Exit 0
+}
+else
+{
+    $host.SetShouldExit($result)
+    Exit $result
+}
