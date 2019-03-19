@@ -28,9 +28,28 @@ namespace DSharpPlus.Test
             var smirk = DiscordEmoji.FromName(ctx.Client, ":smirk:");
             var sad = DiscordEmoji.FromName(ctx.Client, ":cry:");
 
-            var poll = await _int.WaitPoll(m, new DiscordEmoji[] { smirk, sad }, timeout: TimeSpan.FromSeconds(5));
+            var poll = await _int.WaitPollAsync(m, new DiscordEmoji[] { smirk, sad }, timeout: TimeSpan.FromSeconds(5));
 
             await m.ModifyAsync($"Collected smirk: {poll.First(x => x.Emoji == smirk).Total} sad: {poll.First(x => x.Emoji == sad).Total}");
+        }
+
+        [Command("testnext")]
+        public async Task TestNextAsync(CommandContext ctx)
+        {
+            // SSG made me do it
+            for (var res = await ctx.Message.GetNextMessageAsync(); !res.TimedOut; res = await ctx.Message.GetNextMessageAsync())
+            {
+                var msg = res.Result;
+
+                if (msg.Content == "stop")
+                    break;
+                else
+                    await ctx.RespondAsync($"{msg.Author.Username}: {msg.Content}");
+
+                res = await ctx.Message.GetNextMessageAsync();
+            }
+
+            await ctx.RespondAsync("Timed out or loop broken.");
         }
 
         // disabled cause permissions'n'shit

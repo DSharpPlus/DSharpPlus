@@ -8,7 +8,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <!-- <TargetFramework>net47</TargetFramework> -->
     <VersionPrefix>3.0.0</VersionPrefix>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>7.2</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Optimize>True</Optimize>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>

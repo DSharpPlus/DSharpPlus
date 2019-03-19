@@ -14,6 +14,7 @@
     <PackageId>DSharpPlus.Interactivity</PackageId>
     <Description>An addon that adds interactivity capabilities to commands.</Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp interactive pagination reactions</PackageTags>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

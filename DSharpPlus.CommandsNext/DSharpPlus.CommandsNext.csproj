@@ -14,6 +14,7 @@
     <PackageId>DSharpPlus.CommandsNext</PackageId>
     <Description>Advanced command framework for DSharpPlus.</Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp commands commandsnext</PackageTags>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46' Or '$(TargetFramework)' == 'net47'">

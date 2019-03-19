@@ -65,9 +65,11 @@ namespace DSharpPlus.Interactivity
     /// </summary>
     public class InteractivityExtension : BaseExtension
     {
-        private InteractivityConfiguration Config { get; }
+        internal InteractivityConfiguration Config { get; }
 
         private EventWaiter<MessageCreateEventArgs> MessageCreatedWaiter;
+
+        private EventWaiter<MessageReactionAddEventArgs> MessageReactionAddWaiter;
 
         private Poller Poller;
 
@@ -80,24 +82,49 @@ namespace DSharpPlus.Interactivity
         {
             this.Client = client;
             this.MessageCreatedWaiter = new EventWaiter<MessageCreateEventArgs>(this.Client);
+            this.MessageReactionAddWaiter = new EventWaiter<MessageReactionAddEventArgs>(this.Client);
             this.Poller = new Poller(this.Client);
         }
 
-        public async Task<ReadOnlySet<PollEmoji>> WaitPoll(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
+        public async Task<ReadOnlySet<PollEmoji>> WaitPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
         {
             foreach(var em in emojis)
             {
                 await m.CreateReactionAsync(em);
             }
-            var res = await Poller.DoPoll(new PollRequest(m, timeout ?? this.Config.Timeout, emojis));
+            var res = await Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis));
 
-            var pollbehaviour = behaviour == PollBehaviour.Default ? this.Config.PolBehaviour : behaviour;
+            var pollbehaviour = behaviour == PollBehaviour.Default ? this.Config.PollBehaviour : behaviour;
             var thismember = await m.Channel.Guild.GetMemberAsync(Client.CurrentUser.Id);
 
             if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(Permissions.ManageMessages))
                 await m.DeleteAllReactionsAsync();
 
             return res;
+        }
+
+        public async Task<InteractivityResult<DiscordMessage>> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, 
+            TimeSpan? timeoutoverride = null)
+        {
+            var timeout = timeoutoverride ?? Config.Timeout;
+            var returns = await this.MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout));
+
+            return new InteractivityResult<DiscordMessage>(returns == null, returns?.Message);
+        }
+
+        public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate,
+            TimeSpan? timeoutoverride = null)
+        {
+            var timeout = timeoutoverride ?? Config.Timeout;
+            var returns = await this.MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(x => predicate(x), timeout));
+
+            return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
+        }
+
+        // TODO
+        public async Task DoPaginationAsync()
+        {
+            await Task.Yield(); // warning be gone!!1
         }
     }
 }

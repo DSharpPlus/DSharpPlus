@@ -14,7 +14,7 @@ namespace DSharpPlus.Interactivity
         /// </summary>
         public TimeSpan Timeout { internal get; set; } = TimeSpan.FromMinutes(1);
 
-        public PollBehaviour PolBehaviour { internal get; set; } = PollBehaviour.DeleteEmojis;
+        public PollBehaviour PollBehaviour { internal get; set; } = PollBehaviour.DeleteEmojis;
         /// <summary>
         /// Creates a new instance of <see cref="InteractivityConfiguration"/>.
         /// </summary>

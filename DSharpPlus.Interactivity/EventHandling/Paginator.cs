@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
-    internal class Poller
+    internal class Paginator
     {
         DiscordClient _client;
         ConcurrentHashSet<PollRequest> _requests;
@@ -16,7 +16,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// Creates a new Eventwaiter object.
         /// </summary>
         /// <param name="client">Your DiscordClient</param>
-        public Poller(DiscordClient client)
+        public Paginator(DiscordClient client)
         {
             this._client = client;
             this._requests = new ConcurrentHashSet<PollRequest>();
@@ -64,7 +64,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                     else
                     {
                         var member = await eventargs.Channel.Guild.GetMemberAsync(eventargs.Client.CurrentUser.Id);
-                        if(eventargs.Channel.PermissionsFor(member).HasPermission(Permissions.ManageMessages))
+                        if (eventargs.Channel.PermissionsFor(member).HasPermission(Permissions.ManageMessages))
                             await eventargs.Message.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
                     }
                 }
@@ -79,7 +79,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                 // match message
                 if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
                 {
-                    if(eventargs.User.Id != _client.CurrentUser.Id)
+                    if (eventargs.User.Id != _client.CurrentUser.Id)
                         req.RemoveReaction(eventargs.Emoji, eventargs.User);
                 }
             }
@@ -91,14 +91,14 @@ namespace DSharpPlus.Interactivity.EventHandling
             foreach (var req in _requests)
             {
                 // match message
-                if(req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
+                if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
                 {
                     req.ClearCollected();
                 }
             }
         }
 
-        ~Poller()
+        ~Paginator()
         {
             this.Dispose();
         }
