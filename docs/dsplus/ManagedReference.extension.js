@@ -38,7 +38,7 @@ exports.preTransform = function (model) {
  */
 exports.postTransform = function (model) {
   try {
-    console.log('hi model: ' + model.type);
+    //console.log('hi model: ' + model.type);
     
     model.aliases = [];
     //handleItem(model, model.aliases);  // type
