@@ -53,11 +53,8 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public ulong? ApplicationId
         {
-            get { return this.ApplicationIdStr != null ? (ulong?)ulong.Parse(this.ApplicationIdStr, CultureInfo.InvariantCulture) : null; }
-            internal set
-            {
-                this.ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
-            }
+            get => this.ApplicationIdStr != null ? (ulong?)ulong.Parse(this.ApplicationIdStr, CultureInfo.InvariantCulture) : null;
+            internal set => this.ApplicationIdStr = value?.ToString(CultureInfo.InvariantCulture);
         }
 
         [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]

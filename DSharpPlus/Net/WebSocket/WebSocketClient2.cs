@@ -84,8 +84,8 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public override event AsyncEventHandler Connected
         {
-            add { this._connected.Register(value); }
-            remove { this._connected.Unregister(value); }
+            add => this._connected.Register(value);
+            remove => this._connected.Unregister(value);
         }
         private AsyncEvent _connected;
 
@@ -94,8 +94,8 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public override event AsyncEventHandler<SocketCloseEventArgs> Disconnected
         {
-            add { this._disconnected.Register(value); }
-            remove { this._disconnected.Unregister(value); }
+            add => this._disconnected.Register(value);
+            remove => this._disconnected.Unregister(value);
         }
         private AsyncEvent<SocketCloseEventArgs> _disconnected;
 
@@ -104,8 +104,8 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public override event AsyncEventHandler<SocketMessageEventArgs> MessageReceived
         {
-            add { this._messageReceived.Register(value); }
-            remove { this._messageReceived.Unregister(value); }
+            add => this._messageReceived.Register(value);
+            remove => this._messageReceived.Unregister(value);
         }
         private AsyncEvent<SocketMessageEventArgs> _messageReceived;
 
@@ -114,8 +114,8 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public override event AsyncEventHandler<SocketErrorEventArgs> Errored
         {
-            add { this._errored.Register(value); }
-            remove { this._errored.Unregister(value); }
+            add => this._errored.Register(value);
+            remove => this._errored.Unregister(value);
         }
         private AsyncEvent<SocketErrorEventArgs> _errored;
 #pragma warning restore 649

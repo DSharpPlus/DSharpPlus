@@ -2384,8 +2384,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<ClientErrorEventArgs> ClientErrored
         {
-            add { this._clientErrored.Register(value); }
-            remove { this._clientErrored.Unregister(value); }
+            add => this._clientErrored.Register(value);
+            remove => this._clientErrored.Unregister(value);
         }
         private AsyncEvent<ClientErrorEventArgs> _clientErrored;
 
@@ -2394,8 +2394,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<SocketErrorEventArgs> SocketErrored
         {
-            add { this._socketErrored.Register(value); }
-            remove { this._socketErrored.Unregister(value); }
+            add => this._socketErrored.Register(value);
+            remove => this._socketErrored.Unregister(value);
         }
         private AsyncEvent<SocketErrorEventArgs> _socketErrored;
 
@@ -2404,8 +2404,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler SocketOpened
         {
-            add { this._socketOpened.Register(value); }
-            remove { this._socketOpened.Unregister(value); }
+            add => this._socketOpened.Register(value);
+            remove => this._socketOpened.Unregister(value);
         }
         private AsyncEvent _socketOpened;
 
@@ -2414,8 +2414,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<SocketCloseEventArgs> SocketClosed
         {
-            add { this._socketClosed.Register(value); }
-            remove { this._socketClosed.Unregister(value); }
+            add => this._socketClosed.Register(value);
+            remove => this._socketClosed.Unregister(value);
         }
         private AsyncEvent<SocketCloseEventArgs> _socketClosed;
 
@@ -2424,8 +2424,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<ReadyEventArgs> Ready
         {
-            add { this._ready.Register(value); }
-            remove { this._ready.Unregister(value); }
+            add => this._ready.Register(value);
+            remove => this._ready.Unregister(value);
         }
         private AsyncEvent<ReadyEventArgs> _ready;
 
@@ -2434,8 +2434,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<ReadyEventArgs> Resumed
         {
-            add { this._resumed.Register(value); }
-            remove { this._resumed.Unregister(value); }
+            add => this._resumed.Register(value);
+            remove => this._resumed.Unregister(value);
         }
         private AsyncEvent<ReadyEventArgs> _resumed;
 
@@ -2444,8 +2444,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<ChannelCreateEventArgs> ChannelCreated
         {
-            add { this._channelCreated.Register(value); }
-            remove { this._channelCreated.Unregister(value); }
+            add => this._channelCreated.Register(value);
+            remove => this._channelCreated.Unregister(value);
         }
         private AsyncEvent<ChannelCreateEventArgs> _channelCreated;
 
@@ -2454,8 +2454,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<DmChannelCreateEventArgs> DmChannelCreated
         {
-            add { this._dmChannelCreated.Register(value); }
-            remove { this._dmChannelCreated.Unregister(value); }
+            add => this._dmChannelCreated.Register(value);
+            remove => this._dmChannelCreated.Unregister(value);
         }
         private AsyncEvent<DmChannelCreateEventArgs> _dmChannelCreated;
 
@@ -2464,8 +2464,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<ChannelUpdateEventArgs> ChannelUpdated
         {
-            add { this._channelUpdated.Register(value); }
-            remove { this._channelUpdated.Unregister(value); }
+            add => this._channelUpdated.Register(value);
+            remove => this._channelUpdated.Unregister(value);
         }
         private AsyncEvent<ChannelUpdateEventArgs> _channelUpdated;
 
@@ -2474,8 +2474,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<ChannelDeleteEventArgs> ChannelDeleted
         {
-            add { this._channelDeleted.Register(value); }
-            remove { this._channelDeleted.Unregister(value); }
+            add => this._channelDeleted.Register(value);
+            remove => this._channelDeleted.Unregister(value);
         }
         private AsyncEvent<ChannelDeleteEventArgs> _channelDeleted;
 
@@ -2484,8 +2484,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<DmChannelDeleteEventArgs> DmChannelDeleted
         {
-            add { this._dmChannelDeleted.Register(value); }
-            remove { this._dmChannelDeleted.Unregister(value); }
+            add => this._dmChannelDeleted.Register(value);
+            remove => this._dmChannelDeleted.Unregister(value);
         }
         private AsyncEvent<DmChannelDeleteEventArgs> _dmChannelDeleted;
 
@@ -2494,8 +2494,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<ChannelPinsUpdateEventArgs> ChannelPinsUpdated
         {
-            add { this._channelPinsUpdated.Register(value); }
-            remove { this._channelPinsUpdated.Unregister(value); }
+            add => this._channelPinsUpdated.Register(value);
+            remove => this._channelPinsUpdated.Unregister(value);
         }
         private AsyncEvent<ChannelPinsUpdateEventArgs> _channelPinsUpdated;
 
@@ -2504,8 +2504,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildCreateEventArgs> GuildCreated
         {
-            add { this._guildCreated.Register(value); }
-            remove { this._guildCreated.Unregister(value); }
+            add => this._guildCreated.Register(value);
+            remove => this._guildCreated.Unregister(value);
         }
         private AsyncEvent<GuildCreateEventArgs> _guildCreated;
 
@@ -2514,8 +2514,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildCreateEventArgs> GuildAvailable
         {
-            add { this._guildAvailable.Register(value); }
-            remove { this._guildAvailable.Unregister(value); }
+            add => this._guildAvailable.Register(value);
+            remove => this._guildAvailable.Unregister(value);
         }
         private AsyncEvent<GuildCreateEventArgs> _guildAvailable;
 
@@ -2524,8 +2524,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildUpdateEventArgs> GuildUpdated
         {
-            add { this._guildUpdated.Register(value); }
-            remove { this._guildUpdated.Unregister(value); }
+            add => this._guildUpdated.Register(value);
+            remove => this._guildUpdated.Unregister(value);
         }
         private AsyncEvent<GuildUpdateEventArgs> _guildUpdated;
 
@@ -2534,8 +2534,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildDeleteEventArgs> GuildDeleted
         {
-            add { this._guildDeleted.Register(value); }
-            remove { this._guildDeleted.Unregister(value); }
+            add => this._guildDeleted.Register(value);
+            remove => this._guildDeleted.Unregister(value);
         }
         private AsyncEvent<GuildDeleteEventArgs> _guildDeleted;
 
@@ -2544,8 +2544,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildDeleteEventArgs> GuildUnavailable
         {
-            add { this._guildUnavailable.Register(value); }
-            remove { this._guildUnavailable.Unregister(value); }
+            add => this._guildUnavailable.Register(value);
+            remove => this._guildUnavailable.Unregister(value);
         }
         private AsyncEvent<GuildDeleteEventArgs> _guildUnavailable;
 
@@ -2554,8 +2554,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildDownloadCompletedEventArgs> GuildDownloadCompleted
         {
-            add { this._guildDownloadCompletedEv.Register(value); }
-            remove { this._guildDownloadCompletedEv.Unregister(value); }
+            add => this._guildDownloadCompletedEv.Register(value);
+            remove => this._guildDownloadCompletedEv.Unregister(value);
         }
         private AsyncEvent<GuildDownloadCompletedEventArgs> _guildDownloadCompletedEv;
 
@@ -2564,8 +2564,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<MessageCreateEventArgs> MessageCreated
         {
-            add { this._messageCreated.Register(value); }
-            remove { this._messageCreated.Unregister(value); }
+            add => this._messageCreated.Register(value);
+            remove => this._messageCreated.Unregister(value);
         }
         private AsyncEvent<MessageCreateEventArgs> _messageCreated;
 
@@ -2574,8 +2574,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<PresenceUpdateEventArgs> PresenceUpdated
         {
-            add { this._presenceUpdated.Register(value); }
-            remove { this._presenceUpdated.Unregister(value); }
+            add => this._presenceUpdated.Register(value);
+            remove => this._presenceUpdated.Unregister(value);
         }
         private AsyncEvent<PresenceUpdateEventArgs> _presenceUpdated;
 
@@ -2584,8 +2584,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildBanAddEventArgs> GuildBanAdded
         {
-            add { this._guildBanAdded.Register(value); }
-            remove { this._guildBanAdded.Unregister(value); }
+            add => this._guildBanAdded.Register(value);
+            remove => this._guildBanAdded.Unregister(value);
         }
         private AsyncEvent<GuildBanAddEventArgs> _guildBanAdded;
 
@@ -2594,8 +2594,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildBanRemoveEventArgs> GuildBanRemoved
         {
-            add { this._guildBanRemoved.Register(value); }
-            remove { this._guildBanRemoved.Unregister(value); }
+            add => this._guildBanRemoved.Register(value);
+            remove => this._guildBanRemoved.Unregister(value);
         }
         private AsyncEvent<GuildBanRemoveEventArgs> _guildBanRemoved;
 
@@ -2604,8 +2604,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildEmojisUpdateEventArgs> GuildEmojisUpdated
         {
-            add { this._guildEmojisUpdated.Register(value); }
-            remove { this._guildEmojisUpdated.Unregister(value); }
+            add => this._guildEmojisUpdated.Register(value);
+            remove => this._guildEmojisUpdated.Unregister(value);
         }
         private AsyncEvent<GuildEmojisUpdateEventArgs> _guildEmojisUpdated;
 
@@ -2614,8 +2614,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildIntegrationsUpdateEventArgs> GuildIntegrationsUpdated
         {
-            add { this._guildIntegrationsUpdated.Register(value); }
-            remove { this._guildIntegrationsUpdated.Unregister(value); }
+            add => this._guildIntegrationsUpdated.Register(value);
+            remove => this._guildIntegrationsUpdated.Unregister(value);
         }
         private AsyncEvent<GuildIntegrationsUpdateEventArgs> _guildIntegrationsUpdated;
 
@@ -2624,8 +2624,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildMemberAddEventArgs> GuildMemberAdded
         {
-            add { this._guildMemberAdded.Register(value); }
-            remove { this._guildMemberAdded.Unregister(value); }
+            add => this._guildMemberAdded.Register(value);
+            remove => this._guildMemberAdded.Unregister(value);
         }
         private AsyncEvent<GuildMemberAddEventArgs> _guildMemberAdded;
 
@@ -2634,8 +2634,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildMemberRemoveEventArgs> GuildMemberRemoved
         {
-            add { this._guildMemberRemoved.Register(value); }
-            remove { this._guildMemberRemoved.Unregister(value); }
+            add => this._guildMemberRemoved.Register(value);
+            remove => this._guildMemberRemoved.Unregister(value);
         }
         private AsyncEvent<GuildMemberRemoveEventArgs> _guildMemberRemoved;
 
@@ -2644,8 +2644,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildMemberUpdateEventArgs> GuildMemberUpdated
         {
-            add { this._guildMemberUpdated.Register(value); }
-            remove { this._guildMemberUpdated.Unregister(value); }
+            add => this._guildMemberUpdated.Register(value);
+            remove => this._guildMemberUpdated.Unregister(value);
         }
         private AsyncEvent<GuildMemberUpdateEventArgs> _guildMemberUpdated;
 
@@ -2654,8 +2654,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildRoleCreateEventArgs> GuildRoleCreated
         {
-            add { this._guildRoleCreated.Register(value); }
-            remove { this._guildRoleCreated.Unregister(value); }
+            add => this._guildRoleCreated.Register(value);
+            remove => this._guildRoleCreated.Unregister(value);
         }
         private AsyncEvent<GuildRoleCreateEventArgs> _guildRoleCreated;
 
@@ -2664,8 +2664,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildRoleUpdateEventArgs> GuildRoleUpdated
         {
-            add { this._guildRoleUpdated.Register(value); }
-            remove { this._guildRoleUpdated.Unregister(value); }
+            add => this._guildRoleUpdated.Register(value);
+            remove => this._guildRoleUpdated.Unregister(value);
         }
         private AsyncEvent<GuildRoleUpdateEventArgs> _guildRoleUpdated;
 
@@ -2674,8 +2674,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildRoleDeleteEventArgs> GuildRoleDeleted
         {
-            add { this._guildRoleDeleted.Register(value); }
-            remove { this._guildRoleDeleted.Unregister(value); }
+            add => this._guildRoleDeleted.Register(value);
+            remove => this._guildRoleDeleted.Unregister(value);
         }
         private AsyncEvent<GuildRoleDeleteEventArgs> _guildRoleDeleted;
 
@@ -2684,8 +2684,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<MessageAcknowledgeEventArgs> MessageAcknowledged
         {
-            add { this._messageAcknowledged.Register(value); }
-            remove { this._messageAcknowledged.Unregister(value); }
+            add => this._messageAcknowledged.Register(value);
+            remove => this._messageAcknowledged.Unregister(value);
         }
         private AsyncEvent<MessageAcknowledgeEventArgs> _messageAcknowledged;
 
@@ -2694,8 +2694,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<MessageUpdateEventArgs> MessageUpdated
         {
-            add { this._messageUpdated.Register(value); }
-            remove { this._messageUpdated.Unregister(value); }
+            add => this._messageUpdated.Register(value);
+            remove => this._messageUpdated.Unregister(value);
         }
         private AsyncEvent<MessageUpdateEventArgs> _messageUpdated;
 
@@ -2704,8 +2704,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<MessageDeleteEventArgs> MessageDeleted
         {
-            add { this._messageDeleted.Register(value); }
-            remove { this._messageDeleted.Unregister(value); }
+            add => this._messageDeleted.Register(value);
+            remove => this._messageDeleted.Unregister(value);
         }
         private AsyncEvent<MessageDeleteEventArgs> _messageDeleted;
 
@@ -2714,8 +2714,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<MessageBulkDeleteEventArgs> MessagesBulkDeleted
         {
-            add { this._messagesBulkDeleted.Register(value); }
-            remove { this._messagesBulkDeleted.Unregister(value); }
+            add => this._messagesBulkDeleted.Register(value);
+            remove => this._messagesBulkDeleted.Unregister(value);
         }
         private AsyncEvent<MessageBulkDeleteEventArgs> _messagesBulkDeleted;
 
@@ -2724,8 +2724,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<TypingStartEventArgs> TypingStarted
         {
-            add { this._typingStarted.Register(value); }
-            remove { this._typingStarted.Unregister(value); }
+            add => this._typingStarted.Register(value);
+            remove => this._typingStarted.Unregister(value);
         }
         private AsyncEvent<TypingStartEventArgs> _typingStarted;
 
@@ -2734,8 +2734,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<UserSettingsUpdateEventArgs> UserSettingsUpdated
         {
-            add { this._userSettingsUpdated.Register(value); }
-            remove { this._userSettingsUpdated.Unregister(value); }
+            add => this._userSettingsUpdated.Register(value);
+            remove => this._userSettingsUpdated.Unregister(value);
         }
         private AsyncEvent<UserSettingsUpdateEventArgs> _userSettingsUpdated;
 
@@ -2747,8 +2747,8 @@ namespace DSharpPlus
 	/// </remarks>
         public event AsyncEventHandler<UserUpdateEventArgs> UserUpdated
         {
-            add { this._userUpdated.Register(value); }
-            remove { this._userUpdated.Unregister(value); }
+            add => this._userUpdated.Register(value);
+            remove => this._userUpdated.Unregister(value);
         }
         private AsyncEvent<UserUpdateEventArgs> _userUpdated;
 
@@ -2757,8 +2757,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<VoiceStateUpdateEventArgs> VoiceStateUpdated
         {
-            add { this._voiceStateUpdated.Register(value); }
-            remove { this._voiceStateUpdated.Unregister(value); }
+            add => this._voiceStateUpdated.Register(value);
+            remove => this._voiceStateUpdated.Unregister(value);
         }
         private AsyncEvent<VoiceStateUpdateEventArgs> _voiceStateUpdated;
 
@@ -2767,8 +2767,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<VoiceServerUpdateEventArgs> VoiceServerUpdated
         {
-            add { this._voiceServerUpdated.Register(value); }
-            remove { this._voiceServerUpdated.Unregister(value); }
+            add => this._voiceServerUpdated.Register(value);
+            remove => this._voiceServerUpdated.Unregister(value);
         }
         private AsyncEvent<VoiceServerUpdateEventArgs> _voiceServerUpdated;
 
@@ -2777,8 +2777,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<GuildMembersChunkEventArgs> GuildMembersChunked
         {
-            add { this._guildMembersChunked.Register(value); }
-            remove { this._guildMembersChunked.Unregister(value); }
+            add => this._guildMembersChunked.Register(value);
+            remove => this._guildMembersChunked.Unregister(value);
         }
         private AsyncEvent<GuildMembersChunkEventArgs> _guildMembersChunked;
 
@@ -2787,8 +2787,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<UnknownEventArgs> UnknownEvent
         {
-            add { this._unknownEvent.Register(value); }
-            remove { this._unknownEvent.Unregister(value); }
+            add => this._unknownEvent.Register(value);
+            remove => this._unknownEvent.Unregister(value);
         }
         private AsyncEvent<UnknownEventArgs> _unknownEvent;
 
@@ -2797,8 +2797,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<MessageReactionAddEventArgs> MessageReactionAdded
         {
-            add { this._messageReactionAdded.Register(value); }
-            remove { this._messageReactionAdded.Unregister(value); }
+            add => this._messageReactionAdded.Register(value);
+            remove => this._messageReactionAdded.Unregister(value);
         }
         private AsyncEvent<MessageReactionAddEventArgs> _messageReactionAdded;
 
@@ -2807,8 +2807,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<MessageReactionRemoveEventArgs> MessageReactionRemoved
         {
-            add { this._messageReactionRemoved.Register(value); }
-            remove { this._messageReactionRemoved.Unregister(value); }
+            add => this._messageReactionRemoved.Register(value);
+            remove => this._messageReactionRemoved.Unregister(value);
         }
         private AsyncEvent<MessageReactionRemoveEventArgs> _messageReactionRemoved;
 
@@ -2817,8 +2817,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<MessageReactionsClearEventArgs> MessageReactionsCleared
         {
-            add { this._messageReactionsCleared.Register(value); }
-            remove { this._messageReactionsCleared.Unregister(value); }
+            add => this._messageReactionsCleared.Register(value);
+            remove => this._messageReactionsCleared.Unregister(value);
         }
         private AsyncEvent<MessageReactionsClearEventArgs> _messageReactionsCleared;
 
@@ -2827,8 +2827,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<WebhooksUpdateEventArgs> WebhooksUpdated
         {
-            add { this._webhooksUpdated.Register(value); }
-            remove { this._webhooksUpdated.Unregister(value); }
+            add => this._webhooksUpdated.Register(value);
+            remove => this._webhooksUpdated.Unregister(value);
         }
         private AsyncEvent<WebhooksUpdateEventArgs> _webhooksUpdated;
 
@@ -2837,8 +2837,8 @@ namespace DSharpPlus
         /// </summary>
         public event AsyncEventHandler<HeartbeatEventArgs> Heartbeated
         {
-            add { this._heartbeated.Register(value); }
-            remove { this._heartbeated.Unregister(value); }
+            add => this._heartbeated.Register(value);
+            remove => this._heartbeated.Unregister(value);
         }
         private AsyncEvent<HeartbeatEventArgs> _heartbeated;
 

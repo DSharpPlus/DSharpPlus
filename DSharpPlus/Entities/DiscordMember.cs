@@ -148,8 +148,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override string Username
         {
-            get { return this.User.Username; }
-            internal set { this.User.Username = value; }
+            get => this.User.Username;
+            internal set => this.User.Username = value;
         }
 
         /// <summary>
@@ -157,8 +157,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override string Discriminator
         {
-            get { return this.User.Discriminator; }
-            internal set { this.User.Discriminator = value; }
+            get => this.User.Discriminator;
+            internal set => this.User.Discriminator = value;
         }
 
         /// <summary>
@@ -166,8 +166,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override string AvatarHash
         {
-            get { return this.User.AvatarHash; }
-            internal set { this.User.AvatarHash = value; }
+            get => this.User.AvatarHash;
+            internal set => this.User.AvatarHash = value;
         }
 
         /// <summary>
@@ -175,8 +175,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override bool IsBot
         {
-            get { return this.User.IsBot; }
-            internal set { this.User.IsBot = value; }
+            get => this.User.IsBot;
+            internal set => this.User.IsBot = value;
         }
 
         /// <summary>
@@ -184,8 +184,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override string Email
         {
-            get { return this.User.Email; }
-            internal set { this.User.Email = value; }
+            get => this.User.Email;
+            internal set => this.User.Email = value;
         }
 
         /// <summary>
@@ -193,8 +193,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override bool? MfaEnabled
         {
-            get { return this.User.MfaEnabled; }
-            internal set { this.User.MfaEnabled = value; }
+            get => this.User.MfaEnabled;
+            internal set => this.User.MfaEnabled = value;
         }
 
         /// <summary>
@@ -202,8 +202,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override bool? Verified
         {
-            get { return this.User.Verified; }
-            internal set { this.User.Verified = value; }
+            get => this.User.Verified;
+            internal set => this.User.Verified = value;
         }
 
         /// <summary>
@@ -211,8 +211,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public override string Locale
         {
-            get { return this.User.Locale; }
-            internal set { this.User.Locale = value; }
+            get => this.User.Locale;
+            internal set => this.User.Locale = value;
         }
         #endregion
 
