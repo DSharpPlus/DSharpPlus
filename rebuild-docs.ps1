@@ -402,11 +402,7 @@ function Package-Docs([string] $target_dir_path, [string] $output_dir_path, [str
     & 7za -r a "$output_path.tar" * | Out-Host
     
     # Check if prepackaging was a success
-    if ($LastExitCode -eq 0)
-    {
-        Return 0
-    }
-    else
+    if ($LastExitCode -ne 0)
     {
         Return $LastExitCode
     }
