@@ -2743,9 +2743,9 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when properties about the current user change.
         /// </summary>
-	/// <remarks>
-	/// NB: This event only applies for changes to the <b>current user</c>, the client that is connected to Discord.
-	/// </remarks>
+        /// <remarks>
+        /// NB: This event only applies for changes to the <b>current user</b>, the client that is connected to Discord.
+        /// </remarks>
         public event AsyncEventHandler<UserUpdateEventArgs> UserUpdated
         {
             add => this._userUpdated.Register(value);
