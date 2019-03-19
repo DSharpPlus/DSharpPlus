@@ -241,15 +241,20 @@ $(function () {
           return e.which !== 13;
         });
 
+        var lastQuery = '';
         $('#search-query').keyup(function () {
           query = $(this).val();
           if (query.length < 3) {
             flipContents("show");
           } else {
+            if (lastQuery.length < 3) {
+              $('#search-results>.sr-items').html('<p>Performing search...</p>');
+            }
             flipContents("hide");
             $("body").trigger("queryReady");
             $('#search-results>.search-list').text('Search Results for "' + query + '"');
           }
+          lastQuery = query;
         }).off("keydown");
       });
     }
