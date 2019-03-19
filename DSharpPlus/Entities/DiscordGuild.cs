@@ -728,7 +728,7 @@ namespace DSharpPlus.Entities
                 .GroupBy(xh => xh.Id)
                 .Select(xgh => xgh.First());
 
-            var ams = amr.Select(xau => gms.ContainsKey(xau.Id) ? gms[xau.Id] : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
+            var ams = amr.Select(xau => gms.TryGetValue(xau.Id, out var member) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
             var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
 
             Dictionary<ulong, DiscordWebhook> ahd = null;
@@ -737,7 +737,7 @@ namespace DSharpPlus.Entities
                 var whr = await this.GetWebhooksAsync().ConfigureAwait(false);
                 var whs = whr.ToDictionary(xh => xh.Id, xh => xh);
 
-                var amh = ahr.Select(xah => whs.ContainsKey(xah.Id) ? whs[xah.Id] : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
+                var amh = ahr.Select(xah => whs.TryGetValue(xah.Id, out var webhook) ? webhook : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
                 ahd = amh.ToDictionary(xh => xh.Id, xh => xh);
             }
 
@@ -773,8 +773,8 @@ namespace DSharpPlus.Entities
                                 case "owner_id":
                                     entrygld.OwnerChange = new PropertyChange<DiscordMember>
                                     {
-                                        Before = gms.ContainsKey(xc.OldValueUlong) ? gms[xc.OldValueUlong] : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
-                                        After = gms.ContainsKey(xc.NewValueUlong) ? gms[xc.NewValueUlong] : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
+                                        Before = gms.TryGetValue(xc.OldValueUlong, out var oldMember) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
+                                        After = gms.TryGetValue(xc.NewValueUlong, out var newMember) ? newMember : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
                                     };
                                     break;
 
@@ -1018,7 +1018,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.Kick:
                         entry = new DiscordAuditLogKickEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var kickMember) ? kickMember : new DiscordMember { Id = xac.TargetId.Value }
                         };
                         break;
 
@@ -1034,7 +1034,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.Unban:
                         entry = new DiscordAuditLogBanEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var unbanMember) ? unbanMember : new DiscordMember { Id = xac.TargetId.Value }
                         };
                         break;
 
@@ -1042,7 +1042,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.MemberRoleUpdate:
                         entry = new DiscordAuditLogMemberUpdateEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var roleUpdMember) ? roleUpdMember : new DiscordMember { Id = xac.TargetId.Value }
                         };
 
                         var entrymbu = entry as DiscordAuditLogMemberUpdateEntry;
@@ -1217,8 +1217,8 @@ namespace DSharpPlus.Entities
 
                                     entryinv.InviterChange = new PropertyChange<DiscordMember>
                                     {
-                                        Before = amd.ContainsKey(t1) ? amd[t1] : null,
-                                        After = amd.ContainsKey(t2) ? amd[t2] : null,
+                                        Before = amd.TryGetValue(t1, out var propBeforeMember) ? propBeforeMember : null,
+                                        After = amd.TryGetValue(t2, out var propAfterMember) ? propAfterMember : null,
                                     };
                                     break;
 
@@ -1279,7 +1279,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.WebhookUpdate:
                         entry = new DiscordAuditLogWebhookEntry
                         {
-                            Target = ahd.ContainsKey(xac.TargetId.Value) ? ahd[xac.TargetId.Value] : new DiscordWebhook { Id = xac.TargetId.Value }
+                            Target = ahd.TryGetValue(xac.TargetId.Value, out var webhook) ? webhook : new DiscordWebhook { Id = xac.TargetId.Value }
                         };
 
                         var entrywhk = entry as DiscordAuditLogWebhookEntry;

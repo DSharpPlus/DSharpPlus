@@ -130,7 +130,7 @@ namespace DSharpPlus.Entities
             get
             {
                 if (this.Discord is DiscordClient dc)
-                    return dc.Presences.ContainsKey(this.Id) ? dc.Presences[this.Id] : null;
+                    return dc.Presences.TryGetValue(this.Id, out var presence) ? presence : null;
                 return null;
             }
         }
