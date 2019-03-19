@@ -64,14 +64,15 @@
     ],
     "dest": "_site",
 	"globalMetadata": {
-	  "_appFooter": "© 2017 DSharpPlus development team"
+	  "_appFooter": "© 2017-2019 DSharpPlus development team",
+      "_enableSearch": "true"
 	},
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
       "dsplus"
     ],
-    "postProcessors": [],
+    "postProcessors": ["ExtractSearchIndex", "CustomMemberIndexer"],
     "noLangKeyword": false,
     "keepFileLink": false,
     "cleanupCacheHistory": false
