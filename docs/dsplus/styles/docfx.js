@@ -192,8 +192,7 @@ $(function () {
         var hits = lunrIndex.search(query);
         var results = [];
         hits.forEach(function (hit) {
-          var item = searchData[hit.ref];
-          results.push({ 'href': item.href, 'title': item.title, 'keywords': item.keywords });
+          results.push(searchData[hit.ref]);
         });
         handleSearchResults(results);
       });
@@ -242,15 +241,20 @@ $(function () {
           return e.which !== 13;
         });
 
+        var lastQuery = '';
         $('#search-query').keyup(function () {
           query = $(this).val();
           if (query.length < 3) {
             flipContents("show");
           } else {
+            if (lastQuery.length < 3) {
+              $('#search-results>.sr-items').html('<p>Performing search...</p>');
+            }
             flipContents("hide");
             $("body").trigger("queryReady");
             $('#search-results>.search-list').text('Search Results for "' + query + '"');
           }
+          lastQuery = query;
         }).off("keydown");
       });
     }
@@ -309,15 +313,39 @@ $(function () {
               curHits.map(function (hit) {
                 var currentUrl = window.location.href;
                 var itemRawHref = relativeUrlToAbsoluteUrl(currentUrl, relHref + hit.href);
-                var itemHref = relHref + hit.href + "?q=" + query;
+                var itemHref = relHref + hit.href;
+                var hashPart = itemHref.indexOf('#');
+                if (hashPart > -1) {
+                  itemHref = itemHref.slice(0, hashPart) + '?q=' + query + itemHref.slice(hashPart);
+                } else {
+                  itemHref = itemHref + '?q=' + query;
+                }
+                
                 var itemTitle = hit.title;
                 var itemBrief = extractContentBrief(hit.keywords);
+
+                var itemSignature = hit.ct_sig;
+                var itemSummary = hit.ct_sum;
 
                 var itemNode = $('<div>').attr('class', 'sr-item');
                 var itemTitleNode = $('<div>').attr('class', 'item-title').append($('<a>').attr('href', itemHref).attr("target", "_blank").text(itemTitle));
                 var itemHrefNode = $('<div>').attr('class', 'item-href').text(itemRawHref);
                 var itemBriefNode = $('<div>').attr('class', 'item-brief').text(itemBrief);
-                itemNode.append(itemTitleNode).append(itemHrefNode).append(itemBriefNode);
+
+                itemNode
+                  .append(itemTitleNode)
+                  .append(itemHrefNode);
+                
+                if (itemSignature) {
+                  var itemSignatureNode = $('<div class="item-ct-signature codewrapper"><pre class="compact-code"><code class="lang-csharp hljs"></code></pre></div>');
+                  itemSignatureNode.find('code').text(itemSignature);
+                  itemNode.append(itemSignatureNode);
+                }
+                if (itemSummary) {
+                  var itemSummaryNode = $('<div>').attr('class', 'item-ct-summary').text(itemSummary);
+                  itemNode.append(itemSummaryNode);
+                }
+                itemNode.append(itemBriefNode);
                 return itemNode;
               })
             );

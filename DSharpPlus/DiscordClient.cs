@@ -2502,6 +2502,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when the user joins a new guild.
         /// </summary>
+        /// <remarks>[alias="GuildJoined"][alias="JoinedGuild"]</remarks>
         public event AsyncEventHandler<GuildCreateEventArgs> GuildCreated
         {
             add { this._guildCreated.Register(value); }

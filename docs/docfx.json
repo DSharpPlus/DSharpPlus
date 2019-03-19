@@ -3,7 +3,7 @@
     {
       "src": [
         {
-		  "src": "..",
+          "src": "..",
           "files": [
             "**.cs"
           ],
@@ -15,7 +15,7 @@
         }
       ],
       "dest": "api",
-	  "filter": "filter_config.yml"
+      "filter": "filter_config.yml"
     }
   ],
   "build": {
@@ -30,7 +30,7 @@
         "files": [
           "articles/**.md",
           "articles/**/toc.yml",
-		  "natives/**.md",
+          "natives/**.md",
           "toc.yml",
           "*.md"
         ],
@@ -63,15 +63,16 @@
       }
     ],
     "dest": "_site",
-	"globalMetadata": {
-	  "_appFooter": "© 2017 DSharpPlus development team"
-	},
+    "globalMetadata": {
+      "_appFooter": "© 2017-2019 DSharpPlus development team",
+      "_enableSearch": "true"
+    },
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
       "dsplus"
     ],
-    "postProcessors": [],
+    "postProcessors": ["ExtractSearchIndex", "CustomMemberIndexer"],
     "noLangKeyword": false,
     "keepFileLink": false,
     "cleanupCacheHistory": false
