@@ -291,7 +291,7 @@ namespace DSharpPlus.Entities
             }
             if (this.Type != ChannelType.Text)
             {
-                perUserRateLimit = Optional<int?>.FromNoValue();
+                perUserRateLimit = Optional.FromNoValue<int?>();
             }
 
             return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);

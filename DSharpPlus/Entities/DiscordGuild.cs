@@ -419,7 +419,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel category.</returns>
         public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, Optional<int?>.FromNoValue(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new voice channel in this guild.
@@ -432,7 +432,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, Optional<int?>.FromNoValue(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new channel in this guild.
