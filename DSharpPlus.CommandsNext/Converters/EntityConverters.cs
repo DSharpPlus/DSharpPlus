@@ -25,7 +25,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
                 var result = await ctx.Client.GetUserAsync(uid).ConfigureAwait(false);
-                var ret = result != null ? Optional<DiscordUser>.FromValue(result) : Optional<DiscordUser>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordUser>();
                 return ret;
             }
 
@@ -33,7 +33,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
             {
                 var result = await ctx.Client.GetUserAsync(uid).ConfigureAwait(false);
-                var ret = result != null ? Optional<DiscordUser>.FromValue(result) : Optional<DiscordUser>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordUser>();
                 return ret;
             }
 
@@ -50,7 +50,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 .Where(xm => (cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null));
             
             var usr = us.FirstOrDefault();
-            return usr != null ? Optional<DiscordUser>.FromValue(usr) : Optional<DiscordUser>.FromNoValue();
+            return usr != null ? Optional.FromValue<DiscordUser>(usr) : Optional.FromNoValue<DiscordUser>();
         }
     }
 
@@ -70,12 +70,12 @@ namespace DSharpPlus.CommandsNext.Converters
         public async Task<Optional<DiscordMember>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ctx.Guild == null)
-                return Optional<DiscordMember>.FromNoValue();
+                return Optional.FromNoValue<DiscordMember>();
 
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
                 var result = await ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false);
-                var ret = result != null ? Optional<DiscordMember>.FromValue(result) : Optional<DiscordMember>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMember>();
                 return ret;
             }
 
@@ -83,7 +83,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
             {
                 var result = await ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false);
-                var ret = result != null ? Optional<DiscordMember>.FromValue(result) : Optional<DiscordMember>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMember>();
                 return ret;
             }
 
@@ -100,7 +100,7 @@ namespace DSharpPlus.CommandsNext.Converters
                           || (cs ? xm.Nickname : xm.Nickname?.ToLowerInvariant()) == value);
 
             var mbr = us.FirstOrDefault();
-            return mbr != null ? Optional<DiscordMember>.FromValue(mbr) : Optional<DiscordMember>.FromNoValue();
+            return mbr != null ? Optional.FromValue(mbr) : Optional.FromNoValue<DiscordMember>();
         }
     }
 
@@ -122,7 +122,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid))
             {
                 var result = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
-                var ret = result != null ? Optional<DiscordChannel>.FromValue(result) : Optional<DiscordChannel>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
                 return ret;
             }
 
@@ -130,7 +130,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cid))
             {
                 var result = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
-                var ret = result != null ? Optional<DiscordChannel>.FromValue(result) : Optional<DiscordChannel>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
                 return ret;
             }
 
@@ -139,7 +139,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 value = value.ToLowerInvariant();
 
             var chn = ctx.Guild?.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
-            return chn != null ? Optional<DiscordChannel>.FromValue(chn) : Optional<DiscordChannel>.FromNoValue();
+            return chn != null ? Optional.FromValue(chn) : Optional.FromNoValue<DiscordChannel>();
         }
     }
 
@@ -159,12 +159,12 @@ namespace DSharpPlus.CommandsNext.Converters
         public Task<Optional<DiscordRole>> ConvertAsync(string value, CommandContext ctx)
         {
             if (ctx.Guild == null)
-                return Task.FromResult(Optional<DiscordRole>.FromNoValue());
+                return Task.FromResult(Optional.FromNoValue<DiscordRole>());
 
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var rid))
             {
                 var result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
-                var ret = result != null ? Optional<DiscordRole>.FromValue(result) : Optional<DiscordRole>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordRole>();
                 return Task.FromResult(ret);
             }
 
@@ -172,7 +172,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out rid))
             {
                 var result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
-                var ret = result != null ? Optional<DiscordRole>.FromValue(result) : Optional<DiscordRole>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordRole>();
                 return Task.FromResult(ret);
             }
 
@@ -181,7 +181,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 value = value.ToLowerInvariant();
 
             var rol = ctx.Guild.Roles.FirstOrDefault(xr => (cs ? xr.Name : xr.Name.ToLowerInvariant()) == value);
-            return Task.FromResult(rol != null ? Optional<DiscordRole>.FromValue(rol) : Optional<DiscordRole>.FromNoValue());
+            return Task.FromResult(rol != null ? Optional.FromValue(rol) : Optional.FromNoValue<DiscordRole>());
         }
     }
 
@@ -192,9 +192,9 @@ namespace DSharpPlus.CommandsNext.Converters
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var gid))
             {
                 if (ctx.Client.Guilds.TryGetValue(gid, out var result))
-                    return Task.FromResult(Optional<DiscordGuild>.FromValue(result));
+                    return Task.FromResult(Optional.FromValue(result));
                 else
-                    return Task.FromResult(Optional<DiscordGuild>.FromNoValue());
+                    return Task.FromResult(Optional.FromNoValue<DiscordGuild>());
             }
 
             var cs = ctx.Config.CaseSensitive;
@@ -202,7 +202,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 value = value?.ToLowerInvariant();
 
             var gld = ctx.Client.Guilds.Values.FirstOrDefault(xg => (cs ? xg.Name : xg.Name.ToLowerInvariant()) == value);
-            return Task.FromResult(gld != null ? Optional<DiscordGuild>.FromValue(gld) : Optional<DiscordGuild>.FromNoValue());
+            return Task.FromResult(gld != null ? Optional.FromValue(gld) : Optional.FromNoValue<DiscordGuild>());
         }
     }
 
@@ -213,11 +213,11 @@ namespace DSharpPlus.CommandsNext.Converters
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var mid))
             {
                 var result = await ctx.Channel.GetMessageAsync(mid).ConfigureAwait(false);
-                var ret = result != null ? Optional<DiscordMessage>.FromValue(result) : Optional<DiscordMessage>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMessage>();
                 return ret;
             }
 
-            return Optional<DiscordMessage>.FromNoValue();
+            return Optional.FromNoValue<DiscordMessage>();
         }
     }
 
@@ -239,7 +239,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (DiscordEmoji.UnicodeEmojiList.Contains(value))
             {
                 var result = DiscordEmoji.FromUnicode(ctx.Client, value);
-                var ret = result != null ? Optional<DiscordEmoji>.FromValue(result) : Optional<DiscordEmoji>.FromNoValue();
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordEmoji>();
                 return Task.FromResult(ret);
             }
 
@@ -251,17 +251,17 @@ namespace DSharpPlus.CommandsNext.Converters
                 var anim = m.Groups["animated"].Success;
 
                 if (!ulong.TryParse(sid, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
-                    return Task.FromResult(Optional<DiscordEmoji>.FromNoValue());
+                    return Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
 
                 try
                 {
                     var e = DiscordEmoji.FromGuildEmote(ctx.Client, id);
-                    return Task.FromResult(Optional<DiscordEmoji>.FromValue(e));
+                    return Task.FromResult(Optional.FromValue(e));
                 }
                 catch (KeyNotFoundException)
                 { }
 
-                return Task.FromResult(Optional<DiscordEmoji>.FromValue(new DiscordEmoji
+                return Task.FromResult(Optional.FromValue(new DiscordEmoji
                 {
                     Discord = ctx.Client,
                     Id = id,
@@ -272,7 +272,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 }));
             }
 
-            return Task.FromResult(Optional<DiscordEmoji>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
         }
     }
 
@@ -296,7 +296,7 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             var m = ColorRegexHex.Match(value);
             if (m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var clr))
-                return Task.FromResult(Optional<DiscordColor>.FromValue(clr));
+                return Task.FromResult(Optional.FromValue<DiscordColor>(clr));
 
             m = ColorRegexRgb.Match(value);
             if (m.Success)
@@ -306,12 +306,12 @@ namespace DSharpPlus.CommandsNext.Converters
                 var p3 = byte.TryParse(m.Groups[3].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var b);
 
                 if (!(p1 && p2 && p3))
-                    return Task.FromResult(Optional<DiscordColor>.FromNoValue());
+                    return Task.FromResult(Optional.FromNoValue<DiscordColor>());
                 
-                return Task.FromResult(Optional<DiscordColor>.FromValue(new DiscordColor(r, g, b)));
+                return Task.FromResult(Optional.FromValue(new DiscordColor(r, g, b)));
             }
 
-            return Task.FromResult(Optional<DiscordColor>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<DiscordColor>());
         }
     }
 }
