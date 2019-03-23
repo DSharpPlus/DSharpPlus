@@ -69,8 +69,8 @@ namespace DSharpPlus.Entities
             this.Discord = other.Discord;
             this.Activity = other.Activity;
             this.RawActivity = other.RawActivity;
-            this.Activities = (DiscordActivity[]) other.Activities.Clone();
-            this.RawActivities = (TransportActivity[]) other.RawActivities.Clone();
+            this.Activities = (DiscordActivity[]) other.Activities?.Clone();
+            this.RawActivities = (TransportActivity[]) other.RawActivities?.Clone();
             this.Status = other.Status;
             this.InternalUser = new TransportUser(other.InternalUser);
         }
