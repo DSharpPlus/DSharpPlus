@@ -1277,7 +1277,7 @@ namespace DSharpPlus
             if (this._presences.TryGetValue(uid, out var presence))
             {
                 old = new DiscordPresence(presence);
-                JsonConvert.PopulateObject(rawPresence.ToString(), presence);
+                DiscordJson.PopulateObject(rawPresence, presence);
 
                 if (rawPresence["game"] == null || rawPresence["game"].Type == JTokenType.Null)
                     presence.RawActivity = null;
@@ -1837,7 +1837,7 @@ namespace DSharpPlus
             }
             else
             {
-                JsonConvert.PopulateObject(raw.ToString(), vstate_new); // TODO: Find a better way
+                DiscordJson.PopulateObject(raw, vstate_new);
             }
 
             var mbr = gld._members.FirstOrDefault(xm => xm.Id == uid);

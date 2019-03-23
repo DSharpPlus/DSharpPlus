@@ -31,6 +31,17 @@ namespace DSharpPlus.Net.Serialization
         {
             return SerializeObjectInternal(value, null, Serializer);
         }
+
+        /// <summary>Populates an object with the values from a JSON node.</summary>
+        /// <param name="value">The token to populate the object with.</param>
+        /// <param name="target">The object to populate.</param>
+        public static void PopulateObject(JToken value, object target)
+        {
+            using (var reader = value.CreateReader())
+            {
+                Serializer.Populate(reader, target);
+            }
+        }
         
         /// <summary>
         /// Converts this token into an object, passing any properties through extra <see cref="JsonConverter"/>s if
