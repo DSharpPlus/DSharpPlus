@@ -303,7 +303,7 @@ namespace DSharpPlus
                     Discord = this,
                     RawActivity = new TransportActivity(),
                     Activity = new DiscordActivity(),
-                    InternalStatus = "online",
+                    Status = UserStatus.Online,
                     InternalUser = new TransportUser
                     {
                         Id = this.CurrentUser.Id,
@@ -318,7 +318,7 @@ namespace DSharpPlus
                 var pr = this._presences[this.CurrentUser.Id];
                 pr.RawActivity = new TransportActivity();
                 pr.Activity = new DiscordActivity();
-                pr.InternalStatus = "online";
+                pr.Status = UserStatus.Online;
             }
 
             Volatile.Write(ref this._skippedHeartbeats, 0);
@@ -2162,7 +2162,7 @@ namespace DSharpPlus
                 {
                     Discord = this,
                     Activity = act,
-                    InternalStatus = userStatus?.ToString() ?? "online",
+                    Status = userStatus ?? UserStatus.Online,
                     InternalUser = new TransportUser { Id = this.CurrentUser.Id }
                 };
             }
@@ -2170,7 +2170,7 @@ namespace DSharpPlus
             {
                 var pr = this._presences[this.CurrentUser.Id];
                 pr.Activity = act;
-                pr.InternalStatus = userStatus?.ToString() ?? pr.InternalStatus;
+                pr.Status = userStatus ?? pr.Status;
             }
 
             return Task.Delay(0);
