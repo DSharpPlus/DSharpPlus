@@ -41,6 +41,32 @@ namespace DSharpPlus.Entities
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            if (value is UserStatus status)
+            {
+                switch (status) // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
+                {
+                    case UserStatus.Online:
+                        writer.WriteValue("online");
+                        return;
+
+                    case UserStatus.Idle:
+                        writer.WriteValue("idle");
+                        return;
+
+                    case UserStatus.DoNotDisturb:
+                        writer.WriteValue("dnd");
+                        return;
+
+                    case UserStatus.Invisible:
+                        writer.WriteValue("invisible");
+                        return;
+
+                    case UserStatus.Offline:
+                    default:
+                        writer.WriteValue("offline");
+                        return;
+                }
+            }
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
