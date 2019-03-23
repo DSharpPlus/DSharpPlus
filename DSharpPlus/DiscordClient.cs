@@ -1295,6 +1295,24 @@ namespace DSharpPlus
                 this._presences[presence.InternalUser.Id] = presence;
             }
 
+            // reuse arrays / avoid linq (this is a hot zone)
+            if (rawPresence["activities"] == null)
+            {
+#if !NET45 && !NETSTANDARD1_1
+                presence.Activities = Array.Empty<DiscordActivity>();
+#else
+                presence.Activities = new DiscordActivity[0];
+#endif
+            }
+            else
+            {
+                if (presence.Activities.Length != presence.RawActivities.Length)
+                    presence.Activities = new DiscordActivity[presence.RawActivities.Length];
+                
+                for (var i = 0; i < presence.Activities.Length; i++)
+                    presence.Activities[i] = new DiscordActivity(presence.RawActivities[i]);
+            }
+
             if (this.UserCache.TryGetValue(uid, out var usr))
             {
                 if (old != null)

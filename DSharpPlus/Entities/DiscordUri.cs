@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
@@ -10,6 +9,7 @@ namespace DSharpPlus.Net
     /// protocol, it mustn't contain a trailing slash to be interpreted correctly as an embed attachment reference by
     /// Discord.
     /// </summary>
+    [JsonConverter(typeof(DiscordUriJsonConverter))]
     public class DiscordUri
     {
 #if NETSTANDARD1_1
@@ -79,7 +79,7 @@ namespace DSharpPlus.Net
                 : throw new UriFormatException(
                     $@"DiscordUri ""{this._value}"" would be invalid as a regular URI, please the {nameof(this.Type)} property first.");
 
-        internal class DiscordUriJsonConverter : JsonConverter
+        internal sealed class DiscordUriJsonConverter : JsonConverter
         {
             public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
             {
