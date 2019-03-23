@@ -204,5 +204,12 @@ namespace DSharpPlus.Net.WebSocket
                 this._error.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
         #endregion
+
+        public override void Dispose()
+        {
+            this._socket.Dispose();
+            this._socket = null;
+            base.Dispose();
+        }
     }
 }
