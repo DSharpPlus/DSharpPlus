@@ -1285,7 +1285,7 @@ namespace DSharpPlus
                 if (presence.Activity != null)
                     presence.Activity.UpdateWith(presence.RawActivity);
                 else
-                    presence.Activity = new DiscordActivity();
+                    presence.Activity = new DiscordActivity(presence.RawActivity);
             }
             else
             {
