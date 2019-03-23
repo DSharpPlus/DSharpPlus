@@ -47,7 +47,7 @@ namespace DSharpPlus.Entities
         {
             // Active sessions are indicated with an "online", "idle", or "dnd" string per platform. If a user is
             // offline or invisible, the corresponding field is not present.
-            switch (reader.ReadAsString().ToLowerInvariant())
+            switch (reader.Value?.ToString().ToLowerInvariant())
             {
                 case "online":
                     return UserStatus.Online;
