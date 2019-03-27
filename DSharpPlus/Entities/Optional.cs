@@ -35,12 +35,19 @@ namespace DSharpPlus.Entities
             => default;
     }
     
+    // used internally to make serialization more convenient, do NOT change this, do NOT implement this yourself
+    internal interface IOptional
+    {
+        bool HasValue { get; }
+        object RawValue { get; } // must NOT throw InvalidOperationException
+    }
+    
     /// <summary>
     /// Represents a wrapper which may or may not have a value.
     /// </summary>
     /// <typeparam name="T">Type of the value.</typeparam>
     [JsonConverter(typeof(OptionalJsonConverter))]
-    public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>
+    public readonly struct Optional<T> : IEquatable<Optional<T>>, IEquatable<T>, IOptional
     {
         /// <summary>
         /// Gets whether this <see cref="Optional{T}"/> has a value.
@@ -52,6 +59,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <exception cref="InvalidOperationException">If this <see cref="Optional{T}"/> has no value.</exception>
         public T Value => this.HasValue ? this._val : throw new InvalidOperationException("Value is not set.");
+        object IOptional.RawValue => _val;
 
         private readonly T _val;
 
@@ -64,7 +72,7 @@ namespace DSharpPlus.Entities
             this._val = value;
             this.HasValue = true;
         }
-        
+
         /// <summary>
         /// Returns a string representation of this optional value.
         /// </summary>
@@ -165,34 +173,35 @@ namespace DSharpPlus.Entities
 
             var type = property.PropertyType;
             
-            if (!type.GetTypeInfo().IsGenericType)
+            if (!type.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional)))
                 return property;
 
-            if (type.GetGenericTypeDefinition() != typeof(Optional<>))
-                return property;
-            
             // we cache the PropertyInfo object here (it's captured in closure). we don't have direct 
             // access to the property value so we have to reflect into it from the parent instance
             // we use UnderlyingName instead of PropertyName in case the C# name is different from the Json name.
-            var optionalProp = property.DeclaringType.GetTypeInfo().GetDeclaredProperty(property.UnderlyingName);
+            var declaringMember = property.DeclaringType.GetTypeInfo().DeclaredMembers
+                .FirstOrDefault(e => e.Name == property.UnderlyingName);
             
-            // DIRTY HACK to support both serializing both fields and properties, if you know a better way to do this
-            // write me at cadrekucra@gmx.com!!!!
-            var propPresent = optionalProp != null;
-            var optionalField = !propPresent
-                ? property.DeclaringType.GetTypeInfo().GetDeclaredField(property.UnderlyingName)
-                : null;
-            
-            property.ShouldSerialize = instance => // instance here is the declaring (parent) type
+            switch (declaringMember)
             {
-                // this is the Optional<T> object
-                var optionalValue = propPresent ? optionalProp.GetValue(instance) : optionalField.GetValue(instance);
-                // get the HasValue property of the Optional<T> object and cast it to a bool, and only serialize it if
-                // it's present
-                return (bool)optionalValue.GetType().GetTypeInfo().GetDeclaredProperty("HasValue").GetValue(optionalValue);
-            };
-    
-            return property;
+                case PropertyInfo declaringProp:
+                    property.ShouldSerialize = instance => // instance here is the declaring (parent) type
+                    {
+                        var optionalValue = declaringProp.GetValue(instance);
+                        return (optionalValue as IOptional).HasValue;
+                    };
+                    return property;
+                case FieldInfo declaringField:
+                    property.ShouldSerialize = instance => // instance here is the declaring (parent) type
+                    {
+                        var optionalValue = declaringField.GetValue(instance);
+                        return (optionalValue as IOptional).HasValue;
+                    };
+                    return property;
+                default:
+                    throw new InvalidOperationException(
+                        "Can only serialize Optional<T> members that are fields or properties");
+            }
         }
     }
 
@@ -200,9 +209,8 @@ namespace DSharpPlus.Entities
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var typeInfo = value.GetType().GetTypeInfo();
-            // we don't check for HasValue here since it's checked above
-            var val = typeInfo.GetDeclaredProperty("Value").GetValue(value);
+            // we don't check for HasValue here since it's checked in OptionalJsonContractResolver
+            var val = (value as IOptional).RawValue;
             // JToken.FromObject will throw if `null` so we manually write a null value.
             if (val == null)
             {
@@ -214,8 +222,7 @@ namespace DSharpPlus.Entities
             else
             {
                 // convert the value to a JSON object and write it to the property value.
-                var t = JToken.FromObject(val);
-                t.WriteTo(writer);
+                JToken.FromObject(val).WriteTo(writer);
             }
         }
 
@@ -225,25 +232,25 @@ namespace DSharpPlus.Entities
             var genericType = objectType.GenericTypeArguments[0];
 
             var constructor = objectType.GetTypeInfo().DeclaredConstructors
-                .Single(e => e.GetParameters()[0].ParameterType == genericType);
+                .FirstOrDefault(e => e.GetParameters()[0].ParameterType == genericType);
             
             try
             {
-                return constructor.Invoke(new[] { Convert.ChangeType(reader.Value, genericType)});
+                return constructor.Invoke(new[] { serializer.Deserialize(reader, genericType) });
             }
-            catch
+            catch (Exception e)
             {
-                return existingValue;
+                #if !NETSTANDARD1_1
+                Console.WriteLine("DBG remove this later FAILED WITH " + e);
+                #endif
+                //return existingValue;
+                throw;
             }
         }
 
-        public override bool CanRead => true;
-
         public override bool CanConvert(Type objectType)
         {
-            if (!objectType.GetTypeInfo().IsGenericType) return false;
-
-            return objectType.GetGenericTypeDefinition() == typeof(Optional<>);
+            return objectType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional));
         }
     }
 }
