@@ -233,19 +233,8 @@ namespace DSharpPlus.Entities
 
             var constructor = objectType.GetTypeInfo().DeclaredConstructors
                 .FirstOrDefault(e => e.GetParameters()[0].ParameterType == genericType);
-            
-            try
-            {
-                return constructor.Invoke(new[] { serializer.Deserialize(reader, genericType) });
-            }
-            catch (Exception e)
-            {
-                #if !NETSTANDARD1_1
-                Console.WriteLine("DBG remove this later FAILED WITH " + e);
-                #endif
-                //return existingValue;
-                throw;
-            }
+
+            return constructor.Invoke(new[] { serializer.Deserialize(reader, genericType) });
         }
 
         public override bool CanConvert(Type objectType)

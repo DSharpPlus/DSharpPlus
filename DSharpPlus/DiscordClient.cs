@@ -1276,11 +1276,6 @@ namespace DSharpPlus
             var uid = (ulong)rawUser["id"];
             DiscordPresence old = null;
 
-            if (rawPresence["client_status"] is JObject obj && obj["desktop"] != null)
-            {
-                Debugger.Break();
-            }
-            
             if (this._presences.TryGetValue(uid, out var presence))
             {
                 old = new DiscordPresence(presence);
