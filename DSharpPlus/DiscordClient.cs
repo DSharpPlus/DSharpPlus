@@ -878,14 +878,19 @@ namespace DSharpPlus
 
                 var raw_guild = raw_guild_index[guild.Id];
                 var raw_members = (JArray)raw_guild["members"];
-                guild._members = new HashSet<DiscordMember>();
 
+                if (guild._members != null)
+                    guild._members.Clear();
+                else
+                    guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
+                
                 if (raw_members != null)
+                {
                     foreach (var xj in raw_members)
                     {
                         var xtm = xj.ToObject<TransportMember>();
 
-                        var xu = new DiscordUser(xtm.User) { Discord = this };
+                        var xu = new DiscordUser(xtm.User) {Discord = this};
                         xu = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
                         {
                             old.Username = xu.Username;
@@ -894,8 +899,10 @@ namespace DSharpPlus
                             return old;
                         });
 
-                        guild._members.Add(new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id });
+                        guild._members.TryAdd(xtm.User.Id,
+                            new DiscordMember(xtm) {Discord = this, _guild_id = guild.Id});
                     }
+                }
 
                 if (guild._emojis == null)
                     guild._emojis = new List<DiscordEmoji>();
@@ -1086,7 +1093,7 @@ namespace DSharpPlus
             if (guild._voice_states == null)
                 guild._voice_states = new List<DiscordVoiceState>();
             if (guild._members == null)
-                guild._members = new HashSet<DiscordMember>();
+                guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
 
             this.UpdateCachedGuild(eventGuild, rawMembers);
 
@@ -1168,16 +1175,16 @@ namespace DSharpPlus
                     VoiceRegionId = gld.VoiceRegionId,
                     _channels = new List<DiscordChannel>(),
                     _emojis = new List<DiscordEmoji>(),
-                    _members = new HashSet<DiscordMember>(),
+                    _members = new ConcurrentDictionary<ulong, DiscordMember>(),
                     _roles = new List<DiscordRole>(),
                     _voice_states = new List<DiscordVoiceState>()
                 };
 
                 guild_old._channels.AddRange(gld._channels);
                 guild_old._emojis.AddRange(gld._emojis);
-                guild_old._members.UnionWith(gld._members);
                 guild_old._roles.AddRange(gld._roles);
                 guild_old._voice_states.AddRange(gld._voice_states);
+                foreach (var kvp in gld._members) guild_old._members.TryAdd(kvp.Key, kvp.Value);
             }
 
             guild.Discord = this;
@@ -1194,7 +1201,7 @@ namespace DSharpPlus
             if (guild._voice_states == null)
                 guild._voice_states = new List<DiscordVoiceState>();
             if (guild._members == null)
-                guild._members = new HashSet<DiscordMember>();
+                guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
 
             this.UpdateCachedGuild(event_guild, rawMembers);
 
@@ -1333,7 +1340,8 @@ namespace DSharpPlus
                 return old;
             });
 
-            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+            if (!guild.Members.TryGetValue(user.Id, out var mbr)) 
+                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             var ea = new GuildBanAddEventArgs(this)
             {
                 Guild = guild,
@@ -1353,7 +1361,8 @@ namespace DSharpPlus
                 return old;
             });
 
-            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+            if (!guild.Members.TryGetValue(user.Id, out var mbr))
+                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             var ea = new GuildBanRemoveEventArgs(this)
             {
                 Guild = guild,
@@ -1402,7 +1411,7 @@ namespace DSharpPlus
                 _guild_id = guild.Id
             };
 
-            guild._members.Add(mbr);
+            guild._members.TryAdd(mbr.Id, mbr);
             guild.MemberCount++;
 
             var ea = new GuildMemberAddEventArgs(this)
@@ -1415,9 +1424,8 @@ namespace DSharpPlus
 
         internal async Task OnGuildMemberRemoveEventAsync(TransportUser user, DiscordGuild guild)
         {
-            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(new DiscordUser(user)) { Discord = this, _guild_id = guild.Id };
-
-            guild._members.Remove(mbr);
+            if (!guild._members.TryRemove(user.Id, out var mbr))
+                mbr = new DiscordMember(new DiscordUser(user)) {Discord = this, _guild_id = guild.Id};
             guild.MemberCount--;
 
             var ea = new GuildMemberRemoveEventArgs(this)
@@ -1439,7 +1447,8 @@ namespace DSharpPlus
                 return old;
             });
 
-            var mbr = guild.Members.FirstOrDefault(xm => xm.Id == user.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+            if (!guild.Members.TryGetValue(user.Id, out var mbr))
+                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
 
             var nick_old = mbr.Nickname;
             var roles_old = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles));
@@ -1562,7 +1571,8 @@ namespace DSharpPlus
 
             if (guild != null)
             {
-                var mbr = guild.Members.FirstOrDefault(xm => xm.Id == author.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+                if (!guild.Members.TryGetValue(author.Id, out var mbr))
+                    mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
                 message.Author = mbr;
             }
             else
@@ -1578,7 +1588,7 @@ namespace DSharpPlus
             {
                 if (guild != null)
                 {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
                     mentioned_roles = Utilities.GetRoleMentions(message).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
                     mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
                 }
@@ -1637,7 +1647,8 @@ namespace DSharpPlus
 
                     if (guild != null)
                     {
-                        var mbr = guild.Members.FirstOrDefault(xm => xm.Id == author.Id) ?? new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+                        if (!guild.Members.TryGetValue(author.Id, out var mbr))
+                            mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
                         message.Author = mbr;
                     }
                     else
@@ -1674,7 +1685,7 @@ namespace DSharpPlus
             {
                 if (guild != null)
                 {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
                     mentioned_roles = Utilities.GetRoleMentions(message).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
                     mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
                 }
@@ -1754,16 +1765,18 @@ namespace DSharpPlus
             if (channel == null)
                 return;
 
-            if (!this.UserCache.TryGetValue(userId, out var usr))
-                usr = new DiscordUser { Id = userId, Discord = this };
+            if (!this.UserCache.TryGetValue(userId, out var user))
+                user = new DiscordUser { Id = userId, Discord = this };
 
             if (channel.Guild != null)
-                usr = channel.Guild.Members.FirstOrDefault(xm => xm.Id == userId) ?? new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
+                user = channel.Guild.Members.TryGetValue(userId, out var member) 
+                    ? member
+                    : new DiscordMember(user) { Discord = this, _guild_id = channel.GuildId };
 
             var ea = new TypingStartEventArgs(this)
             {
                 Channel = channel,
-                User = usr,
+                User = user,
                 StartedAt = started
             };
             await this._typingStarted.InvokeAsync(ea).ConfigureAwait(false);
@@ -1831,8 +1844,7 @@ namespace DSharpPlus
                 JsonConvert.PopulateObject(raw.ToString(), vstate_new); // TODO: Find a better way
             }
 
-            var mbr = gld._members.FirstOrDefault(xm => xm.Id == uid);
-            if (mbr != null)
+            if (gld._members.TryGetValue(uid, out var mbr))
             {
                 mbr.IsMuted = vstate_new.IsServerMuted;
                 mbr.IsDeafened = vstate_new.IsServerDeafened;
@@ -1869,7 +1881,7 @@ namespace DSharpPlus
             foreach (var xtm in members)
             {
                 var mbr = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
-                guild._members.Add(mbr);
+                guild._members.TryAdd(mbr.Id, mbr);
                 mbrs.Add(mbr);
             }
             guild.MemberCount = guild._members.Count;
@@ -1896,10 +1908,11 @@ namespace DSharpPlus
                 usr = new DiscordUser { Id = userId, Discord = this };
 
             if (channel.Guild != null)
-                usr = channel.Guild.Members.FirstOrDefault(xm => xm.Id == userId) ?? new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
+                usr = channel.Guild.Members.TryGetValue(userId, out var member)
+                    ? member
+                    : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
 
-            DiscordMessage msg = null;
-            if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out msg))
+            if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1944,11 +1957,12 @@ namespace DSharpPlus
                 usr = new DiscordUser { Id = userId, Discord = this };
 
             if (channel.Guild != null)
-                usr = channel.Guild.Members.FirstOrDefault(xm => xm.Id == userId) ?? new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
+                usr = channel.Guild.Members.TryGetValue(userId, out var member)
+                    ? member
+                    : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
 
-            DiscordMessage msg = null;
             if (this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out msg))
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -2286,7 +2300,7 @@ namespace DSharpPlus
                         return old;
                     });
 
-                    guild._members.Add(new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id });
+                    guild._members.TryAdd(xtm.User.Id, new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id });
                 }
             }
 

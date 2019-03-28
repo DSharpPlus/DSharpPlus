@@ -61,7 +61,8 @@ namespace DSharpPlus.Net
 
             if (guild != null)
             {
-                var mbr = guild.Members.FirstOrDefault(xm => xm.Id == author.Id) ?? new DiscordMember(usr) { Discord = this.Discord, _guild_id = guild.Id };
+                if (!guild.Members.TryGetValue(author.Id, out var mbr))
+                    mbr = new DiscordMember(usr) { Discord = this.Discord, _guild_id = guild.Id };
                 ret.Author = mbr;
             }
             else
@@ -77,7 +78,7 @@ namespace DSharpPlus.Net
             {
                 if (guild != null)
                 {
-                    mentioned_users = Utilities.GetUserMentions(ret).Select(xid => guild._members.FirstOrDefault(xm => xm.Id == xid)).Cast<DiscordUser>().ToList();
+                    mentioned_users = Utilities.GetUserMentions(ret).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
                     mentioned_roles = Utilities.GetRoleMentions(ret).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
                     mentioned_channels = Utilities.GetChannelMentions(ret).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
                 }
@@ -1715,23 +1716,23 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
-            var emojis_raw = JsonConvert.DeserializeObject<IEnumerable<JObject>>(res.Response);
+            var emojisRaw = JsonConvert.DeserializeObject<IEnumerable<JObject>>(res.Response);
 
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
             var users = new Dictionary<ulong, DiscordUser>();
             var emojis = new List<DiscordGuildEmoji>();
-            foreach (var xj in emojis_raw)
+            foreach (var rawEmoji in emojisRaw)
             {
-                var xge = xj.ToObject<DiscordGuildEmoji>();
+                var xge = rawEmoji.ToObject<DiscordGuildEmoji>();
                 xge.Guild = gld;
 
-                var xtu = xj["user"]?.ToObject<TransportUser>();
+                var xtu = rawEmoji["user"]?.ToObject<TransportUser>();
                 if (xtu != null)
                 {
                     if (!users.ContainsKey(xtu.Id))
                     {
-                        var xu = gld?.Members.FirstOrDefault(xm => xm.Id == xtu.Id) ?? new DiscordUser(xtu);
-                        users[xu.Id] = xu;
+                        var user = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
+                        users[user.Id] = user;
                     }
 
                     xge.User = users[xtu.Id];
@@ -1759,7 +1760,7 @@ namespace DSharpPlus.Net
 
             var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
             if (xtu != null)
-                emoji.User = gld?.Members.FirstOrDefault(xm => xm.Id == xtu.Id) ?? new DiscordUser(xtu);
+                emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
 
             return emoji;
         }
@@ -1791,7 +1792,7 @@ namespace DSharpPlus.Net
 
             var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
             if (xtu != null)
-                emoji.User = gld?.Members.FirstOrDefault(xm => xm.Id == xtu.Id) ?? new DiscordUser(xtu);
+                emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
             else
                 emoji.User = this.Discord.CurrentUser;
 
@@ -1824,7 +1825,7 @@ namespace DSharpPlus.Net
 
             var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
             if (xtu != null)
-                emoji.User = gld?.Members.FirstOrDefault(xm => xm.Id == xtu.Id) ?? new DiscordUser(xtu);
+                emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
 
             return emoji;
         }

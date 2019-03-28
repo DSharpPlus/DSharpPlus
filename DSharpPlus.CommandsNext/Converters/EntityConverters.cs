@@ -45,8 +45,8 @@ namespace DSharpPlus.CommandsNext.Converters
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
-            var us = ctx.Client.Guilds
-                .SelectMany(xkvp => xkvp.Value.Members)
+            var us = ctx.Client.Guilds.Values
+                .SelectMany(xkvp => xkvp.Members.Values)
                 .Where(xm => (cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null));
             
             var usr = us.FirstOrDefault();
@@ -95,7 +95,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
-            var us = ctx.Guild.Members
+            var us = ctx.Guild.Members.Values
                 .Where(xm => ((cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null)) 
                           || (cs ? xm.Nickname : xm.Nickname?.ToLowerInvariant()) == value);
 

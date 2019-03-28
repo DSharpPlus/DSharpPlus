@@ -9,27 +9,27 @@ namespace DSharpPlus
 {
     internal readonly struct ReadOnlyDictionaryWrapper<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
     {
-        private readonly ConcurrentDictionary<TKey, TValue> _dictionaryImplementation;
+        private readonly ConcurrentDictionary<TKey, TValue> _implementation;
 
-        public ReadOnlyDictionaryWrapper(ConcurrentDictionary<TKey, TValue> dictionaryImplementation)
+        public ReadOnlyDictionaryWrapper(ConcurrentDictionary<TKey, TValue> implementation)
         {
-            _dictionaryImplementation = dictionaryImplementation;
+            _implementation = implementation;
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _dictionaryImplementation.GetEnumerator();
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _implementation.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _dictionaryImplementation).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _implementation).GetEnumerator();
 
-        public int Count => _dictionaryImplementation.Count;
+        public int Count => _implementation.Count;
 
-        public bool ContainsKey(TKey key) => _dictionaryImplementation.ContainsKey(key);
+        public bool ContainsKey(TKey key) => _implementation.ContainsKey(key);
 
-        public bool TryGetValue(TKey key, out TValue value) => _dictionaryImplementation.TryGetValue(key, out value);
+        public bool TryGetValue(TKey key, out TValue value) => _implementation.TryGetValue(key, out value);
 
-        public TValue this[TKey key] => _dictionaryImplementation[key];
+        public TValue this[TKey key] => _implementation[key];
 
-        public IEnumerable<TKey> Keys => _dictionaryImplementation.Keys;
+        public IEnumerable<TKey> Keys => _implementation.Keys;
 
-        public IEnumerable<TValue> Values => _dictionaryImplementation.Values;
+        public IEnumerable<TValue> Values => _implementation.Values;
     }
 }

@@ -1,5 +1,6 @@
 ﻿#pragma warning disable CS0618
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -10,6 +11,7 @@ using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using DSharpPlus.Net.Models;
+using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus.Entities
 {
@@ -67,7 +69,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordMember Owner
-            => this.Members.FirstOrDefault(xm => xm.Id == this.OwnerId) ?? this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
+            => this.Members.TryGetValue(this.OwnerId, out var owner) 
+                ? owner 
+                : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets the guild's voice region ID.
@@ -224,14 +228,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a collection of all the members that belong to this guild.
         /// </summary>
-        [JsonIgnore]
-        public IReadOnlyCollection<DiscordMember> Members
-            => this._members_lazy.Value;
+        [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
+        public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyDictionaryWrapper<ulong, DiscordMember>(this._members);
 
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        internal HashSet<DiscordMember> _members;
-        [JsonIgnore]
-        private Lazy<IReadOnlyCollection<DiscordMember>> _members_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordMember> _members;
 
         /// <summary>
         /// Gets a collection of all the channels associated with this guild.
@@ -287,9 +289,8 @@ namespace DSharpPlus.Entities
             this._emojis_lazy = new Lazy<IReadOnlyList<DiscordEmoji>>(() => new ReadOnlyCollection<DiscordEmoji>(this._emojis));
             this._voice_states_lazy = new Lazy<IReadOnlyList<DiscordVoiceState>>(() => new ReadOnlyCollection<DiscordVoiceState>(this._voice_states));
             this._channels_lazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._channels));
-            this._members_lazy = new Lazy<IReadOnlyCollection<DiscordMember>>(() => new ReadOnlySet<DiscordMember>(this._members));
 
-            this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.FirstOrDefault(xm => xm.Id == this.Discord.CurrentUser.Id));
+            this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
         }
 
         #region Guild Methods
@@ -566,16 +567,15 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a member of this guild by his user ID.
         /// </summary>
-        /// <param name="user_id">ID of the member to get.</param>
+        /// <param name="userId">ID of the member to get.</param>
         /// <returns>The requested member.</returns>
-        public async Task<DiscordMember> GetMemberAsync(ulong user_id)
+        public async Task<DiscordMember> GetMemberAsync(ulong userId)
         {
-            var mbr = this._members.FirstOrDefault(xm => xm.Id == user_id);
-            if (mbr != null)
+            if (this._members.TryGetValue(userId, out var mbr))
                 return mbr;
 
-            mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, user_id).ConfigureAwait(false);
-            this._members.Add(mbr);
+            mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, userId).ConfigureAwait(false);
+            this._members.TryAdd(userId, mbr);
             return mbr;
         }
 
@@ -678,8 +678,6 @@ namespace DSharpPlus.Entities
         /// <returns>A collection of requested audit log entries.</returns>
         public async Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
         {
-            var gms = this._members.ToDictionary(xm => xm.Id, xm => xm);
-
             var alrs = new List<AuditLog>();
             int ac = 1, tc = 0, rmn = 100;
             var last = 0ul;
@@ -728,7 +726,7 @@ namespace DSharpPlus.Entities
                 .GroupBy(xh => xh.Id)
                 .Select(xgh => xgh.First());
 
-            var ams = amr.Select(xau => gms.TryGetValue(xau.Id, out var member) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
+            var ams = amr.Select(xau => this._members.TryGetValue(xau.Id, out var member) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
             var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
 
             Dictionary<ulong, DiscordWebhook> ahd = null;
@@ -773,8 +771,8 @@ namespace DSharpPlus.Entities
                                 case "owner_id":
                                     entrygld.OwnerChange = new PropertyChange<DiscordMember>
                                     {
-                                        Before = gms.TryGetValue(xc.OldValueUlong, out var oldMember) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
-                                        After = gms.TryGetValue(xc.NewValueUlong, out var newMember) ? newMember : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
+                                        Before = this._members.TryGetValue(xc.OldValueUlong, out var oldMember) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
+                                        After = this._members.TryGetValue(xc.NewValueUlong, out var newMember) ? newMember : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
                                     };
                                     break;
 
