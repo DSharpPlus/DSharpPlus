@@ -455,11 +455,11 @@ namespace DSharpPlus
             if (this._guilds.TryGetValue(id, out var guild))
                 return guild;
 
-            var gld = await this.ApiClient.GetGuildAsync(id).ConfigureAwait(false);
-            var chns = await this.ApiClient.GetGuildChannelsAsync(gld.Id).ConfigureAwait(false);
-            gld._channels.AddRange(chns);
+            guild = await this.ApiClient.GetGuildAsync(id).ConfigureAwait(false);
+            var channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id).ConfigureAwait(false);
+            foreach (var channel in channels) guild._channels[channel.Id] = channel;
 
-            return gld;
+            return guild;
         }
 
         /// <summary>

@@ -97,7 +97,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel AfkChannel
-            => this.Channels.FirstOrDefault(xc => xc.Id == this.AfkChannelId);
+            => this.GetChannel(this.AfkChannelId);
 
         /// <summary>
         /// Gets the guild's AFK timeout.
@@ -122,7 +122,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel EmbedChannel
-            => this.Channels.FirstOrDefault(xc => xc.Id == this.EmbedChannelId);
+            => this.GetChannel(this.EmbedChannelId);
 
         /// <summary>
         /// Gets the guild's verification level.
@@ -150,7 +150,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel SystemChannel => SystemChannelId.HasValue
-            ? this.Channels.FirstOrDefault(xc => xc.Id == SystemChannelId)
+            ? this.GetChannel(SystemChannelId.Value)
             : null;
 
         /// <summary>
@@ -239,13 +239,11 @@ namespace DSharpPlus.Entities
         /// Gets a collection of all the channels associated with this guild.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordChannel> Channels
-            => this._channels_lazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyDictionaryWrapper<ulong, DiscordChannel>(this._channels);
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordChannel> _channels;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordChannel>> _channels_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
 
         /// <summary>
         /// Gets the guild member for current user.
@@ -288,7 +286,6 @@ namespace DSharpPlus.Entities
             this._roles_lazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._roles));
             this._emojis_lazy = new Lazy<IReadOnlyList<DiscordEmoji>>(() => new ReadOnlyCollection<DiscordEmoji>(this._emojis));
             this._voice_states_lazy = new Lazy<IReadOnlyList<DiscordVoiceState>>(() => new ReadOnlyCollection<DiscordVoiceState>(this._voice_states));
-            this._channels_lazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._channels));
 
             this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
         }
@@ -467,7 +464,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task DeleteAllChannelsAsync()
         {
-            var tasks = this.Channels.Select(xc => xc.DeleteAsync());
+            var tasks = this.Channels.Values.Select(xc => xc.DeleteAsync());
             return Task.WhenAll(tasks);
         }
 
@@ -667,7 +664,7 @@ namespace DSharpPlus.Entities
         /// <param name="id">ID of the channel to get.</param>
         /// <returns>Requested channel.</returns>
         public DiscordChannel GetChannel(ulong id)
-            => this._channels.FirstOrDefault(xc => xc.Id == id);
+            => this._channels.TryGetValue(id, out var channel) ? channel : null;
 
         /// <summary>
         /// Gets audit log entries for this guild.
@@ -798,8 +795,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.AfkChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
-                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                        Before = this.GetChannel(t1),
+                                        After = this.GetChannel(t2)
                                     };
                                     break;
 
@@ -809,8 +806,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.EmbedChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
-                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                        Before = this.GetChannel(t1),
+                                        After = this.GetChannel(t2)
                                     };
                                     break;
 
@@ -836,8 +833,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.SystemChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
-                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                        Before = this.GetChannel(t1),
+                                        After = this.GetChannel(t2)
                                     };
                                     break;
 
@@ -869,7 +866,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.ChannelUpdate:
                         entry = new DiscordAuditLogChannelEntry
                         {
-                            Target = this._channels.FirstOrDefault(xch => xch.Id == xac.TargetId.Value) ?? new DiscordChannel { Id = xac.TargetId.Value }
+                            Target = this.GetChannel(xac.TargetId.Value) ?? new DiscordChannel { Id = xac.TargetId.Value }
                         };
 
                         var entrychn = entry as DiscordAuditLogChannelEntry;
@@ -956,8 +953,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.OverwriteUpdate:
                         entry = new DiscordAuditLogOverwriteEntry
                         {
-                            Target = this._channels.FirstOrDefault(xc => xc.Id == xac.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == xac.Options.Id),
-                            Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.TargetId.Value)
+                            Target = this.GetChannel(xac.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == xac.Options.Id),
+                            Channel = this.GetChannel(xac.TargetId.Value)
                         };
 
                         var entryovr = entry as DiscordAuditLogOverwriteEntry;
@@ -1226,8 +1223,8 @@ namespace DSharpPlus.Entities
 
                                     entryinv.ChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = p1 ? this._channels.FirstOrDefault(xch => xch.Id == t1) : null,
-                                        After = p2 ? this._channels.FirstOrDefault(xch => xch.Id == t2) : null
+                                        Before = p1 ? this.GetChannel(t1) : null,
+                                        After = p2 ? this.GetChannel(t2) : null
                                     };
 
                                     var ch = entryinv.ChannelChange.Before ?? entryinv.ChannelChange.After;
@@ -1299,8 +1296,8 @@ namespace DSharpPlus.Entities
 
                                     entrywhk.ChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = p1 ? this._channels.FirstOrDefault(xch => xch.Id == t1) : null,
-                                        After = p2 ? this._channels.FirstOrDefault(xch => xch.Id == t2) : null
+                                        Before = p1 ? this.GetChannel(t1) : null,
+                                        After = p2 ? this.GetChannel(t2) : null
                                     };
                                     break;
 
@@ -1361,7 +1358,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.MessageDelete:
                         entry = new DiscordAuditLogMessageEntry
                         {
-                            Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.Options?.ChannelId),
+                            Channel = xac.Options != null ? this.GetChannel(xac.Options.ChannelId) : null,
                             MessageCount = xac.Options?.MessageCount
                         };
 
@@ -1545,7 +1542,7 @@ namespace DSharpPlus.Entities
         /// <returns>This member's default guild.</returns>
         public DiscordChannel GetDefaultChannel()
         {
-            return this._channels.Where(xc => xc.Type == ChannelType.Text)
+            return this._channels.Values.Where(xc => xc.Type == ChannelType.Text)
                 .OrderBy(xc => xc.Position)
                 .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
         }
