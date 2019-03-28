@@ -1,5 +1,6 @@
 ﻿#pragma warning disable CS0618
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -82,20 +83,14 @@ namespace DSharpPlus
         /// <summary>
         /// List of DM Channels
         /// </summary>
-        public IReadOnlyList<DiscordDmChannel> PrivateChannels
-            => this._privateChannelsLazy.Value;
-
-        internal List<DiscordDmChannel> _privateChannels = new List<DiscordDmChannel>();
-        private Lazy<IReadOnlyList<DiscordDmChannel>> _privateChannelsLazy;
+        public IReadOnlyDictionary<ulong, DiscordDmChannel> PrivateChannels { get; }
+        internal ConcurrentDictionary<ulong, DiscordDmChannel> _privateChannels = new ConcurrentDictionary<ulong, DiscordDmChannel>();
 
         /// <summary>
         /// List of Guilds
         /// </summary>
-        public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds
-            => this._guildsLazy.Value;
-
-        internal Dictionary<ulong, DiscordGuild> _guilds = new Dictionary<ulong, DiscordGuild>();
-        private Lazy<IReadOnlyDictionary<ulong, DiscordGuild>> _guildsLazy;
+        public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
+        internal ConcurrentDictionary<ulong, DiscordGuild> _guilds = new ConcurrentDictionary<ulong, DiscordGuild>();
 
         /// <summary>
         /// Gets the WS latency for this client.
@@ -133,6 +128,9 @@ namespace DSharpPlus
                 this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize);
 
             InternalSetup();
+            
+            this.Guilds = new ReadOnlyDictionaryWrapper<ulong, DiscordGuild>(_guilds);
+            this.PrivateChannels = new ReadOnlyDictionaryWrapper<ulong, DiscordDmChannel>(_privateChannels);
         }
 
         internal void InternalSetup()
@@ -184,11 +182,8 @@ namespace DSharpPlus
             this._webhooksUpdated = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
 
-            this._privateChannels = new List<DiscordDmChannel>();
-            this._guilds = new Dictionary<ulong, DiscordGuild>();
+            this._guilds.Clear();
 
-            this._privateChannelsLazy = new Lazy<IReadOnlyList<DiscordDmChannel>>(() => new ReadOnlyCollection<DiscordDmChannel>(this._privateChannels));
-            this._guildsLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
             this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
 
             if (Configuration.UseInternalLogHandler)
@@ -824,23 +819,74 @@ namespace DSharpPlus
             this._sessionId = ready.SessionId;
             var raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
 
-            this._privateChannels = rawDmChannels
-                .Select(xjt =>
+            this._privateChannels.Clear();
+            foreach (var rawChannel in rawDmChannels) {
+                var channel = rawChannel.ToObject<DiscordDmChannel>();
+
+                channel.Discord = this;
+
+                //xdc._recipients = 
+                //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
+                //    .ToList();
+
+                var recips_raw = rawChannel["recipients"].ToObject<IEnumerable<TransportUser>>();
+                channel._recipients = new List<DiscordUser>();
+                foreach (var xr in recips_raw)
                 {
-                    var xdc = xjt.ToObject<DiscordDmChannel>();
-
-                    xdc.Discord = this;
-
-                    //xdc._recipients = 
-                    //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
-                    //    .ToList();
-
-                    var recips_raw = xjt["recipients"].ToObject<IEnumerable<TransportUser>>();
-                    xdc._recipients = new List<DiscordUser>();
-                    foreach (var xr in recips_raw)
+                    var xu = new DiscordUser(xr) { Discord = this };
+                    xu = this.UserCache.AddOrUpdate(xr.Id, xu, (id, old) =>
                     {
-                        var xu = new DiscordUser(xr) { Discord = this };
-                        xu = this.UserCache.AddOrUpdate(xr.Id, xu, (id, old) =>
+                        old.Username = xu.Username;
+                        old.Discriminator = xu.Discriminator;
+                        old.AvatarHash = xu.AvatarHash;
+                        return old;
+                    });
+
+                    channel._recipients.Add(xu);
+                }
+
+                this._privateChannels.TryAdd(channel.Id, channel);
+            }
+
+            this._guilds.Clear();
+            foreach (var guild in ready.Guilds)
+            {
+                guild.Discord = this;
+
+                if (guild._channels == null)
+                    guild._channels = new List<DiscordChannel>();
+
+                foreach (var xc in guild.Channels)
+                {
+                    xc.GuildId = guild.Id;
+                    xc.Discord = this;
+                    foreach (var xo in xc._permissionOverwrites)
+                    {
+                        xo.Discord = this;
+                        xo._channel_id = xc.Id;
+                    }
+                }
+
+                if (guild._roles == null)
+                    guild._roles = new List<DiscordRole>();
+
+                foreach (var xr in guild.Roles)
+                {
+                    xr.Discord = this;
+                    xr._guild_id = guild.Id;
+                }
+
+                var raw_guild = raw_guild_index[guild.Id];
+                var raw_members = (JArray)raw_guild["members"];
+                guild._members = new HashSet<DiscordMember>();
+
+                if (raw_members != null)
+                    foreach (var xj in raw_members)
+                    {
+                        var xtm = xj.ToObject<TransportMember>();
+
+                        var xu = new DiscordUser(xtm.User) { Discord = this };
+                        xu = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
                         {
                             old.Username = xu.Username;
                             old.Discriminator = xu.Discriminator;
@@ -848,77 +894,23 @@ namespace DSharpPlus
                             return old;
                         });
 
-                        xdc._recipients.Add(xu);
+                        guild._members.Add(new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id });
                     }
 
-                    return xdc;
-                }).ToList();
+                if (guild._emojis == null)
+                    guild._emojis = new List<DiscordEmoji>();
 
-            this._guilds = ready.Guilds
-                .Select(xg =>
-                {
-                    xg.Discord = this;
+                foreach (var xe in guild.Emojis)
+                    xe.Discord = this;
 
-                    if (xg._channels == null)
-                        xg._channels = new List<DiscordChannel>();
+                if (guild._voice_states == null)
+                    guild._voice_states = new List<DiscordVoiceState>();
 
-                    foreach (var xc in xg.Channels)
-                    {
-                        xc.GuildId = xg.Id;
-                        xc.Discord = this;
-                        foreach (var xo in xc._permissionOverwrites)
-                        {
-                            xo.Discord = this;
-                            xo._channel_id = xc.Id;
-                        }
-                    }
+                foreach (var xvs in guild.VoiceStates)
+                    xvs.Discord = this;
 
-                    if (xg._roles == null)
-                        xg._roles = new List<DiscordRole>();
-
-                    foreach (var xr in xg.Roles)
-                    {
-                        xr.Discord = this;
-                        xr._guild_id = xg.Id;
-                    }
-
-                    var raw_guild = raw_guild_index[xg.Id];
-                    var raw_members = (JArray)raw_guild["members"];
-                    xg._members = new HashSet<DiscordMember>();
-
-                    if (raw_members != null)
-                        foreach (var xj in raw_members)
-                        {
-                            var xtm = xj.ToObject<TransportMember>();
-
-                            var xu = new DiscordUser(xtm.User) { Discord = this };
-                            xu = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
-                            {
-                                old.Username = xu.Username;
-                                old.Discriminator = xu.Discriminator;
-                                old.AvatarHash = xu.AvatarHash;
-                                return old;
-                            });
-
-                            xg._members.Add(new DiscordMember(xtm) { Discord = this, _guild_id = xg.Id });
-                        }
-
-                    if (xg._emojis == null)
-                        xg._emojis = new List<DiscordEmoji>();
-
-                    foreach (var xe in xg.Emojis)
-                        xe.Discord = this;
-
-                    if (xg._voice_states == null)
-                        xg._voice_states = new List<DiscordVoiceState>();
-
-                    foreach (var xvs in xg.VoiceStates)
-                        xvs.Discord = this;
-
-                    return xg;
-                }).ToDictionary(xg => xg.Id, xg => xg);
-
-            this._guildsLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
+                this._guilds.TryAdd(guild.Id, guild);
+            }
 
             if (this.Configuration.TokenType == TokenType.User && this.Configuration.AutomaticGuildSync)
                 await this.SendGuildSyncAsync().ConfigureAwait(false);
@@ -940,15 +932,15 @@ namespace DSharpPlus
 
             if (channel.Type == ChannelType.Group || channel.Type == ChannelType.Private)
             {
-                var chn = channel as DiscordDmChannel;
+                var dmChannel = channel as DiscordDmChannel;
 
                 var recips = rawRecipients.ToObject<IEnumerable<TransportUser>>()
                     .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this });
-                chn._recipients = recips.ToList();
+                dmChannel._recipients = recips.ToList();
 
-                _privateChannels.Add(chn);
+                _privateChannels.TryAdd(dmChannel.Id, dmChannel);
 
-                await this._dmChannelCreated.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = chn }).ConfigureAwait(false);
+                await this._dmChannelCreated.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = dmChannel }).ConfigureAwait(false);
             }
             else
             {
@@ -1035,13 +1027,11 @@ namespace DSharpPlus
             //if (channel.IsPrivate)
             if (channel.Type == ChannelType.Group || channel.Type == ChannelType.Private)
             {
-                var chn = channel as DiscordDmChannel;
+                var dmChannel = channel as DiscordDmChannel;
 
-                var index = this._privateChannels.FindIndex(xc => xc.Id == chn.Id);
-                chn = this._privateChannels[index];
-                this._privateChannels.RemoveAt(index);
+                if (this._privateChannels.TryRemove(dmChannel.Id, out var cachedDmChannel)) dmChannel = cachedDmChannel;
 
-                await this._dmChannelDeleted.InvokeAsync(new DmChannelDeleteEventArgs(this) { Channel = chn }).ConfigureAwait(false);
+                await this._dmChannelDeleted.InvokeAsync(new DmChannelDeleteEventArgs(this) { Channel = dmChannel }).ConfigureAwait(false);
             }
             else
             {
@@ -1233,18 +1223,19 @@ namespace DSharpPlus
 
         internal async Task OnGuildDeleteEventAsync(DiscordGuild guild, JArray rawMembers)
         {
-            if (!this._guilds.TryGetValue(guild.Id, out var gld))
-                return;
-
             if (guild.IsUnavailable)
             {
+                if (!this._guilds.TryGetValue(guild.Id, out var gld))
+                    return;
+
                 gld.IsUnavailable = true;
 
                 await this._guildUnavailable.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = guild, Unavailable = true }).ConfigureAwait(false);
             }
             else
             {
-                _guilds.Remove(guild.Id);
+                if (!this._guilds.TryRemove(guild.Id, out var gld))
+                    return;
 
                 await this._guildDeleted.InvokeAsync(new GuildDeleteEventArgs(this) { Guild = gld }).ConfigureAwait(false);
             }
@@ -2246,11 +2237,14 @@ namespace DSharpPlus
         }
         #endregion
 
-        // LINQ :^)
         internal DiscordChannel InternalGetCachedChannel(ulong channelId)
-            => this.Guilds.Values.SelectMany(xg => xg.Channels)
-                .Concat(this._privateChannels)
+        {
+            if (this._privateChannels.TryGetValue(channelId, out var found))
+                return found;
+
+            return this.Guilds.Values.SelectMany(xg => xg.Channels)
                 .FirstOrDefault(xc => xc.Id == channelId);
+        }
 
         internal void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
         {
