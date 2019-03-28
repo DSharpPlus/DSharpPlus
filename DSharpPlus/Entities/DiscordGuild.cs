@@ -572,7 +572,7 @@ namespace DSharpPlus.Entities
                 return mbr;
 
             mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, userId).ConfigureAwait(false);
-            this._members.TryAdd(userId, mbr);
+            this._members[userId] = mbr;
             return mbr;
         }
 
