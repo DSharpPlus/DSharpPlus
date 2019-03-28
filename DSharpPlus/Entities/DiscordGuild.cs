@@ -229,7 +229,7 @@ namespace DSharpPlus.Entities
         /// Gets a collection of all the members that belong to this guild.
         /// </summary>
         [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
-        public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyDictionaryWrapper<ulong, DiscordMember>(this._members);
+        public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
 
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -239,7 +239,7 @@ namespace DSharpPlus.Entities
         /// Gets a collection of all the channels associated with this guild.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyDictionaryWrapper<ulong, DiscordChannel>(this._channels);
+        public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
