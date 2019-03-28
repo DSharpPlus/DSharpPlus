@@ -8,8 +8,6 @@ using System.Threading;
 
 namespace DSharpPlus
 {
-    // Read-only ConcurrentDictionary wrapper for Standard 1.1 but is very low-overhead so might as well use it
-    // everywhere
     /// <summary>
     /// Read-only view of a given <see cref="ConcurrentDictionary{TKey,TValue}"/>.
     /// </summary>
