@@ -214,19 +214,18 @@ namespace DSharpPlus.Entities
         public int MemberCount { get; internal set; }
 
         /// <summary>
-        /// Gets a collection of all the voice states for this guilds.
+        /// Gets a dictionary of all the voice states for this guilds. The key for this dictionary is the ID of the user
+        /// the voice state corresponds to.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordVoiceState> VoiceStates
-            => this._voice_states_lazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
 
         [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordVoiceState> _voice_states;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordVoiceState>> _voice_states_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordVoiceState> _voiceStates;
 
         /// <summary>
-        /// Gets a collection of all the members that belong to this guild.
+        /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
         /// </summary>
         [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
         public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
@@ -236,7 +235,7 @@ namespace DSharpPlus.Entities
         internal ConcurrentDictionary<ulong, DiscordMember> _members;
 
         /// <summary>
-        /// Gets a collection of all the channels associated with this guild.
+        /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
@@ -285,7 +284,6 @@ namespace DSharpPlus.Entities
         {
             this._roles_lazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._roles));
             this._emojis_lazy = new Lazy<IReadOnlyList<DiscordEmoji>>(() => new ReadOnlyCollection<DiscordEmoji>(this._emojis));
-            this._voice_states_lazy = new Lazy<IReadOnlyList<DiscordVoiceState>>(() => new ReadOnlyCollection<DiscordVoiceState>(this._voice_states));
 
             this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
         }

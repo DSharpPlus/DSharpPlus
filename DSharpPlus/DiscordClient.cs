@@ -81,13 +81,16 @@ namespace DSharpPlus
             => this.Configuration.ShardId;
 
         /// <summary>
-        /// List of DM Channels
+        /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
+        /// ID.
         /// </summary>
         public IReadOnlyDictionary<ulong, DiscordDmChannel> PrivateChannels { get; }
         internal ConcurrentDictionary<ulong, DiscordDmChannel> _privateChannels = new ConcurrentDictionary<ulong, DiscordDmChannel>();
 
         /// <summary>
-        /// List of Guilds
+        /// Gets a dictionary of guilds that this client is in. The dictionary's key is the guild ID. Note that the
+        /// guild objects in this dictionary will not be filled in if the specific guilds aren't available (the
+        /// <see cref="GuildAvailable"/> or <see cref="GuildDownloadCompleted"/> events haven't been fired yet)
         /// </summary>
         public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
         internal ConcurrentDictionary<ulong, DiscordGuild> _guilds = new ConcurrentDictionary<ulong, DiscordGuild>();
@@ -909,10 +912,10 @@ namespace DSharpPlus
                 foreach (var xe in guild.Emojis)
                     xe.Discord = this;
 
-                if (guild._voice_states == null)
-                    guild._voice_states = new List<DiscordVoiceState>();
+                if (guild._voiceStates == null)
+                    guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
 
-                foreach (var xvs in guild.VoiceStates)
+                foreach (var xvs in guild.VoiceStates.Values)
                     xvs.Discord = this;
 
                 this._guilds[guild.Id] = guild;
@@ -1088,8 +1091,8 @@ namespace DSharpPlus
                 guild._roles = new List<DiscordRole>();
             if (guild._emojis == null)
                 guild._emojis = new List<DiscordEmoji>();
-            if (guild._voice_states == null)
-                guild._voice_states = new List<DiscordVoiceState>();
+            if (guild._voiceStates == null)
+                guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
             if (guild._members == null)
                 guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
 
@@ -1099,7 +1102,7 @@ namespace DSharpPlus
             guild.IsLarge = eventGuild.IsLarge;
             guild.MemberCount = Math.Max(eventGuild.MemberCount, guild._members.Count);
             guild.IsUnavailable = eventGuild.IsUnavailable;
-            guild._voice_states.AddRange(eventGuild._voice_states);
+            foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
 
             foreach (var xc in guild._channels.Values)
             {
@@ -1113,7 +1116,7 @@ namespace DSharpPlus
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
-            foreach (var xvs in guild._voice_states)
+            foreach (var xvs in guild._voiceStates.Values)
                 xvs.Discord = this;
             foreach (var xr in guild._roles)
             {
@@ -1175,13 +1178,13 @@ namespace DSharpPlus
                     _emojis = new List<DiscordEmoji>(),
                     _members = new ConcurrentDictionary<ulong, DiscordMember>(),
                     _roles = new List<DiscordRole>(),
-                    _voice_states = new List<DiscordVoiceState>()
+                    _voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>()
                 };
 
                 foreach (var kvp in gld._channels) guild_old._channels[kvp.Key] = kvp.Value;
                 guild_old._emojis.AddRange(gld._emojis);
                 guild_old._roles.AddRange(gld._roles);
-                guild_old._voice_states.AddRange(gld._voice_states);
+                foreach (var kvp in gld._voiceStates) guild_old._voiceStates[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._members) guild_old._members[kvp.Key] = kvp.Value;
             }
 
@@ -1196,8 +1199,8 @@ namespace DSharpPlus
                 guild._roles = new List<DiscordRole>();
             if (guild._emojis == null)
                 guild._emojis = new List<DiscordEmoji>();
-            if (guild._voice_states == null)
-                guild._voice_states = new List<DiscordVoiceState>();
+            if (guild._voiceStates == null)
+                guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
             if (guild._members == null)
                 guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
 
@@ -1215,7 +1218,7 @@ namespace DSharpPlus
             }
             foreach (var xe in guild._emojis)
                 xe.Discord = this;
-            foreach (var xvs in guild._voice_states)
+            foreach (var xvs in guild._voiceStates.Values)
                 xvs.Discord = this;
             foreach (var xr in guild._roles)
             {
@@ -1829,34 +1832,36 @@ namespace DSharpPlus
             var uid = (ulong)raw["user_id"];
             var gld = this._guilds[gid];
 
-            var vstate_new = gld._voice_states.FirstOrDefault(xvs => xvs.UserId == uid);
-            var vstate_old = vstate_new != null ? new DiscordVoiceState(vstate_new) : null;
-			if (vstate_new == null)
+            var vstateHasNew = gld._voiceStates.TryGetValue(uid, out var vstateNew);
+            DiscordVoiceState vstateOld;
+            if (vstateHasNew)
             {
-                vstate_new = raw.ToObject<DiscordVoiceState>();
-                vstate_new.Discord = this;
-                gld._voice_states.Add(vstate_new);
+                vstateOld = new DiscordVoiceState(vstateNew);
+                JsonConvert.PopulateObject(raw.ToString(), vstateNew); // TODO: Find a better way
             }
             else
             {
-                JsonConvert.PopulateObject(raw.ToString(), vstate_new); // TODO: Find a better way
+                vstateOld = null;
+                vstateNew = raw.ToObject<DiscordVoiceState>();
+                vstateNew.Discord = this;
+                gld._voiceStates[vstateNew.UserId] = vstateNew;
             }
 
             if (gld._members.TryGetValue(uid, out var mbr))
             {
-                mbr.IsMuted = vstate_new.IsServerMuted;
-                mbr.IsDeafened = vstate_new.IsServerDeafened;
+                mbr.IsMuted = vstateNew.IsServerMuted;
+                mbr.IsDeafened = vstateNew.IsServerDeafened;
             }
 
             var ea = new VoiceStateUpdateEventArgs(this)
             {
-                Guild = vstate_new.Guild,
-                Channel = vstate_new.Channel,
-                User = vstate_new.User,
-                SessionId = vstate_new.SessionId,
+                Guild = vstateNew.Guild,
+                Channel = vstateNew.Channel,
+                User = vstateNew.User,
+                SessionId = vstateNew.SessionId,
 
-                Before = vstate_old,
-                After = vstate_new
+                Before = vstateOld,
+                After = vstateNew
             };
             await this._voiceStateUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
