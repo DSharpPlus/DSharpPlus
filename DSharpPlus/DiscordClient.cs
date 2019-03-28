@@ -792,7 +792,7 @@ namespace DSharpPlus
                 case "webhooks_update":
                     gid = (ulong)dat["guild_id"];
                     cid = (ulong)dat["channel_id"];
-                    await OnWebhooksUpdateAsync(this._guilds[gid]._channels.FirstOrDefault(xc => xc.Id == cid), this._guilds[gid]).ConfigureAwait(false);
+                    await OnWebhooksUpdateAsync(this._guilds[gid].GetChannel(cid), this._guilds[gid]).ConfigureAwait(false);
                     break;
 
                 default:
@@ -854,9 +854,9 @@ namespace DSharpPlus
                 guild.Discord = this;
 
                 if (guild._channels == null)
-                    guild._channels = new List<DiscordChannel>();
+                    guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
 
-                foreach (var xc in guild.Channels)
+                foreach (var xc in guild.Channels.Values)
                 {
                     xc.GuildId = guild.Id;
                     xc.Discord = this;
@@ -957,7 +957,7 @@ namespace DSharpPlus
                     xo._channel_id = channel.Id;
                 }
 
-                _guilds[channel.GuildId]._channels.Add(channel);
+                _guilds[channel.GuildId]._channels[channel.Id] = channel;
 
                 await this._channelCreated.InvokeAsync(new ChannelCreateEventArgs(this) { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
             }
@@ -998,7 +998,7 @@ namespace DSharpPlus
             }
             else
             {
-                gld._channels.Add(channel);
+                gld._channels[channel.Id] = channel;
             }
 
             channel_new.Bitrate = channel.Bitrate;
@@ -1042,9 +1042,8 @@ namespace DSharpPlus
             else
             {
                 var gld = channel.Guild;
-                var index = gld._channels.FindIndex(xc => xc.Id == channel.Id);
-                channel = gld._channels[index];
-                gld._channels.RemoveAt(index);
+
+                if (gld._channels.TryRemove(channel.Id, out var cachedChannel)) channel = cachedChannel;
 
                 await this._channelDeleted.InvokeAsync(new ChannelDeleteEventArgs(this) { Channel = channel, Guild = gld }).ConfigureAwait(false);
             }
@@ -1084,7 +1083,7 @@ namespace DSharpPlus
                 guild = foundGuild;
 
             if (guild._channels == null)
-                guild._channels = new List<DiscordChannel>();
+                guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
             if (guild._roles == null)
                 guild._roles = new List<DiscordRole>();
             if (guild._emojis == null)
@@ -1102,7 +1101,7 @@ namespace DSharpPlus
             guild.IsUnavailable = eventGuild.IsUnavailable;
             guild._voice_states.AddRange(eventGuild._voice_states);
 
-            foreach (var xc in guild._channels)
+            foreach (var xc in guild._channels.Values)
             {
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
@@ -1172,14 +1171,14 @@ namespace DSharpPlus
                     SystemChannelId = gld.SystemChannelId,
                     VerificationLevel = gld.VerificationLevel,
                     VoiceRegionId = gld.VoiceRegionId,
-                    _channels = new List<DiscordChannel>(),
+                    _channels = new ConcurrentDictionary<ulong, DiscordChannel>(),
                     _emojis = new List<DiscordEmoji>(),
                     _members = new ConcurrentDictionary<ulong, DiscordMember>(),
                     _roles = new List<DiscordRole>(),
                     _voice_states = new List<DiscordVoiceState>()
                 };
 
-                guild_old._channels.AddRange(gld._channels);
+                foreach (var kvp in gld._channels) guild_old._channels[kvp.Key] = kvp.Value;
                 guild_old._emojis.AddRange(gld._emojis);
                 guild_old._roles.AddRange(gld._roles);
                 guild_old._voice_states.AddRange(gld._voice_states);
@@ -1192,7 +1191,7 @@ namespace DSharpPlus
             guild = this._guilds[event_guild.Id];
 
             if (guild._channels == null)
-                guild._channels = new List<DiscordChannel>();
+                guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
             if (guild._roles == null)
                 guild._roles = new List<DiscordRole>();
             if (guild._emojis == null)
@@ -1204,7 +1203,7 @@ namespace DSharpPlus
 
             this.UpdateCachedGuild(event_guild, rawMembers);
 
-            foreach (var xc in guild._channels)
+            foreach (var xc in guild._channels.Values)
             {
                 xc.GuildId = guild.Id;
                 xc.Discord = this;
@@ -1589,7 +1588,7 @@ namespace DSharpPlus
                 {
                     mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
                     mentioned_roles = Utilities.GetRoleMentions(message).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
-                    mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
+                    mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
                 }
                 else
                 {
@@ -1686,7 +1685,7 @@ namespace DSharpPlus
                 {
                     mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
                     mentioned_roles = Utilities.GetRoleMentions(message).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
-                    mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
+                    mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
                 }
                 else
                 {
@@ -2252,11 +2251,14 @@ namespace DSharpPlus
 
         internal DiscordChannel InternalGetCachedChannel(ulong channelId)
         {
-            if (this._privateChannels.TryGetValue(channelId, out var found))
-                return found;
+            if (this._privateChannels.TryGetValue(channelId, out var foundDmChannel))
+                return foundDmChannel;
 
-            return this.Guilds.Values.SelectMany(xg => xg.Channels)
-                .FirstOrDefault(xc => xc.Id == channelId);
+            foreach (var guild in this.Guilds.Values)
+                if (guild.Channels.TryGetValue(channelId, out var foundChannel))
+                    return foundChannel;
+
+            return null;
         }
 
         internal void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
@@ -2268,19 +2270,23 @@ namespace DSharpPlus
 
             if (newGuild._channels != null && newGuild._channels.Any())
             {
-                var _c = newGuild._channels.Where(xc => !guild._channels.Any(xxc => xxc.Id == xc.Id));
-                foreach (var xc in _c)
+                var newChannels = newGuild._channels.Values
+                    .Where(xc => !guild._channels.TryGetValue(xc.Id, out _))
+                    .ToArray();
+                foreach (var xc in newChannels)
+                {
                     foreach (var xo in xc._permissionOverwrites)
                     {
                         xo.Discord = this;
                         xo._channel_id = xc.Id;
                     }
 
-                guild._channels.AddRange(_c);
+                    guild._channels[xc.Id] = xc;
+                }
             }
 
-            var _e = newGuild._emojis.Where(xe => !guild._emojis.Any(xxe => xxe.Id == xe.Id));
-            guild._emojis.AddRange(_e);
+            var newEmojis = newGuild._emojis.Where(xe => guild._emojis.All(xxe => xxe.Id != xe.Id));
+            guild._emojis.AddRange(newEmojis);
 
             if (rawMembers != null)
             {
@@ -2303,12 +2309,12 @@ namespace DSharpPlus
                 }
             }
 
-            var _r = newGuild._roles.Where(xr => !guild._roles.Any(xxr => xxr.Id == xr.Id));
-            foreach (var xr in _r)
+            var newRoles = newGuild._roles.Where(xr => guild._roles.All(xxr => xxr.Id != xr.Id)).ToArray();
+            foreach (var xr in newRoles)
             {
                 xr._guild_id = guild.Id;
             }
-            guild._roles.AddRange(_r);
+            guild._roles.AddRange(newRoles);
 
             guild.Name = newGuild.Name;
             guild.AfkChannelId = newGuild.AfkChannelId;

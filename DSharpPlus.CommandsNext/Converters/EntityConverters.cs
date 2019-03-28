@@ -138,7 +138,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (!cs)
                 value = value.ToLowerInvariant();
 
-            var chn = ctx.Guild?.Channels.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
+            var chn = ctx.Guild?.Channels.Values.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
             return chn != null ? Optional<DiscordChannel>.FromValue(chn) : Optional<DiscordChannel>.FromNoValue();
         }
     }

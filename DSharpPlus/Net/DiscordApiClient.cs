@@ -80,7 +80,7 @@ namespace DSharpPlus.Net
                 {
                     mentioned_users = Utilities.GetUserMentions(ret).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
                     mentioned_roles = Utilities.GetRoleMentions(ret).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
-                    mentioned_channels = Utilities.GetChannelMentions(ret).Select(xid => guild._channels.FirstOrDefault(xc => xc.Id == xid)).ToList();
+                    mentioned_channels = Utilities.GetChannelMentions(ret).Select(xid => guild.GetChannel(xid)).ToList();
                 }
                 else
                 {
