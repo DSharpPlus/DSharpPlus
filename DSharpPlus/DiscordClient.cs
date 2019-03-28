@@ -440,7 +440,7 @@ namespace DSharpPlus
         public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
             DefaultMessageNotifications? defaultMessageNotifications = null)
         {
-            var iconb64 = Optional<string>.FromNoValue();
+            var iconb64 = Optional.FromNoValue<string>();
             if (icon.HasValue && icon.Value != null)
                 using (var imgtool = new ImageTool(icon.Value))
                     iconb64 = imgtool.GetBase64();
@@ -525,7 +525,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordUser> UpdateCurrentUserAsync(string username = null, Optional<Stream> avatar = default)
         {
-            var av64 = Optional<string>.FromNoValue();
+            var av64 = Optional.FromNoValue<string>();
             if (avatar.HasValue && avatar.Value != null)
                 using (var imgtool = new ImageTool(avatar.Value))
                     av64 = imgtool.GetBase64();

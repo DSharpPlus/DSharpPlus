@@ -66,7 +66,7 @@ namespace DSharpPlus.Entities
         /// <returns>The modified webhook.</returns>
         public Task<DiscordWebhook> ModifyAsync(string name = null, Optional<Stream> avatar = default)
         {
-            var avatarb64 = Optional<string>.FromNoValue();
+            var avatarb64 = Optional.FromNoValue<string>();
             if (avatar.HasValue && avatar.Value != null)
                 using (var imgtool = new ImageTool(avatar.Value))
                     avatarb64 = imgtool.GetBase64();

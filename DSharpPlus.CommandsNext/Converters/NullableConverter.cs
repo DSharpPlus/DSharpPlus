@@ -12,16 +12,16 @@ namespace DSharpPlus.CommandsNext.Converters
                 value = value.ToLowerInvariant();
 
             if (value == "null")
-                return Optional<Nullable<T>>.FromValue(null);
+                return Optional.FromValue<Nullable<T>>(null);
 
             if (ctx.CommandsNext.ArgumentConverters.TryGetValue(typeof(T), out var cv))
             {
                 var cvx = cv as IArgumentConverter<T>;
                 var val = await cvx.ConvertAsync(value, ctx).ConfigureAwait(false);
-                return val.HasValue ? Optional<Nullable<T>>.FromValue(val.Value) : Optional<Nullable<T>>.FromNoValue();
+                return val.HasValue ? Optional.FromValue<Nullable<T>>(val.Value) : Optional.FromNoValue<Nullable<T>>();
             }
 
-            return Optional<Nullable<T>>.FromNoValue();
+            return Optional.FromNoValue<Nullable<T>>();
         }
     }
 }
