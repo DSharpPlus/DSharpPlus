@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Net.Abstractions;
+﻿using System.Collections.Generic;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -30,12 +31,15 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportActivity RawActivity { get; set; }
-        
+
         /// <summary>
         /// Gets the user's current activities.
         /// </summary>
         [JsonIgnore]
-        public DiscordActivity[] Activities { get; internal set; }
+        public IReadOnlyList<DiscordActivity> Activities => InternalActivities;
+        
+        [JsonIgnore]
+        internal DiscordActivity[] InternalActivities;
         
         [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportActivity[] RawActivities { get; set; }
@@ -69,7 +73,7 @@ namespace DSharpPlus.Entities
             this.Discord = other.Discord;
             this.Activity = other.Activity;
             this.RawActivity = other.RawActivity;
-            this.Activities = (DiscordActivity[]) other.Activities?.Clone();
+            this.InternalActivities = (DiscordActivity[]) other.InternalActivities?.Clone();
             this.RawActivities = (TransportActivity[]) other.RawActivities?.Clone();
             this.Status = other.Status;
             this.InternalUser = new TransportUser(other.InternalUser);
