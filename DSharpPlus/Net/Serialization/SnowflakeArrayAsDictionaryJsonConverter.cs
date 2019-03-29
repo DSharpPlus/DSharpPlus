@@ -27,7 +27,7 @@ namespace DSharpPlus.Net.Serialization
             }
             else
             {
-                var type = writer.GetType().GetTypeInfo();
+                var type = value.GetType().GetTypeInfo();
                 JToken.FromObject(type.GetDeclaredProperty("Values").GetValue(value)).WriteTo(writer);
             }
         }
