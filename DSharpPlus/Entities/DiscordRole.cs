@@ -76,7 +76,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task ModifyPositionAsync(int position, string reason = null)
         {
-            var roles = this.Discord.Guilds[this._guild_id].Roles.OrderByDescending(xr => xr.Position).ToArray();
+            var roles = this.Discord.Guilds[this._guild_id].Roles.Values.OrderByDescending(xr => xr.Position).ToArray();
             var pmds = new RestGuildRoleReorderPayload[roles.Length];
             for (var i = 0; i < roles.Length; i++)
             {

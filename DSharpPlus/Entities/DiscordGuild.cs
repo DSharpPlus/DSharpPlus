@@ -157,25 +157,21 @@ namespace DSharpPlus.Entities
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordRole> Roles
-            => this._roles_lazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordRole> Roles => new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordRole> _roles;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordRole>> _roles_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordRole> _roles;
 
         /// <summary>
         /// Gets a collection of this guild's emojis.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordEmoji> Emojis
-            => this._emojis_lazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
 
         [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordEmoji> _emojis;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordEmoji>> _emojis_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordEmoji> _emojis;
 
         /// <summary>
         /// Gets a collection of this guild's features.
@@ -259,7 +255,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordRole EveryoneRole
-            => this._roles.FirstOrDefault(xr => xr.Id == this.Id);
+            => this.GetRole(this.Id);
 
         /// <summary>
         /// Gets whether the current user is the guild's owner.
@@ -282,9 +278,6 @@ namespace DSharpPlus.Entities
 
         internal DiscordGuild()
         {
-            this._roles_lazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._roles));
-            this._emojis_lazy = new Lazy<IReadOnlyList<DiscordEmoji>>(() => new ReadOnlyCollection<DiscordEmoji>(this._emojis));
-
             this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
         }
 
@@ -654,7 +647,7 @@ namespace DSharpPlus.Entities
         /// <param name="id">ID of the role to get.</param>
         /// <returns>Requested role.</returns>
         public DiscordRole GetRole(ulong id)
-            => this._roles.FirstOrDefault(xr => xr.Id == id);
+            => this._roles.TryGetValue(id, out var role) ? role : null;
 
         /// <summary>
         /// Gets a channel from this guild by its ID.
@@ -1054,25 +1047,25 @@ namespace DSharpPlus.Entities
                                 case "deaf":
                                     entrymbu.DeafenChange = new PropertyChange<bool?>
                                     {
-                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
-                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                        Before = (bool?) xc.OldValue,
+                                        After = (bool?) xc.NewValue
                                     };
                                     break;
 
                                 case "mute":
                                     entrymbu.MuteChange = new PropertyChange<bool?>
                                     {
-                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
-                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                        Before = (bool?) xc.OldValue,
+                                        After = (bool?) xc.NewValue
                                     };
                                     break;
 
                                 case "$add":
-                                    entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(xul => this._roles.FirstOrDefault(xr => xr.Id == xul)).ToList());
+                                    entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
                                     break;
 
                                 case "$remove":
-                                    entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(xul => this._roles.FirstOrDefault(xr => xr.Id == xul)).ToList());
+                                    entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
                                     break;
 
                                 default:
@@ -1087,7 +1080,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.RoleUpdate:
                         entry = new DiscordAuditLogRoleUpdateEntry
                         {
-                            Target = this._roles.FirstOrDefault(xr => xr.Id == xac.TargetId.Value) ?? new DiscordRole { Id = xac.TargetId.Value }
+                            Target = this.GetRole(xac.TargetId.Value) ?? new DiscordRole { Id = xac.TargetId.Value }
                         };
 
                         var entryrol = entry as DiscordAuditLogRoleUpdateEntry;
@@ -1330,7 +1323,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.EmojiUpdate:
                         entry = new DiscordAuditLogEmojiEntry
                         {
-                            Target = this._emojis.FirstOrDefault(xe => xe.Id == xac.TargetId.Value) ?? new DiscordEmoji { Id = xac.TargetId.Value }
+                            Target = this._emojis.TryGetValue(xac.TargetId.Value, out var target) ? target : new DiscordEmoji { Id = xac.TargetId.Value }
                         };
 
                         var entryemo = entry as DiscordAuditLogEmojiEntry;
@@ -1347,7 +1340,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in member update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in emoji update: {xc.Key}; this should be reported to devs", DateTime.Now);
                                     break;
                             }
                         }

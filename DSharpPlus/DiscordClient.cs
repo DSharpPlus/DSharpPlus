@@ -871,9 +871,9 @@ namespace DSharpPlus
                 }
 
                 if (guild._roles == null)
-                    guild._roles = new List<DiscordRole>();
+                    guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
 
-                foreach (var xr in guild.Roles)
+                foreach (var xr in guild.Roles.Values)
                 {
                     xr.Discord = this;
                     xr._guild_id = guild.Id;
@@ -907,9 +907,9 @@ namespace DSharpPlus
                 }
 
                 if (guild._emojis == null)
-                    guild._emojis = new List<DiscordEmoji>();
+                    guild._emojis = new ConcurrentDictionary<ulong, DiscordEmoji>();
 
-                foreach (var xe in guild.Emojis)
+                foreach (var xe in guild.Emojis.Values)
                     xe.Discord = this;
 
                 if (guild._voiceStates == null)
@@ -1088,9 +1088,9 @@ namespace DSharpPlus
             if (guild._channels == null)
                 guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
             if (guild._roles == null)
-                guild._roles = new List<DiscordRole>();
+                guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
             if (guild._emojis == null)
-                guild._emojis = new List<DiscordEmoji>();
+                guild._emojis = new ConcurrentDictionary<ulong, DiscordEmoji>();
             if (guild._voiceStates == null)
                 guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
             if (guild._members == null)
@@ -1114,11 +1114,11 @@ namespace DSharpPlus
                     xo._channel_id = xc.Id;
                 }
             }
-            foreach (var xe in guild._emojis)
+            foreach (var xe in guild._emojis.Values)
                 xe.Discord = this;
             foreach (var xvs in guild._voiceStates.Values)
                 xvs.Discord = this;
-            foreach (var xr in guild._roles)
+            foreach (var xr in guild._roles.Values)
             {
                 xr.Discord = this;
                 xr._guild_id = guild.Id;
@@ -1139,18 +1139,18 @@ namespace DSharpPlus
 
         internal async Task OnGuildUpdateEventAsync(DiscordGuild guild, JArray rawMembers)
         {
-            DiscordGuild guild_old;
+            DiscordGuild oldGuild;
 
             if (!this._guilds.ContainsKey(guild.Id))
             {
                 this._guilds[guild.Id] = guild;
-                guild_old = null;
+                oldGuild = null;
             }
             else
             {
                 var gld = this._guilds[guild.Id];
 
-                guild_old = new DiscordGuild
+                oldGuild = new DiscordGuild
                 {
                     Discord = gld.Discord,
                     Name = gld.Name,
@@ -1175,36 +1175,36 @@ namespace DSharpPlus
                     VerificationLevel = gld.VerificationLevel,
                     VoiceRegionId = gld.VoiceRegionId,
                     _channels = new ConcurrentDictionary<ulong, DiscordChannel>(),
-                    _emojis = new List<DiscordEmoji>(),
+                    _emojis = new ConcurrentDictionary<ulong, DiscordEmoji>(),
                     _members = new ConcurrentDictionary<ulong, DiscordMember>(),
-                    _roles = new List<DiscordRole>(),
+                    _roles = new ConcurrentDictionary<ulong, DiscordRole>(),
                     _voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>()
                 };
 
-                foreach (var kvp in gld._channels) guild_old._channels[kvp.Key] = kvp.Value;
-                guild_old._emojis.AddRange(gld._emojis);
-                guild_old._roles.AddRange(gld._roles);
-                foreach (var kvp in gld._voiceStates) guild_old._voiceStates[kvp.Key] = kvp.Value;
-                foreach (var kvp in gld._members) guild_old._members[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._channels) oldGuild._channels[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._emojis) oldGuild._emojis[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._roles) oldGuild._roles[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._voiceStates) oldGuild._voiceStates[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._members) oldGuild._members[kvp.Key] = kvp.Value;
             }
 
             guild.Discord = this;
             guild.IsUnavailable = false;
-            var event_guild = guild;
-            guild = this._guilds[event_guild.Id];
+            var eventGuild = guild;
+            guild = this._guilds[eventGuild.Id];
 
             if (guild._channels == null)
                 guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
             if (guild._roles == null)
-                guild._roles = new List<DiscordRole>();
+                guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
             if (guild._emojis == null)
-                guild._emojis = new List<DiscordEmoji>();
+                guild._emojis = new ConcurrentDictionary<ulong, DiscordEmoji>();
             if (guild._voiceStates == null)
                 guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
             if (guild._members == null)
                 guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
 
-            this.UpdateCachedGuild(event_guild, rawMembers);
+            this.UpdateCachedGuild(eventGuild, rawMembers);
 
             foreach (var xc in guild._channels.Values)
             {
@@ -1216,17 +1216,17 @@ namespace DSharpPlus
                     xo._channel_id = xc.Id;
                 }
             }
-            foreach (var xe in guild._emojis)
+            foreach (var xe in guild._emojis.Values)
                 xe.Discord = this;
             foreach (var xvs in guild._voiceStates.Values)
                 xvs.Discord = this;
-            foreach (var xr in guild._roles)
+            foreach (var xr in guild._roles.Values)
             {
                 xr.Discord = this;
                 xr._guild_id = guild.Id;
             }
 
-            await this._guildUpdated.InvokeAsync(new GuildUpdateEventArgs(this) { GuildBefore = guild_old, GuildAfter = guild }).ConfigureAwait(false);
+            await this._guildUpdated.InvokeAsync(new GuildUpdateEventArgs(this) { GuildBefore = oldGuild, GuildAfter = guild }).ConfigureAwait(false);
         }
 
         internal async Task OnGuildDeleteEventAsync(DiscordGuild guild, JArray rawMembers)
@@ -1374,14 +1374,20 @@ namespace DSharpPlus
 
         internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
         {
-            var old_emojis = new List<DiscordEmoji>(guild._emojis);
+            var oldEmojis = new ConcurrentDictionary<ulong, DiscordEmoji>(guild._emojis);
             guild._emojis.Clear();
-            guild._emojis.AddRange(newEmojis.Select(xe => { xe.Discord = this; return xe; }));
+            
+            foreach (var emoji in newEmojis)
+            {
+                emoji.Discord = this;
+                guild._emojis[emoji.Id] = emoji;
+            }
+            
             var ea = new GuildEmojisUpdateEventArgs(this)
             {
                 Guild = guild,
                 EmojisAfter = guild.Emojis,
-                EmojisBefore = new ReadOnlyCollection<DiscordEmoji>(old_emojis)
+                EmojisBefore = new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(oldEmojis)
             };
             await this._guildEmojisUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
@@ -1477,7 +1483,7 @@ namespace DSharpPlus
             role.Discord = this;
             role._guild_id = guild.Id;
 
-            guild._roles.Add(role);
+            guild._roles[role.Id] = role;
 
             var ea = new GuildRoleCreateEventArgs(this)
             {
@@ -1489,44 +1495,43 @@ namespace DSharpPlus
 
         internal async Task OnGuildRoleUpdateEventAsync(DiscordRole role, DiscordGuild guild)
         {
-            var role_new = guild.Roles.FirstOrDefault(xr => xr.Id == role.Id);
-            var role_old = new DiscordRole
+            var newRole = guild.GetRole(role.Id);
+            var oldRole = new DiscordRole
             {
                 _guild_id = guild.Id,
-                _color = role_new._color,
+                _color = newRole._color,
                 Discord = this,
-                IsHoisted = role_new.IsHoisted,
-                Id = role_new.Id,
-                IsManaged = role_new.IsManaged,
-                IsMentionable = role_new.IsMentionable,
-                Name = role_new.Name,
-                Permissions = role_new.Permissions,
-                Position = role_new.Position
+                IsHoisted = newRole.IsHoisted,
+                Id = newRole.Id,
+                IsManaged = newRole.IsManaged,
+                IsMentionable = newRole.IsMentionable,
+                Name = newRole.Name,
+                Permissions = newRole.Permissions,
+                Position = newRole.Position
             };
 
-            role_new._guild_id = guild.Id;
-            role_new._color = role._color;
-            role_new.IsHoisted = role.IsHoisted;
-            role_new.IsManaged = role.IsManaged;
-            role_new.IsMentionable = role.IsMentionable;
-            role_new.Name = role.Name;
-            role_new.Permissions = role.Permissions;
-            role_new.Position = role.Position;
+            newRole._guild_id = guild.Id;
+            newRole._color = role._color;
+            newRole.IsHoisted = role.IsHoisted;
+            newRole.IsManaged = role.IsManaged;
+            newRole.IsMentionable = role.IsMentionable;
+            newRole.Name = role.Name;
+            newRole.Permissions = role.Permissions;
+            newRole.Position = role.Position;
 
             var ea = new GuildRoleUpdateEventArgs(this)
             {
                 Guild = guild,
-                RoleAfter = role_new,
-                RoleBefore = role_old
+                RoleAfter = newRole,
+                RoleBefore = oldRole
             };
             await this._guildRoleUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnGuildRoleDeleteEventAsync(ulong roleId, DiscordGuild guild)
         {
-            var index = guild._roles.FindIndex(xr => xr.Id == roleId);
-            var role = guild._roles[index];
-            guild._roles.RemoveAt(index);
+            if (!guild._roles.TryRemove(roleId, out var role))
+                throw new InvalidOperationException("Attempted to delete a nonexistent role");
 
             var ea = new GuildRoleDeleteEventArgs(this)
             {
@@ -1581,27 +1586,27 @@ namespace DSharpPlus
                 message.Author = usr;
             }
 
-            var mentioned_users = new List<DiscordUser>();
-            var mentioned_roles = guild != null ? new List<DiscordRole>() : null;
-            var mentioned_channels = guild != null ? new List<DiscordChannel>() : null;
+            var mentionedUsers = new List<DiscordUser>();
+            var mentionedRoles = guild != null ? new List<DiscordRole>() : null;
+            var mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
 
             if (!string.IsNullOrWhiteSpace(message.Content))
             {
                 if (guild != null)
                 {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
-                    mentioned_roles = Utilities.GetRoleMentions(message).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
-                    mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
+                    mentionedUsers = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
+                    mentionedRoles = Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid)).ToList();
+                    mentionedChannels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
                 }
                 else
                 {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(this.InternalGetCachedUser).ToList();
+                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.InternalGetCachedUser).ToList();
                 }
             }
 
-            message._mentionedUsers = mentioned_users;
-            message._mentionedRoles = mentioned_roles;
-            message._mentionedChannels = mentioned_channels;
+            message._mentionedUsers = mentionedUsers;
+            message._mentionedRoles = mentionedRoles;
+            message._mentionedChannels = mentionedChannels;
 
             if (message._reactions == null)
                 message._reactions = new List<DiscordReaction>();
@@ -1615,9 +1620,9 @@ namespace DSharpPlus
             {
                 Message = message,
 
-                MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentioned_users),
-                MentionedRoles = mentioned_roles != null ? new ReadOnlyCollection<DiscordRole>(mentioned_roles) : null,
-                MentionedChannels = mentioned_channels != null ? new ReadOnlyCollection<DiscordChannel>(mentioned_channels) : null
+                MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentionedUsers),
+                MentionedRoles = mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(mentionedRoles) : null,
+                MentionedChannels = mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(mentionedChannels) : null
             };
             await this._messageCreated.InvokeAsync(ea).ConfigureAwait(false);
         }
@@ -1687,7 +1692,7 @@ namespace DSharpPlus
                 if (guild != null)
                 {
                     mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
-                    mentioned_roles = Utilities.GetRoleMentions(message).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
+                    mentioned_roles = Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid)).ToList();
                     mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
                 }
                 else
@@ -2273,25 +2278,24 @@ namespace DSharpPlus
 
             var guild = this._guilds[newGuild.Id];
 
-            if (newGuild._channels != null && newGuild._channels.Any())
+            if (newGuild._channels != null && newGuild._channels.Count > 0)
             {
-                var newChannels = newGuild._channels.Values
-                    .Where(xc => !guild._channels.TryGetValue(xc.Id, out _))
-                    .ToArray();
-                foreach (var xc in newChannels)
+                foreach (var channel in newGuild._channels.Values)
                 {
-                    foreach (var xo in xc._permissionOverwrites)
+                    if (guild._channels.TryGetValue(channel.Id, out _)) continue;
+                
+                    foreach (var overwrite in channel._permissionOverwrites)
                     {
-                        xo.Discord = this;
-                        xo._channel_id = xc.Id;
+                        overwrite.Discord = this;
+                        overwrite._channel_id = channel.Id;
                     }
-
-                    guild._channels[xc.Id] = xc;
+                    
+                    guild._channels[channel.Id] = channel;
                 }
             }
 
-            var newEmojis = newGuild._emojis.Where(xe => guild._emojis.All(xxe => xxe.Id != xe.Id));
-            guild._emojis.AddRange(newEmojis);
+            foreach (var newEmoji in newGuild._emojis.Values)
+                _ = guild._emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
 
             if (rawMembers != null)
             {
@@ -2302,7 +2306,7 @@ namespace DSharpPlus
                     var xtm = xj.ToObject<TransportMember>();
 
                     var xu = new DiscordUser(xtm.User) { Discord = this };
-                    xu = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
+                    _ = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
                     {
                         old.Username = xu.Username;
                         old.Discriminator = xu.Discriminator;
@@ -2313,14 +2317,15 @@ namespace DSharpPlus
                     guild._members[xtm.User.Id] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
                 }
             }
-
-            var newRoles = newGuild._roles.Where(xr => guild._roles.All(xxr => xxr.Id != xr.Id)).ToArray();
-            foreach (var xr in newRoles)
+            
+            foreach (var role in newGuild._roles.Values)
             {
-                xr._guild_id = guild.Id;
+                if (guild._roles.TryGetValue(role.Id, out _)) continue;
+                
+                role._guild_id = guild.Id;
+                guild._roles[role.Id] = role;
             }
-            guild._roles.AddRange(newRoles);
-
+            
             guild.Name = newGuild.Name;
             guild.AfkChannelId = newGuild.AfkChannelId;
             guild.AfkTimeout = newGuild.AfkTimeout;

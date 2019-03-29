@@ -79,7 +79,7 @@ namespace DSharpPlus.Net
                 if (guild != null)
                 {
                     mentioned_users = Utilities.GetUserMentions(ret).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
-                    mentioned_roles = Utilities.GetRoleMentions(ret).Select(xid => guild._roles.FirstOrDefault(xr => xr.Id == xid)).ToList();
+                    mentioned_roles = Utilities.GetRoleMentions(ret).Select(xid => guild.GetRole(xid)).ToList();
                     mentioned_channels = Utilities.GetChannelMentions(ret).Select(xid => guild.GetChannel(xid)).ToList();
                 }
                 else
@@ -168,26 +168,26 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
-            Optional<string> region, Optional<VerificationLevel> verification_level,
-            Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
-            Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
-            Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
+        internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Optional<string> name,
+            Optional<string> region, Optional<VerificationLevel> verificationLevel,
+            Optional<DefaultMessageNotifications> defaultMessageNotifications, Optional<MfaLevel> mfaLevel,
+            Optional<ExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
+            Optional<int> afkTimeout, Optional<string> iconb64, Optional<ulong> ownerId, Optional<string> splashb64,
             Optional<ulong?> systemChannelId, string reason)
         {
             var pld = new RestGuildModifyPayload
             {
                 Name = name,
                 RegionId = region,
-                VerificationLevel = verification_level,
-                DefaultMessageNotifications = default_message_notifications,
-                MfaLevel = mfa_level,
-                ExplicitContentFilter = explicit_content_filter,
-                AfkChannelId = afk_channel_id,
-                AfkTimeout = afk_timeout,
+                VerificationLevel = verificationLevel,
+                DefaultMessageNotifications = defaultMessageNotifications,
+                MfaLevel = mfaLevel,
+                ExplicitContentFilter = explicitContentFilter,
+                AfkChannelId = afkChannelId,
+                AfkTimeout = afkTimeout,
                 IconBase64 = iconb64,
                 SplashBase64 = splashb64,
-                OwnerId = owner_id,
+                OwnerId = ownerId,
                 SystemChannelId = systemChannelId
             };
 
@@ -196,19 +196,19 @@ namespace DSharpPlus.Net
                 headers.Add(REASON_HEADER_NAME, reason);
 
             var route = $"{Endpoints.GUILDS}/:guild_id";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id = guildId }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var json = JObject.Parse(res.Response);
-            var raw_members = (JArray)json["members"];
+            var rawMembers = (JArray)json["members"];
             var guild = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
-            foreach (var r in guild._roles)
+            foreach (var r in guild._roles.Values)
                 r._guild_id = guild.Id;
 
             if (this.Discord is DiscordClient dc)
-                await dc.OnGuildUpdateEventAsync(guild, raw_members).ConfigureAwait(false);
+                await dc.OnGuildUpdateEventAsync(guild, rawMembers).ConfigureAwait(false);
             return guild;
         }
 
@@ -1071,29 +1071,29 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(roles_raw));
         }
 
-        internal async Task<DiscordGuild> GetGuildAsync(ulong guild_id)
+        internal async Task<DiscordGuild> GetGuildAsync(ulong guildId)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guildId }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var json = JObject.Parse(res.Response);
-            var raw_members = (JArray)json["members"];
-            var guild_rest = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
-            foreach (var r in guild_rest._roles)
-                r._guild_id = guild_rest.Id;
+            var rawMembers = (JArray)json["members"];
+            var guildRest = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
+            foreach (var r in guildRest._roles.Values)
+                r._guild_id = guildRest.Id;
 
             if (this.Discord is DiscordClient dc)
             {
-                await dc.OnGuildUpdateEventAsync(guild_rest, raw_members).ConfigureAwait(false);
-                return dc._guilds[guild_rest.Id];
+                await dc.OnGuildUpdateEventAsync(guildRest, rawMembers).ConfigureAwait(false);
+                return dc._guilds[guildRest.Id];
             }
             else
             {
-                guild_rest.Discord = this.Discord;
-                return guild_rest;
+                guildRest.Discord = this.Discord;
+                return guildRest;
             }
         }
 

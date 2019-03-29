@@ -163,7 +163,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var rid))
             {
-                var result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
+                var result = ctx.Guild.GetRole(rid);
                 var ret = result != null ? Optional<DiscordRole>.FromValue(result) : Optional<DiscordRole>.FromNoValue();
                 return Task.FromResult(ret);
             }
@@ -171,7 +171,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var m = RoleRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out rid))
             {
-                var result = ctx.Guild.Roles.FirstOrDefault(xr => xr.Id == rid);
+                var result = ctx.Guild.GetRole(rid);
                 var ret = result != null ? Optional<DiscordRole>.FromValue(result) : Optional<DiscordRole>.FromNoValue();
                 return Task.FromResult(ret);
             }
@@ -180,7 +180,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (!cs)
                 value = value.ToLowerInvariant();
 
-            var rol = ctx.Guild.Roles.FirstOrDefault(xr => (cs ? xr.Name : xr.Name.ToLowerInvariant()) == value);
+            var rol = ctx.Guild.Roles.Values.FirstOrDefault(xr => (cs ? xr.Name : xr.Name.ToLowerInvariant()) == value);
             return Task.FromResult(rol != null ? Optional<DiscordRole>.FromValue(rol) : Optional<DiscordRole>.FromNoValue());
         }
     }

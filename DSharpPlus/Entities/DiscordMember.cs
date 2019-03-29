@@ -72,7 +72,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IEnumerable<DiscordRole> Roles 
-            => this.RoleIds.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+            => this.RoleIds.Select(id => this.Guild.GetRole(id));
 
         /// <summary>
         /// Gets the color associated with this user's top color-giving role, otherwise 0 (no color).
