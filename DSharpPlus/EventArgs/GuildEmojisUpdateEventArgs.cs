@@ -11,12 +11,12 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the list of emojis after the change.
         /// </summary>
-        public IReadOnlyList<DiscordEmoji> EmojisAfter { get; internal set; }
+        public IReadOnlyDictionary<ulong, DiscordEmoji> EmojisAfter { get; internal set; }
 
         /// <summary>
         /// Gets the list of emojis before the change.
         /// </summary>
-        public IReadOnlyList<DiscordEmoji> EmojisBefore { get; internal set; }
+        public IReadOnlyDictionary<ulong, DiscordEmoji> EmojisBefore { get; internal set; }
 
         /// <summary>
         /// Gets the guild in which the update occured.

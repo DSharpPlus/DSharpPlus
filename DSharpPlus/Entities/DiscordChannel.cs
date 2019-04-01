@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Parent 
-            => this.ParentId.HasValue ? this.Guild.Channels.FirstOrDefault(xc => xc.Id == this.ParentId) : null;
+            => this.ParentId.HasValue ? this.Guild.GetChannel(this.ParentId.Value) : null;
 
         /// <summary>
         /// Gets the name of this channel.
@@ -134,7 +134,7 @@ namespace DSharpPlus.Entities
                 if (!IsCategory)
                     throw new ArgumentException("Only channel categories contain children");
 
-                return Guild._channels.Where(e => e.ParentId == Id);
+                return Guild._channels.Values.Where(e => e.ParentId == Id);
             }
         }
 
@@ -150,9 +150,9 @@ namespace DSharpPlus.Entities
                     throw new InvalidOperationException("Cannot query users outside of guild channels.");
 
                 if (this.Type == ChannelType.Voice)
-                    return Guild.Members.Where(x => x.VoiceState?.ChannelId == this.Id);
+                    return Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id);
 
-                return Guild.Members.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels);
+                return Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels);
             }
         }
 
@@ -335,7 +335,7 @@ namespace DSharpPlus.Entities
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot modify order of non-guild channels.");
 
-            var chns = this.Guild._channels.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
+            var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
             var pmds = new RestGuildChannelReorderPayload[chns.Length];
             for (var i = 0; i < chns.Length; i++)
             {

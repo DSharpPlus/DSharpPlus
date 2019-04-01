@@ -54,7 +54,7 @@ namespace DSharpPlus.Entities
 				var usr = null as DiscordUser;
 
 				if (this.Guild != null)
-					usr = this.Guild._members.FirstOrDefault(xm => xm.Id == this.UserId);
+					usr = this.Guild._members.TryGetValue(this.UserId, out var member) ? member : null;
 
 				if (usr == null)
 					usr = this.Discord.InternalGetCachedUser(this.UserId);
