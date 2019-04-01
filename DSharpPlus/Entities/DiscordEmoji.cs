@@ -216,13 +216,13 @@ namespace DSharpPlus.Entities
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
 
-            var ed = client.Guilds.Values.SelectMany(xg => xg.Emojis)
-                .ToDictionary(xe => xe.Id, xe => xe);
-
-            if (!ed.ContainsKey(id))
-                throw new KeyNotFoundException("Given emote was not found.");
-
-            return ed[id];
+            foreach (var guild in client.Guilds.Values)
+            {
+                if (guild.Emojis.TryGetValue(id, out var found))
+                    return found;
+            }
+            
+            throw new KeyNotFoundException("Given emote was not found.");
         }
 
         /// <summary>
@@ -242,16 +242,14 @@ namespace DSharpPlus.Entities
             if (UnicodeEmojis.ContainsKey(name))
                 return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name] };
 
-            var ed = client.Guilds.Values.SelectMany(xg => xg.Emojis)
-                .OrderBy(xe => xe.Name)
-                .GroupBy(xe => xe.Name)
-                .ToDictionary(xg => xg.Key, xg => xg);
+            var allEmojis = client.Guilds.Values.SelectMany(xg => xg.Emojis.Values).OrderBy(xe => xe.Name);
+            
             var ek = name.Substring(1, name.Length - 2);
+            foreach (var emoji in allEmojis)
+                if (emoji.Name == ek)
+                    return emoji;
 
-            if (ed.ContainsKey(ek))
-                return ed[ek].First();
-
-            throw new ArgumentException(nameof(name), "Invalid emoji name specified.");
+            throw new ArgumentException("Invalid emoji name specified.", nameof(name));
         }
     }
 }

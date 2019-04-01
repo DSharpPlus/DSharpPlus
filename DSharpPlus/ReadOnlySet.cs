@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace DSharpPlus
 {
@@ -7,9 +8,9 @@ namespace DSharpPlus
     /// Read-only view of a given <see cref="ISet{T}"/>.
     /// </summary>
     /// <typeparam name="T">Type of the items in the set.</typeparam>
-    public sealed class ReadOnlySet<T> : IReadOnlyCollection<T>
+    internal readonly struct ReadOnlySet<T> : IReadOnlyCollection<T>
     {
-        private ISet<T> UnderlyingSet { get; }
+        private readonly ISet<T> _underlyingSet;
 
         /// <summary>
         /// Creates a new read-only view of the given set.
@@ -17,26 +18,28 @@ namespace DSharpPlus
         /// <param name="sourceSet">Set to create a view over.</param>
         public ReadOnlySet(ISet<T> sourceSet)
         {
-            this.UnderlyingSet = sourceSet;
+            this._underlyingSet = sourceSet;
         }
 
         /// <summary>
         /// Gets the number of items in the underlying set.
         /// </summary>
-        public int Count => this.UnderlyingSet.Count;
+        public int Count => this._underlyingSet.Count;
 
         /// <summary>
         /// Returns an enumerator that iterates through this set view.
         /// </summary>
         /// <returns>Enumerator for the underlying set.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<T> GetEnumerator()
-            => this.UnderlyingSet.GetEnumerator();
+            => this._underlyingSet.GetEnumerator();
         
         /// <summary>
         /// Returns an enumerator that iterates through this set view.
         /// </summary>
         /// <returns>Enumerator for the underlying set.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator()
-            => (this.UnderlyingSet as IEnumerable).GetEnumerator();
+            => (this._underlyingSet as IEnumerable).GetEnumerator();
     }
 }

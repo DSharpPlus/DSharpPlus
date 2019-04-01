@@ -72,7 +72,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IEnumerable<DiscordRole> Roles 
-            => this.RoleIds.Select(xid => this.Guild.Roles.FirstOrDefault(xr => xr.Id == xid));
+            => this.RoleIds.Select(id => this.Guild.GetRole(id));
 
         /// <summary>
         /// Gets the color associated with this user's top color-giving role, otherwise 0 (no color).
@@ -112,7 +112,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordVoiceState VoiceState 
-            => this.Discord.Guilds[this._guild_id].VoiceStates.FirstOrDefault(xvs => xvs.UserId == this.Id);
+            => this.Discord.Guilds[this._guild_id].VoiceStates.TryGetValue(this.Id, out var voiceState) ? voiceState : null;
 
         [JsonIgnore]
         internal ulong _guild_id = 0;
