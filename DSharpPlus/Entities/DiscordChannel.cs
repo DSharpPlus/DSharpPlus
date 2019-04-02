@@ -291,7 +291,7 @@ namespace DSharpPlus.Entities
             }
             if (this.Type != ChannelType.Text)
             {
-                perUserRateLimit = Optional<int?>.FromNoValue();
+                perUserRateLimit = Optional.FromNoValue<int?>();
             }
 
             return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);
@@ -540,7 +540,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public async Task<DiscordWebhook> CreateWebhookAsync(string name, Optional<Stream> avatar = default, string reason = null)
         {
-            var av64 = Optional<string>.FromNoValue();
+            var av64 = Optional.FromNoValue<string>();
             if (avatar.HasValue && avatar.Value != null)
                 using (var imgtool = new ImageTool(avatar.Value))
                     av64 = imgtool.GetBase64();

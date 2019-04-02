@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -301,7 +302,7 @@ namespace DSharpPlus
                     Discord = this,
                     RawActivity = new TransportActivity(),
                     Activity = new DiscordActivity(),
-                    InternalStatus = "online",
+                    Status = UserStatus.Online,
                     InternalUser = new TransportUser
                     {
                         Id = this.CurrentUser.Id,
@@ -316,7 +317,7 @@ namespace DSharpPlus
                 var pr = this._presences[this.CurrentUser.Id];
                 pr.RawActivity = new TransportActivity();
                 pr.Activity = new DiscordActivity();
-                pr.InternalStatus = "online";
+                pr.Status = UserStatus.Online;
             }
 
             Volatile.Write(ref this._skippedHeartbeats, 0);
@@ -438,7 +439,7 @@ namespace DSharpPlus
         public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
             DefaultMessageNotifications? defaultMessageNotifications = null)
         {
-            var iconb64 = Optional<string>.FromNoValue();
+            var iconb64 = Optional.FromNoValue<string>();
             if (icon.HasValue && icon.Value != null)
                 using (var imgtool = new ImageTool(icon.Value))
                     iconb64 = imgtool.GetBase64();
@@ -523,7 +524,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordUser> UpdateCurrentUserAsync(string username = null, Optional<Stream> avatar = default)
         {
-            var av64 = Optional<string>.FromNoValue();
+            var av64 = Optional.FromNoValue<string>();
             if (avatar.HasValue && avatar.Value != null)
                 using (var imgtool = new ImageTool(avatar.Value))
                     av64 = imgtool.GetBase64();
@@ -1273,10 +1274,11 @@ namespace DSharpPlus
         {
             var uid = (ulong)rawUser["id"];
             DiscordPresence old = null;
+
             if (this._presences.TryGetValue(uid, out var presence))
             {
                 old = new DiscordPresence(presence);
-                JsonConvert.PopulateObject(rawPresence.ToString(), presence);
+                DiscordJson.PopulateObject(rawPresence, presence);
 
                 if (rawPresence["game"] == null || rawPresence["game"].Type == JTokenType.Null)
                     presence.RawActivity = null;
@@ -1284,7 +1286,7 @@ namespace DSharpPlus
                 if (presence.Activity != null)
                     presence.Activity.UpdateWith(presence.RawActivity);
                 else
-                    presence.Activity = new DiscordActivity();
+                    presence.Activity = new DiscordActivity(presence.RawActivity);
             }
             else
             {
@@ -1292,6 +1294,24 @@ namespace DSharpPlus
                 presence.Discord = this;
                 presence.Activity = new DiscordActivity(presence.RawActivity);
                 this._presences[presence.InternalUser.Id] = presence;
+            }
+
+            // reuse arrays / avoid linq (this is a hot zone)
+            if (presence.Activities == null || rawPresence["activities"] == null)
+            {
+#if !NET45 && !NETSTANDARD1_1
+                presence.InternalActivities = Array.Empty<DiscordActivity>();
+#else
+                presence.InternalActivities = new DiscordActivity[0];
+#endif
+            }
+            else
+            {
+                if (presence.InternalActivities.Length != presence.RawActivities.Length)
+                    presence.InternalActivities = new DiscordActivity[presence.RawActivities.Length];
+                
+                for (var i = 0; i < presence.InternalActivities.Length; i++)
+                    presence.InternalActivities[i] = new DiscordActivity(presence.RawActivities[i]);
             }
 
             if (this.UserCache.TryGetValue(uid, out var usr))
@@ -1842,7 +1862,7 @@ namespace DSharpPlus
             if (vstateHasNew)
             {
                 vstateOld = new DiscordVoiceState(vstateNew);
-                JsonConvert.PopulateObject(raw.ToString(), vstateNew); // TODO: Find a better way
+                DiscordJson.PopulateObject(raw, vstateNew);
             }
             else
             {
@@ -2157,7 +2177,7 @@ namespace DSharpPlus
                 {
                     Discord = this,
                     Activity = act,
-                    InternalStatus = userStatus?.ToString() ?? "online",
+                    Status = userStatus ?? UserStatus.Online,
                     InternalUser = new TransportUser { Id = this.CurrentUser.Id }
                 };
             }
@@ -2165,7 +2185,7 @@ namespace DSharpPlus
             {
                 var pr = this._presences[this.CurrentUser.Id];
                 pr.Activity = act;
-                pr.InternalStatus = userStatus?.ToString() ?? pr.InternalStatus;
+                pr.Status = userStatus ?? pr.Status;
             }
 
             return Task.Delay(0);

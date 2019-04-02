@@ -315,14 +315,14 @@ namespace DSharpPlus.Entities
             if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
-            var iconb64 = Optional<string>.FromNoValue();
+            var iconb64 = Optional.FromNoValue<string>();
             if (mdl.Icon.HasValue && mdl.Icon.Value != null)
                 using (var imgtool = new ImageTool(mdl.Icon.Value))
                     iconb64 = imgtool.GetBase64();
             else if (mdl.Icon.HasValue)
                 iconb64 = null;
 
-            var splashb64 = Optional<string>.FromNoValue();
+            var splashb64 = Optional.FromNoValue<string>();
             if (mdl.Splash.HasValue && mdl.Splash.Value != null)
                 using (var imgtool = new ImageTool(mdl.Splash.Value))
                     splashb64 = imgtool.GetBase64();
@@ -408,7 +408,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel category.</returns>
         public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, Optional<int?>.FromNoValue(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new voice channel in this guild.
@@ -421,7 +421,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, Optional<int?>.FromNoValue(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new channel in this guild.
