@@ -61,7 +61,7 @@ namespace DSharpPlus.Test
             var smirk = DiscordEmoji.FromName(ctx.Client, ":smirk:");
             var sad = DiscordEmoji.FromName(ctx.Client, ":cry:");
 
-            var poll = await _int.WaitPollAsync(m, new DiscordEmoji[] { smirk, sad }, timeout: TimeSpan.FromSeconds(5));
+            var poll = await _int.DoPollAsync(m, new DiscordEmoji[] { smirk, sad }, timeout: TimeSpan.FromSeconds(5));
 
             await m.ModifyAsync($"Collected smirk: {poll.First(x => x.Emoji == smirk).Total} sad: {poll.First(x => x.Emoji == sad).Total}");
         }

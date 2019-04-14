@@ -103,7 +103,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">What to do when the poll ends.</param>
         /// <param name="timeout">override timeout period.</param>
         /// <returns></returns>
-        public async Task<ReadOnlySet<PollEmoji>> WaitPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
+        public async Task<ReadOnlySet<PollEmoji>> DoPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
         {
             if (emojis.Count() < 1)
                 throw new ArgumentException("You need to provide at least one emoji for a poll!");

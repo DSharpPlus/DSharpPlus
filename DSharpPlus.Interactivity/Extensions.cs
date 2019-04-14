@@ -85,7 +85,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public static async Task<ReadOnlySet<PollEmoji>> DoPollAsync(this DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour,
             TimeSpan? timeout = null)
-            => await ((DiscordClient)m.Discord).GetInteractivity().WaitPollAsync(m, emojis, behaviour, timeout);
+            => await ((DiscordClient)m.Discord).GetInteractivity().DoPollAsync(m, emojis, behaviour, timeout);
 
         /// <summary>
         /// waits for a reaction on a message.
