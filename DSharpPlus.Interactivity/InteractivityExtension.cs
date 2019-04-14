@@ -95,6 +95,14 @@ namespace DSharpPlus.Interactivity
             this.Paginator = new Paginator(this.Client);
         }
 
+        /// <summary>
+        /// Makes a poll and returns poll results
+        /// </summary>
+        /// <param name="m">Message to create poll on</param>
+        /// <param name="emojis">Emojis to use for this poll</param>
+        /// <param name="behaviour">What to do when the poll ends</param>
+        /// <param name="timeout">override timeout period</param>
+        /// <returns></returns>
         public async Task<ReadOnlySet<PollEmoji>> WaitPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
         {
             if (emojis.Count() < 1)
@@ -115,6 +123,12 @@ namespace DSharpPlus.Interactivity
             return res;
         }
 
+        /// <summary>
+        /// Waits for a specific message
+        /// </summary>
+        /// <param name="predicate">Predicate to match</param>
+        /// <param name="timeoutoverride">override timeout period</param>
+        /// <returns></returns>
         public async Task<InteractivityResult<DiscordMessage>> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, 
             TimeSpan? timeoutoverride = null)
         {
@@ -124,6 +138,12 @@ namespace DSharpPlus.Interactivity
             return new InteractivityResult<DiscordMessage>(returns == null, returns?.Message);
         }
 
+        /// <summary>
+        /// Wait for a specific reaction
+        /// </summary>
+        /// <param name="predicate">Predicate to match</param>
+        /// <param name="timeoutoverride">override timeout period</param>
+        /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate,
             TimeSpan? timeoutoverride = null)
         {
@@ -133,18 +153,47 @@ namespace DSharpPlus.Interactivity
             return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
         }
 
+        /// <summary>
+        /// Wait for a specific reaction
+        /// </summary>
+        /// <param name="message">Message reaction was added to</param>
+        /// <param name="user">User that made the reaction</param>
+        /// <param name="timeoutoverride">override timeout period</param>
+        /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(DiscordMessage message, DiscordUser user,
             TimeSpan? timeoutoverride = null)
             => await WaitForReactionAsync(x => x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride);
 
+        /// <summary>
+        /// Waits for a specific reaction
+        /// </summary>
+        /// <param name="predicate">Predicate to match</param>
+        /// <param name="message">Message reaction was added to</param>
+        /// <param name="user">User that made the reaction</param>
+        /// <param name="timeoutoverride">override timeout period</param>
+        /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate, 
             DiscordMessage message, DiscordUser user, TimeSpan? timeoutoverride = null)
             => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride);
 
+        /// <summary>
+        /// Waits for a specific reaction
+        /// </summary>
+        /// <param name="predicate">predicate to match</param>
+        /// <param name="user">User that made the reaction</param>
+        /// <param name="timeoutoverride">Override timeout period</param>
+        /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate,
             DiscordUser user, TimeSpan? timeoutoverride = null)
             => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id, timeoutoverride);
 
+        /// <summary>
+        /// Waits for a user to type
+        /// </summary>
+        /// <param name="user">User that starts typing</param>
+        /// <param name="channel">Channel the user is typing in</param>
+        /// <param name="timeoutoverride">Override timeout period</param>
+        /// <returns></returns>
         public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user, 
             DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
@@ -155,6 +204,12 @@ namespace DSharpPlus.Interactivity
             return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
         }
 
+        /// <summary>
+        /// Waits for a user to start typing
+        /// </summary>
+        /// <param name="user">User that starts typing</param>
+        /// <param name="timeoutoverride">Override timeout period</param>
+        /// <returns></returns>
         public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
         {
             var timeout = timeoutoverride ?? Config.Timeout;
@@ -164,6 +219,12 @@ namespace DSharpPlus.Interactivity
             return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
         }
 
+        /// <summary>
+        /// Waits for any user to start typing
+        /// </summary>
+        /// <param name="channel">Channel to type in</param>
+        /// <param name="timeoutoverride">Override timeout period</param>
+        /// <returns></returns>
         public async Task<InteractivityResult<TypingStartEventArgs>> WaitForTypingAsync(DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
             var timeout = timeoutoverride ?? Config.Timeout;
@@ -173,18 +234,34 @@ namespace DSharpPlus.Interactivity
             return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
         }
 
-        public async Task<ReadOnlySet<Reaction>> CollectReactionsAsync(DiscordMessage m, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeoutoverride = null)
+        /// <summary>
+        /// Collects reactions on a specific message
+        /// </summary>
+        /// <param name="m">Message to colelct reactions on</param>
+        /// <param name="timeoutoverride">Override timeout period</param>
+        /// <returns></returns>
+        public async Task<ReadOnlySet<Reaction>> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
         {
             var timeout = timeoutoverride ?? Config.Timeout;
             var collection = await ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout));
             return collection;
         }
 
+        /// <summary>
+        /// Does pagination
+        /// </summary>
+        /// <param name="c">Channel to send paginated message in</param>
+        /// <param name="u">User to give control</param>
+        /// <param name="pages">Pages</param>
+        /// <param name="emojis">Pagination emojis (emojis set to null get disabled)</param>
+        /// <param name="behaviour">Pagination behaviour (when hitting max and min indices</param>
+        /// <param name="deletion">Deletion behaviour</param>
+        /// <param name="timeoutoverride">Override timeout period</param>
+        /// <returns></returns>
         public async Task DoPaginationAsync(DiscordChannel c, DiscordUser u, Page[] pages, PaginationEmojis emojis,
-            PaginationBehaviour behaviour = PaginationBehaviour.Default, PaginationDeletion deletion = PaginationDeletion.Default,
-            int startindex = 0, TimeSpan? timeoutoverride = null)
+            PaginationBehaviour behaviour = PaginationBehaviour.Default, PaginationDeletion deletion = PaginationDeletion.Default, TimeSpan? timeoutoverride = null)
         {
-            var m = await c.SendMessageAsync(pages[startindex].Content, false, pages[startindex].Embed);
+            var m = await c.SendMessageAsync(pages[0].Content, false, pages[0].Embed);
             var timeout = timeoutoverride ?? Config.Timeout;
 
             var prequest = new PaginationRequest(m, u, behaviour, deletion, emojis, timeout, pages);
@@ -207,6 +284,12 @@ namespace DSharpPlus.Interactivity
             }
         }
 
+        /// <summary>
+        /// Generates pages from a string, and puts them in message content.
+        /// </summary>
+        /// <param name="input">Input string</param>
+        /// <param name="splittype">how to split input string</param>
+        /// <returns></returns>
         public Page[] GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
         {
             if (String.IsNullOrEmpty(input))
@@ -218,7 +301,7 @@ namespace DSharpPlus.Interactivity
             switch (splittype) {
                 default:
                 case SplitType.Character:
-                    split = SplitString(input, 1890).ToList();
+                    split = SplitString(input, 500).ToList();
                     break;
                 case SplitType.Line:
                     var subsplit = input.Split('\n');
@@ -250,6 +333,12 @@ namespace DSharpPlus.Interactivity
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Generates pages from a string, and puts them in message embeds.
+        /// </summary>
+        /// <param name="input">Input string</param>
+        /// <param name="splittype">how to split input string</param>
+        /// <returns></returns>
         public Page[] GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character)
         {
             if (String.IsNullOrEmpty(input))
@@ -262,7 +351,7 @@ namespace DSharpPlus.Interactivity
             {
                 default:
                 case SplitType.Character:
-                    split = SplitString(input, 1890).ToList();
+                    split = SplitString(input, 500).ToList();
                     break;
                 case SplitType.Line:
                     var subsplit = input.Split('\n');
@@ -311,9 +400,18 @@ namespace DSharpPlus.Interactivity
         }
     }
 
+    /// <summary>
+    /// Way to split strings
+    /// </summary>
     public enum SplitType
     {
+        /// <summary>
+        /// Splits string per 500 characters.
+        /// </summary>
         Character,
+        /// <summary>
+        /// Splits string per 15 lines
+        /// </summary>
         Line
     }
 }
