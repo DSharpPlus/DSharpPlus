@@ -130,12 +130,33 @@ namespace DSharpPlus.Interactivity
             return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
         }
 
+        public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(DiscordMessage message, DiscordUser user,
+            TimeSpan? timeoutoverride = null)
+            => await WaitForReactionAsync(x => x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride);
+
+        public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate, 
+            DiscordMessage message, DiscordUser user, TimeSpan? timeoutoverride = null)
+            => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride);
+
+        public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate,
+            DiscordUser user, TimeSpan? timeoutoverride = null)
+            => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id, timeoutoverride);
+
         public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user, 
             DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
                 new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id && x.Channel.Id == channel.Id, timeout));
+
+            return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
+        }
+
+        public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
+        {
+            var timeout = timeoutoverride ?? Config.Timeout;
+            var returns = await this.TypingStartWaiter.WaitForMatch(
+                new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id, timeout));
 
             return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
         }
