@@ -1,9 +1,13 @@
 ﻿using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Interactivity;
+using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Interactivity
 {
@@ -70,5 +74,77 @@ namespace DSharpPlus.Interactivity
         public static async Task<InteractivityResult<DiscordMessage>> GetNextMessageAsync(this DiscordMessage m, Func<DiscordMessage, bool> predicate, 
             TimeSpan? timeoutoverride = null)
             => await m.Channel.GetNextMessageAsync(x => x.Author.Id == m.Author.Id && m.ChannelId == x.ChannelId && predicate(x), timeoutoverride);
+
+        /// <summary>
+        /// Does a poll on a message
+        /// </summary>
+        /// <param name="m">Message to do a poll on.</param>
+        /// <param name="emojis">Emojis to poll.</param>
+        /// <param name="behaviour">Poll behaviour.</param>
+        /// <param name="timeout">Override timeout period.</param>
+        /// <returns></returns>
+        public static async Task<ReadOnlySet<PollEmoji>> DoPollAsync(this DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour,
+            TimeSpan? timeout = null)
+            => await ((DiscordClient)m.Discord).GetInteractivity().WaitPollAsync(m, emojis, behaviour, timeout);
+
+        /// <summary>
+        /// waits for a reaction on a message.
+        /// </summary>
+        /// <param name="m">Message to wait on.</param>
+        /// <param name="user">User to send a reaction.</param>
+        /// <param name="timeoutoverride">Override timeout period.</param>
+        /// <returns></returns>
+        public static async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(this DiscordMessage m, DiscordUser user,
+            TimeSpan? timeoutoverride = null)
+            => await ((DiscordClient)m.Discord).GetInteractivity().WaitForReactionAsync(m, user, timeoutoverride);
+
+        /// <summary>
+        /// Waits for a reaction on a message.
+        /// </summary>
+        /// <param name="m">Message to wait on.</param>
+        /// <param name="user">User to send a reaction.</param>
+        /// <param name="emoji">Emoji to wait for.</param>
+        /// <param name="timeoutoverride">Override timeout period.</param>
+        /// <returns></returns>
+        public static async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(this DiscordMessage m, DiscordUser user,
+            DiscordEmoji emoji, TimeSpan? timeoutoverride = null)
+            => await ((DiscordClient)m.Discord).GetInteractivity().WaitForReactionAsync(x => x.Emoji == emoji, m, user, timeoutoverride);
+
+        /// <summary>
+        /// Waits for a user to start typing
+        /// </summary>
+        /// <param name="c">Channel user is typing in.</param>
+        /// <param name="user">User to start typing.</param>
+        /// <param name="timeoutoverride">Override timeout period.</param>
+        /// <returns></returns>
+        public static async Task WaitForUserTypingAsync(this DiscordChannel c, DiscordUser user, TimeSpan? timeoutoverride = null)
+            => await ((DiscordClient)c.Discord).GetInteractivity().WaitForUserTypingAsync(user, c, timeoutoverride);
+
+        /// <summary>
+        /// Collects reactions on this messages
+        /// </summary>
+        /// <param name="m">Message to collect reactions from</param>
+        /// <param name="timeoutoverride">Override timeout period</param>
+        /// <returns></returns>
+        public static async Task CollectReactionsAsync(this DiscordMessage m, TimeSpan? timeoutoverride = null)
+            => await ((DiscordClient)m.Discord).GetInteractivity().CollectReactionsAsync(m, timeoutoverride);
+
+        /// <summary>
+        /// Sends a paginated message
+        /// </summary>
+        /// <param name="c">Channel to send message in.</param>
+        /// <param name="user">User to control pagination.</param>
+        /// <param name="pages">Pages to send.</param>
+        /// <param name="emojis">Pagination emojis (emojis set to null will be disabled)</param>
+        /// <param name="behaviour">Pagination behaviour.</param>
+        /// <param name="deletion">Deletion behaviour.</param>
+        /// <param name="timeoutoverride">Override timeout period.</param>
+        /// <returns></returns>
+        public static async Task SendPaginatedMessageAsync(this DiscordChannel c, DiscordUser user, Page[] pages, PaginationEmojis emojis,
+            PaginationBehaviour behaviour = PaginationBehaviour.Default, PaginationDeletion deletion = PaginationDeletion.Default,
+            TimeSpan? timeoutoverride = null)
+            => await ((DiscordClient)c.Discord).GetInteractivity().SendPaginatedMessageAsync(c, user, pages, emojis, behaviour, deletion, timeoutoverride);
     }
 }
+
+// note to future self: do your god damn homework

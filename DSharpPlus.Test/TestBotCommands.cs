@@ -24,7 +24,7 @@ namespace DSharpPlus.Test
         {
             var ie = ctx.Client.GetInteractivity();
             var pgs = ie.GeneratePagesInEmbed(BeeMovie.Script, SplitType.Line);
-            await ie.DoPaginationAsync(ctx.Channel, ctx.User, pgs, new PaginationEmojis(ctx.Client), timeoutoverride: TimeSpan.FromSeconds(20));
+            await ie.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pgs, new PaginationEmojis(ctx.Client), timeoutoverride: TimeSpan.FromSeconds(20));
         }
 
         [Command("collectreact")]
