@@ -19,6 +19,31 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
+        [Command("collectreact")]
+        public async Task CollectReactAsync(CommandContext ctx)
+        {
+            var m = await ctx.RespondAsync("Collecting reactions for 15s.");
+            var res = await ctx.Client.GetInteractivity().CollectReactionsAsync(m, timeoutoverride: new TimeSpan(0, 0, 15));
+            string col = "";
+            foreach(var r in res)
+            {
+                col += $"{r.Emoji.Name}: {r.Total}\n";
+            }
+
+            await ctx.RespondAsync(col);
+        }
+
+        [Command("waitfortype")]
+        public async Task WaitForTypeAsync(CommandContext ctx)
+        {
+            var res = await ctx.Client.GetInteractivity().WaitForTypingAsync(ctx.Channel);
+
+            if (res.TimedOut)
+                await ctx.RespondAsync("timed out.");
+            else
+                await ctx.RespondAsync($"you is typing haha {res.Result.User.Mention}");
+        }
+
         [Command("testpoll")]
         public async Task TesteAsync(CommandContext ctx)
         {

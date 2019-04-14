@@ -15,7 +15,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     /// <typeparam name="T"></typeparam>
     public class CollectRequest<T> : IDisposable where T : AsyncEventArgs
     {
-        internal TaskCompletionSource<T> _tcs;
+        internal TaskCompletionSource<ReadOnlySet<T>> _tcs;
         internal CancellationTokenSource _ct;
         internal Func<T, bool> _predicate;
         internal TimeSpan _timeout;
@@ -28,7 +28,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// <param name="timeout">Timeout time</param>
         public CollectRequest(Func<T, bool> predicate, TimeSpan timeout)
         {
-            this._tcs = new TaskCompletionSource<T>();
+            this._tcs = new TaskCompletionSource<ReadOnlySet<T>>();
             this._ct = new CancellationTokenSource(timeout);
             this._predicate = predicate;
             this._ct.Token.Register(() => _tcs.TrySetResult(null));

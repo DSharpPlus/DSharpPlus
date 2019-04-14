@@ -10,7 +10,8 @@ namespace DSharpPlus.Interactivity.Enums
     {
         Default = 0,
         DeleteEmojis = 1,
-        KeepEmojis = 2
+        KeepEmojis = 2,
+        DeleteMessage = 3
     }
 
     public enum PaginationBehaviour

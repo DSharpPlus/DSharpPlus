@@ -71,6 +71,10 @@ namespace DSharpPlus.Interactivity
 
         private EventWaiter<MessageReactionAddEventArgs> MessageReactionAddWaiter;
 
+        private EventWaiter<TypingStartEventArgs> TypingStartWaiter;
+
+        private ReactionCollector ReactionCollector;
+
         private Poller Poller;
 
         internal InteractivityExtension(InteractivityConfiguration cfg)
@@ -83,11 +87,16 @@ namespace DSharpPlus.Interactivity
             this.Client = client;
             this.MessageCreatedWaiter = new EventWaiter<MessageCreateEventArgs>(this.Client);
             this.MessageReactionAddWaiter = new EventWaiter<MessageReactionAddEventArgs>(this.Client);
+            this.TypingStartWaiter = new EventWaiter<TypingStartEventArgs>(this.Client);
             this.Poller = new Poller(this.Client);
+            this.ReactionCollector = new ReactionCollector(this.Client);
         }
 
         public async Task<ReadOnlySet<PollEmoji>> WaitPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
         {
+            if (emojis.Count() < 1)
+                throw new ArgumentException("You need to provide at least one emoji for a poll!");
+
             foreach(var em in emojis)
             {
                 await m.CreateReactionAsync(em);
@@ -121,6 +130,32 @@ namespace DSharpPlus.Interactivity
             return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
         }
 
+        public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user, 
+            DiscordChannel channel, TimeSpan? timeoutoverride = null)
+        {
+            var timeout = timeoutoverride ?? Config.Timeout;
+            var returns = await this.TypingStartWaiter.WaitForMatch(
+                new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id && x.Channel.Id == channel.Id, timeout));
+
+            return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
+        }
+
+        public async Task<InteractivityResult<TypingStartEventArgs>> WaitForTypingAsync(DiscordChannel channel, TimeSpan? timeoutoverride = null)
+        {
+            var timeout = timeoutoverride ?? Config.Timeout;
+            var returns = await this.TypingStartWaiter.WaitForMatch(
+                new MatchRequest<TypingStartEventArgs>(x => x.Channel.Id == channel.Id, timeout));
+
+            return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
+        }
+
+        public async Task<ReadOnlySet<Reaction>> CollectReactionsAsync(DiscordMessage m, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeoutoverride = null)
+        {
+            var timeout = timeoutoverride ?? Config.Timeout;
+            var collection = await ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout));
+            return collection;
+        }
+
         // TODO
         public async Task DoPaginationAsync()
         {
@@ -128,4 +163,4 @@ namespace DSharpPlus.Interactivity
         }
     }
 }
-// InteractivityNext :^)
+// the one true InteractivityNext
