@@ -76,6 +76,7 @@ namespace DSharpPlus.Test
         [Command("addsimple"), Description("Adds a simple echo command."), Hidden, RequireOwner]
         public async Task AddSimple(CommandContext ctx, string name, params string[] aliases)
         {
+            await Task.Yield();
             var command = new CommandBuilder(null)
                 .WithName(name)
                 .WithDescription("Automatically-added command.")

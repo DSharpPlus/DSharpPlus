@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.EventHandling;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Test
@@ -17,21 +19,87 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
-		// disabled cause permissions'n'shit
-		//[Command("testcreateow")]
-		//public async Task TestCreateOwAsync(CommandContext ctx)
-		//{
-		//    List<DiscordOverwriteBuilder> dowbs = new List<DiscordOverwriteBuilder>()
-		//        .Add(new DiscordOverwriteBuilder()
-		//        .Allow(Permissions.ManageChannels)
-		//        .Deny(Permissions.ManageMessages)
-		//        .For(ctx.Member);
+        [Command("testpagination")]
+        public async Task TestPagination(CommandContext ctx)
+        {
+            var ie = ctx.Client.GetInteractivity();
+            var pgs = ie.GeneratePagesInEmbed(BeeMovie.Script, SplitType.Line);
+            await ie.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pgs, new PaginationEmojis(ctx.Client), timeoutoverride: TimeSpan.FromSeconds(20));
+        }
 
-		//    await ctx.Guild.CreateTextChannelAsync("memes", overwrites: dowbs);
-		//    await ctx.RespondAsync("naam check your shitcode");
-		//}
+        [Command("collectreact")]
+        public async Task CollectReactAsync(CommandContext ctx)
+        {
+            var m = await ctx.RespondAsync("Collecting reactions for 15s.");
+            var res = await ctx.Client.GetInteractivity().CollectReactionsAsync(m, timeoutoverride: new TimeSpan(0, 0, 15));
+            string col = "";
+            foreach(var r in res)
+            {
+                col += $"{r.Emoji.Name}: {r.Total}\n";
+            }
 
-	    [Command("clonechannel")]
+            await ctx.RespondAsync(col);
+        }
+
+        [Command("waitfortype")]
+        public async Task WaitForTypeAsync(CommandContext ctx)
+        {
+            var res = await ctx.Client.GetInteractivity().WaitForTypingAsync(ctx.Channel);
+
+            if (res.TimedOut)
+                await ctx.RespondAsync("timed out.");
+            else
+                await ctx.RespondAsync($"you is typing haha {res.Result.User.Mention}");
+        }
+
+        [Command("testpoll")]
+        public async Task TesteAsync(CommandContext ctx)
+        {
+            var m = await ctx.RespondAsync($"Testing poll.");
+            var _int = ctx.Client.GetInteractivity();
+
+            var smirk = DiscordEmoji.FromName(ctx.Client, ":smirk:");
+            var sad = DiscordEmoji.FromName(ctx.Client, ":cry:");
+
+            var poll = await _int.DoPollAsync(m, new DiscordEmoji[] { smirk, sad }, timeout: TimeSpan.FromSeconds(5));
+
+            await m.ModifyAsync($"Collected smirk: {poll.First(x => x.Emoji == smirk).Total} sad: {poll.First(x => x.Emoji == sad).Total}");
+        }
+
+        [Command("testnext")]
+        public async Task TestNextAsync(CommandContext ctx)
+        {
+            // SSG made me do it
+            for (var res = await ctx.Message.GetNextMessageAsync(); !res.TimedOut; res = await ctx.Message.GetNextMessageAsync())
+            {
+                var msg = res.Result;
+
+                if (msg.Content == "stop")
+                    break;
+                else
+                    await ctx.RespondAsync($"{msg.Author.Username}: {msg.Content}");
+
+                res = await ctx.Message.GetNextMessageAsync();
+            }
+
+            await ctx.RespondAsync("Timed out or loop broken.");
+        }
+
+        // disabled cause permissions'n'shit
+        //[Command("testcreateow")]
+        //public async Task TestCreateOwAsync(CommandContext ctx)
+        //{
+        //    List<DiscordOverwriteBuilder> dowbs = new List<DiscordOverwriteBuilder>()
+        //        .Add(new DiscordOverwriteBuilder()
+        //        .Allow(Permissions.ManageChannels)
+        //        .Deny(Permissions.ManageMessages)
+        //        .For(ctx.Member);
+
+        //    await ctx.Guild.CreateTextChannelAsync("memes", overwrites: dowbs);
+        //    await ctx.RespondAsync("naam check your shitcode");
+        //}
+
+        [Command("clonechannel")]
 	    public async Task CloneChannelAsync(CommandContext ctx, DiscordChannel chan = null)
 	    {
 	        chan = chan ?? ctx.Channel;
@@ -39,7 +107,7 @@ namespace DSharpPlus.Test
 	        await chan.CloneAsync().ConfigureAwait(false);
 	    }
 
-		[Command("intext")]
+		/*[Command("intext")]
 		public async Task IntExtAsync(CommandContext ctx)
 		{
 			var mes = await ctx.Channel.WaitForMessageAsync(ctx.User, x => x == "ayy");
@@ -68,7 +136,7 @@ namespace DSharpPlus.Test
             };
 
             await i.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: emojis);
-		}
+		}*/
 
 		[Command("embedcolor")]
 		public async Task EmbedColorAsync(CommandContext ctx)
@@ -104,6 +172,7 @@ namespace DSharpPlus.Test
 				await ctx.RespondAsync($"connected to channel {ctx.Member.VoiceState.Channel.Name}");
 		}
 
+        /*
 		[Command("testpoll")]
 		public async Task TestPollAsync(CommandContext ctx, [RemainingText]string question)
 		{
@@ -126,7 +195,7 @@ namespace DSharpPlus.Test
 			await m.DeleteAllReactionsAsync();
 			await m.ModifyAsync(results);
 			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "sent results", DateTime.Now);
-		}
+		}*/
 
 		[Command("testmodify"), RequireOwner]
 		public async Task TestModifyAsync(CommandContext ctx, DiscordMember m)

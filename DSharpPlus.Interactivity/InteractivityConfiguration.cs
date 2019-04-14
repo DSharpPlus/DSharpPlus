@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSharpPlus.Interactivity.Enums;
+using System;
 
 namespace DSharpPlus.Interactivity
 {
@@ -13,18 +14,7 @@ namespace DSharpPlus.Interactivity
         /// </summary>
         public TimeSpan Timeout { internal get; set; } = TimeSpan.FromMinutes(1);
 
-        /// <summary>
-        /// <para>Sets the default pagination timeout.</para>
-        /// <para>Defaults to 2 minutes.</para>
-        /// </summary>
-        public TimeSpan PaginationTimeout { internal get; set; } = TimeSpan.FromMinutes(2);
-
-        /// <summary>
-        /// <para>Sets the default pagination timeout behaviour.</para>
-        /// <para>Defaults to <see cref="TimeoutBehaviour.Ignore"/>.</para>
-        /// </summary>
-        public TimeoutBehaviour PaginationBehavior { internal get; set; } = TimeoutBehaviour.Ignore;
-
+        public PollBehaviour PollBehaviour { internal get; set; } = PollBehaviour.DeleteEmojis;
         /// <summary>
         /// Creates a new instance of <see cref="InteractivityConfiguration"/>.
         /// </summary>
@@ -36,8 +26,6 @@ namespace DSharpPlus.Interactivity
         /// <param name="other">Configuration the properties of which are to be copied.</param>
         public InteractivityConfiguration(InteractivityConfiguration other)
         {
-            this.PaginationBehavior = other.PaginationBehavior;
-            this.PaginationTimeout = other.PaginationTimeout;
             this.Timeout = other.Timeout;
         }
     }

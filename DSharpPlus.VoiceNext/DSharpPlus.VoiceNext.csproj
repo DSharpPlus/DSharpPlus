@@ -15,6 +15,7 @@
     <PackageId>DSharpPlus.VoiceNext</PackageId>
     <Description>Voice implementation for DSharpPlus.</Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp audio voice radio music</PackageTags>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   
   <ItemGroup>
