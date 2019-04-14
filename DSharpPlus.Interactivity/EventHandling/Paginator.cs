@@ -1,4 +1,5 @@
-﻿using DSharpPlus.EventArgs;
+﻿using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Concurrency;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     internal class Paginator
     {
         DiscordClient _client;
-        ConcurrentHashSet<PollRequest> _requests;
+        ConcurrentHashSet<PaginationRequest> _requests;
 
         /// <summary>
         /// Creates a new Eventwaiter object.
@@ -19,16 +20,16 @@ namespace DSharpPlus.Interactivity.EventHandling
         public Paginator(DiscordClient client)
         {
             this._client = client;
-            this._requests = new ConcurrentHashSet<PollRequest>();
+            this._requests = new ConcurrentHashSet<PaginationRequest>();
 
             this._client.MessageReactionAdded += this.HandleReactionAdd;
             this._client.MessageReactionRemoved += this.HandleReactionRemove;
             this._client.MessageReactionsCleared += this.HandleReactionClear;
         }
 
-        public async Task<ReadOnlySet<PollEmoji>> DoPollAsync(PollRequest request)
+        public async Task DoPaginationAsync(PaginationRequest request)
         {
-            ReadOnlySet<PollEmoji> result = null;
+            await ResetReactionsAsync(request);
             this._requests.Add(request);
             try
             {
@@ -41,11 +42,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             finally
             {
-                result = new ReadOnlySet<PollEmoji>(new HashSet<PollEmoji>(request._collected));
                 request.Dispose();
                 this._requests.TryRemove(request);
             }
-            return result;
         }
 
         async Task HandleReactionAdd(MessageReactionAddEventArgs eventargs)
@@ -53,19 +52,20 @@ namespace DSharpPlus.Interactivity.EventHandling
             await Task.Yield();
             foreach (var req in _requests)
             {
-                // match message
-                if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
+                if (req._message.Id == eventargs.Message.Id)
                 {
-                    if (req._emojis.Contains(eventargs.Emoji) && !req._collected.Any(x => x.Voted.Contains(eventargs.User)))
+                    if (eventargs.User.Id == req._user.Id)
                     {
-                        if (eventargs.User.Id != _client.CurrentUser.Id)
-                            req.AddReaction(eventargs.Emoji, eventargs.User);
+                        await PaginateAsync(req, eventargs.Emoji);
                     }
-                    else
+                    else if (eventargs.User.Id != _client.CurrentUser.Id)
                     {
-                        var member = await eventargs.Channel.Guild.GetMemberAsync(eventargs.Client.CurrentUser.Id);
-                        if (eventargs.Channel.PermissionsFor(member).HasPermission(Permissions.ManageMessages))
-                            await eventargs.Message.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
+                        if (eventargs.Emoji != req._emojis.Left ||
+                           eventargs.Emoji != req._emojis.SkipLeft ||
+                           eventargs.Emoji != req._emojis.Right ||
+                           eventargs.Emoji != req._emojis.SkipRight ||
+                           eventargs.Emoji != req._emojis.Stop)
+                            await ResetReactionsAsync(req);
                     }
                 }
             }
@@ -76,11 +76,21 @@ namespace DSharpPlus.Interactivity.EventHandling
             await Task.Yield();
             foreach (var req in _requests)
             {
-                // match message
-                if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
+                if (req._message.Id == eventargs.Message.Id)
                 {
-                    if (eventargs.User.Id != _client.CurrentUser.Id)
-                        req.RemoveReaction(eventargs.Emoji, eventargs.User);
+                    if (eventargs.User.Id == req._user.Id)
+                    {
+                        await PaginateAsync(req, eventargs.Emoji);
+                    }
+                    else if(eventargs.User.Id != _client.CurrentUser.Id)
+                    {
+                        if (eventargs.Emoji != req._emojis.Left ||
+                           eventargs.Emoji != req._emojis.SkipLeft ||
+                           eventargs.Emoji != req._emojis.Right ||
+                           eventargs.Emoji != req._emojis.SkipRight ||
+                           eventargs.Emoji != req._emojis.Stop)
+                            await ResetReactionsAsync(req);
+                    }
                 }
             }
         }
@@ -90,12 +100,47 @@ namespace DSharpPlus.Interactivity.EventHandling
             await Task.Yield();
             foreach (var req in _requests)
             {
-                // match message
-                if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
+                if(req._message.Id == eventargs.Message.Id)
                 {
-                    req.ClearCollected();
+                    await ResetReactionsAsync(req);
                 }
             }
+        }
+
+        async Task PaginateAsync(PaginationRequest p, DiscordEmoji emoji)
+        {
+            if (emoji == p._emojis.SkipLeft)
+                p.SkipLeft();
+            else if (emoji == p._emojis.Left)
+                p.PreviousPage();
+            else if (emoji == p._emojis.Right)
+                p.NextPage();
+            else if (emoji == p._emojis.SkipRight)
+                p.SkipRight();
+            else if (emoji == p._emojis.Stop)
+            {
+                p._tcs.TrySetResult(true);
+                return;
+            }
+
+            var page = p.GetPage();
+            await p._message.ModifyAsync(page.Content, page.Embed);
+        }
+
+        async Task ResetReactionsAsync(PaginationRequest p)
+        {
+            await p._message.DeleteAllReactionsAsync("Pagination");
+
+            if (p._emojis.SkipLeft != null)
+                await p._message.CreateReactionAsync(p._emojis.SkipLeft);
+            if (p._emojis.Left != null)
+                await p._message.CreateReactionAsync(p._emojis.Left);
+            if (p._emojis.Right != null)
+                await p._message.CreateReactionAsync(p._emojis.Right);
+            if (p._emojis.SkipRight != null)
+                await p._message.CreateReactionAsync(p._emojis.SkipRight);
+            if (p._emojis.Stop != null)
+                await p._message.CreateReactionAsync(p._emojis.Stop);
         }
 
         ~Paginator()

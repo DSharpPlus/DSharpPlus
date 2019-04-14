@@ -77,6 +77,8 @@ namespace DSharpPlus.Interactivity
 
         private Poller Poller;
 
+        private Paginator Paginator;
+
         internal InteractivityExtension(InteractivityConfiguration cfg)
         {
             this.Config = new InteractivityConfiguration(cfg);
@@ -90,6 +92,7 @@ namespace DSharpPlus.Interactivity
             this.TypingStartWaiter = new EventWaiter<TypingStartEventArgs>(this.Client);
             this.Poller = new Poller(this.Client);
             this.ReactionCollector = new ReactionCollector(this.Client);
+            this.Paginator = new Paginator(this.Client);
         }
 
         public async Task<ReadOnlySet<PollEmoji>> WaitPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
@@ -177,10 +180,31 @@ namespace DSharpPlus.Interactivity
             return collection;
         }
 
-        // TODO
-        public async Task DoPaginationAsync()
+        public async Task DoPaginationAsync(DiscordChannel c, DiscordUser u, Page[] pages, PaginationEmojis emojis,
+            PaginationBehaviour behaviour = PaginationBehaviour.Default, PaginationDeletion deletion = PaginationDeletion.Default,
+            int startindex = 0, TimeSpan? timeoutoverride = null)
         {
-            await Task.Yield(); // warning be gone!!1
+            var m = await c.SendMessageAsync(pages[startindex].Content, false, pages[startindex].Embed);
+            var timeout = timeoutoverride ?? Config.Timeout;
+
+            var prequest = new PaginationRequest(m, u, behaviour, deletion, emojis, timeout, pages);
+
+            await Paginator.DoPaginationAsync(prequest);
+
+            switch (deletion)
+            {
+                case PaginationDeletion.Default:
+                case PaginationDeletion.DeleteEmojis:
+                    await m.DeleteAllReactionsAsync();
+                    break;
+
+                case PaginationDeletion.DeleteMessage:
+                    await m.DeleteAsync();
+                    break;
+
+                case PaginationDeletion.KeepEmojis:
+                    break;
+            }
         }
     }
 }
