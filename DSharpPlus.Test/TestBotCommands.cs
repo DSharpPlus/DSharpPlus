@@ -23,16 +23,7 @@ namespace DSharpPlus.Test
         public async Task TestPagination(CommandContext ctx)
         {
             var ie = ctx.Client.GetInteractivity();
-
-            var pgs = new Page[5]
-            {
-                new Page("page 1", null),
-                new Page("page 2", null),
-                new Page("page 3", null),
-                new Page("page 4", null),
-                new Page("page 5", null),
-            };
-
+            var pgs = ie.GeneratePagesInEmbed(BeeMovie.Script, SplitType.Line);
             await ie.DoPaginationAsync(ctx.Channel, ctx.User, pgs, new PaginationEmojis(ctx.Client), timeoutoverride: TimeSpan.FromSeconds(20));
         }
 

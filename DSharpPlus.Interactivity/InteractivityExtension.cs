@@ -206,6 +206,115 @@ namespace DSharpPlus.Interactivity
                     break;
             }
         }
+
+        public Page[] GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
+        {
+            if (String.IsNullOrEmpty(input))
+                throw new ArgumentException("You must provide a string that is not null or empty!");
+
+            List<Page> result = new List<Page>();
+            List<string> split;
+
+            switch (splittype) {
+                default:
+                case SplitType.Character:
+                    split = SplitString(input, 1890).ToList();
+                    break;
+                case SplitType.Line:
+                    var subsplit = input.Split('\n');
+
+                    split = new List<string>();
+                    string s = "";
+
+                    for(int i = 0; i < subsplit.Length; i++)
+                    {
+                        s += subsplit[i];
+                        if(i % 15 == 0)
+                        {
+                            split.Add(s);
+                            s = "";
+                        }
+                    }
+                    if (!split.Any(x => x == s))
+                        split.Add(s);
+                    break;
+            }
+
+            int page = 1;
+            foreach (string s in split)
+            {
+                result.Add(new Page($"Page {page}:\n{s}", null));
+                page++;
+            }
+
+            return result.ToArray();
+        }
+
+        public Page[] GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character)
+        {
+            if (String.IsNullOrEmpty(input))
+                throw new ArgumentException("You must provide a string that is not null or empty!");
+
+            List<Page> result = new List<Page>();
+            List<string> split;
+
+            switch (splittype)
+            {
+                default:
+                case SplitType.Character:
+                    split = SplitString(input, 1890).ToList();
+                    break;
+                case SplitType.Line:
+                    var subsplit = input.Split('\n');
+
+                    split = new List<string>();
+                    string s = "";
+
+                    for (int i = 0; i < subsplit.Length; i++)
+                    {
+                        s += $"{subsplit[i]}\n";
+                        if (i % 15 == 0 && i != 0)
+                        {
+                            split.Add(s);
+                            s = "";
+                        }
+                    }
+                    if (!split.Any(x => x == s))
+                        split.Add(s);
+                    break;
+            }
+
+            int page = 1;
+            foreach (string s in split)
+            {
+                result.Add(new Page("", new DiscordEmbedBuilder().WithDescription(s).WithFooter($"Page {page}/{split.Count}")));
+                page++;
+            }
+
+            return result.ToArray();
+        }
+
+        private List<string> SplitString(string str, int chunkSize)
+        {
+            var res = new List<string>();
+            var len = str.Length;
+            var i = 0;
+
+            while (i < len)
+            {
+                var size = Math.Min(len - i, chunkSize);
+                res.Add(str.Substring(i, size));
+                i += size;
+            }
+
+            return res;
+        }
+    }
+
+    public enum SplitType
+    {
+        Character,
+        Line
     }
 }
 // the one true InteractivityNext
