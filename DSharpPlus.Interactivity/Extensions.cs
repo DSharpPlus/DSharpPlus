@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Interactivity;
 using DSharpPlus.EventArgs;
+using System.Collections.ObjectModel;
 
 namespace DSharpPlus.Interactivity
 {
@@ -83,7 +84,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">Poll behaviour.</param>
         /// <param name="timeout">Override timeout period.</param>
         /// <returns></returns>
-        public static async Task<ReadOnlySet<PollEmoji>> DoPollAsync(this DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour,
+        public static async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(this DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour,
             TimeSpan? timeout = null)
             => await ((DiscordClient)m.Discord).GetInteractivity().DoPollAsync(m, emojis, behaviour, timeout);
 

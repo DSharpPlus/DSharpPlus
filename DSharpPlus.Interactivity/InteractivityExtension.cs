@@ -103,7 +103,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">What to do when the poll ends.</param>
         /// <param name="timeout">override timeout period.</param>
         /// <returns></returns>
-        public async Task<ReadOnlySet<PollEmoji>> DoPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
+        public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
         {
             if (emojis.Count() < 1)
                 throw new ArgumentException("You need to provide at least one emoji for a poll!");
@@ -120,7 +120,7 @@ namespace DSharpPlus.Interactivity
             if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(Permissions.ManageMessages))
                 await m.DeleteAllReactionsAsync();
 
-            return res;
+            return new ReadOnlyCollection<PollEmoji>(res.ToList());
         }
 
         /// <summary>
@@ -240,11 +240,11 @@ namespace DSharpPlus.Interactivity
         /// <param name="m">Message to colelct reactions on.</param>
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
-        public async Task<ReadOnlySet<Reaction>> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
+        public async Task<ReadOnlyCollection<Reaction>> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
         {
             var timeout = timeoutoverride ?? Config.Timeout;
             var collection = await ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout));
-            return collection;
+            return new ReadOnlyCollection<Reaction>(collection.ToList());
         }
 
         /// <summary>

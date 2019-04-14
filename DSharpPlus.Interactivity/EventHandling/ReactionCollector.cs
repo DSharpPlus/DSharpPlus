@@ -3,6 +3,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Concurrency;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -61,10 +62,10 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._reactionClearEvent.Register(_reactionClearHandler);
         }
 
-        public async Task<ReadOnlySet<Reaction>> CollectAsync(ReactionCollectRequest request)
+        public async Task<ReadOnlyCollection<Reaction>> CollectAsync(ReactionCollectRequest request)
         {
             this._requests.Add(request);
-            var result = (ReadOnlySet<Reaction>)null;
+            var result = (ReadOnlyCollection<Reaction>)null;
 
             try
             {
@@ -77,7 +78,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             finally
             {
-                result = new ReadOnlySet<Reaction>(new HashSet<Reaction>(request._collected));
+                result = new ReadOnlyCollection<Reaction>(new HashSet<Reaction>(request._collected).ToList());
                 request.Dispose();
                 this._requests.TryRemove(request);
             }

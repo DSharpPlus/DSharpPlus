@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -66,9 +67,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             return result;
         }
 
-        public async Task<ReadOnlySet<T>> CollectMatches(CollectRequest<T> request)
+        public async Task<ReadOnlyCollection<T>> CollectMatches(CollectRequest<T> request)
         {
-            ReadOnlySet<T> result = null;
+            ReadOnlyCollection<T> result = null;
             this._collectrequests.Add(request);
             try
             {
@@ -81,7 +82,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             finally
             {
-                result = new ReadOnlySet<T>(new HashSet<T>(request._collected));
+                result = new ReadOnlyCollection<T>(new HashSet<T>(request._collected).ToList());
                 request.Dispose();
                 this._collectrequests.TryRemove(request);
             }

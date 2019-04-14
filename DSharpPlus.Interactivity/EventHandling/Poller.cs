@@ -2,6 +2,7 @@
 using DSharpPlus.Interactivity.Concurrency;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,9 +27,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._client.MessageReactionsCleared += this.HandleReactionClear;
         }
 
-        public async Task<ReadOnlySet<PollEmoji>> DoPollAsync(PollRequest request)
+        public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(PollRequest request)
         {
-            ReadOnlySet<PollEmoji> result = null;
+            ReadOnlyCollection<PollEmoji> result = null;
             this._requests.Add(request);
             try
             {
@@ -41,7 +42,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             finally
             {
-                result = new ReadOnlySet<PollEmoji>(new HashSet<PollEmoji>(request._collected));
+                result = new ReadOnlyCollection<PollEmoji>(new HashSet<PollEmoji>(request._collected).ToList());
                 request.Dispose();
                 this._requests.TryRemove(request);
             }
