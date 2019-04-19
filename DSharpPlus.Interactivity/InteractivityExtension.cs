@@ -334,6 +334,7 @@ namespace DSharpPlus.Interactivity
         /// </summary>
         /// <param name="input">Input string.</param>
         /// <param name="splittype">How to split input string.</param>
+        /// <param name="embedbase">Base embed for output embeds.</param>
         /// <returns></returns>
         public Page[] GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
         {
