@@ -13,7 +13,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     /// EventArgs that are being collected within a specific timeframe.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class CollectRequest<T> : IDisposable where T : AsyncEventArgs
+    internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs
     {
         internal TaskCompletionSource<bool> _tcs;
         internal CancellationTokenSource _ct;

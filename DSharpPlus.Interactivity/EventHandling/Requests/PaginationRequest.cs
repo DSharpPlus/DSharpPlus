@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
-    public class PaginationRequest : IPaginationRequest
+    internal class PaginationRequest : IPaginationRequest
     {
         private TaskCompletionSource<bool> _tcs;
         private CancellationTokenSource _ct;
@@ -49,7 +49,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._emojis = emojis;
 
             this._pages = new List<Page>();
-            foreach(var p in pages)
+            foreach (var p in pages)
             {
                 this._pages.Add(p);
             }
@@ -84,7 +84,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 case PaginationBehaviour.Default:
                 case PaginationBehaviour.Ignore:
-                    if(index == _pages.Count - 1)
+                    if (index == _pages.Count - 1)
                         break;
                     else
                         index++;
@@ -186,7 +186,10 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._tcs = null;
         }
     }
+}
 
+namespace DSharpPlus.Interactivity
+{
     public class PaginationEmojis
     {
         public DiscordEmoji SkipLeft;
@@ -195,13 +198,13 @@ namespace DSharpPlus.Interactivity.EventHandling
         public DiscordEmoji Right;
         public DiscordEmoji Stop;
 
-        public PaginationEmojis(DiscordClient client)
+        public PaginationEmojis()
         {
-            Left = DiscordEmoji.FromUnicode(client, "◀");
-            Right = DiscordEmoji.FromUnicode(client, "▶");
-            SkipLeft = DiscordEmoji.FromUnicode(client, "⏮");
-            SkipRight = DiscordEmoji.FromUnicode(client, "⏭");
-            Stop = DiscordEmoji.FromUnicode(client, "⏹");
+            Left = DiscordEmoji.FromUnicode("◀");
+            Right = DiscordEmoji.FromUnicode("▶");
+            SkipLeft = DiscordEmoji.FromUnicode("⏮");
+            SkipRight = DiscordEmoji.FromUnicode("⏭");
+            Stop = DiscordEmoji.FromUnicode("⏹");
         }
     }
 
@@ -210,7 +213,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         public string Content { get; private set; }
         public DiscordEmbed Embed { get; private set; }
 
-        public Page(string content, DiscordEmbedBuilder embed)
+        public Page(string content = "", DiscordEmbedBuilder embed = null)
         {
             this.Content = content;
             this.Embed = embed?.Build();

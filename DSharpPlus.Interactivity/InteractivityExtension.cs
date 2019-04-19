@@ -248,6 +248,35 @@ namespace DSharpPlus.Interactivity
         }
 
         /// <summary>
+        /// Waits for specific event args to be received
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="predicate"></param>
+        /// <param name="timeoutoverride"></param>
+        /// <returns></returns>
+        public async Task<InteractivityResult<T>> WaitForEventArgsAsync<T>(Func<T, bool> predicate, TimeSpan? timeoutoverride = null) where T : AsyncEventArgs
+        {
+            var timeout = timeoutoverride ?? this.Config.Timeout;
+
+            using (var waiter = new EventWaiter<T>(this.Client))
+            {
+                var res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout));
+                return new InteractivityResult<T>(res == null, res);
+            }
+        }
+
+        public async Task<ReadOnlyCollection<T>> CollectEventArgsAsync<T>(Func<T, bool> predicate, TimeSpan? timeoutoverride = null) where T : AsyncEventArgs
+        {
+            var timeout = timeoutoverride ?? this.Config.Timeout;
+
+            using (var waiter = new EventWaiter<T>(this.Client))
+            {
+                var res = await waiter.CollectMatches(new CollectRequest<T>(predicate, timeout));
+                return res;
+            }
+        }
+
+        /// <summary>
         /// Sends a paginated message.
         /// </summary>
         /// <param name="c">Channel to send paginated message in.</param>
@@ -258,13 +287,17 @@ namespace DSharpPlus.Interactivity
         /// <param name="deletion">Deletion behaviour.</param>
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
-        public async Task SendPaginatedMessageAsync(DiscordChannel c, DiscordUser u, Page[] pages, PaginationEmojis emojis,
+        public async Task SendPaginatedMessageAsync(DiscordChannel c, DiscordUser u, IEnumerable<Page> pages, PaginationEmojis emojis = null,
             PaginationBehaviour behaviour = PaginationBehaviour.Default, PaginationDeletion deletion = PaginationDeletion.Default, TimeSpan? timeoutoverride = null)
         {
-            var m = await c.SendMessageAsync(pages[0].Content, false, pages[0].Embed);
+            var m = await c.SendMessageAsync(pages.First().Content, false, pages.First().Embed);
             var timeout = timeoutoverride ?? Config.Timeout;
 
-            var prequest = new PaginationRequest(m, u, behaviour, deletion, emojis, timeout, pages);
+            var bhv = behaviour == PaginationBehaviour.Default ? this.Config.PaginationBehaviour : behaviour;
+            var del = deletion == PaginationDeletion.Default ? this.Config.PaginationDeletion : deletion;
+            var ems = emojis ?? this.Config.PaginationEmojis;
+
+            var prequest = new PaginationRequest(m, u, bhv, del, ems, timeout, pages.ToArray());
 
             await Paginator.DoPaginationAsync(prequest);
         }

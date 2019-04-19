@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace DSharpPlus.Test
             this._cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
             this._cts.Token.Register(() => this._tcs.TrySetResult(true));
             this._msg = msg;
-            this._emojis = new PaginationEmojis(client);
+            this._emojis = new PaginationEmojis();
             this._usr = usr;
         }
 

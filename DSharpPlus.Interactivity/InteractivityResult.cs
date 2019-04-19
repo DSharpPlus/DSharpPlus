@@ -15,11 +15,11 @@ namespace DSharpPlus.Interactivity
         /// <summary>
         /// Whether interactivity was timed out
         /// </summary>
-        public readonly bool TimedOut;
+        public bool TimedOut { get; }
         /// <summary>
         /// Result
         /// </summary>
-        public readonly T Result;
+        public T Result { get; }
 
         internal InteractivityResult(bool timedout, T result)
         {

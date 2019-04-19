@@ -16,7 +16,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     /// Eventwaiter is a class that serves as a layer between the InteractivityExtension
     /// and the DiscordClient to listen to an event and check for matches to a predicate.
     /// </summary>
-    public class ReactionCollector : IDisposable
+    internal class ReactionCollector : IDisposable
     {
         DiscordClient _client;
 

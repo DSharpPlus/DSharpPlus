@@ -12,7 +12,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     /// match that is being waited for.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MatchRequest<T> : IDisposable where T : AsyncEventArgs
+    internal class MatchRequest<T> : IDisposable where T : AsyncEventArgs
     {
         internal TaskCompletionSource<T> _tcs;
         internal CancellationTokenSource _ct;

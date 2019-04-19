@@ -17,13 +17,14 @@ namespace DSharpPlus.Interactivity.EventHandling
     /// and the DiscordClient to listen to an event and check for matches to a predicate.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class EventWaiter<T> : IDisposable where T : AsyncEventArgs
+    internal class EventWaiter<T> : IDisposable where T : AsyncEventArgs
     {
         DiscordClient _client;
         AsyncEvent<T> _event;
         AsyncEventHandler<T> _handler;
         ConcurrentHashSet<MatchRequest<T>> _matchrequests;
         ConcurrentHashSet<CollectRequest<T>> _collectrequests;
+        bool disposed = false;
 
         /// <summary>
         /// Creates a new Eventwaiter object.
@@ -92,19 +93,25 @@ namespace DSharpPlus.Interactivity.EventHandling
         async Task HandleEvent(T eventargs)
         {
             await Task.Yield();
-            foreach(var req in _matchrequests)
+            if (!disposed)
             {
-                if (req._predicate(eventargs))
+                foreach (var req in _matchrequests)
                 {
-                    req._tcs.TrySetResult(eventargs);
+                    if (req._predicate(eventargs))
+                    {
+                        req._tcs.TrySetResult(eventargs);
+                    }
                 }
             }
 
-            foreach(var req in _collectrequests)
+            if (!disposed)
             {
-                if (req._predicate(eventargs))
+                foreach (var req in _collectrequests)
                 {
-                    req._collected.Add(eventargs);
+                    if (req._predicate(eventargs))
+                    {
+                        req._collected.Add(eventargs);
+                    }
                 }
             }
         }
@@ -119,12 +126,19 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// </summary>
         public void Dispose()
         {
-            this._client = null;
-            this._event.Unregister(_handler);
+            this.disposed = true;
+            if(this._event != null)
+                this._event.Unregister(_handler);
+
             this._event = null;
             this._handler = null;
-            this._matchrequests.Clear();
-            this._collectrequests.Clear();
+            this._client = null;
+
+            if(this._matchrequests != null)
+                this._matchrequests.Clear();
+            if(this._collectrequests != null)
+                this._collectrequests.Clear();
+
             this._matchrequests = null;
             this._collectrequests = null;
         }

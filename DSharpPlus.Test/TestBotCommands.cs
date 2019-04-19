@@ -19,6 +19,21 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
+        [Command("custominteractivity")]
+        public async Task CustomInteractivityAsync(CommandContext ctx)
+        {
+            var it = ctx.Client.GetInteractivity();
+            var res = await it.WaitForEventArgsAsync<MessageUpdateEventArgs>(x => x.Message.Id == ctx.Message.Id, TimeSpan.FromSeconds(10));
+
+            if (res.TimedOut)
+            {
+                await ctx.RespondAsync("Timed out.");
+                return;
+            }
+
+            await ctx.RespondAsync(res.Result.Message.Content);
+        }
+
         [Command("custompagination")]
         public async Task CustomPaginationAsync(CommandContext ctx)
         {
@@ -42,7 +57,7 @@ namespace DSharpPlus.Test
         {
             var ie = ctx.Client.GetInteractivity();
             var pgs = ie.GeneratePagesInEmbed(BeeMovie.Script, SplitType.Line);
-            await ie.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pgs, new PaginationEmojis(ctx.Client), timeoutoverride: TimeSpan.FromSeconds(20));
+            await ie.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pgs, timeoutoverride: TimeSpan.FromSeconds(20));
         }
 
         [Command("collectreact")]
