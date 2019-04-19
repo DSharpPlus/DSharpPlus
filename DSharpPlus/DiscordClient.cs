@@ -115,10 +115,9 @@ namespace DSharpPlus
         #endregion
 
         #region Connection semaphore
-        private static SemaphoreSlim ConnectionSemaphore
-            => _semaphoreInit.Value;
-
-        private static Lazy<SemaphoreSlim> _semaphoreInit = new Lazy<SemaphoreSlim>(() => new SemaphoreSlim(1, 1));
+        internal static ConcurrentDictionary<ulong, SocketLock> SocketLocks { get; } = new ConcurrentDictionary<ulong, SocketLock>();
+        private ManualResetEventSlim ConnectionLock { get; } = new ManualResetEventSlim(true);
+        private ManualResetEventSlim SessionLock { get; } = new ManualResetEventSlim(true);
         #endregion
 
         /// <summary>
@@ -219,6 +218,11 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task ConnectAsync(DiscordActivity activity = null, UserStatus ? status = null, DateTimeOffset? idlesince = null)
         {
+            // Check if connection lock is already set, and set it if it isn't
+            if (!this.ConnectionLock.Wait(0))
+                throw new InvalidOperationException("This client is already connected.");
+            this.ConnectionLock.Reset();
+
             var w = 7500;
             var i = 5;
             var s = false;
@@ -252,18 +256,23 @@ namespace DSharpPlus
                 }
                 catch (UnauthorizedException e)
                 {
+                    FailConnection(this.ConnectionLock);
                     throw new Exception("Authentication failed. Check your token and try again.", e);
                 }
                 catch (PlatformNotSupportedException)
                 {
+                    FailConnection(this.ConnectionLock);
                     throw;
                 }
                 catch (NotImplementedException)
                 {
+                    FailConnection(this.ConnectionLock);
                     throw;
                 }
                 catch (Exception ex)
                 {
+                    FailConnection(null);
+
                     cex = ex;
                     if (i <= 0 && !this.Configuration.ReconnectIndefinitely) break;
 
@@ -276,7 +285,17 @@ namespace DSharpPlus
             }
 
             if (!s && cex != null)
+            {
+                this.ConnectionLock.Set();
                 throw new Exception("Could not connect to Discord.", cex);
+            }
+            
+            // non-closure, hence args
+            void FailConnection(ManualResetEventSlim cl)
+            {
+                // unlock this (if applicable) so we can let others attempt to connect
+                cl?.Set();
+            }
         }
 
         public Task ReconnectAsync(bool startNewSession = false)
@@ -292,8 +311,20 @@ namespace DSharpPlus
 
         internal async Task InternalConnectAsync()
         {
-            await this.InternalUpdateGatewayAsync().ConfigureAwait(false);
-            await this.InitializeAsync().ConfigureAwait(false);
+            SocketLock socketLock = null;
+            try
+            {
+                await this.InternalUpdateGatewayAsync().ConfigureAwait(false);
+                await this.InitializeAsync().ConfigureAwait(false);
+
+                socketLock = this.GetSocketLock();
+                await socketLock.LockAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                socketLock?.UnlockAfter(TimeSpan.Zero);
+                throw;
+            }
 
             if (!this.Presences.ContainsKey(this.CurrentUser.Id))
             {
@@ -336,8 +367,7 @@ namespace DSharpPlus
             {
                 Query = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream ? "v=6&encoding=json&compress=zlib-stream" : "v=6&encoding=json"
             };
-
-            await ConnectionSemaphore.WaitAsync().ConfigureAwait(false);
+            
             await _webSocketClient.ConnectAsync(gwuri.Uri).ConfigureAwait(false);
 
             Task SocketOnConnect()
@@ -360,6 +390,10 @@ namespace DSharpPlus
 
             async Task SocketOnDisconnect(SocketCloseEventArgs e)
             {
+                // release session and connection
+                this.ConnectionLock.Set();
+                this.SessionLock.Set();
+
                 _cancelTokenSource.Cancel();
 
                 this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed. ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}')", DateTime.Now);
@@ -2075,6 +2109,18 @@ namespace DSharpPlus
 
         internal async Task OnInvalidateSessionAsync(bool data)
         {
+            if (this.SessionLock.Wait(0))
+            {
+                this.SessionLock.Reset();
+                var socketLock = this.GetSocketLock();
+                await socketLock.LockAsync().ConfigureAwait(false);
+                socketLock.UnlockAfter(TimeSpan.FromSeconds(5));
+            }
+            else
+            {
+                return;
+            }
+
             if (data)
             {
                 this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a few second and sending resume again.", DateTime.Now);
@@ -2084,28 +2130,35 @@ namespace DSharpPlus
             else
             {
                 this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session.", DateTime.Now);
-                _sessionId = "";
-                await SendIdentifyAsync(_status).ConfigureAwait(false);
+                this._sessionId = "";
+                await SendIdentifyAsync(this._status).ConfigureAwait(false);
             }
         }
 
         internal async Task OnHelloAsync(GatewayHello hello)
         {
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify.", DateTime.Now);
+
+            if (this.SessionLock.Wait(0))
+            {
+                this.SessionLock.Reset();
+                this.GetSocketLock().UnlockAfter(TimeSpan.FromSeconds(5));
+            }
+            else
+            {
+                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "Session start attempt was made while another session is active", DateTime.Now);
+                return;
+            }
+
             Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
             this._heartbeatInterval = hello.HeartbeatInterval;
             this._heartbeatTask = new Task(StartHeartbeating, _cancelToken, TaskCreationOptions.LongRunning);
             this._heartbeatTask.Start();
 
-            if (_sessionId == "")
+            if (this._sessionId == "")
                 await SendIdentifyAsync(_status).ConfigureAwait(false);
             else
                 await SendResumeAsync().ConfigureAwait(false);
-
-            _ = Task.Delay(5100).ContinueWith(t =>
-            {
-                ConnectionSemaphore.Release();
-            }).ConfigureAwait(false);
         }
 
         internal async Task OnHeartbeatAckAsync()
@@ -2389,6 +2442,9 @@ namespace DSharpPlus
             if (jo["shards"] != null)
                 _shardCount = jo.Value<int>("shards");
         }
+
+        private SocketLock GetSocketLock()
+            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId));
 
         ~DiscordClient()
         {
