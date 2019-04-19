@@ -65,12 +65,14 @@ namespace DSharpPlus.Interactivity.EventHandling
                     }
                     else if (eventargs.User.Id != _client.CurrentUser.Id)
                     {
-                        if (eventargs.Emoji != emojis.Left ||
-                           eventargs.Emoji != emojis.SkipLeft ||
-                           eventargs.Emoji != emojis.Right ||
-                           eventargs.Emoji != emojis.SkipRight ||
+                        if (eventargs.Emoji != emojis.Left &&
+                           eventargs.Emoji != emojis.SkipLeft &&
+                           eventargs.Emoji != emojis.Right &&
+                           eventargs.Emoji != emojis.SkipRight &&
                            eventargs.Emoji != emojis.Stop)
-                            await ResetReactionsAsync(req);
+                        {
+                            await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
+                        }
                     }
                 }
             }
@@ -91,14 +93,13 @@ namespace DSharpPlus.Interactivity.EventHandling
                     {
                         await PaginateAsync(req, eventargs.Emoji);
                     }
-                    else if(eventargs.User.Id != _client.CurrentUser.Id)
-                    {
-                        if (eventargs.Emoji != emojis.Left ||
-                           eventargs.Emoji != emojis.SkipLeft ||
-                           eventargs.Emoji != emojis.Right ||
-                           eventargs.Emoji != emojis.SkipRight ||
+                    if (eventargs.Emoji != emojis.Left &&
+                           eventargs.Emoji != emojis.SkipLeft &&
+                           eventargs.Emoji != emojis.Right &&
+                           eventargs.Emoji != emojis.SkipRight &&
                            eventargs.Emoji != emojis.Stop)
-                            await ResetReactionsAsync(req);
+                    {
+                        await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
                     }
                 }
             }
