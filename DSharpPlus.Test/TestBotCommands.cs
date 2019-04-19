@@ -19,6 +19,24 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
+        [Command("custompagination")]
+        public async Task CustomPaginationAsync(CommandContext ctx)
+        {
+            var pgs = new List<Page>
+            {
+                new Page("page 1", null),
+                new Page("page 2", null),
+                new Page("page 3", null),
+                new Page("page 4", null),
+                new Page("page 5", null),
+            };
+            var msg = await ctx.RespondAsync(pgs[0].Content, false, pgs[0].Embed);
+
+            var prq = new TestBotPaginator(ctx.Client, ctx.User, msg, pgs);
+
+            await ctx.Client.GetInteractivity().WaitForCustomPaginationAsync(prq);
+        }
+
         [Command("testpagination")]
         public async Task TestPagination(CommandContext ctx)
         {

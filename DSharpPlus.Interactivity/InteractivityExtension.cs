@@ -267,21 +267,17 @@ namespace DSharpPlus.Interactivity
             var prequest = new PaginationRequest(m, u, behaviour, deletion, emojis, timeout, pages);
 
             await Paginator.DoPaginationAsync(prequest);
+        }
 
-            switch (deletion)
-            {
-                case PaginationDeletion.Default:
-                case PaginationDeletion.DeleteEmojis:
-                    await m.DeleteAllReactionsAsync();
-                    break;
-
-                case PaginationDeletion.DeleteMessage:
-                    await m.DeleteAsync();
-                    break;
-
-                case PaginationDeletion.KeepEmojis:
-                    break;
-            }
+        /// <summary>
+        /// Waits for a custom pagination request to finish.
+        /// This does NOT handle removing emojis after finishing for you.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task WaitForCustomPaginationAsync(IPaginationRequest request)
+        {
+            await Paginator.DoPaginationAsync(request);
         }
 
         /// <summary>

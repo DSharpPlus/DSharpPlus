@@ -10,18 +10,18 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
-    public class PaginationRequest
+    public class PaginationRequest : IPaginationRequest
     {
-        internal TaskCompletionSource<bool> _tcs;
-        internal CancellationTokenSource _ct;
-        internal TimeSpan _timeout;
-        internal List<Page> _pages;
-        internal PaginationBehaviour _behaviour;
-        internal PaginationDeletion _deletion;
-        internal DiscordMessage _message;
-        internal PaginationEmojis _emojis;
-        internal DiscordUser _user;
-        int index = 0;
+        private TaskCompletionSource<bool> _tcs;
+        private CancellationTokenSource _ct;
+        private TimeSpan _timeout;
+        private List<Page> _pages;
+        private PaginationBehaviour _behaviour;
+        private PaginationDeletion _deletion;
+        private DiscordMessage _message;
+        private PaginationEmojis _emojis;
+        private DiscordUser _user;
+        private int index = 0;
 
         /// <summary>
         /// Creates a new Pagination request
@@ -33,7 +33,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// <param name="emojis">Emojis for this pagination object</param>
         /// <param name="timeout">Timeout time</param>
         /// <param name="pages">Pagination pages</param>
-        public PaginationRequest(DiscordMessage message, DiscordUser user, PaginationBehaviour behaviour, PaginationDeletion deletion,
+        internal PaginationRequest(DiscordMessage message, DiscordUser user, PaginationBehaviour behaviour, PaginationDeletion deletion,
             PaginationEmojis emojis, TimeSpan timeout, params Page[] pages)
         {
             this._tcs = new TaskCompletionSource<bool>();
@@ -55,23 +55,31 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        internal Page GetPage()
+        public async Task<Page> GetPageAsync()
         {
+            await Task.Yield();
+
             return _pages[index];
         }
 
-        internal void SkipLeft()
+        public async Task SkipLeftAsync()
         {
+            await Task.Yield();
+
             index = 0;
         }
 
-        internal void SkipRight()
+        public async Task SkipRightAsync()
         {
+            await Task.Yield();
+
             index = _pages.Count - 1;
         }
 
-        internal void NextPage()
+        public async Task NextPageAsync()
         {
+            await Task.Yield();
+
             switch (_behaviour)
             {
                 case PaginationBehaviour.Default:
@@ -93,8 +101,10 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        internal void PreviousPage()
+        public async Task PreviousPageAsync()
         {
+            await Task.Yield();
+
             switch (_behaviour)
             {
                 case PaginationBehaviour.Default:
@@ -114,6 +124,52 @@ namespace DSharpPlus.Interactivity.EventHandling
 
                     break;
             }
+        }
+
+        public async Task<PaginationEmojis> GetEmojisAsync()
+        {
+            await Task.Yield();
+
+            return this._emojis;
+        }
+
+        public async Task<DiscordMessage> GetMessageAsync()
+        {
+            await Task.Yield();
+
+            return this._message;
+        }
+
+        public async Task<DiscordUser> GetUserAsync()
+        {
+            await Task.Yield();
+
+            return this._user;
+        }
+
+        public async Task DoCleanupAsync()
+        {
+            switch (_deletion)
+            {
+                case PaginationDeletion.Default:
+                case PaginationDeletion.DeleteEmojis:
+                    await _message.DeleteAllReactionsAsync();
+                    break;
+
+                case PaginationDeletion.DeleteMessage:
+                    await _message.DeleteAsync();
+                    break;
+
+                case PaginationDeletion.KeepEmojis:
+                    break;
+            }
+        }
+
+        public async Task<TaskCompletionSource<bool>> GetTaskCompletionSourceAsync()
+        {
+            await Task.Yield();
+
+            return this._tcs;
         }
 
         ~PaginationRequest()
