@@ -335,10 +335,12 @@ namespace DSharpPlus.Interactivity
         /// <param name="input">Input string.</param>
         /// <param name="splittype">How to split input string.</param>
         /// <returns></returns>
-        public Page[] GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character)
+        public Page[] GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
         {
             if (String.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
+
+            var embed = embedbase ?? new DiscordEmbedBuilder();
 
             List<Page> result = new List<Page>();
             List<string> split;
@@ -372,7 +374,7 @@ namespace DSharpPlus.Interactivity
             int page = 1;
             foreach (string s in split)
             {
-                result.Add(new Page("", new DiscordEmbedBuilder().WithDescription(s).WithFooter($"Page {page}/{split.Count}")));
+                result.Add(new Page("", new DiscordEmbedBuilder(embed).WithDescription(s).WithFooter($"Page {page}/{split.Count}")));
                 page++;
             }
 
