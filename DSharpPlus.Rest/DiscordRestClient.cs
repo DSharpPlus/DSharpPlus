@@ -34,7 +34,7 @@ namespace DSharpPlus
         {
             await base.InitializeAsync().ConfigureAwait(false);
             _guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(_guilds));
-            var gs = ApiClient.GetCurrentUserGuildsAsync(100, null, null).ConfigureAwait(false).GetAwaiter().GetResult();
+            var gs = await ApiClient.GetCurrentUserGuildsAsync(100, null, null).ConfigureAwait(false);
             foreach (DiscordGuild g in gs)
             {
                 _guilds[g.Id] = g;
