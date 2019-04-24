@@ -312,7 +312,7 @@ namespace DSharpPlus
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, string name, int? position, string topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, string reason)
+        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, string reason)
             => ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, reason);
 
         /// <summary>
