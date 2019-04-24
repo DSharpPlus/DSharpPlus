@@ -15,6 +15,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? Parent { get; set; }
 
+        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
+        public string Topic { get; set; }
+
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
         public int? Bitrate { get; set; }
 
