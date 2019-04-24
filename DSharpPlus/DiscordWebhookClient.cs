@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -207,15 +208,46 @@ namespace DSharpPlus
         /// <param name="tts">Whether the messages should be read aloud using TTS engine.</param>
         /// <param name="username_override">Username to use for this broadcast.</param>
         /// <param name="avatar_override">Avatar URL to use for this broadcast.</param>
+        /// <param name="file_name">Name of the file to broadcast.</param>
+        /// <param name="file_data">Content of the file to broadcast.</param>
         /// <returns></returns>
-        public async Task BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null)
+        public async Task BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null, string file_name = null, Stream file_data = null)
         {
             var deadhooks = new List<DiscordWebhook>();
             foreach(var hook in _hooks)
             {
                 try
                 {
-                    await hook.ExecuteAsync(content, username_override ?? this.Username, avatar_override ?? this.AvatarUrl, tts, embeds).ConfigureAwait(false);
+                    await hook.ExecuteAsync(content, username_override ?? this.Username, avatar_override ?? this.AvatarUrl, tts, embeds, file_name, file_data).ConfigureAwait(false);
+                }
+                catch (NotFoundException)
+                {
+                    deadhooks.Add(hook);
+                }
+            }
+            // Removing dead webhooks from collection
+            foreach (var xwh in deadhooks)
+                _hooks.Remove(xwh);
+        }
+
+        /// <summary>
+        /// Broadcasts a message to all registered webhooks.
+        /// </summary>
+        /// <param name="content">Contents of the message to broadcast.</param>
+        /// <param name="embeds">Embeds to send with the messages.</param>
+        /// <param name="tts">Whether the messages should be read aloud using TTS engine.</param>
+        /// <param name="username_override">Username to use for this broadcast.</param>
+        /// <param name="avatar_override">Avatar URL to use for this broadcast.</param>
+        /// <param name="files">Files to broadcast.</param>
+        /// <returns></returns>
+        public async Task BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null, Dictionary<string, Stream> files = null)
+        {
+            var deadhooks = new List<DiscordWebhook>();
+            foreach (var hook in _hooks)
+            {
+                try
+                {
+                    await hook.ExecuteAsync(content, username_override ?? this.Username, avatar_override ?? this.AvatarUrl, tts, embeds, files).ConfigureAwait(false);
                 }
                 catch (NotFoundException)
                 {
