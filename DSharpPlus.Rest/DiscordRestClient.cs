@@ -290,7 +290,7 @@ namespace DSharpPlus
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, string topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
         {
             if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));

@@ -398,7 +398,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, string topic = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
+        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, Optional<string> topic = default, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
             => this.CreateChannelAsync(name, ChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, reason);
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel category.</returns>
         public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, null, overwrites, null, Optional.FromNoValue<int?>(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new voice channel in this guild.
@@ -422,7 +422,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Voice, parent, null, bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new channel in this guild.
@@ -438,7 +438,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, string topic = null, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
         {
             if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
