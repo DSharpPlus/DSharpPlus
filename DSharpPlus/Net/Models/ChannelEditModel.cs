@@ -17,7 +17,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// Sets the channel's new topic.
         /// </summary>
-        public string Topic { internal get; set; }
+        public Optional<string> Topic { internal get; set; }
 
         /// <summary>
         /// Sets whether the channel is to be marked as NSFW.

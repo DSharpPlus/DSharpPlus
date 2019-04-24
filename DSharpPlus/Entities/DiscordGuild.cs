@@ -392,13 +392,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name">Name of the new channel.</param>
         /// <param name="parent">Category to put this channel in.</param>
+        /// <param name="topic">Topic of the channel.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
         /// <param name="nsfw">Whether the channel is to be flagged as not safe for work.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Text, parent, null, null, overwrites, nsfw, perUserRateLimit, reason);
+        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, Optional<string> topic = default, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
+            => this.CreateChannelAsync(name, ChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, reason);
 
         /// <summary>
         /// Creates a new channel category in this guild.
@@ -408,7 +409,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel category.</returns>
         public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, Optional.FromNoValue<int?>(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new voice channel in this guild.
@@ -421,7 +422,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new channel in this guild.
@@ -429,6 +430,7 @@ namespace DSharpPlus.Entities
         /// <param name="name">Name of the new channel.</param>
         /// <param name="type">Type of the new channel.</param>
         /// <param name="parent">Category to put this channel in.</param>
+        /// <param name="topic">Topic of the channel.</param>
         /// <param name="bitrate">Bitrate of the channel. Applies to voice only.</param>
         /// <param name="userLimit">Maximum number of users in the channel. Applies to voice only.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
@@ -436,7 +438,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
         {
             if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
@@ -444,7 +446,7 @@ namespace DSharpPlus.Entities
             if (type == ChannelType.Category && parent != null)
                 throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent));
 
-            return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
+            return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
         }
 
         // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.

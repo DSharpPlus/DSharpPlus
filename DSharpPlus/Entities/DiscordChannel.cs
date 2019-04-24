@@ -294,7 +294,7 @@ namespace DSharpPlus.Entities
                 perUserRateLimit = Optional.FromNoValue<int?>();
             }
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);
         }
 
         /// <summary>

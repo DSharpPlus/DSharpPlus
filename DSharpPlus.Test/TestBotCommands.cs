@@ -140,7 +140,19 @@ namespace DSharpPlus.Test
 	        await chan.CloneAsync().ConfigureAwait(false);
 	    }
 
-		/*[Command("intext")]
+        [Command("createchannelwithtopic1")]
+        public async Task CreateChannelWithTopic1Async(CommandContext ctx, string name, [RemainingText] string topic)
+        {
+            await ctx.Guild.CreateTextChannelAsync(name, topic: topic);
+        }
+
+        [Command("createchannelwithtopic2")]
+        public async Task CreateChannelWithTopic2Async(CommandContext ctx, string name, [RemainingText] string topic)
+        {
+            await ctx.Guild.CreateChannelAsync(name, ChannelType.Text, topic: topic);
+        }
+
+        /*[Command("intext")]
 		public async Task IntExtAsync(CommandContext ctx)
 		{
 			var mes = await ctx.Channel.WaitForMessageAsync(ctx.User, x => x == "ayy");
@@ -171,7 +183,7 @@ namespace DSharpPlus.Test
             await i.SendPaginatedMessage(ctx.Channel, ctx.User, pages, emojis: emojis);
 		}*/
 
-		[Command("embedcolor")]
+        [Command("embedcolor")]
 		public async Task EmbedColorAsync(CommandContext ctx)
 		{
 			var e = new DiscordEmbedBuilder()
