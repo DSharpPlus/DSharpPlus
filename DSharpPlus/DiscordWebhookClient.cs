@@ -211,23 +211,9 @@ namespace DSharpPlus
         /// <param name="file_name">Name of the file to broadcast.</param>
         /// <param name="file_data">Content of the file to broadcast.</param>
         /// <returns></returns>
-        public async Task BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null, string file_name = null, Stream file_data = null)
+        public Task BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null, string file_name = null, Stream file_data = null)
         {
-            var deadhooks = new List<DiscordWebhook>();
-            foreach(var hook in _hooks)
-            {
-                try
-                {
-                    await hook.ExecuteAsync(content, username_override ?? this.Username, avatar_override ?? this.AvatarUrl, tts, embeds, file_name, file_data).ConfigureAwait(false);
-                }
-                catch (NotFoundException)
-                {
-                    deadhooks.Add(hook);
-                }
-            }
-            // Removing dead webhooks from collection
-            foreach (var xwh in deadhooks)
-                _hooks.Remove(xwh);
+            return BroadcastMessageAsync(content, embeds, tts, username_override, avatar_override, new Dictionary<string, Stream> { { file_name, file_data } });
         }
 
         /// <summary>
