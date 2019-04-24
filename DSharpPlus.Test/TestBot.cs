@@ -1,7 +1,9 @@
 #pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -165,8 +167,26 @@ namespace DSharpPlus.Test
             Console.WriteLine(e.Message);
         }
 
-        private Task Discord_Ready(ReadyEventArgs e)
+        private /*async*/ Task Discord_Ready(ReadyEventArgs e)
         {
+            /*var rest = new DiscordRestClient(new DiscordConfiguration
+            {
+                Token = "bot-token",
+                TokenType = TokenType.Bot
+            });
+
+            var id = 000000000000000UL;
+            var token = "actual token";
+            await rest.ExecuteWebhookAsync(id, token, "oui", null, null, null, null, null);
+            await rest.ExecuteWebhookAsync(id, token, null, null, null, null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, null);
+            await rest.ExecuteWebhookAsync(id, token, null, null, null, null, null, new Dictionary<string, Stream> { {"oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
+            await rest.ExecuteWebhookAsync(id, token, null, null, null, null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
+            await rest.ExecuteWebhookAsync(id, token, "oui haha", null, null, null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
+            await rest.ExecuteWebhookAsync(id, token, "oui haha", "supanickname", null, null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
+            await rest.ExecuteWebhookAsync(id, token, "oui haha", null, "https://cdn.discordapp.com/avatars/183319356489465856/dd760555ece738729601c3ae37eb7dcb.webp?size=1024", null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
+            await rest.ExecuteWebhookAsync(id, token, "oui haha", "supanickname", "https://cdn.discordapp.com/avatars/183319356489465856/dd760555ece738729601c3ae37eb7dcb.webp?size=1024", null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
+            await rest.ExecuteWebhookAsync(id, token, "oui haha", "supanickname", "https://cdn.discordapp.com/avatars/183319356489465856/dd760555ece738729601c3ae37eb7dcb.webp?size=1024", null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build(), new DiscordEmbedBuilder { Description = "wsh gro" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") }, { "non.png", await new HttpClient().GetStreamAsync("https://img.greemdev.net/JGDnjPeSnK/DiscordCanary_2019-04-24_14-25-17.png") } });*/
+
             return Task.CompletedTask;
         }
 

@@ -1602,7 +1602,7 @@ namespace DSharpPlus.Net
 
         internal async Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
         {
-            if (files.Count == 0 && string.IsNullOrEmpty(content) && embeds == null)
+            if (files?.Count == 0 && string.IsNullOrEmpty(content) && embeds == null)
                 throw new ArgumentException("You must specify content, an embed, or at least one file.");
 
             if (embeds != null)
