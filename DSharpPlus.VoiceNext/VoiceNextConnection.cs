@@ -1,4 +1,14 @@
-﻿using System;
+﻿using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Net;
+using DSharpPlus.Net.Udp;
+using DSharpPlus.Net.WebSocket;
+using DSharpPlus.VoiceNext.Codec;
+using DSharpPlus.VoiceNext.Entities;
+using DSharpPlus.VoiceNext.EventArgs;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
@@ -10,16 +20,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-using DSharpPlus.Net;
-using DSharpPlus.Net.Udp;
-using DSharpPlus.Net.WebSocket;
-using DSharpPlus.VoiceNext.Codec;
-using DSharpPlus.VoiceNext.Entities;
-using DSharpPlus.VoiceNext.EventArgs;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.VoiceNext
 {
@@ -127,7 +127,7 @@ namespace DSharpPlus.VoiceNext
         private bool IsDisposed { get; set; }
 
         private TaskCompletionSource<bool> PlayingWait { get; set; }
-        
+
         private ConcurrentQueue<VoicePacket> PacketQueue { get; }
         private VoiceTransmitStream TransmitStream { get; set; }
         private ConcurrentDictionary<ulong, long> KeepaliveTimestamps { get; }
@@ -137,7 +137,7 @@ namespace DSharpPlus.VoiceNext
         private CancellationTokenSource SenderTokenSource { get; set; }
         private CancellationToken SenderToken
             => this.SenderTokenSource.Token;
-        
+
         private Task ReceiverTask { get; set; }
         private CancellationTokenSource ReceiverTokenSource { get; set; }
         private CancellationToken ReceiverToken
@@ -156,13 +156,13 @@ namespace DSharpPlus.VoiceNext
         /// <summary>
         /// Gets whether this connection is still playing audio.
         /// </summary>
-        public bool IsPlaying 
+        public bool IsPlaying
             => this.PlayingWait != null && !this.PlayingWait.Task.IsCompleted;
 
         /// <summary>
         /// Gets the websocket round-trip time in ms.
         /// </summary>
-        public int WebSocketPing 
+        public int WebSocketPing
             => Volatile.Read(ref this._wsPing);
         private int _wsPing = 0;
 
@@ -292,7 +292,7 @@ namespace DSharpPlus.VoiceNext
             return Task.Delay(0);
         }
 
-        internal Task WaitForReadyAsync() 
+        internal Task WaitForReadyAsync()
             => this.ReadyWait.Task;
 
         internal void PreparePacket(ReadOnlySpan<byte> pcm, ref Memory<byte> target)
@@ -305,7 +305,7 @@ namespace DSharpPlus.VoiceNext
             this.Rtp.EncodeHeader(this.Sequence, this.Timestamp, this.SSRC, packet);
             var opus = packet.Slice(Rtp.HeaderSize, pcm.Length);
             this.Opus.Encode(pcm, ref opus);
-            
+
             this.Sequence++;
             this.Timestamp += (uint)audioFormat.CalculateFrameSize(audioFormat.CalculateSampleDuration(pcm.Length));
 
@@ -391,7 +391,7 @@ namespace DSharpPlus.VoiceNext
 
                 if (!hasPacket)
                     continue;
-                    
+
                 this.SendSpeaking(true);
                 await this.UdpClient.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
 
@@ -442,7 +442,7 @@ namespace DSharpPlus.VoiceNext
             opus = opus.Slice(0, opusSize);
             var opusSpan = opus.Span;
             try
-            { 
+            {
                 this.Sodium.Decrypt(encryptedOpus, opusSpan, nonce);
 
                 // Strip extensions, if any
@@ -639,7 +639,7 @@ namespace DSharpPlus.VoiceNext
         /// <summary>
         /// Disconnects and disposes this voice connection.
         /// </summary>
-        public void Disconnect() 
+        public void Disconnect()
             => this.Dispose();
 
         /// <summary>
@@ -751,7 +751,7 @@ namespace DSharpPlus.VoiceNext
                 Port = port
             };
             this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Endpoint discovery resulted in {ip}:{port}", DateTime.Now);
-            
+
             void PreparePacket(byte[] packet)
             {
                 var ssrc = this.SSRC;
@@ -759,7 +759,7 @@ namespace DSharpPlus.VoiceNext
                 MemoryMarshal.Write(packetSpan, ref ssrc);
                 Helpers.ZeroFill(packetSpan);
             }
-            
+
             void ReadPacket(byte[] packet, out System.Net.IPAddress decodedIp, out ushort decodedPort)
             {
                 var packetSpan = packet.AsSpan();
@@ -892,7 +892,7 @@ namespace DSharpPlus.VoiceNext
 
                     await this._userSpeaking.InvokeAsync(spk).ConfigureAwait(false);
                     break;
-                    
+
                 case 6: // HEARTBEAT ACK
                     var dt = DateTime.Now;
                     var ping = (int)(dt - this.LastHeartbeat).TotalMilliseconds;
@@ -948,7 +948,8 @@ namespace DSharpPlus.VoiceNext
                     {
                         User = usrl
 #if !NETSTANDARD1_1
-                        ,SSRC = txssrc.Key
+                        ,
+                        SSRC = txssrc.Key
 #endif
                     }).ConfigureAwait(false);
                     break;
@@ -983,13 +984,13 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private Task VoiceWS_SocketMessage(SocketMessageEventArgs e) 
+        private Task VoiceWS_SocketMessage(SocketMessageEventArgs e)
             => this.HandleDispatch(JObject.Parse(e.Message));
 
-        private Task VoiceWS_SocketOpened() 
+        private Task VoiceWS_SocketOpened()
             => this.StartAsync();
 
-        private Task VoiceWs_SocketErrored(SocketErrorEventArgs e) 
+        private Task VoiceWs_SocketErrored(SocketErrorEventArgs e)
             => this._voiceSocketError.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
 
         private static uint UnixTimestamp(DateTime dt)

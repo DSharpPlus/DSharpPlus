@@ -68,9 +68,7 @@ namespace DSharpPlus.VoiceNext.Codec
             outputFormat = this.AudioFormat.ChannelCount != channels ? new AudioFormat(this.AudioFormat.SampleRate, channels, this.AudioFormat.VoiceApplication) : this.AudioFormat;
 
             if (decoder.AudioFormat.ChannelCount != channels)
-            {
                 decoder.Initialize(outputFormat);
-            }
 
             var sampleCount = Interop.OpusDecode(decoder.Decoder, opus, frameSize, target, useFec);
 
@@ -155,10 +153,8 @@ namespace DSharpPlus.VoiceNext.Codec
         /// <param name="outputFormat"></param>
         internal void Initialize(AudioFormat outputFormat)
         {
-            if(Decoder != IntPtr.Zero)
-            {
+            if (Decoder != IntPtr.Zero)
                 Interop.OpusDestroyDecoder(Decoder);
-            }
 
             AudioFormat = outputFormat;
 
