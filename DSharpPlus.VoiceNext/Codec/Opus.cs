@@ -65,9 +65,13 @@ namespace DSharpPlus.VoiceNext.Codec
             //    throw new ArgumentException("PCM target buffer size needs to be equal to maximum buffer size for specified audio format.", nameof(target));
 
             Interop.OpusGetPacketMetrics(opus, this.AudioFormat.SampleRate, out var channels, out var frames, out var samplesPerFrame, out var frameSize);
+            outputFormat = this.AudioFormat.ChannelCount != channels ? new AudioFormat(this.AudioFormat.SampleRate, channels, this.AudioFormat.VoiceApplication) : this.AudioFormat;
+
+            if (decoder.AudioFormat.ChannelCount != channels)
+                decoder.Initialize(outputFormat);
+
             var sampleCount = Interop.OpusDecode(decoder.Decoder, opus, frameSize, target, useFec);
 
-            outputFormat = this.AudioFormat.ChannelCount != channels ? new AudioFormat(this.AudioFormat.SampleRate, channels, this.AudioFormat.VoiceApplication) : this.AudioFormat;
             var sampleSize = outputFormat.SampleCountToSampleSize(sampleCount);
             target = target.Slice(0, sampleSize);
         }
@@ -87,8 +91,7 @@ namespace DSharpPlus.VoiceNext.Codec
         {
             lock (this.ManagedDecoders)
             {
-                var decoder = Interop.OpusCreateDecoder(this.AudioFormat);
-                var managedDecoder = new OpusDecoder(decoder, this);
+                var managedDecoder = new OpusDecoder(this);
                 this.ManagedDecoders.Add(managedDecoder);
                 return managedDecoder;
             }
@@ -130,17 +133,32 @@ namespace DSharpPlus.VoiceNext.Codec
         /// <summary>
         /// Gets the audio format produced by this decoder.
         /// </summary>
-        public AudioFormat AudioFormat 
-            => this.Opus.AudioFormat;
+        public AudioFormat AudioFormat { get; private set; }
 
-        internal IntPtr Decoder { get; }
         internal Opus Opus { get; }
+        internal IntPtr Decoder { get; private set; }
+
         private volatile bool _isDisposed = false;
 
-        internal OpusDecoder(IntPtr decoder, Opus managedOpus)
+        internal OpusDecoder(Opus managedOpus)
         {
-            this.Decoder = decoder;
             this.Opus = managedOpus;
+        }
+
+        /// <summary>
+        /// Used to lazily initialize the decoder to make sure we're
+        /// using the correct output format, this way we don't end up
+        /// creating more decoders than we need.
+        /// </summary>
+        /// <param name="outputFormat"></param>
+        internal void Initialize(AudioFormat outputFormat)
+        {
+            if (Decoder != IntPtr.Zero)
+                Interop.OpusDestroyDecoder(Decoder);
+
+            AudioFormat = outputFormat;
+
+            Decoder = Interop.OpusCreateDecoder(outputFormat);
         }
 
         /// <summary>
