@@ -1,14 +1,4 @@
-﻿using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-using DSharpPlus.Net;
-using DSharpPlus.Net.Udp;
-using DSharpPlus.Net.WebSocket;
-using DSharpPlus.VoiceNext.Codec;
-using DSharpPlus.VoiceNext.Entities;
-using DSharpPlus.VoiceNext.EventArgs;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
@@ -20,6 +10,16 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Net;
+using DSharpPlus.Net.Udp;
+using DSharpPlus.Net.WebSocket;
+using DSharpPlus.VoiceNext.Codec;
+using DSharpPlus.VoiceNext.Entities;
+using DSharpPlus.VoiceNext.EventArgs;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.VoiceNext
 {
