@@ -29,10 +29,10 @@ namespace DSharpPlus.Test
                 this._ssrcFilemap[e.SSRC] = File.Create($"{e.SSRC} ({e.AudioFormat.ChannelCount}).pcm");
             var fs = this._ssrcFilemap[e.SSRC];
 
-            //e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data.", DateTime.Now);
+            // e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data. {e.AudioFormat.ChannelCount}", DateTime.Now);
             var buff = e.PcmData.ToArray();
             await fs.WriteAsync(buff, 0, buff.Length).ConfigureAwait(false);
-            //await fs.FlushAsync().ConfigureAwait(false);
+            // await fs.FlushAsync().ConfigureAwait(false);
         }
         private Task OnUserSpeaking(UserSpeakingEventArgs e)
         {

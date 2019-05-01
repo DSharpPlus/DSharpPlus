@@ -530,7 +530,7 @@ namespace DSharpPlus.VoiceNext
                         PcmData = pcmFiller,
                         OpusData = new byte[0].AsMemory(),
                         AudioFormat = audioFormat,
-                        AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmFiller.Length)
+                        AudioDuration = audioFormat.CalculateSampleDuration(pcmFiller.Length)
                     }).ConfigureAwait(false);
 
                 await this._voiceReceived.InvokeAsync(new VoiceReceiveEventArgs(this.Discord)
@@ -540,7 +540,7 @@ namespace DSharpPlus.VoiceNext
                     PcmData = pcmMem,
                     OpusData = opusMem,
                     AudioFormat = audioFormat,
-                    AudioDuration = this.AudioFormat.CalculateSampleDuration(pcmMem.Length)
+                    AudioDuration = audioFormat.CalculateSampleDuration(pcmMem.Length)
                 }).ConfigureAwait(false);
             }
             catch (Exception ex)
