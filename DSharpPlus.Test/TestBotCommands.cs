@@ -223,6 +223,12 @@ namespace DSharpPlus.Test
             await member.ModifyAsync(u => u.VoiceChannel = null);
         }
 
+        [Command("vmove")]
+        public async Task VoiceKickAsync(CommandContext ctx, DiscordMember member, DiscordChannel channel)
+        {
+            await member.ModifyAsync(u => u.VoiceChannel = channel);
+        }
+
         /*
 		[Command("testpoll")]
 		public async Task TestPollAsync(CommandContext ctx, [RemainingText]string question)
