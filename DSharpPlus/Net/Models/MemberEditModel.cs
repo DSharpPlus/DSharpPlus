@@ -26,7 +26,7 @@ namespace DSharpPlus.Net.Models
         /// </summary>
         public Optional<bool> Deafened { internal get; set; }
         /// <summary>
-        /// Voice channel to move this user to
+        /// Voice channel to move this user to, set to null to kick
         /// </summary>
         public Optional<DiscordChannel> VoiceChannel { internal get; set; }
         
