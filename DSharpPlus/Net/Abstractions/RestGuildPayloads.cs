@@ -126,7 +126,7 @@ namespace DSharpPlus.Net.Abstractions
         public Optional<bool> Deafen { get; set; }
 
         [JsonProperty("channel_id")]
-        public Optional<ulong> VoiceChannelId { get; set; }
+        public Optional<ulong?> VoiceChannelId { get; set; }
     }
 
     internal sealed class RestGuildRolePayload

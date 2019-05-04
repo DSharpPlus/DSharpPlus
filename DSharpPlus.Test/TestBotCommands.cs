@@ -215,7 +215,13 @@ namespace DSharpPlus.Test
 				await ctx.RespondAsync("voice state is not null, channel is null");
 			else
 				await ctx.RespondAsync($"connected to channel {ctx.Member.VoiceState.Channel.Name}");
-		}
+        }
+
+        [Command("vkick")]
+        public async Task VoiceKickAsync(CommandContext ctx, DiscordMember member)
+        {
+            await member.ModifyAsync(u => u.VoiceChannel = null);
+        }
 
         /*
 		[Command("testpoll")]
@@ -242,7 +248,7 @@ namespace DSharpPlus.Test
 			ctx.Client.DebugLogger.LogMessage(LogLevel.Debug, "interactivity-test", "sent results", DateTime.Now);
 		}*/
 
-		[Command("testmodify"), RequireOwner]
+        [Command("testmodify"), RequireOwner]
 		public async Task TestModifyAsync(CommandContext ctx, DiscordMember m)
 		{
 			await ctx.Channel.ModifyAsync(x =>
