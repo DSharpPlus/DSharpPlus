@@ -71,7 +71,7 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Gets whether this channel is still connected.
         /// </summary>
-        public bool IsConnected => !Volatile.Read(ref this._isDisposed);
+        public bool IsConnected => !Volatile.Read(ref this._isDisposed) && this.Channel != null;
         private bool _isDisposed = false;
 
         /// <summary>
