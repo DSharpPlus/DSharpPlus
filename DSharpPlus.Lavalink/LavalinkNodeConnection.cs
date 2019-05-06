@@ -183,8 +183,7 @@ namespace DSharpPlus.Lavalink
             foreach (var kvp in this.ConnectedGuilds)
                 kvp.Value.Disconnect();
 
-            if (this.NodeDisconnected != null)
-                this.NodeDisconnected(this);
+            this.NodeDisconnected?.Invoke(this);
 
             Volatile.Write(ref this._isDisposed, true);
             await this.WebSocket.DisconnectAsync(null).ConfigureAwait(false);
@@ -242,7 +241,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="guild">Guild to get connection for.</param>
         /// <returns>Channel connection, which allows for playback control.</returns>
         public LavalinkGuildConnection GetConnection(DiscordGuild guild)
-            => this.ConnectedGuilds.ContainsKey(guild.Id) ? this.ConnectedGuilds[guild.Id] : null;
+            => this.ConnectedGuilds.TryGetValue(guild.Id, out LavalinkGuildConnection lgc) && lgc.IsConnected ? lgc : null;
         
         /// <summary>
         /// Searches YouTube for specified terms.
