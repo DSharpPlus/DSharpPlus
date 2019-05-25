@@ -33,6 +33,7 @@ namespace DSharpPlus
 
         internal CancellationTokenSource _cancelTokenSource;
         internal CancellationToken _cancelToken;
+        private CancellationTokenSource _readyTimeoutSource = new CancellationTokenSource();
 
         internal List<BaseExtension> _extensions = new List<BaseExtension>();
 
@@ -843,6 +844,15 @@ namespace DSharpPlus
         #region Events
         internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels)
         {
+            var readyTimeoutSource = Interlocked.Exchange(ref this._readyTimeoutSource, new CancellationTokenSource());
+            try
+            {
+                readyTimeoutSource.Cancel();
+            }
+            finally // Cancel can throw when already disposed so let's be safe
+            {
+                readyTimeoutSource.Dispose();
+            }
             //ready.CurrentUser.Discord = this;
 
             var rusr = ready.CurrentUser;
@@ -2150,15 +2160,41 @@ namespace DSharpPlus
                 return;
             }
 
-            Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
             this._heartbeatInterval = hello.HeartbeatInterval;
             this._heartbeatTask = new Task(StartHeartbeating, _cancelToken, TaskCreationOptions.LongRunning);
             this._heartbeatTask.Start();
 
+            _ = ReadyTimeoutBackgroundTask();
+
             if (this._sessionId == "")
-                await SendIdentifyAsync(_status).ConfigureAwait(false);
+                await this.SendIdentifyAsync(_status).ConfigureAwait(false);
             else
-                await SendResumeAsync().ConfigureAwait(false);
+                await this.SendResumeAsync().ConfigureAwait(false);
+        }
+
+        private async void ReadyTimeoutBackgroundTask()
+        {
+            try
+            {
+                using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(this._cancelToken, this._readyTimeoutSource.Token))
+                {
+                    await Task.Delay(15_000, linkedSource.Token);
+                    this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", "Remote did not issue Ready within 15 seconds of resume or identify. Issuing reconnect.", DateTime.Now);
+                    await this.ReconnectAsync().ConfigureAwait(false);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // empty
+            }
+            catch (OperationCanceledException)
+            {
+                // empty
+            }
+            catch (Exception ex)
+            {
+                this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"Ready timeout handler failed with {ex.GetType()}: {ex.Message}", DateTime.Now, ex);
+            }
         }
 
         internal async Task OnHeartbeatAckAsync()
