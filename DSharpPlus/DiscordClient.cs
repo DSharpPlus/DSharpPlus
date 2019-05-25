@@ -844,15 +844,7 @@ namespace DSharpPlus
         #region Events
         internal async Task OnReadyEventAsync(ReadyPayload ready, JArray rawGuilds, JArray rawDmChannels)
         {
-            var readyTimeoutSource = Interlocked.Exchange(ref this._readyTimeoutSource, new CancellationTokenSource());
-            try
-            {
-                readyTimeoutSource.Cancel();
-            }
-            finally // Cancel can throw when already disposed so let's be safe
-            {
-                readyTimeoutSource.Dispose();
-            }
+            this.InvalidateReadyTimeout();
             //ready.CurrentUser.Discord = this;
 
             var rusr = ready.CurrentUser;
@@ -974,8 +966,22 @@ namespace DSharpPlus
             await this._ready.InvokeAsync(new ReadyEventArgs(this)).ConfigureAwait(false);
         }
 
+        private void InvalidateReadyTimeout()
+        {
+            var readyTimeoutSource = Interlocked.Exchange(ref this._readyTimeoutSource, new CancellationTokenSource());
+            try
+            {
+                readyTimeoutSource.Cancel();
+            }
+            finally // Cancel can throw when already disposed so let's be safe
+            {
+                readyTimeoutSource.Dispose();
+            }
+        }
+
         internal Task OnResumedAsync()
         {
+            this.InvalidateReadyTimeout();
             this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", "Session resumed.", DateTime.Now);
             return this._resumed.InvokeAsync(new ReadyEventArgs(this));
         }
