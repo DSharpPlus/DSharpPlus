@@ -19,6 +19,38 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
+        private ulong testMsgId = 0;
+
+        [Command("test1")]
+        public async Task Test1Async(CommandContext ctx)
+        {
+            var msg1 = await ctx.RespondAsync("test message");
+            testMsgId = msg1.Id;
+
+            msg1 = await ctx.Channel.GetMessageAsync(testMsgId);
+            await ctx.RespondAsync($"A: {msg1.Author.Username} at {msg1.Timestamp}: \"{msg1.Content}\"");
+        }
+
+        [Command("test2")]
+        public async Task Test2Async(CommandContext ctx)
+        {
+            if (testMsgId == 0) { return; }
+
+            var msg1 = await ctx.Channel.GetMessageAsync(testMsgId);
+            await ctx.RespondAsync($"A: {msg1.Author.Username} at {msg1.Timestamp}: \"{msg1.Content}\"");
+
+            if (msg1.Content != null)
+            {
+                var mod = await msg1.ModifyAsync(
+                    msg1.Content,
+                    new DiscordEmbedBuilder { Description = "test", Timestamp = DateTimeOffset.Now }.Build()
+                );
+            }
+
+            msg1 = await ctx.Channel.GetMessageAsync(testMsgId);
+            await ctx.RespondAsync($"B: {msg1.Author.Username} at {msg1.Timestamp}: \"{msg1.Content}\"");
+        }
+
         [Command("custominteractivity")]
         public async Task CustomInteractivityAsync(CommandContext ctx)
         {

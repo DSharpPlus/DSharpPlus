@@ -1734,7 +1734,6 @@ namespace DSharpPlus
                 message._embeds.AddRange(event_message._embeds);
                 message.Pinned = event_message.Pinned;
                 message.IsTTS = event_message.IsTTS;
-                message.Content = event_message.Content;
             }
 
             var mentioned_users = new List<DiscordUser>();
