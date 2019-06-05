@@ -21,6 +21,18 @@ namespace DSharpPlus.Test
 
         private ulong testMsgId = 0;
 
+        [Command("boost")]
+        public async Task BoostAsync(CommandContext ctx)
+        {
+            await ctx.RespondAsync($"Tier: {ctx.Guild.PremiumTier.ToString()}, Boosters: {ctx.Guild.PremiumSubscriptionCount}");
+        }
+
+        [Command("boost")]
+        public async Task BoostAsync(CommandContext ctx, DiscordMember mbr)
+        {
+            await ctx.RespondAsync($"Boosting since: {mbr.PremiumSince?.ToString() ?? "Not boosting"}");
+        }
+
         [Command("test1")]
         public async Task Test1Async(CommandContext ctx)
         {

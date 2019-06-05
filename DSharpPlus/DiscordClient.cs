@@ -1137,6 +1137,8 @@ namespace DSharpPlus
             guild.IsLarge = eventGuild.IsLarge;
             guild.MemberCount = Math.Max(eventGuild.MemberCount, guild._members.Count);
             guild.IsUnavailable = eventGuild.IsUnavailable;
+            guild.PremiumSubscriptionCount = eventGuild.PremiumSubscriptionCount;
+            guild.PremiumTier = eventGuild.PremiumTier;
             foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
 
             foreach (var xc in guild._channels.Values)
@@ -2383,6 +2385,7 @@ namespace DSharpPlus
                         old.Username = xu.Username;
                         old.Discriminator = xu.Discriminator;
                         old.AvatarHash = xu.AvatarHash;
+                        old.PremiumType = xu.PremiumType;
                         return old;
                     });
 
@@ -2412,6 +2415,8 @@ namespace DSharpPlus
             guild.SplashHash = newGuild.SplashHash;
             guild.VerificationLevel = newGuild.VerificationLevel;
             guild.ExplicitContentFilter = newGuild.ExplicitContentFilter;
+            guild.PremiumTier = newGuild.PremiumTier;
+            guild.PremiumSubscriptionCount = newGuild.PremiumSubscriptionCount;
 
             // fields not sent for update:
             // - guild.Channels

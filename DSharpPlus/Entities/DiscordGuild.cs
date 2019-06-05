@@ -264,6 +264,37 @@ namespace DSharpPlus.Entities
         public bool IsOwner
             => this.OwnerId == this.Discord.CurrentUser.Id;
 
+        /// <summary>
+        /// Gets vanity URL code for this guild, when applicable.
+        /// </summary>
+        [JsonProperty("vanity_url_code")]
+        public string VanityUrlCode { get; internal set; }
+
+        /// <summary>
+        /// Gets guild description, when applicable.
+        /// </summary>
+        [JsonProperty("description")]
+        public string Description { get; internal set; }
+
+        /// <summary>
+        /// Gets guild banner hash, when applicable.
+        /// </summary>
+        [JsonProperty("banner")]
+        public string Banner { get; internal set; }
+
+        /// <summary>
+        /// Gets this guild's premium tier (Nitro boosting).
+        /// </summary>
+        [JsonProperty("premium_tier")]
+        public PremiumTier PremiumTier { get; internal set; }
+
+        /// <summary>
+        /// Gets the amount of members that boosted this guild.
+        /// </summary>
+        [JsonProperty("premium_subscription_count")]
+        public int PremiumSubscriptionCount { get; internal set; }
+        // Seriously discord?
+
         // I need to work on this
         // 
         // /// <summary>

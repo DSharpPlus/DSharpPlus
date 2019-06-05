@@ -23,5 +23,8 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMuted { get; internal set; }
+
+        [JsonProperty("premium_since", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? PremiumSince { get; internal set; }
     }
 }
