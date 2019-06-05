@@ -1139,6 +1139,10 @@ namespace DSharpPlus
             guild.IsUnavailable = eventGuild.IsUnavailable;
             guild.PremiumSubscriptionCount = eventGuild.PremiumSubscriptionCount;
             guild.PremiumTier = eventGuild.PremiumTier;
+            guild.Banner = eventGuild.Banner;
+            guild.VanityUrlCode = eventGuild.VanityUrlCode;
+            guild.Description = eventGuild.Description;
+
             foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
 
             foreach (var xc in guild._channels.Values)
@@ -2417,6 +2421,9 @@ namespace DSharpPlus
             guild.ExplicitContentFilter = newGuild.ExplicitContentFilter;
             guild.PremiumTier = newGuild.PremiumTier;
             guild.PremiumSubscriptionCount = newGuild.PremiumSubscriptionCount;
+            guild.Banner = newGuild.Banner;
+            guild.Description = newGuild.Description;
+            guild.VanityUrlCode = newGuild.VanityUrlCode;
 
             // fields not sent for update:
             // - guild.Channels
