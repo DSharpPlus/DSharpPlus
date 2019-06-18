@@ -7,7 +7,7 @@
     <AssemblyName>DSharpPlus.VoiceNext</AssemblyName>
     <RootNamespace>DSharpPlus.VoiceNext</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -15,7 +15,6 @@
     <PackageId>DSharpPlus.VoiceNext</PackageId>
     <Description>Voice implementation for DSharpPlus.</Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp audio voice radio music</PackageTags>
-    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   
   <ItemGroup>

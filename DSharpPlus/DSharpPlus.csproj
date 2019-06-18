@@ -7,13 +7,12 @@
     <AssemblyName>DSharpPlus</AssemblyName>
     <RootNamespace>DSharpPlus</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
     <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp webhooks</PackageTags>
-    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">

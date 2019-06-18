@@ -7,14 +7,13 @@
     <AssemblyName>DSharpPlus.Interactivity</AssemblyName>
     <RootNamespace>DSharpPlus.Interactivity</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>DSharpPlus.Interactivity</PackageId>
     <Description>An addon that adds interactivity capabilities to commands.</Description>
     <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp interactive pagination reactions</PackageTags>
-    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
