@@ -75,9 +75,7 @@ namespace DSharpPlus.Test
             this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 
             // build a dependency collection for commandsnext
-            var depco = new ServiceCollection()
-                .AddSingleton(new TestBotService())
-                .AddScoped<TestBotScopedService>();
+            var depco = new ServiceCollection();
 
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
