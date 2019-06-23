@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -208,13 +209,47 @@ namespace DSharpPlus.CommandsNext.Converters
 
     public class DiscordMessageConverter : IArgumentConverter<DiscordMessage>
     {
+        private static Regex MessagePathRegex { get; }
+
+        static DiscordMessageConverter()
+        {
+#if NETSTANDARD1_1 || NETSTANDARD1_3
+            MessagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript);
+#else
+            MessagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
+        }
+
         public async Task<Optional<DiscordMessage>> ConvertAsync(string value, CommandContext ctx)
         {
-            if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var mid))
+            if (string.IsNullOrWhiteSpace(value))
+                return Optional.FromNoValue<DiscordMessage>();
+
+            var msguri = value.StartsWith("<") && value.EndsWith(">") ? value.Substring(1, value.Length - 2) : value;
+            ulong mid;
+            if (Uri.TryCreate(msguri, UriKind.Absolute, out var uri))
+            {
+                if (uri.Host != "discordapp.com" && !uri.Host.EndsWith(".discordapp.com"))
+                    return Optional.FromNoValue<DiscordMessage>();
+
+                var uripath = MessagePathRegex.Match(uri.AbsolutePath);
+                if (!uripath.Success 
+                    || !ulong.TryParse(uripath.Groups["channel"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid)
+                    || !ulong.TryParse(uripath.Groups["message"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
+                    return Optional.FromNoValue<DiscordMessage>();
+
+                var chn = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
+                if (chn == null)
+                    return Optional.FromNoValue<DiscordMessage>();
+
+                var msg = await chn.GetMessageAsync(mid);
+                return msg != null ? Optional.FromValue(msg) : Optional.FromNoValue<DiscordMessage>();
+            }
+
+            if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
             {
                 var result = await ctx.Channel.GetMessageAsync(mid).ConfigureAwait(false);
-                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMessage>();
-                return ret;
+                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMessage>();
             }
 
             return Optional.FromNoValue<DiscordMessage>();
