@@ -2178,7 +2178,7 @@ namespace DSharpPlus
                 await this.SendResumeAsync().ConfigureAwait(false);
         }
 
-        private async Task ReadyTimeoutBackgroundTask()
+        private async void ReadyTimeoutBackgroundTask()
         {
             try
             {
