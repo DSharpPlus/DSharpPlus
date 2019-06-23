@@ -2109,17 +2109,14 @@ namespace DSharpPlus
 
         internal async Task OnInvalidateSessionAsync(bool data)
         {
+            // begin a session if one is not open already
             if (this.SessionLock.Wait(0))
-            {
                 this.SessionLock.Reset();
-                var socketLock = this.GetSocketLock();
-                await socketLock.LockAsync().ConfigureAwait(false);
-                socketLock.UnlockAfter(TimeSpan.FromSeconds(5));
-            }
-            else
-            {
-                return;
-            }
+
+            // we are sending a fresh resume/identify, so lock the socket
+            var socketLock = this.GetSocketLock();
+            await socketLock.LockAsync().ConfigureAwait(false);
+            socketLock.UnlockAfter(TimeSpan.FromSeconds(5));
 
             if (data)
             {
