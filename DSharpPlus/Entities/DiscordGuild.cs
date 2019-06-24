@@ -291,7 +291,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the amount of members that boosted this guild.
         /// </summary>
-        [JsonProperty("premium_subscription_count")]
+        [JsonProperty("premium_subscription_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? PremiumSubscriptionCount { get; internal set; }
         // Seriously discord?
 
