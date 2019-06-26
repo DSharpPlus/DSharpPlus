@@ -1078,7 +1078,7 @@ namespace DSharpPlus
         /// <param name="file_name">Name of the file to attach to this webhook</param>
         /// <param name="file_data">Stream data of the file to attach to this webhook</param>
         /// <returns></returns>
-        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data)
+        public Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data)
             => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, file_name, file_data);
 
         /// <summary>
@@ -1093,7 +1093,7 @@ namespace DSharpPlus
         /// <param name="embeds">Embeds to attach to this webhook</param>
         /// <param name="files">Files to attach to this webhook</param>
         /// <returns></returns>
-        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
+        public Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
             => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, files);
         #endregion
 

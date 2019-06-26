@@ -1593,14 +1593,18 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers);
         }
 
-        internal Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data)
+        internal Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data)
         {
-            var file = new Dictionary<string, Stream> { { file_name, file_data } };
+            var file = new Dictionary<string, Stream>();
+            if (!string.IsNullOrWhiteSpace(file_name) && file_data != null)
+            {
+                file.Add(file_name, file_data);
+            }
 
             return this.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, file);
         }
 
-        internal async Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
+        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
         {
             if (files?.Count == 0 && string.IsNullOrEmpty(content) && embeds == null)
                 throw new ArgumentException("You must specify content, an embed, or at least one file.");
@@ -1625,26 +1629,37 @@ namespace DSharpPlus.Net
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
+            path += "?wait=true";
+
             var url = Utilities.GetApiUriFor(path);
-            await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, values: values, files: files).ConfigureAwait(false);
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, values: values, files: files).ConfigureAwait(false);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
-        internal Task ExecuteWebhookSlackAsync(ulong webhook_id, string webhook_token, string json_payload)
+        internal async Task<DiscordMessage> ExecuteWebhookSlackAsync(ulong webhook_id, string webhook_token, string json_payload)
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.SLACK}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
-        internal Task ExecuteWebhookGithubAsync(ulong webhook_id, string webhook_token, string json_payload)
+        internal async Task<DiscordMessage> ExecuteWebhookGithubAsync(ulong webhook_id, string webhook_token, string json_payload)
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.GITHUB}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
         #endregion
 
