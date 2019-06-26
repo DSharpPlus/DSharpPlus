@@ -1643,6 +1643,8 @@ namespace DSharpPlus.Net
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.SLACK}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
+            path += "?wait=true";
+
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
@@ -1654,6 +1656,8 @@ namespace DSharpPlus.Net
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.GITHUB}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
+
+            path += "?wait=true";
 
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
