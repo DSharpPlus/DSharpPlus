@@ -211,7 +211,7 @@ namespace DSharpPlus
         /// <param name="file_name">Name of the file to broadcast.</param>
         /// <param name="file_data">Content of the file to broadcast.</param>
         /// <returns>A dictionary of each message object associated with its webhook.</returns>
-        public Task<Dictionary<DiscordWebhook, DiscordMessage>> BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null, string file_name = null, Stream file_data = null)
+        public Task<IReadOnlyDictionary<DiscordWebhook, DiscordMessage>> BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null, string file_name = null, Stream file_data = null)
         {
             return BroadcastMessageAsync(content, embeds, tts, username_override, avatar_override, new Dictionary<string, Stream> { { file_name, file_data } });
         }
