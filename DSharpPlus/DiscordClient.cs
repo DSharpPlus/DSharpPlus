@@ -813,18 +813,15 @@ namespace DSharpPlus
                     break;
 
                 case "message_reaction_add":
-                    cid = (ulong)dat["channel_id"];
-                    await OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], this.InternalGetCachedChannel(cid), dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
+                    await OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
                     break;
 
                 case "message_reaction_remove":
-                    cid = (ulong)dat["channel_id"];
-                    await OnMessageReactionRemoveAsync((ulong)dat["user_id"], (ulong)dat["message_id"], this.InternalGetCachedChannel(cid), dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
+                    await OnMessageReactionRemoveAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
                     break;
 
                 case "message_reaction_remove_all":
-                    cid = (ulong)dat["channel_id"];
-                    await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], this.InternalGetCachedChannel(cid)).ConfigureAwait(false);
+                    await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"]).ConfigureAwait(false);
                     break;
 
                 case "webhooks_update":
@@ -1962,24 +1959,27 @@ namespace DSharpPlus
             await this._unknownEvent.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageReactionAddAsync(ulong userId, ulong messageId, DiscordChannel channel, DiscordEmoji emoji)
+        internal async Task OnMessageReactionAddAsync(ulong userId, ulong messageId, ulong channelId, DiscordEmoji emoji)
         {
+            var channel = this.InternalGetCachedChannel(channelId);
+
             emoji.Discord = this;
 
             if (!this.UserCache.TryGetValue(userId, out var usr))
                 usr = new DiscordUser { Id = userId, Discord = this };
 
-            if (channel.Guild != null)
+            if (channel?.Guild != null)
                 usr = channel.Guild.Members.TryGetValue(userId, out var member)
                     ? member
                     : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
 
-            if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
+            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
             {
                 msg = new DiscordMessage
                 {
                     Id = messageId,
-                    ChannelId = channel.Id,
+                    ChannelId = channelId,
                     Discord = this,
                     _reactions = new List<DiscordReaction>()
                 };
@@ -2005,31 +2005,34 @@ namespace DSharpPlus
             {
                 Message = msg,
                 Channel = channel,
+                ChannelId = channelId,
                 User = usr,
                 Emoji = emoji
             };
             await this._messageReactionAdded.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageReactionRemoveAsync(ulong userId, ulong messageId, DiscordChannel channel, DiscordEmoji emoji)
+        internal async Task OnMessageReactionRemoveAsync(ulong userId, ulong messageId, ulong channelId, DiscordEmoji emoji)
         {
+            var channel = this.InternalGetCachedChannel(channelId);
+
             emoji.Discord = this;
 
             if (!this.UserCache.TryGetValue(userId, out var usr))
                 usr = new DiscordUser { Id = userId, Discord = this };
 
-            if (channel.Guild != null)
+            if (channel?.Guild != null)
                 usr = channel.Guild.Members.TryGetValue(userId, out var member)
                     ? member
                     : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
 
-            if (this.Configuration.MessageCacheSize == 0 ||
+            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
                 !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
             {
                 msg = new DiscordMessage
                 {
                     Id = messageId,
-                    ChannelId = channel.Id,
+                    ChannelId = channelId,
                     Discord = this
                 };
             }
@@ -2053,22 +2056,24 @@ namespace DSharpPlus
             {
                 Message = msg,
                 Channel = channel,
+                ChannelId = channelId,
                 User = usr,
                 Emoji = emoji
             };
             await this._messageReactionRemoved.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, DiscordChannel channel)
+        internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId)
         {
-            DiscordMessage msg = null;
-            if (this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out msg))
+            var channel = this.InternalGetCachedChannel(channelId);
+
+            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
             {
                 msg = new DiscordMessage
                 {
                     Id = messageId,
-                    ChannelId = channel.Id,
+                    ChannelId = channelId,
                     Discord = this
                 };
             }
@@ -2078,7 +2083,8 @@ namespace DSharpPlus
             var ea = new MessageReactionsClearEventArgs(this)
             {
                 Message = msg,
-                Channel = channel
+                Channel = channel,
+                ChannelId = channelId
             };
             await this._messageReactionsCleared.InvokeAsync(ea).ConfigureAwait(false);
         }
