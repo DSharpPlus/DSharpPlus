@@ -19,13 +19,8 @@ namespace DSharpPlus.EventArgs
         /// This will be <c>null</c> for an uncached channel, which will usually happen for when this event triggers on
         /// DM channels in which no prior messages were received or sent.
         /// </remarks>
-        public DiscordChannel Channel { get; internal set; }
-
-        /// <summary>
-        /// Gets the ID of the channel to which this message belongs. This property can be used even when
-        /// <see cref="Channel"/> is <c>null</c>.
-        /// </summary>
-        public ulong ChannelId { get; internal set; }
+        public DiscordChannel Channel
+            => Message.Channel;
 
         /// <summary>
         /// Gets the users whose reaction was removed.

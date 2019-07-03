@@ -779,11 +779,11 @@ namespace DSharpPlus
 
                 // delete event does *not* include message object 
                 case "message_delete":
-                    await OnMessageDeleteEventAsync((ulong)dat["id"], this.InternalGetCachedChannel((ulong)dat["channel_id"])).ConfigureAwait(false);
+                    await OnMessageDeleteEventAsync((ulong)dat["id"], (ulong)dat["channel_id"]).ConfigureAwait(false);
                     break;
 
                 case "message_delete_bulk":
-                    await OnMessageBulkDeleteEventAsync(dat["ids"].ToObject<IEnumerable<ulong>>(), this.InternalGetCachedChannel((ulong)dat["channel_id"])).ConfigureAwait(false);
+                    await OnMessageBulkDeleteEventAsync(dat["ids"].ToObject<ulong[]>(), (ulong)dat["channel_id"]).ConfigureAwait(false);
                     break;
 
                 case "presence_update":
@@ -1767,19 +1767,22 @@ namespace DSharpPlus
             await this._messageUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageDeleteEventAsync(ulong messageId, DiscordChannel channel)
+        internal async Task OnMessageDeleteEventAsync(ulong messageId, ulong channelId)
         {
-            if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
+            var channel = this.InternalGetCachedChannel(channelId);
+            
+            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {
                     Id = messageId,
-                    ChannelId = channel.Id,
+                    ChannelId = channelId,
                     Discord = this,
                 };
             }
             if (this.Configuration.MessageCacheSize > 0)
-                this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channel.Id);
+                this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
 
             var ea = new MessageDeleteEventArgs(this)
             {
@@ -1789,23 +1792,25 @@ namespace DSharpPlus
             await this._messageDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageBulkDeleteEventAsync(IEnumerable<ulong> messageIds, DiscordChannel channel)
+        internal async Task OnMessageBulkDeleteEventAsync(ulong[] messageIds, ulong channelId)
         {
-            var msgs = new List<DiscordMessage>(messageIds.Count());
-            foreach (var message_id in messageIds)
+            var channel = this.InternalGetCachedChannel(channelId);
+
+            var msgs = new List<DiscordMessage>(messageIds.Length);
+            foreach (var messageId in messageIds)
             {
-                DiscordMessage msg = null;
-                if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == message_id && xm.ChannelId == channel.Id, out msg))
+                if (channel == null || this.Configuration.MessageCacheSize == 0 ||
+                    !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
                 {
                     msg = new DiscordMessage
                     {
-                        Id = message_id,
-                        ChannelId = channel.Id,
+                        Id = messageId,
+                        ChannelId = channelId,
                         Discord = this,
                     };
                 }
                 if (this.Configuration.MessageCacheSize > 0)
-                    this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channel.Id);
+                    this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
                 msgs.Add(msg);
             }
 
@@ -2004,8 +2009,6 @@ namespace DSharpPlus
             var ea = new MessageReactionAddEventArgs(this)
             {
                 Message = msg,
-                Channel = channel,
-                ChannelId = channelId,
                 User = usr,
                 Emoji = emoji
             };
@@ -2055,8 +2058,6 @@ namespace DSharpPlus
             var ea = new MessageReactionRemoveEventArgs(this)
             {
                 Message = msg,
-                Channel = channel,
-                ChannelId = channelId,
                 User = usr,
                 Emoji = emoji
             };
@@ -2080,12 +2081,7 @@ namespace DSharpPlus
 
             msg._reactions?.Clear();
 
-            var ea = new MessageReactionsClearEventArgs(this)
-            {
-                Message = msg,
-                Channel = channel,
-                ChannelId = channelId
-            };
+            var ea = new MessageReactionsClearEventArgs(this) { Message = msg };
             await this._messageReactionsCleared.InvokeAsync(ea).ConfigureAwait(false);
         }
 
