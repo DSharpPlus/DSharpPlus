@@ -1979,7 +1979,7 @@ namespace DSharpPlus
                     : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
 
             if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -2030,7 +2030,7 @@ namespace DSharpPlus
                     : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
 
             if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -2069,7 +2069,7 @@ namespace DSharpPlus
             var channel = this.InternalGetCachedChannel(channelId);
 
             if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channel.Id, out var msg))
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {
