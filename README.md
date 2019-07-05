@@ -36,6 +36,16 @@ The following resources apply only for the latest stable version of the library.
 * [Example by Emzi0767](https://github.com/DSharpPlus/Example-Bots)
 * [Example by Naamloos](https://github.com/DSharpPlus/DSharpPlus-Example)
 
+# I want to throw my money at you!
+If you want to give us some money as a thank you gesture, you can do so using one of these links:
+
+* Naamloos
+   * [Ko-Fi](https://ko-fi.com/naamloos)
+* Emzi0767
+   * [Ko-Fi](https://ko-fi.com/emzi0767)
+   * [PayPal](https://paypal.me/Emzi0767/5USD)
+   * [Patreon](https://patreon.com/emzi0767)
+
 # Questions?
 Come talk to us here:
 
