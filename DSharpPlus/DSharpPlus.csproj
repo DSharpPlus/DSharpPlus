@@ -12,7 +12,7 @@
 
   <PropertyGroup>
     <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
-    <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp webhooks</PackageTags>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">

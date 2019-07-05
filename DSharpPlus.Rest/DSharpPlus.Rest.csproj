@@ -13,7 +13,7 @@
   <PropertyGroup>
     <PackageId>DSharpPlus.Rest</PackageId>
     <Description>A Rest-only client for DSharpPlus.</Description>
-    <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp rest-api oauth2</PackageTags>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, rest-api, oauth2</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

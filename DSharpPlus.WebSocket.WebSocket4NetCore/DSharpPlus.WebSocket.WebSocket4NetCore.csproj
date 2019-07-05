@@ -17,7 +17,7 @@
 
       A WebSocket4Net WebSocket client for DSharpPlus, for Windows 7.
     </Description>
-    <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp websocket websocket4net windows windows-7</PackageTags>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, websocket, websocket4net, windows, windows-7</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

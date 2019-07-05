@@ -12,7 +12,7 @@
 	
 	<PropertyGroup>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-		<Authors>Naamloos afroraydude DrCreo Death TiaqoY0 Axiom Emzi0767 contributors</Authors>
+		<Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, DSharpPlus contributors</Authors>
 		<Company>DSharpPlus developers</Company>
 		<PackageLicenseUrl>https://github.com/DSharpPlus/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
