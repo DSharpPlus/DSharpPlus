@@ -25,7 +25,7 @@ namespace DSharpPlus
     /// <summary>
     /// A Discord api wrapper
     /// </summary>
-    public class DiscordClient : BaseDiscordClient
+    public sealed class DiscordClient : BaseDiscordClient
     {
         #region Internal Variables
         internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
