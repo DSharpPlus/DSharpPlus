@@ -5,13 +5,13 @@ An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https:/
 
 [![Build Status](https://img.shields.io/appveyor/ci/Emzi0767/dsharpplus/master.svg)](https://ci.appveyor.com/project/Emzi0767/dsharpplus/branch/master)
 [![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=discord)](https://discord.gg/KeAS3pU) 
-[![MyGet](https://img.shields.io/myget/dsharpplus-nightly/vpre/DSharpPlus.svg?label=myget)](https://www.myget.org/gallery/dsharpplus-nightly)
+[![SlimGet](https://img.shields.io/badge/dynamic/json.svg?color=yellow&label=slimget&query=%24.items%5B0%5D.upper&url=https%3A%2F%2Fnuget.emzi0767.com%2Fapi%2Fv3%2Fregistration%2FPlain%2Fdsharpplus%2Findex.json)](https://nuget.emzi0767.com/gallery/packages)
 [![NuGet](https://img.shields.io/nuget/vpre/DSharpPlus.svg)](https://nuget.org/packages/DSharpPlus)
 
 # Installing
 You can install the library from following sources:
 
-1. The latest nightly release is available on [MyGet](https://www.myget.org/gallery/dsharpplus-nightly). These are cutting-edge versions automatically built from the latest commit in the `master` branch in this repository, and as such always contains the latest changes.
+1. The latest nightly release is available on [SlimGet](https://nuget.emzi0767.com/gallery/packages). These are cutting-edge versions automatically built from the latest commit in the `master` branch in this repository, and as such always contains the latest changes.
 
    Despite the nature of pre-release software, all changes to the library are held under a level of scrutiny; for this library, unstable does not mean bad quality, rather it means that the API can be subject to change without prior notice (to ease rapid iteration) and that consumers of the library should always remain on the latest version available (to immediately get the latest fixes and improvements). You will usually want to use this version.
 2. The latest stable release is always available on [NuGet](https://nuget.org/packages/DSharpPlus). This branch is less up-to-date than the nightly versions, but is guaranteed to not receive any breaking API changes without a major version bump.
