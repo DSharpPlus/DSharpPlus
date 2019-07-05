@@ -45,7 +45,7 @@ artifacts:
 - path: artifacts\dsharpplus-docs.tar.xz
 deploy:
 - provider: NuGet
-  server: https://www.myget.org/F/dsharpplus-nightly/api/v2/package
+  server: https://nuget.emzi0767.com/api/v2/package
   api_key:
-    secure: Zrcd8tC2HncrLbVMK2rD6pcfnS3txk85Enf7Totc4g9sYVMhtHcKVPfOrtFuPW6h
-  symbol_server: https://www.myget.org/F/dsharpplus-nightly/symbols/api/v2/package
+    secure: gwTVmrx+sCJ+NMimUtrU0yoH8FcnkLphNMvGjRRkd04yN0Z2sgbgXh0ZsWYs9JJXDazeMUiroemb3HZBkg34Q2tQ9XEu5iXUVdqMNplpA0V2cxnFOv4OhDyHVSO9CPnwMhNGLaUwH4W+MEW1znYWLA==
+  symbol_server: https://nuget.emzi0767.com/api/v2/symbolpackage
