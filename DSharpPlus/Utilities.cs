@@ -66,22 +66,8 @@ namespace DSharpPlus
         internal static Uri GetApiUriFor(string path, string queryString)
             => new Uri($"{GetApiBaseUri()}{path}{queryString}");
 
-        internal static Uri PatchQueryString(Uri url, IDictionary<string, string> queryArgs)
-        {
-            var ub = new UriBuilder(url);
-
-            var existingQuery = string.IsNullOrWhiteSpace(ub.Query)
-                ? new Dictionary<string, string>()
-                : ub.Query.Split('&')
-                    .Select(x => x.Split('='))
-                    .ToDictionary(x => x[0], x => x[1]);
-
-            foreach (var kvp in queryArgs)
-                existingQuery[kvp.Key] = kvp.Value;
-
-            ub.Query = string.Join("&", queryArgs.Select(x => $"{x.Key}={x.Value}"));
-            return ub.Uri;
-        }
+        internal static QueryUriBuilder GetApiUriBuilderFor(string path)
+            => new QueryUriBuilder($"{GetApiBaseUri()}{path}");
 
         internal static string GetFormattedToken(BaseDiscordClient client)
         {

@@ -363,12 +363,14 @@ namespace DSharpPlus
             _webSocketClient.MessageReceived += SocketOnMessage;
             _webSocketClient.Errored += SocketOnError;
 
-            var gwuri = new UriBuilder(this._gatewayUri)
-            {
-                Query = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream ? "v=6&encoding=json&compress=zlib-stream" : "v=6&encoding=json"
-            };
-            
-            await _webSocketClient.ConnectAsync(gwuri.Uri).ConfigureAwait(false);
+            var gwuri = new QueryUriBuilder(this._gatewayUri)
+                .AddParameter("v", "6")
+                .AddParameter("encoding", "json");
+
+            if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
+                gwuri.AddParameter("compress", "zlib-stream");
+
+            await _webSocketClient.ConnectAsync(gwuri.Build()).ConfigureAwait(false);
 
             Task SocketOnConnect()
                 => this._socketOpened.InvokeAsync();
