@@ -166,6 +166,9 @@ namespace DSharpPlus.Lavalink
         /// <returns></returns>
         internal Task StartAsync()
         {
+            if (this.Discord?.CurrentUser?.Id == null || this.Discord?.ShardCount == null)
+                throw new InvalidOperationException("This operation requires Discord client to be fully initialized.");
+
             return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), new Dictionary<string, string>()
             {
                 ["Authorization"] = this.Configuration.Password,
