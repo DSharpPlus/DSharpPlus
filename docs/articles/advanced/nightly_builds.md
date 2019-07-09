@@ -1,21 +1,21 @@
 # I like living on the edge - give me the freshest builds
 
-We offer nightly builds for DSharpPlus. They contain bufixes and new features before the NuGet releases, however they are 
+We offer nightly builds for DSharpPlus. They contain bugfixes and new features before the NuGet releases, however they are 
 not guaranteed to be stable, or work at all.
 
-If you want to use them, you need to open your **Package Manager Settings** in Visual Studio, and add the following MyGet 
+If you want to use them, you need to open your **Package Manager Settings** in Visual Studio, and add the following SlimGet 
 feed to the package sources:
 
-[https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json](https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json)
+`https://nuget.emzi0767.com/api/v3/index.json`
 
-Then open the NuGet interface for your project, check **Prerelease**, and make sure the **package source** is set to the MyGet 
+Then open the NuGet interface for your project, check **Prerelease**, and make sure the **package source** is set to the SlimGet 
 feed you just added.
 
 Then just select **Latest prerelease** version of DSharpPlus packages, and install them.
 
 You might need to restart Visual Studio for changes to take effect.
 
-If you find any problems in the MyGet versions of the packages, please follow the instructions in [Reporting issues](/articles/advanced/reporting_issues.html) 
+If you find any problems in the SlimGet versions of the packages, please follow the instructions in [Reporting issues](/articles/advanced/reporting_issues.html) 
 article.
 
 ## But I'm running GNU/Linux, Mac OS X, or BSD!
@@ -35,6 +35,6 @@ Inside `~/.nuget/NuGet` directory, there should be a file called `NuGet.config`.
 
 Inside the `packageSources` element, you will need to add the following:
 
-`<add key="DSharpPlus MyGet" value="https://www.myget.org/F/dsharpplus-nightly/api/v3/index.json" />`
+`<add key="DSharpPlus SlimGet" value="https://nuget.emzi0767.com/api/v3/index.json" />`
 
 Once that's done, save the file. If you run `dotnet restore` right now, it should be able to restore the packages without problems.
