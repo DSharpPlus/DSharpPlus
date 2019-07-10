@@ -453,6 +453,29 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Deletes multiple messages
+        /// </summary>
+        /// <param name="messages"></param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public async Task DeleteMessagesAsync(IEnumerable<ulong> messages, string reason = null)
+        {
+            // Discord does the filtering too
+            var msgs = messages.ToArray();
+            if (messages == null || !msgs.Any())
+                throw new ArgumentException("You need to specify at least one message to delete.");
+
+            if (msgs.Count() < 2) 
+            {
+                await this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single(), reason).ConfigureAwait(false);
+                return;
+            }
+
+            for (var i = 0; i < msgs.Count(); i += 100)
+                await this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Skip(i).Take(100), reason).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Deletes a message
         /// </summary>
         /// <param name="message"></param>
