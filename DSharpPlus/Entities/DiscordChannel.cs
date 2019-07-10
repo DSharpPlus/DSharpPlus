@@ -50,7 +50,7 @@ namespace DSharpPlus.Entities
         /// Gets the position of this channel.
         /// </summary>
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
-        public int Position { get; set; }
+        public int Position { get; internal set; }
 
         /// <summary>
         /// Gets whether this channel is a DM channel.
