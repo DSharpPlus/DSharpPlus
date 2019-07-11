@@ -372,10 +372,7 @@ namespace DSharpPlus.CommandsNext
             var types = assembly.ExportedTypes.Where(xt =>
             {
                 var xti = xt.GetTypeInfo();
-                if (!xti.IsModuleCandidateType() || xti.IsNested)
-                    return false;
-
-                return xti.DeclaredMethods.Any(xmi => xmi.IsCommandCandidate(out _));
+                return xti.IsModuleCandidateType() && !xti.IsNested;
             });
             foreach (var xt in types)
                 this.RegisterCommands(xt);
