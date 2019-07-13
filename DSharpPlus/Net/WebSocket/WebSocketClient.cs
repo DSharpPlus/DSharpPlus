@@ -103,10 +103,13 @@ namespace DSharpPlus.Net.WebSocket
             try
             {
                 // Wait for all items to be processed post-cancellation
-                await Task.WhenAll(this.SocketQueueManager, this.WsListener).ConfigureAwait(false);
+                await this.SocketQueueManager.ConfigureAwait(false);
 
                 await this.Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
+                await this.WsListener.ConfigureAwait(false);
+
                 e = e ?? new SocketCloseEventArgs(null) { CloseCode = (int)WebSocketCloseStatus.NormalClosure, CloseMessage = "" };
+
                 this.Socket.Abort();
                 this.Socket.Dispose();
             }
