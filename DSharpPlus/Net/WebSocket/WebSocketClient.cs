@@ -32,6 +32,8 @@ namespace DSharpPlus.Net.WebSocket
         private Task WsListener { get; set; }
         private Task SocketQueueManager { get; set; }
 
+        private volatile bool _closeRequested = false;
+
         /// <summary>
         /// Instantiates a new WebSocket client with specified proxy settings.
         /// </summary>
@@ -53,6 +55,8 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         public override async Task ConnectAsync(Uri uri, IReadOnlyDictionary<string, string> customHeaders = null)
         {
+            this._closeRequested = false;
+
             this.SocketMessageQueue = new ConcurrentQueue<string>();
             this.TokenSource = new CancellationTokenSource();
 
@@ -78,7 +82,6 @@ namespace DSharpPlus.Net.WebSocket
             this.WsListener = Task.Run(this.ListenAsync, this.Token);
         }
 
-        private bool closeRequested = false;
         /// <summary>
         /// Disconnects the WebSocket connection.
         /// </summary>
@@ -86,19 +89,28 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         public override async Task DisconnectAsync(SocketCloseEventArgs e)
         {
-            //if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
-            if (this.closeRequested)
+            if (this._closeRequested)
                 return;
 
-            this.closeRequested = true;
+            this._closeRequested = true;
             try
             {
-                await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", this.Token).ConfigureAwait(false);
-                e = e ?? new SocketCloseEventArgs(null) { CloseCode = (int)WebSocketCloseStatus.NormalClosure, CloseMessage = "" };
-                Socket.Abort();
-                Socket.Dispose();
+                this.TokenSource?.Cancel();
+                this.TokenSource?.Dispose();
             }
-            catch (Exception)
+            catch { }
+
+            try
+            {
+                // Wait for all items to be processed post-cancellation
+                await Task.WhenAll(this.SocketQueueManager, this.WsListener).ConfigureAwait(false);
+
+                await this.Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
+                e = e ?? new SocketCloseEventArgs(null) { CloseCode = (int)WebSocketCloseStatus.NormalClosure, CloseMessage = "" };
+                this.Socket.Abort();
+                this.Socket.Dispose();
+            }
+            catch (Exception ex)
             { }
             finally
             {
@@ -166,7 +178,7 @@ namespace DSharpPlus.Net.WebSocket
                     {
                         do
                         {
-                            result = await this.Socket.ReceiveAsync(buffseg, token).ConfigureAwait(false);
+                            result = await this.Socket.ReceiveAsync(buffseg, CancellationToken.None).ConfigureAwait(false);
 
                             if (result.MessageType == WebSocketMessageType.Close)
                             {
