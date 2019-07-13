@@ -132,6 +132,7 @@ namespace DSharpPlus
                     .ToArray();
 
                 var owners = members
+                    .Where(x => x.MembershipStatus == DiscordTeamMembershipStatus.Accepted)
                     .Select(x => x.User)
                     .ToArray();
 
