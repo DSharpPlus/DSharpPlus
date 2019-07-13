@@ -1455,26 +1455,6 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sends a guild sync request for this guild. This fills the guild's member and presence information, and starts dispatching additional events.
-        /// 
-        /// This can only be done for user tokens.
-        /// </summary>
-        /// <returns></returns>
-        public Task SyncAsync()
-            => this.Discord is DiscordClient dc ? dc.SyncGuildsAsync(this) : Task.Delay(0);
-
-        /// <summary>
-        /// Acknowledges all the messages in this guild. This is available to user tokens only.
-        /// </summary>
-        /// <returns></returns>
-        public Task AcknowledgeAsync()
-        {
-            if (this.Discord.Configuration.TokenType == TokenType.User)
-                return this.Discord.ApiClient.AcknowledgeGuildAsync(this.Id);
-            throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
-        }
-
-        /// <summary>
         /// Gets all of this guild's custom emojis.
         /// </summary>
         /// <returns>All of this guild's custom emojis.</returns>

@@ -543,14 +543,6 @@ namespace DSharpPlus
             => this.InternalUpdateStatusAsync(activity, userStatus, idleSince);
 
         /// <summary>
-        /// Gets information about specified API application.
-        /// </summary>
-        /// <param name="id">ID of the application.</param>
-        /// <returns>Information about specified API application.</returns>
-        public Task<DiscordApplication> GetApplicationAsync(ulong id)
-            => this.ApiClient.GetApplicationInfoAsync(id);
-
-        /// <summary>
         /// Edits current user.
         /// </summary>
         /// <param name="username">New username.</param>
@@ -571,34 +563,6 @@ namespace DSharpPlus
             this.CurrentUser.Discriminator = usr.Discriminator;
             this.CurrentUser.AvatarHash = usr.AvatarHash;
             return this.CurrentUser;
-        }
-
-        /// <summary>
-        /// Requests guild sync for specified guilds. Guild sync sends information about members and presences for a given guild, and makes gateway dispatch additional events.
-        /// 
-        /// This can only be done for user tokens.
-        /// </summary>
-        /// <param name="guilds">Guilds to send a sync request for.</param>
-        /// <returns></returns>
-        public Task SyncGuildsAsync(params DiscordGuild[] guilds)
-        {
-            if (this.Configuration.TokenType != TokenType.User)
-                throw new InvalidOperationException("This can only be done for user tokens.");
-
-            var to_sync = guilds.Where(xg => !xg.IsSynced).Select(xg => xg.Id);
-
-            if (!to_sync.Any())
-                return Task.Delay(0);
-
-            var guild_sync = new GatewayPayload
-            {
-                OpCode = GatewayOpCode.GuildSync,
-                Data = to_sync
-            };
-            var guild_syncstr = JsonConvert.SerializeObject(guild_sync);
-
-            this._webSocketClient.SendMessage(guild_syncstr);
-            return Task.Delay(0);
         }
         #endregion
 
@@ -953,11 +917,6 @@ namespace DSharpPlus
                 this._guilds[guild.Id] = guild;
             }
 
-            if (this.Configuration.TokenType == TokenType.User && this.Configuration.AutomaticGuildSync)
-                await this.SendGuildSyncAsync().ConfigureAwait(false);
-            else if (this.Configuration.TokenType == TokenType.User)
-                Volatile.Write(ref this._guildDownloadCompleted, true);
-
             await this._ready.InvokeAsync(new ReadyEventArgs(this)).ConfigureAwait(false);
         }
 
@@ -1297,12 +1256,6 @@ namespace DSharpPlus
             guild.IsLarge = isLarge;
 
             this.UpdateCachedGuild(guild, rawMembers);
-
-            if (this.Configuration.AutomaticGuildSync)
-            {
-                var dcompl = this._guilds.Values.All(xg => xg.IsSynced);
-                Volatile.Write(ref this._guildDownloadCompleted, dcompl);
-            }
 
             await this._guildAvailable.InvokeAsync(new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
         }
@@ -2328,11 +2281,6 @@ namespace DSharpPlus
 
             _webSocketClient.SendMessage(resumestr);
             return Task.Delay(0);
-        }
-
-        internal Task SendGuildSyncAsync()
-        {
-            return this.SyncGuildsAsync(this._guilds.Values.ToArray());
         }
         #endregion
 

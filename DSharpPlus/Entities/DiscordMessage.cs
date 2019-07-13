@@ -379,17 +379,6 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
-
-        /// <summary>
-        /// Acknowledges the message. This is available to user tokens only.
-        /// </summary>
-        /// <returns></returns>
-        public Task AcknowledgeAsync()
-        {
-            if (this.Discord.Configuration.TokenType == TokenType.User)
-                return this.Discord.ApiClient.AcknowledgeMessageAsync(this.Id, this.Channel.Id);
-            throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
-        }
         
         /// <summary>
         /// Returns a string representation of this message.

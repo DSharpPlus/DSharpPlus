@@ -110,7 +110,7 @@ namespace DSharpPlus.Net.WebSocket
                 this.Socket.Abort();
                 this.Socket.Dispose();
             }
-            catch (Exception ex)
+            catch (Exception)
             { }
             finally
             {
