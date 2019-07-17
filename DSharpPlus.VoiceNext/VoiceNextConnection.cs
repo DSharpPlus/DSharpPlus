@@ -120,7 +120,8 @@ namespace DSharpPlus.VoiceNext
 #if !NETSTANDARD1_1
         private IpEndpoint DiscoveredEndpoint { get; set; }
 #endif
-        internal ConnectionEndpoint ConnectionEndpoint { get; set; }
+        internal ConnectionEndpoint WebSocketEndpoint { get; set; }
+        internal ConnectionEndpoint UdpEndpoint { get; set; }
 
         private TaskCompletionSource<bool> ReadyWait { get; set; }
         private bool IsInitialized { get; set; }
@@ -217,7 +218,7 @@ namespace DSharpPlus.VoiceNext
             {
                 eph = eps;
             }
-            this.ConnectionEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
+            this.WebSocketEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
 
             this.ReadyWait = new TaskCompletionSource<bool>();
             this.IsInitialized = false;
@@ -249,7 +250,7 @@ namespace DSharpPlus.VoiceNext
             var gwuri = new UriBuilder
             {
                 Scheme = "wss",
-                Host = this.ConnectionEndpoint.Hostname,
+                Host = this.WebSocketEndpoint.Hostname,
                 Query = "encoding=json&v=4"
             };
 
@@ -737,7 +738,7 @@ namespace DSharpPlus.VoiceNext
         {
 #if !NETSTANDARD1_1
             // IP Discovery
-            this.UdpClient.Setup(this.ConnectionEndpoint);
+            this.UdpClient.Setup(this.UdpEndpoint);
 
             var pck = new byte[70];
             PreparePacket(pck);
@@ -845,7 +846,7 @@ namespace DSharpPlus.VoiceNext
                     this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP2 received", DateTime.Now);
                     var vrp = opp.ToObject<VoiceReadyPayload>();
                     this.SSRC = vrp.SSRC;
-                    this.ConnectionEndpoint = new ConnectionEndpoint(this.ConnectionEndpoint.Hostname, vrp.Port);
+                    this.UdpEndpoint = new ConnectionEndpoint(vrp.Address, vrp.Port);
                     // this is not the valid interval
                     // oh, discord
                     //this.HeartbeatInterval = vrp.HeartbeatInterval;

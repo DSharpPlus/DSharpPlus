@@ -8,6 +8,9 @@ namespace DSharpPlus.VoiceNext.Entities
         [JsonProperty("ssrc")]
         public uint SSRC { get; set; }
 
+        [JsonProperty("ip")]
+        public string Address { get; set; }
+
         [JsonProperty("port")]
         public ushort Port { get; set; }
 
