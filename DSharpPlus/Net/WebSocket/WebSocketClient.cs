@@ -89,18 +89,17 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         public override async Task DisconnectAsync(SocketCloseEventArgs e)
         {
-            if (this._closeRequested)
-                return;
-
-            this._closeRequested = true;
-
             try
             {
-                this.TokenSource?.Cancel();
-                this.TokenSource?.Dispose();
+                this.TokenSource.Cancel();
+                this.TokenSource.Dispose();
             }
             catch
             { }
+
+            if (this._closeRequested)
+                return;
+            this._closeRequested = true;
 
             try
             {
@@ -111,25 +110,16 @@ namespace DSharpPlus.Net.WebSocket
             { } // if anything throws here we have a stuck close cycle without this
 
             try
-            { 
-                await this.Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
-                await this.WsListener.ConfigureAwait(false);
-
-                e = e ?? new SocketCloseEventArgs(null) { CloseCode = (int)WebSocketCloseStatus.NormalClosure, CloseMessage = "" };
-            }
-            catch
-            { }
-            finally
             {
-                this.Socket.Abort();
-                this.Socket.Dispose();
+                var code = e != null ? (WebSocketCloseStatus)e.CloseCode : WebSocketCloseStatus.NormalClosure;
+                var msg = e?.CloseMessage ?? "";
 
-                if (e == null)
-                {
-                    var cc = this.Socket.CloseStatus != null ? (int)this.Socket.CloseStatus.Value : -1;
-                    e = new SocketCloseEventArgs(null) { CloseCode = cc, CloseMessage = this.Socket.CloseStatusDescription ?? "Unknown reason" };
-                }
-                await this.OnDisconnectedAsync(e).ConfigureAwait(false);
+                await this.Socket.CloseAsync(code, msg, CancellationToken.None).ConfigureAwait(false);
+                await this.WsListener.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await this.OnDisconnectedAsync(new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = $"{ex.GetType()}: {ex.Message}" }).ConfigureAwait(false);
             }
         }
 
@@ -163,6 +153,9 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         protected override Task OnDisconnectedAsync(SocketCloseEventArgs e)
         {
+            this.Socket.Abort();
+            this.Socket.Dispose();
+
             _ = this._disconnected.InvokeAsync(e).ConfigureAwait(false);
             return Task.Delay(0);
         }
@@ -177,8 +170,6 @@ namespace DSharpPlus.Net.WebSocket
             byte[] resultbuff = null;
             WebSocketReceiveResult result = null;
             SocketCloseEventArgs close = null;
-
-            var token = this.Token;
             
             try
             {
@@ -220,6 +211,13 @@ namespace DSharpPlus.Net.WebSocket
                         // overall idea is his
                         // I tuned the finer details
                         // -Emzi
+                        //
+                        // This is actually wrong. While it will work for 99.999999999999999999999% cases,
+                        // the ZLib suffix is actually 0x00 0x00 0xFF 0xFF, and we only test for the last 2 
+                        // bytes, which could cause some problems later down the line (e.g. if we ever introduce
+                        // ETF support, since it's a purely binary format). While the magic check should eliminate
+                        // *most* issues, it might still be a good idea to look into doing this properly.
+                        // -Emzi
                         var sfix = BitConverter.ToUInt16(resultbuff, resultbuff.Length - 2);
                         if (sfix != ZLIB_STREAM_SUFFIX)
                         {
@@ -247,7 +245,8 @@ namespace DSharpPlus.Net.WebSocket
                 close = new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = e.Message };
             }
 
-            await this.DisconnectAsync(close).ConfigureAwait(false);
+            _ = this.DisconnectAsync(close).ConfigureAwait(false);
+            await this.OnDisconnectedAsync(close).ConfigureAwait(false);
         }
 
         internal async Task ProcessSmqAsync()
