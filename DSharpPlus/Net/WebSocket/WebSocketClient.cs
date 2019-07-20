@@ -116,14 +116,14 @@ namespace DSharpPlus.Net.WebSocket
                 await this.WsListener.ConfigureAwait(false);
 
                 e = e ?? new SocketCloseEventArgs(null) { CloseCode = (int)WebSocketCloseStatus.NormalClosure, CloseMessage = "" };
-
-                this.Socket.Abort();
-                this.Socket.Dispose();
             }
             catch
             { }
             finally
             {
+                this.Socket.Abort();
+                this.Socket.Dispose();
+
                 if (e == null)
                 {
                     var cc = this.Socket.CloseStatus != null ? (int)this.Socket.CloseStatus.Value : -1;
