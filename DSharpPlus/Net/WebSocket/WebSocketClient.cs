@@ -93,18 +93,25 @@ namespace DSharpPlus.Net.WebSocket
                 return;
 
             this._closeRequested = true;
+
             try
             {
                 this.TokenSource?.Cancel();
                 this.TokenSource?.Dispose();
             }
-            catch { }
+            catch
+            { }
 
             try
             {
                 // Wait for all items to be processed post-cancellation
                 await this.SocketQueueManager.ConfigureAwait(false);
+            }
+            catch
+            { } // if anything throws here we have a stuck close cycle without this
 
+            try
+            { 
                 await this.Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
                 await this.WsListener.ConfigureAwait(false);
 
@@ -113,7 +120,7 @@ namespace DSharpPlus.Net.WebSocket
                 this.Socket.Abort();
                 this.Socket.Dispose();
             }
-            catch (Exception)
+            catch
             { }
             finally
             {
@@ -175,7 +182,7 @@ namespace DSharpPlus.Net.WebSocket
             
             try
             {
-                while (!token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
+                while (this.Socket.State != WebSocketState.Aborted && this.Socket.State != WebSocketState.Closed)
                 {
                     using (var ms = new MemoryStream())
                     {
