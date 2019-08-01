@@ -7,7 +7,7 @@ In the event you need to debug DSharpPlus, we offer debug symbols. They are avai
 There are 2 symbol sources available:
 
 * Stable: [http://srv.symbolsource.org/pdb/Public](http://srv.symbolsource.org/pdb/Public)
-* Nightly: [https://www.myget.org/F/dsharpplus-nightly/symbols/](https://www.myget.org/F/dsharpplus-nightly/symbols/)
+* Nightly: [https://nuget.emzi0767.com/api/v3/symbolstore](https://nuget.emzi0767.com/api/v3/symbolstore)
 
 ## Using the symbols
 
