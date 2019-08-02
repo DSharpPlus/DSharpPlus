@@ -107,7 +107,7 @@ namespace DSharpPlus.Entities
         /// <param name="embeds">Embeds to attach to the message being sent.</param>
         /// <param name="files">Files to attach to the message being sent.</param>
         /// <returns></returns>
-        public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null, Dictionary<string, Stream> files = null)
+        public Task ExecuteAsync(string content, string username, string avatar_url, bool tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds, files);
 
         /// <summary>
