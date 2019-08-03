@@ -21,7 +21,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public async Task<Optional<DiscordUser>> ConvertAsync(string value, CommandContext ctx)
+        async Task<Optional<DiscordUser>> IArgumentConverter<DiscordUser>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
@@ -68,7 +68,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public async Task<Optional<DiscordMember>> ConvertAsync(string value, CommandContext ctx)
+        async Task<Optional<DiscordMember>> IArgumentConverter<DiscordMember>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ctx.Guild == null)
                 return Optional.FromNoValue<DiscordMember>();
@@ -118,7 +118,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public async Task<Optional<DiscordChannel>> ConvertAsync(string value, CommandContext ctx)
+        async Task<Optional<DiscordChannel>> IArgumentConverter<DiscordChannel>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid))
             {
@@ -157,7 +157,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public Task<Optional<DiscordRole>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DiscordRole>> IArgumentConverter<DiscordRole>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ctx.Guild == null)
                 return Task.FromResult(Optional.FromNoValue<DiscordRole>());
@@ -188,7 +188,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
     public class DiscordGuildConverter : IArgumentConverter<DiscordGuild>
     {
-        public Task<Optional<DiscordGuild>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DiscordGuild>> IArgumentConverter<DiscordGuild>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var gid))
             {
@@ -220,7 +220,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public async Task<Optional<DiscordMessage>> ConvertAsync(string value, CommandContext ctx)
+        async Task<Optional<DiscordMessage>> IArgumentConverter<DiscordMessage>.ConvertAsync(string value, CommandContext ctx)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return Optional.FromNoValue<DiscordMessage>();
@@ -269,7 +269,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public Task<Optional<DiscordEmoji>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DiscordEmoji>> IArgumentConverter<DiscordEmoji>.ConvertAsync(string value, CommandContext ctx)
         {
             if (DiscordEmoji.UnicodeEmojiList.Contains(value))
             {
@@ -327,7 +327,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public Task<Optional<DiscordColor>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DiscordColor>> IArgumentConverter<DiscordColor>.ConvertAsync(string value, CommandContext ctx)
         {
             var m = ColorRegexHex.Match(value);
             if (m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var clr))
