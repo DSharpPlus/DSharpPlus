@@ -176,7 +176,7 @@ Jumping right in, the process is as follows:
         // Process the speech request
         await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":thinking:"));
 
-        var buffer = await new SpeechModule(ctx.Client.DebugLogger).SynthesisToSpeakerAsync(text);
+        var buffer = await new SpeechModule(ctx.Client.DebugLogger).SynthesisToStreamAsync(text);
 
         if (buffer.Length == 0)
         {
