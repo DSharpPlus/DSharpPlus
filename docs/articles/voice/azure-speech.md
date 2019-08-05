@@ -1,26 +1,34 @@
 # DSharpPlus + Azure Speech Services
 
 ## 1. Introduction
-
-With a little bit of effort, it is entirely possible to leverage Microsoft Azure's Cognitive Services for your Discord bot.  Of particular interest are the speech services, which will allow you to do [text-to-speech](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/text-to-speech) (the focus of this article) and [speech-to-text](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-to-text).  This article will show you how to create a command to have your bot say something back to you, like Simon says.  Once you've got that under your belt, you can make modifications to have your bot speak to you based on whatever trigger and content your heart desires.  If you are feeling ambitious, you can even have your bot respond to voice messages using speech-to-text.  Just parse the returned text as if it were a regular Channel message or pass it through your Interactivity module for some real fun.
+With a little bit of effort, it is entirely possible to leverage Microsoft Azure's Cognitive Services for your Discord
+bot. Of particular interest are the speech services, which will allow you to do
+[text-to-speech](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/text-to-speech)
+(the focus of this article) and
+[speech-to-text](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-to-text).
+This article will show you how to create a command to have your bot say something back to you, like Simon says. Once you've
+got that under your belt, you can make modifications to have your bot speak to you based on whatever trigger and content
+your heart desires. If you are feeling ambitious, you can even have your bot respond to voice messages using speech-to-text.
+Just parse the returned text as if it were a regular Channel message or pass it through your Interactivity module for some
+real fun.
 
 ## 2. Prerequisites
-
 * DSharpPlus >= 4.0
 * DSharpPlus.VoiceNext
-  * This article assumes that you've already followed the [VoiceNext](https://dsharpplus.emzi0767.com/articles/vnext_setup.html) article and have a bot that works and that can play music or some other audio.
+  * This article assumes that you've already followed the [VoiceNext](/articles/vnext_setup.html) article and have a bot
+    that works and that can play music or some other audio.
 * NAudio [[GitHub]](https://github.com/naudio/NAudio) [[NuGet]](https://www.nuget.org/packages/NAudio/)
 * An account for [Microsoft Azure](https://portal.azure.com)
 
 ## 3. Text-to-Speech
-
 Jumping right in, the process is as follows:
 
-1. Follow along with [Try Speech Services for free](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started) to get an API key for Speech Services.  The Free Tier pricing includes up to 5M characters free per month.  After that, it is $4 per 1M characters.  Not bad, really.
-
+1. Follow along with [Try Speech Services for free](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/get-started)
+   to get an API key for Speech Services. The Free Tier pricing includes up to 5M characters free per month. After that,
+   it is $4 per 1M characters. Not bad, really.
 2. Add the [Azure Speech SDK NuGet package](https://aka.ms/csspeech/nuget) to your project.
-
-3. Create a new class to do the Azure Speech processing using the Speech SDK.  It needs to request audio data from the Speech Synthesizer and then use NAudio to resample to Discord/Opus's 48kHz, 16bit stereo PCM requirement.  
+3. Create a new class to do the Azure Speech processing using the Speech SDK. It needs to request audio data from the
+   Speech Synthesizer and then use NAudio to resample to Discord/Opus's 48kHz, 16bit stereo PCM requirement.
 
     ```c#
     using DSharpPlus;
@@ -93,9 +101,8 @@ Jumping right in, the process is as follows:
         }
     }
     ```
-
-4. Add a new command to your CommandsModule.cs from the previous articles to use VoiceNext to send the resampled audio data to Discord through your bot.
-
+4. Add a new command to your CommandsModule.cs from the previous articles to use VoiceNext to send the resampled audio
+   data to Discord through your bot.
     ```c#
     [Command("speak")]
     public async Task Speak(CommandContext ctx, string text)
@@ -120,15 +127,12 @@ Jumping right in, the process is as follows:
         vnc.SendSpeaking(false);
     }
     ```
-
-5. With your bot connected to your Guild and joined to a voice channel, like you did in the previous article, send the speak command to your bot (e.g., `-> speak "testing testing testing"`) and listen as your text is spoken back to you.
+5. With your bot connected to your Guild and joined to a voice channel, like you did in the previous article, send the
+   speak command to your bot (e.g., `-> speak "testing testing testing"`) and listen as your text is spoken back to you.
 
 ## 4. Speech-to-Text
-
-TBD
+TODO
 
 ## 5. References
-
-[DSharpPlus Voice Next Setup](https://dsharpplus.emzi0767.com/articles/vnext_setup.html)
-
+[DSharpPlus Voice Next Setup](/articles/vnext_setup.html)
 [Quickstart: Synthesize speech with the Speech SDK for .NET Core](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/quickstart-text-to-speech-dotnetcore)
