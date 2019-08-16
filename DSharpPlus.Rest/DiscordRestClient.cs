@@ -1163,37 +1163,12 @@ namespace DSharpPlus
 
         #region Misc
         /// <summary>
-        /// Get information about an application
-        /// </summary>
-        /// <param name="application_id">Application id</param>
-        /// <returns></returns>
-        public Task<DiscordApplication> GetApplicationInfoAsync(ulong application_id)
-            => ApiClient.GetApplicationInfoAsync(application_id);
-
-        /// <summary>
         /// Gets assets from an application
         /// </summary>
         /// <param name="application">Application to get assets from</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication application)
             => ApiClient.GetApplicationAssetsAsync(application);
-
-        /// <summary>
-        /// Acknowledges a message
-        /// </summary>
-        /// <param name="message_id">Message id</param>
-        /// <param name="channel_id">Channel id</param>
-        /// <returns></returns>
-        public Task AcknowledgeMessageAsync(ulong message_id, ulong channel_id)
-            => ApiClient.AcknowledgeMessageAsync(message_id, channel_id);
-
-        /// <summary>
-        /// Acknowledges a guild
-        /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <returns></returns>
-        public Task AcknowledgeGuildAsync(ulong guild_id)
-            => ApiClient.AcknowledgeGuildAsync(guild_id);
         #endregion
 
         private bool disposed;

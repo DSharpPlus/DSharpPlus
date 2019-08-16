@@ -8,7 +8,7 @@ namespace DSharpPlus.CommandsNext.Converters
 {
     public class DateTimeConverter : IArgumentConverter<DateTime>
     {
-        public Task<Optional<DateTime>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DateTime>> IArgumentConverter<DateTime>.ConvertAsync(string value, CommandContext ctx)
         {
             if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
                 return Task.FromResult(new Optional<DateTime>(result));
@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
     public class DateTimeOffsetConverter : IArgumentConverter<DateTimeOffset>
     {
-        public Task<Optional<DateTimeOffset>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DateTimeOffset>> IArgumentConverter<DateTimeOffset>.ConvertAsync(string value, CommandContext ctx)
         {
             if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
                 return Task.FromResult(Optional.FromValue(result));
@@ -41,7 +41,7 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public Task<Optional<TimeSpan>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<TimeSpan>> IArgumentConverter<TimeSpan>.ConvertAsync(string value, CommandContext ctx)
         {
             if (value == "0")
                 return Task.FromResult(Optional.FromValue(TimeSpan.Zero));

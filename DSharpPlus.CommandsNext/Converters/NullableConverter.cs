@@ -6,7 +6,7 @@ namespace DSharpPlus.CommandsNext.Converters
 {
     public class NullableConverter<T> : IArgumentConverter<Nullable<T>> where T : struct
     {
-        public async Task<Optional<Nullable<T>>> ConvertAsync(string value, CommandContext ctx)
+        async Task<Optional<Nullable<T>>> IArgumentConverter<Nullable<T>>.ConvertAsync(string value, CommandContext ctx)
         {
             if (!ctx.Config.CaseSensitive)
                 value = value.ToLowerInvariant();

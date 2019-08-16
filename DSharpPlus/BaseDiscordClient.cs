@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -24,9 +25,9 @@ namespace DSharpPlus
         /// Gets the string representing the version of D#+.
         /// </summary>
         public string VersionString 
-            => this._version_string.Value;
+            => this._versionString.Value;
 
-        private Lazy<string> _version_string = new Lazy<string>(() =>
+        private readonly Lazy<string> _versionString = new Lazy<string>(() =>
         {
             var a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
@@ -93,8 +94,55 @@ namespace DSharpPlus
         /// Gets the current API application.
         /// </summary>
         /// <returns>Current API application.</returns>
-        public Task<DiscordApplication> GetCurrentApplicationAsync() 
-            => this.ApiClient.GetCurrentApplicationInfoAsync();
+        public async Task<DiscordApplication> GetCurrentApplicationAsync()
+        {
+            var tapp = await this.ApiClient.GetCurrentApplicationInfoAsync().ConfigureAwait(false);
+            var app = new DiscordApplication
+            {
+                Discord = this,
+                Id = tapp.Id,
+                Name = tapp.Name,
+                Description = tapp.Description,
+                Summary = tapp.Summary,
+                IconHash = tapp.IconHash,
+                RpcOrigins = tapp.RpcOrigins != null ? new ReadOnlyCollection<string>(tapp.RpcOrigins) : null,
+                Flags = 0,
+                RequiresCodeGrant = tapp.BotRequiresCodeGrant,
+                IsPublic = tapp.IsPublicBot,
+                CoverImageHash = null
+            };
+
+            // do team and owners
+            // tbh fuck doing this properly
+            if (tapp.Team == null)
+            {
+                // singular owner
+
+                app.Owners = new ReadOnlyCollection<DiscordUser>(new[] { new DiscordUser(tapp.Owner) });
+                app.Team = null;
+            }
+            else
+            {
+                // team owner
+
+                app.Team = new DiscordTeam(tapp.Team);
+
+                var members = tapp.Team.Members
+                    .Select(x => new DiscordTeamMember(x) { Team = app.Team, User = new DiscordUser(x.User) })
+                    .ToArray();
+
+                var owners = members
+                    .Where(x => x.MembershipStatus == DiscordTeamMembershipStatus.Accepted)
+                    .Select(x => x.User)
+                    .ToArray();
+
+                app.Owners = new ReadOnlyCollection<DiscordUser>(owners);
+                app.Team.Owner = owners.FirstOrDefault(x => x.Id == tapp.Team.OwnerId);
+                app.Team.Members = new ReadOnlyCollection<DiscordTeamMember>(members);
+            }
+
+            return app;
+        }
 
         /// <summary>
         /// Gets a list of regions

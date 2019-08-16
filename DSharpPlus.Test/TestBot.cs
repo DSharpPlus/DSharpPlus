@@ -1,9 +1,7 @@
 #pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -15,7 +13,6 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Lavalink;
 using DSharpPlus.VoiceNext;
-using DSharpPlus.VoiceNext.Codec;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.Test
@@ -43,13 +40,11 @@ namespace DSharpPlus.Test
                 LargeThreshold = 250,
                 LogLevel = LogLevel.Debug,
                 Token = this.Config.Token,
-                TokenType = this.Config.UseUserToken ? TokenType.User : TokenType.Bot,
+                TokenType = TokenType.Bot,
                 UseInternalLogHandler = false,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
-                //GatewayCompressionLevel = GatewayCompressionLevel.Stream,
                 MessageCacheSize = 2048,
-                AutomaticGuildSync = !this.Config.UseUserToken,
                 DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
             Discord = new DiscordClient(dcfg);
@@ -75,36 +70,24 @@ namespace DSharpPlus.Test
             this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 
             // build a dependency collection for commandsnext
-            var depco = new ServiceCollection()
-                .AddSingleton(new TestBotService())
-                .AddScoped<TestBotScopedService>();
+            var depco = new ServiceCollection();
 
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
             {
                 StringPrefixes = this.Config.CommandPrefixes,
-                //PrefixResolver = msg =>
-                //{
-                //    if (TestBotCommands.PrefixSettings.ContainsKey(msg.Channel.Id) && TestBotCommands.PrefixSettings.TryGetValue(msg.Channel.Id, out var pfix))
-                //        return Task.FromResult(msg.GetStringPrefixLength(pfix));
-                //    return Task.FromResult(-1);
-                //},
                 EnableDms = true,
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
                 Services = depco.BuildServiceProvider(true),
                 IgnoreExtraArguments = false,
                 UseDefaultCommandHandler = true,
-                //DefaultHelpChecks = new List<CheckBaseAttribute>() { new RequireOwnerAttribute() }
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
             this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
             this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
             this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
-
-            // hook command handler
-            //this.Discord.MessageCreated += this.Discord_MessageCreated;
 
             // interactivity service
             var icfg = new InteractivityConfiguration()
@@ -120,7 +103,11 @@ namespace DSharpPlus.Test
         {
 			var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
             await Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
-            await Task.Delay(-1).ConfigureAwait(false);
+        }
+
+        public async Task StopAsync()
+        {
+            await Discord.DisconnectAsync().ConfigureAwait(false);
         }
 
         private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
@@ -167,26 +154,8 @@ namespace DSharpPlus.Test
             Console.WriteLine(e.Message);
         }
 
-        private /*async*/ Task Discord_Ready(ReadyEventArgs e)
+        private Task Discord_Ready(ReadyEventArgs e)
         {
-            /*var rest = new DiscordRestClient(new DiscordConfiguration
-            {
-                Token = "bot-token",
-                TokenType = TokenType.Bot
-            });
-
-            var id = 000000000000000UL;
-            var token = "actual token";
-            await rest.ExecuteWebhookAsync(id, token, "oui", null, null, null, null, null);
-            await rest.ExecuteWebhookAsync(id, token, null, null, null, null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, null);
-            await rest.ExecuteWebhookAsync(id, token, null, null, null, null, null, new Dictionary<string, Stream> { {"oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
-            await rest.ExecuteWebhookAsync(id, token, null, null, null, null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
-            await rest.ExecuteWebhookAsync(id, token, "oui haha", null, null, null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
-            await rest.ExecuteWebhookAsync(id, token, "oui haha", "supanickname", null, null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
-            await rest.ExecuteWebhookAsync(id, token, "oui haha", null, "https://cdn.discordapp.com/avatars/183319356489465856/dd760555ece738729601c3ae37eb7dcb.webp?size=1024", null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
-            await rest.ExecuteWebhookAsync(id, token, "oui haha", "supanickname", "https://cdn.discordapp.com/avatars/183319356489465856/dd760555ece738729601c3ae37eb7dcb.webp?size=1024", null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") } });
-            await rest.ExecuteWebhookAsync(id, token, "oui haha", "supanickname", "https://cdn.discordapp.com/avatars/183319356489465856/dd760555ece738729601c3ae37eb7dcb.webp?size=1024", null, new[] { new DiscordEmbedBuilder { Description = "Oui" }.Build(), new DiscordEmbedBuilder { Description = "wsh gro" }.Build() }, new Dictionary<string, Stream> { { "oui.png", await new HttpClient().GetStreamAsync("https://cdn.discordapp.com/attachments/562607626060562462/570706869522530308/testfile.png") }, { "non.png", await new HttpClient().GetStreamAsync("https://img.greemdev.net/JGDnjPeSnK/DiscordCanary_2019-04-24_14-25-17.png") } });*/
-
             return Task.CompletedTask;
         }
 
@@ -245,16 +214,6 @@ namespace DSharpPlus.Test
                 if (ex is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                     return;
 
-                //var ms = ex.Message;
-                //var st = ex.StackTrace;
-                //
-                // naam pls, using this shit
-                //MemoryStream stream = new MemoryStream();
-                //StreamWriter writer = new StreamWriter(stream);
-                //writer.Write($"{e.Exception.GetType()} occured when executing {e.Command.QualifiedName}.\n\n{ms}\n{st}");
-                //writer.Flush();
-                //stream.Position = 0;
-
                 var embed = new DiscordEmbedBuilder
                 {
                     Color = new DiscordColor("#FF0000"),
@@ -264,8 +223,6 @@ namespace DSharpPlus.Test
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
                     .AddField("Message", ex.Message);
-                //    .AddField("Message", "File with full details has been attached.", false);
-                //await e.Context.Channel.SendFileAsync(stream, "error.txt", "\u200b", embed: embed.Build()).ConfigureAwait(false);
                 await e.Context.RespondAsync(embed: embed.Build());
             }
         }
@@ -275,46 +232,6 @@ namespace DSharpPlus.Test
             Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}.", DateTime.Now);
             return Task.CompletedTask;
         }
-
-        //private Task Discord_MessageCreated(MessageCreateEventArgs e)
-        //{
-        //    if (e.Author.IsBot) // bad bot
-        //        return Task.CompletedTask;
-
-        //    if (e.Channel.IsPrivate)
-        //        return Task.CompletedTask;
-
-        //    var msg = e.Message;
-        //    var mpos = msg.GetMentionPrefixLength(e.Client.CurrentUser);
-        //    if (mpos == -1)
-        //    {
-        //        foreach (var x in this.Config.CommandPrefixes)
-        //        {
-        //            if (!string.IsNullOrWhiteSpace(x))
-        //            {
-        //                mpos = msg.GetStringPrefixLength(x);
-        //                break;
-        //            }
-        //        }
-        //    }
-
-        //    if (mpos == -1 && TestBotCommands.PrefixSettings.ContainsKey(msg.Channel.Id) && TestBotCommands.PrefixSettings.TryGetValue(msg.Channel.Id, out var pfix))
-        //        mpos = msg.GetStringPrefixLength(pfix);
-
-        //    if (mpos == -1)
-        //        return Task.CompletedTask;
-
-        //    var pfx = msg.Content.Substring(0, mpos);
-        //    var cnt = msg.Content.Substring(mpos);
-
-        //    var cmd = this.CommandsNextService.FindCommand(cnt, out var args);
-        //    var ctx = this.CommandsNextService.CreateContext(msg, pfx, cmd, args);
-        //    if (cmd == null) // command was not found
-        //        return Task.CompletedTask;
-
-        //    _ = Task.Run(async () => await this.CommandsNextService.ExecuteCommandAsync(ctx));
-        //    return Task.CompletedTask;
-        //}
 
         private Task Discord_GuildUpdated(GuildUpdateEventArgs e)
         {

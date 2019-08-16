@@ -7,7 +7,7 @@
     <AssemblyName>DSharpPlus.WebSocket.WebSocketSharp</AssemblyName>
     <RootNamespace>DSharpPlus.WebSocket</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net45;net46;net47</TargetFrameworks>
+    <TargetFrameworks>net45</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -17,8 +17,7 @@
 
       A WebSocket# WebSocket client for DSharpPlus, for platforms that do not support native .NET WebSockets, such as Windows 7 or Mono.
     </Description>
-    <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp websocket websocketsharp linux mac bsd freebsd netbsd openbsd android ios mono monotouch monoandroid</PackageTags>
-    <LangVersion>7.2</LangVersion>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, websocket, websocketsharp, linux, mac, bsd, freebsd, netbsd, openbsd, android, ios, mono, monotouch, monoandroid</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -186,7 +186,7 @@ namespace DSharpPlus.VoiceNext
                 var eps = e.Endpoint;
                 var epi = eps.LastIndexOf(':');
                 var eph = string.Empty;
-                var epp = 80;
+                var epp = 443;
                 if (epi != -1)
                 {
                     eph = eps.Substring(0, epi);
@@ -196,7 +196,7 @@ namespace DSharpPlus.VoiceNext
                 {
                     eph = eps;
                 }
-                vnc.ConnectionEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
+                vnc.WebSocketEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
 
                 vnc.Resume = false;
                 await vnc.ReconnectAsync().ConfigureAwait(false);

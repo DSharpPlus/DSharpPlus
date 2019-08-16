@@ -7,17 +7,16 @@
     <AssemblyName>DSharpPlus.CommandsNext</AssemblyName>
     <RootNamespace>DSharpPlus.CommandsNext</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net45;net46;net47;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.1;netstandard1.3;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>DSharpPlus.CommandsNext</PackageId>
     <Description>Advanced command framework for DSharpPlus.</Description>
-    <PackageTags>discord discord-api bots discord-bots chat dsharp dsharpplus csharp dotnet vb-net fsharp commands commandsnext</PackageTags>
-    <LangVersion>7.2</LangVersion>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, commandsnext</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46' Or '$(TargetFramework)' == 'net47'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Include="Emzi0767.Microsoft.DependencyInjection" Version="2.0.0" />
   </ItemGroup>
 

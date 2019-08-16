@@ -9,13 +9,11 @@ namespace DSharpPlus.Test
 {
     public sealed class TestBotHelpFormatter : BaseHelpFormatter
     {
-        private TestBotService Service { get; }
         private StringBuilder Content { get; }
 
-        public TestBotHelpFormatter(TestBotService dep, CommandContext ctx)
+        public TestBotHelpFormatter(CommandContext ctx)
             : base(ctx)
         {
-            this.Service = dep;
             this.Content = new StringBuilder();
         }
 

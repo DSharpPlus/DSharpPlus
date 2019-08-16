@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandsNext.Converters
     public class EnumConverter<T> : IArgumentConverter<T> where T : struct, IComparable, IConvertible, IFormattable
 #endif
     {
-        public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<T>> IArgumentConverter<T>.ConvertAsync(string value, CommandContext ctx)
         {
             var t = typeof(T);
             var ti = t.GetTypeInfo();

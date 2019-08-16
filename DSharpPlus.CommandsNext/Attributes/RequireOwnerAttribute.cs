@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Attributes
@@ -11,12 +12,11 @@ namespace DSharpPlus.CommandsNext.Attributes
     {
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            var cfg = ctx.Config;
             var app = ctx.Client.CurrentApplication;
             var me = ctx.Client.CurrentUser;
 
             if (app != null)
-                return Task.FromResult(ctx.User.Id == app.Owner.Id);
+                return Task.FromResult(app.Owners.Any(x => x.Id == ctx.User.Id));
 
             return Task.FromResult(ctx.User.Id == me.Id);
         }

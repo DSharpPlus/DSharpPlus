@@ -14,67 +14,70 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the application's description.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; internal set; }
+
+        /// <summary>
+        /// Gets the application's summary.
+        /// </summary>
+        public string Summary { get; internal set; }
 
         /// <summary>
         /// Gets the application's icon.
         /// </summary>
-        public string Icon 
+        public string Icon
             => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
-        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        internal string IconHash { get; set; }
+
+        /// <summary>
+        /// Gets the application's icon hash.
+        /// </summary>
+        public string IconHash { get; internal set; }
 
         /// <summary>
         /// Gets the application's name.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
 
         /// <summary>
         /// Gets the application's allowed RPC origins.
         /// </summary>
-        [JsonProperty("rpc_origins", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<string> RpcOrigins { get; internal set; }
 
         /// <summary>
         /// Gets the application's flags.
         /// </summary>
-        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public int Flags { get; internal set; }
 
         /// <summary>
-        /// Gets the application's owner.
+        /// Gets the application's owners.
         /// </summary>
-        [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordUser Owner { get; internal set; }
+        public IEnumerable<DiscordUser> Owners { get; internal set; }
 
         /// <summary>
         /// Gets whether this application's bot user requires code grant.
         /// </summary>
-        [JsonProperty("bot_require_code_grant", NullValueHandling = NullValueHandling.Ignore)]
         public bool? RequiresCodeGrant { get; internal set; }
 
         /// <summary>
         /// Gets whether this bot application is public.
         /// </summary>
-        [JsonProperty("bot_public", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsPublic { get; internal set; }
 
         /// <summary>
         /// Gets the hash of the application's cover image.
         /// </summary>
-        [JsonProperty("cover_image")]
-        internal string CoverImageHash { get; set; }
+        public string CoverImageHash { get; internal set; }
 
         /// <summary>
         /// Gets this application's cover image URL.
         /// </summary>
-        [JsonIgnore]
-        public string CoverImageUrl 
+        public string CoverImageUrl
             => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
 
-        [JsonIgnore]
+        /// <summary>
+        /// Gets the team which owns this application.
+        /// </summary>
+        public DiscordTeam Team { get; internal set; }
+
         private IReadOnlyList<DiscordApplicationAsset> Assets { get; set; }
 
         internal DiscordApplication() { }
@@ -214,7 +217,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First application to compare.</param>
         /// <param name="e2">Second application to compare.</param>
         /// <returns>Whether the two applications are not equal.</returns>
-        public static bool operator !=(DiscordApplication e1, DiscordApplication e2) 
+        public static bool operator !=(DiscordApplication e1, DiscordApplication e2)
             => !(e1 == e2);
     }
 
@@ -261,7 +264,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Url of this asset.
         /// </summary>
-        public override Uri Url 
+        public override Uri Url
             => new Uri($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
 
         internal DiscordApplicationAsset() { }
@@ -332,7 +335,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First application asset to compare.</param>
         /// <param name="e2">Second application asset to compare.</param>
         /// <returns>Whether the two application assets are not equal.</returns>
-        public static bool operator !=(DiscordApplicationAsset e1, DiscordApplicationAsset e2) 
+        public static bool operator !=(DiscordApplicationAsset e1, DiscordApplicationAsset e2)
             => !(e1 == e2);
     }
 

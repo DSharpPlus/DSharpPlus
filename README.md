@@ -5,25 +5,46 @@ An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https:/
 
 [![Build Status](https://img.shields.io/appveyor/ci/Emzi0767/dsharpplus/master.svg)](https://ci.appveyor.com/project/Emzi0767/dsharpplus/branch/master)
 [![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=discord)](https://discord.gg/KeAS3pU) 
+[![SlimGet](https://img.shields.io/badge/dynamic/json.svg?color=yellow&label=slimget&query=%24.items%5B-1%3A%5D.upper&url=https%3A%2F%2Fnuget.emzi0767.com%2Fapi%2Fv3%2Fregistration%2FPlain%2Fdsharpplus%2Findex.json)](https://nuget.emzi0767.com/gallery/search?q=DSharpPlus&pre=true)
 [![NuGet](https://img.shields.io/nuget/vpre/DSharpPlus.svg)](https://nuget.org/packages/DSharpPlus)
-[![MyGet](https://img.shields.io/myget/dsharpplus-nightly/vpre/DSharpPlus.svg?label=myget)](https://www.myget.org/gallery/dsharpplus-nightly) 
 
-# Use the lib:
+# Installing
 You can install the library from following sources:
 
-1. [NuGet](https://nuget.org/packages/DSharpPlus) (Stable Release).
-2. [MyGet](https://www.myget.org/gallery/dsharpplus-nightly) (Development Builds).
-3. Build from source using Visual Studio 2017. You will need SDKs for .NET 4.5, 4.6, and 4.7, as well as .NET Core 1.1 and 2.0 runtimes and SDKs.
+1. The latest nightly release is available on [SlimGet](https://nuget.emzi0767.com/gallery/packages). These are cutting-edge versions automatically built from the latest commit in the `master` branch in this repository, and as such always contains the latest changes.
+
+   Despite the nature of pre-release software, all changes to the library are held under a level of scrutiny; for this library, unstable does not mean bad quality, rather it means that the API can be subject to change without prior notice (to ease rapid iteration) and that consumers of the library should always remain on the latest version available (to immediately get the latest fixes and improvements). You will usually want to use this version.
+2. The latest stable release is always available on [NuGet](https://nuget.org/packages/DSharpPlus). This branch is less up-to-date than the nightly versions, but is guaranteed to not receive any breaking API changes without a major version bump.
+
+   Critical bugfixes in the nightly releases will usually be backported to the latest major stable release, but only after they have passed our soak tests. Additionally, some smaller fixes may be infrastructurally impossible or very dificult to backport without "breaking everything", and as such they will remain only in the nightly release until the next major release. You should evaluate whether or not this version suits your specific needs.
+3. The library can be compiled from source on Windows using Visual Studio 2017 or Visual Studio 2019. Compilation on Mac and GNU/Linux devices is possible using the .NET Core SDK, but you will only be able to build for the .NET Standard targets.
+
+   On Windows, you will need SDKs for .NET 4.5, 4.6, and 4.7, as well as the .NET Core 1.1 and 2.0 SDKs. You can install these manually from the internet, or through the Visual Studio Installer.
 
 # Documentation
-The documentation can be found [**here**](https://dsharpplus.emzi0767.com/).
+The documentation for the latest stable version is available at [dsharpplus.emzi0767.com](https://dsharpplus.emzi0767.com).
 
-## Tutorials
+For the latest nightly build, you can find it at [dsharpplus.github.io](https://dsharpplus.github.io/). Do note that the articles for the nightly builds may not yet reflect recent API changes. The API Documentation however is automatically generated and should always be up-to-date.
+
+## Resources
+The following resources apply only for the latest stable version of the library.
+
+### Tutorials
 * [Making your first bot in C#](https://dsharpplus.emzi0767.com/articles/intro.html).
 
-## Example bots
+### Example bots
 * [Example by Emzi0767](https://github.com/DSharpPlus/Example-Bots)
 * [Example by Naamloos](https://github.com/DSharpPlus/DSharpPlus-Example)
+
+# I want to throw my money at you!
+If you want to give us some money as a thank you gesture, you can do so using one of these links:
+
+* Naamloos
+   * [Ko-Fi](https://ko-fi.com/naamloos)
+* Emzi0767
+   * [Ko-Fi](https://ko-fi.com/emzi0767)
+   * [PayPal](https://paypal.me/Emzi0767/5USD)
+   * [Patreon](https://patreon.com/emzi0767)
 
 # Questions?
 Come talk to us here:

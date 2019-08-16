@@ -1859,13 +1859,13 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Misc
-        internal Task<DiscordApplication> GetCurrentApplicationInfoAsync()
+        internal Task<TransportApplication> GetCurrentApplicationInfoAsync()
             => this.GetApplicationInfoAsync("@me");
 
-        internal Task<DiscordApplication> GetApplicationInfoAsync(ulong application_id)
+        internal Task<TransportApplication> GetApplicationInfoAsync(ulong application_id)
             => this.GetApplicationInfoAsync(application_id.ToString(CultureInfo.InvariantCulture));
 
-        private async Task<DiscordApplication> GetApplicationInfoAsync(string application_id)
+        private async Task<TransportApplication> GetApplicationInfoAsync(string application_id)
         {
             var route = $"{Endpoints.OAUTH2}{Endpoints.APPLICATIONS}/:application_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id }, out var path);
@@ -1873,16 +1873,13 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
-            var app = JsonConvert.DeserializeObject<DiscordApplication>(res.Response);
-            app.Discord = this.Discord;
-
-            return app;
+            return JsonConvert.DeserializeObject<TransportApplication>(res.Response);
         }
 
         internal async Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication application)
         {
             var route = $"{Endpoints.OAUTH2}{Endpoints.APPLICATIONS}/:application_id{Endpoints.ASSETS}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { app_id = application.Id }, out var path);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id = application.Id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
@@ -1895,53 +1892,6 @@ namespace DSharpPlus.Net
             }
 
             return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
-        }
-
-        internal async Task AcknowledgeMessageAsync(ulong message_id, ulong channel_id)
-        {
-            await this.TokenSemaphore.WaitAsync().ConfigureAwait(false);
-
-            var pld = new AcknowledgePayload
-            {
-                Token = this.LastAckToken
-            };
-
-            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/{message_id}{Endpoints.ACK}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
-
-            var ret = JsonConvert.DeserializeObject<AcknowledgePayload>(res.Response);
-            this.LastAckToken = ret.Token;
-
-            this.TokenSemaphore.Release();
-        }
-
-        internal async Task AcknowledgeGuildAsync(ulong guild_id)
-        {
-            await this.TokenSemaphore.WaitAsync().ConfigureAwait(false);
-
-            var pld = new AcknowledgePayload
-            {
-                Token = this.LastAckToken
-            };
-
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ACK}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
-
-            if (res.ResponseCode != 204)
-            {
-                var ret = JsonConvert.DeserializeObject<AcknowledgePayload>(res.Response);
-                this.LastAckToken = ret.Token;
-            }
-            else
-                this.LastAckToken = null;
-
-            this.TokenSemaphore.Release();
         }
         #endregion
     }
