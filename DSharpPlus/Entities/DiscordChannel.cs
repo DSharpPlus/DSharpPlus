@@ -177,7 +177,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel");
             if (string.IsNullOrWhiteSpace(content) && embed == null)
                 throw new ArgumentNullException("Must provide either content, embed or both, and content may not consist only of whitespace");
@@ -198,7 +198,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel");
 
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed);
@@ -215,7 +215,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel");
 
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, Path.GetFileName(fileData.Name), content,
@@ -232,7 +232,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel");
 
             using (var fs = File.OpenRead(filePath))
@@ -250,7 +250,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel");
 
             return this.Discord.ApiClient.UploadFilesAsync(Id, files, content, tts, embed);
@@ -386,7 +386,7 @@ namespace DSharpPlus.Entities
 
         private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot get the messages of a non-text channel");
 
             if (limit < 0)
@@ -513,7 +513,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task TriggerTypingAsync()
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot start typing in a non-text channel");
 
             return this.Discord.ApiClient.TriggerTypingAsync(Id);
@@ -525,7 +525,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group)
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("A non-text channel does not have pinned messages");
 
             return this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
@@ -645,7 +645,7 @@ namespace DSharpPlus.Entities
         {
             if (this.Type == ChannelType.Category)
                 return $"Channel Category {this.Name} ({this.Id})";
-            if (this.Type == ChannelType.Text)
+            if (this.Type == ChannelType.Text || this.Type == ChannelType.News)
                 return $"Channel #{this.Name} ({this.Id})";
             if (!string.IsNullOrWhiteSpace(this.Name))
                 return $"Channel {this.Name} ({this.Id})";
