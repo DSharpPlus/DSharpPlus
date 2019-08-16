@@ -45,7 +45,7 @@ namespace DSharpPlus.Net.Models
         /// <para>Setting this to null or 0 will disable slow mode.</para>
         /// </summary>
         public Optional<int?> PerUserRateLimit { internal get; set; }
-        
+
         internal ChannelEditModel() { }
     }
 }

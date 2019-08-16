@@ -471,7 +471,8 @@ namespace DSharpPlus.Entities
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
         {
-            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category)
+            // technically you can create news/store channels but not always
+            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Store) 
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
 
             if (type == ChannelType.Category && parent != null)

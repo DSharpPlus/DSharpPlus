@@ -292,7 +292,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
         {
-            if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice)
+            if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
 
             return ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
