@@ -298,7 +298,7 @@ namespace DSharpPlus.VoiceNext
         private void SendWebsocketMessage(object obj)
         {
             var payload = JsonConvert.SerializeObject(obj, Formatting.None);
-            this.Discord.DebugLogger.LogMessage(LogLevel.Trace, "VoiceNext ↑", payload, DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Trace, "VNext WS ↑", payload, DateTime.Now);
             this.VoiceWs.SendMessage(payload);
         }
 
@@ -999,7 +999,7 @@ namespace DSharpPlus.VoiceNext
 
         private Task VoiceWS_SocketMessage(SocketMessageEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Trace, "VoiceNext ↓", e.Message, DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Trace, "VNext WS ↓", e.Message, DateTime.Now);
             return this.HandleDispatch(JObject.Parse(e.Message));
         }
 
