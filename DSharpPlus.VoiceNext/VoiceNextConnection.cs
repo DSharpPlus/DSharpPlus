@@ -149,6 +149,8 @@ namespace DSharpPlus.VoiceNext
         private CancellationToken KeepaliveToken
             => this.KeepaliveTokenSource.Token;
 
+        private bool IsSpeaking { get; set; } = false;
+
         /// <summary>
         /// Gets the audio format used by the Opus encoder.
         /// </summary>
@@ -287,10 +289,17 @@ namespace DSharpPlus.VoiceNext
                     Token = this.ServerData.Token
                 };
             }
-            var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
-            this.VoiceWs.SendMessage(vdj);
+
+            this.SendWebsocketMessage(vdp);
 
             return Task.Delay(0);
+        }
+
+        private void SendWebsocketMessage(object obj)
+        {
+            var payload = JsonConvert.SerializeObject(obj, Formatting.None);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Trace, "VoiceNext ↑", payload, DateTime.Now);
+            this.VoiceWs.SendMessage(payload);
         }
 
         internal Task WaitForReadyAsync()
@@ -597,18 +606,21 @@ namespace DSharpPlus.VoiceNext
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
 
-            var pld = new VoiceDispatch
+            if (speaking != this.IsSpeaking)
             {
-                OpCode = 5,
-                Payload = new VoiceSpeakingPayload
+                var pld = new VoiceDispatch
                 {
-                    Speaking = speaking,
-                    Delay = 0
-                }
-            };
+                    OpCode = 5,
+                    Payload = new VoiceSpeakingPayload
+                    {
+                        Speaking = speaking,
+                        Delay = 0
+                    }
+                };
 
-            var plj = JsonConvert.SerializeObject(pld, Formatting.None);
-            this.VoiceWs.SendMessage(plj);
+                this.SendWebsocketMessage(pld);
+                this.IsSpeaking = speaking;
+            }
         }
 
         /// <summary>
@@ -698,8 +710,8 @@ namespace DSharpPlus.VoiceNext
                         OpCode = 3,
                         Payload = UnixTimestamp(dt)
                     };
-                    var hbj = JsonConvert.SerializeObject(hbd);
-                    this.VoiceWs.SendMessage(hbj);
+
+                    this.SendWebsocketMessage(hbd);
 
                     this.LastHeartbeat = dt;
                     await Task.Delay(this.HeartbeatInterval).ConfigureAwait(false);
@@ -800,8 +812,8 @@ namespace DSharpPlus.VoiceNext
                     }
                 }
             };
-            var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-            this.VoiceWs.SendMessage(vsj);
+
+            this.SendWebsocketMessage(vsp);
 
             this.SenderTokenSource = new CancellationTokenSource();
             this.SenderTask = Task.Run(this.VoiceSenderTask, this.SenderToken);
@@ -986,7 +998,10 @@ namespace DSharpPlus.VoiceNext
         }
 
         private Task VoiceWS_SocketMessage(SocketMessageEventArgs e)
-            => this.HandleDispatch(JObject.Parse(e.Message));
+        {
+            this.Discord.DebugLogger.LogMessage(LogLevel.Trace, "VoiceNext ↓", e.Message, DateTime.Now);
+            return this.HandleDispatch(JObject.Parse(e.Message));
+        }
 
         private Task VoiceWS_SocketOpened()
             => this.StartAsync();

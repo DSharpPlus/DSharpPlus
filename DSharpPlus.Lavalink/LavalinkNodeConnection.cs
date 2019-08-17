@@ -222,8 +222,7 @@ namespace DSharpPlus.Lavalink
                     Muted = false
                 }
             };
-            var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            (channel.Discord as DiscordClient)._webSocketClient.SendMessage(vsj);
+            (channel.Discord as DiscordClient).SendWebsocketMessage(vsd);
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vsru = await vsrut.Task.ConfigureAwait(false);
             this.SendPayload(new LavalinkVoiceUpdate(vstu, vsru));
@@ -339,11 +338,16 @@ namespace DSharpPlus.Lavalink
         }
 
         internal void SendPayload(LavalinkPayload payload)
-            => this.WebSocket.SendMessage(JsonConvert.SerializeObject(payload, Formatting.None));
+        {
+            var message = JsonConvert.SerializeObject(payload, Formatting.None);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Trace, "Lavalink ↑", message, DateTime.Now);
+            this.WebSocket.SendMessage(message);
+        }
+
 
         private async Task WebSocket_OnMessage(SocketMessageEventArgs e)
         {
-            //this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "Lavalink", e.Message, DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Trace, "Lavalink ↓", e.Message, DateTime.Now);
 
             var json = e.Message;
             var jsonData = JObject.Parse(json);
@@ -488,7 +492,7 @@ namespace DSharpPlus.Lavalink
             if (this.ConnectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
             {
                 var lvlp = new LavalinkVoiceUpdate(lvlgc.VoiceStateUpdate, e);
-                this.WebSocket.SendMessage(JsonConvert.SerializeObject(lvlp));
+                SendPayload(lvlp);
             }
 
             if (this.VoiceServerUpdates.ContainsKey(gld.Id))

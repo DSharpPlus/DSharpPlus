@@ -139,8 +139,7 @@ namespace DSharpPlus.Lavalink
                     Muted = false
                 }
             };
-            var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            (this.Channel.Discord as DiscordClient)._webSocketClient.SendMessage(vsj);
+            (this.Channel.Discord as DiscordClient).SendWebsocketMessage(vsd);
         }
 
         /// <summary>

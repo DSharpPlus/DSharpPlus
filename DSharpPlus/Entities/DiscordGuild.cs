@@ -651,8 +651,8 @@ namespace DSharpPlus.Entities
                 OpCode = GatewayOpCode.RequestGuildMembers,
                 Data = new GatewayRequestGuildMembers(this)
             };
-            var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-            client._webSocketClient.SendMessage(payloadStr);
+
+            client.SendWebsocketMessage(payload);
         }
 
         /// <summary>

@@ -6,6 +6,11 @@
     public enum LogLevel
     {
         /// <summary>
+        /// Signifies a trace-level message.
+        /// </summary>
+        Trace       = 16,
+
+        /// <summary>
         /// Signifies a debug-level message.
         /// </summary>
         Debug       = 8,

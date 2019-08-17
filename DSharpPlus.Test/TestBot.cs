@@ -38,7 +38,7 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                LogLevel = LogLevel.Debug,
+                LogLevel = LogLevel.Trace,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = false,
@@ -142,6 +142,10 @@ namespace DSharpPlus.Test
 
                 case LogLevel.Debug:
                     Console.ForegroundColor = ConsoleColor.Magenta;
+                    break;
+
+                case LogLevel.Trace:
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
                     break;
                     
                 default:
