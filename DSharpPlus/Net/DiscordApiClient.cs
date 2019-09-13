@@ -675,6 +675,20 @@ namespace DSharpPlus.Net
             return ret;
         }
 
+        internal Task SuppressEmbedsAsync(ulong channel_id, ulong message_id)
+        {
+            var pld = new RestChannelMessageSuppressEmbedsPayload
+            {
+                Suppress = true
+            };
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.SUPPRESS_EMBEDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, message_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: DiscordJson.SerializeObject(pld));
+        }
+
         internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed)
         {
             if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
