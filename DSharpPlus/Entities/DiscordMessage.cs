@@ -265,7 +265,7 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
-        /// Suppresses all embeds in the message.
+        /// Removes all embeds in the message.
         /// </summary>
         /// <returns></returns>
         public Task SuppressEmbedsAsync()
