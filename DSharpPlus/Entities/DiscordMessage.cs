@@ -267,9 +267,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Removes all embeds in the message.
         /// </summary>
+        /// <param name="suppress">Whether to suppress all embeds.</param>
         /// <returns></returns>
-        public Task SuppressEmbedsAsync()
-            => this.Discord.ApiClient.SuppressEmbedsAsync(this.ChannelId, this.Id);
+        public Task SuppressEmbedsAsync(bool suppress = true)
+            => this.Discord.ApiClient.SuppressEmbedsAsync(suppress, this.ChannelId, this.Id);
 
         /// <summary>
         /// Pins the message in its channel.
