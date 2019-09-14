@@ -255,7 +255,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">New embed.</param>
         /// <returns></returns>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content = default, Optional<DiscordEmbed> embed = default) 
-            => this.Discord.ApiClient.EditMessageAsync(ChannelId, Id, content, embed);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed);
 
         /// <summary>
         /// Deletes the message.
@@ -263,6 +263,14 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task DeleteAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
+
+        /// <summary>
+        /// Removes all embeds in the message.
+        /// </summary>
+        /// <param name="suppress">Whether to suppress all embeds.</param>
+        /// <returns></returns>
+        public Task SuppressEmbedsAsync(bool suppress = true)
+            => this.Discord.ApiClient.SuppressEmbedsAsync(suppress, this.ChannelId, this.Id);
 
         /// <summary>
         /// Pins the message in its channel.

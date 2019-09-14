@@ -661,7 +661,7 @@ namespace DSharpPlus.Net
 
             return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
         }
-
+        
         internal async Task<DiscordMessage> GetChannelMessageAsync(ulong channel_id, ulong message_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id";
@@ -673,6 +673,20 @@ namespace DSharpPlus.Net
             var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
             return ret;
+        }
+
+        internal Task SuppressEmbedsAsync(bool suppress, ulong channel_id, ulong message_id)
+        {
+            var pld = new RestChannelMessageSuppressEmbedsPayload
+            {
+                Suppress = suppress
+            };
+            
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.SUPPRESS_EMBEDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, message_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: DiscordJson.SerializeObject(pld));
         }
 
         internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed)
