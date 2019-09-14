@@ -7,6 +7,9 @@ using DSharpPlus.Lavalink.Entities;
 
 namespace DSharpPlus.Lavalink.EventArgs
 {
+    /// <summary>
+    /// Represents arguments for Lavalink statistics received.
+    /// </summary>
     public sealed class StatsReceivedEventArgs : AsyncEventArgs
     {
         /// <summary>
@@ -15,7 +18,7 @@ namespace DSharpPlus.Lavalink.EventArgs
         public LavalinkStatistics Statistics { get; }
 
 
-        public StatsReceivedEventArgs(LavalinkStatistics stats)
+        internal StatsReceivedEventArgs(LavalinkStatistics stats)
         {
             this.Statistics = stats;
         }
