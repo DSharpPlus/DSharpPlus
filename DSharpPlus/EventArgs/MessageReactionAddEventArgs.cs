@@ -21,12 +21,15 @@ namespace DSharpPlus.EventArgs
         /// </remarks>
         public DiscordChannel Channel
             => Message.Channel;
-        
         /// <summary>
         /// Gets the user who created the reaction.
         /// </summary>
         public DiscordUser User { get; internal set; }
 
+        /// <summary>
+        /// Gets the guild where the reaction was added.
+        /// </summary>
+        public Optional<DiscordGuild> Guild { get; internal set; }
         /// <summary>
         /// Gets the emoji used for this reaction.
         /// </summary>
