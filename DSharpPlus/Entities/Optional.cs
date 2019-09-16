@@ -73,6 +73,12 @@ namespace DSharpPlus.Entities
             this.HasValue = true;
         }
 
+        internal Optional(T value, bool hasValue)
+        {
+            this._val = value;
+            this.HasValue = hasValue;
+        }
+
         /// <summary>
         /// Returns a string representation of this optional value.
         /// </summary>
