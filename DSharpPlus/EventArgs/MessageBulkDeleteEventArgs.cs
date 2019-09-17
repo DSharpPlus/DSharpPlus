@@ -21,7 +21,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the guild in which the deletion occured.
         /// </summary>
-        public Optional<DiscordGuild> Guild { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
 
         internal MessageBulkDeleteEventArgs(DiscordClient client) : base(client) { }
     }

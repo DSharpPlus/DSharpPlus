@@ -1050,11 +1050,9 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            Optional<DiscordGuild> returnedGuild = (guild == null) ? new Optional<DiscordGuild>(guild, false) : new Optional<DiscordGuild>(guild, true);
-
             var ea = new ChannelPinsUpdateEventArgs(this)
             {
-                Guild = returnedGuild,
+                Guild = guild,
                 Channel = channel,
                 LastPinTimestamp = lastPinTimestamp
             };
@@ -1747,8 +1745,6 @@ namespace DSharpPlus
                 };
             }
 
-            Optional<DiscordGuild> returnedGuild = (guild == null) ? new Optional<DiscordGuild>(guild, false) : new Optional<DiscordGuild>(guild, true);
-
             if (this.Configuration.MessageCacheSize > 0)
                 this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
 
@@ -1756,7 +1752,7 @@ namespace DSharpPlus
             {
                 Channel = channel,
                 Message = msg,
-                Guild = returnedGuild
+                Guild = guild
             };
             await this._messageDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
@@ -1785,13 +1781,11 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            Optional<DiscordGuild> returnedGuild = (guild == null) ? new Optional<DiscordGuild>(guild, false) : new Optional<DiscordGuild>(guild, true);
-
             var ea = new MessageBulkDeleteEventArgs(this)
             {
                 Channel = channel,
                 Messages = new ReadOnlyCollection<DiscordMessage>(msgs),
-                Guild = returnedGuild
+                Guild = guild
             };
             await this._messagesBulkDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
@@ -1811,13 +1805,11 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            Optional<DiscordGuild> returnedGuild = (guild == null) ? new Optional<DiscordGuild>(guild, false) : new Optional<DiscordGuild>(guild, true);
-
             var ea = new TypingStartEventArgs(this)
             {
                 Channel = channel,
                 User = user,
-                Guild = returnedGuild,
+                Guild = guild,
                 StartedAt = started
             };
             await this._typingStarted.InvokeAsync(ea).ConfigureAwait(false);
@@ -1947,12 +1939,14 @@ namespace DSharpPlus
         {
             var channel = this.InternalGetCachedChannel(channelId);
 
+            var guild = this.InternalGetCachedGuild(guildId);
+
             emoji.Discord = this;
 
             if (!this.UserCache.TryGetValue(userId, out var usr))
                 usr = new DiscordUser { Id = userId, Discord = this };
 
-            if (channel?.Guild != null)
+            if (guild != null)
                 usr = channel.Guild.Members.TryGetValue(userId, out var member)
                     ? member
                     : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
@@ -1985,15 +1979,11 @@ namespace DSharpPlus
                 react.IsMe |= this.CurrentUser.Id == userId;
             }
 
-            var guild = this.InternalGetCachedGuild(guildId);
-
-            Optional<DiscordGuild> returnedGuild = (guild == null) ? new Optional<DiscordGuild>(guild, false) : new Optional<DiscordGuild>(guild, true);
-
             var ea = new MessageReactionAddEventArgs(this)
             {
                 Message = msg,
                 User = usr,
-                Guild = returnedGuild,
+                Guild = guild,
                 Emoji = emoji
             };
             await this._messageReactionAdded.InvokeAsync(ea).ConfigureAwait(false);
@@ -2041,13 +2031,11 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            Optional<DiscordGuild> returnedGuild = (guild == null) ? new Optional<DiscordGuild>(guild, false) : new Optional<DiscordGuild>(guild, true);
-
             var ea = new MessageReactionRemoveEventArgs(this)
             {
                 Message = msg,
                 User = usr,
-                Guild = returnedGuild,
+                Guild = guild,
                 Emoji = emoji
             };
             await this._messageReactionRemoved.InvokeAsync(ea).ConfigureAwait(false);
@@ -2072,12 +2060,10 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            Optional<DiscordGuild> returnedGuild = (guild == null) ? new Optional<DiscordGuild>(guild, false) : new Optional<DiscordGuild>(guild, true);
-
             var ea = new MessageReactionsClearEventArgs(this)
             {
                 Message = msg,
-                Guild = returnedGuild
+                Guild = guild
             };
 
             await this._messageReactionsCleared.InvokeAsync(ea).ConfigureAwait(false);

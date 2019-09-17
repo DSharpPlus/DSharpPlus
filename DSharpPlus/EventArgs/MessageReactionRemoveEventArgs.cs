@@ -30,7 +30,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the guild in which the reaction was deleted.
         /// </summary>
-        public Optional<DiscordGuild> Guild { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
 
         /// <summary>
         /// Gets the emoji used for this reaction.

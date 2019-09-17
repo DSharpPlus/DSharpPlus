@@ -27,9 +27,9 @@ namespace DSharpPlus.EventArgs
         public DiscordUser User { get; internal set; }
 
         /// <summary>
-        /// Gets the guild where the reaction was added.
+        /// Gets the guild in which the reaction was added.
         /// </summary>
-        public Optional<DiscordGuild> Guild { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
         /// <summary>
         /// Gets the emoji used for this reaction.
         /// </summary>

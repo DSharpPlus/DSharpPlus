@@ -11,7 +11,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the guild in which the update occured.
         /// </summary>
-        public Optional<DiscordGuild> Guild { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
 
         /// <summary>
         /// Gets the channel in which the update occured.
