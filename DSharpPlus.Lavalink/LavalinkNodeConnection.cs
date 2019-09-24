@@ -257,25 +257,25 @@ namespace DSharpPlus.Lavalink
         public LavalinkGuildConnection GetConnection(DiscordGuild guild)
             => this.ConnectedGuilds.TryGetValue(guild.Id, out LavalinkGuildConnection lgc) && lgc.IsConnected ? lgc : null;
 
-		/// <summary>
-		/// Searches for specified terms.
-		/// </summary>
-		/// <param name="searchQuery">What to search for.</param>
-		/// <param name="type">What platform will search for.</param>
-		/// <returns>A collection of tracks matching the criteria.</returns>
-		public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery, LavalinkSearchType type = LavalinkSearchType.Youtube)
+        /// <summary>
+        /// Searches for specified terms.
+        /// </summary>
+        /// <param name="searchQuery">What to search for.</param>
+        /// <param name="type">What platform will search for.</param>
+        /// <returns>A collection of tracks matching the criteria.</returns>
+        public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery, LavalinkSearchType type = LavalinkSearchType.Youtube)
         {
-			string prefix;
-			if (type == LavalinkSearchType.Youtube)
-				prefix = "ytsearch";
-			else
-				prefix = "scsearch";
+            string prefix;
+            if (type == LavalinkSearchType.Youtube)
+                prefix = "ytsearch";
+            else
+                prefix = "scsearch";
 
             var str = WebUtility.UrlEncode($"{prefix}:{searchQuery}");
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
-        
+
         /// <summary>
         /// Loads tracks from specified URL.
         /// </summary>
