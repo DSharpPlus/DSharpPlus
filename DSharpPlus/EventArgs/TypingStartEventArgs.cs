@@ -19,11 +19,6 @@ namespace DSharpPlus.EventArgs
         public DiscordUser User { get; internal set; }
 
         /// <summary>
-        /// Gets the guild in which the indicator was triggered.
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
-
-        /// <summary>
         /// Gets the date and time at which the user started typing.
         /// </summary>
         public DateTimeOffset StartedAt { get; internal set; }

@@ -22,11 +22,6 @@ namespace DSharpPlus.EventArgs
         public DiscordChannel Channel
             => Message.Channel;
 
-        /// <summary>
-        /// Gets the guild in which the reactions were cleared.
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
-
         internal MessageReactionsClearEventArgs(DiscordClient client) : base(client) { }
     }
 }
