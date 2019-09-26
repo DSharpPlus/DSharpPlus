@@ -2,6 +2,9 @@
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents a Rich Presence activity.
+    /// </summary>
     public class DiscordMessageActivity
     {
         /// <summary>

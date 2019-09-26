@@ -2,6 +2,9 @@
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents data from the original message.
+    /// </summary>
     public class DiscordMessageReference
     {
         /// <summary>

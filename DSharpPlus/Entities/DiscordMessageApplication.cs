@@ -2,6 +2,9 @@
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents a Rich Presence application.
+    /// </summary>
     public class DiscordMessageApplication : SnowflakeObject
     {
         /// <summary>
