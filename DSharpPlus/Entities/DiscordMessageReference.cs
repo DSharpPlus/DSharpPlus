@@ -47,7 +47,7 @@ namespace DSharpPlus.Entities
                 else this.Guild = new DiscordGuild
                 {
                     Id = this.guildId.Value,
-                    Discord = this._client
+                    Discord = this._client,
                 };
 
             var channel = this._client.InternalGetCachedChannel(this.channelId);
@@ -62,16 +62,17 @@ namespace DSharpPlus.Entities
 
             else this.Channel = channel;
 
+            this.Message = new DiscordMessage
+            {
+                ChannelId = this.channelId,
+                Discord = this._client
+            };
+
             if (messageId.HasValue)
-                if(this._client.MessageCache.TryGet(m => m.Id == messageId.Value && m.ChannelId == channelId, out var msg))
+                if (this._client.MessageCache.TryGet(m => m.Id == messageId.Value && m.ChannelId == channelId, out var msg))
                     this.Message = msg;
 
-                else this.Message = new DiscordMessage
-                {
-                    Id = this.messageId.Value,
-                    ChannelId = this.channelId,
-                    Discord = this._client
-                };        
+                else this.Message.Id = this.messageId.Value;
         }
     }
 }
