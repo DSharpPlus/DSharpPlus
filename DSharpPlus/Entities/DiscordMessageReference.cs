@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace DSharpPlus.Entities
 {
@@ -8,23 +9,69 @@ namespace DSharpPlus.Entities
     public class DiscordMessageReference
     {
         /// <summary>
-        /// Gets the message ID of the original message.
+        /// Gets the original message.
         /// </summary>
+        [JsonIgnore]
+        public DiscordMessage Message { get; internal set; }
+
+        /// <summary>
+        /// Gets the channel of the original message.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordChannel Channel { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild of the original message.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordGuild Guild { get; internal set; }
+
         [JsonProperty("message_id")]
-        public ulong? MessageId { get; internal set; } 
+        internal ulong? messageId { get; set; }
 
-        /// <summary>
-        /// Gets the channel ID of the original message.
-        /// </summary>
         [JsonProperty("channel_id")]
-        public ulong ChannelId { get; internal set; }
+        internal ulong channelId { get; set; }
 
-        /// <summary>
-        /// Gets the guild ID of the original message.
-        /// </summary>
         [JsonProperty("guild_id")]
-        public ulong? GuildId { get; internal set; }
+        internal ulong? guildId { get; set; }
 
-        internal DiscordMessageReference() { }
+        [JsonIgnore]
+        internal DiscordClient _client { get; set; }
+
+        internal DiscordMessageReference()
+        {
+            if (this.guildId.HasValue)
+                if (this._client._guilds.TryGetValue(this.guildId.Value, out var g))
+                    this.Guild = g;
+
+                else this.Guild = new DiscordGuild
+                {
+                    Id = this.guildId.Value,
+                    Discord = this._client
+                };
+
+            var channel = this._client.InternalGetCachedChannel(this.channelId);
+
+            if (channel == null)
+                this.Channel = new DiscordChannel
+                {
+                    Id = this.channelId,
+                    GuildId = this.guildId.Value,
+                    Discord = this._client
+                };
+
+            else this.Channel = channel;
+
+            if (messageId.HasValue)
+                if(this._client.MessageCache.TryGet(m => m.Id == messageId.Value && m.ChannelId == channelId, out var msg))
+                    this.Message = msg;
+
+                else this.Message = new DiscordMessage
+                {
+                    Id = this.messageId.Value,
+                    ChannelId = this.channelId,
+                    Discord = this._client
+                };        
+        }
     }
 }

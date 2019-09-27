@@ -11,10 +11,10 @@ namespace DSharpPlus.Entities
         /// Gets the ID of this application's cover image.
         /// </summary>
         [JsonProperty("cover_image")]
-        public string CoverImageId { get; internal set; }
+        public virtual string CoverImageUrl { get; internal set; }
 
         /// <summary>
-        /// Gets the description of this application.
+        /// Gets the application's description.
         /// </summary>
         [JsonProperty("description")]
         public string Description { get; internal set; }
@@ -23,10 +23,10 @@ namespace DSharpPlus.Entities
         /// Gets the ID of the application's icon.
         /// </summary>
         [JsonProperty("icon")]
-        public string IconId { get; internal set; }
+        public virtual string Icon { get; internal set; }
 
         /// <summary>
-        /// Gets the name of this application.
+        /// Gets the application's name.
         /// </summary>
         [JsonProperty("name")]
         public string Name { get; internal set; }
