@@ -43,5 +43,6 @@
         public const string NICK = "/nick";
         public const string ASSETS = "/assets";
         public const string EMOJIS = "/emojis";
+        public const string SUPPRESS_EMBEDS = "/suppress-embeds";
     }
 }

@@ -8,7 +8,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Lavalink.EventArgs;
-using DSharpPlus.Net.Udp;
+using DSharpPlus.Net;
 
 namespace DSharpPlus.Test
 {
@@ -34,15 +34,15 @@ namespace DSharpPlus.Test
 
             this.Lavalink = await lava.ConnectAsync(new LavalinkConfiguration
             {
-                RestEndpoint = new ConnectionEndpoint { Hostname = hostname, Port = 2333 },
-                SocketEndpoint = new ConnectionEndpoint { Hostname = hostname, Port = port },
+                RestEndpoint = new ConnectionEndpoint(hostname, port),
+                SocketEndpoint = new ConnectionEndpoint(hostname, port),
                 Password = password
             }).ConfigureAwait(false);
             this.Lavalink.Disconnected += this.Lavalink_Disconnected;
             await ctx.RespondAsync("Connected to lavalink node.").ConfigureAwait(false);
         }
 
-        private Task Lavalink_Disconnected(Lavalink.EventArgs.NodeDisconnectedEventArgs e)
+        private Task Lavalink_Disconnected(NodeDisconnectedEventArgs e)
         {
             this.Lavalink = null;
             this.LavalinkVoice = null;
@@ -208,6 +208,26 @@ namespace DSharpPlus.Test
             var state = this.LavalinkVoice.CurrentState;
             var track = state.CurrentTrack;
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))} [{state.PlaybackPosition}/{track.Length}].").ConfigureAwait(false);
+        }
+
+        [Command, Description("Sets or resets equalizer settings."), Aliases("eq")]
+        public async Task EqualizerAsync(CommandContext ctx)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            this.LavalinkVoice.ResetEqualizer();
+            await ctx.RespondAsync("All equalizer bands were reset.").ConfigureAwait(false);
+        }
+
+        [Command]
+        public async Task EqualizerAsync(CommandContext ctx, int band, float gain)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            this.LavalinkVoice.AdjustEqualizer(new LavalinkBandAdjustment(band, gain));
+            await ctx.RespondAsync($"Band {band} adjusted by {gain}").ConfigureAwait(false);
         }
 
         [Command, Description("Displays Lavalink statistics.")]

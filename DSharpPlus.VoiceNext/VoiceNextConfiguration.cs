@@ -1,6 +1,4 @@
-﻿using DSharpPlus.VoiceNext.Codec;
-
-namespace DSharpPlus.VoiceNext
+﻿namespace DSharpPlus.VoiceNext
 {
     /// <summary>
     /// VoiceNext client configuration.
@@ -8,16 +6,18 @@ namespace DSharpPlus.VoiceNext
     public sealed class VoiceNextConfiguration
     {
         /// <summary>
-        /// <para>Sets the encoding settings for this client. This decides whether the encoder will favour quality or smaller bandwidth.</para>
-        /// <para>Defaults to <see cref="VoiceApplication.Music"/>.</para>
+        /// <para>Sets the audio format for Opus. This will determine the quality of the audio output.</para>
+        /// <para>Defaults to <see cref="AudioFormat.Default"/>.</para>
         /// </summary>
-        public VoiceApplication VoiceApplication { internal get; set; } = VoiceApplication.Music;
+        public AudioFormat AudioFormat { internal get; set; } = AudioFormat.Default;
 
+#if !NETSTANDARD1_1
         /// <summary>
         /// <para>Sets whether incoming voice receiver should be enabled.</para>
         /// <para>Defaults to false.</para>
         /// </summary>
         public bool EnableIncoming { internal get; set; } = false;
+#endif
 
         /// <summary>
         /// Creates a new instance of <see cref="VoiceNextConfiguration"/>.
@@ -30,8 +30,10 @@ namespace DSharpPlus.VoiceNext
         /// <param name="other">Configuration the properties of which are to be copied.</param>
         public VoiceNextConfiguration(VoiceNextConfiguration other)
         {
-            this.VoiceApplication = other.VoiceApplication;
+            this.AudioFormat = new AudioFormat(other.AudioFormat.SampleRate, other.AudioFormat.ChannelCount, other.AudioFormat.VoiceApplication);
+#if !NETSTANDARD1_1
             this.EnableIncoming = other.EnableIncoming;
+#endif
         }
     }
 }

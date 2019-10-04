@@ -32,6 +32,8 @@ namespace DSharpPlus.Net.WebSocket
         private Task WsListener { get; set; }
         private Task SocketQueueManager { get; set; }
 
+        private volatile bool _closeRequested = false;
+
         /// <summary>
         /// Instantiates a new WebSocket client with specified proxy settings.
         /// </summary>
@@ -53,6 +55,8 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         public override async Task ConnectAsync(Uri uri, IReadOnlyDictionary<string, string> customHeaders = null)
         {
+            this._closeRequested = false;
+
             this.SocketMessageQueue = new ConcurrentQueue<string>();
             this.TokenSource = new CancellationTokenSource();
 
@@ -78,7 +82,6 @@ namespace DSharpPlus.Net.WebSocket
             this.WsListener = Task.Run(this.ListenAsync, this.Token);
         }
 
-        private bool closeRequested = false;
         /// <summary>
         /// Disconnects the WebSocket connection.
         /// </summary>
@@ -86,28 +89,37 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         public override async Task DisconnectAsync(SocketCloseEventArgs e)
         {
-            //if (this.Socket.State != WebSocketState.Open || this.Token.IsCancellationRequested)
-            if (this.closeRequested)
-                return;
-
-            this.closeRequested = true;
             try
             {
-                await Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", this.Token).ConfigureAwait(false);
-                e = e ?? new SocketCloseEventArgs(null) { CloseCode = (int)WebSocketCloseStatus.NormalClosure, CloseMessage = "" };
-                Socket.Abort();
-                Socket.Dispose();
+                this.TokenSource.Cancel();
+                this.TokenSource.Dispose();
             }
-            catch (Exception)
+            catch
             { }
-            finally
+
+            if (this._closeRequested)
+                return;
+            this._closeRequested = true;
+
+            try
             {
-                if (e == null)
-                {
-                    var cc = this.Socket.CloseStatus != null ? (int)this.Socket.CloseStatus.Value : -1;
-                    e = new SocketCloseEventArgs(null) { CloseCode = cc, CloseMessage = this.Socket.CloseStatusDescription ?? "Unknown reason" };
-                }
-                await this.OnDisconnectedAsync(e).ConfigureAwait(false);
+                // Wait for all items to be processed post-cancellation
+                await this.SocketQueueManager.ConfigureAwait(false);
+            }
+            catch
+            { } // if anything throws here we have a stuck close cycle without this
+
+            try
+            {
+                var code = e != null ? (WebSocketCloseStatus)e.CloseCode : WebSocketCloseStatus.NormalClosure;
+                var msg = e?.CloseMessage ?? "";
+
+                await this.Socket.CloseAsync(code, msg, CancellationToken.None).ConfigureAwait(false);
+                await this.WsListener.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await this.OnDisconnectedAsync(new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = $"{ex.GetType()}: {ex.Message}" }).ConfigureAwait(false);
             }
         }
 
@@ -141,6 +153,9 @@ namespace DSharpPlus.Net.WebSocket
         /// <returns></returns>
         protected override Task OnDisconnectedAsync(SocketCloseEventArgs e)
         {
+            this.Socket.Abort();
+            this.Socket.Dispose();
+
             _ = this._disconnected.InvokeAsync(e).ConfigureAwait(false);
             return Task.Delay(0);
         }
@@ -155,18 +170,16 @@ namespace DSharpPlus.Net.WebSocket
             byte[] resultbuff = null;
             WebSocketReceiveResult result = null;
             SocketCloseEventArgs close = null;
-
-            var token = this.Token;
             
             try
             {
-                while (!token.IsCancellationRequested && this.Socket.State == WebSocketState.Open)
+                while (this.Socket.State != WebSocketState.Aborted && this.Socket.State != WebSocketState.Closed)
                 {
                     using (var ms = new MemoryStream())
                     {
                         do
                         {
-                            result = await this.Socket.ReceiveAsync(buffseg, token).ConfigureAwait(false);
+                            result = await this.Socket.ReceiveAsync(buffseg, CancellationToken.None).ConfigureAwait(false);
 
                             if (result.MessageType == WebSocketMessageType.Close)
                             {
@@ -198,6 +211,13 @@ namespace DSharpPlus.Net.WebSocket
                         // overall idea is his
                         // I tuned the finer details
                         // -Emzi
+                        //
+                        // This is actually wrong. While it will work for 99.999999999999999999999% cases,
+                        // the ZLib suffix is actually 0x00 0x00 0xFF 0xFF, and we only test for the last 2 
+                        // bytes, which could cause some problems later down the line (e.g. if we ever introduce
+                        // ETF support, since it's a purely binary format). While the magic check should eliminate
+                        // *most* issues, it might still be a good idea to look into doing this properly.
+                        // -Emzi
                         var sfix = BitConverter.ToUInt16(resultbuff, resultbuff.Length - 2);
                         if (sfix != ZLIB_STREAM_SUFFIX)
                         {
@@ -225,7 +245,8 @@ namespace DSharpPlus.Net.WebSocket
                 close = new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = e.Message };
             }
 
-            await this.DisconnectAsync(close).ConfigureAwait(false);
+            _ = this.DisconnectAsync(close).ConfigureAwait(false);
+            await this.OnDisconnectedAsync(close).ConfigureAwait(false);
         }
 
         internal async Task ProcessSmqAsync()
@@ -274,8 +295,8 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public override event AsyncEventHandler Connected
         {
-            add { this._connected.Register(value); }
-            remove { this._connected.Unregister(value); }
+            add => this._connected.Register(value);
+            remove => this._connected.Unregister(value);
         }
         private AsyncEvent _connected;
 
@@ -284,8 +305,8 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public override event AsyncEventHandler<SocketCloseEventArgs> Disconnected
         {
-            add { this._disconnected.Register(value); }
-            remove { this._disconnected.Unregister(value); }
+            add => this._disconnected.Register(value);
+            remove => this._disconnected.Unregister(value);
         }
         private AsyncEvent<SocketCloseEventArgs> _disconnected;
 
@@ -294,8 +315,8 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public override event AsyncEventHandler<SocketMessageEventArgs> MessageReceived
         {
-            add { this._messageReceived.Register(value); }
-            remove { this._messageReceived.Unregister(value); }
+            add => this._messageReceived.Register(value);
+            remove => this._messageReceived.Unregister(value);
         }
         private AsyncEvent<SocketMessageEventArgs> _messageReceived;
 
@@ -304,8 +325,8 @@ namespace DSharpPlus.Net.WebSocket
         /// </summary>
         public override event AsyncEventHandler<SocketErrorEventArgs> Errored
         {
-            add { this._errored.Register(value); }
-            remove { this._errored.Unregister(value); }
+            add => this._errored.Register(value);
+            remove => this._errored.Unregister(value);
         }
         private AsyncEvent<SocketErrorEventArgs> _errored;
 

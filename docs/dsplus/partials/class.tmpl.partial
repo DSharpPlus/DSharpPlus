@@ -158,6 +158,12 @@
 <h5 id="{{id}}_remarks">{{__global.remarks}}</h5>
 <div class="markdown level1 remarks">{{{remarks}}}</div>
 {{/remarks}}
+{{!beginning of alias extension code}}
+    {{#aliasesString}}
+        <h5 id="{{id}}_aliases">Equivalent names</h5>
+        <h6 class="markdown level1 aliases"><p>{{aliasesString}}</p></h6>
+    {{/aliasesString}}
+{{!end of alias extension code}}
 {{#example.0}}
 <h5 id="{{id}}_examples">{{__global.examples}}</h5>
 {{/example.0}}

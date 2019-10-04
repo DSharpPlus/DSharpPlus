@@ -896,3 +896,26 @@ div.embeddedvideo iframe {
     display: none;
   }
 }
+
+/* New */
+pre.compact-code {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin-bottom: 0;
+}
+.sr-item>.item-title {
+  line-height: 1;
+  margin-top: 8px;
+}
+.sr-item>.item-title mark {
+  padding: 0 2px 0 2px;
+}
+.sr-item>.item-href {
+  line-height: 1.5;
+}
+.sr-item>.item-ct-summary {
+  font-size: 13px;
+}
+.sr-item>.item-brief {
+  font-size: 9px;
+}

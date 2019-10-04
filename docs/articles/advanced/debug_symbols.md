@@ -1,16 +1,16 @@
 # I want to diagnose a problem I believe originates from the library, how do?
 
-For situations where, for whatever reason, you need to debug the library, we offer debug symbols.
+In the event you need to debug DSharpPlus, we offer debug symbols. They are available at the following locations:
 
 ## Symbol sources
 
 There are 2 symbol sources available:
 
 * Stable: [http://srv.symbolsource.org/pdb/Public](http://srv.symbolsource.org/pdb/Public)
-* Nightly: [https://www.myget.org/F/dsharpplus-nightly/symbols/](https://www.myget.org/F/dsharpplus-nightly/symbols/)
+* Nightly: [https://nuget.emzi0767.com/api/v3/symbolstore](https://nuget.emzi0767.com/api/v3/symbolstore)
 
 ## Using the symbols
 
-To use the debug symbols in Visual Studio, go to Tools > Options > Debugging > Symbols, and add the URL in there.
-
-Press OK, then debug your project again, the symbols should be loaded automatically.
+In Visual Studio:
+1. Go to Tools > Options > Debugging and make sure "Just My Code" is disabled and "Source Server Support" is enabled.
+2. Go to Tools > Options > Debugging > Symbols, and add the URL in there.

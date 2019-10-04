@@ -296,8 +296,10 @@ artifacts/
 
 ### Test files
 config.json
-/DSharpPlus.Test/libsodium.dll
-/DSharpPlus.Test/libopus.dll
-/DSharpPlus.Test/ffmpeg.exe
-/DSharpPlus.Test/*.pcm
+libsodium.dll
+libopus.dll
+sodium.dll
+opus.dll
+ffmpeg.exe
+*.pcm
 appveyor-test.ps1

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Net.Udp;
+using DSharpPlus.Net;
 using DSharpPlus.VoiceNext.Entities;
 using Newtonsoft.Json;
 
@@ -28,7 +28,11 @@ namespace DSharpPlus.VoiceNext
         internal VoiceNextExtension(VoiceNextConfiguration config)
         {
             this.Configuration = new VoiceNextConfiguration(config);
+#if !NETSTANDARD1_1
             this.IsIncomingEnabled = config.EnableIncoming;
+#else
+            this.IsIncomingEnabled = false;
+#endif
 
             this.ActiveConnections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
             this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();
@@ -182,7 +186,7 @@ namespace DSharpPlus.VoiceNext
                 var eps = e.Endpoint;
                 var epi = eps.LastIndexOf(':');
                 var eph = string.Empty;
-                var epp = 80;
+                var epp = 443;
                 if (epi != -1)
                 {
                     eph = eps.Substring(0, epi);
@@ -192,7 +196,7 @@ namespace DSharpPlus.VoiceNext
                 {
                     eph = eps;
                 }
-                vnc.ConnectionEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
+                vnc.WebSocketEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
 
                 vnc.Resume = false;
                 await vnc.ReconnectAsync().ConfigureAwait(false);

@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using DSharpPlus.VoiceNext.Codec;
 
 namespace DSharpPlus.VoiceNext
 {
@@ -16,7 +15,7 @@ namespace DSharpPlus.VoiceNext
         /// <param name="client">Discord client to create VoiceNext instance for.</param>
         /// <returns>VoiceNext client instance.</returns>
         public static VoiceNextExtension UseVoiceNext(this DiscordClient client) 
-            => UseVoiceNext(client, new VoiceNextConfiguration { VoiceApplication = VoiceApplication.Music });
+            => UseVoiceNext(client, new VoiceNextConfiguration());
 
         /// <summary>
         /// Creates a new VoiceNext client with specified settings.

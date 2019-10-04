@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS0618
+#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,13 +40,11 @@ namespace DSharpPlus.Test
                 LargeThreshold = 250,
                 LogLevel = LogLevel.Debug,
                 Token = this.Config.Token,
-                TokenType = this.Config.UseUserToken ? TokenType.User : TokenType.Bot,
+                TokenType = TokenType.Bot,
                 UseInternalLogHandler = false,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
-                //GatewayCompressionLevel = GatewayCompressionLevel.Stream,
                 MessageCacheSize = 2048,
-                AutomaticGuildSync = !this.Config.UseUserToken,
                 DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
             Discord = new DiscordClient(dcfg);
@@ -66,33 +64,24 @@ namespace DSharpPlus.Test
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
             {
-                VoiceApplication = VoiceNext.Codec.VoiceApplication.Music,
-                EnableIncoming = false
+                AudioFormat = AudioFormat.Default,
+                EnableIncoming = true
             };
             this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 
             // build a dependency collection for commandsnext
-            var depco = new ServiceCollection()
-                .AddSingleton(new TestBotService())
-                .AddScoped<TestBotScopedService>();
+            var depco = new ServiceCollection();
 
             // commandsnext config and the commandsnext service itself
             var cncfg = new CommandsNextConfiguration
             {
                 StringPrefixes = this.Config.CommandPrefixes,
-                //PrefixResolver = msg =>
-                //{
-                //    if (TestBotCommands.PrefixSettings.ContainsKey(msg.Channel.Id) && TestBotCommands.PrefixSettings.TryGetValue(msg.Channel.Id, out var pfix))
-                //        return Task.FromResult(msg.GetStringPrefixLength(pfix));
-                //    return Task.FromResult(-1);
-                //},
                 EnableDms = true,
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
                 Services = depco.BuildServiceProvider(true),
                 IgnoreExtraArguments = false,
                 UseDefaultCommandHandler = true,
-                //DefaultHelpChecks = new List<CheckBaseAttribute>() { new RequireOwnerAttribute() }
             };
             this.CommandsNextService = Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
@@ -100,15 +89,10 @@ namespace DSharpPlus.Test
             this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
             this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
 
-            // hook command handler
-            //this.Discord.MessageCreated += this.Discord_MessageCreated;
-
             // interactivity service
             var icfg = new InteractivityConfiguration()
             {
-                PaginationBehavior = TimeoutBehaviour.DeleteMessage,
-                PaginationTimeout = TimeSpan.FromSeconds(30),
-                Timeout = TimeSpan.FromSeconds(30)
+                Timeout = TimeSpan.FromSeconds(3)
             };
 
             this.InteractivityService = Discord.UseInteractivity(icfg);
@@ -119,7 +103,11 @@ namespace DSharpPlus.Test
         {
 			var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
             await Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
-            await Task.Delay(-1).ConfigureAwait(false);
+        }
+
+        public async Task StopAsync()
+        {
+            await Discord.DisconnectAsync().ConfigureAwait(false);
         }
 
         private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
@@ -185,14 +173,14 @@ namespace DSharpPlus.Test
 
         private Task Discord_ClientErrored(ClientErrorEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now, e.Exception);
             return Task.CompletedTask;
         }
 
         private Task Discord_SocketError(SocketErrorEventArgs e)
         {
             var ex = e.Exception is AggregateException ae ? ae.InnerException : e.Exception;
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"WS threw an exception: {ex.GetType()}\n{ex.StackTrace}", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"WS threw an exception: {ex.GetType()}", DateTime.Now, ex);
             return Task.CompletedTask;
         }
 
@@ -213,7 +201,7 @@ namespace DSharpPlus.Test
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                 return;
 
-            Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"An exception occured during {e.Context.User.Username}'s invocation of '{e.Context.Command.QualifiedName}': {e.Exception.GetType()}: {e.Exception.Message}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"An exception occured during {e.Context.User.Username}'s invocation of '{e.Context.Command.QualifiedName}': {e.Exception.GetType()}", DateTime.Now.Date, e.Exception);
 
             var exs = new List<Exception>();
             if (e.Exception is AggregateException ae)
@@ -226,16 +214,6 @@ namespace DSharpPlus.Test
                 if (ex is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                     return;
 
-                //var ms = ex.Message;
-                //var st = ex.StackTrace;
-                //
-                // naam pls, using this shit
-                //MemoryStream stream = new MemoryStream();
-                //StreamWriter writer = new StreamWriter(stream);
-                //writer.Write($"{e.Exception.GetType()} occured when executing {e.Command.QualifiedName}.\n\n{ms}\n{st}");
-                //writer.Flush();
-                //stream.Position = 0;
-
                 var embed = new DiscordEmbedBuilder
                 {
                     Color = new DiscordColor("#FF0000"),
@@ -245,57 +223,15 @@ namespace DSharpPlus.Test
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
                     .AddField("Message", ex.Message);
-                //    .AddField("Message", "File with full details has been attached.", false);
-                //await e.Context.Channel.SendFileAsync(stream, "error.txt", "\u200b", embed: embed.Build()).ConfigureAwait(false);
                 await e.Context.RespondAsync(embed: embed.Build());
             }
         }
 
         private Task CommandsNextService_CommandExecuted(CommandExecutionEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}", DateTime.Now);
+            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}.", DateTime.Now);
             return Task.CompletedTask;
         }
-
-        //private Task Discord_MessageCreated(MessageCreateEventArgs e)
-        //{
-        //    if (e.Author.IsBot) // bad bot
-        //        return Task.CompletedTask;
-
-        //    if (e.Channel.IsPrivate)
-        //        return Task.CompletedTask;
-
-        //    var msg = e.Message;
-        //    var mpos = msg.GetMentionPrefixLength(e.Client.CurrentUser);
-        //    if (mpos == -1)
-        //    {
-        //        foreach (var x in this.Config.CommandPrefixes)
-        //        {
-        //            if (!string.IsNullOrWhiteSpace(x))
-        //            {
-        //                mpos = msg.GetStringPrefixLength(x);
-        //                break;
-        //            }
-        //        }
-        //    }
-
-        //    if (mpos == -1 && TestBotCommands.PrefixSettings.ContainsKey(msg.Channel.Id) && TestBotCommands.PrefixSettings.TryGetValue(msg.Channel.Id, out var pfix))
-        //        mpos = msg.GetStringPrefixLength(pfix);
-
-        //    if (mpos == -1)
-        //        return Task.CompletedTask;
-
-        //    var pfx = msg.Content.Substring(0, mpos);
-        //    var cnt = msg.Content.Substring(mpos);
-
-        //    var cmd = this.CommandsNextService.FindCommand(cnt, out var args);
-        //    var ctx = this.CommandsNextService.CreateContext(msg, pfx, cmd, args);
-        //    if (cmd == null) // command was not found
-        //        return Task.CompletedTask;
-
-        //    _ = Task.Run(async () => await this.CommandsNextService.ExecuteCommandAsync(ctx));
-        //    return Task.CompletedTask;
-        //}
 
         private Task Discord_GuildUpdated(GuildUpdateEventArgs e)
         {
@@ -334,7 +270,7 @@ namespace DSharpPlus.Test
                 }
                 catch (Exception ex)
                 {
-                    Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"{ex.GetType()}: {ex.Message}", DateTime.Now);
+                    Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"An exception occurred: {ex.GetType()}", DateTime.Now, ex);
                 }
             }
 

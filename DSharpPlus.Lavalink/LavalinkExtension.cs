@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.EventArgs;
-using DSharpPlus.Net.Udp;
+using DSharpPlus.Net;
 
 namespace DSharpPlus.Lavalink
 {

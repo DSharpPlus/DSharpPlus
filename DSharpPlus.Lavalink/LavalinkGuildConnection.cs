@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -58,9 +59,19 @@ namespace DSharpPlus.Lavalink
         private AsyncEvent<TrackExceptionEventArgs> _trackException;
 
         /// <summary>
+        /// Triggered whenever Discord Voice WebSocket connection is terminated.
+        /// </summary>
+        public event AsyncEventHandler<WebSocketCloseEventArgs> DiscordWebSocketClosed
+        {
+            add { this._webSocketClosed.Register(value); }
+            remove { this._webSocketClosed.Unregister(value); }
+        }
+        private AsyncEvent<WebSocketCloseEventArgs> _webSocketClosed;
+
+        /// <summary>
         /// Gets whether this channel is still connected.
         /// </summary>
-        public bool IsConnected => !Volatile.Read(ref this._isDisposed);
+        public bool IsConnected => !Volatile.Read(ref this._isDisposed) && this.Channel != null;
         private bool _isDisposed = false;
 
         /// <summary>
@@ -95,12 +106,12 @@ namespace DSharpPlus.Lavalink
             this._playbackFinished = new AsyncEvent<TrackFinishEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_PLAYBACK_FINISHED");
             this._trackStuck = new AsyncEvent<TrackStuckEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_TRACK_STUCK");
             this._trackException = new AsyncEvent<TrackExceptionEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_TRACK_EXCEPTION");
+            this._webSocketClosed = new AsyncEvent<WebSocketCloseEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_DISCORD_WEBSOCKET_CLOSED");
         }
 
         /// <summary>
         /// Disconnect from this voice channel.
         /// </summary>
-        /// <returns></returns>
         public void Disconnect()
         {
             if (!this.IsConnected)
@@ -136,7 +147,6 @@ namespace DSharpPlus.Lavalink
         /// Queues the specified track for playback.
         /// </summary>
         /// <param name="track">Track to play.</param>
-        /// <returns></returns>
         public void Play(LavalinkTrack track)
         {
             if (!this.IsConnected)
@@ -152,7 +162,6 @@ namespace DSharpPlus.Lavalink
         /// <param name="track">Track to play.</param>
         /// <param name="start">Timestamp to start playback at.</param>
         /// <param name="end">Timestamp to stop playback at.</param>
-        /// <returns></returns>
         public void PlayPartial(LavalinkTrack track, TimeSpan start, TimeSpan end)
         {
             if (!this.IsConnected)
@@ -168,7 +177,6 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Stops the player completely.
         /// </summary>
-        /// <returns></returns>
         public void Stop()
         {
             if (!this.IsConnected)
@@ -180,7 +188,6 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Pauses the player.
         /// </summary>
-        /// <returns></returns>
         public void Pause()
         {
             if (!this.IsConnected)
@@ -192,7 +199,6 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Resumes playback.
         /// </summary>
-        /// <returns></returns>
         public void Resume()
         {
             if (!this.IsConnected)
@@ -205,7 +211,6 @@ namespace DSharpPlus.Lavalink
         /// Seeks the current track to specified position.
         /// </summary>
         /// <param name="position">Position to seek to.</param>
-        /// <returns></returns>
         public void Seek(TimeSpan position)
         {
             if (!this.IsConnected)
@@ -217,17 +222,45 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Sets the playback volume. This might incur a lot of CPU usage.
         /// </summary>
-        /// <param name="volume">Volume to set. Needs to be greater or equal to 0, and less than or equal to 150. 100 means 100% and is the default value.</param>
-        /// <returns></returns>
+        /// <param name="volume">Volume to set. Needs to be greater or equal to 0, and less than or equal to 100. 100 means 100% and is the default value.</param>
         public void SetVolume(int volume)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            if (volume < 0 || volume > 150)
-                throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 150.");
+            if (volume < 0 || volume > 1000)
+                throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 1000.");
 
             this.Node.SendPayload(new LavalinkVolume(this, volume));
+        }
+
+        /// <summary>
+        /// Adjusts the specified bands in the audio equalizer. This will alter the sound output, and might incur a lot of CPU usage.
+        /// </summary>
+        /// <param name="bands">Bands adjustments to make. You must specify one adjustment per band at most.</param>
+        public void AdjustEqualizer(params LavalinkBandAdjustment[] bands)
+        {
+            if (!this.IsConnected)
+                throw new InvalidOperationException("This connection is not valid.");
+
+            if (bands?.Any() != true)
+                return;
+
+            if (bands.Distinct(new LavalinkBandAdjustmentComparer()).Count() != bands.Count())
+                throw new InvalidOperationException("You cannot specify multiple modifiers for the same band.");
+
+            this.Node.SendPayload(new LavalinkEqualizer(this, bands));
+        }
+
+        /// <summary>
+        /// Resets the audio equalizer to default values.
+        /// </summary>
+        public void ResetEqualizer()
+        {
+            if (!this.IsConnected)
+                throw new InvalidOperationException("This connection is not valid.");
+
+            this.Node.SendPayload(new LavalinkEqualizer(this, Enumerable.Range(0, 15).Select(x => new LavalinkBandAdjustment(x, 0))));
         }
 
         internal Task InternalUpdatePlayerStateAsync(LavalinkState newState)
@@ -258,6 +291,9 @@ namespace DSharpPlus.Lavalink
             var ea = new TrackExceptionEventArgs(this, e.Error, LavalinkUtilities.DecodeTrack(e.Track));
             return this._trackException.InvokeAsync(ea);
         }
+
+        internal Task InternalWebSocketClosedAsync(WebSocketCloseEventArgs e)
+            => this._webSocketClosed.InvokeAsync(e);
 
         internal event ChannelDisconnectedEventHandler ChannelDisconnected;
     }

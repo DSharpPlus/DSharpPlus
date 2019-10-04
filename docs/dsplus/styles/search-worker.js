@@ -45,8 +45,7 @@
     var hits = lunrIndex.search(q);
     var results = [];
     hits.forEach(function (hit) {
-      var item = searchData[hit.ref];
-      results.push({ 'href': item.href, 'title': item.title, 'keywords': item.keywords });
+      results.push(searchData[hit.ref]);
     });
     postMessage({ e: 'query-ready', q: q, d: results });
   }

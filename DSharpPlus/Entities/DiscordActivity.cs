@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
     /// <summary>
     /// Represents user status.
     /// </summary>
-    public enum UserStatus : int
+    [JsonConverter(typeof(UserStatusConverter))]
+    public enum UserStatus
     {
         /// <summary>
         /// User is offline.
@@ -35,10 +37,69 @@ namespace DSharpPlus.Entities
         Invisible = 5
     }
 
+    internal sealed class UserStatusConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if (value is UserStatus status)
+            {
+                switch (status) // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
+                {
+                    case UserStatus.Online:
+                        writer.WriteValue("online");
+                        return;
+
+                    case UserStatus.Idle:
+                        writer.WriteValue("idle");
+                        return;
+
+                    case UserStatus.DoNotDisturb:
+                        writer.WriteValue("dnd");
+                        return;
+
+                    case UserStatus.Invisible:
+                        writer.WriteValue("invisible");
+                        return;
+
+                    case UserStatus.Offline:
+                    default:
+                        writer.WriteValue("offline");
+                        return;
+                }
+            }
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            // Active sessions are indicated with an "online", "idle", or "dnd" string per platform. If a user is
+            // offline or invisible, the corresponding field is not present.
+            switch (reader.Value?.ToString().ToLowerInvariant()) // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
+            {
+                case "online":
+                    return UserStatus.Online;
+
+                case "idle":
+                    return UserStatus.Idle;
+
+                case "dnd":
+                    return UserStatus.DoNotDisturb;
+
+                case "invisible":
+                    return UserStatus.Invisible;
+
+                case "offline":
+                default:
+                    return UserStatus.Offline;
+            }
+        }
+
+        public override bool CanConvert(Type objectType) => objectType == typeof(UserStatus);
+    }
+
     /// <summary>
     /// Represents a game that a user is playing.
     /// </summary>
-    public class DiscordActivity
+    public sealed class DiscordActivity
     {
         /// <summary>
         /// Gets or sets the name of user's activity.
@@ -120,7 +181,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents details for Discord rich presence, attached to a <see cref="DiscordActivity"/>.
     /// </summary>
-    public class DiscordRichPresence
+    public sealed class DiscordRichPresence
     {
         /// <summary>
         /// Gets the details.
@@ -272,7 +333,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Determines the type of a user activity.
     /// </summary>
-    public enum ActivityType : int
+    public enum ActivityType
     {
         /// <summary>
         /// Indicates the user is playing a game.

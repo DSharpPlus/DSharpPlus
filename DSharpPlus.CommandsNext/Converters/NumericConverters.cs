@@ -6,133 +6,133 @@ namespace DSharpPlus.CommandsNext.Converters
 {
     public class BoolConverter : IArgumentConverter<bool>
     {
-        public Task<Optional<bool>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<bool>> IArgumentConverter<bool>.ConvertAsync(string value, CommandContext ctx)
         {
             if (bool.TryParse(value, out var result))
-                return Task.FromResult(Optional<bool>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<bool>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<bool>());
         }
     }
 
     public class Int8Converter : IArgumentConverter<sbyte>
     {
-        public Task<Optional<sbyte>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<sbyte>> IArgumentConverter<sbyte>.ConvertAsync(string value, CommandContext ctx)
         {
             if (sbyte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<sbyte>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<sbyte>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<sbyte>());
         }
     }
 
     public class Uint8Converter : IArgumentConverter<byte>
     {
-        public Task<Optional<byte>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<byte>> IArgumentConverter<byte>.ConvertAsync(string value, CommandContext ctx)
         {
             if (byte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<byte>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<byte>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<byte>());
         }
     }
 
     public class Int16Converter : IArgumentConverter<short>
     {
-        public Task<Optional<short>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<short>> IArgumentConverter<short>.ConvertAsync(string value, CommandContext ctx)
         {
             if (short.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<short>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<short>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<short>());
         }
     }
 
     public class Uint16Converter : IArgumentConverter<ushort>
     {
-        public Task<Optional<ushort>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<ushort>> IArgumentConverter<ushort>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ushort.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<ushort>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<ushort>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<ushort>());
         }
     }
 
     public class Int32Converter : IArgumentConverter<int>
     {
-        public Task<Optional<int>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<int>> IArgumentConverter<int>.ConvertAsync(string value, CommandContext ctx)
         {
             if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<int>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<int>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<int>());
         }
     }
 
     public class Uint32Converter : IArgumentConverter<uint>
     {
-        public Task<Optional<uint>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<uint>> IArgumentConverter<uint>.ConvertAsync(string value, CommandContext ctx)
         {
             if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<uint>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<uint>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<uint>());
         }
     }
 
     public class Int64Converter : IArgumentConverter<long>
     {
-        public Task<Optional<long>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<long>> IArgumentConverter<long>.ConvertAsync(string value, CommandContext ctx)
         {
             if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<long>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<long>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<long>());
         }
     }
 
     public class Uint64Converter : IArgumentConverter<ulong>
     {
-        public Task<Optional<ulong>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<ulong>> IArgumentConverter<ulong>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<ulong>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<ulong>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<ulong>());
         }
     }
 
     public class Float32Converter : IArgumentConverter<float>
     {
-        public Task<Optional<float>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<float>> IArgumentConverter<float>.ConvertAsync(string value, CommandContext ctx)
         {
             if (float.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<float>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<float>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<float>());
         }
     }
 
     public class Float64Converter : IArgumentConverter<double>
     {
-        public Task<Optional<double>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<double>> IArgumentConverter<double>.ConvertAsync(string value, CommandContext ctx)
         {
             if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<double>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<double>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<double>());
         }
     }
 
     public class Float128Converter : IArgumentConverter<decimal>
     {
-        public Task<Optional<decimal>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<decimal>> IArgumentConverter<decimal>.ConvertAsync(string value, CommandContext ctx)
         {
             if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<decimal>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<decimal>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<decimal>());
         }
     }
 }

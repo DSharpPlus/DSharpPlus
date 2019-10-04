@@ -15,6 +15,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? Parent { get; set; }
 
+        [JsonProperty("topic")]
+        public Optional<string> Topic { get; set; }
+
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
         public int? Bitrate { get; set; }
 
@@ -39,8 +42,8 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int? Position { get; set; }
         
-        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public string Topic { get; set; }
+        [JsonProperty("topic")]
+        public Optional<string> Topic { get; set; }
 
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Nsfw { get; set; }
@@ -101,6 +104,12 @@ namespace DSharpPlus.Net.Abstractions
     {
         [JsonProperty("messages", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<ulong> Messages { get; set; }
+    }
+
+    internal sealed class RestChannelMessageSuppressEmbedsPayload
+    {
+        [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Suppress { get; set; }
     }
 
     internal sealed class RestChannelInviteCreatePayload

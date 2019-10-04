@@ -9,12 +9,6 @@ namespace DSharpPlus.Net.Udp
     internal class DspUdpClient : BaseUdpClient
     {
         /// <summary>
-        /// Gets the amount of data available for this client.
-        /// </summary>
-        public override int DataAvailable 
-            => throw new PlatformNotSupportedException(".NET UDP client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
-
-        /// <summary>
         /// Creates a new UDP client instance.
         /// </summary>
         public DspUdpClient()
@@ -35,9 +29,9 @@ namespace DSharpPlus.Net.Udp
         /// Sends a datagram.
         /// </summary>
         /// <param name="data">Datagram.</param>
-        /// <param name="data_length">Length of the datagram.</param>
+        /// <param name="dataLength">Length of the datagram.</param>
         /// <returns></returns>
-        public override Task SendAsync(byte[] data, int data_length)
+        public override Task SendAsync(byte[] data, int dataLength)
         {
             throw new PlatformNotSupportedException(".NET UDP client is not supported on this platform. You need to target .NETFX, .NET Standard 1.3, or provide a WebSocket implementation for this platform.");
         }

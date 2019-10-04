@@ -17,7 +17,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// Sets the channel's new topic.
         /// </summary>
-        public string Topic { internal get; set; }
+        public Optional<string> Topic { internal get; set; }
 
         /// <summary>
         /// Sets whether the channel is to be marked as NSFW.
@@ -45,7 +45,7 @@ namespace DSharpPlus.Net.Models
         /// <para>Setting this to null or 0 will disable slow mode.</para>
         /// </summary>
         public Optional<int?> PerUserRateLimit { internal get; set; }
-        
+
         internal ChannelEditModel() { }
     }
 }

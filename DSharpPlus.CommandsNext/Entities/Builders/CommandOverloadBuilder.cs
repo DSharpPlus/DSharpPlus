@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Exceptions;
 
 namespace DSharpPlus.CommandsNext.Builders
 {
@@ -85,6 +86,7 @@ namespace DSharpPlus.CommandsNext.Builders
 
                 var attrsCustom = new List<Attribute>();
                 var attrs = arg.GetCustomAttributes();
+                var isParams = false;
                 foreach (var xa in attrs)
                 {
                     switch (xa)
@@ -100,7 +102,8 @@ namespace DSharpPlus.CommandsNext.Builders
                         case ParamArrayAttribute p:
                             ca.IsCatchAll = true;
                             ca.Type = arg.ParameterType.GetElementType();
-                            ca._isArray = true;
+                            ca.IsArray = true;
+                            isParams = true;
                             break;
 
                         default:
@@ -108,9 +111,12 @@ namespace DSharpPlus.CommandsNext.Builders
                             break;
                     }
                 }
-
+                
                 if (i > 2 && !ca.IsOptional && !ca.IsCatchAll && args[i - 3].IsOptional)
-                    throw new InvalidOperationException("Non-optional argument cannot appear after an optional one");
+                    throw new InvalidOverloadException("Non-optional argument cannot appear after an optional one", method, arg);
+
+                if (arg.ParameterType.IsArray && !isParams)
+                    throw new InvalidOverloadException("Cannot use array arguments without params modifier.", method, arg);
 
                 ca.CustomAttributes = new ReadOnlyCollection<Attribute>(attrsCustom);
                 args.Add(ca);

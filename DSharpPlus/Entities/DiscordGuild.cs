@@ -1,5 +1,6 @@
 ﻿#pragma warning disable CS0618
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -10,6 +11,7 @@ using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using DSharpPlus.Net.Models;
+using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus.Entities
 {
@@ -57,11 +59,19 @@ namespace DSharpPlus.Entities
         internal ulong OwnerId { get; set; }
 
         /// <summary>
+        /// Gets permissions for the user in the guild (does not include channel overrides)
+        /// </summary>
+        [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Permissions? Permissions { get; set; }
+
+        /// <summary>
         /// Gets the guild's owner.
         /// </summary>
         [JsonIgnore]
         public DiscordMember Owner
-            => this.Members.FirstOrDefault(xm => xm.Id == this.OwnerId) ?? this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
+            => this.Members.TryGetValue(this.OwnerId, out var owner) 
+                ? owner 
+                : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets the guild's voice region ID.
@@ -87,7 +97,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel AfkChannel
-            => this.Channels.FirstOrDefault(xc => xc.Id == this.AfkChannelId);
+            => this.GetChannel(this.AfkChannelId);
 
         /// <summary>
         /// Gets the guild's AFK timeout.
@@ -112,7 +122,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel EmbedChannel
-            => this.Channels.FirstOrDefault(xc => xc.Id == this.EmbedChannelId);
+            => this.GetChannel(this.EmbedChannelId);
 
         /// <summary>
         /// Gets the guild's verification level.
@@ -140,32 +150,28 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel SystemChannel => SystemChannelId.HasValue
-            ? this.Channels.FirstOrDefault(xc => xc.Id == SystemChannelId)
+            ? this.GetChannel(SystemChannelId.Value)
             : null;
 
         /// <summary>
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordRole> Roles
-            => this._roles_lazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordRole> Roles => new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordRole> _roles;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordRole>> _roles_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordRole> _roles;
 
         /// <summary>
         /// Gets a collection of this guild's emojis.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordEmoji> Emojis
-            => this._emojis_lazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
 
         [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordEmoji> _emojis;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordEmoji>> _emojis_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordEmoji> _emojis;
 
         /// <summary>
         /// Gets a collection of this guild's features.
@@ -204,40 +210,35 @@ namespace DSharpPlus.Entities
         public int MemberCount { get; internal set; }
 
         /// <summary>
-        /// Gets a collection of all the voice states for this guilds.
+        /// Gets a dictionary of all the voice states for this guilds. The key for this dictionary is the ID of the user
+        /// the voice state corresponds to.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordVoiceState> VoiceStates
-            => this._voice_states_lazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
 
         [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordVoiceState> _voice_states;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordVoiceState>> _voice_states_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordVoiceState> _voiceStates;
 
         /// <summary>
-        /// Gets a collection of all the members that belong to this guild.
+        /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
         /// </summary>
-        [JsonIgnore]
-        public IReadOnlyCollection<DiscordMember> Members
-            => this._members_lazy.Value;
+        [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
+        public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
 
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        internal HashSet<DiscordMember> _members;
-        [JsonIgnore]
-        private Lazy<IReadOnlyCollection<DiscordMember>> _members_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordMember> _members;
 
         /// <summary>
-        /// Gets a collection of all the channels associated with this guild.
+        /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordChannel> Channels
-            => this._channels_lazy.Value;
+        public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordChannel> _channels;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordChannel>> _channels_lazy;
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
 
         /// <summary>
         /// Gets the guild member for current user.
@@ -254,7 +255,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordRole EveryoneRole
-            => this._roles.FirstOrDefault(xr => xr.Id == this.Id);
+            => this.GetRole(this.Id);
 
         /// <summary>
         /// Gets whether the current user is the guild's owner.
@@ -262,6 +263,37 @@ namespace DSharpPlus.Entities
         [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsOwner
             => this.OwnerId == this.Discord.CurrentUser.Id;
+
+        /// <summary>
+        /// Gets vanity URL code for this guild, when applicable.
+        /// </summary>
+        [JsonProperty("vanity_url_code")]
+        public string VanityUrlCode { get; internal set; }
+
+        /// <summary>
+        /// Gets guild description, when applicable.
+        /// </summary>
+        [JsonProperty("description")]
+        public string Description { get; internal set; }
+
+        /// <summary>
+        /// Gets guild banner hash, when applicable.
+        /// </summary>
+        [JsonProperty("banner")]
+        public string Banner { get; internal set; }
+
+        /// <summary>
+        /// Gets this guild's premium tier (Nitro boosting).
+        /// </summary>
+        [JsonProperty("premium_tier")]
+        public PremiumTier PremiumTier { get; internal set; }
+
+        /// <summary>
+        /// Gets the amount of members that boosted this guild.
+        /// </summary>
+        [JsonProperty("premium_subscription_count", NullValueHandling = NullValueHandling.Ignore)]
+        public int? PremiumSubscriptionCount { get; internal set; }
+        // Seriously discord?
 
         // I need to work on this
         // 
@@ -277,13 +309,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordGuild()
         {
-            this._roles_lazy = new Lazy<IReadOnlyList<DiscordRole>>(() => new ReadOnlyCollection<DiscordRole>(this._roles));
-            this._emojis_lazy = new Lazy<IReadOnlyList<DiscordEmoji>>(() => new ReadOnlyCollection<DiscordEmoji>(this._emojis));
-            this._voice_states_lazy = new Lazy<IReadOnlyList<DiscordVoiceState>>(() => new ReadOnlyCollection<DiscordVoiceState>(this._voice_states));
-            this._channels_lazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => new ReadOnlyCollection<DiscordChannel>(this._channels));
-            this._members_lazy = new Lazy<IReadOnlyCollection<DiscordMember>>(() => new ReadOnlySet<DiscordMember>(this._members));
-
-            this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.FirstOrDefault(xm => xm.Id == this.Discord.CurrentUser.Id));
+            this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
         }
 
         #region Guild Methods
@@ -320,14 +346,14 @@ namespace DSharpPlus.Entities
             if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
-            var iconb64 = Optional<string>.FromNoValue();
+            var iconb64 = Optional.FromNoValue<string>();
             if (mdl.Icon.HasValue && mdl.Icon.Value != null)
                 using (var imgtool = new ImageTool(mdl.Icon.Value))
                     iconb64 = imgtool.GetBase64();
             else if (mdl.Icon.HasValue)
                 iconb64 = null;
 
-            var splashb64 = Optional<string>.FromNoValue();
+            var splashb64 = Optional.FromNoValue<string>();
             if (mdl.Splash.HasValue && mdl.Splash.Value != null)
                 using (var imgtool = new ImageTool(mdl.Splash.Value))
                     splashb64 = imgtool.GetBase64();
@@ -397,13 +423,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name">Name of the new channel.</param>
         /// <param name="parent">Category to put this channel in.</param>
+        /// <param name="topic">Topic of the channel.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
         /// <param name="nsfw">Whether the channel is to be flagged as not safe for work.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Text, parent, null, null, overwrites, nsfw, perUserRateLimit, reason);
+        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, Optional<string> topic = default, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
+            => this.CreateChannelAsync(name, ChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, reason);
 
         /// <summary>
         /// Creates a new channel category in this guild.
@@ -413,7 +440,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel category.</returns>
         public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Category, null, null, null, overwrites, null, Optional<int?>.FromNoValue(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new voice channel in this guild.
@@ -426,7 +453,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Voice, parent, bitrate, user_limit, overwrites, null, Optional<int?>.FromNoValue(), reason);
+            => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), reason);
 
         /// <summary>
         /// Creates a new channel in this guild.
@@ -434,6 +461,7 @@ namespace DSharpPlus.Entities
         /// <param name="name">Name of the new channel.</param>
         /// <param name="type">Type of the new channel.</param>
         /// <param name="parent">Category to put this channel in.</param>
+        /// <param name="topic">Topic of the channel.</param>
         /// <param name="bitrate">Bitrate of the channel. Applies to voice only.</param>
         /// <param name="userLimit">Maximum number of users in the channel. Applies to voice only.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
@@ -441,15 +469,16 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <returns>The newly-created channel.</returns>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
         {
-            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category)
+            // technically you can create news/store channels but not always
+            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Store) 
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
 
             if (type == ChannelType.Category && parent != null)
                 throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent));
 
-            return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
+            return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
         }
 
         // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.
@@ -460,7 +489,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task DeleteAllChannelsAsync()
         {
-            var tasks = this.Channels.Select(xc => xc.DeleteAsync());
+            var tasks = this.Channels.Values.Select(xc => xc.DeleteAsync());
             return Task.WhenAll(tasks);
         }
 
@@ -560,16 +589,15 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a member of this guild by his user ID.
         /// </summary>
-        /// <param name="user_id">ID of the member to get.</param>
+        /// <param name="userId">ID of the member to get.</param>
         /// <returns>The requested member.</returns>
-        public async Task<DiscordMember> GetMemberAsync(ulong user_id)
+        public async Task<DiscordMember> GetMemberAsync(ulong userId)
         {
-            var mbr = this._members.FirstOrDefault(xm => xm.Id == user_id);
-            if (mbr != null)
+            if (this._members.TryGetValue(userId, out var mbr))
                 return mbr;
 
-            mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, user_id).ConfigureAwait(false);
-            this._members.Add(mbr);
+            mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, userId).ConfigureAwait(false);
+            this._members[userId] = mbr;
             return mbr;
         }
 
@@ -645,7 +673,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created role.</returns>
         public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
-            => this.Discord.ApiClient.CreateGuildRole(this.Id, name, permissions, color?.Value, hoist, mentionable, reason);
+            => this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, reason);
 
         /// <summary>
         /// Gets a role from this guild by its ID.
@@ -653,7 +681,7 @@ namespace DSharpPlus.Entities
         /// <param name="id">ID of the role to get.</param>
         /// <returns>Requested role.</returns>
         public DiscordRole GetRole(ulong id)
-            => this._roles.FirstOrDefault(xr => xr.Id == id);
+            => this._roles.TryGetValue(id, out var role) ? role : null;
 
         /// <summary>
         /// Gets a channel from this guild by its ID.
@@ -661,7 +689,7 @@ namespace DSharpPlus.Entities
         /// <param name="id">ID of the channel to get.</param>
         /// <returns>Requested channel.</returns>
         public DiscordChannel GetChannel(ulong id)
-            => this._channels.FirstOrDefault(xc => xc.Id == id);
+            => this._channels.TryGetValue(id, out var channel) ? channel : null;
 
         /// <summary>
         /// Gets audit log entries for this guild.
@@ -672,8 +700,6 @@ namespace DSharpPlus.Entities
         /// <returns>A collection of requested audit log entries.</returns>
         public async Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
         {
-            var gms = this._members.ToDictionary(xm => xm.Id, xm => xm);
-
             var alrs = new List<AuditLog>();
             int ac = 1, tc = 0, rmn = 100;
             var last = 0ul;
@@ -722,7 +748,7 @@ namespace DSharpPlus.Entities
                 .GroupBy(xh => xh.Id)
                 .Select(xgh => xgh.First());
 
-            var ams = amr.Select(xau => gms.ContainsKey(xau.Id) ? gms[xau.Id] : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
+            var ams = amr.Select(xau => this._members.TryGetValue(xau.Id, out var member) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
             var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
 
             Dictionary<ulong, DiscordWebhook> ahd = null;
@@ -731,7 +757,7 @@ namespace DSharpPlus.Entities
                 var whr = await this.GetWebhooksAsync().ConfigureAwait(false);
                 var whs = whr.ToDictionary(xh => xh.Id, xh => xh);
 
-                var amh = ahr.Select(xah => whs.ContainsKey(xah.Id) ? whs[xah.Id] : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
+                var amh = ahr.Select(xah => whs.TryGetValue(xah.Id, out var webhook) ? webhook : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
                 ahd = amh.ToDictionary(xh => xh.Id, xh => xh);
             }
 
@@ -767,8 +793,8 @@ namespace DSharpPlus.Entities
                                 case "owner_id":
                                     entrygld.OwnerChange = new PropertyChange<DiscordMember>
                                     {
-                                        Before = gms.ContainsKey(xc.OldValueUlong) ? gms[xc.OldValueUlong] : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
-                                        After = gms.ContainsKey(xc.NewValueUlong) ? gms[xc.NewValueUlong] : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
+                                        Before = this._members.TryGetValue(xc.OldValueUlong, out var oldMember) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
+                                        After = this._members.TryGetValue(xc.NewValueUlong, out var newMember) ? newMember : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
                                     };
                                     break;
 
@@ -794,8 +820,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.AfkChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
-                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                        Before = this.GetChannel(t1),
+                                        After = this.GetChannel(t2)
                                     };
                                     break;
 
@@ -805,8 +831,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.EmbedChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
-                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                        Before = this.GetChannel(t1),
+                                        After = this.GetChannel(t2)
                                     };
                                     break;
 
@@ -832,8 +858,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.SystemChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this._channels.FirstOrDefault(xch => xch.Id == t1),
-                                        After = this._channels.FirstOrDefault(xch => xch.Id == t2)
+                                        Before = this.GetChannel(t1),
+                                        After = this.GetChannel(t2)
                                     };
                                     break;
 
@@ -865,7 +891,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.ChannelUpdate:
                         entry = new DiscordAuditLogChannelEntry
                         {
-                            Target = this._channels.FirstOrDefault(xch => xch.Id == xac.TargetId.Value) ?? new DiscordChannel { Id = xac.TargetId.Value }
+                            Target = this.GetChannel(xac.TargetId.Value) ?? new DiscordChannel { Id = xac.TargetId.Value }
                         };
 
                         var entrychn = entry as DiscordAuditLogChannelEntry;
@@ -952,8 +978,8 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.OverwriteUpdate:
                         entry = new DiscordAuditLogOverwriteEntry
                         {
-                            Target = this._channels.FirstOrDefault(xc => xc.Id == xac.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == xac.Options.Id),
-                            Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.TargetId.Value)
+                            Target = this.GetChannel(xac.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == xac.Options.Id),
+                            Channel = this.GetChannel(xac.TargetId.Value)
                         };
 
                         var entryovr = entry as DiscordAuditLogOverwriteEntry;
@@ -1012,7 +1038,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.Kick:
                         entry = new DiscordAuditLogKickEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var kickMember) ? kickMember : new DiscordMember { Id = xac.TargetId.Value }
                         };
                         break;
 
@@ -1028,7 +1054,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.Unban:
                         entry = new DiscordAuditLogBanEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var unbanMember) ? unbanMember : new DiscordMember { Id = xac.TargetId.Value }
                         };
                         break;
 
@@ -1036,7 +1062,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.MemberRoleUpdate:
                         entry = new DiscordAuditLogMemberUpdateEntry
                         {
-                            Target = amd.ContainsKey(xac.TargetId.Value) ? amd[xac.TargetId.Value] : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var roleUpdMember) ? roleUpdMember : new DiscordMember { Id = xac.TargetId.Value }
                         };
 
                         var entrymbu = entry as DiscordAuditLogMemberUpdateEntry;
@@ -1055,25 +1081,25 @@ namespace DSharpPlus.Entities
                                 case "deaf":
                                     entrymbu.DeafenChange = new PropertyChange<bool?>
                                     {
-                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
-                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                        Before = (bool?) xc.OldValue,
+                                        After = (bool?) xc.NewValue
                                     };
                                     break;
 
                                 case "mute":
                                     entrymbu.MuteChange = new PropertyChange<bool?>
                                     {
-                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
-                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                        Before = (bool?) xc.OldValue,
+                                        After = (bool?) xc.NewValue
                                     };
                                     break;
 
                                 case "$add":
-                                    entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(xul => this._roles.FirstOrDefault(xr => xr.Id == xul)).ToList());
+                                    entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
                                     break;
 
                                 case "$remove":
-                                    entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(xul => this._roles.FirstOrDefault(xr => xr.Id == xul)).ToList());
+                                    entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
                                     break;
 
                                 default:
@@ -1088,7 +1114,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.RoleUpdate:
                         entry = new DiscordAuditLogRoleUpdateEntry
                         {
-                            Target = this._roles.FirstOrDefault(xr => xr.Id == xac.TargetId.Value) ?? new DiscordRole { Id = xac.TargetId.Value }
+                            Target = this.GetRole(xac.TargetId.Value) ?? new DiscordRole { Id = xac.TargetId.Value }
                         };
 
                         var entryrol = entry as DiscordAuditLogRoleUpdateEntry;
@@ -1211,8 +1237,8 @@ namespace DSharpPlus.Entities
 
                                     entryinv.InviterChange = new PropertyChange<DiscordMember>
                                     {
-                                        Before = amd.ContainsKey(t1) ? amd[t1] : null,
-                                        After = amd.ContainsKey(t2) ? amd[t2] : null,
+                                        Before = amd.TryGetValue(t1, out var propBeforeMember) ? propBeforeMember : null,
+                                        After = amd.TryGetValue(t2, out var propAfterMember) ? propAfterMember : null,
                                     };
                                     break;
 
@@ -1222,8 +1248,8 @@ namespace DSharpPlus.Entities
 
                                     entryinv.ChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = p1 ? this._channels.FirstOrDefault(xch => xch.Id == t1) : null,
-                                        After = p2 ? this._channels.FirstOrDefault(xch => xch.Id == t2) : null
+                                        Before = p1 ? this.GetChannel(t1) : null,
+                                        After = p2 ? this.GetChannel(t2) : null
                                     };
 
                                     var ch = entryinv.ChannelChange.Before ?? entryinv.ChannelChange.After;
@@ -1273,7 +1299,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.WebhookUpdate:
                         entry = new DiscordAuditLogWebhookEntry
                         {
-                            Target = ahd.ContainsKey(xac.TargetId.Value) ? ahd[xac.TargetId.Value] : new DiscordWebhook { Id = xac.TargetId.Value }
+                            Target = ahd.TryGetValue(xac.TargetId.Value, out var webhook) ? webhook : new DiscordWebhook { Id = xac.TargetId.Value }
                         };
 
                         var entrywhk = entry as DiscordAuditLogWebhookEntry;
@@ -1295,8 +1321,8 @@ namespace DSharpPlus.Entities
 
                                     entrywhk.ChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = p1 ? this._channels.FirstOrDefault(xch => xch.Id == t1) : null,
-                                        After = p2 ? this._channels.FirstOrDefault(xch => xch.Id == t2) : null
+                                        Before = p1 ? this.GetChannel(t1) : null,
+                                        After = p2 ? this.GetChannel(t2) : null
                                     };
                                     break;
 
@@ -1331,7 +1357,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.EmojiUpdate:
                         entry = new DiscordAuditLogEmojiEntry
                         {
-                            Target = this._emojis.FirstOrDefault(xe => xe.Id == xac.TargetId.Value) ?? new DiscordEmoji { Id = xac.TargetId.Value }
+                            Target = this._emojis.TryGetValue(xac.TargetId.Value, out var target) ? target : new DiscordEmoji { Id = xac.TargetId.Value }
                         };
 
                         var entryemo = entry as DiscordAuditLogEmojiEntry;
@@ -1348,7 +1374,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in member update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in emoji update: {xc.Key}; this should be reported to devs", DateTime.Now);
                                     break;
                             }
                         }
@@ -1357,7 +1383,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.MessageDelete:
                         entry = new DiscordAuditLogMessageEntry
                         {
-                            Channel = this._channels.FirstOrDefault(xc => xc.Id == xac.Options?.ChannelId),
+                            Channel = xac.Options != null ? this.GetChannel(xac.Options.ChannelId) : null,
                             MessageCount = xac.Options?.MessageCount
                         };
 
@@ -1427,26 +1453,6 @@ namespace DSharpPlus.Entities
             }
 
             return new ReadOnlyCollection<DiscordAuditLogEntry>(entries);
-        }
-
-        /// <summary>
-        /// Sends a guild sync request for this guild. This fills the guild's member and presence information, and starts dispatching additional events.
-        /// 
-        /// This can only be done for user tokens.
-        /// </summary>
-        /// <returns></returns>
-        public Task SyncAsync()
-            => this.Discord is DiscordClient dc ? dc.SyncGuildsAsync(this) : Task.Delay(0);
-
-        /// <summary>
-        /// Acknowledges all the messages in this guild. This is available to user tokens only.
-        /// </summary>
-        /// <returns></returns>
-        public Task AcknowledgeAsync()
-        {
-            if (this.Discord.Configuration.TokenType == TokenType.User)
-                return this.Discord.ApiClient.AcknowledgeGuildAsync(this.Id);
-            throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
         }
 
         /// <summary>
@@ -1541,9 +1547,9 @@ namespace DSharpPlus.Entities
         /// <returns>This member's default guild.</returns>
         public DiscordChannel GetDefaultChannel()
         {
-            return this._channels.Where(xc => xc.Type == ChannelType.Text)
+            return this._channels.Values.Where(xc => xc.Type == ChannelType.Text)
                 .OrderBy(xc => xc.Position)
-                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & Permissions.AccessChannels) == Permissions.AccessChannels);
+                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
         }
         #endregion
 

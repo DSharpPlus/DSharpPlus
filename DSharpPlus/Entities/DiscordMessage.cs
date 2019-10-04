@@ -255,7 +255,7 @@ namespace DSharpPlus.Entities
         /// <param name="embed">New embed.</param>
         /// <returns></returns>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content = default, Optional<DiscordEmbed> embed = default) 
-            => this.Discord.ApiClient.EditMessageAsync(ChannelId, Id, content, embed);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed);
 
         /// <summary>
         /// Deletes the message.
@@ -263,6 +263,14 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task DeleteAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
+
+        /// <summary>
+        /// Removes all embeds in the message.
+        /// </summary>
+        /// <param name="suppress">Whether to suppress all embeds.</param>
+        /// <returns></returns>
+        public Task SuppressEmbedsAsync(bool suppress = true)
+            => this.Discord.ApiClient.SuppressEmbedsAsync(suppress, this.ChannelId, this.Id);
 
         /// <summary>
         /// Pins the message in its channel.
@@ -379,17 +387,6 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
-
-        /// <summary>
-        /// Acknowledges the message. This is available to user tokens only.
-        /// </summary>
-        /// <returns></returns>
-        public Task AcknowledgeAsync()
-        {
-            if (this.Discord.Configuration.TokenType == TokenType.User)
-                return this.Discord.ApiClient.AcknowledgeMessageAsync(this.Id, this.Channel.Id);
-            throw new InvalidOperationException("ACK can only be used when logged in as regular user.");
-        }
         
         /// <summary>
         /// Returns a string representation of this message.

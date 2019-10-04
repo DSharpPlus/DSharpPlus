@@ -8,23 +8,23 @@ namespace DSharpPlus.CommandsNext.Converters
 {
     public class DateTimeConverter : IArgumentConverter<DateTime>
     {
-        public Task<Optional<DateTime>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DateTime>> IArgumentConverter<DateTime>.ConvertAsync(string value, CommandContext ctx)
         {
             if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
                 return Task.FromResult(new Optional<DateTime>(result));
 
-            return Task.FromResult(Optional<DateTime>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<DateTime>());
         }
     }
 
     public class DateTimeOffsetConverter : IArgumentConverter<DateTimeOffset>
     {
-        public Task<Optional<DateTimeOffset>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DateTimeOffset>> IArgumentConverter<DateTimeOffset>.ConvertAsync(string value, CommandContext ctx)
         {
             if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-                return Task.FromResult(Optional<DateTimeOffset>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
-            return Task.FromResult(Optional<DateTimeOffset>.FromNoValue());
+            return Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
         }
     }
 
@@ -41,24 +41,24 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        public Task<Optional<TimeSpan>> ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<TimeSpan>> IArgumentConverter<TimeSpan>.ConvertAsync(string value, CommandContext ctx)
         {
             if (value == "0")
-                return Task.FromResult(Optional<TimeSpan>.FromValue(TimeSpan.Zero));
+                return Task.FromResult(Optional.FromValue(TimeSpan.Zero));
 
             if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
-                return Task.FromResult(Optional<TimeSpan>.FromNoValue());
+                return Task.FromResult(Optional.FromNoValue<TimeSpan>());
 
             if (!ctx.Config.CaseSensitive)
                 value = value.ToLowerInvariant();
 
             if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
-                return Task.FromResult(Optional<TimeSpan>.FromValue(result));
+                return Task.FromResult(Optional.FromValue(result));
 
             var gps = new string[] { "days", "hours", "minutes", "seconds" };
             var mtc = TimeSpanRegex.Match(value);
             if (!mtc.Success)
-                return Task.FromResult(Optional<TimeSpan>.FromNoValue());
+                return Task.FromResult(Optional.FromNoValue<TimeSpan>());
 
             var d = 0;
             var h = 0;
@@ -92,7 +92,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 }
             }
             result = new TimeSpan(d, h, m, s);
-            return Task.FromResult(Optional<TimeSpan>.FromValue(result));
+            return Task.FromResult(Optional.FromValue(result));
         }
     }
 }

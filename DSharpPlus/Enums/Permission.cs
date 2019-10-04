@@ -4,7 +4,7 @@ namespace DSharpPlus
 {
     public static class PermissionMethods
     {
-        internal static Permissions FULL_PERMS { get; } = (Permissions)2146958591L;
+        internal static Permissions FULL_PERMS { get; } = (Permissions)2146958847L;
 
         /// <summary>
         /// Calculates whether this permission set contains the given permission.
@@ -12,12 +12,7 @@ namespace DSharpPlus
         /// <param name="p">The permissions to calculate from</param>
         /// <param name="permission">permission you want to check</param>
         /// <returns></returns>
-        public static bool HasPermission(this Permissions p, Permissions permission)
-        {
-            if ((p & permission) == permission)
-                return true;
-            return false;
-        }
+        public static bool HasPermission(this Permissions p, Permissions permission) => (p & permission) == permission;
 
         /// <summary>
         /// Grants permissions.
@@ -116,6 +111,12 @@ namespace DSharpPlus
         /// </summary>
         [PermissionString("View audit log")]
         ViewAuditLog = 0x0000000000000080,
+
+        /// <summary>
+        /// Allows the use of priority speaker.
+        /// </summary>
+        [PermissionString("Use priority speaker")]
+        PrioritySpeaker = 0x0000000000000100,
 
         /// <summary>
         /// Allows accessing text and voice channels. Disabling this permission hides channels.
@@ -247,7 +248,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the readable name for this permission.
         /// </summary>
-        public string String { get; private set; }
+        public string String { get; }
 
         /// <summary>
         /// Defines a readable name for this permission.

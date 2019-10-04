@@ -48,7 +48,7 @@ namespace DSharpPlus
                 vs = v.ToString(3);
             }
 
-            VersionHeader = $"DiscordBot (https://github.com/NaamloosDT/DSharpPlus, v{vs})";
+            VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
         }
 
         internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)

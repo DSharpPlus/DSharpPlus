@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Net
@@ -60,7 +59,7 @@ namespace DSharpPlus.Net
 
             if (headers != null)
             {
-                headers = headers.Select(x => new KeyValuePair<string, string>(WebUtility.UrlEncode(x.Key), WebUtility.UrlEncode(x.Value)))
+                headers = headers.Select(x => new KeyValuePair<string, string>(x.Key, Uri.EscapeDataString(x.Value)))
                     .ToDictionary(x => x.Key, x => x.Value);
                 this.Headers = new ReadOnlyDictionary<string, string>(headers);
             }

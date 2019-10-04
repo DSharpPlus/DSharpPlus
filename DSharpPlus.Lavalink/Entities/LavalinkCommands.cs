@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities
@@ -82,6 +83,18 @@ namespace DSharpPlus.Lavalink.Entities
             : base("volume", lvl.GuildIdString)
         {
             this.Volume = volume;
+        }
+    }
+
+    internal sealed class LavalinkEqualizer : LavalinkPayload
+    {
+        [JsonProperty("bands")]
+        public IEnumerable<LavalinkBandAdjustment> Bands { get; }
+
+        public LavalinkEqualizer(LavalinkGuildConnection lvl, IEnumerable<LavalinkBandAdjustment> bands)
+            : base("equalizer", lvl.GuildIdString)
+        {
+            this.Bands = bands;
         }
     }
 }
