@@ -153,6 +153,16 @@ namespace DSharpPlus.CommandsNext
             => this.Message.RespondWithFilesAsync(files, content, isTTS, embed);
 
         /// <summary>
+        /// Quickly respond to the message with a direct message.
+        /// </summary>
+        /// <param name="content">Message to respond with.</param>
+        /// <param name="isTTS">Whether the message is to be spoken aloud.</param>
+        /// <param name="embed">Embed to attach.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> RespondWithDmAsync(string content = null, bool isTTS = false, DiscordEmbed embed = null)
+            => Member != null ? Member.SendMessageAsync(content, isTTS, embed) : RespondAsync(content, isTTS, embed);
+
+        /// <summary>
         /// Triggers typing in the channel containing the message that triggered the command.
         /// </summary>
         /// <returns></returns>
