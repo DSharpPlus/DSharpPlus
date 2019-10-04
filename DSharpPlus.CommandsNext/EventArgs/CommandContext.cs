@@ -160,7 +160,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="embed">Embed to attach.</param>
         /// <returns></returns>
         public Task<DiscordMessage> RespondWithDmAsync(string content = null, bool isTTS = false, DiscordEmbed embed = null)
-            => Member != null ? Member.SendMessageAsync(content, isTTS, embed) : RespondAsync(content, isTTS, embed);
+            => this.Member != null ? this.Member.SendMessageAsync(content, isTTS, embed) : this.RespondAsync(content, isTTS, embed);
 
         /// <summary>
         /// Triggers typing in the channel containing the message that triggered the command.
