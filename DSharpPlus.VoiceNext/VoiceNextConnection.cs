@@ -982,7 +982,7 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceWs.MessageReceived += this.VoiceWS_SocketMessage;
                 this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
 
-                if(this.Resume) // emzi you dipshit
+                if (this.Resume) // emzi you dipshit
                     await this.ConnectAsync().ConfigureAwait(false);
             }
         }
