@@ -981,7 +981,9 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceWs.Disconnected += this.VoiceWS_SocketClosed;
                 this.VoiceWs.MessageReceived += this.VoiceWS_SocketMessage;
                 this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
-                await this.ConnectAsync().ConfigureAwait(false);
+
+                if(this.Resume) // emzi you dipshit
+                    await this.ConnectAsync().ConfigureAwait(false);
             }
         }
 
