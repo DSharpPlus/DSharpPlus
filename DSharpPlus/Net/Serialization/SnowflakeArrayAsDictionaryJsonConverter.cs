@@ -35,7 +35,7 @@ namespace DSharpPlus.Net.Serialization
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var constructor = objectType.GetTypeInfo().DeclaredConstructors
-                .FirstOrDefault(e => e.GetParameters().Length == 0);
+                .FirstOrDefault(e => !e.IsStatic && e.GetParameters().Length == 0);
 
             var dict = constructor.Invoke(new object[] {});
 
