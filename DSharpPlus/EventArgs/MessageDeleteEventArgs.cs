@@ -22,7 +22,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordGuild Guild
             => this.Channel.Guild;
-            
 
         internal MessageDeleteEventArgs(DiscordClient client) : base(client) { }
     }
