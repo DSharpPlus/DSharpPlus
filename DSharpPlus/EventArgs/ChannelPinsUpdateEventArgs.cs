@@ -9,11 +9,6 @@ namespace DSharpPlus.EventArgs
     public class ChannelPinsUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the guild in which the update occured.
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
-
-        /// <summary>
         /// Gets the channel in which the update occured.
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
