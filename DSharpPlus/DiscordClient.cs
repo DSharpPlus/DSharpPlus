@@ -2423,10 +2423,16 @@ namespace DSharpPlus
             DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             this.CurrentUser = null;
 
+            var extensions = _extensions; // prevent _extensions being modified during dispose
+            _extensions = null;
+            foreach (var extension in extensions)
+            {
+                if (extension is IDisposable disposable) disposable.Dispose();
+            }
+
             _cancelTokenSource?.Cancel();
             _guilds = null;
             _heartbeatTask = null;
-            _extensions = null;
             _privateChannels = null;
             _webSocketClient.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
             _webSocketClient.Dispose();
