@@ -179,6 +179,11 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
 
+        /// <summary>
+        /// Gets the current amount of VoicePackets in the Queue.
+        /// </summary>
+        public int PacketQueueCount { get => PacketQueue.Count; }
+
         internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceNextConfiguration config, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
             this.Discord = client;
