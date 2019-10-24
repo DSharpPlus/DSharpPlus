@@ -92,7 +92,7 @@ namespace DSharpPlus.Test
         {
             if (this.ContextChannel == null)
                 return;
-            
+
             await this.ContextChannel.SendMessageAsync($"Playback of {Formatter.Bold(Formatter.Sanitize(e.Track.Title))} by {Formatter.Bold(Formatter.Sanitize(e.Track.Author))} finished.").ConfigureAwait(false);
             this.ContextChannel = null;
         }
@@ -134,6 +134,19 @@ namespace DSharpPlus.Test
             this.LavalinkVoice.Play(track);
 
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+        }
+
+        [Command, Description("Queues track for playback.")]
+        public async Task PlaySoundCloudAsync(CommandContext ctx, string search)
+        {
+            if (this.Lavalink == null)
+                return;
+
+            var result = await this.Lavalink.GetTracksAsync(search, LavalinkSearchType.SoundCloud);
+            var track = result.Tracks.First();
+            this.LavalinkVoice.Play(track);
+
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.");
         }
 
         [Command, Description("Queues tracks for playback.")]
