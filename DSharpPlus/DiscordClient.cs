@@ -644,7 +644,7 @@ namespace DSharpPlus
                 case "channel_pins_update":
                     cid = (ulong)dat["channel_id"];
                     var ts = (string)dat["last_pin_timestamp"];
-                    await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
+                    await this.OnChannelPinsUpdate((ulong?)dat["guild_id"], this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
                     break;
        
                 case "guild_create":
@@ -742,12 +742,12 @@ namespace DSharpPlus
                     break;
 
                 // delete event does *not* include message object 
-                case "message_delete":
-                    await OnMessageDeleteEventAsync((ulong)dat["id"], (ulong)dat["channel_id"]).ConfigureAwait(false);
+                case "message_delete":                                                                              
+                    await OnMessageDeleteEventAsync((ulong)dat["id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
                     break;
 
                 case "message_delete_bulk":
-                    await OnMessageBulkDeleteEventAsync(dat["ids"].ToObject<ulong[]>(), (ulong)dat["channel_id"]).ConfigureAwait(false);
+                    await OnMessageBulkDeleteEventAsync(dat["ids"].ToObject<ulong[]>(), (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
                     break;
 
                 case "presence_update":
@@ -756,7 +756,7 @@ namespace DSharpPlus
 
                 case "typing_start":
                     cid = (ulong)dat["channel_id"];
-                    await OnTypingStartEventAsync((ulong)dat["user_id"], this.InternalGetCachedChannel(cid), Utilities.GetDateTimeOffset((long)dat["timestamp"])).ConfigureAwait(false);
+                    await OnTypingStartEventAsync((ulong)dat["user_id"], this.InternalGetCachedChannel(cid), (ulong?)dat["guild_id"], Utilities.GetDateTimeOffset((long)dat["timestamp"])).ConfigureAwait(false);
                     break;
 
                 case "user_settings_update":
@@ -777,15 +777,15 @@ namespace DSharpPlus
                     break;
 
                 case "message_reaction_add":
-                    await OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
+                    await OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
                     break;
 
                 case "message_reaction_remove":
-                    await OnMessageReactionRemoveAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
+                    await OnMessageReactionRemoveAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
                     break;
 
                 case "message_reaction_remove_all":
-                    await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"]).ConfigureAwait(false);
+                    await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
                     break;
 
                 case "webhooks_update":
@@ -1043,13 +1043,16 @@ namespace DSharpPlus
             }
         }
 
-        internal async Task OnChannelPinsUpdate(DiscordChannel channel, DateTimeOffset? lastPinTimestamp)
+        internal async Task OnChannelPinsUpdate(ulong? guildId, DiscordChannel channel, DateTimeOffset? lastPinTimestamp)
         {
             if (channel == null)
                 return;
 
+            var guild = this.InternalGetCachedGuild(guildId);
+
             var ea = new ChannelPinsUpdateEventArgs(this)
             {
+                Guild = guild,
                 Channel = channel,
                 LastPinTimestamp = lastPinTimestamp
             };
@@ -1725,10 +1728,11 @@ namespace DSharpPlus
             await this._messageUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageDeleteEventAsync(ulong messageId, ulong channelId)
+        internal async Task OnMessageDeleteEventAsync(ulong messageId, ulong channelId, ulong? guildId)
         {
             var channel = this.InternalGetCachedChannel(channelId);
-
+            var guild = this.InternalGetCachedGuild(guildId);
+            
             if (channel == null || this.Configuration.MessageCacheSize == 0 ||
                 !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
@@ -1739,18 +1743,20 @@ namespace DSharpPlus
                     Discord = this,
                 };
             }
+
             if (this.Configuration.MessageCacheSize > 0)
                 this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
 
             var ea = new MessageDeleteEventArgs(this)
             {
                 Channel = channel,
-                Message = msg
+                Message = msg,
+                Guild = guild
             };
             await this._messageDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageBulkDeleteEventAsync(ulong[] messageIds, ulong channelId)
+        internal async Task OnMessageBulkDeleteEventAsync(ulong[] messageIds, ulong channelId, ulong? guildId)
         {
             var channel = this.InternalGetCachedChannel(channelId);
 
@@ -1772,15 +1778,18 @@ namespace DSharpPlus
                 msgs.Add(msg);
             }
 
+            var guild = this.InternalGetCachedGuild(guildId);
+
             var ea = new MessageBulkDeleteEventArgs(this)
             {
                 Channel = channel,
-                Messages = new ReadOnlyCollection<DiscordMessage>(msgs)
+                Messages = new ReadOnlyCollection<DiscordMessage>(msgs),
+                Guild = guild
             };
             await this._messagesBulkDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnTypingStartEventAsync(ulong userId, DiscordChannel channel, DateTimeOffset started)
+        internal async Task OnTypingStartEventAsync(ulong userId, DiscordChannel channel, ulong? guildId, DateTimeOffset started)
         {
             if (channel == null)
                 return;
@@ -1793,10 +1802,13 @@ namespace DSharpPlus
                     ? member
                     : new DiscordMember(user) { Discord = this, _guild_id = channel.GuildId };
 
+            var guild = this.InternalGetCachedGuild(guildId);
+
             var ea = new TypingStartEventArgs(this)
             {
                 Channel = channel,
                 User = user,
+                Guild = guild,
                 StartedAt = started
             };
             await this._typingStarted.InvokeAsync(ea).ConfigureAwait(false);
@@ -1922,16 +1934,18 @@ namespace DSharpPlus
             await this._unknownEvent.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageReactionAddAsync(ulong userId, ulong messageId, ulong channelId, DiscordEmoji emoji)
+        internal async Task OnMessageReactionAddAsync(ulong userId, ulong messageId, ulong channelId, ulong? guildId, DiscordEmoji emoji)
         {
             var channel = this.InternalGetCachedChannel(channelId);
+
+            var guild = this.InternalGetCachedGuild(guildId);
 
             emoji.Discord = this;
 
             if (!this.UserCache.TryGetValue(userId, out var usr))
                 usr = new DiscordUser { Id = userId, Discord = this };
 
-            if (channel?.Guild != null)
+            if (guild != null)
                 usr = channel.Guild.Members.TryGetValue(userId, out var member)
                     ? member
                     : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
@@ -1968,12 +1982,13 @@ namespace DSharpPlus
             {
                 Message = msg,
                 User = usr,
+                Guild = guild,
                 Emoji = emoji
             };
             await this._messageReactionAdded.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageReactionRemoveAsync(ulong userId, ulong messageId, ulong channelId, DiscordEmoji emoji)
+        internal async Task OnMessageReactionRemoveAsync(ulong userId, ulong messageId, ulong channelId, ulong? guildId, DiscordEmoji emoji)
         {
             var channel = this.InternalGetCachedChannel(channelId);
 
@@ -2013,16 +2028,19 @@ namespace DSharpPlus
                         }
             }
 
+            var guild = this.InternalGetCachedGuild(guildId);
+
             var ea = new MessageReactionRemoveEventArgs(this)
             {
                 Message = msg,
                 User = usr,
+                Guild = guild,
                 Emoji = emoji
             };
             await this._messageReactionRemoved.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId)
+        internal async Task OnMessageReactionRemoveAllAsync(ulong messageId, ulong channelId, ulong? guildId)
         {
             var channel = this.InternalGetCachedChannel(channelId);
 
@@ -2039,7 +2057,14 @@ namespace DSharpPlus
 
             msg._reactions?.Clear();
 
-            var ea = new MessageReactionsClearEventArgs(this) { Message = msg };
+            var guild = this.InternalGetCachedGuild(guildId);
+
+            var ea = new MessageReactionsClearEventArgs(this)
+            {
+                Message = msg,
+                Guild = guild
+            };
+
             await this._messageReactionsCleared.InvokeAsync(ea).ConfigureAwait(false);
         }
 
@@ -2292,6 +2317,15 @@ namespace DSharpPlus
             foreach (var guild in this.Guilds.Values)
                 if (guild.Channels.TryGetValue(channelId, out var foundChannel))
                     return foundChannel;
+
+            return null;
+        }
+
+        internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
+        {
+            if (guildId.HasValue)
+                if (this._guilds.TryGetValue(guildId.Value, out var foundGuild))
+                    return foundGuild;
 
             return null;
         }
