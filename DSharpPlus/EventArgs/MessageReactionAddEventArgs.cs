@@ -21,7 +21,7 @@ namespace DSharpPlus.EventArgs
         /// </remarks>
         public DiscordChannel Channel
             => Message.Channel;
-        
+
         /// <summary>
         /// Gets the user who created the reaction.
         /// </summary>

@@ -643,10 +643,10 @@ namespace DSharpPlus
 
                 case "channel_pins_update":
                     cid = (ulong)dat["channel_id"];
-		    var ts = (string)dat["last_pin_timestamp"];
+                    var ts = (string)dat["last_pin_timestamp"];
                     await this.OnChannelPinsUpdate(this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
                     break;
-
+       
                 case "guild_create":
                     await OnGuildCreateEventAsync(dat.ToObject<DiscordGuild>(), (JArray)dat["members"], dat["presences"].ToObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
                     break;
@@ -1728,7 +1728,7 @@ namespace DSharpPlus
         internal async Task OnMessageDeleteEventAsync(ulong messageId, ulong channelId)
         {
             var channel = this.InternalGetCachedChannel(channelId);
-            
+
             if (channel == null || this.Configuration.MessageCacheSize == 0 ||
                 !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
@@ -1789,7 +1789,7 @@ namespace DSharpPlus
                 user = new DiscordUser { Id = userId, Discord = this };
 
             if (channel.Guild != null)
-                user = channel.Guild.Members.TryGetValue(userId, out var member) 
+                user = channel.Guild.Members.TryGetValue(userId, out var member)
                     ? member
                     : new DiscordMember(user) { Discord = this, _guild_id = channel.GuildId };
 
