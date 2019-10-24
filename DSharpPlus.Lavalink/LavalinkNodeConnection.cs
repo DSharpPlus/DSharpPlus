@@ -178,7 +178,7 @@ namespace DSharpPlus.Lavalink
         internal Task StartAsync()
         {
             if (this.Discord?.CurrentUser?.Id == null || this.Discord?.ShardCount == null)
-                throw new InvalidOperationException("This operation requires Discord client to be fully initialized.");
+                throw new InvalidOperationException("This operation requires the Discord client to be fully initialized.");
 
             return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), new Dictionary<string, string>()
             {
@@ -256,19 +256,26 @@ namespace DSharpPlus.Lavalink
         /// <returns>Channel connection, which allows for playback control.</returns>
         public LavalinkGuildConnection GetConnection(DiscordGuild guild)
             => this.ConnectedGuilds.TryGetValue(guild.Id, out LavalinkGuildConnection lgc) && lgc.IsConnected ? lgc : null;
-        
+
         /// <summary>
-        /// Searches YouTube for specified terms.
+        /// Searches for specified terms.
         /// </summary>
         /// <param name="searchQuery">What to search for.</param>
+        /// <param name="type">What platform will search for.</param>
         /// <returns>A collection of tracks matching the criteria.</returns>
-        public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery)
+        public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery, LavalinkSearchType type = LavalinkSearchType.Youtube)
         {
-            var str = WebUtility.UrlEncode($"ytsearch:{searchQuery}");
+            string prefix;
+            if (type == LavalinkSearchType.Youtube)
+                prefix = "ytsearch";
+            else
+                prefix = "scsearch";
+
+            var str = WebUtility.UrlEncode($"{prefix}:{searchQuery}");
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
-        
+
         /// <summary>
         /// Loads tracks from specified URL.
         /// </summary>

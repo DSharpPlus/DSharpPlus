@@ -643,10 +643,10 @@ namespace DSharpPlus
 
                 case "channel_pins_update":
                     cid = (ulong)dat["channel_id"];
-		            var ts = (string)dat["last_pin_timestamp"];
+                    var ts = (string)dat["last_pin_timestamp"];
                     await this.OnChannelPinsUpdate((ulong?)dat["guild_id"], this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
                     break;
-
+       
                 case "guild_create":
                     await OnGuildCreateEventAsync(dat.ToObject<DiscordGuild>(), (JArray)dat["members"], dat["presences"].ToObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
                     break;
@@ -1731,9 +1731,8 @@ namespace DSharpPlus
         internal async Task OnMessageDeleteEventAsync(ulong messageId, ulong channelId, ulong? guildId)
         {
             var channel = this.InternalGetCachedChannel(channelId);
-
             var guild = this.InternalGetCachedGuild(guildId);
-
+            
             if (channel == null || this.Configuration.MessageCacheSize == 0 ||
                 !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
@@ -1799,7 +1798,7 @@ namespace DSharpPlus
                 user = new DiscordUser { Id = userId, Discord = this };
 
             if (channel.Guild != null)
-                user = channel.Guild.Members.TryGetValue(userId, out var member) 
+                user = channel.Guild.Members.TryGetValue(userId, out var member)
                     ? member
                     : new DiscordMember(user) { Discord = this, _guild_id = channel.GuildId };
 
@@ -2458,10 +2457,16 @@ namespace DSharpPlus
             DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             this.CurrentUser = null;
 
+            var extensions = _extensions; // prevent _extensions being modified during dispose
+            _extensions = null;
+            foreach (var extension in extensions)
+            {
+                if (extension is IDisposable disposable) disposable.Dispose();
+            }
+
             _cancelTokenSource?.Cancel();
             _guilds = null;
             _heartbeatTask = null;
-            _extensions = null;
             _privateChannels = null;
             _webSocketClient.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
             _webSocketClient.Dispose();

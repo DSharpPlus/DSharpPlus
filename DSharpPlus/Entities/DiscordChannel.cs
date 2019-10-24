@@ -604,14 +604,19 @@ namespace DSharpPlus.Entities
 
             // roles that member is in
             var mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
+
+            // assign permissions from member's roles (in order)
+            perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
+
+            // Adminstrator grants all permissions and cannot be overridden
+            if ((perms & Permissions.Administrator) == Permissions.Administrator)
+                return PermissionMethods.FULL_PERMS;
+
             // channel overrides for roles that member is in
             var mbRoleOverrides = mbRoles
                 .Select(xr => this._permissionOverwrites.FirstOrDefault(xo => xo.Id == xr.Id))
                 .Where(xo => xo != null)
                 .ToList();
-
-            // assign permissions from member's roles (in order)
-            perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
             
             // assign channel permission overwrites for @everyone pseudo-role
             var everyoneOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);

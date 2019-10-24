@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Linq;
+using DSharpPlus.Enums;
 
 namespace DSharpPlus.Entities
 {
@@ -17,6 +18,11 @@ namespace DSharpPlus.Entities
     {
         internal DiscordMessage()
         {
+            if (this.Application != null)
+                this.Application.Discord = this.Discord as DiscordClient;
+            if (this.Reference != null)
+                this.Reference._client = this.Discord as DiscordClient;
+
             this._attachmentsLazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
             this._embedsLazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));
             this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => {
@@ -76,7 +82,7 @@ namespace DSharpPlus.Entities
             => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId);
 
         /// <summary>
-        /// Gets ID of the channel in which the message was sent.
+        /// Gets the ID of the channel in which the message was sent.
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ChannelId { get; internal set; }
@@ -234,6 +240,24 @@ namespace DSharpPlus.Entities
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public MessageType? MessageType { get; internal set; }
 
+        /// <summary>
+        /// Gets the message activity in the Rich Presence embed.
+        /// </summary>
+        [JsonProperty("activity", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessageActivity Activity { get; internal set; }
+
+        /// <summary>
+        /// Gets the message application in the Rich Presence embed.
+        /// </summary>
+        [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessageApplication Application { get; internal set; }
+
+        /// <summary>
+        /// Gets the original message reference from the crossposted message.
+        /// </summary>
+        [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessageReference Reference { get; internal set; }
+            
         /// <summary>
         /// Gets whether the message originated from a webhook.
         /// </summary>
@@ -465,51 +489,5 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two messages are not equal.</returns>
         public static bool operator !=(DiscordMessage e1, DiscordMessage e2) 
             => !(e1 == e2);
-    }
-
-    /// <summary>
-    /// Indicates the type of the message.
-    /// </summary>
-    public enum MessageType : int
-    {
-        /// <summary>
-        /// Indicates a regular message.
-        /// </summary>
-        Default = 0,
-
-        /// <summary>
-        /// Message indicating a recipient was added to a group direct message.
-        /// </summary>
-        RecipientAdd = 1,
-
-        /// <summary>
-        /// Message indicating a recipient was removed from a group direct message.
-        /// </summary>
-        RecipientRemove = 2,
-
-        /// <summary>
-        /// Message indicating a call.
-        /// </summary>
-        Call = 3,
-
-        /// <summary>
-        /// Message indicating a group direct message channel rename.
-        /// </summary>
-        ChannelNameChange = 4,
-
-        /// <summary>
-        /// Message indicating a group direct message channel icon change.
-        /// </summary>
-        ChannelIconChange = 5,
-
-        /// <summary>
-        /// USER pinned a message to this channel.
-        /// </summary>
-        ChannelPinnedMessage = 6,
-
-        /// <summary>
-        /// Message when a guild member joins. Most frequently seen in newer, smaller guilds.
-        /// </summary>
-        GuildMemberJoin = 7
     }
 }
