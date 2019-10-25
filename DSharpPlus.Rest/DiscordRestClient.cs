@@ -897,12 +897,13 @@ namespace DSharpPlus
 
         #region Invites
         /// <summary>
-        /// Gets an invite
+        /// Gets an invite.
         /// </summary>
-        /// <param name="invite_code">Invite code</param>
+        /// <param name="invite_code">The invite code.</param>
+        /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> GetInvite(string invite_code)
-            => ApiClient.GetInviteAsync(invite_code);
+        public Task<DiscordInvite> GetInvite(string invite_code, bool? withCounts = null)
+            => ApiClient.GetInviteAsync(invite_code, withCounts);
 
         /// <summary>
         /// Removes an invite

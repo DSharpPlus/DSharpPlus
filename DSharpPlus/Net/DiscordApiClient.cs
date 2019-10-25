@@ -1363,12 +1363,16 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Invite
-        internal async Task<DiscordInvite> GetInviteAsync(string invite_code)
+        internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts)
         {
+            var urlparams = new Dictionary<string, string>();
+            if (with_counts.HasValue)
+                urlparams["with_counts"] = with_counts?.ToString(CultureInfo.InvariantCulture);
+
             var route = $"{Endpoints.INVITES}/:invite_code";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { invite_code }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
+            var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
