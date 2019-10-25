@@ -1367,7 +1367,7 @@ namespace DSharpPlus.Net
         {
             var urlparams = new Dictionary<string, string>();
             if (with_counts.HasValue)
-                urlparams["with_counts"] = with_counts?.ToString(CultureInfo.InvariantCulture);
+                urlparams["with_counts"] = with_counts?.ToString();
 
             var route = $"{Endpoints.INVITES}/:invite_code";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { invite_code }, out var path);
