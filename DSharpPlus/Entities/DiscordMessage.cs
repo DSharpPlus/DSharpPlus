@@ -18,11 +18,6 @@ namespace DSharpPlus.Entities
     {
         internal DiscordMessage()
         {
-            if (this.Application != null)
-                this.Application.Discord = this.Discord as DiscordClient;
-            if (this.Reference != null)
-                this.Reference._client = this.Discord as DiscordClient;
-
             this._attachmentsLazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
             this._embedsLazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));
             this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => {
@@ -252,12 +247,16 @@ namespace DSharpPlus.Entities
         [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMessageApplication Application { get; internal set; }
 
+        [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
+        internal InternalDiscordMessageReference? _reference { get; set; }
+
         /// <summary>
         /// Gets the original message reference from the crossposted message.
         /// </summary>
-        [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordMessageReference Reference { get; internal set; }
-            
+        [JsonIgnore]
+        public DiscordMessageReference Reference
+            => (this._reference.HasValue) ? this?.InternalBuildMessageReference() : null;
+
         /// <summary>
         /// Gets whether the message originated from a webhook.
         /// </summary>
@@ -271,6 +270,59 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public Uri JumpLink => this._jumpLink.Value;
         private Lazy<Uri> _jumpLink;
+
+        internal DiscordMessageReference InternalBuildMessageReference()
+        {
+            var client = this.Discord as DiscordClient;
+            var guildId = this._reference.Value.guildId;
+            var channelId = this._reference.Value.channelId;
+            var messageId = this._reference.Value.messageId;
+
+            var reference = new DiscordMessageReference();
+
+            if (guildId.HasValue)
+                if (client._guilds.TryGetValue(guildId.Value, out var g))
+                    reference.Guild = g;
+
+                else reference.Guild = new DiscordGuild
+                {
+                    Id = guildId.Value,
+                    Discord = client
+                };
+
+            var channel = client.InternalGetCachedChannel(channelId);
+
+            if (channel == null)
+            {
+                reference.Channel = new DiscordChannel
+                {
+                    Id = channelId,
+                    Discord = client
+                };
+
+                if (guildId.HasValue)
+                    reference.Channel.GuildId = guildId.Value;
+            }
+
+            else reference.Channel = channel;
+
+            if (client.MessageCache.TryGet(m => m.Id == messageId.Value && m.ChannelId == channelId, out var msg))
+                reference.Message = msg;
+
+            else
+            {
+                reference.Message = new DiscordMessage
+                {
+                    ChannelId = ChannelId,
+                    Discord = client
+                };
+
+                if (messageId.HasValue)
+                    reference.Message.Id = messageId.Value;
+            }
+
+            return reference;
+        }
 
         /// <summary>
         /// Edits the message.
