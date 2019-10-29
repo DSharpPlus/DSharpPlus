@@ -501,12 +501,13 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Gets an invite
+        /// Gets an invite.
         /// </summary>
-        /// <param name="code"></param>
+        /// <param name="code">The invite code.</param>
+        /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> GetInviteByCodeAsync(string code)
-            => this.ApiClient.GetInviteAsync(code);
+        public Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null)
+            => this.ApiClient.GetInviteAsync(code, withCounts);
 
         /// <summary>
         /// Gets a list of connections
