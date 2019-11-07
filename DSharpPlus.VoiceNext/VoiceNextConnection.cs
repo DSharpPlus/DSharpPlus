@@ -208,7 +208,7 @@ namespace DSharpPlus.VoiceNext
             var eps = this.ServerData.Endpoint;
             var epi = eps.LastIndexOf(':');
             var eph = string.Empty;
-            var epp = 80;
+            var epp = 443;
             if (epi != -1)
             {
                 eph = eps.Substring(0, epi);
@@ -476,6 +476,13 @@ namespace DSharpPlus.VoiceNext
                     // TODO: consider implementing RFC 5285, 4.3. Two-Byte Header
                 }
 
+                if (opusSpan[0] == 0x90)
+                {
+                    // I'm not 100% sure what this header is/does, however removing the data causes no
+                    // real issues, and has the added benefit of removing a lot of noise. 
+                    opusSpan = opusSpan.Slice(2); 
+                }
+
                 if (gap == 1)
                 {
                     var lastSampleCount = this.Opus.GetLastPacketSampleCount(vtx.Decoder);
@@ -561,7 +568,7 @@ namespace DSharpPlus.VoiceNext
                     return;
 
                 var tdelta = (int)(((Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency) * 1000);
-                Volatile.Write(ref this._wsPing, tdelta);
+                Volatile.Write(ref this._udpPing, tdelta);
                 this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Received UDP keepalive {keepalive}, ping {tdelta}ms", DateTime.Now);
             }
             catch (Exception ex)
