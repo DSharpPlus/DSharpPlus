@@ -45,7 +45,8 @@ namespace DSharpPlus.Test
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
-                DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
+                DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz",
+                HandleGuildSubscriptions = true
             };
             Discord = new DiscordClient(dcfg);
 

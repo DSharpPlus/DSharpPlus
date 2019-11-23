@@ -2268,6 +2268,9 @@ namespace DSharpPlus
 
         internal Task SendIdentifyAsync(StatusUpdate status)
         {
+            if (!this.Configuration.HandleGuildSubscriptions)
+                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "Guild subscriptions are set to not be sent to this client. This may cause cache incoherence problems.", DateTime.Now);
+
 			var identify = new GatewayIdentify
 			{
 				Token = Utilities.GetFormattedToken(this),
@@ -2278,7 +2281,8 @@ namespace DSharpPlus
 					ShardId = this.Configuration.ShardId,
 					ShardCount = this.Configuration.ShardCount
 				},
-				Presence = status
+				Presence = status,
+                GuildSubscriptions = this.Configuration.HandleGuildSubscriptions
             };
             var payload = new GatewayPayload
             {

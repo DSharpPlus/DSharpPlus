@@ -40,6 +40,9 @@ namespace DSharpPlus.Net.Abstractions
 
 		[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
 		public StatusUpdate Presence { get; set; } = null;
+
+        [JsonProperty("guild_subscriptions")]
+        public bool GuildSubscriptions { get; set; }
     }
 
     /// <summary>

@@ -108,6 +108,13 @@ namespace DSharpPlus
         public bool ReconnectIndefinitely { internal get; set; } = false;
 
         /// <summary>
+        /// <para>Determines whether guild subscription events should be sent from the gateway.</para>
+        /// <para>Setting this to false will disable typing and presence events from being sent to the client. This typically reduces bandwidth and memory usage.</para>
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool HandleGuildSubscriptions { internal get; set; } = true;
+
+        /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
         /// <para>Use <see cref="WebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
         /// <para>Defaults to <see cref="WebSocketClient.CreateNew(IWebProxy)"/>.</para>
@@ -167,6 +174,7 @@ namespace DSharpPlus
             this.Proxy = other.Proxy;
             this.HttpTimeout = other.HttpTimeout;
             this.ReconnectIndefinitely = other.ReconnectIndefinitely;
+            this.HandleGuildSubscriptions = other.HandleGuildSubscriptions;
         }
     }
 }
