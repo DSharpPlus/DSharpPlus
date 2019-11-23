@@ -38,9 +38,15 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("shard")]
         public ShardInfo ShardInfo { get; set; }
 
-		[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
-		public StatusUpdate Presence { get; set; } = null;
+	/// <summary>
+        /// Gets or sets the presence for this connection.
+        /// </summary>
+	[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
+	public StatusUpdate Presence { get; set; } = null;
 
+	/// <summary>
+        /// Gets or sets whether to handle guild subscriptions for this connection.
+        /// </summary>
         [JsonProperty("guild_subscriptions")]
         public bool GuildSubscriptions { get; set; }
     }
