@@ -1451,7 +1451,7 @@ namespace DSharpPlus
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
                 old.AvatarHash = usr.AvatarHash;
-                old.PremiumType = xu.PremiumType;
+                old.PremiumType = usr.PremiumType;
                 return old;
             });
 
