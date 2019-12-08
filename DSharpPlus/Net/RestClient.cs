@@ -199,7 +199,7 @@ namespace DSharpPlus.Net
                                 finally
                                 {
                                     // we don't want to wait here until all the blocked requests have been run, additionally Set can never throw an exception that could be suppressed here
-                                    _ = this.GlobalRateLimitEvent.Set();
+                                    _ = this.GlobalRateLimitEvent.SetAsync();
                                 }
                                 request.Discord?.DebugLogger?.LogTaskFault(ExecuteRequestAsync(request, bucket, ratelimitTcs), LogLevel.Error, "REST", "Error while retrying request: ");
                             }

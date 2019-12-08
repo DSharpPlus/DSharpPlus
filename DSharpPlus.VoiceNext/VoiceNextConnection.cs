@@ -129,6 +129,7 @@ namespace DSharpPlus.VoiceNext
 
         private TaskCompletionSource<bool> PlayingWait { get; set; }
 
+        private AsyncManualResetEvent PauseEvent { get; }
         private ConcurrentQueue<VoicePacket> PacketQueue { get; }
         private VoiceTransmitStream TransmitStream { get; set; }
         private ConcurrentDictionary<ulong, long> KeepaliveTimestamps { get; }
@@ -227,6 +228,7 @@ namespace DSharpPlus.VoiceNext
             this.PlayingWait = null;
             this.PacketQueue = new ConcurrentQueue<VoicePacket>();
             this.KeepaliveTimestamps = new ConcurrentDictionary<ulong, long>();
+            this.PauseEvent = new AsyncManualResetEvent(true);
 
             this.UdpClient = this.Discord.Configuration.UdpClientFactory();
             this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
@@ -359,6 +361,8 @@ namespace DSharpPlus.VoiceNext
 
             while (!token.IsCancellationRequested)
             {
+                await this.PauseEvent.WaitAsync().ConfigureAwait(false);
+
                 var hasPacket = queue.TryDequeue(out var packet);
 
                 byte[] packetArray = null;
@@ -394,7 +398,7 @@ namespace DSharpPlus.VoiceNext
                     continue;
 
                 this.SendSpeaking(true);
-                await this.UdpClient.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
+                await client.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
 
                 if (!packet.IsSilence && queue.Count == 0)
                 {
@@ -636,6 +640,19 @@ namespace DSharpPlus.VoiceNext
             if (this.PlayingWait != null)
                 await this.PlayingWait.Task.ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Pauses playback.
+        /// </summary>
+        public void Pause()
+            => this.PauseEvent.Reset();
+
+        /// <summary>
+        /// Asynchronously resumes playback.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ResumeAsync()
+            => await this.PauseEvent.SetAsync().ConfigureAwait(false);
 
         /// <summary>
         /// Disconnects and disposes this voice connection.
