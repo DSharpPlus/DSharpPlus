@@ -258,6 +258,12 @@ namespace DSharpPlus.Entities
             => (this._reference.HasValue) ? this?.InternalBuildMessageReference() : null;
 
         /// <summary>
+        /// Gets the bitwise flags for this message.
+        /// </summary>
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public MessageFlags? Flags { get; internal set; }
+
+        /// <summary>
         /// Gets whether the message originated from a webhook.
         /// </summary>
         [JsonIgnore]
@@ -341,12 +347,12 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
-        /// Removes all embeds in the message.
+        /// Modifes the visibility of embeds in this message.
         /// </summary>
-        /// <param name="suppress">Whether to suppress all embeds.</param>
+        /// <param name="hideEmbeds">Whether to hide all embeds.</param>
         /// <returns></returns>
-        public Task SuppressEmbedsAsync(bool suppress = true)
-            => this.Discord.ApiClient.SuppressEmbedsAsync(suppress, this.ChannelId, this.Id);
+        public Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
+            => this.Discord.ApiClient.ModifyEmbedSuppressionAsync(hideEmbeds, this.ChannelId, this.Id);
 
         /// <summary>
         /// Pins the message in its channel.

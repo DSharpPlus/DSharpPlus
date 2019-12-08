@@ -21,7 +21,7 @@
         Listen = 3,
 
         /// <summary>
-        /// Allows user to request to join.
+        /// Allows the user to request to join.
         /// </summary>
         JoinRequest = 4
     }
