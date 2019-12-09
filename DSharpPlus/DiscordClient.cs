@@ -405,10 +405,14 @@ namespace DSharpPlus
                 if (Configuration.AutoReconnect)
                 {
                     DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting.", DateTime.Now);
-                    if (this._status.IdleSince.HasValue)
-                        await this.ConnectAsync(this._status._activity, this._status.Status, Utilities.GetDateTimeOffset(this._status.IdleSince.Value)).ConfigureAwait(false);
+
+                    if (this._status == null)
+                        await this.ConnectAsync().ConfigureAwait(false);
                     else
-                        await this.ConnectAsync(this._status._activity, this._status.Status).ConfigureAwait(false);
+                        if (this._status.IdleSince.HasValue)
+                            await this.ConnectAsync(this._status._activity, this._status.Status, Utilities.GetDateTimeOffset(this._status.IdleSince.Value)).ConfigureAwait(false);
+                        else
+                            await this.ConnectAsync(this._status._activity, this._status.Status).ConfigureAwait(false);
                 }
             }
         }
