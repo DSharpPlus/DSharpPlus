@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.Entities;
 
@@ -203,6 +204,19 @@ namespace DSharpPlus.VoiceNext
             this.Connection.PreparePacket(pcm, ref packetMemory);
             this.Connection.EnqueuePacket(new VoicePacket(packetMemory, this.PcmBufferDuration));
         }
+
+        /// <summary>
+        /// Pauses playback.
+        /// </summary>
+        public void Pause()
+            => this.Connection.Pause();
+
+        /// <summary>
+        /// Resumes playback.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ResumeAsync()
+            => await this.Connection.ResumeAsync().ConfigureAwait(false);
 
         /// <summary>
         /// Gets the collection of installed PCM filters, in order of their execution.

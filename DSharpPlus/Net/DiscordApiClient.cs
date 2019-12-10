@@ -675,7 +675,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task SuppressEmbedsAsync(bool suppress, ulong channel_id, ulong message_id)
+        internal Task ModifyEmbedSuppressionAsync(bool suppress, ulong channel_id, ulong message_id)
         {
             var pld = new RestChannelMessageSuppressEmbedsPayload
             {
