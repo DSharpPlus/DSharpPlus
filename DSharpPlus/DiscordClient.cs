@@ -1078,7 +1078,14 @@ namespace DSharpPlus
                 foreach (var xp in presences)
                 {
                     xp.Discord = this;
+                    xp.GuildId = guild.Id;
                     xp.Activity = new DiscordActivity(xp.RawActivity);
+                    if (xp.RawActivities != null)
+                    {
+                        xp.InternalActivities = new DiscordActivity[xp.RawActivities.Length];
+                        for (int i = 0; i < xp.RawActivities.Length; i++)
+                            xp.InternalActivities[i] = new DiscordActivity(xp.RawActivities[i]);
+                    }
                     this._presences[xp.InternalUser.Id] = xp;
                 }
             }
