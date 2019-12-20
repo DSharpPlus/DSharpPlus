@@ -122,6 +122,11 @@ namespace DSharpPlus.Entities
         public DiscordRichPresence RichPresence { get; internal set; }
 
         /// <summary>
+        /// Gets the custom status of this activity, if present.
+        /// </summary>
+        public DiscordCustomStatus CustomStatus { get; internal set; }
+
+        /// <summary>
         /// Creates a new, empty instance of a <see cref="DiscordActivity"/>.
         /// </summary>
         public DiscordActivity()
@@ -161,6 +166,7 @@ namespace DSharpPlus.Entities
             this.ActivityType = other.ActivityType;
             this.StreamUrl = other.StreamUrl;
             this.RichPresence = new DiscordRichPresence(other.RichPresence);
+            this.CustomStatus = new DiscordCustomStatus(other.CustomStatus);
         }
 
         internal void UpdateWith(TransportActivity rawActivity)
@@ -175,6 +181,47 @@ namespace DSharpPlus.Entities
                 this.RichPresence = new DiscordRichPresence(rawActivity);
             else
                 this.RichPresence = null;
+
+            if (rawActivity?.IsCustomStatus() == true && this.CustomStatus != null)
+                this.CustomStatus.UpdateWith(rawActivity.State, rawActivity.Emoji);
+            else if (rawActivity?.IsCustomStatus() == true)
+                this.CustomStatus = new DiscordCustomStatus
+                {
+                    Name = rawActivity.State,
+                    Emoji = rawActivity.Emoji
+                };
+            else
+                this.CustomStatus = null;
+        }
+    }
+
+    /// <summary>
+    /// Represents details for a custom status activity, attached to a <see cref="DiscordActivity"/>.
+    /// </summary>
+    public sealed class DiscordCustomStatus
+    {
+        /// <summary>
+        /// Gets the name of this custom status.
+        /// </summary>
+        public string Name { get; internal set; }
+
+        /// <summary>
+        /// Gets the emoji of this custom status, if any.
+        /// </summary>
+        public DiscordEmoji Emoji { get; internal set; }
+
+        internal DiscordCustomStatus() { }
+
+        internal DiscordCustomStatus(DiscordCustomStatus other)
+        {
+            this.Name = other.Name;
+            this.Emoji = other.Emoji;
+        }
+
+        internal void UpdateWith(string state, DiscordEmoji emoji)
+        {
+            this.Name = state;
+            this.Emoji = emoji;
         }
     }
 
@@ -184,7 +231,7 @@ namespace DSharpPlus.Entities
     public sealed class DiscordRichPresence
     {
         /// <summary>
-        /// Gets the details.
+        /// Gets the details of this presence.
         /// </summary>
         public string Details { get; internal set; }
 
@@ -199,12 +246,12 @@ namespace DSharpPlus.Entities
         public DiscordApplication Application { get; internal set; }
 
         /// <summary>
-        /// Gets instance status.
+        /// Gets the instance status.
         /// </summary>
         public bool? Instance { get; internal set; }
 
         /// <summary>
-        /// Gets large image for the rich presence.
+        /// Gets the large image for the rich presence.
         /// </summary>
         public DiscordAsset LargeImage { get; internal set; }
 
@@ -214,7 +261,7 @@ namespace DSharpPlus.Entities
         public string LargeImageText { get; internal set; }
 
         /// <summary>
-        /// Gets small image for the rich presence.
+        /// Gets the small image for the rich presence.
         /// </summary>
         public DiscordAsset SmallImage { get; internal set; }
 
@@ -224,12 +271,12 @@ namespace DSharpPlus.Entities
         public string SmallImageText { get; internal set; }
 
         /// <summary>
-        /// Gets current party size.
+        /// Gets the current party size.
         /// </summary>
         public long? CurrentPartySize { get; internal set; }
 
         /// <summary>
-        /// Gets maximum party size.
+        /// Gets the maximum party size.
         /// </summary>
         public long? MaximumPartySize { get; internal set; }
 
@@ -353,6 +400,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Indicates the user is watching something.
         /// </summary>
-        Watching = 3
+        Watching = 3,
+
+        /// <summary>
+        /// Indicates the current activity is a custom status.
+        /// </summary>
+        Custom = 4
     }
 }
