@@ -472,6 +472,14 @@ namespace DSharpPlus
             => this.ApiClient.CreateMessageAsync(channel.Id, content, isTTS, embed);
 
         /// <summary>
+        /// Creates a direct message channel to the specified user ID.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Direct message channel to to the specified user ID.</returns>
+        public Task<DiscordDmChannel> CreateDmChannelAsync(ulong id)
+            => this.ApiClient.CreateDmAsync(id);
+
+        /// <summary>
         /// Creates a guild. This requires the bot to be in less than 10 guilds total.
         /// </summary>
         /// <param name="name">Name of the guild.</param>
