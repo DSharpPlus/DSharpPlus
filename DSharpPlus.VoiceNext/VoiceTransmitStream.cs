@@ -123,10 +123,24 @@ namespace DSharpPlus.VoiceNext
         /// <param name="count">Number of bytes from the buffer.</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
+            Write(new ReadOnlySpan<byte>(buffer, offset, count));
+        }
+
+
+        /// <summary>
+        /// Writes PCM data to the stream. The data is prepared for transmission, and enqueued.
+        /// </summary>
+        /// <param name="buffer">PCM data buffer to send.</param>
+#if NETSTANDARD2_1
+        public override void Write(ReadOnlySpan<byte> buffer)
+#else
+        public void Write(ReadOnlySpan<byte> buffer)
+#endif
+        {
             lock (this.PcmBuffer)
             {
-                var remaining = count;
-                var buffSpan = buffer.AsSpan().Slice(offset, count);
+                var remaining = buffer.Length;
+                var buffSpan = buffer;
                 var pcmSpan = this.PcmMemory.Span;
 
                 while (remaining > 0)
