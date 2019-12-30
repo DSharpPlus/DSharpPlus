@@ -141,13 +141,13 @@ namespace DSharpPlus.Lavalink.Entities
         public string Address { get; internal set; }
 
         /// <summary>
-        /// Gets the failing timestamp in miliseconds
+        /// Gets the failing timestamp in miliseconds.
         /// </summary>
         [JsonProperty("failingTimestamp", NullValueHandling = NullValueHandling.Ignore)]
         public ulong FailingTimestamp { get; internal set; }
 
         /// <summary>
-        /// Gets the DateTime format of the failing address 
+        /// Gets the DateTime format of the failing address.
         /// </summary>
         [JsonProperty("failingTime", NullValueHandling = NullValueHandling.Ignore)]
         public string FailingTime { get; internal set; }
