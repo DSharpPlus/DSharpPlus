@@ -188,12 +188,17 @@ namespace DSharpPlus.Lavalink
             if (this.Discord?.CurrentUser?.Id == null || this.Discord?.ShardCount == null)
                 throw new InvalidOperationException("This operation requires the Discord client to be fully initialized.");
 
-            return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), new Dictionary<string, string>()
+            var headers = new Dictionary<string, string>()
             {
                 ["Authorization"] = this.Configuration.Password,
                 ["Num-Shards"] = this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture),
                 ["User-Id"] = this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture)
-            });
+            };
+
+            if (this.Configuration.ResumeKey != null)
+                headers.Add("Resume-Key", this.Configuration.ResumeKey);
+
+            return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), headers);
         }
 
         /// <summary>
@@ -478,6 +483,9 @@ namespace DSharpPlus.Lavalink
         private Task WebSocket_OnConnect()
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection established", DateTime.Now);
+
+            if (this.Configuration.ResumeKey != null)
+                this.SendPayload(new LavalinkConfigureResume(this.Configuration.ResumeKey, this.Configuration.ResumeTimeout));
 
             return Task.Delay(0);
         }
