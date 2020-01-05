@@ -114,6 +114,11 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public LavalinkStatistics Statistics { get; }
 
+        /// <summary>
+        /// Gets the route planner for this connection, if present.
+        /// </summary>
+        public LavalinkRoutePlanner RoutePlanner { get; }
+
         internal DiscordClient Discord { get; }
         private LavalinkConfiguration Configuration { get; }
         private ConcurrentDictionary<ulong, LavalinkGuildConnection> ConnectedGuilds { get; }
@@ -159,6 +164,9 @@ namespace DSharpPlus.Lavalink
             {
                 BaseAddress = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks")
             };
+
+            this.RoutePlanner = new LavalinkRoutePlanner(this.Configuration, client);
+
             this.Rest.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{client.VersionString}");
             this.Rest.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", this.Configuration.Password);
 
