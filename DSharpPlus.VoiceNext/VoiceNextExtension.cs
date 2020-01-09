@@ -68,6 +68,9 @@ namespace DSharpPlus.VoiceNext
             if (channel.Guild == null)
                 throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be guild channel");
 
+            if (!channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(Permissions.UseVoice))
+                throw new InvalidOperationException("You need UseVoice permission to connect to this voice channel");
+
             var gld = channel.Guild;
             if (ActiveConnections.ContainsKey(gld.Id))
                 throw new InvalidOperationException("This guild already has a voice connection");
