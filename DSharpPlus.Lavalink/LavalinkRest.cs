@@ -87,6 +87,7 @@ namespace DSharpPlus.Lavalink
         }
 
 #if !NETSTANDARD1_1
+
         /// <summary>
         /// Loads tracks from a local file.
         /// </summary>
@@ -98,6 +99,8 @@ namespace DSharpPlus.Lavalink
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.LOAD_TRACKS}?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
+
+#endif
 
         /// <summary>
         /// Decodes a base64 track string into a Lavalink track object.
@@ -132,10 +135,11 @@ namespace DSharpPlus.Lavalink
             var decodeTracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.DECODE_TRACKS}");
             return this.InternalDecodeTracksAsync(decodeTracksUri, trackStrings.ToArray());
         }
-#endif
+
         #endregion
 
         #region Route_Planner
+
         /// <summary>
         /// Retrieves statistics from the route planner.
         /// </summary>
@@ -177,8 +181,7 @@ namespace DSharpPlus.Lavalink
             {
                 var json = await sr.ReadToEndAsync().ConfigureAwait(false);
                 return json;
-            }
-            
+            }           
         }
 
         #region Internal_Track_Loading
@@ -253,7 +256,6 @@ namespace DSharpPlus.Lavalink
                 var track = JsonConvert.DeserializeObject<LavalinkTrack>(json);
                 return track;
             }
-            
         }
 
         internal async Task<IEnumerable<LavalinkTrack>> InternalDecodeTracksAsync(Uri uri, string[] ids)
@@ -285,8 +287,6 @@ namespace DSharpPlus.Lavalink
 
                 return decodedTrackList;
             }
-
-            
         }
 
         #endregion
