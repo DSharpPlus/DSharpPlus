@@ -12,7 +12,7 @@ using DSharpPlus.Lavalink.Entities;
 
 namespace DSharpPlus.Lavalink
 {
-    public class LavalinkRest
+    public sealed class LavalinkRest
     {
         private HttpClient HttpClient;
 
