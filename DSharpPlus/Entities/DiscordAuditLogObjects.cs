@@ -430,6 +430,14 @@ namespace DSharpPlus.Entities
         internal DiscordAuditLogMessagePinEntry() { }
     }
 
+    public sealed class DiscordAuditLogBotAddEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the bot that has been added to the guild.
+        /// </summary>
+        public DiscordUser TargetBot { get; internal set; }
+    }
+
     /// <summary>
     /// Indicates audit log action category.
     /// </summary>

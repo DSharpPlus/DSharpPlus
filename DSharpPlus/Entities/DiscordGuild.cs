@@ -1433,6 +1433,21 @@ namespace DSharpPlus.Entities
                             break;
                         }
 
+                    case AuditLogActionType.BotAdd:
+                        {
+                            entry = new DiscordAuditLogBotAddEntry();
+
+                            if (!(this.Discord is DiscordClient dc && xac.TargetId.HasValue))
+                            {
+                                break;
+                            }
+
+                            dc.UserCache.TryGetValue(xac.TargetId.Value, out var bot);
+                            (entry as DiscordAuditLogBotAddEntry).TargetBot = bot ?? new DiscordUser { Id = xac.TargetId.Value };
+
+                            break;
+                        }
+
                     default:
                         this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown audit log action type: {((int)xac.ActionType).ToString(CultureInfo.InvariantCulture)}; this should be reported to devs", DateTime.Now);
                         break;
