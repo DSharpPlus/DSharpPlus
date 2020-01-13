@@ -8,7 +8,7 @@ using Newtonsoft.Json.Converters;
 
 namespace DSharpPlus.Lavalink
 {
-    public struct LavalinkTrack
+    public class LavalinkTrack
     {
         /// <summary>
         /// Gets or sets the ID of the track to play.
