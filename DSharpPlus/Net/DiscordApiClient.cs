@@ -1698,12 +1698,20 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
         }
 
-        internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji)
+        internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? before_id = null, ulong? after_id = null, int limit = 25)
         {
+            var urlparams = new Dictionary<string, string>();
+            if (before_id.HasValue)
+                urlparams["before"] = before_id.Value.ToString(CultureInfo.InvariantCulture);
+            if (after_id.HasValue)
+                urlparams["after"] = after_id.Value.ToString(CultureInfo.InvariantCulture);
+
+            urlparams["limit"] = limit.ToString(CultureInfo.InvariantCulture);
+
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id, message_id, emoji }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response);
