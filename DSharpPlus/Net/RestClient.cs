@@ -41,10 +41,9 @@ namespace DSharpPlus.Net
             {
                 UseCookies = false,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                UseProxy = proxy != null
+                UseProxy = proxy != null,
+                Proxy = proxy
             };
-            if (httphandler.UseProxy) // because mono doesn't implement this properly
-                httphandler.Proxy = proxy;
 
             this.HttpClient = new HttpClient(httphandler)
             {
