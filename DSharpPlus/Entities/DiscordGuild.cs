@@ -1469,6 +1469,44 @@ namespace DSharpPlus.Entities
                         };
                         break;
 
+                    case AuditLogActionType.IntegrationCreate:
+                    case AuditLogActionType.IntegrationDelete:
+                    case AuditLogActionType.IntegrationUpdate:
+                        entry = new DiscordAuditLogIntegrationEntry();
+
+                        var integentry = entry as DiscordAuditLogIntegrationEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLowerInvariant())
+                            {
+                                case "enable_emoticons":
+                                    integentry.EnableEmoticons = new PropertyChange<bool?>
+                                    {
+                                        Before = (bool?)xc.OldValue,
+                                        After = (bool?)xc.NewValue
+                                    };
+                                    break;
+                                case "expire_behavior":
+                                    integentry.ExpireBehavior = new PropertyChange<int?>
+                                    {
+                                        Before = (int?)xc.OldValue,
+                                        After = (int?)xc.NewValue
+                                    };
+                                    break;
+                                case "expire_grace_period":
+                                    integentry.ExpireBehavior = new PropertyChange<int?>
+                                    {
+                                        Before = (int?)xc.OldValue,
+                                        After = (int?)xc.NewValue
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in integration update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    break;
+                            }
+                        }
+                        break;
 
                     default:
                         this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown audit log action type: {((int)xac.ActionType).ToString(CultureInfo.InvariantCulture)}; this should be reported to devs", DateTime.Now);

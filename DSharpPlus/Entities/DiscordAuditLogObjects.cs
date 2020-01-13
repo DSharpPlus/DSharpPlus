@@ -459,6 +459,24 @@ namespace DSharpPlus.Entities
         public int UserCount { get; internal set; }
     }
 
+    public sealed class DiscordAuditLogIntegrationEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the description of emoticons' change.
+        /// </summary>
+        public PropertyChange<bool?> EnableEmoticons { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of expire grace period's change.
+        /// </summary>
+        public PropertyChange<int?> ExpireGracePeriod { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of expire behavior change.
+        /// </summary>
+        public PropertyChange<int?> ExpireBehavior { get; internal set; }
+    }
+
     /// <summary>
     /// Indicates audit log action category.
     /// </summary>
