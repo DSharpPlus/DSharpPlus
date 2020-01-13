@@ -1390,7 +1390,7 @@ namespace DSharpPlus.Entities
                             if (xac.Options != null)
                             {
                                 entrymsg.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId };
-                                entrymsg.MessageCount = xac.Options.MessageCount;
+                                entrymsg.MessageCount = xac.Options.Count;
                             }
 
                             if (entrymsg.Channel != null)
@@ -1447,6 +1447,28 @@ namespace DSharpPlus.Entities
 
                             break;
                         }
+
+                    case AuditLogActionType.MemberMove:
+                        entry = new DiscordAuditLogMemberMoveEntry();
+
+                        if (xac.Options == null)
+                        {
+                            break;
+                        }
+
+                        var moveentry = entry as DiscordAuditLogMemberMoveEntry;
+
+                        moveentry.UserCount = xac.Options.Count;
+                        moveentry.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId };
+                        break;
+
+                    case AuditLogActionType.MemberDisconnect:
+                        entry = new DiscordAuditLogMemberDisconnectEntry
+                        {
+                            UserCount = xac.Options?.Count ?? 0
+                        };
+                        break;
+
 
                     default:
                         this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown audit log action type: {((int)xac.ActionType).ToString(CultureInfo.InvariantCulture)}; this should be reported to devs", DateTime.Now);

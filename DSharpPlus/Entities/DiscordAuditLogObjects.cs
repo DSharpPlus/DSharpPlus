@@ -438,6 +438,27 @@ namespace DSharpPlus.Entities
         public DiscordUser TargetBot { get; internal set; }
     }
 
+    public sealed class DiscordAuditLogMemberMoveEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the channel the members were moved in.
+        /// </summary>
+        public DiscordChannel Channel { get; internal set; }
+
+        /// <summary>
+        /// Gets the amount of users that were moved out from the voice channel.
+        /// </summary>
+        public int UserCount { get; internal set; }
+    }
+
+    public sealed class DiscordAuditLogMemberDisconnectEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the amount of users that were disconnected from the voice channel.
+        /// </summary>
+        public int UserCount { get; internal set; }
+    }
+
     /// <summary>
     /// Indicates audit log action category.
     /// </summary>

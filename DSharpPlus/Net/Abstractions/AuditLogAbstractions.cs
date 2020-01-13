@@ -94,7 +94,7 @@ namespace DSharpPlus.Net.Abstractions
         public ulong MessageId { get; set; }
 
         [JsonProperty("count")]
-        public int MessageCount { get; set; }
+        public int Count { get; set; }
         
         [JsonProperty("delete_member_days")]
         public int DeleteMemberDays { get; set; }
