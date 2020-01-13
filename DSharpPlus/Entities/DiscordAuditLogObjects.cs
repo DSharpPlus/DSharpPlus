@@ -510,6 +510,21 @@ namespace DSharpPlus.Entities
         MemberRoleUpdate = 25,
 
         /// <summary>
+        /// Indicates that the member has moved to another voice channel.
+        /// </summary>
+        MemberMove = 26,
+
+        /// <summary>
+        /// Indicates that the member has disconnected from a voice channel.
+        /// </summary>
+        MemberDisconnect = 27,
+
+        /// <summary>
+        /// Indicates that a bot was added to the guild.
+        /// </summary>
+        BotAdd = 28,
+
+        /// <summary>
         /// Indicates that the role was created.
         /// </summary>
         RoleCreate = 30,
@@ -572,6 +587,36 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Indicates that the message was deleted.
         /// </summary>
-        MessageDelete = 72
+        MessageDelete = 72,
+
+        /// <summary>
+        /// Indicates that messages were bulk-deleted.
+        /// </summary>
+        MessageBulkDelete = 73,
+
+        /// <summary>
+        /// Indicates that a message was pinned.
+        /// </summary>
+        MessagePin = 74,
+
+        /// <summary>
+        /// Indicates that a message was unpinned.
+        /// </summary>
+        MessageUnpin = 75,
+
+        /// <summary>
+        /// Indicates that an integration was created.
+        /// </summary>
+        IntegrationCreate = 80,
+
+        /// <summary>
+        /// Indicates that an integration was updated.
+        /// </summary>
+        IntegrationUpdate = 81,
+
+        /// <summary>
+        /// Indicates that an integration was deleted.
+        /// </summary>
+        IntegrationDelete = 82,
     }
 }
