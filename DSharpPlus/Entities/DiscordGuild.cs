@@ -1381,14 +1381,17 @@ namespace DSharpPlus.Entities
                         break;
 
                     case AuditLogActionType.MessageDelete:
+                    case AuditLogActionType.MessageBulkDelete:
                         {
-                            entry = new DiscordAuditLogMessageEntry
-                            {
-                                Channel = xac.Options != null ? this.GetChannel(xac.Options.ChannelId) : null,
-                                MessageCount = xac.Options?.MessageCount
-                            };
+                            entry = new DiscordAuditLogMessageEntry();
 
                             var entrymsg = entry as DiscordAuditLogMessageEntry;
+
+                            if (xac.Options != null)
+                            {
+                                entrymsg.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId };
+                                entrymsg.MessageCount = xac.Options.MessageCount;
+                            }
 
                             if (entrymsg.Channel != null)
                             {
