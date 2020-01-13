@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS0618
+#pragma warning disable CS0618
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -1381,23 +1381,54 @@ namespace DSharpPlus.Entities
                         break;
 
                     case AuditLogActionType.MessageDelete:
-                        entry = new DiscordAuditLogMessageEntry
                         {
-                            Channel = xac.Options != null ? this.GetChannel(xac.Options.ChannelId) : null,
-                            MessageCount = xac.Options?.MessageCount
-                        };
+                            entry = new DiscordAuditLogMessageEntry
+                            {
+                                Channel = xac.Options != null ? this.GetChannel(xac.Options.ChannelId) : null,
+                                MessageCount = xac.Options?.MessageCount
+                            };
 
-                        var entrymsg = entry as DiscordAuditLogMessageEntry;
+                            var entrymsg = entry as DiscordAuditLogMessageEntry;
 
-                        if (entrymsg.Channel != null)
-                        {
-                            DiscordMessage msg = null;
-                            if (this.Discord is DiscordClient dc && dc.MessageCache?.TryGet(xm => xm.Id == xac.TargetId.Value && xm.ChannelId == entrymsg.Channel.Id, out msg) == true)
-                                entrymsg.Target = msg;
-                            else
-                                entrymsg.Target = new DiscordMessage { Discord = this.Discord, Id = xac.TargetId.Value };
+                            if (entrymsg.Channel != null)
+                            {
+                                DiscordMessage msg = null;
+                                if (this.Discord is DiscordClient dc && dc.MessageCache?.TryGet(xm => xm.Id == xac.TargetId.Value && xm.ChannelId == entrymsg.Channel.Id, out msg) == true)
+                                    entrymsg.Target = msg;
+                                else
+                                    entrymsg.Target = new DiscordMessage { Discord = this.Discord, Id = xac.TargetId.Value };
+                            }
+                            break;
                         }
-                        break;
+
+                    case AuditLogActionType.MessagePin:
+                    case AuditLogActionType.MessageUnpin:
+                        {
+                            entry = new DiscordAuditLogMessagePinEntry();
+
+                            var entrypin = entry as DiscordAuditLogMessagePinEntry;
+
+                            if (!(this.Discord is DiscordClient dc))
+                            {
+                                break;
+                            }
+
+                            if (xac.Options != null)
+                            {
+                                dc.MessageCache.TryGet(x => x.Id == xac.Options.MessageId && x.ChannelId == xac.Options.ChannelId, out var message);
+
+                                entrypin.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId };
+                                entrypin.Message = message ?? new DiscordMessage { Id = xac.Options.MessageId };
+                            }
+
+                            if (xac.TargetId.HasValue)
+                            {
+                                dc.UserCache.TryGetValue(xac.TargetId.Value, out var user);
+                                entrypin.Target = user ?? new DiscordUser { Id = user.Id };
+                            }
+
+                            break;
+                        }
 
                     default:
                         this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown audit log action type: {((int)xac.ActionType).ToString(CultureInfo.InvariantCulture)}; this should be reported to devs", DateTime.Now);
@@ -1415,6 +1446,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.OverwriteCreate:
                     case AuditLogActionType.RoleCreate:
                     case AuditLogActionType.WebhookCreate:
+                    case AuditLogActionType.IntegrationCreate:
                         entry.ActionCategory = AuditLogActionCategory.Create;
                         break;
 
@@ -1422,9 +1454,11 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.EmojiDelete:
                     case AuditLogActionType.InviteDelete:
                     case AuditLogActionType.MessageDelete:
+                    case AuditLogActionType.MessageBulkDelete:
                     case AuditLogActionType.OverwriteDelete:
                     case AuditLogActionType.RoleDelete:
                     case AuditLogActionType.WebhookDelete:
+                    case AuditLogActionType.IntegrationDelete:
                         entry.ActionCategory = AuditLogActionCategory.Delete;
                         break;
 
@@ -1436,6 +1470,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.OverwriteUpdate:
                     case AuditLogActionType.RoleUpdate:
                     case AuditLogActionType.WebhookUpdate:
+                    case AuditLogActionType.IntegrationUpdate:
                         entry.ActionCategory = AuditLogActionCategory.Update;
                         break;
 
