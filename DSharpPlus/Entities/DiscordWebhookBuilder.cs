@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 
@@ -27,7 +28,17 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Message to send on this webhook request.
         /// </summary>
-        public string Content { get; set; }
+        public string Content
+        {
+            get => this._content;
+            set
+            {
+                if (value != null && value.Length > 2000)
+                    throw new ArgumentException("Content length cannot exceed 2000 characters.", nameof(value));
+                this._content = value;
+            }
+        }
+        private string _content;
         
         /// <summary>
         /// Embeds to send on this webhook request.
