@@ -140,10 +140,12 @@ namespace DSharpPlus.Entities
         public string GenerateBotOAuth(Permissions permissions = Permissions.None)
         {
             permissions &= PermissionMethods.FULL_PERMS;
-            // Split it up so it isn't annoying and blue
-            // 
-            // :blobthonkang: -emzi
-            return "https://" + $"discordapp.com/oauth2/authorize?client_id={this.Id.ToString(CultureInfo.InvariantCulture)}&scope=bot&permissions={((long)permissions).ToString(CultureInfo.InvariantCulture)}";
+            // hey look, it's not all annoying and blue :P
+            return new QueryUriBuilder("https://discordapp.com/oauth2/authorize")
+                .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
+                .AddParameter("scope", "bot")
+                .AddParameter("permissions", ((long) permissions).ToString(CultureInfo.InvariantCulture))
+                .ToString();
         }
 
         /// <summary>

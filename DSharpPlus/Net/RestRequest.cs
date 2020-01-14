@@ -6,7 +6,7 @@ namespace DSharpPlus.Net
     /// <summary>
     /// Represents a non-multipart HTTP request.
     /// </summary>
-    public sealed class RestRequest : BaseRestRequest
+    internal sealed class RestRequest : BaseRestRequest
     {
         /// <summary>
         /// Gets the payload sent with this request.

@@ -205,23 +205,28 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <returns></returns>
-        public async Task BroadcastMessageAsync(DiscordWebhookBuilder builder)
+        public async Task<Dictionary<DiscordWebhook, DiscordMessage>> BroadcastMessageAsync(DiscordWebhookBuilder builder)
         {
             var deadhooks = new List<DiscordWebhook>();
+            var messages = new Dictionary<DiscordWebhook, DiscordMessage>();
+
             foreach (var hook in _hooks)
             {
                 try
                 {
-                    await hook.ExecuteAsync(builder).ConfigureAwait(false);
+                    messages.Add(hook, await hook.ExecuteAsync(builder).ConfigureAwait(false));
                 }
                 catch (NotFoundException)
                 {
                     deadhooks.Add(hook);
                 }
             }
+
             // Removing dead webhooks from collection
             foreach (var xwh in deadhooks)
                 _hooks.Remove(xwh);
+
+            return messages;
         }
     }
 }
