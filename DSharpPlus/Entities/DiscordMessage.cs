@@ -586,11 +586,7 @@ namespace DSharpPlus.Entities
         internal bool InternalVerifyFileSize(long size, out int limit)
         {
             if (this.Channel != null)
-            {
-                var res = this.Channel.InternalVerifyFileSize(size, out var lim);
-                limit = lim;
-                return res;
-            }
+                return this.Channel.InternalVerifyFileSize(size, out limit);
             else
             {
                 limit = 8;

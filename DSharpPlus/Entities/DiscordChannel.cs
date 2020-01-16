@@ -710,11 +710,8 @@ namespace DSharpPlus.Entities
         internal bool InternalVerifyFileSize(long size, out int limit)
         {
             if (this.Guild != null)
-            {
-                var res = this.Guild.CheckGuildFileSize(size, out var lim);
-                limit = lim;
-                return res;
-            }
+                return this.Guild.CheckGuildFileSize(size, out limit);
+
             else
             {
                 limit = 8;
