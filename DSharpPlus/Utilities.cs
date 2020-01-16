@@ -63,9 +63,8 @@ namespace DSharpPlus
         /// </summary>
         internal static bool CheckFileSize(long bytes)
         {
-            var sizeInMb = (bytes / 1024f) / 1024f;
-
-            return !(sizeInMb > 8);
+            var sizeInMb = (bytes / 1024) / 1024;
+            return sizeInMb < 8;
         }
 
         internal static string GetApiBaseUri() 

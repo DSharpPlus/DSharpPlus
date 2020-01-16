@@ -1716,7 +1716,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         internal bool CheckGuildFileSize(long bytes, out int limit)
         {
-            var sizeInMb = (bytes / 1024f) / 1024f;
+            var sizeInMb = (bytes / 1024) / 1024;
 
             switch (this.PremiumTier)
             {
@@ -1737,7 +1737,7 @@ namespace DSharpPlus.Entities
                     break;
             }
             
-            return !(sizeInMb > limit);
+            return sizeInMb < limit;
         }
 
         /// <summary>
