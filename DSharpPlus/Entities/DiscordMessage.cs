@@ -594,7 +594,7 @@ namespace DSharpPlus.Entities
             else
             {
                 limit = 8;
-                return !Utilities.CheckFileSize(size);
+                return Utilities.CheckFileSize(size);
             }
         }
         

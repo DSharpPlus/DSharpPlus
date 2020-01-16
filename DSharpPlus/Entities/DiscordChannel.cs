@@ -219,7 +219,7 @@ namespace DSharpPlus.Entities
 
             if (!this.InternalVerifyFileSize(fileData.Length, out var limit))
                 throw new ArgumentException($"Cannot send a file that is greater than {limit} megabytes.");
-
+            
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, Path.GetFileName(fileData.Name), content,
                 tts, embed);
         }
@@ -718,7 +718,7 @@ namespace DSharpPlus.Entities
             else
             {
                 limit = 8;
-                return !Utilities.CheckFileSize(size);
+                return Utilities.CheckFileSize(size);
             }
         }
 
