@@ -359,14 +359,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns></returns>
         public Task PinAsync() 
-            => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, Id);
+            => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
         /// Unpins the message in its channel.
         /// </summary>
         /// <returns></returns>
         public Task UnpinAsync() 
-            => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, Id);
+            => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
         /// Responds to the message.
@@ -387,8 +387,13 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
+        {
+            if (!this.InternalVerifyFileSize(fileData.Length, out var limit))
+                throw new ArgumentException($"Cannot send a file that is greater than {limit} megabytes.");
+
+            return this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed);
+        }
 
 #if !NETSTANDARD1_1
         /// <summary>
@@ -399,8 +404,13 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
+        {
+            if (!this.InternalVerifyFileSize(fileData.Length, out var limit))
+                throw new ArgumentException($"Cannot send a file that is greater than {limit} megabytes.");
+
+            return this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed);
+        }
 
         /// <summary>
         /// Responds to the message with a file.
@@ -413,7 +423,12 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> RespondWithFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             using (var fs = File.OpenRead(filePath))
+            {
+                if (!this.InternalVerifyFileSize(fs.Length, out var limit))
+                    throw new ArgumentException($"Cannot send a file that is greater than {limit} megabytes.");
+
                 return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
+            }
         }
 #endif
 
@@ -425,8 +440,17 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFilesAsync(ChannelId, files, content, tts, embed);
+        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null)
+        {
+            if (files.Count > 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            foreach (var fileData in files.Values)
+                if (!this.InternalVerifyFileSize(fileData.Length, out var limit))
+                    throw new ArgumentException($"Cannot send a file that is greater than {limit} megabytes.");
+
+            return this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, files, content, tts, embed);
+        }
 
         /// <summary>
         /// Creates a reaction to this message
@@ -471,7 +495,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) 
-            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
+            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
         
         private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? before = null, ulong? after = null)
         {
@@ -559,6 +583,21 @@ namespace DSharpPlus.Entities
             return hash;
         }
 
+        internal bool InternalVerifyFileSize(long size, out int limit)
+        {
+            if (this.Channel != null)
+            {
+                var res = this.Channel.InternalVerifyFileSize(size, out var lim);
+                limit = lim;
+                return res;
+            }
+            else
+            {
+                limit = 8;
+                return !Utilities.CheckFileSize(size);
+            }
+        }
+        
         /// <summary>
         /// Gets whether the two <see cref="DiscordMessage"/> objects are equal.
         /// </summary>

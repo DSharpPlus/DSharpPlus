@@ -1711,6 +1711,36 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Compares the inputted file size to the file limit of the guild.
+        /// <para>Returns whether the size breaks this limit and also gives the out variable of the guild's file limit, in megabytes.</para>
+        /// </summary>
+        internal bool CheckGuildFileSize(long bytes, out int limit)
+        {
+            var sizeInMb = (bytes / 1024f) / 1024f;
+
+            switch (this.PremiumTier)
+            {
+                case PremiumTier.None:
+                    limit = 8;
+                    break;
+
+                case PremiumTier.Tier_2:
+                    limit = 50;
+                    break;
+
+                case PremiumTier.Tier_3:
+                    limit = 100;
+                    break;
+
+                default:
+                    limit = 8;
+                    break;
+            }
+            
+            return !(sizeInMb > limit);
+        }
+
+        /// <summary>
         /// Gets whether the two <see cref="DiscordGuild"/> objects are equal.
         /// </summary>
         /// <param name="e1">First member to compare.</param>
