@@ -181,6 +181,10 @@ namespace DSharpPlus.Net
                         ex = new NotFoundException(request, response);
                         break;
 
+                    case 413:
+                        ex = new RequestSizeException(request, response);
+                        break;
+
                     case 429:
                         ex = new RateLimitException(request, response);
 

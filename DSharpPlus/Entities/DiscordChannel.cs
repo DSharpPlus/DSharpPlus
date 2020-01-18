@@ -197,9 +197,6 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel.");
 
-            if (!this.InternalVerifyFileSize(fileData.Length, out var limit))
-                throw new ArgumentException($"Cannot send a file that is greater than {limit} megabytes.");
-
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed);
         }
 
@@ -216,9 +213,6 @@ namespace DSharpPlus.Entities
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel.");
-
-            if (!this.InternalVerifyFileSize(fileData.Length, out var limit))
-                throw new ArgumentException($"Cannot send a file that is greater than {limit} megabytes.");
             
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, Path.GetFileName(fileData.Name), content,
                 tts, embed);
@@ -238,12 +232,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send a file to a non-text channel.");
 
             using (var fs = File.OpenRead(filePath))
-            {
-                if (!this.InternalVerifyFileSize(fs.Length, out var limit))
-                    throw new ArgumentException($"Cannot send a file that is greater than {limit} megabytes.");
-
                 return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
-            }
         }
 #endif
 
@@ -262,10 +251,6 @@ namespace DSharpPlus.Entities
 
             if (files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
-
-            foreach(var file in files)
-                if (!this.InternalVerifyFileSize(file.Value.Length, out var limit))
-                    throw new ArgumentException($"Cannot send the file \"{file.Key}\" because it is greater than {limit} megabytes.");
 
             return this.Discord.ApiClient.UploadFilesAsync(this.Id, files, content, tts, embed);
         }
@@ -705,18 +690,6 @@ namespace DSharpPlus.Entities
         public override int GetHashCode()
         {
             return this.Id.GetHashCode();
-        }
-
-        internal bool InternalVerifyFileSize(long size, out int limit)
-        {
-            if (this.Guild != null)
-                return this.Guild.CheckGuildFileSize(size, out limit);
-
-            else
-            {
-                limit = 8;
-                return Utilities.CheckFileSize(size);
-            }
         }
 
         /// <summary>
