@@ -7,7 +7,7 @@ namespace DSharpPlus.Exceptions
     /// <summary>
     /// Represents an exception thrown when the request sent to Discord is too large.
     /// </summary>
-    class RequestSizeException : Exception
+    public class RequestSizeException : Exception
     {
         /// <summary>
         /// Gets the request that caused the exception.
