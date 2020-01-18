@@ -57,16 +57,6 @@ namespace DSharpPlus
             return r.Next(ping, int.MaxValue);
         }
 
-        /// <summary>
-        /// Compares the inputted file size to the standard file size limit.
-        /// <para>Returns whether the size breaks this limit.</para>
-        /// </summary>
-        internal static bool CheckFileSize(long bytes)
-        {
-            var sizeInMb = bytes / 1048576;
-            return sizeInMb <= 8;
-        }
-
         internal static string GetApiBaseUri() 
             => Endpoints.BASE_URI;
 
