@@ -204,7 +204,6 @@ namespace DSharpPlus.Entities
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed);
         }
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Sends a message containing an attached file to this channel.
         /// </summary>
@@ -238,7 +237,6 @@ namespace DSharpPlus.Entities
             using (var fs = File.OpenRead(filePath))
                 return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
         }
-#endif
 
         /// <summary>
         /// Sends a message with several attached files to this channel.

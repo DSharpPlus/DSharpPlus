@@ -35,7 +35,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Items", "Build Items"
 		rebuild-all.ps1 = rebuild-all.ps1
 		rebuild-docs.ps1 = rebuild-docs.ps1
 		rebuild-lib.ps1 = rebuild-lib.ps1
-		rebuild-linux.ps1 = rebuild-linux.ps1
 		rebuild-micro.ps1 = rebuild-micro.ps1
 	EndProjectSection
 EndProject

@@ -28,11 +28,7 @@ namespace DSharpPlus.VoiceNext
         internal VoiceNextExtension(VoiceNextConfiguration config)
         {
             this.Configuration = new VoiceNextConfiguration(config);
-#if !NETSTANDARD1_1
             this.IsIncomingEnabled = config.EnableIncoming;
-#else
-            this.IsIncomingEnabled = false;
-#endif
 
             this.ActiveConnections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
             this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();

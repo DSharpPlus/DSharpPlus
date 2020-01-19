@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD1_1
-using System.Net;
+﻿using System.Net;
 
 namespace DSharpPlus.Net
 {
@@ -30,4 +29,3 @@ namespace DSharpPlus.Net
         }
     }
 }
-#endif

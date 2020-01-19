@@ -131,7 +131,7 @@ namespace DSharpPlus.VoiceNext
         /// Writes PCM data to the stream. The data is prepared for transmission, and enqueued.
         /// </summary>
         /// <param name="buffer">PCM data buffer to send.</param>
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 // this seems useless currently
         public override void Write(ReadOnlySpan<byte> buffer)
 #else
         public void Write(ReadOnlySpan<byte> buffer)

@@ -13,12 +13,10 @@ namespace DSharpPlus.VoiceNext.EventArgs
         /// </summary>
         public DiscordUser User { get; internal set; }
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Gets the SSRC of the user who left.
         /// </summary>
         public uint SSRC { get; internal set; }
-#endif
 
         internal VoiceUserLeaveEventArgs(DiscordClient discord) : base(discord) { }
     }

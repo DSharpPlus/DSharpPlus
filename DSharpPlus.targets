@@ -25,10 +25,6 @@
 		<Optimize>False</Optimize>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net46' Or '$(TargetFramework)' == 'net47'">
-		<DefineConstants>HAS_ENVIRONMENT;HAS_NAT_TRAVERSAL</DefineConstants>
-	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">
 		<Version>$(VersionPrefix)-$(VersionSuffix)-$(BuildNumber)</Version>
 		<AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>

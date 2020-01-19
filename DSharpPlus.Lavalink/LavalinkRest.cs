@@ -86,8 +86,6 @@ namespace DSharpPlus.Lavalink
             return this.InternalResolveTracksAsync(tracksUri);
         }
 
-#if !NETSTANDARD1_1
-
         /// <summary>
         /// Loads tracks from a local file.
         /// </summary>
@@ -99,8 +97,6 @@ namespace DSharpPlus.Lavalink
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.LOAD_TRACKS}?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
-
-#endif
 
         /// <summary>
         /// Decodes a base64 track string into a Lavalink track object.

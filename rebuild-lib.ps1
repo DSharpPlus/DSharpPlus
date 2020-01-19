@@ -98,57 +98,36 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
         $build_number_string = [int]::Parse($build_number).ToString("00000")
     }
     
-    if ($Env:OS -eq $null)
+    # Build in specified configuration
+    Write-Host "Building everything"
+    if (-not $version_suffix -or -not $build_number_string)
     {
-        # Build and package (if Release) in specified configuration but Linux
-        Write-Host "Building everything"
-        if (-not $version_suffix -or -not $build_number_string)
-        {
-            & .\rebuild-linux.ps1 "$target_dir" -Configuration "$bcfg" | Out-Host
-        }
-        else
-        {
-            & .\rebuild-linux.ps1 "$target_dir" -Configuration "$bcfg" -VersionSuffix "$version_suffix" -BuildNumber "$build_number_string" | Out-Host
-        }
-        if ($LastExitCode -ne 0)
-        {
-            Write-Host "Packaging failed"
-            Return $LastExitCode
-        }
+        & dotnet build -v minimal -c "$bcfg" | Out-Host
     }
-    else 
+    else
     {
-        # Build in specified configuration
-        Write-Host "Building everything"
-        if (-not $version_suffix -or -not $build_number_string)
-        {
-            & dotnet build -v minimal -c "$bcfg" | Out-Host
-        }
-        else
-        {
-            & dotnet build -v minimal -c "$bcfg" --version-suffix "$version_suffix" -p:BuildNumber="$build_number_string" | Out-Host
-        }
-        if ($LastExitCode -ne 0)
-        {
-            Write-Host "Build failed"
-            Return $LastExitCode
-        }
+        & dotnet build -v minimal -c "$bcfg" --version-suffix "$version_suffix" -p:BuildNumber="$build_number_string" | Out-Host
+    }
+    if ($LastExitCode -ne 0)
+    {
+        Write-Host "Build failed"
+        Return $LastExitCode
+    }
         
-        # Package for NuGet
-        Write-Host "Creating NuGet packages"
-        if (-not $version_suffix -or -not $build_number_string)
-        {
-            & dotnet pack -v minimal -c "$bcfg" --no-build -o "$target_dir" --include-symbols | Out-Host
-        }
-        else
-        {
-            & dotnet pack -v minimal -c "$bcfg" --version-suffix "$version_suffix" -p:BuildNumber="$build_number_string" --no-build -o "$target_dir" --include-symbols | Out-Host
-        }
-        if ($LastExitCode -ne 0)
-        {
-            Write-Host "Packaging failed"
-            Return $LastExitCode
-        }
+    # Package for NuGet
+    Write-Host "Creating NuGet packages"
+    if (-not $version_suffix -or -not $build_number_string)
+    {
+        & dotnet pack -v minimal -c "$bcfg" --no-build -o "$target_dir" --include-symbols | Out-Host
+    }
+    else
+    {
+        & dotnet pack -v minimal -c "$bcfg" --version-suffix "$version_suffix" -p:BuildNumber="$build_number_string" --no-build -o "$target_dir" --include-symbols | Out-Host
+    }
+    if ($LastExitCode -ne 0)
+    {
+        Write-Host "Packaging failed"
+        Return $LastExitCode
     }
     
     Return 0

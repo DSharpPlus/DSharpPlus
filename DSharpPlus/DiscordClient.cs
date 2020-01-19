@@ -1314,11 +1314,7 @@ namespace DSharpPlus
             // reuse arrays / avoid linq (this is a hot zone)
             if (presence.Activities == null || rawPresence["activities"] == null)
             {
-#if !NET45 && !NETSTANDARD1_1
                 presence.InternalActivities = Array.Empty<DiscordActivity>();
-#else
-                presence.InternalActivities = new DiscordActivity[0];
-#endif
             }
             else
             {

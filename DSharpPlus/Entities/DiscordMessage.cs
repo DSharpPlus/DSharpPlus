@@ -390,7 +390,6 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
             => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed);
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>
@@ -415,7 +414,6 @@ namespace DSharpPlus.Entities
             using (var fs = File.OpenRead(filePath))
                 return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
         }
-#endif
 
         /// <summary>
         /// Responds to the message with several files.

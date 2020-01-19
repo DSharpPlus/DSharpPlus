@@ -264,7 +264,6 @@ namespace DSharpPlus.Entities
             return await chn.SendFileAsync(fileName, fileData, content, is_tts, embed).ConfigureAwait(false);
         }
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Sends a direct message with a file attached to this member. Creates a direct message channel if one does not exist already.
         /// </summary>
@@ -298,7 +297,6 @@ namespace DSharpPlus.Entities
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendFileAsync(filePath, content, is_tts, embed).ConfigureAwait(false);
         }
-#endif
 
         /// <summary>
         /// Sends a direct message with several files attached to this member. Creates a direct message channel if one does not exist already.
