@@ -45,7 +45,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public ChannelType Type { get; internal set; }
-
+        
         /// <summary>
         /// Gets the position of this channel.
         /// </summary>
@@ -603,7 +603,7 @@ namespace DSharpPlus.Entities
             perms = everyoneRole.Permissions;
 
             // roles that member is in
-            var mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
+            var mbRoles = mbr.Roles.Where(xr => xr != null && xr.Id != everyoneRole.Id);
 
             // assign permissions from member's roles (in order)
             perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
