@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets the received message.
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; internal set; }
 
         public SocketMessageEventArgs() { }
     }
