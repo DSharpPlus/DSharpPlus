@@ -240,6 +240,8 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
 
+        internal ConcurrentDictionary<string, DiscordInvite> _invites;
+
         /// <summary>
         /// Gets the guild member for current user.
         /// </summary>
@@ -310,6 +312,7 @@ namespace DSharpPlus.Entities
         internal DiscordGuild()
         {
             this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
+            this._invites = new ConcurrentDictionary<string, DiscordInvite>();
         }
 
         #region Guild Methods
@@ -573,11 +576,26 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets an invite from this guild from an invite code.
+        /// </summary>
+        /// <param name="code">The invite code</param>
+        /// <returns>An invite.</returns>
+        public DiscordInvite GetInvite(string code)
+            => this._invites.TryGetValue(code, out var invite) ? invite : null;
+
+        /// <summary>
         /// Gets all the invites created for all the channels in this guild.
         /// </summary>
         /// <returns>A collection of invites.</returns>
-        public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
-            => this.Discord.ApiClient.GetGuildInvitesAsync(this.Id);
+        public async Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
+        { 
+            var res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id).ConfigureAwait(false);
+
+            for (var i = 0; i < res.Count; i++)
+                this._invites[res[i].Code] = res[i];
+
+            return res;
+        }
 
         /// <summary>
         /// Gets all the webhooks created for all the channels in this guild.
