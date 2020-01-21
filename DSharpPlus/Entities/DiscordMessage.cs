@@ -471,7 +471,11 @@ namespace DSharpPlus.Entities
         public Task DeleteAllReactionsAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
 
-
+        /// <summary>
+        /// Deletes all reactions of the given emoji for this message.
+        /// </summary>
+        /// <param name="emoji">The type of emoji to remove.</param>
+        /// <returns></returns>
         public Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
             => this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
