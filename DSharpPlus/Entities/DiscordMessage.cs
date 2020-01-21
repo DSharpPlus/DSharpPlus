@@ -469,8 +469,12 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) 
-            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
-        
+            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
+
+
+        public Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
+            => this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+
         private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? before = null, ulong? after = null)
         {
             if (limit < 0)
