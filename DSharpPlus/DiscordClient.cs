@@ -387,7 +387,6 @@ namespace DSharpPlus
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
                     DebugLogger.LogMessage(LogLevel.Error, "Websocket", $"Socket swallowed an exception:", DateTime.Now, ex);
                 }
             }
