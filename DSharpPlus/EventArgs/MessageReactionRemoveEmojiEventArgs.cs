@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
 {
     /// <summary>
     /// Represents arguments for <see cref="DiscordClient.MessageReactionRemovedEmoji"/>
     /// </summary>
-    public class MessageReactionRemoveEmojiEventArgs : DiscordEventArgs
+    public sealed class MessageReactionRemoveEmojiEventArgs : DiscordEventArgs
     {
         /// <summary>
         /// Gets the channel the removed reactions were in.
