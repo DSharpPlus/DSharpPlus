@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
 {
     /// <summary>
     /// Represents arguments for <see cref="DiscordClient.InviteDeleted"/>
     /// </summary>
-    public class InviteDeleteEventArgs : DiscordEventArgs
+    public sealed class InviteDeleteEventArgs : DiscordEventArgs
     {
         /// <summary>
         /// Gets the guild that deleted the invite.

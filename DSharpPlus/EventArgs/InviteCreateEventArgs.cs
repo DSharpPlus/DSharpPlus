@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
 {
     /// <summary>
     /// Represents arguments for <see cref="DiscordClient.InviteCreated"/>
     /// </summary>
-    public class InviteCreateEventArgs : DiscordEventArgs
+    public sealed class InviteCreateEventArgs : DiscordEventArgs
     {
         /// <summary>
         /// Gets the guild that created the invite.
