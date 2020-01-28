@@ -1138,8 +1138,8 @@ namespace DSharpPlus
         /// <param name="message_id">Message id</param>
         /// <param name="emoji">Emoji to check for</param>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji)
-            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji);
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
+            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji, after_id, limit);
 
         /// <summary>
         /// Gets all users that reacted with a specific emoji to a message
@@ -1148,8 +1148,8 @@ namespace DSharpPlus
         /// <param name="message_id">Message id</param>
         /// <param name="emoji">Emoji to check for</param>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, DiscordEmoji emoji)
-            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji.ToReactionString());
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, DiscordEmoji emoji, ulong? after_id = null, int limit = 25)
+            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji.ToReactionString(), after_id, limit);
 
         /// <summary>
         /// Deletes all reactions from a message
