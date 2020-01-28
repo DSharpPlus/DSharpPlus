@@ -75,7 +75,7 @@ Keep note of your `port`, `address`, and `password` values, as you will need the
 
 ## Starting Lavalink
 
-Open your command prompt or terminal and navigate to the directory containing Lavalink. Once there, type `java -jar Lavalink.jar`.
+Open your command prompt or terminal and navigate to the directory containing Lavalink. Once there, type `java -jar Lavalink.jar`. You should start seeing log output from Lavalink.
 
 If everything is configured properly, you should see this appear somewhere in the log output without any errors: 
 ```
