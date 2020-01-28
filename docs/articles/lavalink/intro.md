@@ -13,4 +13,73 @@ Make sure the location of the newest JRE's bin folder is added to your system va
 ## Downloading Lavalink  
 Next, head over to the [releases](https://github.com/Frederikam/Lavalink/releases) tab on the Lavalink Github page. and download the Jar file from the latest version.
 
-The program will not be ready to run yet, you will need to create a config file first.
+The program will not be ready to run yet, as you will need to create a configuration file first. To do so, create a new YAML file called `application.yml` and copy this text:
+
+```yaml
+server: # REST and WS server
+  port: 8080
+  address: localhost
+spring:
+  main:
+    banner-mode: log
+lavalink:
+  server:
+    password: "youshallnotpass"
+    sources:
+      youtube: true
+      bandcamp: true
+      soundcloud: true
+      twitch: true
+      vimeo: true
+      mixer: true
+      http: true
+      local: false
+    bufferDurationMs: 400
+    youtubePlaylistLoadLimit: 6 # Number of pages at 100 each
+    youtubeSearchEnabled: true
+    soundcloudSearchEnabled: true
+    gc-warnings: true
+
+metrics:
+  prometheus:
+    enabled: false
+    endpoint: /metrics
+
+sentry:
+  dsn: ""
+#  tags:
+#    some_key: some_value
+#    another_key: another_value
+
+logging:
+  file:
+    max-history: 30
+    max-size: 1GB
+  path: ./logs/
+
+  level:
+    root: INFO
+    lavalink: INFO
+```
+There are a few values to keep in mind.
+
+`host` is the IP of the Lavalink host, keep this as `localhost` if it is running on a local machine.
+
+`port` is the allowed port for the Lavalink connection. `8080` is open on most machines.
+
+`password` is the password that you will need to specify when connecting. This can be anything.
+
+When you are finished configuring this, save the file in the same directory as your Lavalink executable.
+
+Keep note of your `port`, `address`, and `password` values, as you will need them later for connecting.
+
+## Starting Lavalink
+
+Open your command prompt or terminal and navigate to the directory containing Lavalink. Once there, type `java -jar Lavalink.jar`.
+
+If everything is configured properly, you should see this appear somewhere in the log output without any errors: 
+```
+[           main] lavalink.server.Launcher                 : Started Launcher in 5.769 seconds (JVM running for 6.758)
+```
+
+If it does, congratulations. We are now ready to interact with it using DSharpPlus.
