@@ -31,11 +31,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name), "Group names cannot be null, empty, or all-whitespace.");
 
-#if !NETSTANDARD1_1
             if (name.Any(xc => char.IsWhiteSpace(xc)))
-#else
-            if (name.ToCharArray().Any(xc => char.IsWhiteSpace(xc)))
-#endif
                 throw new ArgumentException("Group names cannot contain whitespace characters.", nameof(name));
 
             this.Name = name;

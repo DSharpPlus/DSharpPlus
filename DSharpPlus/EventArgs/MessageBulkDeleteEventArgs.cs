@@ -18,6 +18,11 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
 
+        /// <summary>
+        /// Gets the guild in which the deletion occured.
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+
         internal MessageBulkDeleteEventArgs(DiscordClient client) : base(client) { }
     }
 }

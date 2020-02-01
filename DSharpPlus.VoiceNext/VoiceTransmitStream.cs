@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.Entities;
 
@@ -122,10 +123,24 @@ namespace DSharpPlus.VoiceNext
         /// <param name="count">Number of bytes from the buffer.</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
+            Write(new ReadOnlySpan<byte>(buffer, offset, count));
+        }
+
+
+        /// <summary>
+        /// Writes PCM data to the stream. The data is prepared for transmission, and enqueued.
+        /// </summary>
+        /// <param name="buffer">PCM data buffer to send.</param>
+#if NETSTANDARD2_1 // this seems useless currently
+        public override void Write(ReadOnlySpan<byte> buffer)
+#else
+        public void Write(ReadOnlySpan<byte> buffer)
+#endif
+        {
             lock (this.PcmBuffer)
             {
-                var remaining = count;
-                var buffSpan = buffer.AsSpan().Slice(offset, count);
+                var remaining = buffer.Length;
+                var buffSpan = buffer;
                 var pcmSpan = this.PcmMemory.Span;
 
                 while (remaining > 0)
@@ -203,6 +218,19 @@ namespace DSharpPlus.VoiceNext
             this.Connection.PreparePacket(pcm, ref packetMemory);
             this.Connection.EnqueuePacket(new VoicePacket(packetMemory, this.PcmBufferDuration));
         }
+
+        /// <summary>
+        /// Pauses playback.
+        /// </summary>
+        public void Pause()
+            => this.Connection.Pause();
+
+        /// <summary>
+        /// Resumes playback.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ResumeAsync()
+            => await this.Connection.ResumeAsync().ConfigureAwait(false);
 
         /// <summary>
         /// Gets the collection of installed PCM filters, in order of their execution.

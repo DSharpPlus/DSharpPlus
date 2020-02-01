@@ -675,7 +675,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task SuppressEmbedsAsync(bool suppress, ulong channel_id, ulong message_id)
+        internal Task ModifyEmbedSuppressionAsync(bool suppress, ulong channel_id, ulong message_id)
         {
             var pld = new RestChannelMessageSuppressEmbedsPayload
             {
@@ -1363,12 +1363,16 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Invite
-        internal async Task<DiscordInvite> GetInviteAsync(string invite_code)
+        internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts)
         {
+            var urlparams = new Dictionary<string, string>();
+            if (with_counts.HasValue)
+                urlparams["with_counts"] = with_counts?.ToString();
+
             var route = $"{Endpoints.INVITES}/:invite_code";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { invite_code }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
+            var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
@@ -1694,12 +1698,18 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
         }
 
-        internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji)
+        internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
         {
+            var urlparams = new Dictionary<string, string>();
+            if (after_id.HasValue)
+                urlparams["after"] = after_id.Value.ToString(CultureInfo.InvariantCulture);
+
+            urlparams["limit"] = limit.ToString(CultureInfo.InvariantCulture);
+
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id, message_id, emoji }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response);

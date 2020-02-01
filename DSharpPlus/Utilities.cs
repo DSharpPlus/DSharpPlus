@@ -173,14 +173,7 @@ namespace DSharpPlus
         {
             try
             {
-#if !(NETSTANDARD1_1 || NET45)
                 return DateTimeOffset.FromUnixTimeSeconds(unixTime);
-#else
-                // below constant taken from 
-                // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
-                var ticks = unixTime * TimeSpan.TicksPerSecond + 621_355_968_000_000_000;
-                return new DateTimeOffset(ticks, TimeSpan.Zero);
-#endif
             }
             catch (Exception)
             {
@@ -201,14 +194,7 @@ namespace DSharpPlus
         {
             try
             {
-#if !(NETSTANDARD1_1 || NET45)
                 return DateTimeOffset.FromUnixTimeMilliseconds(unixTime);
-#else
-                // below constant taken from 
-                // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
-                var ticks = unixTime * TimeSpan.TicksPerMillisecond + 621_355_968_000_000_000;
-                return new DateTimeOffset(ticks, TimeSpan.Zero);
-#endif
             }
             catch (Exception)
             {
@@ -226,14 +212,7 @@ namespace DSharpPlus
         /// <returns>Calculated Unix time.</returns>
         public static long GetUnixTime(DateTimeOffset dto)
         {
-#if !(NETSTANDARD1_1 || NET45)
             return dto.ToUnixTimeMilliseconds();
-#else
-            // below constant taken from 
-            // https://github.com/dotnet/coreclr/blob/cdb827b6cf72bdb8b4d0dbdaec160c32de7c185f/src/mscorlib/shared/System/DateTimeOffset.cs#L40
-            var millis = dto.Ticks / TimeSpan.TicksPerMillisecond;
-            return millis - 62_135_596_800_000;
-#endif
         }
         
         /// <summary>

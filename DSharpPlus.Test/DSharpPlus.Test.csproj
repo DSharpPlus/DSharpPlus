@@ -6,7 +6,6 @@
     <RootNamespace>DSharpPlus.Test</RootNamespace>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <!-- <TargetFramework>net47</TargetFramework> -->
     <VersionPrefix>4.0.0</VersionPrefix>
     <LangVersion>7.2</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -29,10 +28,6 @@
     <Version>$(VersionPrefix)-preview</Version>
     <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
     <FileVersion>$(VersionPrefix).0</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.0' Or '$(TargetFramework)' == 'netcoreapp1.1'">
-    <DefineConstants>NO_APPDOMAIN</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

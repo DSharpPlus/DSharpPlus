@@ -32,7 +32,7 @@ namespace DSharpPlus.Net.Abstractions
         /// <summary>
         /// Gets or sets the details.
         /// 
-        /// This is a component of the rich presence, and, as such, can only be used by regular users.
+        /// <para>This is a component of the rich presence, and, as such, can only be used by regular users.</para>
         /// </summary>
         [JsonProperty("details", NullValueHandling = NullValueHandling.Ignore)]
         public string Details { get; internal set; }
@@ -40,10 +40,16 @@ namespace DSharpPlus.Net.Abstractions
         /// <summary>
         /// Gets or sets game state.
         /// 
-        /// This is a component of the rich presence, and, as such, can only be used by regular users.
+        /// <para>This is a component of the rich presence, and, as such, can only be used by regular users.</para>
         /// </summary>
         [JsonProperty("state", NullValueHandling = NullValueHandling.Ignore)]
         public string State { get; internal set; }
+
+        /// <summary>
+        /// Gets the emoji details for a custom status, if any.
+        /// </summary>
+        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordEmoji Emoji { get; internal set; }
 
         /// <summary>
         /// Gets ID of the application for which this rich presence is for.
@@ -115,6 +121,11 @@ namespace DSharpPlus.Net.Abstractions
         public bool IsRichPresence()
         {
             return this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
+        }
+
+        public bool IsCustomStatus()
+        {
+            return this.Name == "Custom Status";
         }
 
         /// <summary>

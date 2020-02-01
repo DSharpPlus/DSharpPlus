@@ -8,7 +8,7 @@ using Newtonsoft.Json.Converters;
 
 namespace DSharpPlus.Lavalink
 {
-    public struct LavalinkTrack
+    public class LavalinkTrack
     {
         /// <summary>
         /// Gets or sets the ID of the track to play.
@@ -70,7 +70,7 @@ namespace DSharpPlus.Lavalink
     }
 
     /// <summary>
-    /// Represents Lavalink track loading result.
+    /// Represents Lavalink track loading results.
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
     public enum LavalinkLoadResultType
@@ -100,7 +100,7 @@ namespace DSharpPlus.Lavalink
         NoMatches,
 
         /// <summary>
-        /// Specifies that loading failed for unspecified reason.
+        /// Specifies that the track failed to load.
         /// </summary>
         [EnumMember(Value = "LOAD_FAILED")]
         LoadFailed
@@ -143,10 +143,58 @@ namespace DSharpPlus.Lavalink
         public LavalinkPlaylistInfo PlaylistInfo { get; internal set; }
         
         /// <summary>
+        /// Gets the exception details if a track loading failed.
+        /// </summary>
+        [JsonProperty("exception", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkLoadFailedInfo Exception { get; internal set; }
+
+        /// <summary>
         /// Gets the tracks that were loaded as a result of this request.
         /// </summary>
         //[JsonProperty("tracks")]
         [JsonIgnore]
         public IEnumerable<LavalinkTrack> Tracks { get; internal set; }
+    }
+
+    /// <summary>
+    /// Represents properties sent when a Lavalink track is unable to load.
+    /// </summary>
+    public struct LavalinkLoadFailedInfo
+    {
+        /// <summary>
+        /// Gets the message of the sent exception.
+        /// </summary>
+        [JsonProperty("message")]
+        public string Message { get; internal set; }
+
+        /// <summary>
+        /// Gets the severity level of the track loading failure.
+        /// </summary>
+        [JsonProperty("severity")]
+        public LoadFailedSeverity Severity { get; internal set; }
+    }
+
+    /// <summary>
+    /// Represents severity level of the track loading failure.
+    /// </summary>
+    public enum LoadFailedSeverity
+    {
+        /// <summary>
+        /// Indicates a known cause for the failure, and not because of Lavaplayer.
+        /// </summary>
+        [EnumMember(Value = "COMMON")]
+        Common,
+
+        /// <summary>
+        /// Indicates an unknown cause for the failure, most likely caused by outside sources.
+        /// </summary>
+        [EnumMember(Value = "SUSPICIOUS")]
+        Suspicious,
+
+        /// <summary>
+        /// Indicates an issue with Lavaplayer or otherwise no other way to determine the cause.
+        /// </summary>
+        [EnumMember(Value = "FAULT")]
+        Fault
     }
 }

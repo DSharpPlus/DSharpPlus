@@ -1,8 +1,5 @@
-﻿using System;
-using System.Reflection;
-#if !HAS_ENVIRONMENT
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
-#endif
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -20,7 +17,6 @@ namespace DSharpPlus.Net.Abstractions
         {
             get
             {
-#if !HAS_ENVIRONMENT
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     return "windows";
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -29,18 +25,6 @@ namespace DSharpPlus.Net.Abstractions
                     return "osx";
 
                 var plat = RuntimeInformation.OSDescription.ToLowerInvariant();
-#else
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT || Environment.OSVersion.Platform == PlatformID.WinCE)
-                    return "windows";
-                else if (Environment.OSVersion.Platform == PlatformID.MacOSX)
-                    return "osx";
-                else if (Environment.OSVersion.Platform == PlatformID.Win32S || Environment.OSVersion.Platform == PlatformID.Win32Windows || Environment.OSVersion.Platform == PlatformID.Xbox)
-                    return "potato";
-                else if (Environment.OSVersion.Platform == PlatformID.Unix)
-                    return "unix";
-
-                var plat = Environment.OSVersion.VersionString;
-#endif
                 if (plat.Contains("freebsd"))
                     return "freebsd";
                 else if (plat.Contains("openbsd"))

@@ -204,7 +204,6 @@ namespace DSharpPlus.Entities
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed);
         }
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Sends a message containing an attached file to this channel.
         /// </summary>
@@ -238,7 +237,6 @@ namespace DSharpPlus.Entities
             using (var fs = File.OpenRead(filePath))
                 return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
         }
-#endif
 
         /// <summary>
         /// Sends a message with several attached files to this channel.
@@ -604,14 +602,19 @@ namespace DSharpPlus.Entities
 
             // roles that member is in
             var mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
+
+            // assign permissions from member's roles (in order)
+            perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
+
+            // Adminstrator grants all permissions and cannot be overridden
+            if ((perms & Permissions.Administrator) == Permissions.Administrator)
+                return PermissionMethods.FULL_PERMS;
+
             // channel overrides for roles that member is in
             var mbRoleOverrides = mbRoles
                 .Select(xr => this._permissionOverwrites.FirstOrDefault(xo => xo.Id == xr.Id))
                 .Where(xo => xo != null)
                 .ToList();
-
-            // assign permissions from member's roles (in order)
-            perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
             
             // assign channel permission overwrites for @everyone pseudo-role
             var everyoneOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);

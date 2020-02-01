@@ -36,11 +36,6 @@ namespace DSharpPlus.Net.Udp
         {
             this.EndPoint = endpoint;
             this.Client = new UdpClient();
-            // TODO: Solve for .NET Standard, this is possibly default behaviour (???)
-#if HAS_NAT_TRAVERSAL
-            this.Client.AllowNatTraversal(true);
-#endif
-
             this.ReceiverTask = Task.Run(this.ReceiverLoopAsync, this.Token);
         }
 

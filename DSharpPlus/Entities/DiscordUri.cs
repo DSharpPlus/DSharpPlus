@@ -12,20 +12,6 @@ namespace DSharpPlus.Net
     [JsonConverter(typeof(DiscordUriJsonConverter))]
     public class DiscordUri
     {
-#if NETSTANDARD1_1
-        /// <inheritdoc />
-        /// <summary>The exception that is thrown when an invalid Uniform Resource Identifier (URI) is detected.</summary>
-        public class UriFormatException : FormatException
-        {
-            /// <inheritdoc />
-            /// <summary>Initializes a new instance of the <see cref="T:System.UriFormatException"></see> class with the specified message.</summary>
-            /// <param name="textString">The error message string.</param>
-            internal UriFormatException(string textString) : base(textString)
-            {
-            }
-        }
-#endif
-
         private readonly object _value;
 
         /// <summary>

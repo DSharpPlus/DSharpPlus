@@ -41,10 +41,9 @@ namespace DSharpPlus.Net
             {
                 UseCookies = false,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                UseProxy = proxy != null
+                UseProxy = proxy != null,
+                Proxy = proxy
             };
-            if (httphandler.UseProxy) // because mono doesn't implement this properly
-                httphandler.Proxy = proxy;
 
             this.HttpClient = new HttpClient(httphandler)
             {
@@ -199,7 +198,7 @@ namespace DSharpPlus.Net
                                 finally
                                 {
                                     // we don't want to wait here until all the blocked requests have been run, additionally Set can never throw an exception that could be suppressed here
-                                    _ = this.GlobalRateLimitEvent.Set();
+                                    _ = this.GlobalRateLimitEvent.SetAsync();
                                 }
                                 request.Discord?.DebugLogger?.LogTaskFault(ExecuteRequestAsync(request, bucket, ratelimitTcs), LogLevel.Error, "REST", "Error while retrying request: ");
                             }

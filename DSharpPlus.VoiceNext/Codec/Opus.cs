@@ -9,9 +9,7 @@ namespace DSharpPlus.VoiceNext.Codec
 
         private IntPtr Encoder { get; }
 
-#if !NETSTANDARD1_1
         private List<OpusDecoder> ManagedDecoders { get; }
-#endif
 
         public Opus(AudioFormat audioFormat)
         {
@@ -38,9 +36,7 @@ namespace DSharpPlus.VoiceNext.Codec
             Interop.OpusSetEncoderOption(this.Encoder, OpusControl.SetInBandFec, 1);
             Interop.OpusSetEncoderOption(this.Encoder, OpusControl.SetBitrate, 131072);
 
-#if !NETSTANDARD1_1
             this.ManagedDecoders = new List<OpusDecoder>();
-#endif
         }
 
         public void Encode(ReadOnlySpan<byte> pcm, ref Span<byte> target)
@@ -58,7 +54,6 @@ namespace DSharpPlus.VoiceNext.Codec
             Interop.OpusEncode(this.Encoder, pcm, frameSize, ref target);
         }
 
-#if !NETSTANDARD1_1
         public void Decode(OpusDecoder decoder, ReadOnlySpan<byte> opus, ref Span<byte> target, bool useFec, out AudioFormat outputFormat)
         {
             //if (target.Length != this.AudioFormat.CalculateMaximumFrameSize())
@@ -108,23 +103,19 @@ namespace DSharpPlus.VoiceNext.Codec
                 decoder.Dispose();
             }
         }
-#endif
 
         public void Dispose()
         {
             Interop.OpusDestroyEncoder(this.Encoder);
 
-#if !NETSTANDARD1_1
             lock (this.ManagedDecoders)
             {
                 foreach (var decoder in this.ManagedDecoders)
                     decoder.Dispose();
             }
-#endif
         }
     }
 
-#if !NETSTANDARD1_1
     /// <summary>
     /// Represents an Opus decoder.
     /// </summary>
@@ -174,7 +165,6 @@ namespace DSharpPlus.VoiceNext.Codec
                 Interop.OpusDestroyDecoder(this.Decoder);
         }
     }
-#endif
 
     [Flags]
     internal enum OpusError

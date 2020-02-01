@@ -7,8 +7,11 @@ namespace DSharpPlus.Lavalink.Entities
         [JsonProperty("op")]
         public string Operation { get; }
 
-        [JsonProperty("guildId")]
+        [JsonProperty("guildId", NullValueHandling = NullValueHandling.Ignore)]
         public string GuildId { get; }
+
+        internal LavalinkPayload(string opcode)
+            => this.Operation = opcode;
 
         internal LavalinkPayload(string opcode, string guildId)
         {

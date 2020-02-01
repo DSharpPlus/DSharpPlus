@@ -114,12 +114,16 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public LavalinkStatistics Statistics { get; }
 
+        /// <summary>
+        /// Gets the REST client for this Lavalink connection.
+        /// </summary>
+        public LavalinkRest Rest { get; }
+
         internal DiscordClient Discord { get; }
         private LavalinkConfiguration Configuration { get; }
         private ConcurrentDictionary<ulong, LavalinkGuildConnection> ConnectedGuilds { get; }
 
         private BaseWebSocketClient WebSocket { get; set; }
-        private HttpClient Rest { get; }
 
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; }
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; }
@@ -155,12 +159,7 @@ namespace DSharpPlus.Lavalink
             if (httphandler.UseProxy) // because mono doesn't implement this properly
                 httphandler.Proxy = client.Configuration.Proxy;
 
-            this.Rest = new HttpClient(httphandler)
-            {
-                BaseAddress = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks")
-            };
-            this.Rest.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{client.VersionString}");
-            this.Rest.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", this.Configuration.Password);
+            this.Rest = new LavalinkRest(this.Configuration, this.Discord);
 
             this.WebSocket = client.Configuration.WebSocketClientFactory(client.Configuration.Proxy);
             this.WebSocket.Connected += this.WebSocket_OnConnect;
@@ -178,14 +177,19 @@ namespace DSharpPlus.Lavalink
         internal Task StartAsync()
         {
             if (this.Discord?.CurrentUser?.Id == null || this.Discord?.ShardCount == null)
-                throw new InvalidOperationException("This operation requires Discord client to be fully initialized.");
+                throw new InvalidOperationException("This operation requires the Discord client to be fully initialized.");
 
-            return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), new Dictionary<string, string>()
+            var headers = new Dictionary<string, string>()
             {
                 ["Authorization"] = this.Configuration.Password,
                 ["Num-Shards"] = this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture),
                 ["User-Id"] = this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture)
-            });
+            };
+
+            if (this.Configuration.ResumeKey != null)
+                headers.Add("Resume-Key", this.Configuration.ResumeKey);
+
+            return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), headers);
         }
 
         /// <summary>
@@ -257,104 +261,8 @@ namespace DSharpPlus.Lavalink
         public LavalinkGuildConnection GetConnection(DiscordGuild guild)
             => this.ConnectedGuilds.TryGetValue(guild.Id, out LavalinkGuildConnection lgc) && lgc.IsConnected ? lgc : null;
 
-        /// <summary>
-        /// Searches for specified terms.
-        /// </summary>
-        /// <param name="searchQuery">What to search for.</param>
-        /// <param name="type">What platform will search for.</param>
-        /// <returns>A collection of tracks matching the criteria.</returns>
-        public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery, LavalinkSearchType type = LavalinkSearchType.Youtube)
-        {
-            string prefix;
-            if (type == LavalinkSearchType.Youtube)
-                prefix = "ytsearch";
-            else
-                prefix = "scsearch";
 
-            var str = WebUtility.UrlEncode($"{prefix}:{searchQuery}");
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
-            return this.InternalResolveTracksAsync(tracksUri);
-        }
-
-        /// <summary>
-        /// Loads tracks from specified URL.
-        /// </summary>
-        /// <param name="uri">URL to load tracks from.</param>
-        /// <returns>A collection of tracks from the URL.</returns>
-        public Task<LavalinkLoadResult> GetTracksAsync(Uri uri)
-        {
-            var str = WebUtility.UrlEncode(uri.ToString());
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
-            return this.InternalResolveTracksAsync(tracksUri);
-        }
-
-#if !NETSTANDARD1_1
-        /// <summary>
-        /// Loads tracks from a local file.
-        /// </summary>
-        /// <param name="file">File to load tracks from.</param>
-        /// <returns>A collection of tracks from the file.</returns>
-        public Task<LavalinkLoadResult> GetTracksAsync(FileInfo file)
-        {
-            var str = WebUtility.UrlEncode(file.FullName);
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
-            return this.InternalResolveTracksAsync(tracksUri);
-        }
-#endif
-
-        private async Task<LavalinkLoadResult> InternalResolveTracksAsync(Uri uri)
-        {
-            // this function returns a Lavalink 3-like dataset regardless of input data version
-
-            var json = "[]";
-            using (var req = await this.Rest.GetAsync(uri).ConfigureAwait(false))
-            using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
-            using (var sr = new StreamReader(res, UTF8))
-                json = await sr.ReadToEndAsync().ConfigureAwait(false);
-
-            var jdata = JToken.Parse(json);
-            if (jdata is JArray jarr)
-            {
-                // Lavalink 2.x
-
-                var tracks = new List<LavalinkTrack>(jarr.Count);
-                foreach (var jt in jarr)
-                {
-                    var track = jt["info"].ToObject<LavalinkTrack>();
-                    track.TrackString = jt["track"].ToString();
-
-                    tracks.Add(track);
-                }
-
-                return new LavalinkLoadResult
-                {
-                    PlaylistInfo = default,
-                    LoadResultType = tracks.Count == 0 ? LavalinkLoadResultType.LoadFailed : LavalinkLoadResultType.TrackLoaded,
-                    Tracks = tracks
-                };
-            }
-            else if (jdata is JObject jo)
-            {
-                // Lavalink 3.x
-
-                jarr = jo["tracks"] as JArray;
-                var loadInfo = jo.ToObject<LavalinkLoadResult>();
-                var tracks = new List<LavalinkTrack>(jarr.Count);
-                foreach (var jt in jarr)
-                {
-                    var track = jt["info"].ToObject<LavalinkTrack>();
-                    track.TrackString = jt["track"].ToString();
-
-                    tracks.Add(track);
-                }
-
-                loadInfo.Tracks = new ReadOnlyCollection<LavalinkTrack>(tracks);
-
-                return loadInfo;
-            }
-            else
-                return null;
-        }
+        
 
         internal void SendPayload(LavalinkPayload payload)
             => this.WebSocket.SendMessage(JsonConvert.SerializeObject(payload, Formatting.None));
@@ -470,6 +378,9 @@ namespace DSharpPlus.Lavalink
         private Task WebSocket_OnConnect()
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection established", DateTime.Now);
+
+            if (this.Configuration.ResumeKey != null)
+                this.SendPayload(new LavalinkConfigureResume(this.Configuration.ResumeKey, this.Configuration.ResumeTimeout));
 
             return Task.Delay(0);
         }

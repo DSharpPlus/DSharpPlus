@@ -410,6 +410,73 @@ namespace DSharpPlus.Entities
         internal DiscordAuditLogMessageEntry() { }
     }
 
+    public sealed class DiscordAuditLogMessagePinEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the affected message's user.
+        /// </summary>
+        public DiscordUser Target { get; internal set; }
+
+        /// <summary>
+        /// Gets the channel the message is in.
+        /// </summary>
+        public DiscordChannel Channel { get; internal set; }
+
+        /// <summary>
+        /// Gets the message the pin action was for.
+        /// </summary>
+        public DiscordMessage Message { get; internal set; }
+
+        internal DiscordAuditLogMessagePinEntry() { }
+    }
+
+    public sealed class DiscordAuditLogBotAddEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the bot that has been added to the guild.
+        /// </summary>
+        public DiscordUser TargetBot { get; internal set; }
+    }
+
+    public sealed class DiscordAuditLogMemberMoveEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the channel the members were moved in.
+        /// </summary>
+        public DiscordChannel Channel { get; internal set; }
+
+        /// <summary>
+        /// Gets the amount of users that were moved out from the voice channel.
+        /// </summary>
+        public int UserCount { get; internal set; }
+    }
+
+    public sealed class DiscordAuditLogMemberDisconnectEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the amount of users that were disconnected from the voice channel.
+        /// </summary>
+        public int UserCount { get; internal set; }
+    }
+
+    public sealed class DiscordAuditLogIntegrationEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the description of emoticons' change.
+        /// </summary>
+        public PropertyChange<bool?> EnableEmoticons { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of expire grace period's change.
+        /// </summary>
+        public PropertyChange<int?> ExpireGracePeriod { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of expire behavior change.
+        /// </summary>
+        public PropertyChange<int?> ExpireBehavior { get; internal set; }
+    }
+
     /// <summary>
     /// Indicates audit log action category.
     /// </summary>
@@ -510,6 +577,21 @@ namespace DSharpPlus.Entities
         MemberRoleUpdate = 25,
 
         /// <summary>
+        /// Indicates that the member has moved to another voice channel.
+        /// </summary>
+        MemberMove = 26,
+
+        /// <summary>
+        /// Indicates that the member has disconnected from a voice channel.
+        /// </summary>
+        MemberDisconnect = 27,
+
+        /// <summary>
+        /// Indicates that a bot was added to the guild.
+        /// </summary>
+        BotAdd = 28,
+
+        /// <summary>
         /// Indicates that the role was created.
         /// </summary>
         RoleCreate = 30,
@@ -572,6 +654,36 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Indicates that the message was deleted.
         /// </summary>
-        MessageDelete = 72
+        MessageDelete = 72,
+
+        /// <summary>
+        /// Indicates that messages were bulk-deleted.
+        /// </summary>
+        MessageBulkDelete = 73,
+
+        /// <summary>
+        /// Indicates that a message was pinned.
+        /// </summary>
+        MessagePin = 74,
+
+        /// <summary>
+        /// Indicates that a message was unpinned.
+        /// </summary>
+        MessageUnpin = 75,
+
+        /// <summary>
+        /// Indicates that an integration was created.
+        /// </summary>
+        IntegrationCreate = 80,
+
+        /// <summary>
+        /// Indicates that an integration was updated.
+        /// </summary>
+        IntegrationUpdate = 81,
+
+        /// <summary>
+        /// Indicates that an integration was deleted.
+        /// </summary>
+        IntegrationDelete = 82,
     }
 }

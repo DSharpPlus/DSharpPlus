@@ -60,7 +60,6 @@ namespace DSharpPlus.VoiceNext
         }
         private AsyncEvent<VoiceUserLeaveEventArgs> _userLeft;
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Triggered whenever voice data is received from the connected voice channel.
         /// </summary>
@@ -70,7 +69,6 @@ namespace DSharpPlus.VoiceNext
             remove { this._voiceReceived.Unregister(value); }
         }
         private AsyncEvent<VoiceReceiveEventArgs> _voiceReceived;
-#endif
 
         /// <summary>
         /// Triggered whenever voice WebSocket throws an exception.
@@ -88,9 +86,7 @@ namespace DSharpPlus.VoiceNext
 
         private DiscordClient Discord { get; }
         private DiscordGuild Guild { get; }
-#if !NETSTANDARD1_1
         private ConcurrentDictionary<uint, AudioSender> TransmittingSSRCs { get; }
-#endif
 
         private BaseUdpClient UdpClient { get; }
         private BaseWebSocketClient VoiceWs { get; set; }
@@ -117,9 +113,7 @@ namespace DSharpPlus.VoiceNext
         private uint Timestamp { get; set; }
         private uint SSRC { get; set; }
         private byte[] Key { get; set; }
-#if !NETSTANDARD1_1
         private IpEndpoint DiscoveredEndpoint { get; set; }
-#endif
         internal ConnectionEndpoint WebSocketEndpoint { get; set; }
         internal ConnectionEndpoint UdpEndpoint { get; set; }
 
@@ -129,6 +123,7 @@ namespace DSharpPlus.VoiceNext
 
         private TaskCompletionSource<bool> PlayingWait { get; set; }
 
+        private AsyncManualResetEvent PauseEvent { get; }
         private ConcurrentQueue<VoicePacket> PacketQueue { get; }
         private VoiceTransmitStream TransmitStream { get; set; }
         private ConcurrentDictionary<ulong, long> KeepaliveTimestamps { get; }
@@ -184,16 +179,12 @@ namespace DSharpPlus.VoiceNext
             this.Discord = client;
             this.Guild = guild;
             this.Channel = channel;
-#if !NETSTANDARD1_1
             this.TransmittingSSRCs = new ConcurrentDictionary<uint, AudioSender>();
-#endif
 
             this._userSpeaking = new AsyncEvent<UserSpeakingEventArgs>(this.Discord.EventErrorHandler, "VNEXT_USER_SPEAKING");
             this._userJoined = new AsyncEvent<VoiceUserJoinEventArgs>(this.Discord.EventErrorHandler, "VNEXT_USER_JOINED");
             this._userLeft = new AsyncEvent<VoiceUserLeaveEventArgs>(this.Discord.EventErrorHandler, "VNEXT_USER_LEFT");
-#if !NETSTANDARD1_1
             this._voiceReceived = new AsyncEvent<VoiceReceiveEventArgs>(this.Discord.EventErrorHandler, "VNEXT_VOICE_RECEIVED");
-#endif
             this._voiceSocketError = new AsyncEvent<SocketErrorEventArgs>(this.Discord.EventErrorHandler, "VNEXT_WS_ERROR");
             this.TokenSource = new CancellationTokenSource();
 
@@ -227,6 +218,7 @@ namespace DSharpPlus.VoiceNext
             this.PlayingWait = null;
             this.PacketQueue = new ConcurrentQueue<VoicePacket>();
             this.KeepaliveTimestamps = new ConcurrentDictionary<ulong, long>();
+            this.PauseEvent = new AsyncManualResetEvent(true);
 
             this.UdpClient = this.Discord.Configuration.UdpClientFactory();
             this.VoiceWs = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
@@ -317,11 +309,9 @@ namespace DSharpPlus.VoiceNext
                     this.Sodium.GenerateNonce(packet.Slice(0, Rtp.HeaderSize), nonce);
                     break;
 
-#if !NETSTANDARD1_1
                 case EncryptionMode.XSalsa20_Poly1305_Suffix:
                     this.Sodium.GenerateNonce(nonce);
                     break;
-#endif
 
                 case EncryptionMode.XSalsa20_Poly1305_Lite:
                     this.Sodium.GenerateNonce(this.Nonce++, nonce);
@@ -359,6 +349,8 @@ namespace DSharpPlus.VoiceNext
 
             while (!token.IsCancellationRequested)
             {
+                await this.PauseEvent.WaitAsync().ConfigureAwait(false);
+
                 var hasPacket = queue.TryDequeue(out var packet);
 
                 byte[] packetArray = null;
@@ -394,7 +386,7 @@ namespace DSharpPlus.VoiceNext
                     continue;
 
                 this.SendSpeaking(true);
-                await this.UdpClient.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
+                await client.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
 
                 if (!packet.IsSilence && queue.Count == 0)
                 {
@@ -416,7 +408,6 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-#if !NETSTANDARD1_1
         private bool ProcessPacket(ReadOnlySpan<byte> data, ref Memory<byte> opus, ref Memory<byte> pcm, IList<ReadOnlyMemory<byte>> pcmPackets, out AudioSender voiceSender, out AudioFormat outputFormat)
         {
             voiceSender = null;
@@ -556,7 +547,6 @@ namespace DSharpPlus.VoiceNext
                 this.Discord.DebugLogger.LogMessage(LogLevel.Error, "VNext RX", "Exception occured when decoding incoming audio data", DateTime.Now, ex);
             }
         }
-#endif
 
         private void ProcessKeepalive(byte[] data)
         {
@@ -587,10 +577,8 @@ namespace DSharpPlus.VoiceNext
                 var data = await client.ReceiveAsync().ConfigureAwait(false);
                 if (data.Length == 8)
                     this.ProcessKeepalive(data);
-#if !NETSTANDARD1_1
                 else if (this.Configuration.EnableIncoming)
                     await this.ProcessVoicePacket(data).ConfigureAwait(false);
-#endif
             }
         }
 
@@ -645,6 +633,19 @@ namespace DSharpPlus.VoiceNext
         }
 
         /// <summary>
+        /// Pauses playback.
+        /// </summary>
+        public void Pause()
+            => this.PauseEvent.Reset();
+
+        /// <summary>
+        /// Asynchronously resumes playback.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ResumeAsync()
+            => await this.PauseEvent.SetAsync().ConfigureAwait(false);
+
+        /// <summary>
         /// Disconnects and disposes this voice connection.
         /// </summary>
         public void Disconnect()
@@ -662,10 +663,8 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = false;
             this.TokenSource.Cancel();
             this.SenderTokenSource.Cancel();
-#if !NETSTANDARD1_1
             if (this.Configuration.EnableIncoming)
                 this.ReceiverTokenSource.Cancel();
-#endif
 
             try
             {
@@ -743,7 +742,6 @@ namespace DSharpPlus.VoiceNext
 
         private async Task Stage1(VoiceReadyPayload voiceReady)
         {
-#if !NETSTANDARD1_1
             // IP Discovery
             this.UdpClient.Setup(this.UdpEndpoint);
 
@@ -777,10 +775,6 @@ namespace DSharpPlus.VoiceNext
 
                 decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(68 /* 70 - 2 */));
             }
-#else
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Voice receive not supported - not performing endpoint discovery", DateTime.Now);
-            await Task.Yield(); // just stop bothering me VS
-#endif
 
             // Select voice encryption mode
             var selectedEncryptionMode = Sodium.SelectMode(voiceReady.Modes);
@@ -796,13 +790,8 @@ namespace DSharpPlus.VoiceNext
                     Protocol = "udp",
                     Data = new VoiceSelectProtocolPayloadData
                     {
-#if !NETSTANDARD1_1
                         Address = this.DiscoveredEndpoint.Address.ToString(),
                         Port = (ushort)this.DiscoveredEndpoint.Port,
-#else
-                        Address = "0.0.0.0",
-                        Port = 0,
-#endif
                         Mode = selectedEncryptionMode.Key
                     }
                 }
@@ -880,7 +869,6 @@ namespace DSharpPlus.VoiceNext
                         User = this.Discord.InternalGetCachedUser(spd.UserId.Value)
                     };
 
-#if !NETSTANDARD1_1
                     if (spk.User != null && this.TransmittingSSRCs.TryGetValue(spk.SSRC, out var txssrc5) && txssrc5.Id == 0)
                     {
                         txssrc5.User = spk.User;
@@ -896,7 +884,6 @@ namespace DSharpPlus.VoiceNext
                         if (!this.TransmittingSSRCs.TryAdd(spk.SSRC, vtx))
                             this.Opus.DestroyDecoder(opus);
                     }
-#endif
 
                     await this._userSpeaking.InvokeAsync(spk).ConfigureAwait(false);
                     break;
@@ -922,8 +909,6 @@ namespace DSharpPlus.VoiceNext
                 case 12: // CLIENT_CONNECTED
                     var ujpd = opp.ToObject<VoiceUserJoinPayload>();
                     var usrj = await this.Discord.GetUserAsync(ujpd.UserId).ConfigureAwait(false);
-
-#if !NETSTANDARD1_1
                     {
                         var opus = this.Opus.CreateDecoder();
                         var vtx = new AudioSender(ujpd.SSRC, opus)
@@ -934,31 +919,24 @@ namespace DSharpPlus.VoiceNext
                         if (!this.TransmittingSSRCs.TryAdd(vtx.SSRC, vtx))
                             this.Opus.DestroyDecoder(opus);
                     }
-#endif
 
                     await this._userJoined.InvokeAsync(new VoiceUserJoinEventArgs(this.Discord) { User = usrj, SSRC = ujpd.SSRC }).ConfigureAwait(false);
                     break;
 
                 case 13: // CLIENT_DISCONNECTED
                     var ulpd = opp.ToObject<VoiceUserLeavePayload>();
-
-#if !NETSTANDARD1_1
                     var txssrc = this.TransmittingSSRCs.FirstOrDefault(x => x.Value.Id == ulpd.UserId);
                     if (this.TransmittingSSRCs.ContainsKey(txssrc.Key))
                     {
                         this.TransmittingSSRCs.TryRemove(txssrc.Key, out var txssrc13);
                         this.Opus.DestroyDecoder(txssrc13.Decoder);
                     }
-#endif
 
                     var usrl = await this.Discord.GetUserAsync(ulpd.UserId).ConfigureAwait(false);
                     await this._userLeft.InvokeAsync(new VoiceUserLeaveEventArgs(this.Discord)
                     {
-                        User = usrl
-#if !NETSTANDARD1_1
-                        ,
+                        User = usrl,
                         SSRC = txssrc.Key
-#endif
                     }).ConfigureAwait(false);
                     break;
 

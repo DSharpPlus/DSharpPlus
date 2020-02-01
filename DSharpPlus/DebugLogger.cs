@@ -59,7 +59,6 @@ namespace DSharpPlus
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
         {
-#if !NETSTANDARD1_1
             switch (e.Level)
             {
                 case LogLevel.Debug:
@@ -87,7 +86,6 @@ namespace DSharpPlus
             Console.Write($"[{e.Timestamp.ToString(this.DateTimeFormat)}] [{e.Application}] [{e.Level}]");
             Console.ResetColor();
             Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
-#endif
         }
 
         public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;

@@ -115,7 +115,6 @@ namespace DSharpPlus.CommandsNext
         public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool isTTS = false, DiscordEmbed embed = null) 
             => this.Message.RespondWithFileAsync(fileName, fileData, content, isTTS, embed);
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.
         /// </summary>
@@ -139,7 +138,6 @@ namespace DSharpPlus.CommandsNext
         {
             return this.Message.RespondWithFileAsync(filePath, content, isTTS, embed);
         }
-#endif
 
         /// <summary>
         /// Quickly respond with multiple files to the message that triggered the command.

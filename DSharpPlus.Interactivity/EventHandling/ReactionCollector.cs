@@ -198,10 +198,11 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             this._ct.Dispose();
             this._tcs = null;
             this.message = null;
-            this._collected.Clear();
+            this._collected?.Clear();
             this._collected = null;
         }
     }

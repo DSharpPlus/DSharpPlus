@@ -4,6 +4,22 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities
 {
+    internal sealed class LavalinkConfigureResume : LavalinkPayload
+    {
+        [JsonProperty("key")]
+        public string Key { get; }
+
+        [JsonProperty("timeout")]
+        public int Timeout { get; }
+
+        public LavalinkConfigureResume(string key, int timeout)
+            : base("configureResuming")
+        {
+            this.Key = key;
+            this.Timeout = timeout;
+        }
+    }
+
     internal sealed class LavalinkDestroy : LavalinkPayload
     {
         public LavalinkDestroy(LavalinkGuildConnection lvl)

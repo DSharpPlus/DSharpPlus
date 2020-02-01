@@ -116,7 +116,7 @@ namespace DSharpPlus.Test
 
             this.ContextChannel = ctx.Channel;
 
-            var trackLoad = await this.Lavalink.GetTracksAsync(uri);
+            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri);
             var track = trackLoad.Tracks.First();
             this.LavalinkVoice.Play(track);
 
@@ -129,7 +129,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            var trackLoad = await this.Lavalink.GetTracksAsync(new FileInfo(path));
+            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(new FileInfo(path));
             var track = trackLoad.Tracks.First();
             this.LavalinkVoice.Play(track);
 
@@ -142,7 +142,7 @@ namespace DSharpPlus.Test
             if (this.Lavalink == null)
                 return;
 
-            var result = await this.Lavalink.GetTracksAsync(search, LavalinkSearchType.SoundCloud);
+            var result = await this.Lavalink.Rest.GetTracksAsync(search, LavalinkSearchType.SoundCloud);
             var track = result.Tracks.First();
             this.LavalinkVoice.Play(track);
 
@@ -155,7 +155,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            var trackLoad = await this.Lavalink.GetTracksAsync(uri);
+            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri);
             var track = trackLoad.Tracks.First();
             this.LavalinkVoice.PlayPartial(track, start, stop);
 

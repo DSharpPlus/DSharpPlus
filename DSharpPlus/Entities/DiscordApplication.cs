@@ -9,13 +9,8 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents an OAuth2 application.
     /// </summary>
-    public sealed class DiscordApplication : SnowflakeObject, IEquatable<DiscordApplication>
+    public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<DiscordApplication>
     {
-        /// <summary>
-        /// Gets the application's description.
-        /// </summary>
-        public string Description { get; internal set; }
-
         /// <summary>
         /// Gets the application's summary.
         /// </summary>
@@ -24,18 +19,13 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the application's icon.
         /// </summary>
-        public string Icon
+        public override string Icon
             => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
 
         /// <summary>
         /// Gets the application's icon hash.
         /// </summary>
         public string IconHash { get; internal set; }
-
-        /// <summary>
-        /// Gets the application's name.
-        /// </summary>
-        public string Name { get; internal set; }
 
         /// <summary>
         /// Gets the application's allowed RPC origins.
@@ -70,7 +60,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets this application's cover image URL.
         /// </summary>
-        public string CoverImageUrl
+        public override string CoverImageUrl
             => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
 
         /// <summary>

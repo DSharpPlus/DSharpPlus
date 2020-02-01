@@ -56,5 +56,7 @@ namespace DSharpPlus.Net.Abstractions
         /// </summary>
         [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
         public TransportActivity Activity { get; set; }
+
+        internal DiscordActivity _activity;
     }
 }

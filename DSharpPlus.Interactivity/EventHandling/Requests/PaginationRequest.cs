@@ -210,9 +210,9 @@ namespace DSharpPlus.Interactivity
 
     public class Page
     {
-        public string Content { get; private set; }
-        public DiscordEmbed Embed { get; private set; }
-
+        public string Content { get; set; }
+        public DiscordEmbed Embed { get; set; }
+        
         public Page(string content = "", DiscordEmbedBuilder embed = null)
         {
             this.Content = content;

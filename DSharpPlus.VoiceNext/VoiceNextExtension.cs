@@ -28,11 +28,7 @@ namespace DSharpPlus.VoiceNext
         internal VoiceNextExtension(VoiceNextConfiguration config)
         {
             this.Configuration = new VoiceNextConfiguration(config);
-#if !NETSTANDARD1_1
             this.IsIncomingEnabled = config.EnableIncoming;
-#else
-            this.IsIncomingEnabled = false;
-#endif
 
             this.ActiveConnections = new ConcurrentDictionary<ulong, VoiceNextConnection>();
             this.VoiceStateUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>>();
@@ -67,6 +63,9 @@ namespace DSharpPlus.VoiceNext
 
             if (channel.Guild == null)
                 throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be guild channel");
+
+            if (!channel.PermissionsFor(channel.Guild.CurrentMember).HasPermission(Permissions.UseVoice))
+                throw new InvalidOperationException("You need UseVoice permission to connect to this voice channel");
 
             var gld = channel.Guild;
             if (ActiveConnections.ContainsKey(gld.Id))
