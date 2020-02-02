@@ -1596,6 +1596,8 @@ namespace DSharpPlus
             var guild = this.InternalGetCachedGuild(guildId);
             var channel = this.InternalGetCachedChannel(channelId);
 
+            invite.Discord = this;            
+
             guild._invites[invite.Code] = invite;
 
             var ea = new InviteCreateEventArgs(this)
@@ -1614,7 +1616,11 @@ namespace DSharpPlus
             var channel = this.InternalGetCachedChannel(channelId);
 
             if (!guild._invites.TryRemove(dat["code"].ToString(), out var invite))
+            {
                 invite = dat.ToObject<DiscordInvite>();
+                invite.IsRevoked = true;
+                invite.Discord = this;
+            }
 
             var ea = new InviteDeleteEventArgs(this)
             {
