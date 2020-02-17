@@ -3,11 +3,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -28,7 +26,6 @@ namespace DSharpPlus
     public sealed class DiscordClient : BaseDiscordClient
     {
         #region Internal Variables
-        internal static UTF8Encoding UTF8 = new UTF8Encoding(false);
         internal static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         internal CancellationTokenSource _cancelTokenSource;
@@ -36,7 +33,8 @@ namespace DSharpPlus
 
         internal List<BaseExtension> _extensions = new List<BaseExtension>();
 
-        internal BaseWebSocketClient _webSocketClient;
+        internal IWebSocketClient _webSocketClient;
+        internal PayloadDecompressor _payloadDecompressor;
         internal string _sessionToken = "";
         internal string _sessionId = "";
         internal int _heartbeatInterval;
@@ -306,7 +304,7 @@ namespace DSharpPlus
             if (startNewSession)
                 _sessionId = "";
 
-            return _webSocketClient.DisconnectAsync(null);
+            return _webSocketClient.DisconnectAsync();
         }
 
         internal Task InternalReconnectAsync()
@@ -356,39 +354,63 @@ namespace DSharpPlus
 
             Volatile.Write(ref this._skippedHeartbeats, 0);
 
-            _webSocketClient = this.Configuration.WebSocketClientFactory(this.Configuration.Proxy);
+            this._webSocketClient = this.Configuration.WebSocketClientFactory(this.Configuration.Proxy);
+            this._payloadDecompressor = this.Configuration.GatewayCompressionLevel != GatewayCompressionLevel.None 
+                ? new PayloadDecompressor(this.Configuration.GatewayCompressionLevel)
+                : null;
 
-            _cancelTokenSource = new CancellationTokenSource();
-            _cancelToken = _cancelTokenSource.Token;
+            this._cancelTokenSource = new CancellationTokenSource();
+            this._cancelToken = _cancelTokenSource.Token;
 
-            _webSocketClient.Connected += SocketOnConnect;
-            _webSocketClient.Disconnected += SocketOnDisconnect;
-            _webSocketClient.MessageReceived += SocketOnMessage;
-            _webSocketClient.Errored += SocketOnError;
+            this._webSocketClient.Connected += SocketOnConnect;
+            this._webSocketClient.Disconnected += SocketOnDisconnect;
+            this._webSocketClient.MessageReceived += SocketOnMessage;
+            this._webSocketClient.ExceptionThrown += SocketOnException;
 
             var gwuri = new UriBuilder(this._gatewayUri)
             {
                 Query = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream ? "v=6&encoding=json&compress=zlib-stream" : "v=6&encoding=json"
             };
 
-            await _webSocketClient.ConnectAsync(gwuri.Uri).ConfigureAwait(false);
+            await this._webSocketClient.ConnectAsync(gwuri.Uri).ConfigureAwait(false);
 
             Task SocketOnConnect()
                 => this._socketOpened.InvokeAsync();
 
             async Task SocketOnMessage(SocketMessageEventArgs e)
             {
+                string msg = null;
+                if (e is SocketTextMessageEventArgs etext)
+                {
+                    msg = etext.Message;
+                }
+                else if (e is SocketBinaryMessageEventArgs ebin) // :DDDD
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
+                        {
+                            this.DebugLogger.LogMessage(LogLevel.Error, "Websocket", "Payload decompression failed", DateTime.Now);
+                            return;
+                        }
+
+                        ms.Position = 0;
+                        using (var sr = new StreamReader(ms, Utilities.UTF8))
+                            msg = sr.ReadToEnd();
+                    }
+                }
+
                 try
                 {
-                    await HandleSocketMessageAsync(e.Message);
+                    await this.HandleSocketMessageAsync(msg);
                 }
                 catch (Exception ex)
                 {
-                    DebugLogger.LogMessage(LogLevel.Error, "Websocket", $"Socket swallowed an exception:", DateTime.Now, ex);
+                    this.DebugLogger.LogMessage(LogLevel.Error, "Websocket", "Socket swallowed an exception", DateTime.Now, ex);
                 }
             }
 
-            Task SocketOnError(SocketErrorEventArgs e)
+            Task SocketOnException(SocketErrorEventArgs e)
                 => this._socketErrored.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
 
             async Task SocketOnDisconnect(SocketCloseEventArgs e)
@@ -425,7 +447,7 @@ namespace DSharpPlus
         {
             Configuration.AutoReconnect = false;
             if (this._webSocketClient != null)
-                await _webSocketClient.DisconnectAsync(null).ConfigureAwait(false);
+                await _webSocketClient.DisconnectAsync().ConfigureAwait(false);
         }
 
         #region Public Functions
@@ -2197,7 +2219,7 @@ namespace DSharpPlus
             catch (OperationCanceledException) { }
         }
 
-        internal Task InternalUpdateStatusAsync(DiscordActivity activity, UserStatus? userStatus, DateTimeOffset? idleSince)
+        internal async Task InternalUpdateStatusAsync(DiscordActivity activity, UserStatus? userStatus, DateTimeOffset? idleSince)
         {
             if (activity != null && activity.Name != null && activity.Name.Length > 128)
                 throw new Exception("Game name can't be longer than 128 characters!");
@@ -2222,7 +2244,7 @@ namespace DSharpPlus
             };
             var statusstr = JsonConvert.SerializeObject(status_update);
 
-            this._webSocketClient.SendMessage(statusstr);
+            await this._webSocketClient.SendMessageAsync(statusstr).ConfigureAwait(false);
 
             if (!this._presences.ContainsKey(this.CurrentUser.Id))
             {
@@ -2240,8 +2262,6 @@ namespace DSharpPlus
                 pr.Activity = act;
                 pr.Status = userStatus ?? pr.Status;
             }
-
-            return Task.Delay(0);
         }
 
         internal Task SendHeartbeatAsync()
@@ -2276,14 +2296,14 @@ namespace DSharpPlus
                 Data = seq
             };
             var heartbeat_str = JsonConvert.SerializeObject(heartbeat);
-            _webSocketClient.SendMessage(heartbeat_str);
+            await this._webSocketClient.SendMessageAsync(heartbeat_str).ConfigureAwait(false);
 
             this._lastHeartbeat = DateTimeOffset.Now;
 
             Interlocked.Increment(ref this._skippedHeartbeats);
         }
 
-        internal Task SendIdentifyAsync(StatusUpdate status)
+        internal async Task SendIdentifyAsync(StatusUpdate status)
         {
             var identify = new GatewayIdentify
             {
@@ -2303,11 +2323,10 @@ namespace DSharpPlus
                 Data = identify
             };
             var payloadstr = JsonConvert.SerializeObject(payload);
-            _webSocketClient.SendMessage(payloadstr);
-            return Task.Delay(0);
+            await this._webSocketClient.SendMessageAsync(payloadstr).ConfigureAwait(false);
         }
 
-        internal Task SendResumeAsync()
+        internal async Task SendResumeAsync()
         {
             var resume = new GatewayResume
             {
@@ -2322,8 +2341,7 @@ namespace DSharpPlus
             };
             var resumestr = JsonConvert.SerializeObject(resume_payload);
 
-            _webSocketClient.SendMessage(resumestr);
-            return Task.Delay(0);
+            await this._webSocketClient.SendMessageAsync(resumestr).ConfigureAwait(false);
         }
         #endregion
 
@@ -2460,35 +2478,39 @@ namespace DSharpPlus
             Dispose();
         }
 
-        private bool disposed;
+        private bool _disposed;
         /// <summary>
         /// Disposes your DiscordClient.
         /// </summary>
         public override void Dispose()
         {
-            if (disposed)
+            if (_disposed)
                 return;
 
+            this._disposed = true;
             GC.SuppressFinalize(this);
 
-            DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             this.CurrentUser = null;
 
-            var extensions = _extensions; // prevent _extensions being modified during dispose
-            _extensions = null;
+            var extensions = this._extensions; // prevent _extensions being modified during dispose
+            this._extensions = null;
             foreach (var extension in extensions)
+                if (extension is IDisposable disposable) 
+                    disposable.Dispose();
+
+            try
             {
-                if (extension is IDisposable disposable) disposable.Dispose();
+                this._cancelTokenSource?.Cancel();
+                this._cancelTokenSource?.Dispose();
             }
+            catch { }
 
-            _cancelTokenSource?.Cancel();
-            _guilds = null;
-            _heartbeatTask = null;
-            _privateChannels = null;
-            _webSocketClient.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
-            _webSocketClient.Dispose();
-
-            disposed = true;
+            this._guilds = null;
+            this._heartbeatTask = null;
+            this._privateChannels = null;
+            this._webSocketClient.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            this._webSocketClient.Dispose();
         }
 
         #region Events

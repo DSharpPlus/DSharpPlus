@@ -86,11 +86,9 @@ namespace DSharpPlus
                 catch (Exception ex)
                 {
                     exs.Add(ex);
+                    this.ErrorHandler(this.EventName, ex);
                 }
             }
-
-            if (exs.Any())
-                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
         }
     }
 

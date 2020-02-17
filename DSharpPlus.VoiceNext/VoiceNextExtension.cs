@@ -88,7 +88,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            (channel.Discord as DiscordClient)._webSocketClient.SendMessage(vsj);
+            await (channel.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
             
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vstup = new VoiceStateUpdatePayload
@@ -125,7 +125,7 @@ namespace DSharpPlus.VoiceNext
             return null;
         }
 
-        private void Vnc_VoiceDisconnected(DiscordGuild guild)
+        private async Task Vnc_VoiceDisconnected(DiscordGuild guild)
         {
             VoiceNextConnection vnc = null;
             if (this.ActiveConnections.ContainsKey(guild.Id))
@@ -141,17 +141,17 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            (guild.Discord as DiscordClient)._webSocketClient.SendMessage(vsj);
+            await (guild.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
         }
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
         {
             var gld = e.Guild;
             if (gld == null)
-                return Task.Delay(0);
+                return Task.CompletedTask;
 
             if (e.User == null)
-                return Task.Delay(0);
+                return Task.CompletedTask;
 
             if (e.User.Id == this.Client.CurrentUser.Id && this.ActiveConnections.TryGetValue(e.Guild.Id, out var vnc))
             {
@@ -164,7 +164,7 @@ namespace DSharpPlus.VoiceNext
                 xe.SetResult(e);
             }
 
-            return Task.Delay(0);
+            return Task.CompletedTask;
         }
 
         private async Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
