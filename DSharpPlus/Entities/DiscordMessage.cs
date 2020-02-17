@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS0618
+#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -460,8 +460,8 @@ namespace DSharpPlus.Entities
         /// <param name="before">Fetch users before this user's id.</param>
         /// <param name="after">Fetch users after this user's id.</param>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? before = null, ulong? after = null) 
-            => this.GetReactionsInternalAsync(emoji, limit, before, after);
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null) 
+            => this.GetReactionsInternalAsync(emoji, limit, after);
 
         /// <summary>
         /// Deletes all reactions for this message
@@ -471,7 +471,7 @@ namespace DSharpPlus.Entities
         public Task DeleteAllReactionsAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
         
-        private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? before = null, ulong? after = null)
+        private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
         {
             if (limit < 0)
                 throw new ArgumentException("Cannot get a negative number of reactions' users.");
@@ -481,28 +481,19 @@ namespace DSharpPlus.Entities
 
             var users = new List<DiscordUser>(limit);
             var remaining = limit;
-            var lastCount = 0;
-            ulong? last = null;
-            var isAfter = after != null;
+            var last = after;
 
+            int lastCount;
             do
             {
                 var fetchSize = remaining > 100 ? 100 : remaining;
-                var fetch = await this.Discord.ApiClient.GetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString(), !isAfter ? last ?? before : null, isAfter ? last ?? after : null, fetchSize);
+                var fetch = await this.Discord.ApiClient.GetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString(), last, fetchSize).ConfigureAwait(false);
 
                 lastCount = fetch.Count;
                 remaining -= lastCount;
 
-                if (!isAfter)
-                {
-                    users.AddRange(fetch);
-                    last = fetch.LastOrDefault()?.Id;
-                }
-                else
-                {
-                    users.InsertRange(0, fetch);
-                    last = fetch.FirstOrDefault()?.Id;
-                }
+                users.AddRange(fetch);
+                last = fetch.LastOrDefault()?.Id;
             } while (remaining > 0 && lastCount > 0);
 
             return new ReadOnlyCollection<DiscordUser>(users);

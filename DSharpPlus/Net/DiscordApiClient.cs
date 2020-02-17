@@ -1698,11 +1698,9 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
         }
 
-        internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? before_id = null, ulong? after_id = null, int limit = 25)
+        internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
         {
             var urlparams = new Dictionary<string, string>();
-            if (before_id.HasValue)
-                urlparams["before"] = before_id.Value.ToString(CultureInfo.InvariantCulture);
             if (after_id.HasValue)
                 urlparams["after"] = after_id.Value.ToString(CultureInfo.InvariantCulture);
 
