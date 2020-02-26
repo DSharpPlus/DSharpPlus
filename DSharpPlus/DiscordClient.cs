@@ -2487,7 +2487,7 @@ namespace DSharpPlus
             var jo = JObject.Parse(response.Response);
             this._gatewayUri = new Uri(jo.Value<string>("url"));
             if (jo["shards"] != null)
-                _shardCount = jo.Value<int>("shards");
+                this._shardCount = jo.Value<int>("shards");
         }
 
         private SocketLock GetSocketLock()
@@ -2495,7 +2495,7 @@ namespace DSharpPlus
 
         ~DiscordClient()
         {
-            Dispose();
+            this.Dispose();
         }
 
         private bool _disposed;
