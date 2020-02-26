@@ -401,6 +401,19 @@ namespace DSharpPlus.Net
 
             return audit_log_data_raw;
         }
+
+        internal async Task<DiscordInvite> GetGuildVanityUrlAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.VANITY_URL}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+
+            var invite = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
+
+            return invite;
+        }
         #endregion
 
         #region Channel
