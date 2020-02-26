@@ -120,7 +120,7 @@ namespace DSharpPlus.Net.WebSocket
                     this._socketTokenSource.Dispose();
                 }
 
-                if (this._socketTokenSource != null)
+                if (this._receiverTokenSource != null)
                 {
                     this._receiverTokenSource.Cancel();
                     this._receiverTokenSource.Dispose();
