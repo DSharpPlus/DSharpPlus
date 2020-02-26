@@ -457,7 +457,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="emoji">Emoji to react with.</param>
         /// <param name="limit">Limit of users to fetch.</param>
-        /// <param name="before">Fetch users before this user's id.</param>
         /// <param name="after">Fetch users after this user's id.</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null) 
