@@ -820,8 +820,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.AfkChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this.GetChannel(t1),
-                                        After = this.GetChannel(t2)
+                                        Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord },
+                                        After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord }
                                     };
                                     break;
 
@@ -831,8 +831,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.EmbedChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this.GetChannel(t1),
-                                        After = this.GetChannel(t2)
+                                        Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord },
+                                        After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord }
                                     };
                                     break;
 
@@ -858,8 +858,8 @@ namespace DSharpPlus.Entities
 
                                     entrygld.SystemChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = this.GetChannel(t1),
-                                        After = this.GetChannel(t2)
+                                        Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord },
+                                        After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord }
                                     };
                                     break;
 
@@ -891,7 +891,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.ChannelUpdate:
                         entry = new DiscordAuditLogChannelEntry
                         {
-                            Target = this.GetChannel(xac.TargetId.Value) ?? new DiscordChannel { Id = xac.TargetId.Value }
+                            Target = this.GetChannel(xac.TargetId.Value) ?? new DiscordChannel { Id = xac.TargetId.Value, Discord = this.Discord }
                         };
 
                         var entrychn = entry as DiscordAuditLogChannelEntry;
@@ -1038,7 +1038,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.Kick:
                         entry = new DiscordAuditLogKickEntry
                         {
-                            Target = amd.TryGetValue(xac.TargetId.Value, out var kickMember) ? kickMember : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var kickMember) ? kickMember : new DiscordMember { Id = xac.TargetId.Value, Discord = this.Discord }
                         };
                         break;
 
@@ -1054,7 +1054,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.Unban:
                         entry = new DiscordAuditLogBanEntry
                         {
-                            Target = amd.TryGetValue(xac.TargetId.Value, out var unbanMember) ? unbanMember : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var unbanMember) ? unbanMember : new DiscordMember { Id = xac.TargetId.Value, Discord = this.Discord }
                         };
                         break;
 
@@ -1062,7 +1062,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.MemberRoleUpdate:
                         entry = new DiscordAuditLogMemberUpdateEntry
                         {
-                            Target = amd.TryGetValue(xac.TargetId.Value, out var roleUpdMember) ? roleUpdMember : new DiscordMember { Id = xac.TargetId.Value }
+                            Target = amd.TryGetValue(xac.TargetId.Value, out var roleUpdMember) ? roleUpdMember : new DiscordMember { Id = xac.TargetId.Value, Discord = this.Discord }
                         };
 
                         var entrymbu = entry as DiscordAuditLogMemberUpdateEntry;
@@ -1114,7 +1114,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.RoleUpdate:
                         entry = new DiscordAuditLogRoleUpdateEntry
                         {
-                            Target = this.GetRole(xac.TargetId.Value) ?? new DiscordRole { Id = xac.TargetId.Value }
+                            Target = this.GetRole(xac.TargetId.Value) ?? new DiscordRole { Id = xac.TargetId.Value, Discord = this.Discord }
                         };
 
                         var entryrol = entry as DiscordAuditLogRoleUpdateEntry;
@@ -1237,8 +1237,8 @@ namespace DSharpPlus.Entities
 
                                     entryinv.InviterChange = new PropertyChange<DiscordMember>
                                     {
-                                        Before = amd.TryGetValue(t1, out var propBeforeMember) ? propBeforeMember : null,
-                                        After = amd.TryGetValue(t2, out var propAfterMember) ? propAfterMember : null,
+                                        Before = amd.TryGetValue(t1, out var propBeforeMember) ? propBeforeMember : new DiscordMember { Id = t1, Discord = this.Discord },
+                                        After = amd.TryGetValue(t2, out var propAfterMember) ? propAfterMember : new DiscordMember { Id = t1, Discord = this.Discord },
                                     };
                                     break;
 
@@ -1248,8 +1248,8 @@ namespace DSharpPlus.Entities
 
                                     entryinv.ChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = p1 ? this.GetChannel(t1) : null,
-                                        After = p2 ? this.GetChannel(t2) : null
+                                        Before = p1 ? this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord } : null,
+                                        After = p2 ? this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord } : null
                                     };
 
                                     var ch = entryinv.ChannelChange.Before ?? entryinv.ChannelChange.After;
@@ -1299,7 +1299,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.WebhookUpdate:
                         entry = new DiscordAuditLogWebhookEntry
                         {
-                            Target = ahd.TryGetValue(xac.TargetId.Value, out var webhook) ? webhook : new DiscordWebhook { Id = xac.TargetId.Value }
+                            Target = ahd.TryGetValue(xac.TargetId.Value, out var webhook) ? webhook : new DiscordWebhook { Id = xac.TargetId.Value, Discord = this.Discord }
                         };
 
                         var entrywhk = entry as DiscordAuditLogWebhookEntry;
@@ -1321,8 +1321,8 @@ namespace DSharpPlus.Entities
 
                                     entrywhk.ChannelChange = new PropertyChange<DiscordChannel>
                                     {
-                                        Before = p1 ? this.GetChannel(t1) : null,
-                                        After = p2 ? this.GetChannel(t2) : null
+                                        Before = p1 ? this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord } : null,
+                                        After = p2 ? this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord } : null
                                     };
                                     break;
 
@@ -1357,7 +1357,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.EmojiUpdate:
                         entry = new DiscordAuditLogEmojiEntry
                         {
-                            Target = this._emojis.TryGetValue(xac.TargetId.Value, out var target) ? target : new DiscordEmoji { Id = xac.TargetId.Value }
+                            Target = this._emojis.TryGetValue(xac.TargetId.Value, out var target) ? target : new DiscordEmoji { Id = xac.TargetId.Value, Discord = this.Discord }
                         };
 
                         var entryemo = entry as DiscordAuditLogEmojiEntry;
@@ -1389,7 +1389,7 @@ namespace DSharpPlus.Entities
 
                             if (xac.Options != null)
                             {
-                                entrymsg.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId };
+                                entrymsg.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = this.Discord };
                                 entrymsg.MessageCount = xac.Options.Count;
                             }
 
@@ -1420,14 +1420,14 @@ namespace DSharpPlus.Entities
                             {
                                 dc.MessageCache.TryGet(x => x.Id == xac.Options.MessageId && x.ChannelId == xac.Options.ChannelId, out var message);
 
-                                entrypin.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId };
-                                entrypin.Message = message ?? new DiscordMessage { Id = xac.Options.MessageId };
+                                entrypin.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = this.Discord };
+                                entrypin.Message = message ?? new DiscordMessage { Id = xac.Options.MessageId, Discord = this.Discord };
                             }
 
                             if (xac.TargetId.HasValue)
                             {
                                 dc.UserCache.TryGetValue(xac.TargetId.Value, out var user);
-                                entrypin.Target = user ?? new DiscordUser { Id = user.Id };
+                                entrypin.Target = user ?? new DiscordUser { Id = user.Id, Discord = this.Discord };
                             }
 
                             break;
@@ -1443,7 +1443,7 @@ namespace DSharpPlus.Entities
                             }
 
                             dc.UserCache.TryGetValue(xac.TargetId.Value, out var bot);
-                            (entry as DiscordAuditLogBotAddEntry).TargetBot = bot ?? new DiscordUser { Id = xac.TargetId.Value };
+                            (entry as DiscordAuditLogBotAddEntry).TargetBot = bot ?? new DiscordUser { Id = xac.TargetId.Value, Discord = this.Discord };
 
                             break;
                         }
@@ -1459,7 +1459,7 @@ namespace DSharpPlus.Entities
                         var moveentry = entry as DiscordAuditLogMemberMoveEntry;
 
                         moveentry.UserCount = xac.Options.Count;
-                        moveentry.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId };
+                        moveentry.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = this.Discord };
                         break;
 
                     case AuditLogActionType.MemberDisconnect:
