@@ -44,5 +44,7 @@
         public const string ASSETS = "/assets";
         public const string EMOJIS = "/emojis";
         public const string SUPPRESS_EMBEDS = "/suppress-embeds";
+        public const string VANITY_URL = "/vanity-url";
+        public const string WIDGET_PNG = "/widget.png";
     }
 }

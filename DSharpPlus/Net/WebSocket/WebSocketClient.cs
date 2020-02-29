@@ -114,16 +114,28 @@ namespace DSharpPlus.Net.WebSocket
             try
             {
                 // Cancel all running tasks
-                this._socketTokenSource.Cancel();
-                this._receiverTokenSource.Cancel();
-                this._socketTokenSource.Dispose();
-                this._receiverTokenSource.Dispose();
+                if (this._socketTokenSource != null)
+                {
+                    this._socketTokenSource.Cancel();
+                    this._socketTokenSource.Dispose();
+                }
+
+                if (this._receiverTokenSource != null)
+                {
+                    this._receiverTokenSource.Cancel();
+                    this._receiverTokenSource.Dispose();
+                }
 
                 this._isClientClose = true;
-                await this._ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
-                await this._receiverTask.ConfigureAwait(false); // Ensure that receving completed
+
+                if (this._ws != null)
+                    await this._ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
+
+                if (this._receiverTask != null)
+                    await this._receiverTask.ConfigureAwait(false); // Ensure that receving completed
             }
             catch { }
+
             finally
             {
                 this._senderLock.Release();
