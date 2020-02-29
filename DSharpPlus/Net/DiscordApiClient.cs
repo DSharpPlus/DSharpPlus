@@ -536,7 +536,7 @@ namespace DSharpPlus.Net
             if (embed == null)
             {
                 if (content == null)
-                    throw new ArgumentException("You must specify content or an embed.");
+                    throw new ArgumentException("You must specify message content or an embed.");
 
                 if (content == "")
                     throw new ArgumentException("Message content must not be empty.");
