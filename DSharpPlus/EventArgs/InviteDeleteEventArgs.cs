@@ -18,7 +18,7 @@ namespace DSharpPlus.EventArgs
         public DiscordChannel Channel { get; internal set; }
 
         /// <summary>
-        /// Gets the invite that was deleted.
+        /// Gets the deleted invite.
         /// </summary>
         public DiscordInvite Invite { get; internal set; }
 
