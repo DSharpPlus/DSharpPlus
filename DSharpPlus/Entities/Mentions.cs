@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Interface for mentionables
     /// </summary>
-    public sealed interface IMention { }
+    public interface IMention { }
 
     /// <summary>
     /// A everyone mention

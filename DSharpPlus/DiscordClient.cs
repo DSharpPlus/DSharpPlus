@@ -492,6 +492,7 @@ namespace DSharpPlus
         /// <param name="content"></param>
         /// <param name="isTTS"></param>
         /// <param name="embed"></param>
+        /// <param name="mentions"></param>
         /// <returns></returns>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
             => this.ApiClient.CreateMessageAsync(channel.Id, content, isTTS, embed, mentions);

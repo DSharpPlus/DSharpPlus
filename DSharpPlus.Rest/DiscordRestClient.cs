@@ -378,9 +378,10 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed)
-            => ApiClient.UploadFileAsync(channel_id, file_data, file_name, content, tts, embed);
+        public Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+            => ApiClient.UploadFileAsync(channel_id, file_data, file_name, content, tts, embed, mentions);
 
         /// <summary>
         /// Uploads multiple files
@@ -390,9 +391,10 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed)
-            => ApiClient.UploadFilesAsync(channel_id, files, content, tts, embed);
+        public Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+            => ApiClient.UploadFilesAsync(channel_id, files, content, tts, embed, mentions);
 
         /// <summary>
         /// Gets channels from a guild

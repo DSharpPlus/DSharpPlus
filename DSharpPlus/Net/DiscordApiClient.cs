@@ -568,7 +568,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed)
+        internal async Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
         {
             var file = new Dictionary<string, Stream> { { file_name, file_data } };
 
@@ -586,7 +586,10 @@ namespace DSharpPlus.Net
                 IsTTS = tts
             };
 
-            if (!string.IsNullOrEmpty(content) || embed != null || tts == true)
+            if (mentions != null)
+                pld.Mentions = new DiscordMentions(mentions);
+
+            if (!string.IsNullOrEmpty(content) || embed != null || tts == true || mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
@@ -600,7 +603,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed)
+        internal async Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
         {
             if (embed?.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
@@ -618,7 +621,11 @@ namespace DSharpPlus.Net
                 Content = content,
                 IsTTS = tts
             };
-            if (!string.IsNullOrWhiteSpace(content) || embed != null || tts == true)
+
+            if (mentions != null)
+                pld.Mentions = new DiscordMentions(mentions);
+
+            if (!string.IsNullOrWhiteSpace(content) || embed != null || tts == true || mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
