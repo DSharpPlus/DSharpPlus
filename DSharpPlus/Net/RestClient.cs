@@ -20,7 +20,6 @@ namespace DSharpPlus.Net
     /// </summary>
     internal sealed class RestClient
     {
-        private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
 
         private BaseDiscordClient Discord { get; }
@@ -41,10 +40,9 @@ namespace DSharpPlus.Net
             {
                 UseCookies = false,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                UseProxy = proxy != null
+                UseProxy = proxy != null,
+                Proxy = proxy
             };
-            if (httphandler.UseProxy) // because mono doesn't implement this properly
-                httphandler.Proxy = proxy;
 
             this.HttpClient = new HttpClient(httphandler)
             {
@@ -148,7 +146,7 @@ namespace DSharpPlus.Net
                     var res = await HttpClient.SendAsync(req, CancellationToken.None).ConfigureAwait(false);
 
                     var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                    var txt = UTF8.GetString(bts, 0, bts.Length);
+                    var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
 
                     response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
                     response.Response = txt;
@@ -181,6 +179,10 @@ namespace DSharpPlus.Net
                         ex = new NotFoundException(request, response);
                         break;
 
+                    case 413:
+                        ex = new RequestSizeException(request, response);
+                        break;
+
                     case 429:
                         ex = new RateLimitException(request, response);
 
@@ -199,7 +201,7 @@ namespace DSharpPlus.Net
                                 finally
                                 {
                                     // we don't want to wait here until all the blocked requests have been run, additionally Set can never throw an exception that could be suppressed here
-                                    _ = this.GlobalRateLimitEvent.Set();
+                                    _ = this.GlobalRateLimitEvent.SetAsync();
                                 }
                                 request.Discord?.DebugLogger?.LogTaskFault(ExecuteRequestAsync(request, bucket, ratelimitTcs), LogLevel.Error, "REST", "Error while retrying request: ");
                             }

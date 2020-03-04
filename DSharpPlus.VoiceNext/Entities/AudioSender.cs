@@ -1,5 +1,4 @@
-﻿#if !NETSTANDARD1_1
-using System;
+﻿using System;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext.Codec;
 
@@ -25,4 +24,3 @@ namespace DSharpPlus.VoiceNext.Entities
         }
     }
 }
-#endif

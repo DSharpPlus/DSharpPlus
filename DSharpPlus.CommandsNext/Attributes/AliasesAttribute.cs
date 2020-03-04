@@ -22,11 +22,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="aliases">Aliases to add to this command or group.</param>
         public AliasesAttribute(params string[] aliases)
         {
-#if !NETSTANDARD1_1
             if (aliases.Any(xa => xa == null || xa.Any(xc => char.IsWhiteSpace(xc))))
-#else
-            if (aliases.Any(xa => xa == null || xa.ToCharArray().Any(xc => char.IsWhiteSpace(xc))))
-#endif
                 throw new ArgumentException("Aliases cannot contain whitespace characters or null strings.", nameof(aliases));
 
             this.Aliases = new ReadOnlyCollection<string>(aliases);

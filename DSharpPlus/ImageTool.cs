@@ -57,7 +57,7 @@ namespace DSharpPlus
             if (this._ifcache != ImageFormat.Unknown)
                 return this._ifcache;
 
-            using (var br = new BinaryReader(this.SourceStream, new UTF8Encoding(false), true))
+            using (var br = new BinaryReader(this.SourceStream, Utilities.UTF8, true))
             {
                 var bgn64 = br.ReadUInt64();
                 if (bgn64 == PNG_MAGIC)

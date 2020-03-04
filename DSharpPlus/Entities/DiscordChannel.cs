@@ -132,7 +132,7 @@ namespace DSharpPlus.Entities
             get
             {
                 if (!IsCategory)
-                    throw new ArgumentException("Only channel categories contain children");
+                    throw new ArgumentException("Only channel categories contain children.");
 
                 return Guild._channels.Values.Where(e => e.ParentId == Id);
             }
@@ -178,13 +178,9 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a text message to a non-text channel");
-            if (string.IsNullOrWhiteSpace(content) && embed == null)
-                throw new ArgumentNullException("Must provide either content, embed or both, and content may not consist only of whitespace");
-            if (content != null && content.Length > 2000)
-                throw new ArgumentException("Message must be less than or exactly 2000 characters", nameof(content));
-
-            return this.Discord.ApiClient.CreateMessageAsync(Id, content, tts, embed);
+                throw new ArgumentException("Cannot send a text message to a non-text channel.");
+            
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, tts, embed);
         }
 
         /// <summary>
@@ -199,12 +195,11 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a file to a non-text channel");
+                throw new ArgumentException("Cannot send a file to a non-text channel.");
 
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed);
         }
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Sends a message containing an attached file to this channel.
         /// </summary>
@@ -216,8 +211,8 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a file to a non-text channel");
-
+                throw new ArgumentException("Cannot send a file to a non-text channel.");
+            
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, Path.GetFileName(fileData.Name), content,
                 tts, embed);
         }
@@ -233,12 +228,11 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a file to a non-text channel");
+                throw new ArgumentException("Cannot send a file to a non-text channel.");
 
             using (var fs = File.OpenRead(filePath))
                 return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
         }
-#endif
 
         /// <summary>
         /// Sends a message with several attached files to this channel.
@@ -251,9 +245,12 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a file to a non-text channel");
+                throw new ArgumentException("Cannot send a file to a non-text channel.");
 
-            return this.Discord.ApiClient.UploadFilesAsync(Id, files, content, tts, embed);
+            if (files.Count > 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            return this.Discord.ApiClient.UploadFilesAsync(this.Id, files, content, tts, embed);
         }
 
         // Please send memes to Naamloos#2887 at discord <3 thank you
@@ -387,7 +384,7 @@ namespace DSharpPlus.Entities
         private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot get the messages of a non-text channel");
+                throw new ArgumentException("Cannot get the messages of a non-text channel.");
 
             if (limit < 0)
                 throw new ArgumentException("Cannot get a negative number of messages.");
@@ -397,7 +394,7 @@ namespace DSharpPlus.Entities
 
             //return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
             if (limit > 100 && around != null)
-                throw new InvalidOperationException("Cannot get more than 100 messages around specified ID.");
+                throw new InvalidOperationException("Cannot get more than 100 messages around the specified ID.");
 
             var msgs = new List<DiscordMessage>(limit);
             var remaining = limit;
@@ -468,7 +465,7 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
         {
             if (this.Guild == null)
-                throw new ArgumentException("Cannot get the invites of a channel that does not belong to a Guild");
+                throw new ArgumentException("Cannot get the invites of a channel that does not belong to a guild.");
 
             return this.Discord.ApiClient.GetChannelInvitesAsync(Id);
         }
@@ -514,7 +511,7 @@ namespace DSharpPlus.Entities
         public Task TriggerTypingAsync()
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot start typing in a non-text channel");
+                throw new ArgumentException("Cannot start typing in a non-text channel.");
 
             return this.Discord.ApiClient.TriggerTypingAsync(Id);
         }
@@ -526,7 +523,7 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("A non-text channel does not have pinned messages");
+                throw new ArgumentException("A non-text channel does not have pinned messages.");
 
             return this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
         }
@@ -565,7 +562,7 @@ namespace DSharpPlus.Entities
         public async Task PlaceMemberAsync(DiscordMember member)
         {
             if (this.Type != ChannelType.Voice)
-                throw new ArgumentException("Cannot place member in a non-voice channel!"); // be a little more angery, let em learn!!1
+                throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angery, let em learn!!1
             
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
                 default, this.Id, null).ConfigureAwait(false);
@@ -604,14 +601,19 @@ namespace DSharpPlus.Entities
 
             // roles that member is in
             var mbRoles = mbr.Roles.Where(xr => xr.Id != everyoneRole.Id).ToArray();
+
+            // assign permissions from member's roles (in order)
+            perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
+
+            // Adminstrator grants all permissions and cannot be overridden
+            if ((perms & Permissions.Administrator) == Permissions.Administrator)
+                return PermissionMethods.FULL_PERMS;
+
             // channel overrides for roles that member is in
             var mbRoleOverrides = mbRoles
                 .Select(xr => this._permissionOverwrites.FirstOrDefault(xo => xo.Id == xr.Id))
                 .Where(xo => xo != null)
                 .ToList();
-
-            // assign permissions from member's roles (in order)
-            perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
             
             // assign channel permission overwrites for @everyone pseudo-role
             var everyoneOverwrites = this._permissionOverwrites.FirstOrDefault(xo => xo.Id == everyoneRole.Id);

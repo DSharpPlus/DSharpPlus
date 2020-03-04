@@ -170,11 +170,7 @@ namespace DSharpPlus.Lavalink
         // swap endianness
         public override decimal ReadDecimal()
         {
-#if !NETSTANDARD1_1
             throw new MissingMethodException("This method does not have a Java equivalent");
-#else
-            throw new InvalidOperationException("This method does not have a Java equivalent");
-#endif
         }
 
         // from https://github.com/Zoltu/Zoltu.EndianAwareBinaryReaderWriter under CC0

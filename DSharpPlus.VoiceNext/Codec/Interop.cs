@@ -40,10 +40,8 @@ namespace DSharpPlus.VoiceNext.Codec
         [DllImport("sodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_easy")]
         private static unsafe extern int _SodiumSecretBoxCreate(byte* buffer, byte* message, ulong messageLength, byte* nonce, byte* key);
 
-#if !NETSTANDARD1_1
         [DllImport("sodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_open_easy")]
         private static unsafe extern int _SodiumSecretBoxOpen(byte* buffer, byte* encryptedMessage, ulong encryptedLength, byte* nonce, byte* key);
-#endif
 
         /// <summary>
         /// Encrypts supplied buffer using xsalsa20_poly1305 algorithm, using supplied key and nonce to perform encryption.
@@ -65,7 +63,6 @@ namespace DSharpPlus.VoiceNext.Codec
             return status;
         }
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Decrypts supplied buffer using xsalsa20_poly1305 algorithm, using supplied key and nonce to perform decryption.
         /// </summary>
@@ -85,7 +82,6 @@ namespace DSharpPlus.VoiceNext.Codec
 
             return status;
         }
-#endif
         #endregion
 
         #region Opus wrapper
@@ -101,7 +97,6 @@ namespace DSharpPlus.VoiceNext.Codec
         [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_ctl")]
         private static extern OpusError _OpusEncoderControl(IntPtr encoder, OpusControl request, int value);
 
-#if !NETSTANDARD1_1
         [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_create")]
         private static extern IntPtr _OpusCreateDecoder(int sampleRate, int channels, out OpusError error);
 
@@ -122,7 +117,6 @@ namespace DSharpPlus.VoiceNext.Codec
 
         [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_ctl")]
         private static extern int _OpusDecoderControl(IntPtr decoder, OpusControl request, out int value);
-#endif
 
         public static IntPtr OpusCreateEncoder(AudioFormat audioFormat)
         {
@@ -157,7 +151,6 @@ namespace DSharpPlus.VoiceNext.Codec
             opus = opus.Slice(0, len);
         }
 
-#if !NETSTANDARD1_1
         public static IntPtr OpusCreateDecoder(AudioFormat audioFormat)
         {
             var decoder = _OpusCreateDecoder(audioFormat.SampleRate, audioFormat.ChannelCount, out var error);
@@ -216,7 +209,6 @@ namespace DSharpPlus.VoiceNext.Codec
         {
             _OpusDecoderControl(decoder, OpusControl.GetLastPacketDuration, out sampleCount);
         }
-#endif
 #endregion
     }
 }
