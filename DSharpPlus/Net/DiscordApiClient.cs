@@ -1756,6 +1756,15 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
         }
+
+        internal Task DeleteReactionsEmojiAsync(ulong channel_id, ulong message_id, string emoji)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: 0.26);
+        }
         #endregion
 
         #region Emoji

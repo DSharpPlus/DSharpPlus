@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus.Lavalink.Entities;
+﻿using DSharpPlus.Lavalink.Entities;
 
 namespace DSharpPlus.Lavalink.EventArgs
 {
     /// <summary>
     /// Represents arguments for Lavalink statistics received.
     /// </summary>
-    public sealed class StatsReceivedEventArgs : AsyncEventArgs
+    public sealed class StatisticsReceivedEventArgs : AsyncEventArgs
     {
         /// <summary>
         /// Gets the Lavalink statistics received.
@@ -18,7 +13,7 @@ namespace DSharpPlus.Lavalink.EventArgs
         public LavalinkStatistics Statistics { get; }
 
 
-        internal StatsReceivedEventArgs(LavalinkStatistics stats)
+        internal StatisticsReceivedEventArgs(LavalinkStatistics stats)
         {
             this.Statistics = stats;
         }

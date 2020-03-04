@@ -155,6 +155,8 @@ namespace DSharpPlus
             this._guildDeleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
             this._guildUnavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
             this._guildDownloadCompletedEv = new AsyncEvent<GuildDownloadCompletedEventArgs>(this.EventErrorHandler, "GUILD_DOWNLOAD_COMPLETED");
+            this._inviteCreated = new AsyncEvent<InviteCreateEventArgs>(this.EventErrorHandler, "INVITE_CREATED");
+            this._inviteDeleted = new AsyncEvent<InviteDeleteEventArgs>(this.EventErrorHandler, "INVITE_DELETED");
             this._messageCreated = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
             this._presenceUpdated = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATED");
             this._guildBanAdded = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADD");
@@ -181,6 +183,7 @@ namespace DSharpPlus
             this._messageReactionAdded = new AsyncEvent<MessageReactionAddEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_ADDED");
             this._messageReactionRemoved = new AsyncEvent<MessageReactionRemoveEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED");
             this._messageReactionsCleared = new AsyncEvent<MessageReactionsClearEventArgs>(this.EventErrorHandler, "MESSAGE_REACTIONS_CLEARED");
+            this._messageReactionRemovedEmoji = new AsyncEvent<MessageReactionRemoveEmojiEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED_EMOJI");
             this._webhooksUpdated = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
 
@@ -763,6 +766,18 @@ namespace DSharpPlus
                     await OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], this._guilds[gid]).ConfigureAwait(false);
                     break;
 
+                case "invite_create":
+                    gid = (ulong)dat["guild_id"];
+                    cid = (ulong)dat["channel_id"];
+                    await OnInviteCreateEventAsync(cid, gid, dat.ToObject<DiscordInvite>()).ConfigureAwait(false);
+                    break;
+
+                case "invite_delete":
+                    gid = (ulong)dat["guild_id"];
+                    cid = (ulong)dat["channel_id"];
+                    await OnInviteDeleteEventAsync(cid, gid, dat).ConfigureAwait(false);
+                    break;
+
                 case "message_ack":
                     cid = (ulong)dat["channel_id"];
                     var mid = (ulong)dat["message_id"];
@@ -822,6 +837,10 @@ namespace DSharpPlus
 
                 case "message_reaction_remove_all":
                     await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                    break;
+
+                case "message_reaction_remove_emoji":
+                    await OnMessageReactionRemoveEmojiAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong)dat["guild_id"], dat["emoji"]).ConfigureAwait(false);
                     break;
 
                 case "webhooks_update":
@@ -1603,6 +1622,47 @@ namespace DSharpPlus
             await this._guildRoleDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
+        internal async Task OnInviteCreateEventAsync(ulong channelId, ulong guildId, DiscordInvite invite)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var channel = this.InternalGetCachedChannel(channelId);
+
+            invite.Discord = this;            
+
+            guild._invites[invite.Code] = invite;
+
+            var ea = new InviteCreateEventArgs(this)
+            {
+                Client = this,
+                Channel = channel,
+                Guild = guild,
+                Invite = invite
+            };
+            await this._inviteCreated.InvokeAsync(ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnInviteDeleteEventAsync(ulong channelId, ulong guildId, JToken dat)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var channel = this.InternalGetCachedChannel(channelId);
+
+            if (!guild._invites.TryRemove(dat["code"].ToString(), out var invite))
+            {
+                invite = dat.ToObject<DiscordInvite>();
+                invite.IsRevoked = true;
+                invite.Discord = this;
+            }
+
+            var ea = new InviteDeleteEventArgs(this)
+            {
+                Client = this,
+                Channel = channel,
+                Guild = guild,
+                Invite = invite
+            };
+            await this._inviteDeleted.InvokeAsync(ea).ConfigureAwait(false);
+        }
+
         internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong messageId)
         {
             DiscordMessage msg = null;
@@ -2115,6 +2175,43 @@ namespace DSharpPlus
             };
 
             await this._messageReactionsCleared.InvokeAsync(ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnMessageReactionRemoveEmojiAsync(ulong messageId, ulong channelId, ulong guildId, JToken dat)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var channel = this.InternalGetCachedChannel(channelId);
+
+            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+            {
+                msg = new DiscordMessage
+                {
+                    Id = messageId,
+                    ChannelId = channelId,
+                    Discord = this
+                };
+            }
+
+            var partialEmoji = dat.ToObject<DiscordEmoji>();
+
+            if (!guild._emojis.TryGetValue(partialEmoji.Id, out var emoji))
+            {
+                emoji = partialEmoji;
+                emoji.Discord = this;
+            }
+
+            msg._reactions?.RemoveAll(r => r.Emoji.Equals(emoji));
+
+            var ea = new MessageReactionRemoveEmojiEventArgs(this)
+            {
+                Channel = channel,
+                Guild = guild,
+                Message = msg,
+                Emoji = emoji
+            };
+
+            await this._messageReactionRemovedEmoji.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnWebhooksUpdateAsync(DiscordChannel channel, DiscordGuild guild)
@@ -2716,6 +2813,25 @@ namespace DSharpPlus
         private AsyncEvent<GuildDownloadCompletedEventArgs> _guildDownloadCompletedEv;
 
         /// <summary>
+        /// Fired when an invite is created.
+        /// </summary>
+        public event AsyncEventHandler<InviteCreateEventArgs> InviteCreated
+        {
+            add => this._inviteCreated.Register(value);
+            remove => this._inviteCreated.Unregister(value);
+        }
+        private AsyncEvent<InviteCreateEventArgs> _inviteCreated;
+
+        /// <summary>
+        /// Fired when an invite is deleted.
+        /// </summary>
+        public event AsyncEventHandler<InviteDeleteEventArgs> InviteDeleted
+        {
+            add => this._inviteDeleted.Register(value);
+            remove => this._inviteDeleted.Unregister(value);
+        }
+        private AsyncEvent<InviteDeleteEventArgs> _inviteDeleted;
+        /// <summary>
         /// Fired when a message is created.
         /// </summary>
         public event AsyncEventHandler<MessageCreateEventArgs> MessageCreated
@@ -2977,6 +3093,16 @@ namespace DSharpPlus
             remove => this._messageReactionsCleared.Unregister(value);
         }
         private AsyncEvent<MessageReactionsClearEventArgs> _messageReactionsCleared;
+
+        /// <summary>
+        /// Fired when all reactions of a specific reaction are removed from a message.
+        /// </summary>
+        public event AsyncEventHandler<MessageReactionRemoveEmojiEventArgs> MessageReactionRemovedEmoji
+        {
+            add => this._messageReactionRemovedEmoji.Register(value);
+            remove => this._messageReactionRemovedEmoji.Unregister(value);
+        }
+        private AsyncEvent<MessageReactionRemoveEmojiEventArgs> _messageReactionRemovedEmoji;
 
         /// <summary>
         /// Fired whenever webhooks update.
