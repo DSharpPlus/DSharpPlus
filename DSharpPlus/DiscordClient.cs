@@ -536,6 +536,14 @@ namespace DSharpPlus
         }
 
         /// <summary>
+        /// Gets a guild preview
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong id) 
+            => this.ApiClient.GetGuildPreviewAsync(id);
+
+        /// <summary>
         /// Gets an invite.
         /// </summary>
         /// <param name="code">The invite code.</param>
