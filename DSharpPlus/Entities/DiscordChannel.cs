@@ -174,13 +174,14 @@ namespace DSharpPlus.Entities
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null)
+        public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
             
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, tts, embed);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, tts, embed, mentions);
         }
 
         /// <summary>

@@ -374,9 +374,10 @@ namespace DSharpPlus.Entities
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondAsync(string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed);
+        public Task<DiscordMessage> RespondAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null) 
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed, mentions);
 
         /// <summary>
         /// Responds to the message with a file.
