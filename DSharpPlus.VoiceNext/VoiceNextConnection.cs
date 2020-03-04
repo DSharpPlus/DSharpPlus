@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -23,7 +22,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.VoiceNext
 {
-    internal delegate void VoiceDisconnectedEventHandler(DiscordGuild guild);
+    internal delegate Task VoiceDisconnectedEventHandler(DiscordGuild guild);
 
     /// <summary>
     /// VoiceNext connection to a voice channel.
@@ -89,7 +88,7 @@ namespace DSharpPlus.VoiceNext
         private ConcurrentDictionary<uint, AudioSender> TransmittingSSRCs { get; }
 
         private BaseUdpClient UdpClient { get; }
-        private BaseWebSocketClient VoiceWs { get; set; }
+        private IWebSocketClient VoiceWs { get; set; }
         private Task HeartbeatTask { get; set; }
         private int HeartbeatInterval { get; set; }
         private DateTimeOffset LastHeartbeat { get; set; }
@@ -225,7 +224,7 @@ namespace DSharpPlus.VoiceNext
             this.VoiceWs.Disconnected += this.VoiceWS_SocketClosed;
             this.VoiceWs.MessageReceived += this.VoiceWS_SocketMessage;
             this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
-            this.VoiceWs.Errored += this.VoiceWs_SocketErrored;
+            this.VoiceWs.ExceptionThrown += this.VoiceWs_SocketException;
         }
 
         ~VoiceNextConnection()
@@ -250,9 +249,9 @@ namespace DSharpPlus.VoiceNext
         }
 
         internal Task ReconnectAsync()
-            => this.VoiceWs.DisconnectAsync(new SocketCloseEventArgs(this.Discord));
+            => this.VoiceWs.DisconnectAsync();
 
-        internal Task StartAsync()
+        internal async Task StartAsync()
         {
             // Let's announce our intentions to the server
             var vdp = new VoiceDispatch();
@@ -280,9 +279,7 @@ namespace DSharpPlus.VoiceNext
                 };
             }
             var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
-            this.VoiceWs.SendMessage(vdj);
-
-            return Task.Delay(0);
+            await this.VoiceWs.SendMessageAsync(vdj).ConfigureAwait(false);
         }
 
         internal Task WaitForReadyAsync()
@@ -385,7 +382,7 @@ namespace DSharpPlus.VoiceNext
                 if (!hasPacket)
                     continue;
 
-                this.SendSpeaking(true);
+                await this.SendSpeakingAsync(true).ConfigureAwait(false);
                 await client.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
 
                 if (!packet.IsSilence && queue.Count == 0)
@@ -402,7 +399,7 @@ namespace DSharpPlus.VoiceNext
                 }
                 else if (queue.Count == 0)
                 {
-                    this.SendSpeaking(false);
+                    await this.SendSpeakingAsync(false).ConfigureAwait(false);
                     this.PlayingWait?.SetResult(true);
                 }
             }
@@ -587,7 +584,7 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <param name="speaking">Whether the current user is speaking or not.</param>
         /// <returns>A task representing the sending operation.</returns>
-        public void SendSpeaking(bool speaking = true)
+        public async Task SendSpeakingAsync(bool speaking = true)
         {
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
@@ -603,7 +600,7 @@ namespace DSharpPlus.VoiceNext
             };
 
             var plj = JsonConvert.SerializeObject(pld, Formatting.None);
-            this.VoiceWs.SendMessage(plj);
+            await this.VoiceWs.SendMessageAsync(plj).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -668,7 +665,7 @@ namespace DSharpPlus.VoiceNext
 
             try
             {
-                this.VoiceWs.DisconnectAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
+                this.VoiceWs.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
             catch (Exception)
@@ -705,7 +702,7 @@ namespace DSharpPlus.VoiceNext
                         Payload = UnixTimestamp(dt)
                     };
                     var hbj = JsonConvert.SerializeObject(hbd);
-                    this.VoiceWs.SendMessage(hbj);
+                    await this.VoiceWs.SendMessageAsync(hbj).ConfigureAwait(false);
 
                     this.LastHeartbeat = dt;
                     await Task.Delay(this.HeartbeatInterval).ConfigureAwait(false);
@@ -770,7 +767,7 @@ namespace DSharpPlus.VoiceNext
             {
                 var packetSpan = packet.AsSpan();
 
-                var ipString = new UTF8Encoding(false).GetString(packet, 4, 64 /* 70 - 6 */).TrimEnd('\0');
+                var ipString = Utilities.UTF8.GetString(packet, 4, 64 /* 70 - 6 */).TrimEnd('\0');
                 decodedIp = System.Net.IPAddress.Parse(ipString);
 
                 decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(68 /* 70 - 2 */));
@@ -797,7 +794,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-            this.VoiceWs.SendMessage(vsj);
+            await this.VoiceWs.SendMessageAsync(vsj).ConfigureAwait(false);
 
             this.SenderTokenSource = new CancellationTokenSource();
             this.SenderTask = Task.Run(this.VoiceSenderTask, this.SenderToken);
@@ -828,7 +825,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = true;
             this.ReadyWait.SetResult(true);
 
-            return Task.Delay(0);
+            return Task.CompletedTask;
         }
 
         private async Task HandleDispatch(JObject jo)
@@ -973,12 +970,20 @@ namespace DSharpPlus.VoiceNext
         }
 
         private Task VoiceWS_SocketMessage(SocketMessageEventArgs e)
-            => this.HandleDispatch(JObject.Parse(e.Message));
+        {
+            if (!(e is SocketTextMessageEventArgs et))
+            {
+                this.Discord.DebugLogger.LogMessage(LogLevel.Critical, "VoiceNext", "Discord Voice Gateway spewed out binary gibberish!", DateTime.Now);
+                return Task.CompletedTask;
+            }
+
+            return this.HandleDispatch(JObject.Parse(et.Message));
+        }
 
         private Task VoiceWS_SocketOpened()
             => this.StartAsync();
 
-        private Task VoiceWs_SocketErrored(SocketErrorEventArgs e)
+        private Task VoiceWs_SocketException(SocketErrorEventArgs e)
             => this._voiceSocketError.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
 
         private static uint UnixTimestamp(DateTime dt)

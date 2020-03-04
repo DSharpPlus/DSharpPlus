@@ -112,21 +112,21 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Disconnect from this voice channel.
         /// </summary>
-        public void Disconnect()
+        public async Task DisconnectAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
             Volatile.Write(ref this._isDisposed, true);
 
-            this.Node.SendPayload(new LavalinkDestroy(this));
-            this.SendVoiceUpdate();
+            await this.Node.SendPayloadAsync(new LavalinkDestroy(this)).ConfigureAwait(false);
+            await this.SendVoiceUpdateAsync().ConfigureAwait(false);
 
             if (this.ChannelDisconnected != null)
                 this.ChannelDisconnected(this);
         }
 
-        internal void SendVoiceUpdate()
+        internal async Task SendVoiceUpdateAsync()
         {
             var vsd = new VoiceDispatch
             {
@@ -140,20 +140,20 @@ namespace DSharpPlus.Lavalink
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            (this.Channel.Discord as DiscordClient)._webSocketClient.SendMessage(vsj);
+            await (this.Channel.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Queues the specified track for playback.
         /// </summary>
         /// <param name="track">Track to play.</param>
-        public void Play(LavalinkTrack track)
+        public async Task PlayAsync(LavalinkTrack track)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
             this.CurrentState.CurrentTrack = track;
-            this.Node.SendPayload(new LavalinkPlay(this, track));
+            await this.Node.SendPayloadAsync(new LavalinkPlay(this, track)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="track">Track to play.</param>
         /// <param name="start">Timestamp to start playback at.</param>
         /// <param name="end">Timestamp to stop playback at.</param>
-        public void PlayPartial(LavalinkTrack track, TimeSpan start, TimeSpan end)
+        public async Task PlayPartialAsync(LavalinkTrack track, TimeSpan start, TimeSpan end)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -171,59 +171,59 @@ namespace DSharpPlus.Lavalink
                 throw new ArgumentException("Both start and end timestamps need to be greater or equal to zero, and the end timestamp needs to be greater than start timestamp.");
 
             this.CurrentState.CurrentTrack = track;
-            this.Node.SendPayload(new LavalinkPlayPartial(this, track, start, end));
+            await this.Node.SendPayloadAsync(new LavalinkPlayPartial(this, track, start, end)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Stops the player completely.
         /// </summary>
-        public void Stop()
+        public async Task StopAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.Node.SendPayload(new LavalinkStop(this));
+            await this.Node.SendPayloadAsync(new LavalinkStop(this)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Pauses the player.
         /// </summary>
-        public void Pause()
+        public async Task PauseAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.Node.SendPayload(new LavalinkPause(this, true));
+            await this.Node.SendPayloadAsync(new LavalinkPause(this, true)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Resumes playback.
         /// </summary>
-        public void Resume()
+        public async Task ResumeAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.Node.SendPayload(new LavalinkPause(this, false));
+            await this.Node.SendPayloadAsync(new LavalinkPause(this, false)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Seeks the current track to specified position.
         /// </summary>
         /// <param name="position">Position to seek to.</param>
-        public void Seek(TimeSpan position)
+        public async Task SeekAsync(TimeSpan position)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.Node.SendPayload(new LavalinkSeek(this, position));
+            await this.Node.SendPayloadAsync(new LavalinkSeek(this, position)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Sets the playback volume. This might incur a lot of CPU usage.
         /// </summary>
         /// <param name="volume">Volume to set. Needs to be greater or equal to 0, and less than or equal to 100. 100 means 100% and is the default value.</param>
-        public void SetVolume(int volume)
+        public async Task SetVolumeAsync(int volume)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -231,14 +231,14 @@ namespace DSharpPlus.Lavalink
             if (volume < 0 || volume > 1000)
                 throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 1000.");
 
-            this.Node.SendPayload(new LavalinkVolume(this, volume));
+            await this.Node.SendPayloadAsync(new LavalinkVolume(this, volume)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Adjusts the specified bands in the audio equalizer. This will alter the sound output, and might incur a lot of CPU usage.
         /// </summary>
         /// <param name="bands">Bands adjustments to make. You must specify one adjustment per band at most.</param>
-        public void AdjustEqualizer(params LavalinkBandAdjustment[] bands)
+        public async Task AdjustEqualizerAsync(params LavalinkBandAdjustment[] bands)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -249,18 +249,18 @@ namespace DSharpPlus.Lavalink
             if (bands.Distinct(new LavalinkBandAdjustmentComparer()).Count() != bands.Count())
                 throw new InvalidOperationException("You cannot specify multiple modifiers for the same band.");
 
-            this.Node.SendPayload(new LavalinkEqualizer(this, bands));
+            await this.Node.SendPayloadAsync(new LavalinkEqualizer(this, bands)).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Resets the audio equalizer to default values.
         /// </summary>
-        public void ResetEqualizer()
+        public async Task ResetEqualizerAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.Node.SendPayload(new LavalinkEqualizer(this, Enumerable.Range(0, 15).Select(x => new LavalinkBandAdjustment(x, 0))));
+            await this.Node.SendPayloadAsync(new LavalinkEqualizer(this, Enumerable.Range(0, 15).Select(x => new LavalinkBandAdjustment(x, 0)))).ConfigureAwait(false);
         }
 
         internal Task InternalUpdatePlayerStateAsync(LavalinkState newState)

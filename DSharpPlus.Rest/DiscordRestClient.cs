@@ -1137,6 +1137,8 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="emoji">Emoji to check for</param>
+        /// <param name="after_id">Whether to search for reactions after this message id.</param>
+        /// <param name="limit">The maximum amount of reactions to fetch.</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
             => ApiClient.GetReactionsAsync(channel_id, message_id, emoji, after_id, limit);
@@ -1147,6 +1149,8 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="emoji">Emoji to check for</param>
+        /// <param name="after_id">Whether to search for reactions after this message id.</param>
+        /// <param name="limit">The maximum amount of reactions to fetch.</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, DiscordEmoji emoji, ulong? after_id = null, int limit = 25)
             => ApiClient.GetReactionsAsync(channel_id, message_id, emoji.ToReactionString(), after_id, limit);

@@ -16,12 +16,12 @@
         Tier_1 = 1,
 
         /// <summary>
-        /// Indicates that this server was boosted ten times.
+        /// Indicates that this server was boosted fifteen times.
         /// </summary>
         Tier_2 = 2,
 
         /// <summary>
-        /// Indicates that this server was boosted fifty times.
+        /// Indicates that this server was boosted thirty times.
         /// </summary>
         Tier_3 = 3,
 

@@ -359,14 +359,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns></returns>
         public Task PinAsync() 
-            => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, Id);
+            => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
         /// Unpins the message in its channel.
         /// </summary>
         /// <returns></returns>
         public Task UnpinAsync() 
-            => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, Id);
+            => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
         /// Responds to the message.
@@ -387,7 +387,7 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
+        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
             => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed);
 
         /// <summary>
@@ -398,7 +398,7 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
+        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
             => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed);
 
         /// <summary>
@@ -423,8 +423,13 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFilesAsync(ChannelId, files, content, tts, embed);
+        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null)
+        {
+            if (files.Count > 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            return this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, files, content, tts, embed);
+        }
 
         /// <summary>
         /// Creates a reaction to this message
@@ -445,7 +450,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Deletes another user's reaction.
         /// </summary>
-        /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
+        /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id.</param>
         /// <param name="user">Member you want to remove the reaction for</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
@@ -453,24 +458,31 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
 
         /// <summary>
-        /// Gets users that reacted with this emoji
+        /// Gets users that reacted with this emoji.
         /// </summary>
         /// <param name="emoji">Emoji to react with.</param>
         /// <param name="limit">Limit of users to fetch.</param>
-        /// <param name="before">Fetch users before this user's id.</param>
         /// <param name="after">Fetch users after this user's id.</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null) 
             => this.GetReactionsInternalAsync(emoji, limit, after);
 
         /// <summary>
-        /// Deletes all reactions for this message
+        /// Deletes all reactions for this message.
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) 
-            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
-        
+            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
+
+        /// <summary>
+        /// Deletes all reactions of a specific reaction for this message.
+        /// </summary>
+        /// <param name="emoji">The emoji to clear, either an emoji or name:id.</param>
+        /// <returns></returns>
+        public Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
+            => this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+
         private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
         {
             if (limit < 0)

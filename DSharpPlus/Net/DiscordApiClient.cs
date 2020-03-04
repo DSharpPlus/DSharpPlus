@@ -401,6 +401,19 @@ namespace DSharpPlus.Net
 
             return audit_log_data_raw;
         }
+
+        internal async Task<DiscordInvite> GetGuildVanityUrlAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.VANITY_URL}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+
+            var invite = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
+
+            return invite;
+        }
         #endregion
 
         #region Channel
@@ -523,7 +536,7 @@ namespace DSharpPlus.Net
             if (embed == null)
             {
                 if (content == null)
-                    throw new ArgumentException("You must specify content or an embed.");
+                    throw new ArgumentException("You must specify message content or an embed.");
 
                 if (content == "")
                     throw new ArgumentException("Message content must not be empty.");
@@ -1246,6 +1259,20 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordIntegration>(new List<DiscordIntegration>(integrations_raw));
         }
 
+        internal async Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PREVIEW}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordGuildPreview>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
         internal async Task<DiscordIntegration> CreateGuildIntegrationAsync(ulong guild_id, string type, ulong id)
         {
             var pld = new RestGuildIntegrationAttachPayload
@@ -1742,6 +1769,15 @@ namespace DSharpPlus.Net
 
             var url = Utilities.GetApiUriFor(path);
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
+        }
+
+        internal Task DeleteReactionsEmojiAsync(ulong channel_id, ulong message_id, string emoji)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.REACTIONS}/:emoji";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: 0.26);
         }
         #endregion
 

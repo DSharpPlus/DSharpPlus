@@ -20,7 +20,6 @@ namespace DSharpPlus.Net
     /// </summary>
     internal sealed class RestClient
     {
-        private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
 
         private BaseDiscordClient Discord { get; }
@@ -147,7 +146,7 @@ namespace DSharpPlus.Net
                     var res = await HttpClient.SendAsync(req, CancellationToken.None).ConfigureAwait(false);
 
                     var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                    var txt = UTF8.GetString(bts, 0, bts.Length);
+                    var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
 
                     response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value));
                     response.Response = txt;
@@ -178,6 +177,10 @@ namespace DSharpPlus.Net
 
                     case 404:
                         ex = new NotFoundException(request, response);
+                        break;
+
+                    case 413:
+                        ex = new RequestSizeException(request, response);
                         break;
 
                     case 429:

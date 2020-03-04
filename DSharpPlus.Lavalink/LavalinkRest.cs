@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using DSharpPlus.Lavalink.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using DSharpPlus.Lavalink.Entities;
 
 namespace DSharpPlus.Lavalink
 {
@@ -19,8 +18,6 @@ namespace DSharpPlus.Lavalink
         private LavalinkConfiguration Configuration;
 
         private DebugLogger Logger;
-
-        private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
         internal LavalinkRest(LavalinkConfiguration config, DiscordClient client)
         {
@@ -173,7 +170,7 @@ namespace DSharpPlus.Lavalink
         {
             using (var req = await this.HttpClient.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
-            using (var sr = new StreamReader(res, UTF8))
+            using (var sr = new StreamReader(res, Utilities.UTF8))
             {
                 var json = await sr.ReadToEndAsync().ConfigureAwait(false);
                 return json;
@@ -189,7 +186,7 @@ namespace DSharpPlus.Lavalink
             var json = "[]";
             using (var req = await this.HttpClient.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
-            using (var sr = new StreamReader(res, UTF8))
+            using (var sr = new StreamReader(res, Utilities.UTF8))
                 json = await sr.ReadToEndAsync().ConfigureAwait(false);
 
             var jdata = JToken.Parse(json);
@@ -240,7 +237,7 @@ namespace DSharpPlus.Lavalink
         {
             using (var req = await this.HttpClient.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
-            using (var sr = new StreamReader(res, UTF8))
+            using (var sr = new StreamReader(res, Utilities.UTF8))
             {
                 var json = await sr.ReadToEndAsync().ConfigureAwait(false);
                 if (!req.IsSuccessStatusCode)
@@ -257,10 +254,10 @@ namespace DSharpPlus.Lavalink
         internal async Task<IEnumerable<LavalinkTrack>> InternalDecodeTracksAsync(Uri uri, string[] ids)
         {
             var jsonOut = JsonConvert.SerializeObject(ids);
-            var content = new StringContent(jsonOut, UTF8, "application/json");
+            var content = new StringContent(jsonOut, Utilities.UTF8, "application/json");
             using (var req = await this.HttpClient.PostAsync(uri, content).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
-            using (var sr = new StreamReader(res, UTF8))
+            using (var sr = new StreamReader(res, Utilities.UTF8))
             {
                 var jsonIn = await sr.ReadToEndAsync().ConfigureAwait(false);
                 if (!req.IsSuccessStatusCode)
@@ -293,7 +290,7 @@ namespace DSharpPlus.Lavalink
         {
             using (var req = await this.HttpClient.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
-            using (var sr = new StreamReader(res, UTF8))
+            using (var sr = new StreamReader(res, Utilities.UTF8))
             {
                 var json = await sr.ReadToEndAsync().ConfigureAwait(false);
                 var status = JsonConvert.DeserializeObject<LavalinkRouteStatus>(json);
@@ -303,7 +300,7 @@ namespace DSharpPlus.Lavalink
 
         internal async Task InternalFreeAddressAsync(Uri uri, string address)
         {
-            var payload = new StringContent(address, UTF8, "application/json");
+            var payload = new StringContent(address, Utilities.UTF8, "application/json");
             using (var req = await this.HttpClient.PostAsync(uri, payload).ConfigureAwait(false))
                 if (req.StatusCode == HttpStatusCode.InternalServerError)
                     this.Logger.LogMessage(LogLevel.Warning, "Lavalink", $"Request to {uri.ToString()} returned an internal server error. This likely indicates that the server route planner configuration is incorrect.", DateTime.Now);
