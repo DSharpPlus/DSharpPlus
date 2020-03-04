@@ -42,6 +42,7 @@ namespace DSharpPlus.Entities
             {
                 switch(m)
                 {
+                    default: throw new NotSupportedException("Type not supported in mentions.");
                     case UserMention u:
                         users.Add(u.Id);
                         parse.Add("users");
