@@ -88,7 +88,6 @@ namespace DSharpPlus.VoiceNext
             return sampleDuration * this.ChannelCount * (this.SampleRate / 1000) * 2;
         }
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Gets the maximum buffer size for decoding. This method should be called when decoding Opus data to PCM, to ensure sufficient buffer size.
         /// </summary>
@@ -96,7 +95,6 @@ namespace DSharpPlus.VoiceNext
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetMaximumBufferSize()
             => this.CalculateMaximumFrameSize();
-#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal int CalculateSampleDuration(int sampleSize)

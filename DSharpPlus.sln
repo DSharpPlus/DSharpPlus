@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus", "DSharpPlus\DSharpPlus.csproj", "{EB3D8310-DFAD-4295-97F9-82E253647583}"
 EndProject
@@ -16,10 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.WebSocket.WebSocketSharp", "DSharpPlus.WebSocket.WebSocketSharp\DSharpPlus.WebSocket.WebSocketSharp.csproj", "{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.WebSocket.WebSocket4Net", "DSharpPlus.WebSocket.WebSocket4Net\DSharpPlus.WebSocket.WebSocket4Net.csproj", "{0D7D2501-F929-4314-8F28-8A138E3A075E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.CommandsNext", "DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj", "{C8ED55FB-E028-468D-955F-1534C20274EF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Interactivity", "DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj", "{DD32BEC3-0189-479F-86DC-CCF95E5634A9}"
@@ -31,8 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F953F5
 		.nuget\NuGet.config = .nuget\NuGet.config
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.WebSocket.WebSocket4NetCore", "DSharpPlus.WebSocket.WebSocket4NetCore\DSharpPlus.WebSocket.WebSocket4NetCore.csproj", "{C4C95487-628E-4E61-88D9-26BACE48380F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Items", "Build Items", "{84464D70-687B-40A8-836D-C4F737698969}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
@@ -41,7 +35,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Items", "Build Items"
 		rebuild-all.ps1 = rebuild-all.ps1
 		rebuild-docs.ps1 = rebuild-docs.ps1
 		rebuild-lib.ps1 = rebuild-lib.ps1
-		rebuild-linux.ps1 = rebuild-linux.ps1
 		rebuild-micro.ps1 = rebuild-micro.ps1
 	EndProjectSection
 EndProject
@@ -70,14 +63,6 @@ Global
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB6B9EE9-65FB-4DFB-8D51-06F0BE6C1BA5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC9D93EC-3140-4C30-8C3F-6DC4B0D38875}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0D7D2501-F929-4314-8F28-8A138E3A075E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0D7D2501-F929-4314-8F28-8A138E3A075E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0D7D2501-F929-4314-8F28-8A138E3A075E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0D7D2501-F929-4314-8F28-8A138E3A075E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C8ED55FB-E028-468D-955F-1534C20274EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C8ED55FB-E028-468D-955F-1534C20274EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8ED55FB-E028-468D-955F-1534C20274EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -90,10 +75,6 @@ Global
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5E0EBFA-06CD-4F28-B60E-4B65860344F9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C4C95487-628E-4E61-88D9-26BACE48380F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C4C95487-628E-4E61-88D9-26BACE48380F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C4C95487-628E-4E61-88D9-26BACE48380F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C4C95487-628E-4E61-88D9-26BACE48380F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A8B8FB09-C6AF-4F28-89B8-B53EE0DCE6E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A8B8FB09-C6AF-4F28-89B8-B53EE0DCE6E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8B8FB09-C6AF-4F28-89B8-B53EE0DCE6E5}.Release|Any CPU.ActiveCfg = Release|Any CPU

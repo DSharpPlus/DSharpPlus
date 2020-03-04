@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DSharpPlus.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -28,6 +29,30 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("channel", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordInviteChannel Channel { get; internal set; }
+
+        /// <summary>
+        /// Gets the partial user that is currently livestreaming.
+        /// </summary>
+        [JsonProperty("target_user", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordUser TargetUser { get; internal set; }
+
+        /// <summary>
+        /// Gets the type of user who the invite is for.
+        /// </summary>
+        [JsonProperty("target_user_type", NullValueHandling = NullValueHandling.Ignore)]
+        public TargetUserType? TargetUserType { get; internal set; }
+
+        /// <summary>
+        /// Gets the approximate guild online member count for the invite.
+        /// </summary>
+        [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
+        public int? ApproximatePresenceCount { get; internal set; }
+
+        /// <summary>
+        /// Gets the approximate guild total member count for the invite. 
+        /// </summary>
+        [JsonProperty("approximate_member_count")]
+        public int? ApproximateMemberCount { get; internal set; }
 
         /// <summary>
         /// Gets the user who created the invite.

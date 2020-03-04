@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-#if !NETSTANDARD1_1
 using System.Security.Cryptography;
-#endif
 
 namespace DSharpPlus.VoiceNext.Codec
 {
@@ -16,10 +14,8 @@ namespace DSharpPlus.VoiceNext.Codec
 
         public static int NonceSize => Interop.SodiumNonceSize;
 
-#if !NETSTANDARD1_1
         private RandomNumberGenerator CSPRNG { get; }
         private byte[] Buffer { get; }
-#endif
         private ReadOnlyMemory<byte> Key { get; }
 
         static Sodium()
@@ -27,9 +23,7 @@ namespace DSharpPlus.VoiceNext.Codec
             SupportedModes = new ReadOnlyDictionary<string, EncryptionMode>(new Dictionary<string, EncryptionMode>()
             {
                 ["xsalsa20_poly1305_lite"] = EncryptionMode.XSalsa20_Poly1305_Lite,
-#if !NETSTANDARD1_1
                 ["xsalsa20_poly1305_suffix"] = EncryptionMode.XSalsa20_Poly1305_Suffix,
-#endif
                 ["xsalsa20_poly1305"] = EncryptionMode.XSalsa20_Poly1305
             });
         }
@@ -41,10 +35,8 @@ namespace DSharpPlus.VoiceNext.Codec
 
             this.Key = key;
 
-#if !NETSTANDARD1_1
             this.CSPRNG = RandomNumberGenerator.Create();
             this.Buffer = new byte[Interop.SodiumNonceSize];
-#endif
         }
 
         public void GenerateNonce(ReadOnlySpan<byte> rtpHeader, Span<byte> target)
@@ -62,7 +54,6 @@ namespace DSharpPlus.VoiceNext.Codec
             Helpers.ZeroFill(target.Slice(rtpHeader.Length));
         }
 
-#if !NETSTANDARD1_1
         public void GenerateNonce(Span<byte> target)
         {
             if (target.Length != Interop.SodiumNonceSize)
@@ -71,7 +62,6 @@ namespace DSharpPlus.VoiceNext.Codec
             this.CSPRNG.GetBytes(this.Buffer);
             this.Buffer.AsSpan().CopyTo(target);
         }
-#endif
 
         public void GenerateNonce(uint nonce, Span<byte> target)
         {
@@ -105,7 +95,6 @@ namespace DSharpPlus.VoiceNext.Codec
             }
         }
 
-#if !NETSTANDARD1_1
         public void GetNonce(ReadOnlySpan<byte> source, Span<byte> target, EncryptionMode encryptionMode)
         {
             if (target.Length != Interop.SodiumNonceSize)
@@ -129,7 +118,6 @@ namespace DSharpPlus.VoiceNext.Codec
                     throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode));
             }
         }
-#endif
 
         public void Encrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> nonce)
         {
@@ -139,18 +127,11 @@ namespace DSharpPlus.VoiceNext.Codec
             if (target.Length != Interop.SodiumMacSize + source.Length)
                 throw new ArgumentException($"Invalid target buffer size. Target buffer needs to have a length that is a sum of input buffer length and Sodium MAC size ({Interop.SodiumMacSize} bytes).", nameof(target));
 
-            var result = 0;
+            int result;
             if ((result = Interop.Encrypt(source, target, this.Key.Span, nonce)) != 0)
-#if !NETSTANDARD1_1
-                throw new CryptographicException(
-#else
-                throw new Exception(
-#endif
-                    $"Could not encrypt the buffer. Sodium returned code {result}."
-                );
+                throw new CryptographicException($"Could not encrypt the buffer. Sodium returned code {result}.");
         }
 
-#if !NETSTANDARD1_1
         public void Decrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> nonce)
         {
             if (nonce.Length != Interop.SodiumNonceSize)
@@ -159,23 +140,14 @@ namespace DSharpPlus.VoiceNext.Codec
             if (target.Length != source.Length - Interop.SodiumMacSize)
                 throw new ArgumentException($"Invalid target buffer size. Target buffer needs to have a length that is input buffer decreased by Sodium MAC size ({Interop.SodiumMacSize} bytes).", nameof(target));
 
-            var result = 0;
+            int result;
             if ((result = Interop.Decrypt(source, target, this.Key.Span, nonce)) != 0)
-#if !NETSTANDARD1_1
-                throw new CryptographicException(
-#else
-                throw new Exception(
-#endif
-                    $"Could not decrypt the buffer. Sodium returned code {result}."
-                );
+                throw new CryptographicException($"Could not decrypt the buffer. Sodium returned code {result}.");
         }
-#endif
 
         public void Dispose()
         {
-#if !NETSTANDARD1_1
             this.CSPRNG.Dispose();
-#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -185,13 +157,7 @@ namespace DSharpPlus.VoiceNext.Codec
                 if (availableModes.Contains(kvMode.Key))
                     return kvMode;
 
-#if !NETSTANDARD1_1
-            throw new CryptographicException(
-#else
-            throw new Exception(
-#endif
-                "Could not negotiate Sodium encryption modes, as none of the modes offered by Discord are supported. This is usually an indicator that something went very wrong."
-            );
+            throw new CryptographicException("Could not negotiate Sodium encryption modes, as none of the modes offered by Discord are supported. This is usually an indicator that something went very wrong.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

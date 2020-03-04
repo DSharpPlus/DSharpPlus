@@ -28,7 +28,6 @@ namespace DSharpPlus.VoiceNext.Codec
             BinaryPrimitives.WriteUInt32BigEndian(target.Slice(8), ssrc);      // header + magic + sizeof(sequence) + sizeof(timestamp)
         }
 
-#if !NETSTANDARD1_1
         public bool IsRtpHeader(ReadOnlySpan<byte> source)
         {
             if (source.Length < HeaderSize)
@@ -55,7 +54,6 @@ namespace DSharpPlus.VoiceNext.Codec
             timestamp = BinaryPrimitives.ReadUInt32BigEndian(source.Slice(4));
             ssrc = BinaryPrimitives.ReadUInt32BigEndian(source.Slice(8));
         }
-#endif
 
         public int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode)
         {
@@ -75,7 +73,6 @@ namespace DSharpPlus.VoiceNext.Codec
             }
         }
 
-#if !NETSTANDARD1_1
         public void GetDataFromPacket(ReadOnlySpan<byte> packet, out ReadOnlySpan<byte> data, EncryptionMode encryptionMode)
         {
             switch (encryptionMode)
@@ -96,7 +93,6 @@ namespace DSharpPlus.VoiceNext.Codec
                     throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode));
             }
         }
-#endif
 
         public void Dispose()
         {

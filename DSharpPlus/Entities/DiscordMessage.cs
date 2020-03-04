@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS0618
+#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Linq;
+using DSharpPlus.Enums;
 
 namespace DSharpPlus.Entities
 {
@@ -76,7 +77,7 @@ namespace DSharpPlus.Entities
             => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId);
 
         /// <summary>
-        /// Gets ID of the channel in which the message was sent.
+        /// Gets the ID of the channel in which the message was sent.
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ChannelId { get; internal set; }
@@ -235,6 +236,34 @@ namespace DSharpPlus.Entities
         public MessageType? MessageType { get; internal set; }
 
         /// <summary>
+        /// Gets the message activity in the Rich Presence embed.
+        /// </summary>
+        [JsonProperty("activity", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessageActivity Activity { get; internal set; }
+
+        /// <summary>
+        /// Gets the message application in the Rich Presence embed.
+        /// </summary>
+        [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessageApplication Application { get; internal set; }
+
+        [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
+        internal InternalDiscordMessageReference? _reference { get; set; }
+
+        /// <summary>
+        /// Gets the original message reference from the crossposted message.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordMessageReference Reference
+            => (this._reference.HasValue) ? this?.InternalBuildMessageReference() : null;
+
+        /// <summary>
+        /// Gets the bitwise flags for this message.
+        /// </summary>
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public MessageFlags? Flags { get; internal set; }
+
+        /// <summary>
         /// Gets whether the message originated from a webhook.
         /// </summary>
         [JsonIgnore]
@@ -247,6 +276,59 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public Uri JumpLink => this._jumpLink.Value;
         private Lazy<Uri> _jumpLink;
+
+        internal DiscordMessageReference InternalBuildMessageReference()
+        {
+            var client = this.Discord as DiscordClient;
+            var guildId = this._reference.Value.guildId;
+            var channelId = this._reference.Value.channelId;
+            var messageId = this._reference.Value.messageId;
+
+            var reference = new DiscordMessageReference();
+
+            if (guildId.HasValue)
+                if (client._guilds.TryGetValue(guildId.Value, out var g))
+                    reference.Guild = g;
+
+                else reference.Guild = new DiscordGuild
+                {
+                    Id = guildId.Value,
+                    Discord = client
+                };
+
+            var channel = client.InternalGetCachedChannel(channelId);
+
+            if (channel == null)
+            {
+                reference.Channel = new DiscordChannel
+                {
+                    Id = channelId,
+                    Discord = client
+                };
+
+                if (guildId.HasValue)
+                    reference.Channel.GuildId = guildId.Value;
+            }
+
+            else reference.Channel = channel;
+
+            if (client.MessageCache.TryGet(m => m.Id == messageId.Value && m.ChannelId == channelId, out var msg))
+                reference.Message = msg;
+
+            else
+            {
+                reference.Message = new DiscordMessage
+                {
+                    ChannelId = ChannelId,
+                    Discord = client
+                };
+
+                if (messageId.HasValue)
+                    reference.Message.Id = messageId.Value;
+            }
+
+            return reference;
+        }
 
         /// <summary>
         /// Edits the message.
@@ -265,26 +347,26 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
-        /// Removes all embeds in the message.
+        /// Modifes the visibility of embeds in this message.
         /// </summary>
-        /// <param name="suppress">Whether to suppress all embeds.</param>
+        /// <param name="hideEmbeds">Whether to hide all embeds.</param>
         /// <returns></returns>
-        public Task SuppressEmbedsAsync(bool suppress = true)
-            => this.Discord.ApiClient.SuppressEmbedsAsync(suppress, this.ChannelId, this.Id);
+        public Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
+            => this.Discord.ApiClient.ModifyEmbedSuppressionAsync(hideEmbeds, this.ChannelId, this.Id);
 
         /// <summary>
         /// Pins the message in its channel.
         /// </summary>
         /// <returns></returns>
         public Task PinAsync() 
-            => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, Id);
+            => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
         /// Unpins the message in its channel.
         /// </summary>
         /// <returns></returns>
         public Task UnpinAsync() 
-            => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, Id);
+            => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
         /// Responds to the message.
@@ -305,10 +387,9 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
+        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
             => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed);
 
-#if !NETSTANDARD1_1
         /// <summary>
         /// Responds to the message with a file.
         /// </summary>
@@ -317,7 +398,7 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null) 
+        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
             => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed);
 
         /// <summary>
@@ -333,7 +414,6 @@ namespace DSharpPlus.Entities
             using (var fs = File.OpenRead(filePath))
                 return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
         }
-#endif
 
         /// <summary>
         /// Responds to the message with several files.
@@ -343,8 +423,13 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.UploadFilesAsync(ChannelId, files, content, tts, embed);
+        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null)
+        {
+            if (files.Count > 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            return this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, files, content, tts, embed);
+        }
 
         /// <summary>
         /// Creates a reaction to this message
@@ -376,9 +461,11 @@ namespace DSharpPlus.Entities
         /// Gets users that reacted with this emoji
         /// </summary>
         /// <param name="emoji">Emoji to react with.</param>
+        /// <param name="limit">Limit of users to fetch.</param>
+        /// <param name="after">Fetch users after this user's id.</param>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji) 
-            => this.Discord.ApiClient.GetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString());
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null) 
+            => this.GetReactionsInternalAsync(emoji, limit, after);
 
         /// <summary>
         /// Deletes all reactions for this message
@@ -386,8 +473,36 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(string reason = null) 
-            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.Channel.Id, this.Id, reason);
+            => this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
         
+        private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
+        {
+            if (limit < 0)
+                throw new ArgumentException("Cannot get a negative number of reactions' users.");
+
+            if (limit == 0)
+                return new DiscordUser[0];
+
+            var users = new List<DiscordUser>(limit);
+            var remaining = limit;
+            var last = after;
+
+            int lastCount;
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.Discord.ApiClient.GetReactionsAsync(this.Channel.Id, this.Id, emoji.ToReactionString(), last, fetchSize).ConfigureAwait(false);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                users.AddRange(fetch);
+                last = fetch.LastOrDefault()?.Id;
+            } while (remaining > 0 && lastCount > 0);
+
+            return new ReadOnlyCollection<DiscordUser>(users);
+        }
+
         /// <summary>
         /// Returns a string representation of this message.
         /// </summary>
@@ -465,51 +580,5 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two messages are not equal.</returns>
         public static bool operator !=(DiscordMessage e1, DiscordMessage e2) 
             => !(e1 == e2);
-    }
-
-    /// <summary>
-    /// Indicates the type of the message.
-    /// </summary>
-    public enum MessageType : int
-    {
-        /// <summary>
-        /// Indicates a regular message.
-        /// </summary>
-        Default = 0,
-
-        /// <summary>
-        /// Message indicating a recipient was added to a group direct message.
-        /// </summary>
-        RecipientAdd = 1,
-
-        /// <summary>
-        /// Message indicating a recipient was removed from a group direct message.
-        /// </summary>
-        RecipientRemove = 2,
-
-        /// <summary>
-        /// Message indicating a call.
-        /// </summary>
-        Call = 3,
-
-        /// <summary>
-        /// Message indicating a group direct message channel rename.
-        /// </summary>
-        ChannelNameChange = 4,
-
-        /// <summary>
-        /// Message indicating a group direct message channel icon change.
-        /// </summary>
-        ChannelIconChange = 5,
-
-        /// <summary>
-        /// USER pinned a message to this channel.
-        /// </summary>
-        ChannelPinnedMessage = 6,
-
-        /// <summary>
-        /// Message when a guild member joins. Most frequently seen in newer, smaller guilds.
-        /// </summary>
-        GuildMemberJoin = 7
     }
 }

@@ -14,7 +14,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordUserConverter()
         {
-#if NETSTANDARD1_1 || NETSTANDARD1_3
+#if NETSTANDARD1_3
             UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript);
 #else
             UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
@@ -61,7 +61,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordMemberConverter()
         {
-#if NETSTANDARD1_1 || NETSTANDARD1_3
+#if NETSTANDARD1_3
             UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript);
 #else
             UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
@@ -111,7 +111,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordChannelConverter()
         {
-#if NETSTANDARD1_1 || NETSTANDARD1_3
+#if NETSTANDARD1_3
             ChannelRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript);
 #else
             ChannelRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
@@ -150,7 +150,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordRoleConverter()
         {
-#if NETSTANDARD1_1 || NETSTANDARD1_3
+#if NETSTANDARD1_3
             RoleRegex = new Regex(@"^<@&(\d+?)>$", RegexOptions.ECMAScript);
 #else
             RoleRegex = new Regex(@"^<@&(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
@@ -213,7 +213,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordMessageConverter()
         {
-#if NETSTANDARD1_1 || NETSTANDARD1_3
+#if NETSTANDARD1_3
             MessagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript);
 #else
             MessagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
@@ -262,7 +262,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordEmojiConverter()
         {
-#if NETSTANDARD1_1 || NETSTANDARD1_3
+#if NETSTANDARD1_3
             EmoteRegex = new Regex(@"^<a?:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript);
 #else
             EmoteRegex = new Regex(@"^<(?<animated>a)?:(?<name>[a-zA-Z0-9_]+?):(?<id>\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
@@ -318,7 +318,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordColorConverter()
         {
-#if NETSTANDARD1_1 || NETSTANDARD1_3
+#if NETSTANDARD1_3
             ColorRegexHex = new Regex(@"^#?([a-fA-F0-9]{6})$", RegexOptions.ECMAScript);
             ColorRegexRgb = new Regex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$", RegexOptions.ECMAScript);
 #else

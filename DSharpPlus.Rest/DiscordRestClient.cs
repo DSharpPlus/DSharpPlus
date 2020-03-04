@@ -897,12 +897,13 @@ namespace DSharpPlus
 
         #region Invites
         /// <summary>
-        /// Gets an invite
+        /// Gets an invite.
         /// </summary>
-        /// <param name="invite_code">Invite code</param>
+        /// <param name="invite_code">The invite code.</param>
+        /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> GetInvite(string invite_code)
-            => ApiClient.GetInviteAsync(invite_code);
+        public Task<DiscordInvite> GetInvite(string invite_code, bool? withCounts = null)
+            => ApiClient.GetInviteAsync(invite_code, withCounts);
 
         /// <summary>
         /// Removes an invite
@@ -1136,9 +1137,11 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="emoji">Emoji to check for</param>
+        /// <param name="after_id">Whether to search for reactions after this message id.</param>
+        /// <param name="limit">The maximum amount of reactions to fetch.</param>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji)
-            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji);
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
+            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji, after_id, limit);
 
         /// <summary>
         /// Gets all users that reacted with a specific emoji to a message
@@ -1146,9 +1149,11 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="emoji">Emoji to check for</param>
+        /// <param name="after_id">Whether to search for reactions after this message id.</param>
+        /// <param name="limit">The maximum amount of reactions to fetch.</param>
         /// <returns></returns>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, DiscordEmoji emoji)
-            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji.ToReactionString());
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, DiscordEmoji emoji, ulong? after_id = null, int limit = 25)
+            => ApiClient.GetReactionsAsync(channel_id, message_id, emoji.ToReactionString(), after_id, limit);
 
         /// <summary>
         /// Deletes all reactions from a message

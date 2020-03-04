@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -114,17 +109,19 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public LavalinkStatistics Statistics { get; }
 
+        /// <summary>
+        /// Gets the REST client for this Lavalink connection.
+        /// </summary>
+        public LavalinkRest Rest { get; }
+
         internal DiscordClient Discord { get; }
         private LavalinkConfiguration Configuration { get; }
         private ConcurrentDictionary<ulong, LavalinkGuildConnection> ConnectedGuilds { get; }
 
-        private BaseWebSocketClient WebSocket { get; set; }
-        private HttpClient Rest { get; }
+        private IWebSocketClient WebSocket { get; set; }
 
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; }
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; }
-
-        private static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
         internal LavalinkNodeConnection(DiscordClient client, LavalinkConfiguration config)
         {
@@ -155,17 +152,12 @@ namespace DSharpPlus.Lavalink
             if (httphandler.UseProxy) // because mono doesn't implement this properly
                 httphandler.Proxy = client.Configuration.Proxy;
 
-            this.Rest = new HttpClient(httphandler)
-            {
-                BaseAddress = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks")
-            };
-            this.Rest.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{client.VersionString}");
-            this.Rest.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", this.Configuration.Password);
+            this.Rest = new LavalinkRest(this.Configuration, this.Discord);
 
             this.WebSocket = client.Configuration.WebSocketClientFactory(client.Configuration.Proxy);
             this.WebSocket.Connected += this.WebSocket_OnConnect;
             this.WebSocket.Disconnected += this.WebSocket_OnDisconnect;
-            this.WebSocket.Errored += this.WebSocket_OnError;
+            this.WebSocket.ExceptionThrown += this.WebSocket_OnException;
             this.WebSocket.MessageReceived += this.WebSocket_OnMessage;
 
             Volatile.Write(ref this._isDisposed, false);
@@ -178,14 +170,15 @@ namespace DSharpPlus.Lavalink
         internal Task StartAsync()
         {
             if (this.Discord?.CurrentUser?.Id == null || this.Discord?.ShardCount == null)
-                throw new InvalidOperationException("This operation requires Discord client to be fully initialized.");
+                throw new InvalidOperationException("This operation requires the Discord client to be fully initialized.");
 
-            return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), new Dictionary<string, string>()
-            {
-                ["Authorization"] = this.Configuration.Password,
-                ["Num-Shards"] = this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture),
-                ["User-Id"] = this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture)
-            });
+            this.WebSocket.AddDefaultHeader("Authorization", this.Configuration.Password);
+            this.WebSocket.AddDefaultHeader("Num-Shards", this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture));
+            this.WebSocket.AddDefaultHeader("User-Id", this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture));
+            if (this.Configuration.ResumeKey != null)
+                this.WebSocket.AddDefaultHeader("Resume-Key", this.Configuration.ResumeKey);
+
+            return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"));
         }
 
         /// <summary>
@@ -195,12 +188,12 @@ namespace DSharpPlus.Lavalink
         public async Task StopAsync()
         {
             foreach (var kvp in this.ConnectedGuilds)
-                kvp.Value.Disconnect();
+                await kvp.Value.DisconnectAsync().ConfigureAwait(false);
 
             this.NodeDisconnected?.Invoke(this);
 
             Volatile.Write(ref this._isDisposed, true);
-            await this.WebSocket.DisconnectAsync(null).ConfigureAwait(false);
+            await this.WebSocket.DisconnectAsync().ConfigureAwait(false);
             await this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
         }
 
@@ -234,10 +227,10 @@ namespace DSharpPlus.Lavalink
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            (channel.Discord as DiscordClient)._webSocketClient.SendMessage(vsj);
+            await (channel.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vsru = await vsrut.Task.ConfigureAwait(false);
-            this.SendPayload(new LavalinkVoiceUpdate(vstu, vsru));
+            await this.SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru)).ConfigureAwait(false);
 
             var con = new LavalinkGuildConnection(this, channel, vstu);
             con.ChannelDisconnected += this.Con_ChannelDisconnected;
@@ -256,107 +249,19 @@ namespace DSharpPlus.Lavalink
         /// <returns>Channel connection, which allows for playback control.</returns>
         public LavalinkGuildConnection GetConnection(DiscordGuild guild)
             => this.ConnectedGuilds.TryGetValue(guild.Id, out LavalinkGuildConnection lgc) && lgc.IsConnected ? lgc : null;
-        
-        /// <summary>
-        /// Searches YouTube for specified terms.
-        /// </summary>
-        /// <param name="searchQuery">What to search for.</param>
-        /// <returns>A collection of tracks matching the criteria.</returns>
-        public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery)
-        {
-            var str = WebUtility.UrlEncode($"ytsearch:{searchQuery}");
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
-            return this.InternalResolveTracksAsync(tracksUri);
-        }
-        
-        /// <summary>
-        /// Loads tracks from specified URL.
-        /// </summary>
-        /// <param name="uri">URL to load tracks from.</param>
-        /// <returns>A collection of tracks from the URL.</returns>
-        public Task<LavalinkLoadResult> GetTracksAsync(Uri uri)
-        {
-            var str = WebUtility.UrlEncode(uri.ToString());
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
-            return this.InternalResolveTracksAsync(tracksUri);
-        }
 
-#if !NETSTANDARD1_1
-        /// <summary>
-        /// Loads tracks from a local file.
-        /// </summary>
-        /// <param name="file">File to load tracks from.</param>
-        /// <returns>A collection of tracks from the file.</returns>
-        public Task<LavalinkLoadResult> GetTracksAsync(FileInfo file)
-        {
-            var str = WebUtility.UrlEncode(file.FullName);
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}/loadtracks?identifier={str}");
-            return this.InternalResolveTracksAsync(tracksUri);
-        }
-#endif
-
-        private async Task<LavalinkLoadResult> InternalResolveTracksAsync(Uri uri)
-        {
-            // this function returns a Lavalink 3-like dataset regardless of input data version
-
-            var json = "[]";
-            using (var req = await this.Rest.GetAsync(uri).ConfigureAwait(false))
-            using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
-            using (var sr = new StreamReader(res, UTF8))
-                json = await sr.ReadToEndAsync().ConfigureAwait(false);
-
-            var jdata = JToken.Parse(json);
-            if (jdata is JArray jarr)
-            {
-                // Lavalink 2.x
-
-                var tracks = new List<LavalinkTrack>(jarr.Count);
-                foreach (var jt in jarr)
-                {
-                    var track = jt["info"].ToObject<LavalinkTrack>();
-                    track.TrackString = jt["track"].ToString();
-
-                    tracks.Add(track);
-                }
-
-                return new LavalinkLoadResult
-                {
-                    PlaylistInfo = default,
-                    LoadResultType = tracks.Count == 0 ? LavalinkLoadResultType.LoadFailed : LavalinkLoadResultType.TrackLoaded,
-                    Tracks = tracks
-                };
-            }
-            else if (jdata is JObject jo)
-            {
-                // Lavalink 3.x
-
-                jarr = jo["tracks"] as JArray;
-                var loadInfo = jo.ToObject<LavalinkLoadResult>();
-                var tracks = new List<LavalinkTrack>(jarr.Count);
-                foreach (var jt in jarr)
-                {
-                    var track = jt["info"].ToObject<LavalinkTrack>();
-                    track.TrackString = jt["track"].ToString();
-
-                    tracks.Add(track);
-                }
-
-                loadInfo.Tracks = new ReadOnlyCollection<LavalinkTrack>(tracks);
-
-                return loadInfo;
-            }
-            else
-                return null;
-        }
-
-        internal void SendPayload(LavalinkPayload payload)
-            => this.WebSocket.SendMessage(JsonConvert.SerializeObject(payload, Formatting.None));
+        internal async Task SendPayloadAsync(LavalinkPayload payload)
+            => await this.WebSocket.SendMessageAsync(JsonConvert.SerializeObject(payload, Formatting.None)).ConfigureAwait(false);
 
         private async Task WebSocket_OnMessage(SocketMessageEventArgs e)
         {
-            //this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "Lavalink", e.Message, DateTime.Now);
+            if (!(e is SocketTextMessageEventArgs et))
+            {
+                this.Discord.DebugLogger.LogMessage(LogLevel.Critical, "Lavalink", "Lavalink spewed out binary gibberish!", DateTime.Now);
+                return;
+            }
 
-            var json = e.Message;
+            var json = et.Message;
             var jsonData = JObject.Parse(json);
             ulong guildId = 0;
             switch (jsonData["op"].ToString())
@@ -422,10 +327,10 @@ namespace DSharpPlus.Lavalink
             }
         }
 
-        private Task WebSocket_OnError(SocketErrorEventArgs e)
+        private Task WebSocket_OnException(SocketErrorEventArgs e)
             => this._lavalinkSocketError.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
 
-        private Task WebSocket_OnDisconnect(SocketCloseEventArgs e)
+        private async Task WebSocket_OnDisconnect(SocketCloseEventArgs e)
         {
             if (this.IsConnected && e.CloseCode != 1001 && e.CloseCode != -1)
             {
@@ -433,38 +338,39 @@ namespace DSharpPlus.Lavalink
                 this.WebSocket = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
                 this.WebSocket.Connected += this.WebSocket_OnConnect;
                 this.WebSocket.Disconnected += this.WebSocket_OnDisconnect;
-                this.WebSocket.Errored += this.WebSocket_OnError;
+                this.WebSocket.ExceptionThrown += this.WebSocket_OnException;
                 this.WebSocket.MessageReceived += this.WebSocket_OnMessage;
-                return this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"), new Dictionary<string, string>()
-                {
-                    ["Authorization"] = this.Configuration.Password,
-                    ["Num-Shards"] = this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture),
-                    ["User-Id"] = this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture)
-                });
+
+                this.WebSocket.AddDefaultHeader("Authorization", this.Configuration.Password);
+                this.WebSocket.AddDefaultHeader("Num-Shards", this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture));
+                this.WebSocket.AddDefaultHeader("User-Id", this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture));
+
+                await this.WebSocket.ConnectAsync(new Uri($"ws://{this.Configuration.SocketEndpoint}/"));
             }
             else if (e.CloseCode != 1001 && e.CloseCode != -1)
             {
                 this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection closed", DateTime.Now);
                 if (this.NodeDisconnected != null)
                     this.NodeDisconnected(this);
-                return this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this));
+                await this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
             }
             else
             {
                 this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Lavalink", "Lavalink died", DateTime.Now);
                 foreach (var kvp in this.ConnectedGuilds)
-                    kvp.Value.SendVoiceUpdate();
+                    await kvp.Value.SendVoiceUpdateAsync().ConfigureAwait(false);
                 if (this.NodeDisconnected != null)
                     this.NodeDisconnected(this);
-                return this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this));
+                await this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
             }
         }
 
-        private Task WebSocket_OnConnect()
+        private async Task WebSocket_OnConnect()
         {
             this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection established", DateTime.Now);
 
-            return Task.Delay(0);
+            if (this.Configuration.ResumeKey != null)
+                await this.SendPayloadAsync(new LavalinkConfigureResume(this.Configuration.ResumeKey, this.Configuration.ResumeTimeout)).ConfigureAwait(false);
         }
 
         private void Con_ChannelDisconnected(LavalinkGuildConnection con)
@@ -474,10 +380,10 @@ namespace DSharpPlus.Lavalink
         {
             var gld = e.Guild;
             if (gld == null)
-                return Task.Delay(0);
+                return Task.CompletedTask;
 
             if (e.User == null)
-                return Task.Delay(0);
+                return Task.CompletedTask;
 
             if (e.User.Id == this.Discord.CurrentUser.Id && this.ConnectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
                 lvlgc.VoiceStateUpdate = e;
@@ -488,19 +394,19 @@ namespace DSharpPlus.Lavalink
                 xe.SetResult(e);
             }
 
-            return Task.Delay(0);
+            return Task.CompletedTask;
         }
 
-        private Task Discord_VoiceServerUpdated(VoiceServerUpdateEventArgs e)
+        private async Task Discord_VoiceServerUpdated(VoiceServerUpdateEventArgs e)
         {
             var gld = e.Guild;
             if (gld == null)
-                return Task.Delay(0);
+                return;
 
             if (this.ConnectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
             {
                 var lvlp = new LavalinkVoiceUpdate(lvlgc.VoiceStateUpdate, e);
-                this.WebSocket.SendMessage(JsonConvert.SerializeObject(lvlp));
+                await this.WebSocket.SendMessageAsync(JsonConvert.SerializeObject(lvlp)).ConfigureAwait(false);
             }
 
             if (this.VoiceServerUpdates.ContainsKey(gld.Id))
@@ -508,8 +414,6 @@ namespace DSharpPlus.Lavalink
                 this.VoiceServerUpdates.TryRemove(gld.Id, out var xe);
                 xe.SetResult(e);
             }
-
-            return Task.Delay(0);
         }
 
         internal event NodeDisconnectedEventHandler NodeDisconnected;
