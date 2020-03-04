@@ -208,15 +208,15 @@ namespace DSharpPlus.Net.WebSocket
 
             try
             {
-                while (!token.IsCancellationRequested)
+                using (var bs = new MemoryStream())
                 {
-                    // See https://github.com/RogueException/Discord.Net/commit/ac389f5f6823e3a720aedd81b7805adbdd78b66d 
-                    // for explanation on the cancellation token
-
-                    WebSocketReceiveResult result;
-                    byte[] resultBytes;
-                    using (var bs = new MemoryStream())
+                    while (!token.IsCancellationRequested)
                     {
+                        // See https://github.com/RogueException/Discord.Net/commit/ac389f5f6823e3a720aedd81b7805adbdd78b66d 
+                        // for explanation on the cancellation token
+
+                        WebSocketReceiveResult result;
+                        byte[] resultBytes;
                         do
                         {
                             result = await this._ws.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
@@ -230,23 +230,25 @@ namespace DSharpPlus.Net.WebSocket
                         resultBytes = new byte[bs.Length];
                         bs.Position = 0;
                         bs.Read(resultBytes, 0, (int)bs.Length);
-                    }
+                        bs.Position = 0;
+                        bs.SetLength(0);
 
-                    if (result.MessageType == WebSocketMessageType.Binary)
-                    {
-                        await this._messageReceived.InvokeAsync(new SocketBinaryMessageEventArgs(resultBytes)).ConfigureAwait(false);
-                    }
-                    else if (result.MessageType == WebSocketMessageType.Text)
-                    {
-                        await this._messageReceived.InvokeAsync(new SocketTextMessageEventArgs(Utilities.UTF8.GetString(resultBytes))).ConfigureAwait(false);
-                    }
-                    else // close
-                    {
-                        if (!this._isClientClose)
-                            await this._ws.CloseOutputAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
+                        if (result.MessageType == WebSocketMessageType.Binary)
+                        {
+                            await this._messageReceived.InvokeAsync(new SocketBinaryMessageEventArgs(resultBytes)).ConfigureAwait(false);
+                        }
+                        else if (result.MessageType == WebSocketMessageType.Text)
+                        {
+                            await this._messageReceived.InvokeAsync(new SocketTextMessageEventArgs(Utilities.UTF8.GetString(resultBytes))).ConfigureAwait(false);
+                        }
+                        else // close
+                        {
+                            if (!this._isClientClose)
+                                await this._ws.CloseOutputAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
 
-                        await this._disconnected.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
-                        break;
+                            await this._disconnected.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
+                            break;
+                        }
                     }
                 }
             }
