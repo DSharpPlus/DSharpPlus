@@ -72,6 +72,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("embed", NullValueHandling = NullValueHandling.Include)]
         public DiscordEmbed Embed { get; set; }
 
+        [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMentions Mentions { get; set; }
+
         [JsonIgnore]
         public bool HasEmbed { get; set; }
 
@@ -98,6 +101,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("embed", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordEmbed Embed { get; set; }
+
+        [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMentions Mentions { get; set; }
     }
 
     internal sealed class RestChannelMessageBulkDeletePayload
