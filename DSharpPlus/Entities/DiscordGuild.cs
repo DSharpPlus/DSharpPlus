@@ -90,8 +90,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordMember Owner
-            => this.Members.TryGetValue(this.OwnerId, out var owner) 
-                ? owner 
+            => this.Members.TryGetValue(this.OwnerId, out var owner)
+                ? owner
                 : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
 
         /// <summary>
@@ -326,6 +326,8 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
 
+        internal ConcurrentDictionary<string, DiscordInvite> _invites;
+
         /// <summary>
         /// Gets the guild member for current user.
         /// </summary>
@@ -402,7 +404,10 @@ namespace DSharpPlus.Entities
         internal bool IsSynced { get; set; }
 
         internal DiscordGuild()
-            => this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
+        { 
+            this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
+            this._invites = new ConcurrentDictionary<string, DiscordInvite>();
+        }
 
         #region Guild Methods
         /// <summary>
@@ -564,7 +569,7 @@ namespace DSharpPlus.Entities
         public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
         {
             // technically you can create news/store channels but not always
-            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Store) 
+            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Store)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
 
             if (type == ChannelType.Category && parent != null)
@@ -665,11 +670,26 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets an invite from this guild from an invite code. 
+        /// </summary>
+        /// <param name="code">The invite code</param>
+        /// <returns>An invite.</returns>
+        public DiscordInvite GetInvite(string code)
+            => this._invites.TryGetValue(code, out var invite) ? invite : null;
+
+        /// <summary>
         /// Gets all the invites created for all the channels in this guild.
         /// </summary>
         /// <returns>A collection of invites.</returns>
-        public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
-            => this.Discord.ApiClient.GetGuildInvitesAsync(this.Id);
+        public async Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
+        {
+            var res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id).ConfigureAwait(false);
+
+            for (var i = 0; i < res.Count; i++)
+                this._invites[res[i].Code] = res[i];
+
+            return res;
+        }
 
         /// <summary>
         /// Gets the vanity invite for this guild.
@@ -677,7 +697,7 @@ namespace DSharpPlus.Entities
         /// <returns>A partial vanity invite.</returns>
         public Task<DiscordInvite> GetVanityInviteAsync()
             => this.Discord.ApiClient.GetGuildVanityUrlAsync(this.Id);
-        
+
 
         /// <summary>
         /// Gets all the webhooks created for all the channels in this guild.
@@ -695,7 +715,7 @@ namespace DSharpPlus.Entities
         {
             string param;
 
-            switch(bannerType)
+            switch (bannerType)
             {
                 case WidgetType.Banner1:
                     param = "banner1";
@@ -1021,7 +1041,7 @@ namespace DSharpPlus.Entities
                                         After = xc.NewValueString
                                     };
                                     break;
-                             
+
                                 default:
                                     this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in guild update: {xc.Key}; this should be reported to devs", DateTime.Now);
                                     break;
@@ -1224,16 +1244,16 @@ namespace DSharpPlus.Entities
                                 case "deaf":
                                     entrymbu.DeafenChange = new PropertyChange<bool?>
                                     {
-                                        Before = (bool?) xc.OldValue,
-                                        After = (bool?) xc.NewValue
+                                        Before = (bool?)xc.OldValue,
+                                        After = (bool?)xc.NewValue
                                     };
                                     break;
 
                                 case "mute":
                                     entrymbu.MuteChange = new PropertyChange<bool?>
                                     {
-                                        Before = (bool?) xc.OldValue,
-                                        After = (bool?) xc.NewValue
+                                        Before = (bool?)xc.OldValue,
+                                        After = (bool?)xc.NewValue
                                     };
                                     break;
 
