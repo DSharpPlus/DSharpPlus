@@ -46,5 +46,6 @@
         public const string SUPPRESS_EMBEDS = "/suppress-embeds";
         public const string VANITY_URL = "/vanity-url";
         public const string WIDGET_PNG = "/widget.png";
+        public const string PREVIEW = "/preview";
     }
 }

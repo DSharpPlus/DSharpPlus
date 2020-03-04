@@ -1259,6 +1259,20 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordIntegration>(new List<DiscordIntegration>(integrations_raw));
         }
 
+        internal async Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PREVIEW}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordGuildPreview>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
         internal async Task<DiscordIntegration> CreateGuildIntegrationAsync(ulong guild_id, string type, ulong id)
         {
             var pld = new RestGuildIntegrationAttachPayload
