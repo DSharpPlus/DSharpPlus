@@ -1081,9 +1081,10 @@ namespace DSharpPlus
         /// <param name="embeds">Embeds to attach to this webhook</param>
         /// <param name="file_name">Name of the file to attach to this webhook</param>
         /// <param name="file_data">Stream data of the file to attach to this webhook</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data)
-            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, file_name, file_data);
+        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data, IEnumerable<IMention> mentions = null)
+            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, file_name, file_data, mentions);
 
         /// <summary>
         /// Sends a message to a webhook
@@ -1096,9 +1097,10 @@ namespace DSharpPlus
         /// <param name="tts">Whether this message should be text-to-speech</param>
         /// <param name="embeds">Embeds to attach to this webhook</param>
         /// <param name="files">Files to attach to this webhook</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
-            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, files);
+        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files, IEnumerable<IMention> mentions = null)
+            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, files, mentions);
         #endregion
 
         #region Reactions
