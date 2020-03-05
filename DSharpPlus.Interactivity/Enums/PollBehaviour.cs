@@ -10,16 +10,12 @@ namespace DSharpPlus.Interactivity.Enums
     public enum PollBehaviour
     {
         /// <summary>
-        /// Defaults to DeleteEmojis
-        /// </summary>
-        Default = 0,
-        /// <summary>
         /// Keeps emojis
         /// </summary>
-        KeepEmojis = 1,
+        KeepEmojis = 0,
         /// <summary>
         /// Deletes Emojis
         /// </summary>
-        DeleteEmojis = 2
+        DeleteEmojis = 1
     }
 }
