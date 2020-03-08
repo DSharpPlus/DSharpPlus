@@ -142,7 +142,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
         public static async Task SendPaginatedMessageAsync(this DiscordChannel c, DiscordUser user, Page[] pages, PaginationEmojis emojis,
-            PaginationBehaviour behaviour = PaginationBehaviour.Default, PaginationDeletion deletion = PaginationDeletion.Default,
+            PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default,
             TimeSpan? timeoutoverride = null)
             => await ((DiscordClient)c.Discord).GetInteractivity().SendPaginatedMessageAsync(c, user, pages, emojis, behaviour, deletion, timeoutoverride);
     }

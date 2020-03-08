@@ -82,7 +82,6 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             switch (_behaviour)
             {
-                case PaginationBehaviour.Default:
                 case PaginationBehaviour.Ignore:
                     if (index == _pages.Count - 1)
                         break;
@@ -107,7 +106,6 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             switch (_behaviour)
             {
-                case PaginationBehaviour.Default:
                 case PaginationBehaviour.Ignore:
                     if (index == 0)
                         break;
@@ -151,7 +149,6 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             switch (_deletion)
             {
-                case PaginationDeletion.Default:
                 case PaginationDeletion.DeleteEmojis:
                     await _message.DeleteAllReactionsAsync();
                     break;
