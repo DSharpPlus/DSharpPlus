@@ -72,7 +72,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the integration type.
         /// </summary>
-        [JsonProperty("description ", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; internal set; }
 
         internal DiscordGuildPreview() { }
