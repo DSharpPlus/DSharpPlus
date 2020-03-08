@@ -10,28 +10,28 @@ namespace DSharpPlus.Entities
     public interface IMention { }
 
     /// <summary>
-    /// A everyone mention
+    /// Allows @everyone and @here pings to mention in the message.
     /// </summary>
     public readonly struct EveryoneMention : IMention { }
 
     /// <summary>
-    /// A user mention parse rule
+    /// Allows @user pings to mention in the message.
     /// </summary>
     public readonly struct UserMention : IMention
     {
         /// <summary>
-        /// Id of the user that is allowed to be mentioned. If null, then all users will be mentionable.
+        /// Optional Id of the user that is allowed to be mentioned. If null, then all user mentions will be allowed. 
         /// </summary>
         public ulong? Id { get; }
 
         /// <summary>
-        /// Creates a new user mention based of the id
+        /// Allows the specific user to be mentioned
         /// </summary>
         /// <param name="id"></param>
         public UserMention(ulong id) { this.Id = id;  }
 
         /// <summary>
-        /// Creates a new user mention based of the user
+        /// Allows the specific user to be mentioned
         /// </summary>
         /// <param name="user"></param>
         public UserMention(DiscordUser user) : this(user.Id) { }
@@ -40,23 +40,23 @@ namespace DSharpPlus.Entities
     }
 
     /// <summary>
-    /// A role mention
+    /// Allows @role pings to mention in the message.
     /// </summary>
     public readonly struct RoleMention : IMention
     {
         /// <summary>
-        /// Id of the role that is allowed to be mentioned. If null, then all roles will be mentionable.
+        /// Optional Id of the role that is allowed to be mentioned. If null, then all role mentions will be allowed. 
         /// </summary>
         public ulong? Id { get; }
 
         /// <summary>
-        /// Creates a new role mention based of the id
+        /// Allows the specific id to be mentioned
         /// </summary>
         /// <param name="id"></param>
         public RoleMention(ulong id) { this.Id = id; }
 
         /// <summary>
-        /// Creates a new role mention based of the id
+        /// Allows the specific role to be mentioned
         /// </summary>
         /// <param name="role"></param>
         public RoleMention(DiscordRole role) : this(role.Id) { }
