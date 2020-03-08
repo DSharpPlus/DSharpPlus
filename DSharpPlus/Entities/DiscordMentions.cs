@@ -14,6 +14,10 @@ namespace DSharpPlus.Entities
     {
         //https://discordapp.com/developers/docs/resources/channel#allowed-mentions-object
 
+        private const string ParseUsers = "users";
+        private const string ParseRoles = "roles";
+        private const string ParseEveryone = "everyone";
+
         /// <summary>
         /// Collection roles to serialize
         /// </summary>
@@ -44,24 +48,37 @@ namespace DSharpPlus.Entities
                 {
                     default: throw new NotSupportedException("Type not supported in mentions.");
                     case UserMention u:
-                        users.Add(u.Id);
-                        parse.Add("users");
+                        if (u.Id.HasValue) {
+                            users.Add(u.Id.Value);      //We have a user ID so we will add them to the implicit
+                        } else {
+                            parse.Add(ParseUsers);      //We have no ID, so let all users through
+                        }
+
                         break;
 
                     case RoleMention r:
-                        roles.Add(r.Id);
-                        parse.Add("roles");
+                        if (r.Id.HasValue) {
+                            users.Add(r.Id.Value);      //We have a role ID so we will add them to the implicit
+                        } else {
+                            parse.Add(ParseRoles);      //We have role ID, so let all users through
+                        }
                         break;
 
                     case EveryoneMention e:
-                        parse.Add("everyone");
+                        parse.Add(ParseEveryone);
                         break;
                 }
             }
 
-            Roles = roles;
-            Users = users;
-            Parse = parse;
+            //Check the validity of each item. If it isn't in the explicit allow list and they have items, then add them.
+            if (!parse.Contains(ParseUsers) && users.Count > 0)
+                Users = users;
+
+            if (!parse.Contains(ParseRoles) && roles.Count > 0)
+                Roles = roles;
+
+            if (parse.Count > 0)
+                Parse = parse;
         }
     }
 }

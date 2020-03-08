@@ -15,14 +15,14 @@ namespace DSharpPlus.Entities
     public readonly struct EveryoneMention : IMention { }
 
     /// <summary>
-    /// A user mention
+    /// A user mention parse rule
     /// </summary>
     public readonly struct UserMention : IMention
     {
         /// <summary>
-        /// Id of the user that is allowed to be mentioned
+        /// Id of the user that is allowed to be mentioned. If null, then all users will be mentionable.
         /// </summary>
-        public ulong Id { get; }
+        public ulong? Id { get; }
 
         /// <summary>
         /// Creates a new user mention based of the id
@@ -45,9 +45,9 @@ namespace DSharpPlus.Entities
     public readonly struct RoleMention : IMention
     {
         /// <summary>
-        /// Id of the role that is allowed to be mentioned
+        /// Id of the role that is allowed to be mentioned. If null, then all roles will be mentionable.
         /// </summary>
-        public ulong Id { get; }
+        public ulong? Id { get; }
 
         /// <summary>
         /// Creates a new role mention based of the id
