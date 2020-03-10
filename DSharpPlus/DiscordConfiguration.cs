@@ -108,13 +108,6 @@ namespace DSharpPlus
         public bool ReconnectIndefinitely { internal get; set; } = false;
 
         /// <summary>
-        /// Defines whether this client should use more precise rate limit headers.
-        /// <para>This will have rate limit times rounded to the nearest milisecond, rather than second, allowing for faster response times.</para>
-        /// <para>Defaults to true.</para>
-        /// </summary>
-        public bool UsePrecisionHeaders { internal get; set; } = true;
-
-        /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
         /// <para>Use <see cref="WebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
         /// <para>Defaults to <see cref="WebSocketClient.CreateNew(IWebProxy)"/>.</para>
@@ -174,7 +167,6 @@ namespace DSharpPlus
             this.Proxy = other.Proxy;
             this.HttpTimeout = other.HttpTimeout;
             this.ReconnectIndefinitely = other.ReconnectIndefinitely;
-            this.UsePrecisionHeaders = other.UsePrecisionHeaders;
         }
     }
 }
