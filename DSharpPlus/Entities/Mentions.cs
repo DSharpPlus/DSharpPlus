@@ -12,13 +12,25 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Allows @everyone and @here pings to mention in the message.
     /// </summary>
-    public readonly struct EveryoneMention : IMention { }
+    public readonly struct EveryoneMention : IMention {
+
+        //This is pointless because new EveryoneMention() will work, but it is here for consistency with the other mentionables.
+        /// <summary>
+        /// Allow the mentioning of @everyone and @here. Alias to <see cref="EveryoneMention()"/> constructor.
+        /// </summary>
+        public static readonly EveryoneMention All = new EveryoneMention();
+    }
 
     /// <summary>
     /// Allows @user pings to mention in the message.
     /// </summary>
     public readonly struct UserMention : IMention
     {
+        /// <summary>
+        /// Allow mentioning of all users. Alias to <see cref="UserMention()"/> constructor.
+        /// </summary>
+        public static readonly UserMention All = new UserMention();
+
         /// <summary>
         /// Optional Id of the user that is allowed to be mentioned. If null, then all user mentions will be allowed. 
         /// </summary>
@@ -44,6 +56,11 @@ namespace DSharpPlus.Entities
     /// </summary>
     public readonly struct RoleMention : IMention
     {
+        /// <summary>
+        /// Allow the mentioning of all roles.  Alias to <see cref="RoleMention()"/> constructor.
+        /// </summary>
+        public static readonly RoleMention All = new RoleMention();
+
         /// <summary>
         /// Optional Id of the role that is allowed to be mentioned. If null, then all role mentions will be allowed. 
         /// </summary>

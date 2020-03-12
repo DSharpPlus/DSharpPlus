@@ -56,6 +56,7 @@ namespace DSharpPlus.Test
             await ctx.Channel.SendMessageAsync("UserMention(): " + content, mentions: new IMention[] { new UserMention() });
             await ctx.Channel.SendMessageAsync("Everyone(): " + content, mentions: new IMention[] { new EveryoneMention() });
             await ctx.Channel.SendMessageAsync("User Mention Everyone & Self: " + content, mentions: new IMention[] { new UserMention(), new UserMention(user) });
+            await ctx.Channel.SendMessageAsync("UserMention.All: " + content, mentions: new IMention[] { UserMention.All });
         }
     }
 }
