@@ -50,7 +50,7 @@ the difference?
 
 ![Step 1](/images/04_01_hi_how_are_you.png "Hi! How are you?")
 
-## 4. Advanced subjects
+## 3. Advanced subjects
 
 Interactivity is covered more in-depth in [Emzi0767's Example bot #3](https://github.com/Emzi0767/DSharpPlus-Example-Bot/tree/master/DSPlus.Examples.CSharp.Ex03 "Example Bot #3"). If you want to check out all the cool things Interactivity can 
 do, make sure to check it out.
