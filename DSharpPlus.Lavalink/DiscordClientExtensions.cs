@@ -20,6 +20,12 @@ namespace DSharpPlus.Lavalink
             if (client.GetExtension<LavalinkExtension>() != null)
                 throw new InvalidOperationException("Lavalink is already enabled for that client.");
 
+            if (client.Configuration.Intents.HasValue)
+            {
+                if (!client.Configuration.Intents.Value.HasIntent(DiscordIntents.GuildVoiceStates))
+                    client.DebugLogger.LogMessage(LogLevel.Critical, "Lavalink", "The Lavalink extension is registered but the guild voice states intent is not enabled. It is highly recommended to enable it.", DateTime.Now);
+            }
+
             var lava = new LavalinkExtension();
             client.AddExtension(lava);
             return lava;
