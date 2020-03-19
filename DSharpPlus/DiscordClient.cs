@@ -80,6 +80,9 @@ namespace DSharpPlus
         public int ShardId
             => this.Configuration.ShardId;
 
+        public DiscordIntents? Intents
+            => this.Configuration.Intents;
+
         /// <summary>
         /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
         /// ID.
@@ -127,9 +130,18 @@ namespace DSharpPlus
             : base(config)
         {
             if (this.Configuration.MessageCacheSize > 0)
-                this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize);
+            {
+                var intents = this.Configuration.Intents;
 
-            InternalSetup();
+                if (intents.HasValue)
+                    this.MessageCache = intents.Value.HasIntent(DiscordIntents.GuildMessages) || intents.Value.HasIntent(DiscordIntents.DirectMessages)
+                        ? new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize)
+                        : null;
+                else
+                    this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize); //This will need to be changed once intents become mandatory.
+            }
+
+            this.InternalSetup();
 
             this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
             this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
@@ -1657,9 +1669,10 @@ namespace DSharpPlus
             if (!guild._invites.TryRemove(dat["code"].ToString(), out var invite))
             {
                 invite = dat.ToObject<DiscordInvite>();
-                invite.IsRevoked = true;
                 invite.Discord = this;
             }
+
+            invite.IsRevoked = true;
 
             var ea = new InviteDeleteEventArgs(this)
             {
@@ -2429,7 +2442,8 @@ namespace DSharpPlus
                     ShardId = this.Configuration.ShardId,
                     ShardCount = this.Configuration.ShardCount
                 },
-                Presence = status
+                Presence = status,
+                Intents = this.Configuration.Intents
             };
             var payload = new GatewayPayload
             {
@@ -2438,6 +2452,9 @@ namespace DSharpPlus
             };
             var payloadstr = JsonConvert.SerializeObject(payload);
             await this._webSocketClient.SendMessageAsync(payloadstr).ConfigureAwait(false);
+
+            if (this.Configuration.Intents.HasValue)
+                this.DebugLogger.LogMessage(LogLevel.Debug, "DSharpPlus", $"Registered gateway intents ({this.Configuration.Intents.Value}).", DateTime.Now);
         }
 
         internal async Task SendResumeAsync()

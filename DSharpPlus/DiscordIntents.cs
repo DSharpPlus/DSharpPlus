@@ -43,7 +43,6 @@ namespace DSharpPlus
         /// <para>These include <see cref="DiscordClient.GuildCreated"/>, <see cref="DiscordClient.GuildDeleted"/>, <see cref="DiscordClient.GuildAvailable"/>, <see cref="DiscordClient.GuildDownloadCompleted"/>,</para>
         /// <para><see cref="DiscordClient.GuildRoleCreated"/>, <see cref="DiscordClient.GuildRoleUpdated"/>, <see cref="DiscordClient.GuildRoleDeleted"/>,</para>
         /// <para><see cref="DiscordClient.ChannelCreated"/>, <see cref="DiscordClient.ChannelUpdated"/>, <see cref="DiscordClient.ChannelDeleted"/>, and <see cref="DiscordClient.ChannelPinsUpdated"/>.</para>
-        /// <para>It is highly recommended to include this intents.</para>
         /// </summary>
         Guilds = 1 << 0,
 
