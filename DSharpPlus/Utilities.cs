@@ -159,6 +159,30 @@ namespace DSharpPlus
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
 
+        internal static bool HasMessageIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessages) || intents.Value.HasIntent(DiscordIntents.DirectMessages);
+
+            return true; //Will be false in the future.
+        }
+
+        internal static bool HasReactionIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessageReactions) || intents.Value.HasIntent(DiscordIntents.DirectMessageReactions);
+
+            return true; //Will be false in the future.
+        }
+
+        internal static bool HasTypingIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessageTyping) || intents.Value.HasIntent(DiscordIntents.DirectMessageTyping);
+
+            return true; //Will be false in the future.
+        }
+
         /// <summary>
         /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.
         /// </summary>

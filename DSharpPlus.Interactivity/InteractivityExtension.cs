@@ -104,6 +104,9 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour? behaviour = default, TimeSpan? timeout = null)
         {
+            if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
+                throw new InvalidOperationException("No reaction intents are enabled.");
+
             if (emojis.Count() < 1)
                 throw new ArgumentException("You need to provide at least one emoji for a poll!");
 
@@ -131,6 +134,9 @@ namespace DSharpPlus.Interactivity
         public async Task<InteractivityResult<DiscordMessage>> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, 
             TimeSpan? timeoutoverride = null)
         {
+            if (!Utilities.HasMessageIntents(this.Client.Configuration.Intents))
+                throw new InvalidOperationException("No message intents are enabled.");
+
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout));
 
@@ -146,6 +152,9 @@ namespace DSharpPlus.Interactivity
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate,
             TimeSpan? timeoutoverride = null)
         {
+            if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
+                throw new InvalidOperationException("No reaction intents are enabled.");
+
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(x => predicate(x), timeout));
 
@@ -196,6 +205,9 @@ namespace DSharpPlus.Interactivity
         public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user, 
             DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
+            if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
+                throw new InvalidOperationException("No typing intents are enabled.");
+
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
                 new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id && x.Channel.Id == channel.Id, timeout));
@@ -211,6 +223,9 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user, TimeSpan? timeoutoverride = null)
         {
+            if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
+                throw new InvalidOperationException("No typing intents are enabled.");
+
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
                 new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id, timeout));
@@ -226,6 +241,9 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<InteractivityResult<TypingStartEventArgs>> WaitForTypingAsync(DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
+            if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
+                throw new InvalidOperationException("No typing intents are enabled.");
+
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
                 new MatchRequest<TypingStartEventArgs>(x => x.Channel.Id == channel.Id, timeout));
@@ -241,13 +259,16 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<ReadOnlyCollection<Reaction>> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
         {
+            if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
+                throw new InvalidOperationException("No reaction intents are enabled.");
+
             var timeout = timeoutoverride ?? Config.Timeout;
             var collection = await ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout));
             return new ReadOnlyCollection<Reaction>(collection.ToList());
         }
 
         /// <summary>
-        /// Waits for specific event args to be received
+        /// Waits for specific event args to be received. Make sure the appropriate <see cref="DiscordIntents"/> are registered, if needed.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="predicate"></param>
