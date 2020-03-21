@@ -174,8 +174,20 @@ namespace DSharpPlus
             }
         }
 
-        internal DiscordUser InternalGetCachedUser(ulong user_id) 
-            => this.UserCache.TryGetValue(user_id, out var user) ? user : new DiscordUser { Id = user_id, Discord = this };
+        internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)
+        {
+            TryGetCachedUserInternal(user_id, out var user);
+            return user;
+        }
+
+        internal bool TryGetCachedUserInternal(ulong user_id, out DiscordUser user)
+        {
+            if (this.UserCache.TryGetValue(user_id, out user))
+                return true;
+
+            user = new DiscordUser { Id = user_id, Discord = this };
+            return false;
+        }
 
         /// <summary>
         /// Disposes this client.

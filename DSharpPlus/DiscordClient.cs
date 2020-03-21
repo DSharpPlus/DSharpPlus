@@ -461,8 +461,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordUser> GetUserAsync(ulong userId)
         {
-            var usr = this.InternalGetCachedUser(userId);
-            if (usr != null)
+            if (this.TryGetCachedUserInternal(userId, out var usr))
                 return usr;
 
             usr = await this.ApiClient.GetUserAsync(userId).ConfigureAwait(false);
@@ -999,7 +998,7 @@ namespace DSharpPlus
                 var dmChannel = channel as DiscordDmChannel;
 
                 var recips = rawRecipients.ToObject<IEnumerable<TransportUser>>()
-                    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this });
+                    .Select(xtu => this.TryGetCachedUserInternal(xtu.Id, out var usr) ? usr : new DiscordUser(xtu) { Discord = this });
                 dmChannel._recipients = recips.ToList();
 
                 this._privateChannels[dmChannel.Id] = dmChannel;
@@ -1730,7 +1729,7 @@ namespace DSharpPlus
                 }
                 else
                 {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.InternalGetCachedUser).ToList();
+                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
                 }
             }
 
@@ -1826,7 +1825,7 @@ namespace DSharpPlus
                 }
                 else
                 {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(this.InternalGetCachedUser).ToList();
+                    mentioned_users = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
                 }
             }
 

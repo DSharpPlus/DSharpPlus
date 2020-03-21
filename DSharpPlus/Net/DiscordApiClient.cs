@@ -84,7 +84,7 @@ namespace DSharpPlus.Net
                 }
                 else
                 {
-                    mentioned_users = Utilities.GetUserMentions(ret).Select(this.Discord.InternalGetCachedUser).ToList();
+                    mentioned_users = Utilities.GetUserMentions(ret).Select(this.Discord.GetCachedOrEmptyUserInternal).ToList();
                 }
             }
 
@@ -222,8 +222,7 @@ namespace DSharpPlus.Net
 
             var bans_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response).Select(xb =>
             {
-                var usr = this.Discord.InternalGetCachedUser(xb.RawUser.Id);
-                if (usr == null)
+                if (!this.Discord.TryGetCachedUserInternal(xb.RawUser.Id, out var usr))
                 {
                     usr = new DiscordUser(xb.RawUser) { Discord = this.Discord };
                     usr = this.Discord.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>

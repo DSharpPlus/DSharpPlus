@@ -21,7 +21,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordUser User 
-            => this.Discord.InternalGetCachedUser(this.InternalUser.Id);
+            => this.Discord.GetCachedOrEmptyUserInternal(this.InternalUser.Id);
 
         /// <summary>
         /// Gets the user's current activity.
