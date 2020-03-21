@@ -852,14 +852,15 @@ namespace DSharpPlus.VoiceNext
                     // Don't spam OP5
                     //this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP5 received", DateTime.Now);
                     var spd = opp.ToObject<VoiceSpeakingPayload>();
+                    var foundUserInCache = this.Discord.TryGetCachedUserInternal(spd.UserId.Value, out var resolvedUser);
                     var spk = new UserSpeakingEventArgs(this.Discord)
                     {
                         Speaking = spd.Speaking,
                         SSRC = spd.SSRC.Value,
-                        User = this.Discord.InternalGetCachedUser(spd.UserId.Value)
+                        User = resolvedUser,
                     };
 
-                    if (spk.User != null && this.TransmittingSSRCs.TryGetValue(spk.SSRC, out var txssrc5) && txssrc5.Id == 0)
+                    if (foundUserInCache && this.TransmittingSSRCs.TryGetValue(spk.SSRC, out var txssrc5) && txssrc5.Id == 0)
                     {
                         txssrc5.User = spk.User;
                     }
