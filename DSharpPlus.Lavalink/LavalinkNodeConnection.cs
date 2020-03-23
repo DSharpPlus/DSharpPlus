@@ -376,25 +376,29 @@ namespace DSharpPlus.Lavalink
         private void Con_ChannelDisconnected(LavalinkGuildConnection con)
             => this.ConnectedGuilds.TryRemove(con.GuildId, out _);
 
-        private Task Discord_VoiceStateUpdated(VoiceStateUpdateEventArgs e)
+        private async Task Discord_VoiceStateUpdated(VoiceStateUpdateEventArgs e)
         {
             var gld = e.Guild;
             if (gld == null)
-                return Task.CompletedTask;
+                return;
 
             if (e.User == null)
-                return Task.CompletedTask;
+                return;
 
-            if (e.User.Id == this.Discord.CurrentUser.Id && this.ConnectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
-                lvlgc.VoiceStateUpdate = e;
-
-            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Discord.CurrentUser.Id && e.Channel != null && this.VoiceStateUpdates.ContainsKey(gld.Id))
+            if(e.User.Id == this.Discord.CurrentUser.Id)
             {
-                this.VoiceStateUpdates.TryRemove(gld.Id, out var xe);
-                xe.SetResult(e);
-            }
+                if (e.After.Channel == null && this.ConnectedGuilds.TryRemove(gld.Id, out var gc))
+                {
+                    gc.ManuallyDisconnected = true;
+                    await gc.DisconnectAsync().ConfigureAwait(false);
+                }
 
-            return Task.CompletedTask;
+                if (this.ConnectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
+                    lvlgc.VoiceStateUpdate = e;
+
+                if (!string.IsNullOrWhiteSpace(e.SessionId) && e.Channel != null && this.VoiceStateUpdates.TryRemove(gld.Id, out var xe))
+                    xe.SetResult(e);
+            }
         }
 
         private async Task Discord_VoiceServerUpdated(VoiceServerUpdateEventArgs e)
