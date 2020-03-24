@@ -287,6 +287,9 @@ namespace DSharpPlus.VoiceNext
 
         internal void PreparePacket(ReadOnlySpan<byte> pcm, ref Memory<byte> target)
         {
+            if (this.IsDisposed)
+                return;
+
             var audioFormat = this.AudioFormat;
 
             var packetArray = ArrayPool<byte>.Shared.Rent(this.Rtp.CalculatePacketSize(audioFormat.SampleCountToSampleSize(audioFormat.CalculateMaximumFrameSize()), this.SelectedEncryptionMode));
@@ -661,8 +664,7 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceWs.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
-            catch (Exception)
-            { }
+            catch { }
 
             this.Opus?.Dispose();
             this.Opus = null;
@@ -671,8 +673,7 @@ namespace DSharpPlus.VoiceNext
             this.Rtp?.Dispose();
             this.Rtp = null;
 
-            if (this.VoiceDisconnected != null)
-                this.VoiceDisconnected(this.Guild);
+            this.VoiceDisconnected?.Invoke(this.Guild);
         }
 
         private async Task HeartbeatAsync()
