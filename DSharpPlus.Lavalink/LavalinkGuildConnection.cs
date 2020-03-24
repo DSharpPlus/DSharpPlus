@@ -93,6 +93,7 @@ namespace DSharpPlus.Lavalink
         internal string GuildIdString => this.GuildId.ToString(CultureInfo.InvariantCulture);
         internal ulong GuildId => this.Channel.Guild.Id;
         internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
+        internal bool ManuallyDisconnected { get; set; } = false;
 
         internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, VoiceStateUpdateEventArgs vstu)
         {
@@ -120,10 +121,11 @@ namespace DSharpPlus.Lavalink
             Volatile.Write(ref this._isDisposed, true);
 
             await this.Node.SendPayloadAsync(new LavalinkDestroy(this)).ConfigureAwait(false);
-            await this.SendVoiceUpdateAsync().ConfigureAwait(false);
 
-            if (this.ChannelDisconnected != null)
-                this.ChannelDisconnected(this);
+            if(!this.ManuallyDisconnected)
+                await this.SendVoiceUpdateAsync().ConfigureAwait(false);
+
+            this.ChannelDisconnected?.Invoke(this);
         }
 
         internal async Task SendVoiceUpdateAsync()
