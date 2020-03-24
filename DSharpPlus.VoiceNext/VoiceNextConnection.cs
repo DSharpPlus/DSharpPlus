@@ -664,8 +664,7 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceWs.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
-            catch (Exception)
-            { }
+            catch { }
 
             this.Opus?.Dispose();
             this.Opus = null;
