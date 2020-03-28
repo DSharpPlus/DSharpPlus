@@ -2,10 +2,33 @@
 {
     internal enum EventType
     {
+        TrackStartEvent,
         TrackEndEvent,
         TrackExceptionEvent,
         TrackStuckEvent,
         WebSocketClosedEvent
+    }
+
+    /// <summary>
+    /// Represents arguments for a track playback start event.
+    /// </summary>
+    public sealed class TrackStartEventArgs : AsyncEventArgs
+    {
+        /// <summary>
+        /// Gets the track that started playing.
+        /// </summary>
+        public LavalinkTrack Track { get; }
+
+        /// <summary>
+        /// Gets the player that started playback.
+        /// </summary>
+        public LavalinkGuildConnection Player { get; }
+
+        internal TrackStartEventArgs(LavalinkGuildConnection lvl, LavalinkTrack track)
+        {
+            this.Track = track;
+            this.Player = lvl;
+        }
     }
 
     internal struct TrackFinishData
