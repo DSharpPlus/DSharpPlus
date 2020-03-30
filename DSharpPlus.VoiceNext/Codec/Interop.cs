@@ -25,22 +25,22 @@ namespace DSharpPlus.VoiceNext.Codec
         /// </summary>
         public static int SodiumMacSize { get; } = (int)_SodiumSecretBoxMacSize();
 
-        [DllImport("sodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_xsalsa20poly1305_keybytes")]
+        [DllImport("libsodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_xsalsa20poly1305_keybytes")]
         [return: MarshalAs(UnmanagedType.SysUInt)]
         private static extern UIntPtr _SodiumSecretBoxKeySize();
 
-        [DllImport("sodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_xsalsa20poly1305_noncebytes")]
+        [DllImport("libsodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_xsalsa20poly1305_noncebytes")]
         [return: MarshalAs(UnmanagedType.SysUInt)]
         private static extern UIntPtr _SodiumSecretBoxNonceSize();
 
-        [DllImport("sodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_xsalsa20poly1305_macbytes")]
+        [DllImport("libsodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_xsalsa20poly1305_macbytes")]
         [return: MarshalAs(UnmanagedType.SysUInt)]
         private static extern UIntPtr _SodiumSecretBoxMacSize();
 
-        [DllImport("sodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_easy")]
+        [DllImport("libsodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_easy")]
         private static unsafe extern int _SodiumSecretBoxCreate(byte* buffer, byte* message, ulong messageLength, byte* nonce, byte* key);
 
-        [DllImport("sodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_open_easy")]
+        [DllImport("libsodium", CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_open_easy")]
         private static unsafe extern int _SodiumSecretBoxOpen(byte* buffer, byte* encryptedMessage, ulong encryptedLength, byte* nonce, byte* key);
 
         /// <summary>
@@ -85,37 +85,37 @@ namespace DSharpPlus.VoiceNext.Codec
         #endregion
 
         #region Opus wrapper
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_create")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_create")]
         private static extern IntPtr _OpusCreateEncoder(int sampleRate, int channels, int application, out OpusError error);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_destroy")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_destroy")]
         public static extern void OpusDestroyEncoder(IntPtr encoder);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encode")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encode")]
         private static unsafe extern int _OpusEncode(IntPtr encoder, byte* pcmData, int frameSize, byte* data, int maxDataBytes);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_ctl")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_ctl")]
         private static extern OpusError _OpusEncoderControl(IntPtr encoder, OpusControl request, int value);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_create")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_create")]
         private static extern IntPtr _OpusCreateDecoder(int sampleRate, int channels, out OpusError error);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_destroy")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_destroy")]
         public static extern void OpusDestroyDecoder(IntPtr decoder);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decode")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decode")]
         private static unsafe extern int _OpusDecode(IntPtr decoder, byte* opusData, int opusDataLength, byte* data, int frameSize, int decodeFec);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_nb_channels")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_nb_channels")]
         private static unsafe extern int _OpusGetPacketChanelCount(byte* opusData);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_nb_frames")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_nb_frames")]
         private static unsafe extern int _OpusGetPacketFrameCount(byte* opusData, int length);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_samples_per_frame")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_samples_per_frame")]
         private static unsafe extern int _OpusGetPacketSamplePerFrameCount(byte* opusData, int samplingRate);
 
-        [DllImport("opus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_ctl")]
+        [DllImport("libopus", CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_ctl")]
         private static extern int _OpusDecoderControl(IntPtr decoder, OpusControl request, out int value);
 
         public static IntPtr OpusCreateEncoder(AudioFormat audioFormat)
