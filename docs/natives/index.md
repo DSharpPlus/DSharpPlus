@@ -8,10 +8,10 @@ For usage instructions, follow [setup guide](/articles/voice/setup.html "VoiceNe
 
 * 64-bit Windows (x64)
    * [Windows 64-bit (x64)](/natives/vnext_natives_win32_x64.zip "64-bit Opus and Sodium")
-   * [Checksums](/natives/vnext_natives_win32_x64.zip.checksums "64-bit Opus and Sodium - checksums")
+   * [Checksums](/natives/vnext_natives_win32_x64.zip.checksums.asc "64-bit Opus and Sodium - checksums")
 * 32-bit Windows (x86)
    * [Windows 32-bit (x86)](/natives/vnext_natives_win32_x86.zip "32-bit Opus and Sodium")
-   * [Checksums](/natives/vnext_natives_win32_x86.zip.checksums "32-bit Opus and Sodium - checksums")
+   * [Checksums](/natives/vnext_natives_win32_x86.zip.checksums.asc "32-bit Opus and Sodium - checksums")
 
 ## FFmpeg for Windows
 
