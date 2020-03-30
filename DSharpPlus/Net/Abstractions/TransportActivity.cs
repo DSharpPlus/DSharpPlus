@@ -119,14 +119,10 @@ namespace DSharpPlus.Net.Abstractions
         }
 
         public bool IsRichPresence()
-        {
-            return this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
-        }
+            => this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
 
         public bool IsCustomStatus()
-        {
-            return this.Name == "Custom Status";
-        }
+            => this.Name == "Custom Status";
 
         /// <summary>
         /// Represents information about assets attached to a rich presence.

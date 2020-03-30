@@ -57,7 +57,7 @@ namespace DSharpPlus.Entities
 					usr = this.Guild._members.TryGetValue(this.UserId, out var member) ? member : null;
 
 				if (usr == null)
-					usr = this.Discord.InternalGetCachedUser(this.UserId);
+					usr = this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
 
 				return usr;
 			}

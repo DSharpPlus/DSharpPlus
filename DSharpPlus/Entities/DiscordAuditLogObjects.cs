@@ -103,9 +103,14 @@ namespace DSharpPlus.Entities
         public PropertyChange<MfaLevel> MfaLevelChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of invite splash's change.
+        /// Gets the description of invite splash's change.
         /// </summary>
         public PropertyChange<string> SplashChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of the guild's region change.
+        /// </summary>
+        public PropertyChange<string> RegionChange { get; internal set; }
 
         internal DiscordAuditLogGuildEntry() { }
     }

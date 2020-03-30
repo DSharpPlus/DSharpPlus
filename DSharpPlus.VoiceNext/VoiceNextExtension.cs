@@ -153,15 +153,16 @@ namespace DSharpPlus.VoiceNext
             if (e.User == null)
                 return Task.CompletedTask;
 
-            if (e.User.Id == this.Client.CurrentUser.Id && this.ActiveConnections.TryGetValue(e.Guild.Id, out var vnc))
+            if(e.User.Id == this.Client.CurrentUser.Id)
             {
-                vnc.Channel = e.Channel;
-            }
+                if (e.After.Channel == null && this.ActiveConnections.TryRemove(gld.Id, out var ac))
+                    ac.Disconnect();
 
-            if (!string.IsNullOrWhiteSpace(e.SessionId) && e.User.Id == this.Client.CurrentUser.Id && e.Channel != null && this.VoiceStateUpdates.ContainsKey(gld.Id))
-            {
-                this.VoiceStateUpdates.TryRemove(gld.Id, out var xe);
-                xe.SetResult(e);
+                if (this.ActiveConnections.TryGetValue(e.Guild.Id, out var vnc))
+                    vnc.Channel = e.Channel;
+
+                if (!string.IsNullOrWhiteSpace(e.SessionId) && e.Channel != null && this.VoiceStateUpdates.TryRemove(gld.Id, out var xe))
+                    xe.SetResult(e);
             }
 
             return Task.CompletedTask;

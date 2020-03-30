@@ -240,7 +240,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> SendMessageAsync(string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
-                throw new ArgumentException("Bots cannot DM each other");
+                throw new ArgumentException("Bots cannot DM each other.");
             
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendMessageAsync(content, is_tts, embed).ConfigureAwait(false);
@@ -258,7 +258,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
-                throw new ArgumentException("Bots cannot DM each other");
+                throw new ArgumentException("Bots cannot DM each other.");
             
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendFileAsync(fileName, fileData, content, is_tts, embed).ConfigureAwait(false);
@@ -275,7 +275,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
-                throw new ArgumentException("Bots cannot DM each other");
+                throw new ArgumentException("Bots cannot DM each other.");
 
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendFileAsync(fileData, content, is_tts, embed).ConfigureAwait(false);
@@ -292,7 +292,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
-                throw new ArgumentException("Bots cannot DM each other");
+                throw new ArgumentException("Bots cannot DM each other.");
 
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendFileAsync(filePath, content, is_tts, embed).ConfigureAwait(false);
@@ -309,7 +309,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
-                throw new ArgumentException("Bots cannot DM each other");
+                throw new ArgumentException("Bots cannot DM each other.");
 
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendMultipleFilesAsync(files, content, is_tts, embed).ConfigureAwait(false);

@@ -200,6 +200,26 @@ namespace DSharpPlus
         private AsyncEvent<GuildDownloadCompletedEventArgs> _guildDownloadCompleted;
 
         /// <summary>
+        /// Fired when an invite is created.
+        /// </summary>
+        public event AsyncEventHandler<InviteCreateEventArgs> InviteCreated
+        {
+            add => this._inviteCreated.Register(value);
+            remove => this._inviteCreated.Unregister(value);
+        }
+        private AsyncEvent<InviteCreateEventArgs> _inviteCreated;
+
+        /// <summary>
+        /// Fired when an invite is deleted.
+        /// </summary>
+        public event AsyncEventHandler<InviteDeleteEventArgs> InviteDeleted
+        {
+            add => this._inviteDeleted.Register(value);
+            remove => this._inviteDeleted.Unregister(value);
+        }
+        private AsyncEvent<InviteDeleteEventArgs> _inviteDeleted;
+
+        /// <summary>
         /// Fired when a message is created.
         /// </summary>
         public event AsyncEventHandler<MessageCreateEventArgs> MessageCreated
@@ -450,6 +470,16 @@ namespace DSharpPlus
         private AsyncEvent<MessageReactionsClearEventArgs> _messageReactionsCleared;
 
         /// <summary>
+        /// Fired when all reactions of a specific reaction are removed from a message.
+        /// </summary>
+        public event AsyncEventHandler<MessageReactionRemoveEmojiEventArgs> MessageReactionRemovedEmoji
+        {
+            add => this._messageReactionRemovedEmoji.Register(value);
+            remove => this._messageReactionRemovedEmoji.Unregister(value);
+        }
+        private AsyncEvent<MessageReactionRemoveEmojiEventArgs> _messageReactionRemovedEmoji;
+
+        /// <summary>
         /// Fired whenever webhooks update.
         /// </summary>
         public event AsyncEventHandler<WebhooksUpdateEventArgs> WebhooksUpdated
@@ -547,6 +577,8 @@ namespace DSharpPlus
             this._guildDeleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
             this._guildUnavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
             this._guildDownloadCompleted = new AsyncEvent<GuildDownloadCompletedEventArgs>(this.EventErrorHandler, "GUILD_DOWNLOAD_COMPLETED");
+            this._inviteCreated = new AsyncEvent<InviteCreateEventArgs>(this.EventErrorHandler, "INVITE_CREATED");
+            this._inviteDeleted = new AsyncEvent<InviteDeleteEventArgs>(this.EventErrorHandler, "INVITE_DELETED");
             this._messageCreated = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
             this._presenceUpdated = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATED");
             this._guildBanAdded = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADDED");
@@ -572,6 +604,7 @@ namespace DSharpPlus
             this._messageReactionAdded = new AsyncEvent<MessageReactionAddEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_ADDED");
             this._messageReactionRemoved = new AsyncEvent<MessageReactionRemoveEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED");
             this._messageReactionsCleared = new AsyncEvent<MessageReactionsClearEventArgs>(this.EventErrorHandler, "MESSAGE_REACTIONS_CLEARED");
+            this._messageReactionRemovedEmoji = new AsyncEvent<MessageReactionRemoveEmojiEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED_EMOJI");
             this._webhooksUpdated = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
 
@@ -650,6 +683,8 @@ namespace DSharpPlus
                 client.GuildDeleted += this.Client_GuildDeleted;
                 client.GuildUnavailable += this.Client_GuildUnavailable;
                 client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
+                client.InviteCreated += this.Client_InviteCreated;
+                client.InviteDeleted += this.Client_InviteDeleted;
                 client.MessageCreated += this.Client_MessageCreated;
                 client.PresenceUpdated += this.Client_PresenceUpdate;
                 client.GuildBanAdded += this.Client_GuildBanAdd;
@@ -675,6 +710,7 @@ namespace DSharpPlus
                 client.MessageReactionAdded += this.Client_MessageReactionAdd;
                 client.MessageReactionRemoved += this.Client_MessageReactionRemove;
                 client.MessageReactionsCleared += this.Client_MessageReactionRemoveAll;
+                client.MessageReactionRemovedEmoji += this.Client_MessageReactionRemovedEmoji;
                 client.WebhooksUpdated += this.Client_WebhooksUpdate;
                 client.Heartbeated += this.Client_HeartBeated;
                 client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
@@ -787,6 +823,12 @@ namespace DSharpPlus
         private Task Client_MessageCreated(MessageCreateEventArgs e) 
             => this._messageCreated.InvokeAsync(e);
 
+        private Task Client_InviteCreated(InviteCreateEventArgs e)
+            => this._inviteCreated.InvokeAsync(e);
+
+        private Task Client_InviteDeleted(InviteDeleteEventArgs e)
+            => this._inviteDeleted.InvokeAsync(e);
+
         private Task Client_PresenceUpdate(PresenceUpdateEventArgs e) 
             => this._presenceUpdated.InvokeAsync(e);
 
@@ -858,6 +900,9 @@ namespace DSharpPlus
 
         private Task Client_MessageReactionRemoveAll(MessageReactionsClearEventArgs e) 
             => this._messageReactionsCleared.InvokeAsync(e);
+
+        private Task Client_MessageReactionRemovedEmoji(MessageReactionRemoveEmojiEventArgs e)
+            => this._messageReactionRemovedEmoji.InvokeAsync(e);
 
         private Task Client_WebhooksUpdate(WebhooksUpdateEventArgs e) 
             => this._webhooksUpdated.InvokeAsync(e);

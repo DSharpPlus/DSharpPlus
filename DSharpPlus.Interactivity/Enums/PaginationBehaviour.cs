@@ -9,36 +9,28 @@ namespace DSharpPlus.Interactivity.Enums
     public enum PaginationDeletion
     {
         /// <summary>
-        /// Defaults to DeleteEmojis
-        /// </summary>
-        Default = 0,
-        /// <summary>
         /// Deletes emojis
         /// </summary>
-        DeleteEmojis = 1,
+        DeleteEmojis = 0,
         /// <summary>
         /// Keeps emojis
         /// </summary>
-        KeepEmojis = 2,
+        KeepEmojis = 1,
         /// <summary>
         /// Deletes message
         /// </summary>
-        DeleteMessage = 3
+        DeleteMessage = 2
     }
 
     public enum PaginationBehaviour
     {
         /// <summary>
-        /// Defaults to WrapAround
-        /// </summary>
-        Default = 0,
-        /// <summary>
         /// Wraps around indices (e.g. when the index in over the max, loop back to 0)
         /// </summary>
-        WrapAround = 1,
+        WrapAround = 0,
         /// <summary>
         /// Disallows moving pas 0 and max indices
         /// </summary>
-        Ignore = 2
+        Ignore = 1
     }
 }

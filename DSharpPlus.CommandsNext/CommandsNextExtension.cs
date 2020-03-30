@@ -762,7 +762,7 @@ namespace DSharpPlus.CommandsNext
                 }
                 else
                 {
-                    mentionedUsers = Utilities.GetUserMentions(msg).Select(this.Client.InternalGetCachedUser).ToList();
+                    mentionedUsers = Utilities.GetUserMentions(msg).Select(this.Client.GetCachedOrEmptyUserInternal).ToList();
                 }
             }
 

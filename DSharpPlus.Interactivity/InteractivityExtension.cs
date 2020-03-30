@@ -103,7 +103,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">What to do when the poll ends.</param>
         /// <param name="timeout">override timeout period.</param>
         /// <returns></returns>
-        public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour behaviour = PollBehaviour.Default, TimeSpan? timeout = null)
+        public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour? behaviour = default, TimeSpan? timeout = null)
         {
             if (emojis.Count() < 1)
                 throw new ArgumentException("You need to provide at least one emoji for a poll!");
@@ -114,7 +114,7 @@ namespace DSharpPlus.Interactivity
             }
             var res = await Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis));
 
-            var pollbehaviour = behaviour == PollBehaviour.Default ? this.Config.PollBehaviour : behaviour;
+            var pollbehaviour = behaviour ?? this.Config.PollBehaviour;
             var thismember = await m.Channel.Guild.GetMemberAsync(Client.CurrentUser.Id);
 
             if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(Permissions.ManageMessages))
@@ -288,13 +288,13 @@ namespace DSharpPlus.Interactivity
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
         public async Task SendPaginatedMessageAsync(DiscordChannel c, DiscordUser u, IEnumerable<Page> pages, PaginationEmojis emojis = null,
-            PaginationBehaviour behaviour = PaginationBehaviour.Default, PaginationDeletion deletion = PaginationDeletion.Default, TimeSpan? timeoutoverride = null)
+            PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
         {
             var m = await c.SendMessageAsync(pages.First().Content, false, pages.First().Embed);
             var timeout = timeoutoverride ?? Config.Timeout;
 
-            var bhv = behaviour == PaginationBehaviour.Default ? this.Config.PaginationBehaviour : behaviour;
-            var del = deletion == PaginationDeletion.Default ? this.Config.PaginationDeletion : deletion;
+            var bhv = behaviour ?? this.Config.PaginationBehaviour;
+            var del = deletion ?? this.Config.PaginationDeletion;
             var ems = emojis ?? this.Config.PaginationEmojis;
 
             var prequest = new PaginationRequest(m, u, bhv, del, ems, timeout, pages.ToArray());

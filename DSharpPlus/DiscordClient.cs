@@ -131,8 +131,8 @@ namespace DSharpPlus
 
             InternalSetup();
 
-            this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(_guilds);
-            this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(_privateChannels);
+            this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
+            this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
         }
 
         internal void InternalSetup()
@@ -155,6 +155,8 @@ namespace DSharpPlus
             this._guildDeleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
             this._guildUnavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
             this._guildDownloadCompletedEv = new AsyncEvent<GuildDownloadCompletedEventArgs>(this.EventErrorHandler, "GUILD_DOWNLOAD_COMPLETED");
+            this._inviteCreated = new AsyncEvent<InviteCreateEventArgs>(this.EventErrorHandler, "INVITE_CREATED");
+            this._inviteDeleted = new AsyncEvent<InviteDeleteEventArgs>(this.EventErrorHandler, "INVITE_DELETED");
             this._messageCreated = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
             this._presenceUpdated = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATED");
             this._guildBanAdded = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADD");
@@ -181,6 +183,7 @@ namespace DSharpPlus
             this._messageReactionAdded = new AsyncEvent<MessageReactionAddEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_ADDED");
             this._messageReactionRemoved = new AsyncEvent<MessageReactionRemoveEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED");
             this._messageReactionsCleared = new AsyncEvent<MessageReactionsClearEventArgs>(this.EventErrorHandler, "MESSAGE_REACTIONS_CLEARED");
+            this._messageReactionRemovedEmoji = new AsyncEvent<MessageReactionRemoveEmojiEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED_EMOJI");
             this._webhooksUpdated = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
 
@@ -188,8 +191,8 @@ namespace DSharpPlus
 
             this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
 
-            if (Configuration.UseInternalLogHandler)
-                DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
+            if (this.Configuration.UseInternalLogHandler)
+                this.DebugLogger.LogMessageReceived += (sender, e) => this.DebugLogger.LogHandler(sender, e);
         }
 
         /// <summary>
@@ -200,7 +203,7 @@ namespace DSharpPlus
         public void AddExtension(BaseExtension ext)
         {
             ext.Setup(this);
-            _extensions.Add(ext);
+            this._extensions.Add(ext);
         }
 
         /// <summary>
@@ -209,7 +212,7 @@ namespace DSharpPlus
         /// <typeparam name="T">Type of extension to retrieve.</typeparam>
         /// <returns>The requested extension.</returns>
         public T GetExtension<T>() where T : BaseExtension
-            => _extensions.FirstOrDefault(x => x.GetType() == typeof(T)) as T;
+            => this._extensions.FirstOrDefault(x => x.GetType() == typeof(T)) as T;
 
         /// <summary>
         /// Connects to the gateway
@@ -302,13 +305,13 @@ namespace DSharpPlus
         public Task ReconnectAsync(bool startNewSession = false)
         {
             if (startNewSession)
-                _sessionId = "";
+                this._sessionId = "";
 
-            return _webSocketClient.DisconnectAsync();
+            return this._webSocketClient.DisconnectAsync();
         }
 
         internal Task InternalReconnectAsync()
-            => ConnectAsync();
+            => this.ConnectAsync();
 
         internal async Task InternalConnectAsync()
         {
@@ -360,7 +363,7 @@ namespace DSharpPlus
                 : null;
 
             this._cancelTokenSource = new CancellationTokenSource();
-            this._cancelToken = _cancelTokenSource.Token;
+            this._cancelToken = this._cancelTokenSource.Token;
 
             this._webSocketClient.Connected += SocketOnConnect;
             this._webSocketClient.Disconnected += SocketOnDisconnect;
@@ -424,9 +427,9 @@ namespace DSharpPlus
                 this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed. ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}')", DateTime.Now);
                 await this._socketClosed.InvokeAsync(new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
 
-                if (Configuration.AutoReconnect)
+                if (this.Configuration.AutoReconnect)
                 {
-                    DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting.", DateTime.Now);
+                    this.DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting.", DateTime.Now);
 
                     if (this._status == null)
                         await this.ConnectAsync().ConfigureAwait(false);
@@ -445,9 +448,9 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task DisconnectAsync()
         {
-            Configuration.AutoReconnect = false;
+            this.Configuration.AutoReconnect = false;
             if (this._webSocketClient != null)
-                await _webSocketClient.DisconnectAsync().ConfigureAwait(false);
+                await this._webSocketClient.DisconnectAsync().ConfigureAwait(false);
         }
 
         #region Public Functions
@@ -458,8 +461,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordUser> GetUserAsync(ulong userId)
         {
-            var usr = this.InternalGetCachedUser(userId);
-            if (usr != null)
+            if (this.TryGetCachedUserInternal(userId, out var usr))
                 return usr;
 
             usr = await this.ApiClient.GetUserAsync(userId).ConfigureAwait(false);
@@ -524,13 +526,21 @@ namespace DSharpPlus
         {
             if (this._guilds.TryGetValue(id, out var guild))
                 return guild;
-
+            
             guild = await this.ApiClient.GetGuildAsync(id).ConfigureAwait(false);
             var channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id).ConfigureAwait(false);
             foreach (var channel in channels) guild._channels[channel.Id] = channel;
 
             return guild;
         }
+
+        /// <summary>
+        /// Gets a guild preview
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong id) 
+            => this.ApiClient.GetGuildPreviewAsync(id);
 
         /// <summary>
         /// Gets an invite.
@@ -630,7 +640,7 @@ namespace DSharpPlus
                     break;
 
                 default:
-                    DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown OP-Code: {((int)payload.OpCode).ToString(CultureInfo.InvariantCulture)}\n{payload.Data}", DateTime.Now);
+                    this.DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown OP-Code: {((int)payload.OpCode).ToString(CultureInfo.InvariantCulture)}\n{payload.Data}", DateTime.Now);
                     break;
             }
         }
@@ -763,6 +773,18 @@ namespace DSharpPlus
                     await OnGuildRoleDeleteEventAsync((ulong)dat["role_id"], this._guilds[gid]).ConfigureAwait(false);
                     break;
 
+                case "invite_create":
+                    gid = (ulong)dat["guild_id"];
+                    cid = (ulong)dat["channel_id"];
+                    await OnInviteCreateEventAsync(cid, gid, dat.ToObject<DiscordInvite>()).ConfigureAwait(false);
+                    break;
+
+                case "invite_delete":
+                    gid = (ulong)dat["guild_id"];
+                    cid = (ulong)dat["channel_id"];
+                    await OnInviteDeleteEventAsync(cid, gid, dat).ConfigureAwait(false);
+                    break;
+
                 case "message_ack":
                     cid = (ulong)dat["channel_id"];
                     var mid = (ulong)dat["message_id"];
@@ -824,6 +846,10 @@ namespace DSharpPlus
                     await OnMessageReactionRemoveAllAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
                     break;
 
+                case "message_reaction_remove_emoji":
+                    await OnMessageReactionRemoveEmojiAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong)dat["guild_id"], dat["emoji"]).ConfigureAwait(false);
+                    break;
+
                 case "webhooks_update":
                     gid = (ulong)dat["guild_id"];
                     cid = (ulong)dat["channel_id"];
@@ -832,7 +858,7 @@ namespace DSharpPlus
 
                 default:
                     await OnUnknownEventAsync(payload).ConfigureAwait(false);
-                    DebugLogger.LogMessage(LogLevel.Warning, "Websocket:Dispatch", $"Unknown event: {payload.EventName}\n{payload.Data}", DateTime.Now);
+                    this.DebugLogger.LogMessage(LogLevel.Warning, "Websocket:Dispatch", $"Unknown event: {payload.EventName}\n{payload.Data}", DateTime.Now);
                     break;
             }
         }
@@ -972,10 +998,10 @@ namespace DSharpPlus
                 var dmChannel = channel as DiscordDmChannel;
 
                 var recips = rawRecipients.ToObject<IEnumerable<TransportUser>>()
-                    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this });
+                    .Select(xtu => this.TryGetCachedUserInternal(xtu.Id, out var usr) ? usr : new DiscordUser(xtu) { Discord = this });
                 dmChannel._recipients = recips.ToList();
 
-                _privateChannels[dmChannel.Id] = dmChannel;
+                this._privateChannels[dmChannel.Id] = dmChannel;
 
                 await this._dmChannelCreated.InvokeAsync(new DmChannelCreateEventArgs(this) { Channel = dmChannel }).ConfigureAwait(false);
             }
@@ -988,7 +1014,7 @@ namespace DSharpPlus
                     xo._channel_id = channel.Id;
                 }
 
-                _guilds[channel.GuildId]._channels[channel.Id] = channel;
+                this._guilds[channel.GuildId]._channels[channel.Id] = channel;
 
                 await this._channelCreated.InvokeAsync(new ChannelCreateEventArgs(this) { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
             }
@@ -1212,12 +1238,21 @@ namespace DSharpPlus
                     IsUnavailable = gld.IsUnavailable,
                     JoinedAt = gld.JoinedAt,
                     MemberCount = gld.MemberCount,
+                    MaxMembers = gld.MaxMembers,
+                    MaxPresences = gld.MaxPresences,
+                    DiscoverySplashHash = gld.DiscoverySplashHash,
+                    PreferredLocale = gld.PreferredLocale,
                     MfaLevel = gld.MfaLevel,
                     OwnerId = gld.OwnerId,
                     SplashHash = gld.SplashHash,
                     SystemChannelId = gld.SystemChannelId,
+                    SystemChannelFlags = gld.SystemChannelFlags,
+                    WidgetEnabled = gld.WidgetEnabled,
+                    WidgetChannelId = gld.WidgetChannelId,
                     VerificationLevel = gld.VerificationLevel,
-                    VoiceRegionId = gld.VoiceRegionId,
+                    RulesChannelId = gld.RulesChannelId,
+                    PublicUpdatesChannelId = gld.PublicUpdatesChannelId,
+                    VoiceRegionId = gld.VoiceRegionId,   
                     _channels = new ConcurrentDictionary<ulong, DiscordChannel>(),
                     _emojis = new ConcurrentDictionary<ulong, DiscordEmoji>(),
                     _members = new ConcurrentDictionary<ulong, DiscordMember>(),
@@ -1584,7 +1619,7 @@ namespace DSharpPlus
         internal async Task OnGuildRoleDeleteEventAsync(ulong roleId, DiscordGuild guild)
         {
             if (!guild._roles.TryRemove(roleId, out var role))
-                throw new InvalidOperationException("Attempted to delete a nonexistent role");
+                throw new InvalidOperationException("Attempted to delete a nonexistent role.");
 
             var ea = new GuildRoleDeleteEventArgs(this)
             {
@@ -1592,6 +1627,47 @@ namespace DSharpPlus
                 Role = role
             };
             await this._guildRoleDeleted.InvokeAsync(ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnInviteCreateEventAsync(ulong channelId, ulong guildId, DiscordInvite invite)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var channel = this.InternalGetCachedChannel(channelId);
+
+            invite.Discord = this;            
+
+            guild._invites[invite.Code] = invite;
+
+            var ea = new InviteCreateEventArgs(this)
+            {
+                Client = this,
+                Channel = channel,
+                Guild = guild,
+                Invite = invite
+            };
+            await this._inviteCreated.InvokeAsync(ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnInviteDeleteEventAsync(ulong channelId, ulong guildId, JToken dat)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var channel = this.InternalGetCachedChannel(channelId);
+
+            if (!guild._invites.TryRemove(dat["code"].ToString(), out var invite))
+            {
+                invite = dat.ToObject<DiscordInvite>();
+                invite.IsRevoked = true;
+                invite.Discord = this;
+            }
+
+            var ea = new InviteDeleteEventArgs(this)
+            {
+                Client = this,
+                Channel = channel,
+                Guild = guild,
+                Invite = invite
+            };
+            await this._inviteDeleted.InvokeAsync(ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong messageId)
@@ -1613,7 +1689,7 @@ namespace DSharpPlus
             message.Discord = this;
 
             if (message.Channel == null)
-                DebugLogger.LogMessage(LogLevel.Warning, "Event", "Could not find channel last message belonged to.", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Warning, "Event", "Could not find channel last message belonged to.", DateTime.Now);
             else
                 message.Channel.LastMessageId = message.Id;
 
@@ -1647,13 +1723,13 @@ namespace DSharpPlus
             {
                 if (guild != null)
                 {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
+                    mentionedUsers = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : new DiscordUser { Id = xid, Discord = this }).Cast<DiscordUser>().ToList();
                     mentionedRoles = Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid)).ToList();
                     mentionedChannels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
                 }
                 else
                 {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.InternalGetCachedUser).ToList();
+                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
                 }
             }
 
@@ -1749,7 +1825,7 @@ namespace DSharpPlus
                 }
                 else
                 {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(this.InternalGetCachedUser).ToList();
+                    mentioned_users = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
                 }
             }
 
@@ -2108,6 +2184,43 @@ namespace DSharpPlus
             await this._messageReactionsCleared.InvokeAsync(ea).ConfigureAwait(false);
         }
 
+        internal async Task OnMessageReactionRemoveEmojiAsync(ulong messageId, ulong channelId, ulong guildId, JToken dat)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var channel = this.InternalGetCachedChannel(channelId);
+
+            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
+                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+            {
+                msg = new DiscordMessage
+                {
+                    Id = messageId,
+                    ChannelId = channelId,
+                    Discord = this
+                };
+            }
+
+            var partialEmoji = dat.ToObject<DiscordEmoji>();
+
+            if (!guild._emojis.TryGetValue(partialEmoji.Id, out var emoji))
+            {
+                emoji = partialEmoji;
+                emoji.Discord = this;
+            }
+
+            msg._reactions?.RemoveAll(r => r.Emoji.Equals(emoji));
+
+            var ea = new MessageReactionRemoveEmojiEventArgs(this)
+            {
+                Channel = channel,
+                Guild = guild,
+                Message = msg,
+                Emoji = emoji
+            };
+
+            await this._messageReactionRemovedEmoji.InvokeAsync(ea).ConfigureAwait(false);
+        }
+
         internal async Task OnWebhooksUpdateAsync(DiscordChannel channel, DiscordGuild guild)
         {
             var ea = new WebhooksUpdateEventArgs(this)
@@ -2435,12 +2548,23 @@ namespace DSharpPlus
             guild.VoiceRegionId = newGuild.VoiceRegionId;
             guild.SplashHash = newGuild.SplashHash;
             guild.VerificationLevel = newGuild.VerificationLevel;
+            guild.WidgetEnabled = newGuild.WidgetEnabled;
+            guild.WidgetChannelId = newGuild.WidgetChannelId;
             guild.ExplicitContentFilter = newGuild.ExplicitContentFilter;
             guild.PremiumTier = newGuild.PremiumTier;
             guild.PremiumSubscriptionCount = newGuild.PremiumSubscriptionCount;
             guild.Banner = newGuild.Banner;
             guild.Description = newGuild.Description;
             guild.VanityUrlCode = newGuild.VanityUrlCode;
+            guild.Banner = newGuild.Banner;
+            guild.SystemChannelId = newGuild.SystemChannelId;
+            guild.SystemChannelFlags = newGuild.SystemChannelFlags;
+            guild.DiscoverySplashHash = newGuild.DiscoverySplashHash;
+            guild.MaxMembers = newGuild.MaxMembers;
+            guild.MaxPresences = newGuild.MaxPresences;
+            guild.PreferredLocale = newGuild.PreferredLocale;
+            guild.RulesChannelId = newGuild.RulesChannelId;
+            guild.PublicUpdatesChannelId = newGuild.PublicUpdatesChannelId;
 
             // fields not sent for update:
             // - guild.Channels
@@ -2467,7 +2591,7 @@ namespace DSharpPlus
             var jo = JObject.Parse(response.Response);
             this._gatewayUri = new Uri(jo.Value<string>("url"));
             if (jo["shards"] != null)
-                _shardCount = jo.Value<int>("shards");
+                this._shardCount = jo.Value<int>("shards");
         }
 
         private SocketLock GetSocketLock()
@@ -2475,7 +2599,7 @@ namespace DSharpPlus
 
         ~DiscordClient()
         {
-            Dispose();
+            this.Dispose();
         }
 
         private bool _disposed;
@@ -2695,6 +2819,25 @@ namespace DSharpPlus
         }
         private AsyncEvent<GuildDownloadCompletedEventArgs> _guildDownloadCompletedEv;
 
+        /// <summary>
+        /// Fired when an invite is created.
+        /// </summary>
+        public event AsyncEventHandler<InviteCreateEventArgs> InviteCreated
+        {
+            add => this._inviteCreated.Register(value);
+            remove => this._inviteCreated.Unregister(value);
+        }
+        private AsyncEvent<InviteCreateEventArgs> _inviteCreated;
+
+        /// <summary>
+        /// Fired when an invite is deleted.
+        /// </summary>
+        public event AsyncEventHandler<InviteDeleteEventArgs> InviteDeleted
+        {
+            add => this._inviteDeleted.Register(value);
+            remove => this._inviteDeleted.Unregister(value);
+        }
+        private AsyncEvent<InviteDeleteEventArgs> _inviteDeleted;
         /// <summary>
         /// Fired when a message is created.
         /// </summary>
@@ -2957,6 +3100,16 @@ namespace DSharpPlus
             remove => this._messageReactionsCleared.Unregister(value);
         }
         private AsyncEvent<MessageReactionsClearEventArgs> _messageReactionsCleared;
+
+        /// <summary>
+        /// Fired when all reactions of a specific reaction are removed from a message.
+        /// </summary>
+        public event AsyncEventHandler<MessageReactionRemoveEmojiEventArgs> MessageReactionRemovedEmoji
+        {
+            add => this._messageReactionRemovedEmoji.Register(value);
+            remove => this._messageReactionRemovedEmoji.Unregister(value);
+        }
+        private AsyncEvent<MessageReactionRemoveEmojiEventArgs> _messageReactionRemovedEmoji;
 
         /// <summary>
         /// Fired whenever webhooks update.
