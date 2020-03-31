@@ -52,6 +52,9 @@ namespace DSharpPlus.Entities
         public IReadOnlyDictionary<string, Stream> Files { get; }
         private readonly Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
 
+        /// <summary>
+        /// Mentions to send on this webhook request.
+        /// </summary>
         public IEnumerable<IMention> Mentions { get; }
         private readonly List<IMention> _mentions = new List<IMention>();
 
@@ -146,6 +149,26 @@ namespace DSharpPlus.Entities
             {
                 this._files[file.Key] = file.Value;
             }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the mention to the mentions to parse, etc. at the execution of the webhook.
+        /// </summary>
+        /// <param name="mention">Mention to add.</param>
+        public DiscordWebhookBuilder AddMention(IMention mention)
+        {
+            this._mentions.Add(mention);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the mentions to the mentions to parse, etc. at the execution of the webhook.
+        /// </summary>
+        /// <param name="mentions">Mentions to add.</param>
+        public DiscordWebhookBuilder AddMentions(IEnumerable<IMention> mentions)
+        {
+            this._mentions.AddRange(mentions);
             return this;
         }
     }
