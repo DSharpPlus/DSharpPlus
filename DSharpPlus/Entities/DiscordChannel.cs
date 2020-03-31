@@ -174,13 +174,14 @@ namespace DSharpPlus.Entities
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null)
+        public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
             
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, tts, embed);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, tts, embed, mentions);
         }
 
         /// <summary>
@@ -191,13 +192,14 @@ namespace DSharpPlus.Entities
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel.");
 
-            return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed);
+            return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed, mentions);
         }
 
         /// <summary>
@@ -207,14 +209,15 @@ namespace DSharpPlus.Entities
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel.");
             
             return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, Path.GetFileName(fileData.Name), content,
-                tts, embed);
+                tts, embed, mentions);
         }
 
         /// <summary>
@@ -224,14 +227,15 @@ namespace DSharpPlus.Entities
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel.");
 
             using (var fs = File.OpenRead(filePath))
-                return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
+                return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed, mentions).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -241,8 +245,9 @@ namespace DSharpPlus.Entities
         /// <param name="content">Content of the message to send.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null)
+        public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a file to a non-text channel.");
@@ -250,7 +255,7 @@ namespace DSharpPlus.Entities
             if (files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            return this.Discord.ApiClient.UploadFilesAsync(this.Id, files, content, tts, embed);
+            return this.Discord.ApiClient.UploadFilesAsync(this.Id, files, content, tts, embed, mentions);
         }
 
         // Please send memes to Naamloos#2887 at discord <3 thank you

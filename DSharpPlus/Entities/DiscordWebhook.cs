@@ -93,9 +93,10 @@ namespace DSharpPlus.Entities
         /// <param name="embeds">Embeds to attach to the message being sent.</param>
         /// <param name="file_name">Name of the file to attach to the message being sent.</param>
         /// <param name="file_data">Content of the file to attach to the message being sent.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null, string file_name = null, Stream file_data = null) 
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds, file_name, file_data);
+        public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null, string file_name = null, Stream file_data = null, IEnumerable<IMention> mentions = null) 
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds, file_name, file_data, mentions);
 
         /// <summary>
         /// Executes this webhook.
@@ -106,9 +107,10 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be spoken aloud.</param>
         /// <param name="embeds">Embeds to attach to the message being sent.</param>
         /// <param name="files">Files to attach to the message being sent.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null, Dictionary<string, Stream> files = null)
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds, files);
+        public Task ExecuteAsync(string content = null, string username = null, string avatar_url = null, bool tts = false, IEnumerable<DiscordEmbed> embeds = null, Dictionary<string, Stream> files = null, IEnumerable<IMention> mentions = null)
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(Id, Token, content, username, avatar_url, tts, embeds, files, mentions);
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.

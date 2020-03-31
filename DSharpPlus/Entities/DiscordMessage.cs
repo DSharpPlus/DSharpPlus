@@ -374,9 +374,10 @@ namespace DSharpPlus.Entities
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondAsync(string content = null, bool tts = false, DiscordEmbed embed = null) 
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed);
+        public Task<DiscordMessage> RespondAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null) 
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed, mentions);
 
         /// <summary>
         /// Responds to the message with a file.
@@ -386,9 +387,10 @@ namespace DSharpPlus.Entities
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
-            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
+            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed, mentions);
 
         /// <summary>
         /// Responds to the message with a file.
@@ -397,9 +399,10 @@ namespace DSharpPlus.Entities
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null)
-            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed);
+        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
+            => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed, mentions);
 
         /// <summary>
         /// Responds to the message with a file.
@@ -408,11 +411,12 @@ namespace DSharpPlus.Entities
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public async Task<DiscordMessage> RespondWithFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public async Task<DiscordMessage> RespondWithFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             using (var fs = File.OpenRead(filePath))
-                return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed).ConfigureAwait(false);
+                return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed, mentions).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -422,13 +426,14 @@ namespace DSharpPlus.Entities
         /// <param name="content">Message content to respond with.</param>
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
-        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null)
+        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            return this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, files, content, tts, embed);
+            return this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, files, content, tts, embed, mentions);
         }
 
         /// <summary>

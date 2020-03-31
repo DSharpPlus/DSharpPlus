@@ -33,15 +33,30 @@ namespace DSharpPlus.Test
             await ctx.CommandsNext.ExecuteCommandAsync(fctx).ConfigureAwait(false);
 		}
 
-		[Group("bind"), Description("Various argument binder testing commands.")]
-		public class Binding : BaseCommandModule
-		{
-			[Command("message"), Aliases("msg"), Description("Attempts to bind a message.")]
+        [Group("bind"), Description("Various argument binder testing commands.")]
+        public class Binding : BaseCommandModule
+        {
+            [Command("message"), Aliases("msg"), Description("Attempts to bind a message.")]
             public Task MessageAsync(CommandContext ctx, DiscordMessage msg)
                 => ctx.RespondAsync(embed: new DiscordEmbedBuilder()
                     .WithTimestamp(msg.CreationTimestamp)
                     .WithAuthor($"{msg.Author.Username}#{msg.Author.Discriminator}", msg.Author.AvatarUrl)
                     .WithDescription(msg.Content));
 		}
-	}
+
+
+        [Command("mention"), Description("Attempts to mention a user")]
+        public async Task MentionablesAsync(CommandContext ctx, DiscordUser user)
+        {
+            string content = $"Hey, {user.Mention}! Listen!";
+            await ctx.Channel.SendMessageAsync("Default Behaviour: " + content);
+            await ctx.Channel.SendMessageAsync("Empty Mention Array: " + content, mentions: new IMention[0]);
+            await ctx.Channel.SendMessageAsync("UserMention(user): " + content, mentions: new IMention[] { new UserMention(user) });
+            await ctx.Channel.SendMessageAsync("UserMention(SomeoneElse): " + content, mentions: new IMention[] { new UserMention(545836271960850454L) });
+            await ctx.Channel.SendMessageAsync("UserMention(): " + content, mentions: new IMention[] { new UserMention() });
+            await ctx.Channel.SendMessageAsync("Everyone(): " + content, mentions: new IMention[] { new EveryoneMention() });
+            await ctx.Channel.SendMessageAsync("User Mention Everyone & Self: " + content, mentions: new IMention[] { new UserMention(), new UserMention(user) });
+            await ctx.Channel.SendMessageAsync("UserMention.All: " + content, mentions: new IMention[] { UserMention.All });
+        }
+    }
 }

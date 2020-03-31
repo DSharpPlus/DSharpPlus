@@ -364,9 +364,10 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed)
-            => ApiClient.CreateMessageAsync(channel_id, content, tts, embed);
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+            => ApiClient.CreateMessageAsync(channel_id, content, tts, embed, mentions);
 
         /// <summary>
         /// Uploads a file
@@ -377,9 +378,10 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed)
-            => ApiClient.UploadFileAsync(channel_id, file_data, file_name, content, tts, embed);
+        public Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+            => ApiClient.UploadFileAsync(channel_id, file_data, file_name, content, tts, embed, mentions);
 
         /// <summary>
         /// Uploads multiple files
@@ -389,9 +391,10 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed)
-            => ApiClient.UploadFilesAsync(channel_id, files, content, tts, embed);
+        public Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+            => ApiClient.UploadFilesAsync(channel_id, files, content, tts, embed, mentions);
 
         /// <summary>
         /// Gets channels from a guild
@@ -1078,9 +1081,10 @@ namespace DSharpPlus
         /// <param name="embeds">Embeds to attach to this webhook</param>
         /// <param name="file_name">Name of the file to attach to this webhook</param>
         /// <param name="file_data">Stream data of the file to attach to this webhook</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data)
-            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, file_name, file_data);
+        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data, IEnumerable<IMention> mentions = null)
+            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, file_name, file_data, mentions);
 
         /// <summary>
         /// Sends a message to a webhook
@@ -1093,9 +1097,10 @@ namespace DSharpPlus
         /// <param name="tts">Whether this message should be text-to-speech</param>
         /// <param name="embeds">Embeds to attach to this webhook</param>
         /// <param name="files">Files to attach to this webhook</param>
+        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
-            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, files);
+        public Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files, IEnumerable<IMention> mentions = null)
+            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, files, mentions);
         #endregion
 
         #region Reactions
