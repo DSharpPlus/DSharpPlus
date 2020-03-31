@@ -1077,7 +1077,7 @@ namespace DSharpPlus
         /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <returns></returns>
         public Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder)
-            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, builder.Content, builder.Username, builder.AvatarUrl, builder.IsTTS, builder.Embeds, builder.Files);
+            => ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, builder.Content, builder.Username, builder.AvatarUrl, builder.IsTTS, builder.Embeds, builder.Files, builder.Mentions);
         #endregion
 
         #region Reactions

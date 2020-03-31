@@ -52,6 +52,9 @@ namespace DSharpPlus.Entities
         public IReadOnlyDictionary<string, Stream> Files { get; }
         private readonly Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
 
+        public IEnumerable<IMention> Mentions { get; }
+        private readonly List<IMention> _mentions = new List<IMention>();
+
         /// <summary>
         /// Constructs a new empty webhook request builder.
         /// </summary>
@@ -59,6 +62,7 @@ namespace DSharpPlus.Entities
         {
             this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
             this.Files = new ReadOnlyDictionary<string, Stream>(this._files);
+            this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
         }
 
         /// <summary>
