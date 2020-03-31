@@ -29,6 +29,17 @@ namespace DSharpPlus.Lavalink
         private AsyncEvent<PlayerUpdateEventArgs> _playerUpdated;
 
         /// <summary>
+        /// Triggered whenever playback of a track starts.
+        /// <para>This is only available for version 3.3.1 and greater.</para>
+        /// </summary>
+        public event AsyncEventHandler<TrackStartEventArgs> PlaybackStarted
+        {
+            add { this._playbackStarted.Register(value); }
+            remove { this._playbackStarted.Unregister(value); }
+        }
+        private AsyncEvent<TrackStartEventArgs> _playbackStarted;
+
+        /// <summary>
         /// Triggered whenever playback of a track finishes.
         /// </summary>
         public event AsyncEventHandler<TrackFinishEventArgs> PlaybackFinished
@@ -104,6 +115,7 @@ namespace DSharpPlus.Lavalink
             Volatile.Write(ref this._isDisposed, false);
 
             this._playerUpdated = new AsyncEvent<PlayerUpdateEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_PLAYER_UPDATE");
+            this._playbackStarted = new AsyncEvent<TrackStartEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_PLAYBACK_STARTED");
             this._playbackFinished = new AsyncEvent<TrackFinishEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_PLAYBACK_FINISHED");
             this._trackStuck = new AsyncEvent<TrackStuckEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_TRACK_STUCK");
             this._trackException = new AsyncEvent<TrackExceptionEventArgs>(this.Node.Discord.EventErrorHandler, "LAVALINK_TRACK_EXCEPTION");
@@ -271,6 +283,12 @@ namespace DSharpPlus.Lavalink
             this.CurrentState.PlaybackPosition = newState.Position;
 
             return this._playerUpdated.InvokeAsync(new PlayerUpdateEventArgs(this, newState.Time, newState.Position));
+        }
+
+        internal Task InternalPlaybackStartedAsync(string track)
+        {
+            var ea = new TrackStartEventArgs(this, LavalinkUtilities.DecodeTrack(track));
+            return this._playbackStarted.InvokeAsync(ea);
         }
 
         internal Task InternalPlaybackFinishedAsync(TrackFinishData e)

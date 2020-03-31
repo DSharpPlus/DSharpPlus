@@ -64,6 +64,17 @@ namespace DSharpPlus.Lavalink
         private AsyncEvent<PlayerUpdateEventArgs> _playerUpdated;
 
         /// <summary>
+        /// Triggered whenever playback of a track starts.
+        /// <para>This is only available for version 3.3.1 and greater.</para>
+        /// </summary>
+        public event AsyncEventHandler<TrackStartEventArgs> PlaybackStarted
+        {
+            add { this._playbackStarted.Register(value); }
+            remove { this._playbackStarted.Unregister(value); }
+        }
+        private AsyncEvent<TrackStartEventArgs> _playbackStarted;
+
+        /// <summary>
         /// Triggered whenever playback of a track finishes.
         /// </summary>
         public event AsyncEventHandler<TrackFinishEventArgs> PlaybackFinished
@@ -134,6 +145,7 @@ namespace DSharpPlus.Lavalink
             this._disconnected = new AsyncEvent<NodeDisconnectedEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_NODE_DISCONNECTED");
             this._statsReceived = new AsyncEvent<StatisticsReceivedEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_STATS_RECEIVED");
             this._playerUpdated = new AsyncEvent<PlayerUpdateEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_PLAYER_UPDATED");
+            this._playbackStarted = new AsyncEvent<TrackStartEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_PLAYBACK_STARTED");
             this._playbackFinished = new AsyncEvent<TrackFinishEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_PLAYBACK_FINISHED");
             this._trackStuck = new AsyncEvent<TrackStuckEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_TRACK_STUCK");
             this._trackException = new AsyncEvent<TrackExceptionEventArgs>(this.Discord.EventErrorHandler, "LAVALINK_TRACK_EXCEPTION");
@@ -235,6 +247,7 @@ namespace DSharpPlus.Lavalink
             var con = new LavalinkGuildConnection(this, channel, vstu);
             con.ChannelDisconnected += this.Con_ChannelDisconnected;
             con.PlayerUpdated += e => this._playerUpdated.InvokeAsync(e);
+            con.PlaybackStarted += e => this._playbackStarted.InvokeAsync(e);
             con.PlaybackFinished += e => this._playbackFinished.InvokeAsync(e);
             con.TrackStuck += e => this._trackStuck.InvokeAsync(e);
             this.ConnectedGuilds[channel.Guild.Id] = con;
@@ -283,6 +296,12 @@ namespace DSharpPlus.Lavalink
                     var evtype = jsonData["type"].ToObject<EventType>();
                     switch (evtype)
                     {
+                        case EventType.TrackStartEvent:
+                            guildId = (ulong)jsonData["guildId"];
+                            if (this.ConnectedGuilds.TryGetValue(guildId, out var lvl_evtst))
+                                await lvl_evtst.InternalPlaybackStartedAsync(jsonData["track"].ToString()).ConfigureAwait(false);
+                            break;
+
                         case EventType.TrackEndEvent:
                             guildId = (ulong)jsonData["guildId"];
                             TrackEndReason reason = TrackEndReason.Cleanup;
