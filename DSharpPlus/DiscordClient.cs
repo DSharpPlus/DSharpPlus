@@ -35,8 +35,8 @@ namespace DSharpPlus
 
         internal IWebSocketClient _webSocketClient;
         internal PayloadDecompressor _payloadDecompressor;
-        internal string _sessionToken = "";
-        internal string _sessionId = "";
+        internal string _sessionToken = null;
+        internal string _sessionId = null;
         internal int _heartbeatInterval;
         internal Task _heartbeatTask;
         internal DateTimeOffset _lastHeartbeat;
@@ -129,7 +129,7 @@ namespace DSharpPlus
             if (this.Configuration.MessageCacheSize > 0)
                 this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize);
 
-            InternalSetup();
+            this.InternalSetup();
 
             this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
             this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
@@ -305,9 +305,10 @@ namespace DSharpPlus
         public Task ReconnectAsync(bool startNewSession = false)
         {
             if (startNewSession)
-                this._sessionId = "";
+                this._sessionId = null;
 
-            return this._webSocketClient.DisconnectAsync();
+            _ = this._webSocketClient.DisconnectAsync();
+            return Task.CompletedTask;
         }
 
         internal Task InternalReconnectAsync()
@@ -619,27 +620,27 @@ namespace DSharpPlus
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch:
-                    await HandleDispatchAsync(payload).ConfigureAwait(false);
+                    await this.HandleDispatchAsync(payload).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.Heartbeat:
-                    await OnHeartbeatAsync((long)payload.Data).ConfigureAwait(false);
+                    await this.OnHeartbeatAsync((long)payload.Data).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.Reconnect:
-                    await OnReconnectAsync().ConfigureAwait(false);
+                    await this.OnReconnectAsync().ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.InvalidSession:
-                    await OnInvalidateSessionAsync((bool)payload.Data).ConfigureAwait(false);
+                    await this.OnInvalidateSessionAsync((bool)payload.Data).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.Hello:
-                    await OnHelloAsync((payload.Data as JObject).ToObject<GatewayHello>()).ConfigureAwait(false);
+                    await this.OnHelloAsync((payload.Data as JObject).ToObject<GatewayHello>()).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.HeartbeatAck:
-                    await OnHeartbeatAckAsync().ConfigureAwait(false);
+                    await this.OnHeartbeatAckAsync().ConfigureAwait(false);
                     break;
 
                 default:
@@ -2244,8 +2245,7 @@ namespace DSharpPlus
         internal async Task OnReconnectAsync()
         {
             this.DebugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect.", DateTime.Now);
-
-            await ReconnectAsync().ConfigureAwait(false);
+            await this.ReconnectAsync().ConfigureAwait(false);
         }
 
         internal async Task OnInvalidateSessionAsync(bool data)
@@ -2268,7 +2268,7 @@ namespace DSharpPlus
             else
             {
                 this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session.", DateTime.Now);
-                this._sessionId = "";
+                this._sessionId = null;
                 await SendIdentifyAsync(this._status).ConfigureAwait(false);
             }
         }
@@ -2290,10 +2290,9 @@ namespace DSharpPlus
 
             Interlocked.CompareExchange(ref this._skippedHeartbeats, 0, 0);
             this._heartbeatInterval = hello.HeartbeatInterval;
-            this._heartbeatTask = new Task(StartHeartbeating, _cancelToken, TaskCreationOptions.LongRunning);
-            this._heartbeatTask.Start();
+            this._heartbeatTask = Task.Run(this.HeartbeatLoopAsync, this._cancelToken);
 
-            if (this._sessionId == "")
+            if (string.IsNullOrEmpty(this._sessionId))
                 await SendIdentifyAsync(_status).ConfigureAwait(false);
             else
                 await SendResumeAsync().ConfigureAwait(false);
@@ -2319,7 +2318,7 @@ namespace DSharpPlus
         }
 
         //internal async Task StartHeartbeatingAsync()
-        internal void StartHeartbeating()
+        internal async Task HeartbeatLoopAsync()
         {
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat.", DateTime.Now);
             var token = this._cancelToken;
@@ -2327,8 +2326,8 @@ namespace DSharpPlus
             {
                 while (true)
                 {
-                    SendHeartbeatAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    Task.Delay(_heartbeatInterval, _cancelToken).ConfigureAwait(false).GetAwaiter().GetResult();
+                    await this.SendHeartbeatAsync().ConfigureAwait(false);
+                    await Task.Delay(this._heartbeatInterval, this._cancelToken).ConfigureAwait(false);
                     token.ThrowIfCancellationRequested();
                 }
             }
@@ -2395,7 +2394,7 @@ namespace DSharpPlus
             if (guilds_comp && more_than_5)
             {
                 this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", "More than 5 heartbeats were skipped. Issuing reconnect.", DateTime.Now);
-                await ReconnectAsync().ConfigureAwait(false);
+                await this.ReconnectAsync().ConfigureAwait(false);
                 return;
             }
             else if (!guilds_comp && more_than_5)
@@ -2404,7 +2403,6 @@ namespace DSharpPlus
             }
 
             Volatile.Write(ref this._lastSequence, seq);
-            var _last_heartbeat = DateTimeOffset.Now;
             this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat.", DateTime.Now);
             var heartbeat = new GatewayPayload
             {
