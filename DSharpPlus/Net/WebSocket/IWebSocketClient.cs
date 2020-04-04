@@ -39,7 +39,7 @@ namespace DSharpPlus.Net.WebSocket
         /// Disconnects the WebSocket connection.
         /// </summary>
         /// <returns></returns>
-        Task DisconnectAsync();
+        Task DisconnectAsync(int code = 1000, string message = "");
 
         /// <summary>
         /// Send a message to the WebSocket server.

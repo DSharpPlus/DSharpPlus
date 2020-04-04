@@ -303,16 +303,16 @@ namespace DSharpPlus
         }
 
         public Task ReconnectAsync(bool startNewSession = false)
+            => this.InternalReconnectAsync(startNewSession, code: startNewSession ? 1000 : 4002);
+
+        private Task InternalReconnectAsync(bool startNewSession = false, int code = 1000, string message = "")
         {
             if (startNewSession)
                 this._sessionId = null;
 
-            _ = this._webSocketClient.DisconnectAsync();
+            _ = this._webSocketClient.DisconnectAsync(code, message);
             return Task.CompletedTask;
         }
-
-        internal Task InternalReconnectAsync()
-            => this.ConnectAsync();
 
         internal async Task InternalConnectAsync()
         {
@@ -2245,7 +2245,7 @@ namespace DSharpPlus
         internal async Task OnReconnectAsync()
         {
             this.DebugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect.", DateTime.Now);
-            await this.ReconnectAsync().ConfigureAwait(false);
+            await this.InternalReconnectAsync(code: 4000, message: "OP7 acknowledged").ConfigureAwait(false);
         }
 
         internal async Task OnInvalidateSessionAsync(bool data)
@@ -2394,7 +2394,7 @@ namespace DSharpPlus
             if (guilds_comp && more_than_5)
             {
                 this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", "More than 5 heartbeats were skipped. Issuing reconnect.", DateTime.Now);
-                await this.ReconnectAsync().ConfigureAwait(false);
+                await this.InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed").ConfigureAwait(false);
                 return;
             }
             else if (!guilds_comp && more_than_5)

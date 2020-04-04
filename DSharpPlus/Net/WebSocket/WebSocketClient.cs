@@ -103,7 +103,7 @@ namespace DSharpPlus.Net.WebSocket
         }
 
         /// <inheritdoc />
-        public async Task DisconnectAsync()
+        public async Task DisconnectAsync(int code = 1000, string message = "")
         {
             // Ensure that messages cannot be sent
             await this._senderLock.WaitAsync().ConfigureAwait(false);
@@ -112,7 +112,7 @@ namespace DSharpPlus.Net.WebSocket
             {
                 this._isClientClose = true;
                 if (this._ws != null)
-                    await this._ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
+                    await this._ws.CloseOutputAsync((WebSocketCloseStatus)code, message, CancellationToken.None).ConfigureAwait(false);
 
                 if (this._receiverTask != null)
                     await this._receiverTask.ConfigureAwait(false); // Ensure that receving completed
