@@ -237,7 +237,14 @@ namespace DSharpPlus.Net.WebSocket
                         else // close
                         {
                             if (!this._isClientClose)
-                                await this._ws.CloseOutputAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
+                            {
+                                var code = result.CloseStatus.Value;
+                                code = code == WebSocketCloseStatus.NormalClosure || code == WebSocketCloseStatus.EndpointUnavailable
+                                    ? (WebSocketCloseStatus)4000
+                                    : code;
+
+                                await this._ws.CloseOutputAsync(code, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
+                            }
 
                             await this._disconnected.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
                             break;
