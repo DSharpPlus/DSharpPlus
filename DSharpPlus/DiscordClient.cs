@@ -242,7 +242,6 @@ namespace DSharpPlus
                     IdleSince = since_unix,
                     IsAFK = idlesince != null,
                     _activity = activity
-
                 };
             }
 
@@ -438,7 +437,7 @@ namespace DSharpPlus
                         await this.ConnectAsync().ConfigureAwait(false);
                     else
                         if (this._status.IdleSince.HasValue)
-                            await this.ConnectAsync(this._status._activity, this._status.Status, Utilities.GetDateTimeOffset(this._status.IdleSince.Value)).ConfigureAwait(false);
+                            await this.ConnectAsync(this._status._activity, this._status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(this._status.IdleSince.Value)).ConfigureAwait(false);
                         else
                             await this.ConnectAsync(this._status._activity, this._status.Status).ConfigureAwait(false);
                 }
@@ -1660,9 +1659,10 @@ namespace DSharpPlus
             if (!guild._invites.TryRemove(dat["code"].ToString(), out var invite))
             {
                 invite = dat.ToObject<DiscordInvite>();
-                invite.IsRevoked = true;
                 invite.Discord = this;
             }
+
+            invite.IsRevoked = true;
 
             var ea = new InviteDeleteEventArgs(this)
             {
