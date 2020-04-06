@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using DSharpPlus.Enums;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.Abstractions;

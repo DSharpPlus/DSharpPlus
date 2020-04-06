@@ -99,6 +99,12 @@ namespace DSharpPlus.Entities
         public virtual string Locale { get; internal set; }
         
         /// <summary>
+        /// Gets the user's OAuth account flags.
+        /// </summary>
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public virtual UserFlags? Flags { get; internal set; }
+
+        /// <summary>
         /// Gets the user's mention string.
         /// </summary>
         [JsonIgnore]

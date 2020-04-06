@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Linq;
-using DSharpPlus.Enums;
 
 namespace DSharpPlus.Entities
 {
