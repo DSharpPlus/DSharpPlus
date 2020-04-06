@@ -160,7 +160,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets the user's 4-digit discriminator.
+        /// Gets the member's 4-digit discriminator.
         /// </summary>
         public override string Discriminator
         {
@@ -169,7 +169,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets the user's avatar hash.
+        /// Gets the member's avatar hash.
         /// </summary>
         public override string AvatarHash
         {
@@ -178,7 +178,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets whether the user is a bot.
+        /// Gets whether the member is a bot.
         /// </summary>
         public override bool IsBot
         {
@@ -187,7 +187,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets the user's email address.
+        /// Gets the member's email address.
         /// </summary>
         public override string Email
         {
@@ -196,7 +196,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets whether the user has multi-factor authentication enabled.
+        /// Gets whether the member has multi-factor authentication enabled.
         /// </summary>
         public override bool? MfaEnabled
         {
@@ -205,7 +205,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets whether the user is verified.
+        /// Gets whether the member is verified.
         /// </summary>
         public override bool? Verified
         {
@@ -214,12 +214,21 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets the user's chosen language
+        /// Gets the member's chosen language
         /// </summary>
         public override string Locale
         {
             get => this.User.Locale;
             internal set => this.User.Locale = value;
+        }
+
+        /// <summary>
+        /// Gets the member's OAuth account flags.
+        /// </summary>
+        public override UserFlags? Flags 
+        { 
+            get => this.User.Flags; 
+            internal set => this.User.Flags = value; 
         }
         #endregion
 

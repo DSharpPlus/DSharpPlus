@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DSharpPlus.Enums
+namespace DSharpPlus
 {
     public static class SystemChannelFlagsExtension
     {
