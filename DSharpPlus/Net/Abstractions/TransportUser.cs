@@ -34,8 +34,8 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("locale", NullValueHandling = NullValueHandling.Ignore)]
         public string Locale { get; internal set; }
 
-        [JsonProperty("flags")]
-        public int Flags { get; internal set; } = 0;
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public UserFlags? Flags { get; internal set; }
 
         internal TransportUser() { }
 

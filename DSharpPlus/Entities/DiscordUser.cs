@@ -24,6 +24,7 @@ namespace DSharpPlus.Entities
             this.Email = transport.Email;
             this.PremiumType = transport.PremiumType;
             this.Locale = transport.Locale;
+            this.Flags = transport.Flags;
         }
 
         /// <summary>
