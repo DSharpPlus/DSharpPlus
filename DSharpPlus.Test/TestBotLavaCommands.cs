@@ -39,14 +39,7 @@ namespace DSharpPlus.Test
                 Password = password
             }).ConfigureAwait(false);
             this.Lavalink.Disconnected += this.Lavalink_Disconnected;
-            this.Lavalink.TrackException += Lavalink_TrackException;
             await ctx.RespondAsync("Connected to lavalink node.").ConfigureAwait(false);
-        }
-
-        private Task Lavalink_TrackException(TrackExceptionEventArgs e)
-        {
-            Console.WriteLine("\n\n\n\n" + e.Track.Title + "\n\n\n\n");
-            return Task.CompletedTask;
         }
 
         private Task Lavalink_Disconnected(NodeDisconnectedEventArgs e)

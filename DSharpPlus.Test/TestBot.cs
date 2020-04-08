@@ -173,7 +173,7 @@ namespace DSharpPlus.Test
 
         private Task Discord_ClientErrored(ClientErrorEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception}", DateTime.Now, e.Exception);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now, e.Exception);
             return Task.CompletedTask;
         }
 
