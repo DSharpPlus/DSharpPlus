@@ -135,7 +135,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             var gld = chn?.Guild;
             var mbr = gld?.CurrentMember;
 
-            if (gld == null /* == is DM */ && msg.Author == this._client.CurrentUser /* == is not own message */ ||
+            if (gld == null /* == is DM */ && msg.Author == this._client.CurrentUser /* == is own message */ ||
                 mbr != null /* == is guild and cache is valid */ && (chn.PermissionsFor(mbr) & Permissions.ManageChannels) != 0) /* == has permissions */
                 await msg.DeleteAllReactionsAsync("Pagination");
             // ENDOF: 403 fix
