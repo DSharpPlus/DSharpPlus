@@ -145,7 +145,7 @@ namespace DSharpPlus.Entities
         public int Hierarchy
             => this.IsOwner ? int.MaxValue : this.RoleIds.Count == 0 ? 0 : this.Roles.Max(x => x.Position);
 
-        #region Overriden user properties
+        #region Overridden user properties
         [JsonIgnore]
         internal DiscordUser User 
             => this.Discord.UserCache[this.Id];
@@ -188,6 +188,7 @@ namespace DSharpPlus.Entities
 
         /// <summary>
         /// Gets the member's email address.
+        /// <para>This is only present in OAuth.</para>
         /// </summary>
         public override string Email
         {
@@ -206,6 +207,7 @@ namespace DSharpPlus.Entities
 
         /// <summary>
         /// Gets whether the member is verified.
+        /// <para>This is only present in OAuth.</para>
         /// </summary>
         public override bool? Verified
         {
@@ -223,7 +225,16 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets the member's OAuth account flags.
+        /// Gets the user's flags.
+        /// </summary>
+        public override UserFlags? OAuthFlags 
+        { 
+            get => this.User.OAuthFlags; 
+            internal set => this.User.OAuthFlags = value; 
+        }
+
+        /// <summary>
+        /// Gets the member's flags for OAuth.
         /// </summary>
         public override UserFlags? Flags 
         { 
