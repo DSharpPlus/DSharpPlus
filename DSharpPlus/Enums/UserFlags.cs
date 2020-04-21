@@ -66,6 +66,16 @@ namespace DSharpPlus
         /// <summary>
         /// The user reached the second bug hunter tier.
         /// </summary>
-        BugHunterLevelTwo = 1 << 14
+        BugHunterLevelTwo = 1 << 14,
+
+        /// <summary>
+        /// The user is a verified bot.
+        /// </summary>
+        VerifiedBot = 1 << 16,
+
+        /// <summary>
+        /// The user is a verified bot developer.
+        /// </summary>
+        VerifiedBotDeveloper = 1 << 17
     }
 }

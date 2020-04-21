@@ -35,6 +35,9 @@ namespace DSharpPlus.Net.Abstractions
         public string Locale { get; internal set; }
 
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public UserFlags? OAuthFlags { get; internal set; }
+
+        [JsonProperty("public_flags", NullValueHandling = NullValueHandling.Ignore)]
         public UserFlags? Flags { get; internal set; }
 
         internal TransportUser() { }
@@ -52,6 +55,7 @@ namespace DSharpPlus.Net.Abstractions
             this.PremiumType = other.PremiumType;
             this.Locale = other.Locale;
             this.Flags = other.Flags;
+            this.OAuthFlags = other.OAuthFlags;
         }
     }
 }
