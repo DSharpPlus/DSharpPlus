@@ -34,7 +34,7 @@ namespace DSharpPlus.Interactivity
                 throw new InvalidOperationException("Interactivity was not set up!");
 
             var timeout = timeoutoverride ?? interactivity.Config.Timeout;
-            return await interactivity.WaitForMessageAsync(x => x.ChannelId == c.Id && predicate(x),timeout);
+            return await interactivity.WaitForMessageAsync(x => x.ChannelId == c.Id && predicate(x), timeout);
         }
 
         /// <summary>
