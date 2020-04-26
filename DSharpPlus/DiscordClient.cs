@@ -2634,8 +2634,7 @@ namespace DSharpPlus
             this._guilds = null;
             this._heartbeatTask = null;
             this._privateChannels = null;
-            this._webSocketClient.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-            this._webSocketClient.Dispose();
+            this._webSocketClient?.Dispose();
         }
 
         #region Events
