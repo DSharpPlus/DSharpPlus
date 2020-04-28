@@ -140,7 +140,9 @@ namespace DSharpPlus.Net.WebSocket
         /// <inheritdoc />
         public async Task SendMessageAsync(string message)
         {
-            if (this._ws == null)
+            // Check if the websocket is available.
+            // Also check if the client isn't closed because this could lead to a deadlock
+            if (this._ws == null || this._isClientClose)
                 return;
 
             var bytes = Utilities.UTF8.GetBytes(message);
