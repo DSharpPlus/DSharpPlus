@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -177,10 +178,12 @@ namespace DSharpPlus.VoiceNext
                         }
 
                         this.PcmBufferLength = 0;
-                        var packet = new byte[pcmSpan.Length];
-                        var packetMemory = packet.AsMemory();
-                        this.Connection.PreparePacket(pcmSpan, ref packetMemory);
-                        this.Connection.EnqueuePacket(new VoicePacket(packetMemory, this.PcmBufferDuration));
+
+                        var packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
+                        var packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
+                        PcmMemory.CopyTo(packetMemory);
+
+                        this.Connection.EnqueuePacket(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet));
                     }
                 }
             }
@@ -213,10 +216,10 @@ namespace DSharpPlus.VoiceNext
                     pcm16[i] = (short)(pcm16[i] * this.VolumeModifier);
             }
 
-            var packet = new byte[pcm.Length];
-            var packetMemory = packet.AsMemory();
-            this.Connection.PreparePacket(pcm, ref packetMemory);
-            this.Connection.EnqueuePacket(new VoicePacket(packetMemory, this.PcmBufferDuration));
+            var packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
+            var packetMemory = packet.AsMemory().Slice(0, pcm.Length);
+            pcm.CopyTo(packetMemory.Span);
+            this.Connection.EnqueuePacket(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet));
         }
 
         /// <summary>

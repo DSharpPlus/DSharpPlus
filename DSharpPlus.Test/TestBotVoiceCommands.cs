@@ -183,10 +183,9 @@ namespace DSharpPlus.Test
                 var ffmpeg_inf = new ProcessStartInfo
                 {
                     FileName = "ffmpeg",
-                    Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                    Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 -",
                     UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
+                    RedirectStandardOutput = true
                 };
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
