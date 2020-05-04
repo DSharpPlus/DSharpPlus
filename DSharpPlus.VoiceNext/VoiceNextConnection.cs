@@ -215,7 +215,7 @@ namespace DSharpPlus.VoiceNext
             this.IsDisposed = false;
 
             this.PlayingWait = null;
-            this.PacketQueue = new BlockingCollection<RawVoicePacket>(50);
+            this.PacketQueue = new BlockingCollection<RawVoicePacket>(Configuration.PacketQueueSize);
             this.KeepaliveTimestamps = new ConcurrentDictionary<ulong, long>();
             this.PauseEvent = new AsyncManualResetEvent(true);
 
@@ -564,7 +564,7 @@ namespace DSharpPlus.VoiceNext
                     return;
 
                 var tdelta = (int)(((Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency) * 1000);
-                Volatile.Write(ref this._wsPing, tdelta);
+                Volatile.Write(ref this._udpPing, tdelta);
                 this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Received UDP keepalive {keepalive}, ping {tdelta}ms", DateTime.Now);
             }
             catch (Exception ex)
