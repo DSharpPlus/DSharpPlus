@@ -54,12 +54,6 @@ namespace DSharpPlus
             VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
         }
 
-        internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
-        {
-            Random r = new Random();
-            return r.Next(ping, int.MaxValue);
-        }
-
         internal static string GetApiBaseUri() 
             => Endpoints.BASE_URI;
 
