@@ -37,7 +37,7 @@ namespace DSharpPlus.Entities
                 var cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
                 var mid = this.Id.ToString(CultureInfo.InvariantCulture);
 
-                return new Uri($"https://discordapp.com/channels/{gid}/{cid}/{mid}");
+                return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
             });
         }
         

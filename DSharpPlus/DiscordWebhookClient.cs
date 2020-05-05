@@ -19,7 +19,7 @@ namespace DSharpPlus
     public class DiscordWebhookClient
     {
         // this regex has 2 named capture groups: "id" and "token".
-        private static Regex WebhookRegex { get; } = new Regex(@"(?:https?:\/\/)?discordapp.com\/api\/(?:v\d\/)?webhooks\/(?<id>\d+)\/(?<token>[A-Za-z0-9_\-]+)", RegexOptions.ECMAScript);
+        private static Regex WebhookRegex { get; } = new Regex(@"(?:https?:\/\/)?discord(?:app)?.com\/api\/(?:v\d\/)?webhooks\/(?<id>\d+)\/(?<token>[A-Za-z0-9_\-]+)", RegexOptions.ECMAScript);
 
         /// <summary>
         /// Gets the collection of registered webhooks.

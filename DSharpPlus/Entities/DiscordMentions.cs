@@ -1,9 +1,6 @@
-﻿using DSharpPlus.Net.Serialization;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -12,7 +9,7 @@ namespace DSharpPlus.Entities
     /// </summary>
     internal class DiscordMentions
     {
-        //https://discordapp.com/developers/docs/resources/channel#allowed-mentions-object
+        //https://discord.com/developers/docs/resources/channel#allowed-mentions-object
 
         private const string ParseUsers = "users";
         private const string ParseRoles = "roles";

@@ -41,7 +41,7 @@
         #endregion
 
         #region Discord branding colors
-        // https://discordapp.com/branding
+        // https://discord.com/branding
 
         /// <summary>
         /// Discord Blurple, or #7289DA.

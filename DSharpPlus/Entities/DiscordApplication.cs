@@ -141,7 +141,7 @@ namespace DSharpPlus.Entities
         {
             permissions &= PermissionMethods.FULL_PERMS;
             // hey look, it's not all annoying and blue :P
-            return new QueryUriBuilder("https://discordapp.com/oauth2/authorize")
+            return new QueryUriBuilder("https://discord.com/oauth2/authorize")
                 .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
                 .AddParameter("scope", "bot")
                 .AddParameter("permissions", ((long) permissions).ToString(CultureInfo.InvariantCulture))

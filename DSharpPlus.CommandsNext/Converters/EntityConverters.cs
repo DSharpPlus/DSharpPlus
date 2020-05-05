@@ -229,7 +229,7 @@ namespace DSharpPlus.CommandsNext.Converters
             ulong mid;
             if (Uri.TryCreate(msguri, UriKind.Absolute, out var uri))
             {
-                if (uri.Host != "discordapp.com" && !uri.Host.EndsWith(".discordapp.com"))
+                if (uri.Host != "discordapp.com" && uri.Host != "discord.com" && !uri.Host.EndsWith(".discordapp.com") && !uri.Host.EndsWith(".discord.com"))
                     return Optional.FromNoValue<DiscordMessage>();
 
                 var uripath = MessagePathRegex.Match(uri.AbsolutePath);
