@@ -128,15 +128,13 @@ namespace DSharpPlus.Interactivity.EventHandling
             // No, we should not require people to guarantee MANAGE_MESSAGES
             // Need to check following:
             // - In guild?
-            //  - If not, only clear if own message
             //  - If yes, check if have permission
-            // - If all above fail (DM && other user's message || guild && no permission), skip this
+            // - If all above fail (DM || guild && no permission), skip this
             var chn = msg.Channel;
             var gld = chn?.Guild;
             var mbr = gld?.CurrentMember;
 
-            if (gld == null /* == is DM */ && msg.Author == this._client.CurrentUser /* == is own message */ ||
-                mbr != null /* == is guild and cache is valid */ && (chn.PermissionsFor(mbr) & Permissions.ManageChannels) != 0) /* == has permissions */
+            if (mbr != null /* == is guild and cache is valid */ && (chn.PermissionsFor(mbr) & Permissions.ManageChannels) != 0) /* == has permissions */
                 await msg.DeleteAllReactionsAsync("Pagination");
             // ENDOF: 403 fix
 
