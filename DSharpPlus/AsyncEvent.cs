@@ -142,7 +142,9 @@ namespace DSharpPlus
             {
                 try
                 {
-                    await handlers[i](e).ConfigureAwait(false);
+                    var handlerTask = handlers[i](e);
+                    if (handlerTask != null)
+                        await handlerTask.ConfigureAwait(false);
 
                     if (e.Handled)
                         break;
