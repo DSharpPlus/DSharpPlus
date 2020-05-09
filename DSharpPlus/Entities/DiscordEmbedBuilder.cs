@@ -359,6 +359,29 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Removes a field of the specified index from this embed.
+        /// </summary>
+        /// <param name="index">Index of the field to remove.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder RemoveFieldAt(int index)
+        {
+            this._fields.RemoveAt(index);
+            return this;
+        }
+
+        /// <summary>
+        /// Removes fields of the specified range from this embed.
+        /// </summary>
+        /// <param name="index">Index of the first field to remove.</param>
+        /// <param name="count">Number of fields to remove.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder RemoveFieldRange(int index, int count)
+        {
+            this._fields.RemoveRange(index, count);
+            return this;
+        }
+
+        /// <summary>
         /// Removes all fields from this embed.
         /// </summary>
         /// <returns>This embed builder.</returns>
