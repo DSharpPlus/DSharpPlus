@@ -395,7 +395,7 @@ namespace DSharpPlus
                     {
                         if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
                         {
-                            this.DebugLogger.LogMessage(LogLevel.Error, "Websocket", "Payload decompression failed", DateTime.Now);
+                            this.DebugLogger.LogMessage(LogLevel.Error, "WebSocket", "Payload decompression failed", DateTime.Now);
                             return;
                         }
 
@@ -411,7 +411,7 @@ namespace DSharpPlus
                 }
                 catch (Exception ex)
                 {
-                    this.DebugLogger.LogMessage(LogLevel.Error, "Websocket", "Socket swallowed an exception", DateTime.Now, ex);
+                    this.DebugLogger.LogMessage(LogLevel.Error, "WebSocket", "Socket swallowed an exception:", DateTime.Now, ex);
                 }
             }
 
@@ -426,12 +426,12 @@ namespace DSharpPlus
 
                 this._cancelTokenSource.Cancel();
 
-                this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Connection closed. ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}')", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", $"Connection closed. ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}')", DateTime.Now);
                 await this._socketClosed.InvokeAsync(new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
 
                 if (this.Configuration.AutoReconnect)
                 {
-                    this.DebugLogger.LogMessage(LogLevel.Critical, "Websocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting.", DateTime.Now);
+                    this.DebugLogger.LogMessage(LogLevel.Critical, "WebSocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting.", DateTime.Now);
 
                     if (this._status == null)
                         await this.ConnectAsync().ConfigureAwait(false);
@@ -612,7 +612,7 @@ namespace DSharpPlus
         }
         #endregion
 
-        #region Websocket (Events)
+        #region WebSocket (Events)
         internal async Task HandleSocketMessageAsync(string data)
         {
             var payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
@@ -643,7 +643,7 @@ namespace DSharpPlus
                     break;
 
                 default:
-                    this.DebugLogger.LogMessage(LogLevel.Warning, "Websocket", $"Unknown OP-Code: {((int)payload.OpCode).ToString(CultureInfo.InvariantCulture)}\n{payload.Data}", DateTime.Now);
+                    this.DebugLogger.LogMessage(LogLevel.Warning, "WebSocket", $"Unknown OP-Code: {((int)payload.OpCode).ToString(CultureInfo.InvariantCulture)}\n{payload.Data}", DateTime.Now);
                     break;
             }
         }
@@ -652,7 +652,7 @@ namespace DSharpPlus
         {
             if (!(payload.Data is JObject dat))
             {
-                DebugLogger.LogMessage(LogLevel.Warning, "Websocket:Dispatch", $"Invalid payload body, you can probably ignore this message: {payload.OpCode}:{payload.EventName}\n{payload.Data}", DateTime.Now);
+                DebugLogger.LogMessage(LogLevel.Warning, "WebSocket:Dispatch", $"Invalid payload body, you can probably ignore this message: {payload.OpCode}:{payload.EventName}\n{payload.Data}", DateTime.Now);
                 return;
             }
 
@@ -745,7 +745,7 @@ namespace DSharpPlus
                     gid = (ulong)dat["guild_id"];
                     if (!this._guilds.ContainsKey(gid))
                     {
-                        this.DebugLogger.LogMessage(LogLevel.Error, "Websocket:Dispatch", $"Could not find {gid.ToString(CultureInfo.InvariantCulture)} in guild cache.", DateTime.Now);
+                        this.DebugLogger.LogMessage(LogLevel.Error, "WebSocket:Dispatch", $"Could not find {gid.ToString(CultureInfo.InvariantCulture)} in guild cache.", DateTime.Now);
                         return;
                     }
                     await OnGuildMemberRemoveEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid]).ConfigureAwait(false);
@@ -757,8 +757,7 @@ namespace DSharpPlus
                     break;
 
                 case "guild_members_chunk":
-                    gid = (ulong)dat["guild_id"];
-                    await OnGuildMembersChunkEventAsync(dat["members"].ToObject<IEnumerable<TransportMember>>(), this._guilds[gid]).ConfigureAwait(false);
+                    await OnGuildMembersChunkEventAsync(dat).ConfigureAwait(false);
                     break;
 
                 case "guild_role_create":
@@ -861,7 +860,7 @@ namespace DSharpPlus
 
                 default:
                     await OnUnknownEventAsync(payload).ConfigureAwait(false);
-                    this.DebugLogger.LogMessage(LogLevel.Warning, "Websocket:Dispatch", $"Unknown event: {payload.EventName}\n{payload.Data}", DateTime.Now);
+                    this.DebugLogger.LogMessage(LogLevel.Warning, "WebSocket:Dispatch", $"Unknown event: {payload.EventName}\n{payload.Data}", DateTime.Now);
                     break;
             }
         }
@@ -2028,23 +2027,73 @@ namespace DSharpPlus
             await this._voiceServerUpdated.InvokeAsync(ea).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildMembersChunkEventAsync(IEnumerable<TransportMember> members, DiscordGuild guild)
+        internal async Task OnGuildMembersChunkEventAsync(JObject dat)
         {
-            var mbrs = new HashSet<DiscordMember>();
+            var guild = this.Guilds[(ulong)dat["guild_id"]];
+            var chunkIndex = (int)dat["chunk_index"];
+            var chunkCount = (int)dat["chunk_count"];
+            var nonce = (string)dat["nonce"];
 
-            foreach (var xtm in members)
+            var mbrs = new HashSet<DiscordMember>();
+            var pres = new HashSet<DiscordPresence>();
+
+            var users = dat["members"].ToObject<TransportUser[]>();
+            var members = dat["members"].ToObject<TransportMember[]>();
+
+            var memCount = members.Count();
+            for (int i = 0; i < memCount; i++)
             {
-                var mbr = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
+                var mbr = new DiscordMember(members[i]) { Discord = this, _guild_id = guild.Id };
+
+                if (!this.UserCache.ContainsKey(mbr.Id))
+                    this.UserCache[mbr.Id] = new DiscordUser(users[i]) { Discord = this };
+
                 guild._members[mbr.Id] = mbr;
+                
                 mbrs.Add(mbr);
             }
+
             guild.MemberCount = guild._members.Count;
 
             var ea = new GuildMembersChunkEventArgs(this)
             {
                 Guild = guild,
-                Members = new ReadOnlySet<DiscordMember>(mbrs)
+                Members = new ReadOnlySet<DiscordMember>(mbrs),
+                ChunkIndex = chunkIndex,
+                ChunkCount = chunkCount,
+                Nonce = nonce,
             };
+
+            if (dat["presences"] != null)
+            {
+                var presences = dat["presences"].ToObject<DiscordPresence[]>();
+
+                var presCount = presences.Count();
+                for (int i = 0; i < presCount; i++)
+                {
+                    var xp = presences[i];
+                    xp.Discord = this;
+                    xp.Activity = new DiscordActivity(xp.RawActivity);
+                    
+                    if (xp.RawActivities != null)
+                    {
+                        xp.InternalActivities = new DiscordActivity[xp.RawActivities.Length];
+                        for (int j = 0; j < xp.RawActivities.Length; j++)
+                            xp.InternalActivities[i] = new DiscordActivity(xp.RawActivities[i]);
+                    }
+                    
+                    pres.Add(xp);
+                }
+
+                ea.Presences = new ReadOnlySet<DiscordPresence>(pres);
+            }
+
+            if(dat["not_found"] != null)
+            {
+                var nf = dat["not_found"].ToObject<ISet<ulong>>();
+                ea.NotFound = new ReadOnlySet<ulong>(nf);
+            }
+
             await this._guildMembersChunked.InvokeAsync(ea).ConfigureAwait(false);
         }
 
@@ -2238,13 +2287,13 @@ namespace DSharpPlus
 
         internal async Task OnHeartbeatAsync(long seq)
         {
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
             await SendHeartbeatAsync(seq).ConfigureAwait(false);
         }
 
         internal async Task OnReconnectAsync()
         {
-            this.DebugLogger.LogMessage(LogLevel.Info, "Websocket", "Received OP 7 - Reconnect.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "WebSocket", "Received OP 7 - Reconnect.", DateTime.Now);
             await this.InternalReconnectAsync(code: 4000, message: "OP7 acknowledged").ConfigureAwait(false);
         }
 
@@ -2261,13 +2310,13 @@ namespace DSharpPlus
 
             if (data)
             {
-                this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received true in OP 9 - Waiting a few seconds and sending resume again.", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Received true in OP 9 - Waiting a few seconds and sending resume again.", DateTime.Now);
                 await Task.Delay(6000).ConfigureAwait(false);
                 await SendResumeAsync().ConfigureAwait(false);
             }
             else
             {
-                this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session.", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Received false in OP 9 - Starting a new session.", DateTime.Now);
                 this._sessionId = null;
                 await SendIdentifyAsync(this._status).ConfigureAwait(false);
             }
@@ -2275,7 +2324,7 @@ namespace DSharpPlus
 
         internal async Task OnHelloAsync(GatewayHello hello)
         {
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received OP 10 (HELLO) - Trying to either resume or identify.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Received OP 10 (HELLO) - Trying to either resume or identify.", DateTime.Now);
 
             if (this.SessionLock.Wait(0))
             {
@@ -2304,7 +2353,7 @@ namespace DSharpPlus
 
             var ping = (int)(DateTime.Now - this._lastHeartbeat).TotalMilliseconds;
 
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", $"Received WebSocket Heartbeat Ack. Ping: {ping.ToString(CultureInfo.InvariantCulture)}ms", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", $"Received WebSocket Heartbeat Ack. Ping: {ping.ToString(CultureInfo.InvariantCulture)}ms", DateTime.Now);
 
             Volatile.Write(ref this._ping, ping);
 
@@ -2320,7 +2369,7 @@ namespace DSharpPlus
         //internal async Task StartHeartbeatingAsync()
         internal async Task HeartbeatLoopAsync()
         {
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Starting Heartbeat.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Starting Heartbeat.", DateTime.Now);
             var token = this._cancelToken;
             try
             {
@@ -2403,7 +2452,7 @@ namespace DSharpPlus
             }
 
             Volatile.Write(ref this._lastSequence, seq);
-            this.DebugLogger.LogMessage(LogLevel.Debug, "Websocket", "Sending Heartbeat.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Sending Heartbeat.", DateTime.Now);
             var heartbeat = new GatewayPayload
             {
                 OpCode = GatewayOpCode.Heartbeat,

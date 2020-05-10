@@ -3,7 +3,7 @@
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents additional details of a users account for OAuth.
+    /// Represents additional details of a users account.
     /// </summary>
     [Flags]
     public enum UserFlags

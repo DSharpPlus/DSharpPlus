@@ -793,18 +793,41 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Requests that Discord send a complete list of guild members. This method will return immediately.
+        /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the <see cref="DiscordClient.GuildMembersChunked"/> event.
+        /// <para>If no arguments aside from <paramref name="presences"/> and <paramref name="nonce"/> are specified, this will request all guild members.</para>
         /// </summary>
-        public async Task RequestAllMembersAsync()
+        /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null. 
+        /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
+        /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
+        /// <param name="presences">Whether to include the <see cref="EventArgs.GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>
+        /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
+        /// <param name="nonce">The unique string to identify the response.</param>
+        public async Task RequestMembersAsync(string query = "", int limit = 0, bool? presences = null, IEnumerable<ulong> userIds = null, string nonce = null)
         {
             if (!(this.Discord is DiscordClient client))
                 throw new InvalidOperationException("This operation is only valid for regular Discord clients.");
 
+            if (query == null && userIds == null)
+                throw new InvalidOperationException("The query and user IDs cannot both be null.");
+
+            if (query != null && userIds != null)
+                query = null;
+
+            var grgm = new GatewayRequestGuildMembers(this)
+            {
+                Query = query,
+                Limit = limit >= 0 ? limit : 0,
+                Presences = presences,
+                UserIds = userIds,
+                Nonce = nonce
+            };
+
             var payload = new GatewayPayload
             {
                 OpCode = GatewayOpCode.RequestGuildMembers,
-                Data = new GatewayRequestGuildMembers(this)
+                Data = grgm
             };
+
             var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
             await client._webSocketClient.SendMessageAsync(payloadStr).ConfigureAwait(false);
         }
