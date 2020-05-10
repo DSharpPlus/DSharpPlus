@@ -294,6 +294,26 @@ namespace DSharpPlus.Entities
         [JsonProperty("max_presences")]
         public int? MaxPresences { get; internal set; }
 
+#pragma warning disable CS1734
+        /// <summary>
+        /// Gets the approximate number of members in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name = "withCounts"></paramref> set to true.
+        /// </summary>
+        [JsonProperty("approximate_member_count", NullValueHandling = NullValueHandling.Ignore)]
+        public int? ApproximateMemberCount { get; internal set; }
+
+        /// <summary>
+        /// Gets the approximate number of presences in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name = "withCounts"></paramref> set to true.
+        /// </summary>
+        [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
+        public int? ApproximatePresenceCount { get; internal set; }
+
+#pragma warning restore CS1734
+        /// <summary>
+        /// Gets the maximum amount of users allowed per video channel.
+        /// </summary>
+        [JsonProperty("max_video_channel_users", NullValueHandling = NullValueHandling.Ignore)]
+        public int? MaxVideoChannelUsers { get; internal set; }
+
         /// <summary>
         /// Gets a dictionary of all the voice states for this guilds. The key for this dictionary is the ID of the user
         /// the voice state corresponds to.
