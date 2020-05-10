@@ -130,7 +130,7 @@ namespace DSharpPlus.Net.WebSocket
                     this._receiverTokenSource.Dispose();
                 }
             }
-            catch (Exception ex) { }
+            catch { }
             finally
             {
                 this._senderLock.Release();

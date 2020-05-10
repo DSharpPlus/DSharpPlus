@@ -1110,13 +1110,17 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(roles_raw));
         }
 
-        internal async Task<DiscordGuild> GetGuildAsync(ulong guildId)
+        internal async Task<DiscordGuild> GetGuildAsync(ulong guildId, bool? with_counts)
         {
+            var urlparams = new Dictionary<string, string>();
+            if (with_counts.HasValue)
+                urlparams["with_counts"] = with_counts?.ToString();
+
             var route = $"{Endpoints.GUILDS}/:guild_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guildId }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+            var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, urlparams).ConfigureAwait(false);
 
             var json = JObject.Parse(res.Response);
             var rawMembers = (JArray)json["members"];

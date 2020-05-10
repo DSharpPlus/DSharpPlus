@@ -521,16 +521,18 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Gets a guild
+        /// Gets a guild.
+        /// <para>Setting <paramref name="withCounts"/> to true will make a REST request.</para>
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The guild ID to search for.</param>
+        /// <param name="withCounts">Whether to include approximate presence and member counts in the returned guild.</param>
         /// <returns></returns>
-        public async Task<DiscordGuild> GetGuildAsync(ulong id)
+        public async Task<DiscordGuild> GetGuildAsync(ulong id, bool? withCounts = null)
         {
-            if (this._guilds.TryGetValue(id, out var guild))
+            if (this._guilds.TryGetValue(id, out var guild) && (!withCounts.HasValue || !withCounts.Value))
                 return guild;
             
-            guild = await this.ApiClient.GetGuildAsync(id).ConfigureAwait(false);
+            guild = await this.ApiClient.GetGuildAsync(id, withCounts).ConfigureAwait(false);
             var channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id).ConfigureAwait(false);
             foreach (var channel in channels) guild._channels[channel.Id] = channel;
 
@@ -540,7 +542,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a guild preview
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The guild ID.</param>
         /// <returns></returns>
         public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong id) 
             => this.ApiClient.GetGuildPreviewAsync(id);
@@ -1243,6 +1245,9 @@ namespace DSharpPlus
                     MemberCount = gld.MemberCount,
                     MaxMembers = gld.MaxMembers,
                     MaxPresences = gld.MaxPresences,
+                    ApproximateMemberCount = gld.ApproximateMemberCount,
+                    ApproximatePresenceCount = gld.ApproximatePresenceCount,
+                    MaxVideoChannelUsers = gld.MaxVideoChannelUsers,
                     DiscoverySplashHash = gld.DiscoverySplashHash,
                     PreferredLocale = gld.PreferredLocale,
                     MfaLevel = gld.MfaLevel,
@@ -2563,6 +2568,9 @@ namespace DSharpPlus
             guild.DiscoverySplashHash = newGuild.DiscoverySplashHash;
             guild.MaxMembers = newGuild.MaxMembers;
             guild.MaxPresences = newGuild.MaxPresences;
+            guild.ApproximateMemberCount = newGuild.ApproximateMemberCount;
+            guild.ApproximatePresenceCount = newGuild.ApproximatePresenceCount;
+            guild.MaxVideoChannelUsers = newGuild.MaxVideoChannelUsers;
             guild.PreferredLocale = newGuild.PreferredLocale;
             guild.RulesChannelId = newGuild.RulesChannelId;
             guild.PublicUpdatesChannelId = newGuild.PublicUpdatesChannelId;
