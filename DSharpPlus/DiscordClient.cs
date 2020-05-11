@@ -2084,7 +2084,7 @@ namespace DSharpPlus
                     {
                         xp.InternalActivities = new DiscordActivity[xp.RawActivities.Length];
                         for (int j = 0; j < xp.RawActivities.Length; j++)
-                            xp.InternalActivities[i] = new DiscordActivity(xp.RawActivities[i]);
+                            xp.InternalActivities[j] = new DiscordActivity(xp.RawActivities[j]);
                     }
                     
                     pres.Add(xp);
