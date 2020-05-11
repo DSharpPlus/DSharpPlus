@@ -15,7 +15,12 @@ and the bot class.
 Before you connect, enable the module on your client: 
 
 ```cs
-interactivity = discord.UseInteractivity();
+interactivity = discord.UseInteractivity(new InteractivityConfiguration
+{
+    PaginationBehaviour = TimeoutBehaviour.Ignore,
+    PaginationTimeout = TimeSpan.FromMinutes(5),
+    Timeout = TimeSpan.FromMinutes(2),
+});
 ```
 
 This will enable the module.
