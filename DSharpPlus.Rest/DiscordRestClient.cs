@@ -797,23 +797,26 @@ namespace DSharpPlus
 
         #region Prune
         /// <summary>
-        /// Get a guild's prune count
+        /// Get a guild's prune count.
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="days">Days to check for</param>
+        /// <param name="include_roles">The roles to be included in the prune.</param>
         /// <returns></returns>
-        public Task<int> GetGuildPruneCountAsync(ulong guild_id, int days)
-            => this.ApiClient.GetGuildPruneCountAsync(guild_id, days);
+        public Task<int> GetGuildPruneCountAsync(ulong guild_id, int days, IEnumerable<ulong> include_roles)
+            => this.ApiClient.GetGuildPruneCountAsync(guild_id, days, include_roles);
 
         /// <summary>
-        /// Begins a guild prune
+        /// Begins a guild prune.
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="days">Days to prune for</param>
+        /// <param name="compute_prune_count">Whether to return the prune count after this method completes. This is discouraged for larger guilds.</param>
+        /// <param name="include_roles">The roles to be included in the prune.</param>
         /// <param name="reason">Reason why this guild was pruned</param>
         /// <returns></returns>
-        public Task<int> BeginGuildPruneAsync(ulong guild_id, int days, string reason)
-            => this.ApiClient.BeginGuildPruneAsync(guild_id, days, reason);
+        public Task<int?> BeginGuildPruneAsync(ulong guild_id, int days, bool compute_prune_count, IEnumerable<ulong> include_roles, string reason)
+            => this.ApiClient.BeginGuildPruneAsync(guild_id, days, compute_prune_count, include_roles, reason);
         #endregion
 
         #region GuildVarious
