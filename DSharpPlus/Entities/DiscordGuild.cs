@@ -612,19 +612,58 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Estimates the number of users to be pruned.
         /// </summary>
-        /// <param name="days">Minimum number of inactivity days required for users to be pruned.</param>
+        /// <param name="days">Minimum number of inactivity days required for users to be pruned. Defaults to 7.</param>
+        /// <param name="includedRoles">The roles to be included in the prune.</param>
         /// <returns>Number of users that will be pruned.</returns>
-        public Task<int> GetPruneCountAsync(int days)
-            => this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days);
+        public Task<int> GetPruneCountAsync(int days = 7, IEnumerable<DiscordRole> includedRoles = null)
+        {
+            if (includedRoles != null)
+            {
+                includedRoles = includedRoles.Where(r => r != null);
+                var roleCount = includedRoles.Count();
+                var roleArr = includedRoles.ToArray();
+                var rawRoleIds = new List<ulong>();
+
+                for (int i = 0; i < roleCount; i++)
+                {
+                    if (this._roles.ContainsKey(roleArr[i].Id))
+                        rawRoleIds.Add(roleArr[i].Id);
+                }
+
+                return this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, rawRoleIds);
+            }
+
+            return this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, null);
+        }
 
         /// <summary>
         /// Prunes inactive users from this guild.
         /// </summary>
-        /// <param name="days">Minimum number of inactivity days required for users to be pruned.</param>
+        /// <param name="days">Minimum number of inactivity days required for users to be pruned. Defaults to 7.</param>
+        /// <param name="computePruneCount">Whether to return the prune count after this method completes. This is discouraged for larger guilds.</param>
+        /// <param name="includedRoles">The roles to be included in the prune.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>Number of users pruned.</returns>
-        public Task<int> PruneAsync(int days, string reason = null)
-            => this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, reason);
+        public Task<int?> PruneAsync(int days = 7, bool computePruneCount = true, IEnumerable<DiscordRole> includedRoles = null, string reason = null)
+        {
+            if (includedRoles != null)
+            {
+                includedRoles = includedRoles.Where(r => r != null);
+                var roleCount = includedRoles.Count();
+                var roleArr = includedRoles.ToArray();
+                var rawRoleIds = new List<ulong>();
+
+                for (int i = 0; i < roleCount; i++)
+                {
+                    if (this._roles.ContainsKey(roleArr[i].Id))
+                        rawRoleIds.Add(roleArr[i].Id);
+                }
+
+                return this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, rawRoleIds, reason);
+            }
+
+            return this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, null, reason);
+        }
 
         /// <summary>
         /// Gets integrations attached to this guild.
@@ -828,7 +867,7 @@ namespace DSharpPlus.Entities
                 throw new InvalidOperationException("This operation is only valid for regular Discord clients.");
 
             if (query == null && userIds == null)
-                throw new InvalidOperationException("The query and user IDs cannot both be null.");
+                throw new ArgumentException("The query and user IDs cannot both be null.");
 
             if (query != null && userIds != null)
                 query = null;

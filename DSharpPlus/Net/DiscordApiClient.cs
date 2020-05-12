@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -253,7 +254,7 @@ namespace DSharpPlus.Net
             };
             if (reason != null)
                 urlparams["reason"] = reason;
-
+            
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, user_id }, out var path);
 
@@ -1211,7 +1212,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Prune
-        internal async Task<int> GetGuildPruneCountAsync(ulong guild_id, int days)
+        internal async Task<int> GetGuildPruneCountAsync(ulong guild_id, int days, IEnumerable<ulong> include_roles)
         {
             if (days < 0 || days > 30)
                 throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
@@ -1221,37 +1222,56 @@ namespace DSharpPlus.Net
                 ["days"] = days.ToString(CultureInfo.InvariantCulture)
             };
 
+            var sb = new StringBuilder();
+
+            if(include_roles != null)
+            {
+                var roleArray = include_roles.ToArray();
+                var roleArrayCount = roleArray.Count();
+
+                for (int i = 0; i < roleArrayCount; i++)
+                    sb.Append($"&include_roles={roleArray[i]}");
+            }
+
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
+            var url = Utilities.GetApiUriFor(path, $"{BuildQueryString(urlparams)}{sb}");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
 
-            return pruned.Pruned;
+            return pruned.Pruned.Value;
         }
 
-        internal async Task<int> BeginGuildPruneAsync(ulong guild_id, int days, string reason)
+        internal async Task<int?> BeginGuildPruneAsync(ulong guild_id, int days, bool compute_prune_count, IEnumerable<ulong> include_roles, string reason)
         {
             if (days < 0 || days > 30)
                 throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
 
             var urlparams = new Dictionary<string, string>
             {
-                ["days"] = days.ToString(CultureInfo.InvariantCulture)
+                ["days"] = days.ToString(CultureInfo.InvariantCulture),
+                ["compute_prune_count"] = compute_prune_count.ToString()
             };
+
+            var sb = new StringBuilder();
+
+            if (include_roles != null)
+            {
+                var roleArray = include_roles.ToArray();
+                var roleArrayCount = roleArray.Count();
+
+                for (int i = 0; i < roleArrayCount; i++)
+                    sb.Append($"&include_roles={roleArray[i]}");
+            }
+
             if (reason != null)
                 urlparams["reason"] = reason;
-
-            var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
+            var url = Utilities.GetApiUriFor(path, $"{BuildQueryString(urlparams)}{sb}");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST).ConfigureAwait(false);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
