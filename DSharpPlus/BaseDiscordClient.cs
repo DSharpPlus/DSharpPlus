@@ -13,7 +13,7 @@ namespace DSharpPlus
 {
     public abstract class BaseDiscordClient : IDisposable
     {
-        internal protected DiscordApiClient ApiClient { get; }
+        public DiscordApiClient ApiClient { get; }
         internal protected DiscordConfiguration Configuration { get; }
 
         /// <summary>
@@ -172,6 +172,34 @@ namespace DSharpPlus
                 foreach (var xvr in vrs)
                     this.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
             }
+        }
+
+        /// <summary>
+        /// Gets the current gateway info for the provided token type and token.
+        /// <para>If no values are provided, the configuration values will be used instead.</para>
+        /// </summary>
+        /// <returns>A gateway info object.</returns>
+        public async Task<GatewayInfo> GetGatewayInfoAsync(TokenType tokenType = TokenType.Bot, string token = null)
+        {
+            if (string.IsNullOrEmpty(this.Configuration.Token))
+            {
+                if (string.IsNullOrEmpty(token))
+                    throw new InvalidOperationException("Could not locate a valid token.");
+
+                this.Configuration.Token = token;
+
+                var origTokenType = this.Configuration.TokenType;
+
+                if (tokenType != TokenType.Bot)
+                    this.Configuration.TokenType = tokenType;
+
+                var res = await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
+                this.Configuration.Token = null;
+                this.Configuration.TokenType = origTokenType;
+                return res;
+            }
+
+            return await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
         }
 
         internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)
