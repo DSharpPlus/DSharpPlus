@@ -48,7 +48,7 @@ namespace DSharpPlus.Test
                 DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
             Discord = new DiscordClient(dcfg);
-            --test;
+            //--test;
             Discord.ApiClient.test = test;
 
             // events
