@@ -94,6 +94,13 @@ namespace DSharpPlus
         public IWebProxy Proxy { internal get; set; } = null;
 
         /// <summary>
+        /// Sets whether to automatically handle the session start limit when identifying.
+        /// <para>If set to false, this will cause the token to reset if the <see cref="Net.SessionBucket.Remaining"/> is exceeded.</para>
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool HandleSessionLimit { internal get; set; } = true;
+
+        /// <summary>
         /// <para>Sets the timeout for HTTP requests.</para>
         /// <para>Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</para>
         /// <para>Defaults to 10 seconds.</para>

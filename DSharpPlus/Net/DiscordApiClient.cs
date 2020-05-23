@@ -18,6 +18,8 @@ namespace DSharpPlus.Net
 {
     public sealed class DiscordApiClient
     {
+        public int test { get; set; }
+
         private const string REASON_HEADER_NAME = "X-Audit-Log-Reason";
 
         internal BaseDiscordClient Discord { get; }
@@ -1993,6 +1995,26 @@ namespace DSharpPlus.Net
             }
 
             return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
+        }
+
+        internal async Task<GatewayInfo> GetGatewayInfoAsync()
+        {
+            var headers = Utilities.GetBaseHeaders();
+            var route = Endpoints.GATEWAY;
+            if (this.Discord.Configuration.TokenType == TokenType.Bot)
+                route += Endpoints.BOT;
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, headers).ConfigureAwait(false);
+
+            var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(10000);
+            info.SessionBucket.resetAfter = (int)(DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(10000)).ToUnixTimeMilliseconds();
+            info.SessionBucket.Remaining = test;
+            Console.WriteLine(info.SessionBucket.ResetAfter - DateTimeOffset.UtcNow);
+
+            return info;
         }
         #endregion
     }

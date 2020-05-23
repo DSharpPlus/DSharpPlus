@@ -37,6 +37,8 @@ namespace DSharpPlus
         internal PayloadDecompressor _payloadDecompressor;
         internal string _sessionToken = null;
         internal string _sessionId = null;
+        internal SessionBucket _sessionBucket;
+        internal int _concurrentShardCount = 0;
         internal int _heartbeatInterval;
         internal Task _heartbeatTask;
         internal DateTimeOffset _lastHeartbeat;
@@ -67,6 +69,12 @@ namespace DSharpPlus
         internal Uri _gatewayUri;
 
         /// <summary>
+        /// Gets the session bucket for this client.
+        /// </summary>
+        public SessionBucket SessionBucket
+            => this._sessionBucket;
+
+        /// <summary>
         /// Gets the total number of shards the bot is connected to.
         /// </summary>
         public int ShardCount
@@ -79,6 +87,8 @@ namespace DSharpPlus
         /// </summary>
         public int ShardId
             => this.Configuration.ShardId;
+
+        public int test { get; set; }
 
         /// <summary>
         /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
@@ -2347,7 +2357,7 @@ namespace DSharpPlus
             this._heartbeatTask = Task.Run(this.HeartbeatLoopAsync, this._cancelToken);
 
             if (string.IsNullOrEmpty(this._sessionId))
-                await SendIdentifyAsync(_status).ConfigureAwait(false);
+                await SendIdentifyAsync(this._status).ConfigureAwait(false);
             else
                 await SendResumeAsync().ConfigureAwait(false);
         }
@@ -2473,25 +2483,36 @@ namespace DSharpPlus
 
         internal async Task SendIdentifyAsync(StatusUpdate status)
         {
-            var identify = new GatewayIdentify
+            if (this._sessionBucket.Remaining >= 0)
             {
-                Token = Utilities.GetFormattedToken(this),
-                Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
-                LargeThreshold = this.Configuration.LargeThreshold,
-                ShardInfo = new ShardInfo
+                this.DebugLogger.LogMessage(LogLevel.Debug, "DSharpPlus", $"Attempting to identify, {this._sessionBucket}. Allowing.", DateTime.Now);
+                var identify = new GatewayIdentify
                 {
-                    ShardId = this.Configuration.ShardId,
-                    ShardCount = this.Configuration.ShardCount
-                },
-                Presence = status
-            };
-            var payload = new GatewayPayload
+                    Token = Utilities.GetFormattedToken(this),
+                    Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
+                    LargeThreshold = this.Configuration.LargeThreshold,
+                    ShardInfo = new ShardInfo
+                    {
+                        ShardId = this.Configuration.ShardId,
+                        ShardCount = this.Configuration.ShardCount
+                    },
+                    Presence = status
+                };
+                var payload = new GatewayPayload
+                {
+                    OpCode = GatewayOpCode.Identify,
+                    Data = identify
+                };
+                var payloadstr = JsonConvert.SerializeObject(payload);
+                await this._webSocketClient.SendMessageAsync(payloadstr).ConfigureAwait(false);
+            }
+            else
             {
-                OpCode = GatewayOpCode.Identify,
-                Data = identify
-            };
-            var payloadstr = JsonConvert.SerializeObject(payload);
-            await this._webSocketClient.SendMessageAsync(payloadstr).ConfigureAwait(false);
+                var delay = TimeSpan.FromMilliseconds(this._sessionBucket.resetAfter);
+                this.DebugLogger.LogMessage(LogLevel.Debug, "DSharpPlus", $"Attempting to identify, {this._sessionBucket}. Blocking.", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Pre-emptive ratelimit triggered, waiting until {this._sessionBucket.ResetAfter:yyyy-MM-dd HH:mm:ss zzz} ({delay:c})", DateTime.Now);
+                await Task.Delay(delay).ContinueWith(_ => this.SendIdentifyAsync(status)).ConfigureAwait(false);
+            }
         }
 
         internal async Task SendResumeAsync()
@@ -2635,21 +2656,13 @@ namespace DSharpPlus
 
         internal async Task InternalUpdateGatewayAsync()
         {
-            var headers = Utilities.GetBaseHeaders();
-            var route = Endpoints.GATEWAY;
-            if (Configuration.TokenType == TokenType.Bot)
-                route += Endpoints.BOT;
-            var bucket = this.ApiClient.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
+            var info = await this.GetGatewayInfoAsync().ConfigureAwait(false);
+            this._gatewayUri = new Uri(info.Url);
+            this._shardCount = info.ShardCount;
+            this._sessionBucket = info.SessionBucket;
 
-            var url = Utilities.GetApiUriFor(path);
-            var request = new RestRequest(this, bucket, url, RestRequestMethod.GET, headers);
-            DebugLogger.LogTaskFault(this.ApiClient.Rest.ExecuteRequestAsync(request), LogLevel.Error, "DSharpPlus", "Error while executing request: ");
-            var response = await request.WaitForCompletionAsync().ConfigureAwait(false);
-
-            var jo = JObject.Parse(response.Response);
-            this._gatewayUri = new Uri(jo.Value<string>("url"));
-            if (jo["shards"] != null)
-                this._shardCount = jo.Value<int>("shards");
+            //TODO: Add preemptive ratelimit for global ratelimit (120/60).
+            //5 second identify ratelimit delay could be divided by concurrency (i.e. concurrency rate of i would create a delay of 5/i.)
         }
 
         private SocketLock GetSocketLock()

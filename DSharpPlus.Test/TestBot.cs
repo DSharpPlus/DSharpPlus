@@ -28,7 +28,7 @@ namespace DSharpPlus.Test
         private LavalinkExtension LavalinkService { get; }
         private Timer GameGuard { get; set; }
 
-        public TestBot(TestBotConfig cfg, int shardid)
+        public TestBot(TestBotConfig cfg, int shardid, ref int test)
         {
             // global bot config
             this.Config = cfg;
@@ -39,18 +39,20 @@ namespace DSharpPlus.Test
                 AutoReconnect = true,
                 LargeThreshold = 250,
                 LogLevel = LogLevel.Debug,
-                Token = this.Config.Token,
+                Token = "Mzk3MTMxNjY5OTE3OTI1Mzc2.XsU_BA.tlHH1Q3Y36XMS-QV4dH5X7GN__c",//this.Config.Token,
                 TokenType = TokenType.Bot,
-                UseInternalLogHandler = false,
+                UseInternalLogHandler = true,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
                 DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
             Discord = new DiscordClient(dcfg);
+            --test;
+            Discord.ApiClient.test = test;
 
             // events
-            Discord.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
+            //Discord.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
             Discord.ClientErrored += this.Discord_ClientErrored;
@@ -101,8 +103,11 @@ namespace DSharpPlus.Test
 
         public async Task RunAsync()
         {
-			var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
-            await Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
+			//var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
+            await Discord.ConnectAsync(status: UserStatus.DoNotDisturb).ConfigureAwait(false);
+            
+
+
         }
 
         public async Task StopAsync()
@@ -154,9 +159,21 @@ namespace DSharpPlus.Test
             Console.WriteLine(e.Message);
         }
 
-        private Task Discord_Ready(ReadyEventArgs e)
+        private async Task Discord_Ready(ReadyEventArgs e)
         {
-            return Task.CompletedTask;
+            Task.Run(async () =>
+            {
+                await Task.Delay(5000);
+                await Discord.UpdateStatusAsync(new DiscordActivity("ok"));
+                await Discord.UpdateStatusAsync(new DiscordActivity("ok2"));
+                await Discord.UpdateStatusAsync(new DiscordActivity("ok3"));
+                await Discord.UpdateStatusAsync(new DiscordActivity("ok4"));
+                await Discord.UpdateStatusAsync(new DiscordActivity("ok5"));
+                await Task.Delay(60000);
+                await Discord.UpdateStatusAsync(new DiscordActivity("ok6"));
+                await Discord.UpdateStatusAsync(new DiscordActivity("ok7"));
+                await Discord.UpdateStatusAsync(new DiscordActivity("ok8"));
+            });
         }
 
         private Task Discord_GuildAvailable(GuildCreateEventArgs e)
