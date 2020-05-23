@@ -528,18 +528,12 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the current user.
         /// </summary>
-        public DiscordUser CurrentUser 
-            => this._currentUser;
-
-        private DiscordUser _currentUser;
+        public DiscordUser CurrentUser { get; private set; }
 
         /// <summary>
         /// Gets the current application.
         /// </summary>
-        public DiscordApplication CurrentApplication 
-            => this._currentApplication;
-
-        private DiscordApplication _currentApplication;
+        public DiscordApplication CurrentApplication { get; private set; }
 
         /// <summary>
         /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
@@ -656,7 +650,7 @@ namespace DSharpPlus
                 if (this.CurrentUser != null)
                     client.CurrentUser = this.CurrentUser;
 
-                if (this._currentApplication != null)
+                if (this.CurrentApplication != null)
                     client.CurrentApplication = this.CurrentApplication;
 
                 if (this.InternalVoiceRegions != null)
@@ -718,11 +712,11 @@ namespace DSharpPlus
                 await client.ConnectAsync().ConfigureAwait(false);
                 this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
 
-                if (this._currentUser == null)
-                    this._currentUser = client.CurrentUser;
+                if (this.CurrentUser == null)
+                    this.CurrentUser = client.CurrentUser;
 
-                if (this._currentApplication == null)
-                    this._currentApplication = client.CurrentApplication;
+                if (this.CurrentApplication == null)
+                    this.CurrentApplication = client.CurrentApplication;
 
                 if (this.InternalVoiceRegions == null)
                 {
