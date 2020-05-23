@@ -39,7 +39,7 @@ namespace DSharpPlus.Test
                 AutoReconnect = true,
                 LargeThreshold = 250,
                 LogLevel = LogLevel.Debug,
-                Token = "Mzk3MTMxNjY5OTE3OTI1Mzc2.XsU_BA.tlHH1Q3Y36XMS-QV4dH5X7GN__c",//this.Config.Token,
+                Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = true,
                 ShardId = shardid,
