@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using System.Threading;
+using System.Security.Cryptography.X509Certificates;
 
 namespace DSharpPlus.Test
 {
@@ -20,6 +21,7 @@ namespace DSharpPlus.Test
 
         public static async Task MainAsync(string[] args)
         {
+            var test = 100;
             Console.CancelKeyPress += Console_CancelKeyPress;
 
             var cfg = new TestBotConfig();
@@ -40,7 +42,7 @@ namespace DSharpPlus.Test
             var tskl = new List<Task>();
             for (var i = 0; i < cfg.ShardCount; i++)
             {
-                var bot = new TestBot(cfg, i);
+                var bot = new TestBot(cfg, i, ref test);
                 Shards.Add(bot);
                 tskl.Add(bot.RunAsync());
                 await Task.Delay(7500).ConfigureAwait(false);
