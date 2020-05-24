@@ -151,6 +151,9 @@ namespace DSharpPlus.Entities
         /// <param name="type">Type of the activity.</param>
         public DiscordActivity(string name, ActivityType type)
         {
+            if (type == ActivityType.Custom)
+                throw new InvalidOperationException("Bots cannot use a custom status");
+
             this.Name = name;
             this.ActivityType = type;
         }
