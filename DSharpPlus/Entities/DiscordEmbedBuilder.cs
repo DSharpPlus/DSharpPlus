@@ -461,6 +461,9 @@ namespace DSharpPlus.Entities
         public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder)
             => builder?.Build();
 
+        /// <summary>
+        /// Represents an embed author.
+        /// </summary>
         public class EmbedAuthor
         {
             /// <summary>
@@ -499,6 +502,9 @@ namespace DSharpPlus.Entities
             internal DiscordUri _iconUri;
         }
 
+        /// <summary>
+        /// Represents an embed footer.
+        /// </summary>
         public class EmbedFooter
         {
             /// <summary>
@@ -527,6 +533,9 @@ namespace DSharpPlus.Entities
             internal DiscordUri _iconUri;
         }
 
+        /// <summary>
+        /// Represents an embed thumbnail.
+        /// </summary>
         public class EmbedThumbnail
         {
             /// <summary>
