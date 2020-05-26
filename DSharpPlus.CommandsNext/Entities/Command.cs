@@ -85,10 +85,17 @@ namespace DSharpPlus.CommandsNext
                         continue;
 
                     ctx.RawArguments = args.Raw;
-                    
+
                     var mdl = ovl.InvocationTarget ?? this.Module?.GetInstance(ctx.Services);
                     if (mdl is BaseCommandModule bcmBefore)
-                        await bcmBefore.BeforeExecutionAsync(ctx).ConfigureAwait(false);
+                    {
+                        var shouldHandleExecution = await bcmBefore.BeforeExecutionAsync(ctx).ConfigureAwait(false);
+                        if (!shouldHandleExecution)
+                        {
+                            executed = true;
+                            break;
+                        }
+                    }
 
                     args.Converted[0] = mdl;
                     var ret = (Task)ovl.Callable.DynamicInvoke(args.Converted);
