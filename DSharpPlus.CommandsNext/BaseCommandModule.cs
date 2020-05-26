@@ -12,8 +12,8 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="ctx">Context in which the method is being executed.</param>
         /// <returns></returns>
-        public virtual Task BeforeExecutionAsync(CommandContext ctx)
-            => Task.Delay(0);
+        public virtual Task<bool> BeforeExecutionAsync(CommandContext ctx)
+            => Task.FromResult(true);
 
         /// <summary>
         /// Called after a command in the implementing module is successfully executed.
