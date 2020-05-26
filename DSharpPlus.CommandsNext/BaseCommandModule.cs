@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandsNext
         /// Called before a command in the implementing module is executed.
         /// </summary>
         /// <param name="ctx">Context in which the method is being executed.</param>
-        /// <returns></returns>
+        /// <returns>True if D#+ should handle execution of the command.</returns>
         public virtual Task<bool> BeforeExecutionAsync(CommandContext ctx)
             => Task.FromResult(true);
 
