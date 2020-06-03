@@ -194,6 +194,9 @@ namespace DSharpPlus.Entities
                     sfmt = "webp";
                     break;
 
+                case ImageFormat.Auto:
+                    sfmt = !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_") ? "gif" : "png") : "png";
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(fmt));
             }
