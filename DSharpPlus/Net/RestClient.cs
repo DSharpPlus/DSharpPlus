@@ -142,14 +142,14 @@ namespace DSharpPlus.Net
                         if (delay < TimeSpan.Zero)
                             delay = TimeSpan.FromMilliseconds(100);
 
-                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered, waiting until {resetDate:yyyy-MM-dd HH:mm:ss zzz} ({delay:c})", DateTime.Now);
+                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered. Waiting until {resetDate:yyyy-MM-dd HH:mm:ss zzz} ({delay:c}).", DateTime.Now);
                         request.Discord?.DebugLogger?.LogTaskFault(Task.Delay(delay).ContinueWith(_ => this.ExecuteRequestAsync(request, null, null)), LogLevel.Error, "RESET", "Error while executing request: ");
                         return;
                     }
                     request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for {bucket}. Allowing.", DateTime.Now);
                 }
                 else
-                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Initial Request for {bucket}. Allowing.", DateTime.Now);
+                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Initial request for {bucket}. Allowing.", DateTime.Now);
 
                 var req = this.BuildRequest(request);
                 var response = new RestResponse();
