@@ -26,16 +26,16 @@ namespace DSharpPlus.Net
         private HttpClient HttpClient { get; }
         private ConcurrentDictionary<string, RateLimitBucket> Buckets { get; }
         private AsyncManualResetEvent GlobalRateLimitEvent { get; }
-
+        private bool UseResetAfter { get; }
         internal RestClient(BaseDiscordClient client)
-            : this(client.Configuration.Proxy, client.Configuration.HttpTimeout)
+            : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit)
         {
             this.Discord = client;
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
             this.HttpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
 
-        internal RestClient(IWebProxy proxy, TimeSpan timeout) // This is for meta-clients, such as the webhook client
+        internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit) // This is for meta-clients, such as the webhook client
         {
             var httphandler = new HttpClientHandler
             {
@@ -54,6 +54,7 @@ namespace DSharpPlus.Net
 
             this.Buckets = new ConcurrentDictionary<string, RateLimitBucket>();
             this.GlobalRateLimitEvent = new AsyncManualResetEvent(true);
+            this.UseResetAfter = useRelativeRatelimit;
         }
 
         public RateLimitBucket GetBucket(RestRequestMethod method, string route, object route_params, out string url)
@@ -115,30 +116,40 @@ namespace DSharpPlus.Net
                 {
                     var now = DateTimeOffset.UtcNow;
 
-                    await bucket.TryResetLimit(now);
+                    await bucket.TryResetLimitAsync(now);
 
                     // Decrement the remaining number of requests as there can be other concurrent requests before this one finishes and has a chance to update the bucket
 #pragma warning disable 420 // interlocked access is always volatile
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
 #pragma warning restore 420 // blaze it
                     {
-                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for bucket {bucket}. Blocking.", DateTime.Now);
+                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for {bucket}. Blocking.", DateTime.Now);
                         var delay = bucket.Reset - now;
+                        var resetDate = bucket.Reset;
+
+                        if (this.UseResetAfter)
+                        {
+                            delay = bucket.ResetAfter.Value;
+                            resetDate = bucket._resetAfterOffset;
+                        }
+
                         if (delay < new TimeSpan(-TimeSpan.TicksPerMinute))
                         {
                             request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", "Failed to retrieve ratelimits. Giving up and allowing next request for bucket.", DateTime.Now);
                             bucket._remaining = 1;
                         }
+
                         if (delay < TimeSpan.Zero)
                             delay = TimeSpan.FromMilliseconds(100);
-                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered, waiting until {bucket.Reset:yyyy-MM-dd HH:mm:ss zzz} ({delay:c})", DateTime.Now);
-                        request.Discord?.DebugLogger?.LogTaskFault(Task.Delay(delay).ContinueWith(t => this.ExecuteRequestAsync(request, null, null)), LogLevel.Error, "RESET", "Error while executing request: ");
+
+                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered, waiting until {resetDate:yyyy-MM-dd HH:mm:ss zzz} ({delay:c})", DateTime.Now);
+                        request.Discord?.DebugLogger?.LogTaskFault(Task.Delay(delay).ContinueWith(_ => this.ExecuteRequestAsync(request, null, null)), LogLevel.Error, "RESET", "Error while executing request: ");
                         return;
                     }
-                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for bucket {bucket}. Allowing.", DateTime.Now);
+                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for {bucket}. Allowing.", DateTime.Now);
                 }
                 else
-                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Initial Request for bucket {bucket}. Allowing.", DateTime.Now);
+                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Initial Request for {bucket}. Allowing.", DateTime.Now);
 
                 var req = this.BuildRequest(request);
                 var response = new RestResponse();
@@ -366,8 +377,9 @@ namespace DSharpPlus.Net
             var r1 = hs.TryGetValue("X-RateLimit-Limit", out var usesmax);
             var r2 = hs.TryGetValue("X-RateLimit-Remaining", out var usesleft);
             var r3 = hs.TryGetValue("X-RateLimit-Reset", out var reset);
+            var r4 = hs.TryGetValue("X-Ratelimit-Reset-After", out var resetAfter);
 
-            if (!r1 || !r2 || !r3)
+            if (!r1 || !r2 || !r3 || !r4)
             {
                 if (response.ResponseCode != 429)
                     this.FailInitialRateLimitTest(bucket, ratelimitTcs);
@@ -387,19 +399,28 @@ namespace DSharpPlus.Net
             //else
             //    difference = TimeSpan.Zero;
 
-            if (request.RateLimitWaitOverride != null)
+            if (request.RateLimitWaitOverride.HasValue)
                 resetdelta = TimeSpan.FromSeconds(request.RateLimitWaitOverride.Value);
             var newReset = clienttime + resetdelta;
 
+            if (this.UseResetAfter)
+            {
+                bucket.ResetAfter = TimeSpan.FromSeconds(double.Parse(resetAfter));
+                newReset = clienttime + bucket.ResetAfter.Value + (request.RateLimitWaitOverride.HasValue
+                    ? resetdelta
+                    : TimeSpan.Zero);
+                bucket._resetAfterOffset = newReset;
+            }
+            else
+                bucket.Reset = newReset;
+
+            bucket.Maximum = int.Parse(usesmax, CultureInfo.InvariantCulture);
 
             if (ratelimitTcs != null)
             {
                 // initial population of the ratelimit data
-                bucket.Maximum = int.Parse(usesmax, CultureInfo.InvariantCulture);
                 bucket._remaining = int.Parse(usesleft, CultureInfo.InvariantCulture);
-                bucket.Reset = newReset;
                 bucket._nextReset = newReset.UtcTicks;
-
                 bucket._limitValid = true;
                 bucket._limitTestFinished = null;
                 bucket._limitTesting = 0;
@@ -409,9 +430,6 @@ namespace DSharpPlus.Net
             {
                 // only update the bucket values if this request was for a newer interval than the one
                 // currently in the bucket, to avoid issues with concurrent requests in one bucket
-
-                bucket.Maximum = int.Parse(usesmax, CultureInfo.InvariantCulture);
-                bucket.Reset = newReset;
                 // remaining is reset by TryResetLimit and not the response, just allow that to happen when it is time
                 if (bucket._nextReset == 0)
                     bucket._nextReset = newReset.UtcTicks;

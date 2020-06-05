@@ -55,6 +55,13 @@ namespace DSharpPlus.Net
         /// </summary>
         public DateTimeOffset Reset { get; internal set; }
 
+        /// <summary>
+        /// Gets the time interval to wait before the rate limit resets.
+        /// </summary>
+        public TimeSpan? ResetAfter { get; internal set; } = null;
+
+        internal DateTimeOffset _resetAfterOffset { get; set; }
+
         internal volatile int _remaining;
 
         /// <summary>
@@ -84,7 +91,7 @@ namespace DSharpPlus.Net
         /// This is a int because booleans can't be accessed atomically.
         /// 0 => False, all other values => True
         /// </summary>
-        internal volatile int _limitReseting;
+        internal volatile int _limitResetting;
 
         internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id)
         {
@@ -112,9 +119,7 @@ namespace DSharpPlus.Net
         /// </summary>
         /// <returns>String representation of this bucket.</returns>
         public override string ToString()
-        {
-            return $"Rate limit bucket [{this.Method}:{this.GuildId}:{this.ChannelId}:{this.WebhookId}:{this.Route}] [{Remaining}/{Maximum}] {Reset}";
-        }
+            => $"rate limit bucket [{this.Method}:{this.GuildId}:{this.ChannelId}:{this.WebhookId}:{this.Route}] [{this.Remaining}/{this.Maximum}] {(this.ResetAfter.HasValue ? this._resetAfterOffset : this.Reset)}";
 
         /// <summary>
         /// Checks whether this <see cref="RateLimitBucket"/> is equal to another object.
@@ -122,9 +127,7 @@ namespace DSharpPlus.Net
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="RateLimitBucket"/>.</returns>
         public override bool Equals(object obj)
-        {
-            return this.Equals(obj as RateLimitBucket);
-        }
+            => this.Equals(obj as RateLimitBucket);
 
         /// <summary>
         /// Checks whether this <see cref="RateLimitBucket"/> is equal to another <see cref="RateLimitBucket"/>.
@@ -147,34 +150,34 @@ namespace DSharpPlus.Net
         /// </summary>
         /// <returns>The hash code for this <see cref="RateLimitBucket"/>.</returns>
         public override int GetHashCode()
-        {
-            return BucketId.GetHashCode();
-        }
+            => this.BucketId.GetHashCode();
 
         /// <summary>
         /// Sets remaining number of requests to the maximum when the ratelimit is reset
         /// </summary>
         /// <param name="now"></param>
-        internal async Task TryResetLimit(DateTimeOffset now)
+        internal async Task TryResetLimitAsync(DateTimeOffset now)
         {
-            if (_nextReset == 0)
+            if (this.ResetAfter.HasValue)
+                this.ResetAfter = this._resetAfterOffset - now;
+
+            if (this._nextReset == 0)
                 return;
 
-            if (_nextReset > now.UtcTicks)
+            if (this._nextReset > now.UtcTicks)
                 return;
 
-#pragma warning disable 420 // interlocked access is always volatile
-            while (Interlocked.CompareExchange(ref _limitReseting, 1, 0) != 0)
+            while (Interlocked.CompareExchange(ref this._limitResetting, 1, 0) != 0)
 #pragma warning restore 420
                 await Task.Yield();
 
-            if (_nextReset != 0)
+            if (this._nextReset != 0)
             {
-                _remaining = this.Maximum;
-                _nextReset = 0;
+                this._remaining = this.Maximum;
+                this._nextReset = 0;
             }
 
-            _limitReseting = 0;
+            this._limitResetting = 0;
         }
     }
 }

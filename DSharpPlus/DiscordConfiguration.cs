@@ -45,6 +45,14 @@ namespace DSharpPlus
         public bool UseInternalLogHandler { internal get; set; } = false;
 
         /// <summary>
+        /// <para>Sets whether to rely on Discord for NTP (Network Time Protocol) synchronization with the "X-Ratelimit-Reset-After" header.</para>
+        /// <para>If the system clock is unsynced, setting this to true will ensure ratelimits are synced with Discord and reduce the risk of hitting one.</para>
+        /// <para>This should only be set to false if the system clock is synced with NTP.</para>
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool UseRelativeRatelimit { internal get; set; } = true;
+
+        /// <summary>
         /// <para>Allows you to overwrite the time format used by the internal debug logger.</para>
         /// <para>Only applicable when <see cref="UseInternalLogHandler"/> is set to true. Defaults to ISO 8601-like format.</para>
         /// </summary>
@@ -155,6 +163,7 @@ namespace DSharpPlus
             this.TokenType = other.TokenType;
             this.LogLevel = other.LogLevel;
             this.UseInternalLogHandler = other.UseInternalLogHandler;
+            this.UseRelativeRatelimit = other.UseRelativeRatelimit;
             this.DateTimeFormat = other.DateTimeFormat;
             this.LargeThreshold = other.LargeThreshold;
             this.AutoReconnect = other.AutoReconnect;
