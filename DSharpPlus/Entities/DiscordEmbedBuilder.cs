@@ -257,7 +257,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets the embed's thumbnail url.
+        /// Sets the embed's thumbnail.
         /// </summary>
         /// <param name="url">Thumbnail url to set.</param>
         /// <param name="height">The height of the thumbnail to set.</param>
@@ -276,7 +276,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets the embed's thumbnail url.
+        /// Sets the embed's thumbnail.
         /// </summary>
         /// <param name="url">Thumbnail url to set.</param>
         /// <param name="height">The height of the thumbnail to set.</param>

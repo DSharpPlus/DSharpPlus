@@ -32,9 +32,9 @@ namespace DSharpPlus.Net
             this.Rest = new RestClient(client);
         }
 
-        internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout) // This is for meta-clients, such as the webhook client
+        internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRateLimit) // This is for meta-clients, such as the webhook client
         {
-            this.Rest = new RestClient(proxy, timeout);
+            this.Rest = new RestClient(proxy, timeout, useRelativeRateLimit);
         }
 
         private static string BuildQueryString(IDictionary<string, string> values, bool post = false)
@@ -1741,7 +1741,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteOwnReactionAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1750,7 +1750,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteUserReactionAsync(ulong channel_id, ulong message_id, ulong user_id, string emoji, string reason)
@@ -1763,7 +1763,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji, user_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
@@ -1809,7 +1809,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteReactionsEmojiAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1818,7 +1818,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
         #endregion
 

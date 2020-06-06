@@ -59,9 +59,10 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="proxy">Proxy to use for HTTP connections.</param>
         /// <param name="timeout">Timeout to use for HTTP requests. Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</param>
-        public DiscordWebhookClient(IWebProxy proxy, TimeSpan timeout)
+        /// <param name="useRelativeRateLimit">Whether to use the system clock for computing rate limit resets. See <see cref="DiscordConfiguration.UseRelativeRatelimit"/> for more details.</param>
+        public DiscordWebhookClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRateLimit = true)
         {
-            this._apiclient = new DiscordApiClient(proxy, timeout);
+            this._apiclient = new DiscordApiClient(proxy, timeout, useRelativeRateLimit);
             this._hooks = new List<DiscordWebhook>();
             this.Webhooks = new ReadOnlyCollection<DiscordWebhook>(this._hooks);
         }
