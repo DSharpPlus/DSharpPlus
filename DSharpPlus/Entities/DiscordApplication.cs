@@ -101,6 +101,7 @@ namespace DSharpPlus.Entities
                     sfmt = "jpg";
                     break;
 
+                case ImageFormat.Auto:
                 case ImageFormat.Png:
                     sfmt = "png";
                     break;
