@@ -108,4 +108,22 @@ namespace MyFirstMusicBot
 ```
 If everything is configured properly, you should see a Lavalink connection appear in your DSharpPlus console:
 
-![s](/images/07_01_lavalink_connection_established.png)
+```
+[WebSocket] [Debug] Received OP 10 (HELLO) - Trying to either resume or identify.
+[WebSocket] [Debug] Starting Heartbeat.
+[WebSocket] [Debug] Sending Heartbeat.
+[WebSocket] [Debug] Received WebSocket Heartbeat Ack. Ping: 58ms
+[Lavalink] [Info] Connection established
+```
+
+And a client connection appear in your Lavalink console: 
+
+```
+INFO 5180 --- [  XNIO-1 task-1] io.undertow.servlet                      : Initializing Spring DispatcherServlet 'dispatcherServlet'
+INFO 5180 --- [  XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+INFO 5180 --- [  XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 8 ms
+INFO 5180 --- [  XNIO-1 task-1] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /0:0:0:0:0:0:0:1:58238
+INFO 5180 --- [  XNIO-1 task-1] lavalink.server.io.SocketServer          : Connection successfully established from /0:0:0:0:0:0:0:1:58238
+```
+
+We are now ready to set up some music commands!
