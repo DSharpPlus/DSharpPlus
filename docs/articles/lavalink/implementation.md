@@ -7,9 +7,9 @@ To begin using DSharpPlus's Lavalink client, you will need to add the `DSharpPlu
 using DSharpPlus.Net;
 using DSharpPlus.Lavalink;
 ```
-Next, make sure you have an extension property in your class:
+Next, make sure you have a node connection property in your class. You will need this later on for commands.
 ```csharp
-public static LavalinkExtension Lavalink;
+public static LavalinkNodeConnection LavalinkNode;
 ```
 
 After that, we will need to create a configuration for our extension to use. This is where the special values from the server configuration are used.
@@ -40,10 +40,10 @@ Lavalink = discord.UseLavalink(lcfg);
 
 ## Connecting with Lavalink
 
-We are now ready to connect to the server. Call the Lavalink extension's connect method and pass the configuration. Make sure to call this **after** your Discord client connects:
+We are now ready to connect to the server. Call the Lavalink extension's connect method and pass the configuration. Make sure to call this **after** your Discord client connects. Assign the connection to your `LavalinkNode`.
 
 ```csharp
-await Lavalink.ConnectAsync(lcfg);
+LavalinkNode = await Lavalink.ConnectAsync(lcfg);
 ```
 
 Your main bot file should now look like this: 
@@ -59,7 +59,7 @@ namespace MyFirstMusicBot
     class Program
     {
         public static DiscordClient Discord;
-        public static LavalinkExtension Lavalink;
+        public static LavalinkNodeConnection LavalinkNode;
 
         static void Main(string[] args)
         {
@@ -95,10 +95,10 @@ namespace MyFirstMusicBot
                 SocketEndpoint = socketConfig
             };
 
-            Lavalink = Discord.UseLavalink();
+            Discord.UseLavalink();
 
             await Discord.ConnectAsync();
-            await Lavalink.ConnectAsync(lcfg); //Make sure this is after Discord.ConnectAsync().
+            LavalinkNode = await Lavalink.ConnectAsync(lcfg); //Make sure this is after Discord.ConnectAsync().
             await Task.Delay(-1);
         }
     }
