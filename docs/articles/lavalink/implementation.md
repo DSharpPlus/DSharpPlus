@@ -1,7 +1,5 @@
 # Setting up DSharpPlus.Lavalink
 
-The remaining articles assume that you know how to use CommandsNext. If you have not, you should learn [here](https://dsharpplus.github.io/articles/commands/intro.html) before continuing with Lavalink.
-
 ## Configuring Your Client
 
 To begin using DSharpPlus's Lavalink client, you will need to add the `DSharpPlus.Lavalink` nuget package. Once installed, simply add these namespaces at the top of your bot file:
