@@ -25,3 +25,16 @@ CommandsNext = Discord.UseCommandsNext(new CommandsNextConfiguration
 });
 
 CommandsNext.RegisterCommands<MyLavalinkCommands>();
+```
+
+## Adding a join command
+
+Your bot, and Lavalink, will need to connect to a voice channel to play music. Let's create the base for this command: 
+
+```csharp
+[Command]
+public async Task Join(CommandContext ctx, DiscordChannel channel)
+{
+            
+
+}
