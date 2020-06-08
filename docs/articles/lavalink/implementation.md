@@ -104,7 +104,7 @@ namespace MyFirstMusicBot
     }
 }
 ```
-If everything is configured properly, you should see a Lavalink connection appear in your DSharpPlus console:
+We are now ready to start the bot. If everything is configured properly, you should see a Lavalink connection appear in your DSharpPlus console:
 
 ```
 [WebSocket] [Debug] Received OP 10 (HELLO) - Trying to either resume or identify.
