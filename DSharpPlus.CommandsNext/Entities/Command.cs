@@ -24,7 +24,7 @@ namespace DSharpPlus.CommandsNext
             => this.Parent != null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
 
         /// <summary>
-        /// Gets this command's alises.
+        /// Gets this command's aliases.
         /// </summary>
         public IReadOnlyList<string> Aliases { get; internal set; }
 
