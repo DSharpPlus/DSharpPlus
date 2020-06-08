@@ -405,7 +405,7 @@ namespace DSharpPlus.Net
 
             if (this.UseResetAfter)
             {
-                bucket.ResetAfter = TimeSpan.FromSeconds(double.Parse(resetAfter));
+                bucket.ResetAfter = TimeSpan.FromSeconds(double.Parse(resetAfter, CultureInfo.InvariantCulture));
                 newReset = clienttime + bucket.ResetAfter.Value + (request.RateLimitWaitOverride.HasValue
                     ? resetdelta
                     : TimeSpan.Zero);
