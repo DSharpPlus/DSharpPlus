@@ -6,9 +6,10 @@ namespace DSharpPlus
 {
     public class DebugLogger
     {
+        static readonly object _lock = new object();
+
         private LogLevel Level { get; }
         private string DateTimeFormat { get; }
-        private object Lock { get; }
 
         internal DebugLogger(BaseDiscordClient client)
         {
@@ -60,7 +61,7 @@ namespace DSharpPlus
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
         {
-            lock (this.Lock)
+            lock (this._lock)
             {
                 switch (e.Level) {
                     case LogLevel.Debug:
