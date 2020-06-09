@@ -61,7 +61,7 @@ namespace DSharpPlus
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
         {
-            lock (this._lock)
+            lock (_lock)
             {
                 switch (e.Level) {
                     case LogLevel.Debug:
