@@ -8,6 +8,7 @@ namespace DSharpPlus
     {
         private LogLevel Level { get; }
         private string DateTimeFormat { get; }
+        private object Lock { get; }
 
         internal DebugLogger(BaseDiscordClient client)
         {
@@ -59,33 +60,35 @@ namespace DSharpPlus
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)
         {
-            switch (e.Level)
+            lock (this.Lock)
             {
-                case LogLevel.Debug:
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    break;
+                switch (e.Level) {
+                    case LogLevel.Debug:
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        break;
 
-                case LogLevel.Info:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    break;
+                    case LogLevel.Info:
+                        Console.ForegroundColor = ConsoleColor.White;
+                        break;
 
-                case LogLevel.Warning:
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    break;
+                    case LogLevel.Warning:
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        break;
 
-                case LogLevel.Error:
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    break;
+                    case LogLevel.Error:
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        break;
 
-                case LogLevel.Critical:
-                    Console.BackgroundColor = ConsoleColor.DarkRed;
-                    Console.ForegroundColor = ConsoleColor.Black;
-                    break;
+                    case LogLevel.Critical:
+                        Console.BackgroundColor = ConsoleColor.DarkRed;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        break;
+                }
+
+                Console.Write($"[{e.Timestamp.ToString(this.DateTimeFormat)}] [{e.Application}] [{e.Level}]");
+                Console.ResetColor();
+                Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
             }
-
-            Console.Write($"[{e.Timestamp.ToString(this.DateTimeFormat)}] [{e.Application}] [{e.Level}]");
-            Console.ResetColor();
-            Console.WriteLine($" {e.Message}{(e.Exception != null ? $"\n{e.Exception}" : "")}");
         }
 
         public event EventHandler<DebugLogMessageEventArgs> LogMessageReceived;
