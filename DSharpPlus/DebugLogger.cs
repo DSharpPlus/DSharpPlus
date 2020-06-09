@@ -6,7 +6,7 @@ namespace DSharpPlus
 {
     public class DebugLogger
     {
-        static readonly object _lock = new object();
+        private static readonly object _lock = new object();
 
         private LogLevel Level { get; }
         private string DateTimeFormat { get; }
