@@ -141,15 +141,171 @@ public async Task Play(CommandContext ctx, Uri url)
 }
 ```
 
-Like before, we will need to get our node and guild connection, with the appropriate checks: 
+Like before, we will need to get our node and guild connection and have the appropriate checks. Since it wouldn't make sense to have the channel as a parameter, we will instead get it from the member's voice state: 
 
 ```csharp
-var node = Program.LavalinkNode;
-var conn = node.GetConnection(channel.Guild);
+//Important to check the voice state itself first, 
+//as it may throw a NullReferenceException if they don't have a voice state.
+if(ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)  
+{
+    await ctx.RespondAsync("You are not in a voice channel.");
+    return;
+}
 
-if(conn == null)
+var node = Program.LavalinkNode;
+var conn = node.GetConnection(ctx.Member.VoiceState.Guild);
+
+if (conn == null)
 {
     await ctx.RespondAsync("Lavalink is not connected.");
     return;
 }
 ```
+
+Next, we will get the track details by calling `node.Rest.GetTracksAsync()`. There are a variety of overloads for this:
+
+1. `GetTracksAsync(LavalinkSearchType.Youtube, search)` will search YouTube for your search string. 
+2. `GetTracksAsync(LavalinkSearchType.SoundCloud, search)` will search SoundCloud for your search string. 
+3. `GetTracksAsync(Uri)` will use the direct url to obtain the track. This is mainly used for the other media sources. 
+
+For this guide we will be searching YouTube. Let's pass in our search string and store the result in a variable: 
+
+```csharp
+//We don't need to specify the search type here
+//since it is YouTube by default.
+var loadResult = await node.Rest.GetTracksAsync(search);
+```
+
+The load result will contain an enum called `LoadResultType`, which will inform us if Lavalink was able to retrieve the track data. We can use this as a check: 
+
+```csharp
+//If something went wrong on Lavalink's end                          or it just couldn't find anything.
+if(loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
+{
+    await ctx.RespondAsync($"Track search failed for {search}.");
+    return;
+}
+```
+
+Lavalink will return the track data from your search in a collection called `loadResult.Tracks`, similar to using the search bar in YouTube or SoundCloud directly. The first track is typically the most accurate one, so that is what we will use: 
+
+```csharp
+var track = loadResult.Tracks.First();
+```
+
+And finally, we can play the track:
+
+```csharp
+await conn.PlayAsync(track);
+
+await ctx.RespondAsync($"Now playing {track.Title}!");
+```
+
+Your play command should look like this: 
+```csharp
+[Command]
+public async Task Play(CommandContext ctx, [RemainingText] string search)
+{
+    if(ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+    {
+        await ctx.RespondAsync("You are not in a voice channel.");
+        return;
+    }
+
+    var node = Program.LavalinkNode;
+    var conn = node.GetConnection(ctx.Member.VoiceState.Guild);
+
+    if (conn == null)
+    {
+        await ctx.RespondAsync("Lavalink is not connected.");
+        return;
+    }
+
+    var loadResult = await node.Rest.GetTracksAsync(search);
+
+    if(loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
+    {
+        await ctx.RespondAsync($"Track search failed for {search}.");
+        return;
+    }
+
+    var track = loadResult.Tracks.First();
+
+    await conn.PlayAsync(track);
+
+    await ctx.RespondAsync($"Now playing {track.Title}!");
+}
+```
+
+[INSERT PICTURE HERE]
+
+Being able to pause the player is also useful. For this we can use most of the base from the play command: 
+
+```csharp
+[Command]
+public async Task Pause(CommandContext ctx)
+{
+    if(ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+    {
+        await ctx.RespondAsync("You are not in a voice channel.");
+        return;
+    }
+
+    var node = Program.LavalinkNode;
+    var conn = node.GetConnection(ctx.Member.VoiceState.Guild);
+
+    if (conn == null)
+    {
+        await ctx.RespondAsync("Lavalink is not connected.");
+        return;
+    }
+}
+```
+
+For this command we will also want to check the player state to determine if we should send a pause command. We can do so by checking `conn.CurrentState.CurrentTrack`:
+
+if(conn.CurrentState.CurrentTrack == null)
+{
+    await ctx.RespondAsync("There are no tracks loaded.");
+    return;
+}
+
+And finally, we can call pause: 
+
+```csharp
+await conn.PauseAsync();
+```
+
+The finished command should look like so:
+```csharp
+[Command]
+public async Task Pause(CommandContext ctx)
+{
+    if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+    {
+        await ctx.RespondAsync("You are not in a voice channel.");
+        return;
+    }
+
+    var node = Program.LavalinkNode;
+    var conn = node.GetConnection(ctx.Member.VoiceState.Guild);
+
+    if (conn == null)
+    {
+        await ctx.RespondAsync("Lavalink is not connected.");
+        return;
+    }
+
+    if(conn.CurrentState.CurrentTrack == null)
+    {
+         await ctx.RespondAsync("There are no tracks loaded.");
+         return;
+    }
+
+    await conn.PauseAsync();
+}
+```
+
+Of course, there are other commands Lavalink has to offer. Check out [the docs](https://dsharpplus.github.io/api/DSharpPlus.Lavalink.LavalinkGuildConnection.html#methods) to view the commands you can use while playing tracks.
+
+There are also open source examples such as Emzi0767's [Companion Cube Bot](https://github.com/Emzi0767/Discord-Companion-Cube-Bot) and [Turret Bot](https://github.com/Emzi0767/Discord-Music-Turret-Bot).
