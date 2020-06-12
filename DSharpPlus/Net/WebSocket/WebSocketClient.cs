@@ -108,9 +108,6 @@ namespace DSharpPlus.Net.WebSocket
             // Ensure that messages cannot be sent
             await this._senderLock.WaitAsync().ConfigureAwait(false);
 
-            if (this._isConnected)
-                this._isConnected = false;
-
             try
             {
                 this._isClientClose = true;
@@ -118,20 +115,18 @@ namespace DSharpPlus.Net.WebSocket
                     await this._ws.CloseOutputAsync((WebSocketCloseStatus)code, message, CancellationToken.None).ConfigureAwait(false);
 
                 if (this._receiverTask != null)
-                    await this._receiverTask.ConfigureAwait(false); // Ensure that receving completed
+                    await this._receiverTask.ConfigureAwait(false); // Ensure that receiving completed
+
+                if (this._isConnected)
+                    this._isConnected = false;
 
                 // Cancel all running tasks
-                if (this._socketTokenSource != null)
-                {
-                    this._socketTokenSource.Cancel();
-                    this._socketTokenSource.Dispose();
-                }
+                this._socketTokenSource?.Cancel();
+                this._socketTokenSource?.Dispose();
 
-                if (this._receiverTokenSource != null)
-                {
-                    this._receiverTokenSource.Cancel();
-                    this._receiverTokenSource.Dispose();
-                }
+                this._receiverTokenSource?.Cancel();
+                this._receiverTokenSource?.Dispose();
+
             }
             catch { }
             finally
@@ -256,9 +251,6 @@ namespace DSharpPlus.Net.WebSocket
                                 await this._ws.CloseOutputAsync(code, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
                             }
 
-                            if (this._isConnected)
-                                this._isConnected = false;
-
                             await this._disconnected.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
                             break;
                         }
@@ -267,9 +259,6 @@ namespace DSharpPlus.Net.WebSocket
             }
             catch (Exception ex)
             {
-                if (this._isConnected)
-                    this._isConnected = false;
-
                 await this._exceptionThrown.InvokeAsync(new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false);
                 await this._disconnected.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = "" }).ConfigureAwait(false);
             }
