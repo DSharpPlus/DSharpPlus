@@ -152,7 +152,7 @@ namespace DSharpPlus.CommandsNext
             if (this.Config.UseDefaultCommandHandler)
                 this.Client.MessageCreated += this.HandleCommandsAsync;
             else
-                this.Client.DebugLogger.LogMessage(LogLevel.Warning, "CommandsNext", "Default command handler is not attached. If this was intentional, you can ignore this message.", DateTime.Now);
+                this.Client.DebugLogger.LogMessage(LogLevel.Warning, "CommandsNext", "Default command handler is not attached. If this was intentional, you can ignore this message.", this.Client.Configuration.DefaultDateTime);
 
             if (this.Config.EnableDefaultHelp)
             {

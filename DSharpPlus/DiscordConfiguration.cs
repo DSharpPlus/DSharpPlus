@@ -53,6 +53,11 @@ namespace DSharpPlus
         public bool UseRelativeRatelimit { internal get; set; } = true;
 
         /// <summary>
+        /// <para>Sets the default date time used by the internal debug logger.</para>
+        /// </summary>
+        public DateTime DefaultDateTime { internal get; set; } = DateTime.Now;
+
+        /// <summary>
         /// <para>Allows you to overwrite the time format used by the internal debug logger.</para>
         /// <para>Only applicable when <see cref="UseInternalLogHandler"/> is set to true. Defaults to ISO 8601-like format.</para>
         /// </summary>
@@ -164,6 +169,7 @@ namespace DSharpPlus
             this.LogLevel = other.LogLevel;
             this.UseInternalLogHandler = other.UseInternalLogHandler;
             this.UseRelativeRatelimit = other.UseRelativeRatelimit;
+            this.DefaultDateTime = other.DefaultDateTime;
             this.DateTimeFormat = other.DateTimeFormat;
             this.LargeThreshold = other.LargeThreshold;
             this.AutoReconnect = other.AutoReconnect;

@@ -38,7 +38,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             catch (Exception ex)
             {
                 this._client.DebugLogger.LogMessage(LogLevel.Error, "Interactivity",
-                    $"Something went wrong with exception {ex.GetType().Name}.", DateTime.Now);
+                    $"Something went wrong with exception {ex.GetType().Name}.", this._client.Configuration.DefaultDateTime);
             }
             finally
             {

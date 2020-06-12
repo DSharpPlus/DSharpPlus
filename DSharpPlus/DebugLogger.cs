@@ -8,11 +8,13 @@ namespace DSharpPlus
     {
         private LogLevel Level { get; }
         private string DateTimeFormat { get; }
+        private DateTime DateTime { get; }
 
         internal DebugLogger(BaseDiscordClient client)
         {
             this.Level = client.Configuration.LogLevel;
             this.DateTimeFormat = client.Configuration.DateTimeFormat;
+            this.DateTime = client.Configuration.DefaultDateTime;
         }
 
         internal DebugLogger(LogLevel level, string timeformatting)
@@ -54,7 +56,7 @@ namespace DSharpPlus
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            task.ContinueWith(t => LogMessage(level, application, message, DateTime.Now, t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+            task.ContinueWith(t => LogMessage(level, application, message, this.DateTime, t.Exception), TaskContinuationOptions.OnlyOnFaulted);
         }
 
         internal void LogHandler(object sender, DebugLogMessageEventArgs e)

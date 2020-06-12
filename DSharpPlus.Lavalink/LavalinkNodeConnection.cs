@@ -271,7 +271,7 @@ namespace DSharpPlus.Lavalink
         {
             if (!(e is SocketTextMessageEventArgs et))
             {
-                this.Discord.DebugLogger.LogMessage(LogLevel.Critical, "Lavalink", "Lavalink spewed out binary gibberish!", DateTime.Now);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Critical, "Lavalink", "Lavalink spewed out binary gibberish!", this.Discord.Configuration.DefaultDateTime);
                 return;
             }
 
@@ -359,7 +359,7 @@ namespace DSharpPlus.Lavalink
         {
             if (this.IsConnected && e.CloseCode != 1001 && e.CloseCode != -1)
             {
-                this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Lavalink", $"Connection broken ({e.CloseCode}, {e.CloseMessage}); re-establishing...", DateTime.Now);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Lavalink", $"Connection broken ({e.CloseCode}, {e.CloseMessage}); re-establishing...", this.Discord.Configuration.DefaultDateTime);
                 this.WebSocket = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
                 this.WebSocket.Connected += this.WebSocket_OnConnect;
                 this.WebSocket.Disconnected += this.WebSocket_OnDisconnect;
@@ -374,14 +374,14 @@ namespace DSharpPlus.Lavalink
             }
             else if (e.CloseCode != 1001 && e.CloseCode != -1)
             {
-                this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", $"Connection closed ({e.CloseCode}, {e.CloseMessage}).", DateTime.Now);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", $"Connection closed ({e.CloseCode}, {e.CloseMessage}).", this.Discord.Configuration.DefaultDateTime);
                 this.NodeDisconnected?.Invoke(this);
                 await this._disconnected.InvokeAsync(new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
             }
             else
             {
                 Volatile.Write(ref this._isDisposed, true);
-                this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Lavalink", "Lavalink died.", DateTime.Now);
+                this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "Lavalink", "Lavalink died.", this.Discord.Configuration.DefaultDateTime);
                 foreach (var kvp in this.ConnectedGuilds)
                     await kvp.Value.SendVoiceUpdateAsync().ConfigureAwait(false);
                 this.NodeDisconnected?.Invoke(this);
@@ -391,7 +391,7 @@ namespace DSharpPlus.Lavalink
 
         private async Task WebSocket_OnConnect()
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection established", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection established", this.Discord.Configuration.DefaultDateTime);
 
             if (this.Configuration.ResumeKey != null)
                 await this.SendPayloadAsync(new LavalinkConfigureResume(this.Configuration.ResumeKey, this.Configuration.ResumeTimeout)).ConfigureAwait(false);

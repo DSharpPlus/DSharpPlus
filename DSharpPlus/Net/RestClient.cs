@@ -123,7 +123,7 @@ namespace DSharpPlus.Net
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
 #pragma warning restore 420 // blaze it
                     {
-                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for {bucket}. Blocking.", DateTime.Now);
+                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for {bucket}. Blocking.", this.Discord.Configuration.DefaultDateTime);
                         var delay = bucket.Reset - now;
                         var resetDate = bucket.Reset;
 
@@ -135,21 +135,21 @@ namespace DSharpPlus.Net
 
                         if (delay < new TimeSpan(-TimeSpan.TicksPerMinute))
                         {
-                            request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", "Failed to retrieve ratelimits. Giving up and allowing next request for bucket.", DateTime.Now);
+                            request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", "Failed to retrieve ratelimits. Giving up and allowing next request for bucket.", this.Discord.Configuration.DefaultDateTime);
                             bucket._remaining = 1;
                         }
 
                         if (delay < TimeSpan.Zero)
                             delay = TimeSpan.FromMilliseconds(100);
 
-                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered. Waiting until {resetDate:yyyy-MM-dd HH:mm:ss zzz} ({delay:c}).", DateTime.Now);
+                        request.Discord?.DebugLogger?.LogMessage(LogLevel.Warning, "REST", $"Pre-emptive ratelimit triggered. Waiting until {resetDate:yyyy-MM-dd HH:mm:ss zzz} ({delay:c}).", this.Discord.Configuration.DefaultDateTime);
                         request.Discord?.DebugLogger?.LogTaskFault(Task.Delay(delay).ContinueWith(_ => this.ExecuteRequestAsync(request, null, null)), LogLevel.Error, "RESET", "Error while executing request: ");
                         return;
                     }
-                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for {bucket}. Allowing.", DateTime.Now);
+                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Request for {bucket}. Allowing.", this.Discord.Configuration.DefaultDateTime);
                 }
                 else
-                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Initial request for {bucket}. Allowing.", DateTime.Now);
+                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Debug, "REST", $"Initial request for {bucket}. Allowing.", this.Discord.Configuration.DefaultDateTime);
 
                 var req = this.BuildRequest(request);
                 var response = new RestResponse();
@@ -166,7 +166,7 @@ namespace DSharpPlus.Net
                 }
                 catch (HttpRequestException httpex)
                 {
-                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", $"Request to {request.Url} triggered an HttpException: {httpex.Message}", DateTime.Now);
+                    request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", $"Request to {request.Url} triggered an HttpException: {httpex.Message}", this.Discord.Configuration.DefaultDateTime);
                     request.SetFaulted(httpex);
                     this.FailInitialRateLimitTest(bucket, ratelimitTcs);
                     return;
@@ -204,7 +204,7 @@ namespace DSharpPlus.Net
                         {
                             if (global)
                             {
-                                request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", "Global ratelimit hit, cooling down", DateTime.Now);
+                                request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", "Global ratelimit hit, cooling down", this.Discord.Configuration.DefaultDateTime);
                                 try
                                 {
                                     this.GlobalRateLimitEvent.Reset();
@@ -219,7 +219,7 @@ namespace DSharpPlus.Net
                             }
                             else
                             {
-                                request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", $"Ratelimit hit, requeueing request to {request.Url}", DateTime.Now);
+                                request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", $"Ratelimit hit, requeueing request to {request.Url}", this.Discord.Configuration.DefaultDateTime);
                                 await wait.ConfigureAwait(false);
                                 request.Discord?.DebugLogger?.LogTaskFault(this.ExecuteRequestAsync(request, bucket, ratelimitTcs), LogLevel.Error, "REST", "Error while retrying request: ");
                             }
@@ -236,7 +236,7 @@ namespace DSharpPlus.Net
             }
             catch (Exception ex)
             {
-                request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", $"Request to {request.Url} triggered an {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}", DateTime.Now);
+                request.Discord?.DebugLogger?.LogMessage(LogLevel.Error, "REST", $"Request to {request.Url} triggered an {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}", this.Discord.Configuration.DefaultDateTime);
 
                 // if something went wrong and we couldn't get rate limits for the first request here, allow the next request to run
                 if (bucket != null && ratelimitTcs != null && bucket._limitTesting != 0)
@@ -307,7 +307,7 @@ namespace DSharpPlus.Net
 
             if (request is MultipartWebRequest mprequest)
             {
-                string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
+                string boundary = "---------------------------" + this.Discord.Configuration.DefaultDateTime.Ticks.ToString("x");
 
                 req.Headers.Add("Connection", "keep-alive");
                 req.Headers.Add("Keep-Alive", "600");

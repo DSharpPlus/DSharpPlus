@@ -501,13 +501,13 @@ namespace DSharpPlus
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
-            this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occured in {evname}.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occured in {evname}.", this.Config.DefaultDateTime);
             this._clientErrored.InvokeAsync(new ClientErrorEventArgs(null) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
         {
-            this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", this.Config.DefaultDateTime);
         }
         #endregion
 
@@ -646,7 +646,7 @@ namespace DSharpPlus
         public async Task StartAsync()
         {
             var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
-            this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc.ToString(CultureInfo.InvariantCulture)} shards", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc.ToString(CultureInfo.InvariantCulture)} shards", this.Config.DefaultDateTime);
 
             for (var i = 0; i < shardc; i++)
             {
@@ -716,7 +716,7 @@ namespace DSharpPlus
                 client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
                 
                 await client.ConnectAsync().ConfigureAwait(false);
-                this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", this.Config.DefaultDateTime);
 
                 if (this._currentUser == null)
                     this._currentUser = client.CurrentUser;
