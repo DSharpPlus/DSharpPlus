@@ -391,7 +391,7 @@ namespace DSharpPlus.Lavalink
 
         private async Task WebSocket_OnConnect()
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection established", DateTime.Now);
+            this.Discord.DebugLogger.LogMessage(LogLevel.Info, "Lavalink", "Connection established.", DateTime.Now);
 
             if (this.Configuration.ResumeKey != null)
                 await this.SendPayloadAsync(new LavalinkConfigureResume(this.Configuration.ResumeKey, this.Configuration.ResumeTimeout)).ConfigureAwait(false);
