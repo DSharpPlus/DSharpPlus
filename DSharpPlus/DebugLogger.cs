@@ -63,7 +63,8 @@ namespace DSharpPlus
         {
             lock (_lock)
             {
-                switch (e.Level) {
+                switch (e.Level)
+                {
                     case LogLevel.Debug:
                         Console.ForegroundColor = ConsoleColor.DarkGreen;
                         break;
