@@ -121,17 +121,12 @@ namespace DSharpPlus.Net.WebSocket
                     this._isConnected = false;
 
                 // Cancel all running tasks
-                if (this._socketTokenSource != null)
-                {
-                    this._socketTokenSource.Cancel();
-                    this._socketTokenSource.Dispose();
-                }
+                this._socketTokenSource?.Cancel();
+                this._socketTokenSource?.Dispose();
 
-                if (this._receiverTokenSource != null)
-                {
-                    this._receiverTokenSource.Cancel();
-                    this._receiverTokenSource.Dispose();
-                }
+                this._receiverTokenSource?.Cancel();
+                this._receiverTokenSource?.Dispose();
+
             }
             catch { }
             finally
