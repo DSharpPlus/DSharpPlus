@@ -76,17 +76,13 @@ namespace DSharpPlus
             switch (config.TokenType)
             {
                 case TokenType.Bearer:
-                    {
-                        return $"Bearer {config.Token}";
-                    }
+                    return $"Bearer {config.Token}";
+
                 case TokenType.Bot:
-                    {
-                        return $"Bot {config.Token}";
-                    }
+                    return $"Bot {config.Token}";
+
                 default:
-                    {
-                        return config.Token;
-                    }
+                    throw new ArgumentException("Invalid token type specified.", nameof(config.Token));
             }
         }
 
