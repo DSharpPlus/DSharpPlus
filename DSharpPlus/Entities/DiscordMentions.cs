@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -35,6 +36,19 @@ namespace DSharpPlus.Entities
 
         internal DiscordMentions(IEnumerable<IMention> mentions)
         {
+            //Null check just to be safe
+            if (mentions == null) return;
+
+            //If we have no item in our mentions, its likely to be a empty array. 
+            // This is a special case were we want parse to be a empty array
+            // Doing this allows for "no parsing"
+            if (!mentions.Any())
+            {
+                Parse = new string[0];
+                return;
+            }
+
+            //Prepare a list of allowed IDs. We will be adding to these IDs.
             HashSet<ulong> roles = new HashSet<ulong>();
             HashSet<ulong> users = new HashSet<ulong>();
             HashSet<string> parse = new HashSet<string>();
@@ -74,6 +88,7 @@ namespace DSharpPlus.Entities
             if (!parse.Contains(ParseRoles) && roles.Count > 0)
                 Roles = roles;
 
+            //If we have a empty parse aray, we don't want to add it.
             if (parse.Count > 0)
                 Parse = parse;
         }
