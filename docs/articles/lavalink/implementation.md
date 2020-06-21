@@ -20,7 +20,7 @@ var endpoint = new ConnectionEndpoint
     Port = 2333 //From your server configuration
 };
 
-var lcfg = new LavalinkConfiguration
+var lavalinkConfig = new LavalinkConfiguration
 {
     Password = "youshallnotpass", //From your server configuration.
     RestEndpoint = endpoint,
@@ -37,7 +37,7 @@ var lavalink = Discord.UseLavalink();
 We are now ready to connect to the server. Call the Lavalink extension's connect method and pass the configuration. Make sure to call this **after** your Discord client connects. Assign the connection to your `LavalinkNode`.
 
 ```csharp
-LavalinkNode = await Lavalink.ConnectAsync(lcfg);
+LavalinkNode = await Lavalink.ConnectAsync(lavalinkConfig);
 ```
 
 Your main bot file should now look like this: 
@@ -77,7 +77,7 @@ namespace MyFirstMusicBot
                 Port = 2333 //From your server configuration
             };
 
-            var lcfg = new LavalinkConfiguration
+            var lavalinkConfig = new LavalinkConfiguration
             {
                 Password = "youshallnotpass", //From your server configuration.
                 RestEndpoint = endpoint,
@@ -87,7 +87,7 @@ namespace MyFirstMusicBot
             var lavalink = Discord.UseLavalink();
 
             await Discord.ConnectAsync();
-            LavalinkNode = await lavalink.ConnectAsync(lcfg); //Make sure this is after Discord.ConnectAsync(). 
+            LavalinkNode = await lavalink.ConnectAsync(lavalinkConfig); //Make sure this is after Discord.ConnectAsync(). 
             await Task.Delay(-1);
         }
     }
