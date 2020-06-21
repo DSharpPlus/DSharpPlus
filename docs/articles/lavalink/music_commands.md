@@ -235,8 +235,6 @@ public async Task Play(CommandContext ctx, [RemainingText] string search)
 }
 ```
 
-[INSERT PICTURE HERE]
-
 Being able to pause the player is also useful. For this we can use most of the base from the play command: 
 
 ```csharp
