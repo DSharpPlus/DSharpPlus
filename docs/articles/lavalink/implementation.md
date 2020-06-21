@@ -14,28 +14,22 @@ public static LavalinkNodeConnection LavalinkNode;
 
 After that, we will need to create a configuration for our extension to use. This is where the special values from the server configuration are used.
 ```csharp
-var restConfig = new ConnectionEndpoint 
+var endpoint = new ConnectionEndpoint
 {
-    Hostname = "localhost", //From your server configuration.
-    Port = 8080 //From your server configuration
-};
-
-var socketConfig = new ConnectionEndpoint
-{
-    Hostname = "localhost", //From your server configuration.
-    Port = 8080 //From your server configuration
+    Hostname = "127.0.0.1", //From your server configuration.
+    Port = 2333 //From your server configuration
 };
 
 var lcfg = new LavalinkConfiguration
 {
     Password = "youshallnotpass", //From your server configuration.
-    RestEndpoint = restConfig,
-    SocketEndpoint = socketConfig
+    RestEndpoint = endpoint,
+    SocketEndpoint = endpoint
 };
 ```
 Finally, initialize the extension.
 ```csharp
-Lavalink = discord.UseLavalink(lcfg);
+var lavalink = Discord.UseLavalink();
 ```
 
 ## Connecting with Lavalink
@@ -49,6 +43,7 @@ LavalinkNode = await Lavalink.ConnectAsync(lcfg);
 Your main bot file should now look like this: 
 
 ```csharp
+
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Net;
@@ -76,29 +71,23 @@ namespace MyFirstMusicBot
                 LogLevel = LogLevel.Debug
             });
 
-            var restConfig = new ConnectionEndpoint
+            var endpoint = new ConnectionEndpoint
             {
-                Hostname = "localhost", //From your server configuration.
-                Port = 8080 //From your server configuration
-            };
-
-            var socketConfig = new ConnectionEndpoint
-            {
-                Hostname = "localhost", //From your server configuration.
-                Port = 8080 //From your server configuration
+                Hostname = "127.0.0.1", //From your server configuration.
+                Port = 2333 //From your server configuration
             };
 
             var lcfg = new LavalinkConfiguration
             {
                 Password = "youshallnotpass", //From your server configuration.
-                RestEndpoint = restConfig,
-                SocketEndpoint = socketConfig
+                RestEndpoint = endpoint,
+                SocketEndpoint = endpoint
             };
 
-            Discord.UseLavalink();
+            var lavalink = Discord.UseLavalink();
 
             await Discord.ConnectAsync();
-            LavalinkNode = await Lavalink.ConnectAsync(lcfg); //Make sure this is after Discord.ConnectAsync().
+            LavalinkNode = await lavalink.ConnectAsync(lcfg); //Make sure this is after Discord.ConnectAsync(). 
             await Task.Delay(-1);
         }
     }
