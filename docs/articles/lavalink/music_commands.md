@@ -116,8 +116,6 @@ namespace MyFirstMusicBot
 }
 ```
 
-[INSERT PICTURES HERE]
-
 ## Adding player commands
 
 Now that we can join a voice channel, we can make our bot play music! Let's now create the base for a play command:
