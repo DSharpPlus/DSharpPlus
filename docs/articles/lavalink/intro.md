@@ -5,7 +5,7 @@ Soundcloud. Unlike raw voice solutions, such as VoiceNext, Lavalink can handle
 hundreds of concurrent streams, and supports sharding.
 
 ## Configuring Java
-In order to run Lavalink, you must have Java 13 or greater installed.
+In order to run Lavalink, you must have Java 13 or greater installed. Certain Java versions may not be functional with Lavalink, so it is best to check the [requirements](https://github.com/Frederikam/Lavalink#requirements) before downloading.
 The latest releases can be found [here](https://www.oracle.com/technetwork/java/javase/downloads/index.html).
 
 Make sure the location of the newest JRE's bin folder is added to your system variable's path. This will make the `java` command run from the latest runtime. You can verify that you have the right version by entering `java -version` in your command prompt or terminal.
