@@ -43,7 +43,6 @@ LavalinkNode = await Lavalink.ConnectAsync(lavalinkConfig);
 Your main bot file should now look like this: 
 
 ```csharp
-
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Net;
