@@ -5,20 +5,20 @@ Soundcloud. Unlike raw voice solutions, such as VoiceNext, Lavalink can handle
 hundreds of concurrent streams, and supports sharding.
 
 ## Configuring Java
-In order to run Lavalink, you must have Java 11 or greater installed.
+In order to run Lavalink, you must have Java 13 or greater installed.
 The latest releases can be found [here](https://www.oracle.com/technetwork/java/javase/downloads/index.html).
 
 Make sure the location of the newest JRE's bin folder is added to your system variable's path. This will make the `java` command run from the latest runtime. You can verify that you have the right version by entering `java -version` in your command prompt or terminal.
 
 ## Downloading Lavalink  
-Next, head over to the [releases](https://ci.fredboat.com/viewLog.html?buildId=lastSuccessful&buildTypeId=Lavalink_Build&tab=artifacts&guest=1) tab on the Lavalink Github page. and download the Jar file from the latest version.
+Next, head over to the [releases](https://github.com/Frederikam/Lavalink/releases) tab on the Lavalink GitHub page. and download the Jar file from the latest version. Alternatively, stable builds with the latest changes can be found on their [CI Server](https://ci.fredboat.com/viewLog.html?buildId=lastSuccessful&buildTypeId=Lavalink_Build&tab=artifacts&guest=1).
 
-The program will not be ready to run yet, as you will need to create a configuration file first. To do so, create a new YAML file called `application.yml` and copy this text:
+The program will not be ready to run yet, as you will need to create a configuration file first. To do so, create a new YAML file called `application.yml`, and use the [example file](https://github.com/Frederikam/Lavalink/blob/master/LavalinkServer/application.yml.example), or copy this text:
 
 ```yaml
 server: # REST and WS server
-  port: 8080
-  address: localhost
+  port: 2333
+  address: 127.0.0.1
 spring:
   main:
     banner-mode: log
@@ -61,13 +61,14 @@ logging:
     root: INFO
     lavalink: INFO
 ```
+
 There are a few values to keep in mind.
 
-`host` is the IP of the Lavalink host, keep this as `localhost` if it is running on a local machine.
+`host` is the IP of the Lavalink host. This will be `0.0.0.0` by default, but it should be changed as it is a security risk. For this guide, set this to `127.0.0.1` as we will be running Lavalink locally. 
 
-`port` is the allowed port for the Lavalink connection. `8080` is open on most machines.
+`port` is the allowed port for the Lavalink connection. `2333` is the default port, and is what will be used for this guide.
 
-`password` is the password that you will need to specify when connecting. This can be anything.
+`password` is the password that you will need to specify when connecting. This can be anything as long as it is a valid YAML string. Keep it as `youshallnotpass` for this guide.
 
 When you are finished configuring this, save the file in the same directory as your Lavalink executable.
 
