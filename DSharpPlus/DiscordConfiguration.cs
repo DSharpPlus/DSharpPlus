@@ -2,6 +2,7 @@
 using System.Net;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
@@ -34,15 +35,9 @@ namespace DSharpPlus
 
         /// <summary>
         /// <para>Sets the maximum logging level for messages.</para>
-        /// <para>Typically, the default value of <see cref="LogLevel.Info"/> is ok for most uses.</para>
+        /// <para>Typically, the default value of <see cref="LogLevel.Information"/> is ok for most uses.</para>
         /// </summary>
-        public LogLevel LogLevel { internal get; set; } = LogLevel.Info;
-
-        /// <summary>
-        /// <para>Sets whether to use the internal log handler.</para>
-        /// <para>This is disabled by default. Use it if you don't want to provide your own log handlers.</para>
-        /// </summary>
-        public bool UseInternalLogHandler { internal get; set; } = false;
+        public LogLevel MinimumLogLevel { internal get; set; } = LogLevel.Information;
 
         /// <summary>
         /// <para>Sets whether to rely on Discord for NTP (Network Time Protocol) synchronization with the "X-Ratelimit-Reset-After" header.</para>
@@ -54,9 +49,9 @@ namespace DSharpPlus
 
         /// <summary>
         /// <para>Allows you to overwrite the time format used by the internal debug logger.</para>
-        /// <para>Only applicable when <see cref="UseInternalLogHandler"/> is set to true. Defaults to ISO 8601-like format.</para>
+        /// <para>Only applicable when <see cref="LoggerImplementation"/> is set left at default value. Defaults to ISO 8601-like format.</para>
         /// </summary>
-        public string DateTimeFormat { internal get; set; } = "yyyy-MM-dd HH:mm:ss zzz";
+        public string LogTimestampFormat { internal get; set; } = "yyyy-MM-dd HH:mm:ss zzz";
 
         /// <summary>
         /// <para>Sets the member count threshold at which guilds are considered large.</para>
@@ -149,9 +144,17 @@ namespace DSharpPlus
         private UdpClientFactoryDelegate _udpClientFactory = DspUdpClient.CreateNew;
 
         /// <summary>
+        /// <para>Sets the logger implementation to use.</para>
+        /// <para>To create your own logger, implement the <see cref="ILoggerFactory"/> instance.</para>
+        /// <para>Defaults to built-in implementation.</para>
+        /// </summary>
+        public ILoggerFactory LoggerFactory { internal get; set; } = null;
+
+        /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
-        public DiscordConfiguration() { }
+        public DiscordConfiguration() 
+        { }
 
         /// <summary>
         /// Creates a clone of another discord configuration.
@@ -161,10 +164,9 @@ namespace DSharpPlus
         {
             this.Token = other.Token;
             this.TokenType = other.TokenType;
-            this.LogLevel = other.LogLevel;
-            this.UseInternalLogHandler = other.UseInternalLogHandler;
+            this.MinimumLogLevel = other.MinimumLogLevel;
             this.UseRelativeRatelimit = other.UseRelativeRatelimit;
-            this.DateTimeFormat = other.DateTimeFormat;
+            this.LogTimestampFormat = other.LogTimestampFormat;
             this.LargeThreshold = other.LargeThreshold;
             this.AutoReconnect = other.AutoReconnect;
             this.ShardId = other.ShardId;
@@ -176,6 +178,7 @@ namespace DSharpPlus
             this.Proxy = other.Proxy;
             this.HttpTimeout = other.HttpTimeout;
             this.ReconnectIndefinitely = other.ReconnectIndefinitely;
+            this.LoggerFactory = other.LoggerFactory;
         }
     }
 }

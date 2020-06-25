@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Interactivity.Concurrency;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -57,8 +58,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.DebugLogger.LogMessage(LogLevel.Error, "Interactivity", 
-                    $"Something went wrong waiting for {typeof(T).Name} with exception {ex.GetType().Name}.", DateTime.Now);
+                this._client.Logger.LogError(InteractivityExtension.InteractivityEventId, ex, "An exception occured while waiting for {0}", typeof(T).Name);
             }
             finally
             {
@@ -78,8 +78,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.DebugLogger.LogMessage(LogLevel.Error, "Interactivity", 
-                    $"Something went wrong collecting from {typeof(T).Name} with exception {ex.GetType().Name}.", DateTime.Now);
+                this._client.Logger.LogError(InteractivityExtension.InteractivityEventId, ex, "An exception occured while collecting from {0}", typeof(T).Name);
             }
             finally
             {

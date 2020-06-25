@@ -10,6 +10,7 @@ using DSharpPlus.Net;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
@@ -501,23 +502,24 @@ namespace DSharpPlus
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
-            this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occured in {evname}.", DateTime.Now);
+            this.Logger.LogError(BaseDiscordClient.AsyncEventId, ex, "Exception occured while handling {0}", evname);
+
             this._clientErrored.InvokeAsync(new ClientErrorEventArgs(null) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
         {
-            this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occured in the exception handler.", DateTime.Now);
+            this.Logger.LogCritical(BaseDiscordClient.AsyncEventId, ex, "Exception occured while handling another exception");
         }
         #endregion
 
-        private DiscordConfiguration Config { get; }
+        private DiscordConfiguration Configuration { get; }
         private ConcurrentDictionary<int, DiscordClient> Shards { get; }
 
         /// <summary>
         /// Gets the logger for this client.
         /// </summary>
-        public DebugLogger DebugLogger { get; }
+        public ILogger<BaseDiscordClient> Logger { get; }
 
         /// <summary>
         /// Gets all client shards.
@@ -608,12 +610,15 @@ namespace DSharpPlus
             this._webhooksUpdated = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
 
-            this.Config = config;
+            this.Configuration = config;
             this.Shards = new ConcurrentDictionary<int, DiscordClient>();
-            this.DebugLogger = new DebugLogger(config.LogLevel, config.DateTimeFormat);
 
-            if (config.UseInternalLogHandler)
-                DebugLogger.LogMessageReceived += (sender, e) => DebugLogger.LogHandler(sender, e);
+            if (this.Configuration.LoggerFactory == null)
+            {
+                this.Configuration.LoggerFactory = new DefaultLoggerFactory();
+                this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this.Configuration.MinimumLogLevel, this.Configuration.LogTimestampFormat));
+            }
+            this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
         }
 
         internal async Task<int> InitializeShardsAsync()
@@ -621,14 +626,15 @@ namespace DSharpPlus
             if (this.Shards.Count != 0)
                 return this.Shards.Count;
 
-            var shardc = this.Config.ShardCount == 1 ? await this.GetShardCountAsync().ConfigureAwait(false) : this.Config.ShardCount;
+            var shardc = this.Configuration.ShardCount == 1 ? await this.GetShardCountAsync().ConfigureAwait(false) : this.Configuration.ShardCount;
+            var lf = new ShardedLoggerFactory(this.Logger);
             for (var i = 0; i < shardc; i++)
             {
-                var cfg = new DiscordConfiguration(this.Config)
+                var cfg = new DiscordConfiguration(this.Configuration)
                 {
                     ShardId = i,
                     ShardCount = shardc,
-                    UseInternalLogHandler = false
+                    LoggerFactory = lf
                 };
 
                 var client = new DiscordClient(cfg);
@@ -646,7 +652,7 @@ namespace DSharpPlus
         public async Task StartAsync()
         {
             var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
-            this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc.ToString(CultureInfo.InvariantCulture)} shards", DateTime.Now);
+            this.Logger.LogInformation(BaseDiscordClient.SharderEventId, "Booting {0} shards", shardc);
 
             for (var i = 0; i < shardc; i++)
             {
@@ -713,10 +719,9 @@ namespace DSharpPlus
                 client.MessageReactionRemovedEmoji += this.Client_MessageReactionRemovedEmoji;
                 client.WebhooksUpdated += this.Client_WebhooksUpdate;
                 client.Heartbeated += this.Client_HeartBeated;
-                client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
                 
                 await client.ConnectAsync().ConfigureAwait(false);
-                this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
+                this.Logger.LogInformation(BaseDiscordClient.SharderEventId, "Booted shard {0}", i);
 
                 if (this._currentUser == null)
                     this._currentUser = client.CurrentUser;
@@ -755,7 +760,7 @@ namespace DSharpPlus
 
             var http = new HttpClient();
             http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
-            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Config));
+            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Configuration));
             var resp = await http.GetAsync(url).ConfigureAwait(false);
             http.Dispose();
 
@@ -909,9 +914,6 @@ namespace DSharpPlus
 
         private Task Client_HeartBeated(HeartbeatEventArgs e) 
             => this._heartbeated.InvokeAsync(e);
-
-        private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e) 
-            => this.DebugLogger.LogMessage(e.Level, e.Application, e.Message, e.Timestamp);
         #endregion
     }
 }

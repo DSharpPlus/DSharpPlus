@@ -15,6 +15,7 @@ using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -25,7 +26,7 @@ namespace DSharpPlus
     /// </summary>
     public sealed class DiscordClient : BaseDiscordClient
     {
-        #region Internal Variables
+        #region Internal Fields/Properties
         internal static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         internal CancellationTokenSource _cancelTokenSource;
@@ -49,7 +50,7 @@ namespace DSharpPlus
 
         #endregion
 
-        #region Public Variables
+        #region Public Fields/Properties
         /// <summary>
         /// Gets the gateway protocol version.
         /// </summary>
@@ -190,9 +191,6 @@ namespace DSharpPlus
             this._guilds.Clear();
 
             this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
-
-            if (this.Configuration.UseInternalLogHandler)
-                this.DebugLogger.LogMessageReceived += (sender, e) => this.DebugLogger.LogHandler(sender, e);
         }
 
         /// <summary>
@@ -246,8 +244,8 @@ namespace DSharpPlus
             }
 
             if (this.Configuration.TokenType != TokenType.Bot)
-                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
-            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}", DateTime.Now);
+                this.Logger.LogWarning(ClientEventId, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
+            this.Logger.LogInformation(ClientEventId, "DSharpPlus, version {0}", this.VersionString);
 
             while (i-- > 0 || this.Configuration.ReconnectIndefinitely)
             {
@@ -279,7 +277,7 @@ namespace DSharpPlus
                     cex = ex;
                     if (i <= 0 && !this.Configuration.ReconnectIndefinitely) break;
 
-                    this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"Connection attempt failed, retrying in {w / 1000}s", DateTime.Now, ex);
+                    this.Logger.LogError(ClientEventId, ex, "Connection attempt failed, retrying in {0}s", w / 1000);
                     await Task.Delay(w).ConfigureAwait(false);
 
                     if (i > 0)
@@ -395,7 +393,7 @@ namespace DSharpPlus
                     {
                         if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
                         {
-                            this.DebugLogger.LogMessage(LogLevel.Error, "WebSocket", "Payload decompression failed", DateTime.Now);
+                            this.Logger.LogError(SocketEventId, "Payload decompression failed");
                             return;
                         }
 
@@ -411,7 +409,7 @@ namespace DSharpPlus
                 }
                 catch (Exception ex)
                 {
-                    this.DebugLogger.LogMessage(LogLevel.Error, "WebSocket", "Socket swallowed an exception:", DateTime.Now, ex);
+                    this.Logger.LogError(SocketEventId, ex, "Socket handler suppressed an exception");
                 }
             }
 
@@ -426,12 +424,12 @@ namespace DSharpPlus
 
                 this._cancelTokenSource.Cancel();
 
-                this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", $"Connection closed. ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}')", DateTime.Now);
+                this.Logger.LogDebug(SocketEventId, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
                 await this._socketClosed.InvokeAsync(new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
 
                 if (this.Configuration.AutoReconnect)
                 {
-                    this.DebugLogger.LogMessage(LogLevel.Critical, "WebSocket", $"Socket connection terminated ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}'). Reconnecting.", DateTime.Now);
+                    this.Logger.LogCritical(SocketEventId, "Connection terminated ({0}, '{1}'), reconnecting", e.CloseCode, e.CloseMessage);
 
                     if (this._status == null)
                         await this.ConnectAsync().ConfigureAwait(false);
@@ -645,7 +643,7 @@ namespace DSharpPlus
                     break;
 
                 default:
-                    this.DebugLogger.LogMessage(LogLevel.Warning, "WebSocket", $"Unknown OP-Code: {((int)payload.OpCode).ToString(CultureInfo.InvariantCulture)}\n{payload.Data}", DateTime.Now);
+                    this.Logger.LogWarning(SocketEventId, "Unknown Discord opcode: {0}\nPayload: {1}", payload.OpCode, payload.Data);
                     break;
             }
         }
@@ -654,7 +652,7 @@ namespace DSharpPlus
         {
             if (!(payload.Data is JObject dat))
             {
-                DebugLogger.LogMessage(LogLevel.Warning, "WebSocket:Dispatch", $"Invalid payload body, you can probably ignore this message: {payload.OpCode}:{payload.EventName}\n{payload.Data}", DateTime.Now);
+                this.Logger.LogWarning(DispatchEventId, "Invalid payload body (this message is probaby safe to ignore); opcode: {0} event: {1}; payload: {2}", payload.OpCode, payload.EventName, payload.Data);
                 return;
             }
 
@@ -747,7 +745,7 @@ namespace DSharpPlus
                     gid = (ulong)dat["guild_id"];
                     if (!this._guilds.ContainsKey(gid))
                     {
-                        this.DebugLogger.LogMessage(LogLevel.Error, "WebSocket:Dispatch", $"Could not find {gid.ToString(CultureInfo.InvariantCulture)} in guild cache.", DateTime.Now);
+                        this.Logger.LogError(DispatchEventId, "Could not find {0} in guild cache", gid);
                         return;
                     }
                     await OnGuildMemberRemoveEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid]).ConfigureAwait(false);
@@ -862,7 +860,7 @@ namespace DSharpPlus
 
                 default:
                     await OnUnknownEventAsync(payload).ConfigureAwait(false);
-                    this.DebugLogger.LogMessage(LogLevel.Warning, "WebSocket:Dispatch", $"Unknown event: {payload.EventName}\n{payload.Data}", DateTime.Now);
+                    this.Logger.LogWarning(DispatchEventId, "Unknown event: {0}\npayload: {1}", payload.EventName, payload.Data);
                     break;
             }
         }
@@ -989,7 +987,7 @@ namespace DSharpPlus
 
         internal Task OnResumedAsync()
         {
-            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", "Session resumed.", DateTime.Now);
+            this.Logger.LogInformation(ClientEventId, "Session resumed");
             return this._resumed.InvokeAsync(new ReadyEventArgs(this));
         }
 
@@ -1697,7 +1695,7 @@ namespace DSharpPlus
             message.Discord = this;
 
             if (message.Channel == null)
-                this.DebugLogger.LogMessage(LogLevel.Warning, "Event", "Could not find channel last message belonged to.", DateTime.Now);
+                this.Logger.LogWarning(DispatchEventId, "Channel which the last message belongs to is not in cache - cache state might be invalid!");
             else
                 message.Channel.LastMessageId = message.Id;
 
@@ -2292,13 +2290,13 @@ namespace DSharpPlus
 
         internal async Task OnHeartbeatAsync(long seq)
         {
-            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Received Heartbeat - Sending Ack.", DateTime.Now);
+            this.Logger.LogTrace(DispatchEventId, "Received HEARTBEAT (OP1)");
             await SendHeartbeatAsync(seq).ConfigureAwait(false);
         }
 
         internal async Task OnReconnectAsync()
         {
-            this.DebugLogger.LogMessage(LogLevel.Info, "WebSocket", "Received OP 7 - Reconnect.", DateTime.Now);
+            this.Logger.LogTrace(DispatchEventId, "Received RECONNECT (OP7)");
             await this.InternalReconnectAsync(code: 4000, message: "OP7 acknowledged").ConfigureAwait(false);
         }
 
@@ -2315,13 +2313,13 @@ namespace DSharpPlus
 
             if (data)
             {
-                this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Received true in OP 9 - Waiting a few seconds and sending resume again.", DateTime.Now);
+                this.Logger.LogTrace(DispatchEventId, "Received INVALID_SESSION (OP9, true)");
                 await Task.Delay(6000).ConfigureAwait(false);
                 await SendResumeAsync().ConfigureAwait(false);
             }
             else
             {
-                this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Received false in OP 9 - Starting a new session.", DateTime.Now);
+                this.Logger.LogTrace(DispatchEventId, "Received INVALID_SESSION (OP9, false)");
                 this._sessionId = null;
                 await SendIdentifyAsync(this._status).ConfigureAwait(false);
             }
@@ -2329,7 +2327,7 @@ namespace DSharpPlus
 
         internal async Task OnHelloAsync(GatewayHello hello)
         {
-            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Received OP 10 (HELLO) - Trying to either resume or identify.", DateTime.Now);
+            this.Logger.LogTrace(DispatchEventId, "Received HELLO (OP10)");
 
             if (this.SessionLock.Wait(0))
             {
@@ -2338,7 +2336,7 @@ namespace DSharpPlus
             }
             else
             {
-                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "Session start attempt was made while another session is active", DateTime.Now);
+                this.Logger.LogWarning(ClientEventId, "Attempt to start a session while another session is active");
                 return;
             }
 
@@ -2358,7 +2356,7 @@ namespace DSharpPlus
 
             var ping = (int)(DateTime.Now - this._lastHeartbeat).TotalMilliseconds;
 
-            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", $"Received WebSocket Heartbeat Ack. Ping: {ping.ToString(CultureInfo.InvariantCulture)}ms", DateTime.Now);
+            this.Logger.LogTrace(DispatchEventId, "Received HEARTBEAT_ACK (OP11, {0}ms)", ping);
 
             Volatile.Write(ref this._ping, ping);
 
@@ -2374,7 +2372,7 @@ namespace DSharpPlus
         //internal async Task StartHeartbeatingAsync()
         internal async Task HeartbeatLoopAsync()
         {
-            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Starting Heartbeat.", DateTime.Now);
+            this.Logger.LogDebug(SocketEventId, "Heartbeat task started");
             var token = this._cancelToken;
             try
             {
@@ -2447,17 +2445,17 @@ namespace DSharpPlus
             var guilds_comp = Volatile.Read(ref this._guildDownloadCompleted);
             if (guilds_comp && more_than_5)
             {
-                this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", "More than 5 heartbeats were skipped. Issuing reconnect.", DateTime.Now);
+                this.Logger.LogCritical(ClientEventId, "Server failed to acknowledge more than 5 heartbeats - connection is zombie");
                 await this.InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed").ConfigureAwait(false);
                 return;
             }
             else if (!guilds_comp && more_than_5)
             {
-                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "More than 5 heartbeats were skipped while the guild download is running.", DateTime.Now);
+                this.Logger.LogWarning(ClientEventId, "Server failed to acknowledge more than 5 heartbeats, but the guild download is still running - check your connection speed");
             }
 
             Volatile.Write(ref this._lastSequence, seq);
-            this.DebugLogger.LogMessage(LogLevel.Debug, "WebSocket", "Sending Heartbeat.", DateTime.Now);
+            this.Logger.LogTrace(ClientEventId, "Sending heartbeat");
             var heartbeat = new GatewayPayload
             {
                 OpCode = GatewayOpCode.Heartbeat,
@@ -2643,7 +2641,7 @@ namespace DSharpPlus
 
             var url = Utilities.GetApiUriFor(path);
             var request = new RestRequest(this, bucket, url, RestRequestMethod.GET, headers);
-            DebugLogger.LogTaskFault(this.ApiClient.Rest.ExecuteRequestAsync(request), LogLevel.Error, "DSharpPlus", "Error while executing request: ");
+            this.ApiClient.Rest.ExecuteRequestAsync(request).LogTaskFault(this.Logger, LogLevel.Error, RestEventId, "Error while executing request");
             var response = await request.WaitForCompletionAsync().ConfigureAwait(false);
 
             var jo = JObject.Parse(response.Response);
@@ -3190,13 +3188,13 @@ namespace DSharpPlus
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
-            this.DebugLogger.LogMessage(LogLevel.Error, "DSharpPlus", $"An {ex.GetType()} occurred in {evname}.", DateTime.Now, ex);
+            this.Logger.LogError(AsyncEventId, ex, "Exception occured while handling {0}", evname);
             this._clientErrored.InvokeAsync(new ClientErrorEventArgs(this) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
         {
-            this.DebugLogger.LogMessage(LogLevel.Critical, "DSharpPlus", $"An {ex.GetType()} occurred in the exception handler.", DateTime.Now, ex);
+            this.Logger.LogCritical(AsyncEventId, ex, "Exception occured while handling another exception");
         }
         #endregion
     }

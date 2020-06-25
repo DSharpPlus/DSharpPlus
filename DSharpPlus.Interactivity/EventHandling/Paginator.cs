@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Concurrency;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
@@ -37,8 +38,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.DebugLogger.LogMessage(LogLevel.Error, "Interactivity",
-                    $"Something went wrong with exception {ex.GetType().Name}.", DateTime.Now);
+                this._client.Logger.LogError(InteractivityExtension.InteractivityEventId, ex, "Exception occured while paginating");
             }
             finally
             {

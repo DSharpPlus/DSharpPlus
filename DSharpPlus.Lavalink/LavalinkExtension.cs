@@ -3,11 +3,14 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Lavalink
 {
     public sealed class LavalinkExtension : BaseExtension
     {
+        internal static EventId LavalinkEventId { get; } = new EventId(400, "Lavalink");
+
         /// <summary>
         /// Triggered whenever a node disconnects.
         /// </summary>

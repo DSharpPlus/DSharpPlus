@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity
 {
@@ -64,6 +65,8 @@ namespace DSharpPlus.Interactivity
     /// </summary>
     public class InteractivityExtension : BaseExtension
     {
+        internal static EventId InteractivityEventId { get; } = new EventId(500, "Interactivity");
+
         internal InteractivityConfiguration Config { get; }
 
         private EventWaiter<MessageCreateEventArgs> MessageCreatedWaiter;
