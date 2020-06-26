@@ -27,35 +27,50 @@ namespace DSharpPlus
 
             lock (_lock)
             {
+                Console.Write($"[{DateTimeOffset.Now.ToString(this.TimestampFormat)}] [{eventId.Id,-4}/{eventId.Name,-12}] ");
+
                 switch (logLevel)
                 {
+                    case LogLevel.Trace:
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        break;
+
                     case LogLevel.Debug:
-                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        Console.ForegroundColor = ConsoleColor.Magenta;
                         break;
 
                     case LogLevel.Information:
-                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Cyan;
                         break;
 
                     case LogLevel.Warning:
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
                         break;
 
                     case LogLevel.Error:
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.ForegroundColor = ConsoleColor.Red;
                         break;
 
                     case LogLevel.Critical:
-                        Console.BackgroundColor = ConsoleColor.DarkRed;
+                        Console.BackgroundColor = ConsoleColor.Red;
                         Console.ForegroundColor = ConsoleColor.Black;
                         break;
                 }
+                var level = logLevel switch 
+                {
+                    LogLevel.Trace =>       "trace",
+                    LogLevel.Debug =>       "debug",
+                    LogLevel.Information => "info ",
+                    LogLevel.Warning =>     "warn ",
+                    LogLevel.Error =>       "error",
+                    LogLevel.Critical =>    "crit ",
+                    LogLevel.None =>        "none ",
+                    _ =>                    "?????"
+                };
+                Console.Write($"[{level}]");
+                Console.ResetColor();
 
                 var message = formatter(state, exception);
-                var level = logLevel.ToString().Substring(0, 4);
-
-                Console.Write($"[{DateTimeOffset.Now.ToString(this.TimestampFormat)}] [{eventId.Id,-4}/{eventId.Name,-12}] [{level}]");
-                Console.ResetColor();
                 Console.WriteLine($" {message}");
                 if (exception != null)
                     Console.WriteLine(exception);
