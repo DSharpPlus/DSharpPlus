@@ -74,7 +74,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.Logger.LogError(InteractivityExtension.InteractivityEventId, ex, "Exception occured while collecting reactions");
+                this._client.Logger.LogError(InteractivityExtension.InteractivityEventId, ex, "Exception occurred while collecting reactions");
             }
             finally
             {

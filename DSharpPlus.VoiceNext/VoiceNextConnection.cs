@@ -537,7 +537,7 @@ namespace DSharpPlus.VoiceNext
             }
             catch (Exception ex)
             {
-                this.Discord.Logger.LogError(VoiceNextExtension.VNextRxEventId, ex, "Exception occured when decoding incoming audio data");
+                this.Discord.Logger.LogError(VoiceNextExtension.VNextRxEventId, ex, "Exception occurred when decoding incoming audio data");
             }
         }
 
@@ -556,7 +556,7 @@ namespace DSharpPlus.VoiceNext
             }
             catch (Exception ex)
             {
-                this.Discord.Logger.LogError(VoiceNextExtension.VNextUdpEventId, ex, "Exception occured when handling keepalive");
+                this.Discord.Logger.LogError(VoiceNextExtension.VNextUdpEventId, ex, "Exception occurred when handling keepalive");
             }
         }
 

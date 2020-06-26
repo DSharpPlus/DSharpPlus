@@ -502,14 +502,14 @@ namespace DSharpPlus
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
-            this.Logger.LogError(BaseDiscordClient.AsyncEventId, ex, "Exception occured while handling {0}", evname);
+            this.Logger.LogError(BaseDiscordClient.AsyncEventId, ex, "Exception occurred while handling {0}", evname);
 
             this._clientErrored.InvokeAsync(new ClientErrorEventArgs(null) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
         {
-            this.Logger.LogCritical(BaseDiscordClient.AsyncEventId, ex, "Exception occured while handling another exception");
+            this.Logger.LogCritical(BaseDiscordClient.AsyncEventId, ex, "Exception occurred while handling another exception");
         }
         #endregion
 

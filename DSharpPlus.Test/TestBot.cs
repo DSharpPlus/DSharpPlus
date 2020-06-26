@@ -158,7 +158,7 @@ namespace DSharpPlus.Test
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                 return;
 
-            e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occured during {0}'s invocation of '{1}'", e.Context.User.Username, e.Context.Command.QualifiedName);
+            e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {0}'s invocation of '{1}'", e.Context.User.Username, e.Context.Command.QualifiedName);
 
             var exs = new List<Exception>();
             if (e.Exception is AggregateException ae)
@@ -174,8 +174,8 @@ namespace DSharpPlus.Test
                 var embed = new DiscordEmbedBuilder
                 {
                     Color = new DiscordColor("#FF0000"),
-                    Title = "An exception occured when executing a command",
-                    Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.QualifiedName}`.",
+                    Title = "An exception occurred when executing a command",
+                    Description = $"`{e.Exception.GetType()}` occurred when executing `{e.Command.QualifiedName}`.",
                     Timestamp = DateTime.UtcNow
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
@@ -227,7 +227,7 @@ namespace DSharpPlus.Test
                 }
                 catch (Exception ex)
                 {
-                    e.Client.Logger.LogError(TestBotEventId, ex, "Exception occured during guild update");
+                    e.Client.Logger.LogError(TestBotEventId, ex, "Exception occurred during guild update");
                 }
             }
 

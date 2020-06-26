@@ -8,7 +8,7 @@ namespace DSharpPlus.EventArgs
     public class GuildRoleUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the guild in which the update occured.
+        /// Gets the guild in which the update occurred.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 

@@ -403,7 +403,7 @@ namespace DSharpPlus.Entities
         public DiscordMessage Target { get; internal set; }
 
         /// <summary>
-        /// Gets the channel in which the action occured.
+        /// Gets the channel in which the action occurred.
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
 

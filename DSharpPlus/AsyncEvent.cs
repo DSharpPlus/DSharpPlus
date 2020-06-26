@@ -156,7 +156,7 @@ namespace DSharpPlus
             }
 
             if (exs.Any())
-                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occured within one or more event handlers. Check InnerExceptions for details.", exs));
+                this.ErrorHandler(this.EventName, new AggregateException("Exceptions occurred within one or more event handlers. Check InnerExceptions for details.", exs));
         }
     }
 }

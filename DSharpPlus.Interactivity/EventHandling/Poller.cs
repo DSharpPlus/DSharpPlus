@@ -38,7 +38,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.Logger.LogError(InteractivityExtension.InteractivityEventId, ex, "Exception occured while polling");
+                this._client.Logger.LogError(InteractivityExtension.InteractivityEventId, ex, "Exception occurred while polling");
             }
             finally
             {

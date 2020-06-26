@@ -3188,13 +3188,13 @@ namespace DSharpPlus
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
-            this.Logger.LogError(AsyncEventId, ex, "Exception occured while handling {0}", evname);
+            this.Logger.LogError(AsyncEventId, ex, "Exception occurred while handling {0}", evname);
             this._clientErrored.InvokeAsync(new ClientErrorEventArgs(this) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
         {
-            this.Logger.LogCritical(AsyncEventId, ex, "Exception occured while handling another exception");
+            this.Logger.LogCritical(AsyncEventId, ex, "Exception occurred while handling another exception");
         }
         #endregion
     }
