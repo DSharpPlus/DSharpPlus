@@ -58,13 +58,13 @@ namespace DSharpPlus
                 }
                 var level = logLevel switch 
                 {
-                    LogLevel.Trace =>       "trace",
-                    LogLevel.Debug =>       "debug",
-                    LogLevel.Information => "info ",
-                    LogLevel.Warning =>     "warn ",
-                    LogLevel.Error =>       "error",
-                    LogLevel.Critical =>    "crit ",
-                    LogLevel.None =>        "none ",
+                    LogLevel.Trace =>       "Trace",
+                    LogLevel.Debug =>       "Debug",
+                    LogLevel.Information => "Info ",
+                    LogLevel.Warning =>     "Warn ",
+                    LogLevel.Error =>       "Error",
+                    LogLevel.Critical =>    "Crit ",
+                    LogLevel.None =>        "None ",
                     _ =>                    "?????"
                 };
                 Console.Write($"[{level}]");
