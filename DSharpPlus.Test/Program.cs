@@ -39,17 +39,35 @@ namespace DSharpPlus.Test
             json = File.ReadAllText("config.json", new UTF8Encoding(false));
             cfg = JsonConvert.DeserializeObject<TestBotConfig>(json);
 
+            var client = new DiscordShardedClient(new DiscordConfiguration
+            {
+                Token = cfg.Token,
+                UseInternalLogHandler = true,
+                LogLevel = LogLevel.Debug,
+                ShardCount = cfg.ShardCount
+            });
+
+            client.MessageCreated += async e =>
+            {
+                Console.WriteLine(e.Message.Content);
+            };
+
+            await client.StartAsync();
+            await Task.Delay(5000);
+            await client.StopAsync();
+
+            /*
             var tskl = new List<Task>();
             for (var i = 0; i < cfg.ShardCount; i++)
             {
                 var bot = new TestBot(cfg, i, ref test);
                 Shards.Add(bot);
-                tskl.Add(bot.RunAsync());
-                await Task.Delay(7500).ConfigureAwait(false);
+                await bot.RunAsync();
+                //await Task.Delay(7500).ConfigureAwait(false);
             }
             
             await Task.WhenAll(tskl).ConfigureAwait(false);
-
+            */
             try
             {
                 await Task.Delay(-1, CancelToken).ConfigureAwait(false);

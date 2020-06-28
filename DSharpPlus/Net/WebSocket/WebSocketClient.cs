@@ -111,7 +111,7 @@ namespace DSharpPlus.Net.WebSocket
             try
             {
                 this._isClientClose = true;
-                if (this._ws != null)
+                if (this._ws != null && (this._ws.State == WebSocketState.Open || this._ws.State == WebSocketState.CloseReceived))
                     await this._ws.CloseOutputAsync((WebSocketCloseStatus)code, message, CancellationToken.None).ConfigureAwait(false);
 
                 if (this._receiverTask != null)
@@ -121,10 +121,12 @@ namespace DSharpPlus.Net.WebSocket
                     this._isConnected = false;
 
                 // Cancel all running tasks
-                this._socketTokenSource?.Cancel();
+                if(this._socketToken.CanBeCanceled)
+                    this._socketTokenSource?.Cancel();
                 this._socketTokenSource?.Dispose();
 
-                this._receiverTokenSource?.Cancel();
+                if(this._receiverToken.CanBeCanceled)
+                    this._receiverTokenSource?.Cancel();
                 this._receiverTokenSource?.Dispose();
 
             }
@@ -184,7 +186,7 @@ namespace DSharpPlus.Net.WebSocket
                 return;
 
             this._isDisposed = true;
-            this.DisconnectAsync().GetAwaiter().GetResult();
+            this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             this._receiverTokenSource.Dispose();
             this._socketTokenSource.Dispose();

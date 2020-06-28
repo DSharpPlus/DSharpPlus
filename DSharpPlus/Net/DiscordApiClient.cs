@@ -2009,11 +2009,7 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, headers).ConfigureAwait(false);
 
             var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
-            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(10000);
-            info.SessionBucket.resetAfter = (int)(DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(10000)).ToUnixTimeMilliseconds();
-            info.SessionBucket.Remaining = test;
-            Console.WriteLine(info.SessionBucket.ResetAfter - DateTimeOffset.UtcNow);
-
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
             return info;
         }
         #endregion

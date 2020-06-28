@@ -21,8 +21,6 @@ namespace DSharpPlus.Net
     internal sealed class RestClient
     {
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
-
-        private BaseDiscordClient Discord { get; }
         private HttpClient HttpClient { get; }
         private ConcurrentDictionary<string, RateLimitBucket> Buckets { get; }
         private AsyncManualResetEvent GlobalRateLimitEvent { get; }
@@ -30,7 +28,6 @@ namespace DSharpPlus.Net
         internal RestClient(BaseDiscordClient client)
             : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit)
         {
-            this.Discord = client;
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
             this.HttpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
@@ -385,6 +382,9 @@ namespace DSharpPlus.Net
                     this.FailInitialRateLimitTest(bucket, ratelimitTcs);
                 return;
             }
+
+            Console.WriteLine(usesleft);
+            Console.WriteLine(resetAfter);
 
             var clienttime = DateTimeOffset.UtcNow;
             var resettime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset, CultureInfo.InvariantCulture));

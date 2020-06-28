@@ -37,14 +37,15 @@ namespace DSharpPlus
         internal PayloadDecompressor _payloadDecompressor;
         internal string _sessionToken = null;
         internal string _sessionId = null;
-        internal SessionBucket _sessionBucket;
         internal int _concurrentShardCount = 0;
         internal int _heartbeatInterval;
         internal Task _heartbeatTask;
+        internal Task _gatewayUpdateTask;
         internal DateTimeOffset _lastHeartbeat;
         internal long _lastSequence;
         internal int _skippedHeartbeats = 0;
         internal bool _guildDownloadCompleted = false;
+        internal bool _isShard = false;
 
         internal RingBuffer<DiscordMessage> MessageCache { get; }
         internal StatusUpdate _status = null;
@@ -60,6 +61,8 @@ namespace DSharpPlus
 
         internal int _gatewayVersion;
 
+        public GatewayInfo GatewayInfo { get; internal set; }
+
         /// <summary>
         /// Gets the gateway URL.
         /// </summary>
@@ -72,13 +75,13 @@ namespace DSharpPlus
         /// Gets the session bucket for this client.
         /// </summary>
         public SessionBucket SessionBucket
-            => this._sessionBucket;
+            => this.GatewayInfo.SessionBucket;
 
         /// <summary>
         /// Gets the total number of shards the bot is connected to.
         /// </summary>
         public int ShardCount
-            => this.Configuration.ShardCount;
+            => this.GatewayInfo.ShardCount;
 
         internal int _shardCount = 1;
 
@@ -87,8 +90,6 @@ namespace DSharpPlus
         /// </summary>
         public int ShardId
             => this.Configuration.ShardId;
-
-        public int test { get; set; }
 
         /// <summary>
         /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
@@ -328,7 +329,8 @@ namespace DSharpPlus
             SocketLock socketLock = null;
             try
             {
-                await this.InternalUpdateGatewayAsync().ConfigureAwait(false);
+                if(this.GatewayInfo == null)
+                    await this.InternalUpdateGatewayAsync().ConfigureAwait(false);
                 await this.InitializeAsync().ConfigureAwait(false);
 
                 socketLock = this.GetSocketLock();
@@ -2483,36 +2485,26 @@ namespace DSharpPlus
 
         internal async Task SendIdentifyAsync(StatusUpdate status)
         {
-            if (this._sessionBucket.Remaining >= 0)
+            var identify = new GatewayIdentify
             {
-                this.DebugLogger.LogMessage(LogLevel.Debug, "DSharpPlus", $"Attempting to identify, {this._sessionBucket}. Allowing.", DateTime.Now);
-                var identify = new GatewayIdentify
+                Token = Utilities.GetFormattedToken(this),
+                Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
+                LargeThreshold = this.Configuration.LargeThreshold,
+                ShardInfo = new ShardInfo
                 {
-                    Token = Utilities.GetFormattedToken(this),
-                    Compress = this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Payload,
-                    LargeThreshold = this.Configuration.LargeThreshold,
-                    ShardInfo = new ShardInfo
-                    {
-                        ShardId = this.Configuration.ShardId,
-                        ShardCount = this.Configuration.ShardCount
-                    },
-                    Presence = status
-                };
-                var payload = new GatewayPayload
-                {
-                    OpCode = GatewayOpCode.Identify,
-                    Data = identify
-                };
-                var payloadstr = JsonConvert.SerializeObject(payload);
-                await this._webSocketClient.SendMessageAsync(payloadstr).ConfigureAwait(false);
-            }
-            else
+                    ShardId = this.Configuration.ShardId,
+                    ShardCount = this.Configuration.ShardCount
+                },
+                Presence = status
+            };
+            var payload = new GatewayPayload
             {
-                var delay = TimeSpan.FromMilliseconds(this._sessionBucket.resetAfter);
-                this.DebugLogger.LogMessage(LogLevel.Debug, "DSharpPlus", $"Attempting to identify, {this._sessionBucket}. Blocking.", DateTime.Now);
-                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Pre-emptive ratelimit triggered, waiting until {this._sessionBucket.ResetAfter:yyyy-MM-dd HH:mm:ss zzz} ({delay:c})", DateTime.Now);
-                await Task.Delay(delay).ContinueWith(_ => this.SendIdentifyAsync(status)).ConfigureAwait(false);
-            }
+                OpCode = GatewayOpCode.Identify,
+                Data = identify
+            };
+            var payloadstr = JsonConvert.SerializeObject(payload);
+            await this._webSocketClient.SendMessageAsync(payloadstr).ConfigureAwait(false);
+            this.GatewayInfo.SessionBucket.Remaining--;
         }
 
         internal async Task SendResumeAsync()
@@ -2657,16 +2649,12 @@ namespace DSharpPlus
         internal async Task InternalUpdateGatewayAsync()
         {
             var info = await this.GetGatewayInfoAsync().ConfigureAwait(false);
+            this.GatewayInfo = info;
             this._gatewayUri = new Uri(info.Url);
-            this._shardCount = info.ShardCount;
-            this._sessionBucket = info.SessionBucket;
-
-            //TODO: Add preemptive ratelimit for global ratelimit (120/60).
-            //5 second identify ratelimit delay could be divided by concurrency (i.e. concurrency rate of i would create a delay of 5/i.)
         }
 
         private SocketLock GetSocketLock()
-            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId));
+            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.SessionBucket.MaxConcurrency));
 
         ~DiscordClient()
         {

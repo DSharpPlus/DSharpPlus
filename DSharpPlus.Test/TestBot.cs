@@ -161,19 +161,7 @@ namespace DSharpPlus.Test
 
         private async Task Discord_Ready(ReadyEventArgs e)
         {
-            Task.Run(async () =>
-            {
-                await Task.Delay(5000);
-                await Discord.UpdateStatusAsync(new DiscordActivity("ok"));
-                await Discord.UpdateStatusAsync(new DiscordActivity("ok2"));
-                await Discord.UpdateStatusAsync(new DiscordActivity("ok3"));
-                await Discord.UpdateStatusAsync(new DiscordActivity("ok4"));
-                await Discord.UpdateStatusAsync(new DiscordActivity("ok5"));
-                await Task.Delay(60000);
-                await Discord.UpdateStatusAsync(new DiscordActivity("ok6"));
-                await Discord.UpdateStatusAsync(new DiscordActivity("ok7"));
-                await Discord.UpdateStatusAsync(new DiscordActivity("ok8"));
-            });
+            
         }
 
         private Task Discord_GuildAvailable(GuildCreateEventArgs e)

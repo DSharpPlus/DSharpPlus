@@ -10,6 +10,8 @@ using DSharpPlus.Net;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using System.Globalization;
+using System.Linq;
+using System.Threading;
 
 namespace DSharpPlus
 {
@@ -514,6 +516,10 @@ namespace DSharpPlus
         private DiscordConfiguration Config { get; }
         private ConcurrentDictionary<int, DiscordClient> Shards { get; }
 
+        private Task GatewayInfoTask;
+        private CancellationToken GatewayBotTaskCancelToken;
+        private CancellationTokenSource GatewayBotTaskCancelTokenSource;
+
         /// <summary>
         /// Gets the logger for this client.
         /// </summary>
@@ -524,6 +530,11 @@ namespace DSharpPlus
         /// </summary>
         public IReadOnlyDictionary<int, DiscordClient> ShardClients 
             => new ReadOnlyDictionary<int, DiscordClient>(this.Shards);
+
+        /// <summary>
+        /// Gets the gateway info for the client's session.
+        /// </summary>
+        public GatewayInfo GatewayInfo { get; private set; }
 
         /// <summary>
         /// Gets the current user.
@@ -603,6 +614,7 @@ namespace DSharpPlus
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
 
             this.Config = config;
+            this.Config.ShardCount = 3;
             this.Shards = new ConcurrentDictionary<int, DiscordClient>();
             this.DebugLogger = new DebugLogger(config.LogLevel, config.DateTimeFormat);
 
@@ -615,7 +627,8 @@ namespace DSharpPlus
             if (this.Shards.Count != 0)
                 return this.Shards.Count;
 
-            var shardc = this.Config.ShardCount == 1 ? await this.GetShardCountAsync().ConfigureAwait(false) : this.Config.ShardCount;
+            this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
+            var shardc = this.Config.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Config.ShardCount;
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfiguration(this.Config)
@@ -639,92 +652,135 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task StartAsync()
         {
+            if (this.GatewayInfoTask != null)
+                throw new InvalidOperationException("The client has already been started.");
+
             var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
+            var connectTasks = new List<Task>();
             this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc.ToString(CultureInfo.InvariantCulture)} shards", DateTime.Now);
 
             for (var i = 0; i < shardc; i++)
             {
-                if (!this.Shards.TryGetValue(i, out var client))
-                    throw new Exception("Could not initialize shards");
+                if (this.GatewayInfo.SessionBucket.MaxConcurrency < 1)
+                    this.GatewayInfo.SessionBucket.MaxConcurrency = 1;
 
-                if (this.CurrentUser != null)
-                    client.CurrentUser = this.CurrentUser;
-
-                if (this.CurrentApplication != null)
-                    client.CurrentApplication = this.CurrentApplication;
-
-                if (this.InternalVoiceRegions != null)
+                if (this.GatewayInfo.SessionBucket.MaxConcurrency == 1)
+                    await this.ConnectShardAsync(i).ConfigureAwait(false);
+                else
                 {
-                    client.InternalVoiceRegions = this.InternalVoiceRegions;
-                    client._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(client.InternalVoiceRegions));
-                }
+                    connectTasks.Add(this.ConnectShardAsync(i));
 
-                client.ClientErrored += this.Client_ClientError;
-                client.SocketErrored += this.Client_SocketError;
-                client.SocketOpened += this.Client_SocketOpened;
-                client.SocketClosed += this.Client_SocketClosed;
-                client.Ready += this.Client_Ready;
-                client.Resumed += this.Client_Resumed;
-                client.ChannelCreated += this.Client_ChannelCreated;
-                client.DmChannelCreated += this.Client_DMChannelCreated;
-                client.ChannelUpdated += this.Client_ChannelUpdated;
-                client.ChannelDeleted += this.Client_ChannelDeleted;
-                client.DmChannelDeleted += this.Client_DMChannelDeleted;
-                client.ChannelPinsUpdated += this.Client_ChannelPinsUpdated;
-                client.GuildCreated += this.Client_GuildCreated;
-                client.GuildAvailable += this.Client_GuildAvailable;
-                client.GuildUpdated += this.Client_GuildUpdated;
-                client.GuildDeleted += this.Client_GuildDeleted;
-                client.GuildUnavailable += this.Client_GuildUnavailable;
-                client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
-                client.InviteCreated += this.Client_InviteCreated;
-                client.InviteDeleted += this.Client_InviteDeleted;
-                client.MessageCreated += this.Client_MessageCreated;
-                client.PresenceUpdated += this.Client_PresenceUpdate;
-                client.GuildBanAdded += this.Client_GuildBanAdd;
-                client.GuildBanRemoved += this.Client_GuildBanRemove;
-                client.GuildEmojisUpdated += this.Client_GuildEmojisUpdate;
-                client.GuildIntegrationsUpdated += this.Client_GuildIntegrationsUpdate;
-                client.GuildMemberAdded += this.Client_GuildMemberAdd;
-                client.GuildMemberRemoved += this.Client_GuildMemberRemove;
-                client.GuildMemberUpdated += this.Client_GuildMemberUpdate;
-                client.GuildRoleCreated += this.Client_GuildRoleCreate;
-                client.GuildRoleUpdated += this.Client_GuildRoleUpdate;
-                client.GuildRoleDeleted += this.Client_GuildRoleDelete;
-                client.MessageUpdated += this.Client_MessageUpdate;
-                client.MessageDeleted += this.Client_MessageDelete;
-                client.MessagesBulkDeleted += this.Client_MessageBulkDelete;
-                client.TypingStarted += this.Client_TypingStart;
-                client.UserSettingsUpdated += this.Client_UserSettingsUpdate;
-                client.UserUpdated += this.Client_UserUpdate;
-                client.VoiceStateUpdated += this.Client_VoiceStateUpdate;
-                client.VoiceServerUpdated += this.Client_VoiceServerUpdate;
-                client.GuildMembersChunked += this.Client_GuildMembersChunk;
-                client.UnknownEvent += this.Client_UnknownEvent;
-                client.MessageReactionAdded += this.Client_MessageReactionAdd;
-                client.MessageReactionRemoved += this.Client_MessageReactionRemove;
-                client.MessageReactionsCleared += this.Client_MessageReactionRemoveAll;
-                client.MessageReactionRemovedEmoji += this.Client_MessageReactionRemovedEmoji;
-                client.WebhooksUpdated += this.Client_WebhooksUpdate;
-                client.Heartbeated += this.Client_HeartBeated;
-                client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
-                
-                await client.ConnectAsync().ConfigureAwait(false);
-                this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
-
-                if (this.CurrentUser == null)
-                    this.CurrentUser = client.CurrentUser;
-
-                if (this.CurrentApplication == null)
-                    this.CurrentApplication = client.CurrentApplication;
-
-                if (this.InternalVoiceRegions == null)
-                {
-                    this.InternalVoiceRegions = client.InternalVoiceRegions;
-                    this._voiceRegionsLazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
+                    if (connectTasks.Count == this.GatewayInfo.SessionBucket.MaxConcurrency)
+                    {
+                        await Task.WhenAll(connectTasks).ConfigureAwait(false);
+                        connectTasks.Clear();
+                    }
                 }
             }
+
+            this.GatewayInfo = this.Shards.Values.Last().GatewayInfo;
+
+            for (int i = 0; i < shardc; i++)
+                this.Shards[i].GatewayInfo = this.GatewayInfo;
+
+            this.GatewayBotTaskCancelTokenSource = new CancellationTokenSource();
+            this.GatewayBotTaskCancelToken = this.GatewayBotTaskCancelTokenSource.Token;
+
+            this.GatewayInfoTask = Task.Run(this.GatewayInfoUpdaterAsync, this.GatewayBotTaskCancelToken);
         }
+
+        /// <summary>
+        /// Disconnects and disposes of all shards.
+        /// </summary>
+        /// <returns></returns>
+        public Task StopAsync()
+        {
+            if (this.GatewayInfoTask == null)
+                throw new InvalidOperationException("The client has not been started.");
+
+            this.GatewayInfo = null;
+            this.CurrentUser = null;
+            this.CurrentApplication = null;
+            this._voiceRegionsLazy = null;
+
+            if (this.GatewayBotTaskCancelToken.CanBeCanceled)
+                this.GatewayBotTaskCancelTokenSource.Cancel();
+
+            this.GatewayBotTaskCancelTokenSource = null;
+            this.GatewayInfoTask = null;
+
+            for (int i = 0; i < this.Shards.Count; i++)
+            {
+                if (this.Shards.TryGetValue(i, out var client))
+                {
+                    client.ClientErrored -= this.Client_ClientError;
+                    client.SocketErrored -= this.Client_SocketError;
+                    client.SocketOpened -= this.Client_SocketOpened;
+                    client.SocketClosed -= this.Client_SocketClosed;
+                    client.Ready -= this.Client_Ready;
+                    client.Resumed -= this.Client_Resumed;
+                    client.ChannelCreated -= this.Client_ChannelCreated;
+                    client.DmChannelCreated -= this.Client_DMChannelCreated;
+                    client.ChannelUpdated -= this.Client_ChannelUpdated;
+                    client.ChannelDeleted -= this.Client_ChannelDeleted;
+                    client.DmChannelDeleted -= this.Client_DMChannelDeleted;
+                    client.ChannelPinsUpdated -= this.Client_ChannelPinsUpdated;
+                    client.GuildCreated -= this.Client_GuildCreated;
+                    client.GuildAvailable -= this.Client_GuildAvailable;
+                    client.GuildUpdated -= this.Client_GuildUpdated;
+                    client.GuildDeleted -= this.Client_GuildDeleted;
+                    client.GuildUnavailable -= this.Client_GuildUnavailable;
+                    client.GuildDownloadCompleted -= this.Client_GuildDownloadCompleted;
+                    client.InviteCreated -= this.Client_InviteCreated;
+                    client.InviteDeleted -= this.Client_InviteDeleted;
+                    client.MessageCreated -= this.Client_MessageCreated;
+                    client.PresenceUpdated -= this.Client_PresenceUpdate;
+                    client.GuildBanAdded -= this.Client_GuildBanAdd;
+                    client.GuildBanRemoved -= this.Client_GuildBanRemove;
+                    client.GuildEmojisUpdated -= this.Client_GuildEmojisUpdate;
+                    client.GuildIntegrationsUpdated -= this.Client_GuildIntegrationsUpdate;
+                    client.GuildMemberAdded -= this.Client_GuildMemberAdd;
+                    client.GuildMemberRemoved -= this.Client_GuildMemberRemove;
+                    client.GuildMemberUpdated -= this.Client_GuildMemberUpdate;
+                    client.GuildRoleCreated -= this.Client_GuildRoleCreate;
+                    client.GuildRoleUpdated -= this.Client_GuildRoleUpdate;
+                    client.GuildRoleDeleted -= this.Client_GuildRoleDelete;
+                    client.MessageUpdated -= this.Client_MessageUpdate;
+                    client.MessageDeleted -= this.Client_MessageDelete;
+                    client.MessagesBulkDeleted -= this.Client_MessageBulkDelete;
+                    client.TypingStarted -= this.Client_TypingStart;
+                    client.UserSettingsUpdated -= this.Client_UserSettingsUpdate;
+                    client.UserUpdated -= this.Client_UserUpdate;
+                    client.VoiceStateUpdated -= this.Client_VoiceStateUpdate;
+                    client.VoiceServerUpdated -= this.Client_VoiceServerUpdate;
+                    client.GuildMembersChunked -= this.Client_GuildMembersChunk;
+                    client.UnknownEvent -= this.Client_UnknownEvent;
+                    client.MessageReactionAdded -= this.Client_MessageReactionAdd;
+                    client.MessageReactionRemoved -= this.Client_MessageReactionRemove;
+                    client.MessageReactionsCleared -= this.Client_MessageReactionRemoveAll;
+                    client.MessageReactionRemovedEmoji -= this.Client_MessageReactionRemovedEmoji;
+                    client.WebhooksUpdated -= this.Client_WebhooksUpdate;
+                    client.Heartbeated -= this.Client_HeartBeated;
+                    client.DebugLogger.LogMessageReceived -= this.DebugLogger_LogMessageReceived;
+
+                    client.Dispose();
+                    this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Disconnected shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
+                }
+            }
+
+            this.Shards.Clear();
+
+            return Task.CompletedTask;
+        }
+
+        public DiscordClient GetShard(ulong guildId)
+        { 
+            var index = Utilities.GetShardId(guildId, this.ShardClients.Count);
+            return this.ShardClients[index];
+        }
+
+        public DiscordClient GetShard(DiscordGuild guild)
+            => this.GetShard(guild.Id);
 
         /// <summary>
         /// Updates playing statuses on all shards.
@@ -742,21 +798,126 @@ namespace DSharpPlus
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
-        private async Task<int> GetShardCountAsync()
+        private async Task ConnectShardAsync(int i)
+        {
+            if (!this.Shards.TryGetValue(i, out var client))
+                throw new Exception($"Could not initialize shard {i}.");
+
+            if (this.GatewayInfo != null)
+            {
+                client.GatewayInfo = this.GatewayInfo;
+                client._gatewayUri = new Uri(client.GatewayInfo.Url);
+            }
+
+            if (this.CurrentUser != null)
+                client.CurrentUser = this.CurrentUser;
+
+            if (this.CurrentApplication != null)
+                client.CurrentApplication = this.CurrentApplication;
+
+            if (this.InternalVoiceRegions != null)
+            {
+                client.InternalVoiceRegions = this.InternalVoiceRegions;
+                client._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(client.InternalVoiceRegions));
+            }
+
+            client.ClientErrored += this.Client_ClientError;
+            client.SocketErrored += this.Client_SocketError;
+            client.SocketOpened += this.Client_SocketOpened;
+            client.SocketClosed += this.Client_SocketClosed;
+            client.Ready += this.Client_Ready;
+            client.Resumed += this.Client_Resumed;
+            client.ChannelCreated += this.Client_ChannelCreated;
+            client.DmChannelCreated += this.Client_DMChannelCreated;
+            client.ChannelUpdated += this.Client_ChannelUpdated;
+            client.ChannelDeleted += this.Client_ChannelDeleted;
+            client.DmChannelDeleted += this.Client_DMChannelDeleted;
+            client.ChannelPinsUpdated += this.Client_ChannelPinsUpdated;
+            client.GuildCreated += this.Client_GuildCreated;
+            client.GuildAvailable += this.Client_GuildAvailable;
+            client.GuildUpdated += this.Client_GuildUpdated;
+            client.GuildDeleted += this.Client_GuildDeleted;
+            client.GuildUnavailable += this.Client_GuildUnavailable;
+            client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
+            client.InviteCreated += this.Client_InviteCreated;
+            client.InviteDeleted += this.Client_InviteDeleted;
+            client.MessageCreated += this.Client_MessageCreated;
+            client.PresenceUpdated += this.Client_PresenceUpdate;
+            client.GuildBanAdded += this.Client_GuildBanAdd;
+            client.GuildBanRemoved += this.Client_GuildBanRemove;
+            client.GuildEmojisUpdated += this.Client_GuildEmojisUpdate;
+            client.GuildIntegrationsUpdated += this.Client_GuildIntegrationsUpdate;
+            client.GuildMemberAdded += this.Client_GuildMemberAdd;
+            client.GuildMemberRemoved += this.Client_GuildMemberRemove;
+            client.GuildMemberUpdated += this.Client_GuildMemberUpdate;
+            client.GuildRoleCreated += this.Client_GuildRoleCreate;
+            client.GuildRoleUpdated += this.Client_GuildRoleUpdate;
+            client.GuildRoleDeleted += this.Client_GuildRoleDelete;
+            client.MessageUpdated += this.Client_MessageUpdate;
+            client.MessageDeleted += this.Client_MessageDelete;
+            client.MessagesBulkDeleted += this.Client_MessageBulkDelete;
+            client.TypingStarted += this.Client_TypingStart;
+            client.UserSettingsUpdated += this.Client_UserSettingsUpdate;
+            client.UserUpdated += this.Client_UserUpdate;
+            client.VoiceStateUpdated += this.Client_VoiceStateUpdate;
+            client.VoiceServerUpdated += this.Client_VoiceServerUpdate;
+            client.GuildMembersChunked += this.Client_GuildMembersChunk;
+            client.UnknownEvent += this.Client_UnknownEvent;
+            client.MessageReactionAdded += this.Client_MessageReactionAdd;
+            client.MessageReactionRemoved += this.Client_MessageReactionRemove;
+            client.MessageReactionsCleared += this.Client_MessageReactionRemoveAll;
+            client.MessageReactionRemovedEmoji += this.Client_MessageReactionRemovedEmoji;
+            client.WebhooksUpdated += this.Client_WebhooksUpdate;
+            client.Heartbeated += this.Client_HeartBeated;
+            client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
+
+            await client.ConnectAsync().ConfigureAwait(false);
+            this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
+
+            if (this.CurrentUser == null)
+                this.CurrentUser = client.CurrentUser;
+
+            if (this.CurrentApplication == null)
+                this.CurrentApplication = client.CurrentApplication;
+
+            if (this.InternalVoiceRegions == null)
+            {
+                this.InternalVoiceRegions = client.InternalVoiceRegions;
+                this._voiceRegionsLazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
+            }
+        }
+
+        private async Task<GatewayInfo> GetGatewayInfoAsync()
         {
             string url = $"{Utilities.GetApiBaseUri()}{Endpoints.GATEWAY}{Endpoints.BOT}";
-            var headers = Utilities.GetBaseHeaders();
 
             var http = new HttpClient();
             http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
             http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Config));
+            this.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Initial request for rate limit bucket [GET::::/gateway/bot] [0/0] 1/1/0001 12:00:00 AM +00:00. Allowing.", DateTime.Now);
             var resp = await http.GetAsync(url).ConfigureAwait(false);
+            var hs = resp.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value), StringComparer.OrdinalIgnoreCase);
+
             http.Dispose();
 
             var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
-            if (jo["shards"] != null)
-                return jo.Value<int>("shards");
-            return 1;
+            var info = jo.ToObject<GatewayInfo>();
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+
+            return jo.ToObject<GatewayInfo>();
+        }
+
+        private async Task GatewayInfoUpdaterAsync()
+        {
+            while(!this.GatewayBotTaskCancelToken.IsCancellationRequested)
+            {
+                var delay = TimeSpan.FromMilliseconds(this.GatewayInfo.SessionBucket.resetAfter);
+                await Task.Delay(delay).ConfigureAwait(false);
+                this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
+
+                for (int i = 0; i < this.ShardClients.Count; i++)
+                    this.ShardClients[i].GatewayInfo = this.GatewayInfo;
+            }
         }
 
         #region Event Dispatchers

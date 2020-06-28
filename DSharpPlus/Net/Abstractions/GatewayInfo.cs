@@ -12,7 +12,7 @@ namespace DSharpPlus.Net
         /// Gets the gateway URL for the WebSocket connection.
         /// </summary>
         [JsonProperty("url")]
-        internal string Url { get; set; }
+        public string Url { get; set; }
 
         /// <summary>
         /// Gets the recommended amount of shards.
