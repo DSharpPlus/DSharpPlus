@@ -69,7 +69,7 @@ namespace DSharpPlus.Entities
 
                     case RoleMention r:
                         if (r.Id.HasValue) {
-                            users.Add(r.Id.Value);      //We have a role ID so we will add them to the implicit
+                            roles.Add(r.Id.Value);      //We have a role ID so we will add them to the implicit
                         } else {
                             parse.Add(ParseRoles);      //We have role ID, so let all users through
                         }
