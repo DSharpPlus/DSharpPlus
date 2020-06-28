@@ -98,6 +98,14 @@ namespace DSharpPlus.Test
 
             this.InteractivityService = Discord.UseInteractivity(icfg);
             this.LavalinkService = Discord.UseLavalink();
+
+            //this.Discord.MessageCreated += async e =>
+            //{
+            //    if (e.Message.Author.IsBot)
+            //        return;
+
+            //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content));
+            //};
         }
 
         public async Task RunAsync()
