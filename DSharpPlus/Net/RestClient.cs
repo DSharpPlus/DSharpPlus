@@ -124,7 +124,7 @@ namespace DSharpPlus.Net
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
 #pragma warning restore 420 // blaze it
                     {
-                        request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Request for {0} is blocked", bucket);
+                        request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Request for {0} is blocked", bucket.ToString());
                         var delay = bucket.Reset - now;
                         var resetDate = bucket.Reset;
 
@@ -150,10 +150,10 @@ namespace DSharpPlus.Net
 
                         return;
                     }
-                    request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Request for {0} is allowed", bucket);
+                    request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Request for {0} is allowed", bucket.ToString());
                 }
                 else
-                    request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Initial request for {0} is allowed", bucket);
+                    request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Initial request for {0} is allowed", bucket.ToString());
 
                 var req = this.BuildRequest(request);
                 var response = new RestResponse();
