@@ -56,22 +56,21 @@ namespace DSharpPlus
                         Console.ForegroundColor = ConsoleColor.Black;
                         break;
                 }
-                var level = logLevel switch 
+                Console.Write(logLevel switch 
                 {
-                    LogLevel.Trace =>       "Trace",
-                    LogLevel.Debug =>       "Debug",
-                    LogLevel.Information => "Info ",
-                    LogLevel.Warning =>     "Warn ",
-                    LogLevel.Error =>       "Error",
-                    LogLevel.Critical =>    "Crit ",
-                    LogLevel.None =>        "None ",
-                    _ =>                    "?????"
-                };
-                Console.Write($"[{level}]");
+                    LogLevel.Trace =>       "[Trace] ",
+                    LogLevel.Debug =>       "[Debug] ",
+                    LogLevel.Information => "[Info ] ",
+                    LogLevel.Warning =>     "[Warn ] ",
+                    LogLevel.Error =>       "[Error] ",
+                    LogLevel.Critical =>    "[Crit ] ",
+                    LogLevel.None =>        "[None ] ",
+                    _ =>                    "[?????] "
+                });
                 Console.ResetColor();
 
                 var message = formatter(state, exception);
-                Console.WriteLine($" {message}");
+                Console.WriteLine(message);
                 if (exception != null)
                     Console.WriteLine(exception);
             }
