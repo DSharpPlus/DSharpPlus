@@ -36,11 +36,11 @@ namespace DSharpPlus
                         break;
 
                     case LogLevel.Debug:
-                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
                         break;
 
                     case LogLevel.Information:
-                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
                         break;
 
                     case LogLevel.Warning:
