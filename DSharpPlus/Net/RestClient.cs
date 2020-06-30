@@ -124,7 +124,7 @@ namespace DSharpPlus.Net
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
 #pragma warning restore 420 // blaze it
                     {
-                        request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Request for {0} is blocked", bucket.ToString());
+                        request.Discord?.Logger.LogDebug(BaseDiscordClient.RestEventId, "Request for {0} is blocked", bucket.ToString());
                         var delay = bucket.Reset - now;
                         var resetDate = bucket.Reset;
 
@@ -136,24 +136,24 @@ namespace DSharpPlus.Net
 
                         if (delay < new TimeSpan(-TimeSpan.TicksPerMinute))
                         {
-                            request.Discord?.Logger?.LogError(BaseDiscordClient.RestEventId, "Failed to retrieve ratelimits - giving up and allowing next request for bucket");
+                            request.Discord?.Logger.LogError(BaseDiscordClient.RestEventId, "Failed to retrieve ratelimits - giving up and allowing next request for bucket");
                             bucket._remaining = 1;
                         }
 
                         if (delay < TimeSpan.Zero)
                             delay = TimeSpan.FromMilliseconds(100);
 
-                        request.Discord?.Logger?.LogWarning(BaseDiscordClient.RestEventId, "Pre-emptive ratelimit triggered - waiting until {0:yyyy-MM-dd HH:mm:ss zzz} ({1:c}).", resetDate, delay);
+                        request.Discord?.Logger.LogWarning(BaseDiscordClient.RestEventId, "Pre-emptive ratelimit triggered - waiting until {0:yyyy-MM-dd HH:mm:ss zzz} ({1:c}).", resetDate, delay);
                         Task.Delay(delay)
                             .ContinueWith(_ => this.ExecuteRequestAsync(request, null, null))
                             .LogTaskFault(request.Discord?.Logger, LogLevel.Error, BaseDiscordClient.RestEventId, "Error while executing request");
 
                         return;
                     }
-                    request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Request for {0} is allowed", bucket.ToString());
+                    request.Discord?.Logger.LogDebug(BaseDiscordClient.RestEventId, "Request for {0} is allowed", bucket.ToString());
                 }
                 else
-                    request.Discord?.Logger?.LogDebug(BaseDiscordClient.RestEventId, "Initial request for {0} is allowed", bucket.ToString());
+                    request.Discord?.Logger.LogDebug(BaseDiscordClient.RestEventId, "Initial request for {0} is allowed", bucket.ToString());
 
                 var req = this.BuildRequest(request);
                 var response = new RestResponse();
@@ -170,7 +170,7 @@ namespace DSharpPlus.Net
                 }
                 catch (HttpRequestException httpex)
                 {
-                    request.Discord?.Logger?.LogError(BaseDiscordClient.RestEventId, httpex, "Request to {0} triggered an HttpException", request.Url);
+                    request.Discord?.Logger.LogError(BaseDiscordClient.RestEventId, httpex, "Request to {0} triggered an HttpException", request.Url);
                     request.SetFaulted(httpex);
                     this.FailInitialRateLimitTest(bucket, ratelimitTcs);
                     return;
@@ -208,7 +208,7 @@ namespace DSharpPlus.Net
                         {
                             if (global)
                             {
-                                request.Discord?.Logger?.LogError(BaseDiscordClient.RestEventId, "Global ratelimit hit, cooling down");
+                                request.Discord?.Logger.LogError(BaseDiscordClient.RestEventId, "Global ratelimit hit, cooling down");
                                 try
                                 {
                                     this.GlobalRateLimitEvent.Reset();
@@ -224,7 +224,7 @@ namespace DSharpPlus.Net
                             }
                             else
                             {
-                                request.Discord?.Logger?.LogError(BaseDiscordClient.RestEventId, "Ratelimit hit, requeueing request to {0}", request.Url);
+                                request.Discord?.Logger.LogError(BaseDiscordClient.RestEventId, "Ratelimit hit, requeueing request to {0}", request.Url);
                                 await wait.ConfigureAwait(false);
                                 this.ExecuteRequestAsync(request, bucket, ratelimitTcs)
                                     .LogTaskFault(request.Discord?.Logger, LogLevel.Error, BaseDiscordClient.RestEventId, "Error while retrying request");
@@ -242,7 +242,7 @@ namespace DSharpPlus.Net
             }
             catch (Exception ex)
             {
-                request.Discord?.Logger?.LogError(BaseDiscordClient.RestEventId, ex, "Request to {0} triggered an exception", request.Url);
+                request.Discord?.Logger.LogError(BaseDiscordClient.RestEventId, ex, "Request to {0} triggered an exception", request.Url);
 
                 // if something went wrong and we couldn't get rate limits for the first request here, allow the next request to run
                 if (bucket != null && ratelimitTcs != null && bucket._limitTesting != 0)
