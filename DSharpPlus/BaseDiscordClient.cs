@@ -175,12 +175,15 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Gets the current gateway info for the provided token type and token.
-        /// <para>If no values are provided, the configuration values will be used instead.</para>
+        /// Gets the current gateway info for the provided token.
+        /// <para>If no value is provided, the configuration value will be used instead.</para>
         /// </summary>
         /// <returns>A gateway info object.</returns>
-        public async Task<GatewayInfo> GetGatewayInfoAsync(TokenType tokenType = TokenType.Bot, string token = null)
+        public async Task<GatewayInfo> GetGatewayInfoAsync(string token = null)
         {
+            if (this.Configuration.TokenType != TokenType.Bot)
+                throw new InvalidOperationException("Only bot tokens can access this info.");
+
             if (string.IsNullOrEmpty(this.Configuration.Token))
             {
                 if (string.IsNullOrEmpty(token))
@@ -188,14 +191,8 @@ namespace DSharpPlus
 
                 this.Configuration.Token = token;
 
-                var origTokenType = this.Configuration.TokenType;
-
-                if (tokenType != TokenType.Bot)
-                    this.Configuration.TokenType = tokenType;
-
                 var res = await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
                 this.Configuration.Token = null;
-                this.Configuration.TokenType = origTokenType;
                 return res;
             }
 

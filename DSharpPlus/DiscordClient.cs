@@ -59,6 +59,9 @@ namespace DSharpPlus
 
         internal int _gatewayVersion;
 
+        /// <summary>
+        /// Gets the gateway session information for this client.
+        /// </summary>
         public GatewayInfo GatewayInfo { get; internal set; }
 
         /// <summary>
@@ -68,12 +71,6 @@ namespace DSharpPlus
             => this._gatewayUri;
 
         internal Uri _gatewayUri;
-
-        /// <summary>
-        /// Gets the session bucket for this client.
-        /// </summary>
-        public SessionBucket SessionBucket
-            => this.GatewayInfo.SessionBucket;
 
         /// <summary>
         /// Gets the total number of shards the bot is connected to.
@@ -2654,7 +2651,7 @@ namespace DSharpPlus
         }
 
         private SocketLock GetSocketLock()
-            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.SessionBucket.MaxConcurrency));
+            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket.MaxConcurrency));
 
         ~DiscordClient()
         {
