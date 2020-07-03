@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using System.Threading;
-using System.Security.Cryptography.X509Certificates;
 
 namespace DSharpPlus.Test
 {
@@ -38,34 +37,17 @@ namespace DSharpPlus.Test
             json = File.ReadAllText("config.json", new UTF8Encoding(false));
             cfg = JsonConvert.DeserializeObject<TestBotConfig>(json);
 
-            var client = new DiscordShardedClient(new DiscordConfiguration
-            {
-                Token = cfg.Token,
-                UseInternalLogHandler = true,
-                LogLevel = LogLevel.Debug,
-                ShardCount = 10
-            });
-
-            client.MessageCreated += async e =>
-            {
-                Console.WriteLine(e.Message.Content);
-            };
-
-            await client.StartAsync();
-            await client.StopAsync();
-
-            /*
             var tskl = new List<Task>();
             for (var i = 0; i < cfg.ShardCount; i++)
             {
-                var bot = new TestBot(cfg, i, ref test);
+                var bot = new TestBot(cfg, i);
                 Shards.Add(bot);
-                await bot.RunAsync();
-                //await Task.Delay(7500).ConfigureAwait(false);
+                tskl.Add(bot.RunAsync());
+                await Task.Delay(7500).ConfigureAwait(false);
             }
             
             await Task.WhenAll(tskl).ConfigureAwait(false);
-            */
+
             try
             {
                 await Task.Delay(-1, CancelToken).ConfigureAwait(false);

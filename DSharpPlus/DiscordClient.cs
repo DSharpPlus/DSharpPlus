@@ -37,10 +37,8 @@ namespace DSharpPlus
         internal PayloadDecompressor _payloadDecompressor;
         internal string _sessionToken = null;
         internal string _sessionId = null;
-        internal int _concurrentShardCount = 0;
         internal int _heartbeatInterval;
         internal Task _heartbeatTask;
-        internal Task _gatewayUpdateTask;
         internal DateTimeOffset _lastHeartbeat;
         internal long _lastSequence;
         internal int _skippedHeartbeats = 0;

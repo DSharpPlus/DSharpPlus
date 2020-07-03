@@ -383,9 +383,6 @@ namespace DSharpPlus.Net
                 return;
             }
 
-            Console.WriteLine(usesleft);
-            Console.WriteLine(resetAfter);
-
             var clienttime = DateTimeOffset.UtcNow;
             var resettime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset, CultureInfo.InvariantCulture));
             var servertime = clienttime;

@@ -16,10 +16,8 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Net
 {
-    public sealed class DiscordApiClient
+    internal sealed class DiscordApiClient
     {
-        public int test { get; set; }
-
         private const string REASON_HEADER_NAME = "X-Audit-Log-Reason";
 
         internal BaseDiscordClient Discord { get; }
