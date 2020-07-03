@@ -256,9 +256,12 @@ namespace DSharpPlus
                 };
             }
 
-            if (this.Configuration.TokenType != TokenType.Bot)
-                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
-            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}", DateTime.Now);
+            if (!this._isShard)
+            {
+                if (this.Configuration.TokenType != TokenType.Bot)
+                    this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}", DateTime.Now);
+            }
 
             while (i-- > 0 || this.Configuration.ReconnectIndefinitely)
             {
@@ -2504,7 +2507,6 @@ namespace DSharpPlus
             };
             var payloadstr = JsonConvert.SerializeObject(payload);
             await this._webSocketClient.SendMessageAsync(payloadstr).ConfigureAwait(false);
-            this.GatewayInfo.SessionBucket.Remaining--;
         }
 
         internal async Task SendResumeAsync()

@@ -105,6 +105,8 @@ namespace DSharpPlus.Net.WebSocket
         /// <inheritdoc />
         public async Task DisconnectAsync(int code = 1000, string message = "")
         {
+            if (this._isClientClose)
+                return;
             // Ensure that messages cannot be sent
             await this._senderLock.WaitAsync().ConfigureAwait(false);
 
@@ -130,7 +132,7 @@ namespace DSharpPlus.Net.WebSocket
                 this._receiverTokenSource?.Dispose();
 
             }
-            catch { }
+            catch { this._isClientClose = false; }
             finally
             {
                 this._senderLock.Release();
@@ -186,7 +188,9 @@ namespace DSharpPlus.Net.WebSocket
                 return;
 
             this._isDisposed = true;
-            this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+            if(this._isConnected)
+                this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             this._receiverTokenSource.Dispose();
             this._socketTokenSource.Dispose();

@@ -10,8 +10,8 @@ using DSharpPlus.Net;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using System.Globalization;
-using System.Linq;
-using System.Threading;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace DSharpPlus
 {
@@ -516,10 +516,6 @@ namespace DSharpPlus
         private DiscordConfiguration Config { get; }
         private ConcurrentDictionary<int, DiscordClient> Shards { get; }
 
-        private Task GatewayInfoTask;
-        private CancellationToken GatewayBotTaskCancelToken;
-        private CancellationTokenSource GatewayBotTaskCancelTokenSource;
-
         /// <summary>
         /// Gets the logger for this client.
         /// </summary>
@@ -557,6 +553,7 @@ namespace DSharpPlus
         /// </summary>
         private ConcurrentDictionary<string, DiscordVoiceRegion> InternalVoiceRegions { get; set; }
         private Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voiceRegionsLazy;
+        private bool isStarted = false;
 
         /// <summary>
         /// Initializes new auto-sharding Discord client.
@@ -614,7 +611,6 @@ namespace DSharpPlus
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
 
             this.Config = config;
-            this.Config.ShardCount = 3;
             this.Shards = new ConcurrentDictionary<int, DiscordClient>();
             this.DebugLogger = new DebugLogger(config.LogLevel, config.DateTimeFormat);
 
@@ -652,15 +648,20 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task StartAsync()
         {
-            if (this.GatewayInfoTask != null)
-                throw new InvalidOperationException("The client has already been started.");
+            if (this.isStarted)
+                throw new InvalidOperationException("This client has already been started.");
+
+            if (this.Config.TokenType != TokenType.Bot)
+                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this._versionString.Value}", DateTime.Now);
 
             var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
             var connectTasks = new List<Task>();
-            this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booting {shardc.ToString(CultureInfo.InvariantCulture)} shards", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "AutoShard", $"Booting {shardc.ToString(CultureInfo.InvariantCulture)} shards.", DateTime.Now);
 
             for (var i = 0; i < shardc; i++)
             {
+                //This should never happen, but in case it does...
                 if (this.GatewayInfo.SessionBucket.MaxConcurrency < 1)
                     this.GatewayInfo.SessionBucket.MaxConcurrency = 1;
 
@@ -668,6 +669,7 @@ namespace DSharpPlus
                     await this.ConnectShardAsync(i).ConfigureAwait(false);
                 else
                 {
+                    //Concurrent login.
                     connectTasks.Add(this.ConnectShardAsync(i));
 
                     if (connectTasks.Count == this.GatewayInfo.SessionBucket.MaxConcurrency)
@@ -678,15 +680,7 @@ namespace DSharpPlus
                 }
             }
 
-            this.GatewayInfo = this.Shards.Values.Last().GatewayInfo;
-
-            for (int i = 0; i < shardc; i++)
-                this.Shards[i].GatewayInfo = this.GatewayInfo;
-
-            this.GatewayBotTaskCancelTokenSource = new CancellationTokenSource();
-            this.GatewayBotTaskCancelToken = this.GatewayBotTaskCancelTokenSource.Token;
-
-            this.GatewayInfoTask = Task.Run(this.GatewayInfoUpdaterAsync, this.GatewayBotTaskCancelToken);
+            this.isStarted = true;
         }
 
         /// <summary>
@@ -695,19 +689,15 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task StopAsync()
         {
-            if (this.GatewayInfoTask == null)
-                throw new InvalidOperationException("The client has not been started.");
+            if (!this.isStarted)
+                throw new InvalidOperationException("This client has not been started.");
 
+            this.DebugLogger.LogMessage(LogLevel.Info, "AutoShard", $"Disposing {this.Shards.Count.ToString(CultureInfo.InvariantCulture)} shards.", DateTime.Now);
+            this.isStarted = false;
             this.GatewayInfo = null;
             this.CurrentUser = null;
             this.CurrentApplication = null;
             this._voiceRegionsLazy = null;
-
-            if (this.GatewayBotTaskCancelToken.CanBeCanceled)
-                this.GatewayBotTaskCancelTokenSource.Cancel();
-
-            this.GatewayBotTaskCancelTokenSource = null;
-            this.GatewayInfoTask = null;
 
             for (int i = 0; i < this.Shards.Count; i++)
             {
@@ -764,7 +754,7 @@ namespace DSharpPlus
                     client.DebugLogger.LogMessageReceived -= this.DebugLogger_LogMessageReceived;
 
                     client.Dispose();
-                    this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Disconnected shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
+                    this.DebugLogger.LogMessage(LogLevel.Info, "AutoShard", $"Disconnected shard {i.ToString(CultureInfo.InvariantCulture)}.", DateTime.Now);
                 }
             }
 
@@ -773,12 +763,24 @@ namespace DSharpPlus
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Gets a shard from a guild id.
+        /// <para>This method uses the <see cref="Utilities.GetShardId(ulong, int)"/> method and will not iterate through the shard guild caches.</para>
+        /// </summary>
+        /// <param name="guildId">The guild id for the shard.</param>
+        /// <returns>The found shard.</returns>
         public DiscordClient GetShard(ulong guildId)
         { 
             var index = Utilities.GetShardId(guildId, this.ShardClients.Count);
             return this.ShardClients[index];
         }
 
+        /// <summary>
+        /// Gets a shard from a guild.
+        /// <para>This method uses the <see cref="Utilities.GetShardId(ulong, int)"/> method and will not iterate through the shard guild caches.</para>
+        /// </summary>
+        /// <param name="guild">The guild for the shard.</param>
+        /// <returns>The found shard.</returns>
         public DiscordClient GetShard(DiscordGuild guild)
             => this.GetShard(guild.Id);
 
@@ -871,8 +873,9 @@ namespace DSharpPlus
             client.Heartbeated += this.Client_HeartBeated;
             client.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
 
+            client._isShard = true;
             await client.ConnectAsync().ConfigureAwait(false);
-            this.DebugLogger.LogMessage(LogLevel.Info, "Autoshard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
+            this.DebugLogger.LogMessage(LogLevel.Info, "AutoShard", $"Booted shard {i.ToString(CultureInfo.InvariantCulture)}.", DateTime.Now);
 
             if (this.CurrentUser == null)
                 this.CurrentUser = client.CurrentUser;
@@ -896,29 +899,39 @@ namespace DSharpPlus
             http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Config));
             this.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Initial request for rate limit bucket [GET::::/gateway/bot] [0/0] 1/1/0001 12:00:00 AM +00:00. Allowing.", DateTime.Now);
             var resp = await http.GetAsync(url).ConfigureAwait(false);
-            var hs = resp.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value), StringComparer.OrdinalIgnoreCase);
+
+            var timer = new Stopwatch();
+            timer.Start();
 
             http.Dispose();
-
             var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
             var info = jo.ToObject<GatewayInfo>();
+
+            //There is a delay from parsing here.
+            timer.Stop();
+            info.SessionBucket.resetAfter -= (int)timer.ElapsedMilliseconds; 
+
             info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
 
             return jo.ToObject<GatewayInfo>();
         }
 
-        private async Task GatewayInfoUpdaterAsync()
+        private readonly Lazy<string> _versionString = new Lazy<string>(() =>
         {
-            while(!this.GatewayBotTaskCancelToken.IsCancellationRequested)
-            {
-                var delay = TimeSpan.FromMilliseconds(this.GatewayInfo.SessionBucket.resetAfter);
-                await Task.Delay(delay).ConfigureAwait(false);
-                this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
+            var a = typeof(DiscordShardedClient).GetTypeInfo().Assembly;
 
-                for (int i = 0; i < this.ShardClients.Count; i++)
-                    this.ShardClients[i].GatewayInfo = this.GatewayInfo;
-            }
-        }
+            var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (iv != null)
+                return iv.InformationalVersion;
+
+            var v = a.GetName().Version;
+            var vs = v.ToString(3);
+
+            if (v.Revision > 0)
+                vs = $"{vs}, CI build {v.Revision}";
+
+            return vs;
+        });
 
         #region Event Dispatchers
         private Task Client_ClientError(ClientErrorEventArgs e) 

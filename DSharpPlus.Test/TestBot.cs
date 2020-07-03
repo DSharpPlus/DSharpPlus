@@ -56,6 +56,9 @@ namespace DSharpPlus.Test
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
             Discord.ClientErrored += this.Discord_ClientErrored;
+
+
+
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
             Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;

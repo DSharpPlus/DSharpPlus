@@ -21,7 +21,6 @@ namespace DSharpPlus.Test
 
         public static async Task MainAsync(string[] args)
         {
-            var test = 100;
             Console.CancelKeyPress += Console_CancelKeyPress;
 
             var cfg = new TestBotConfig();
@@ -44,7 +43,7 @@ namespace DSharpPlus.Test
                 Token = cfg.Token,
                 UseInternalLogHandler = true,
                 LogLevel = LogLevel.Debug,
-                ShardCount = cfg.ShardCount
+                ShardCount = 10
             });
 
             client.MessageCreated += async e =>
@@ -53,7 +52,6 @@ namespace DSharpPlus.Test
             };
 
             await client.StartAsync();
-            await Task.Delay(5000);
             await client.StopAsync();
 
             /*
