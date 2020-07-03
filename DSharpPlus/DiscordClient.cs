@@ -2689,7 +2689,6 @@ namespace DSharpPlus
             this._guilds = null;
             this._heartbeatTask = null;
             this._privateChannels = null;
-            this._webSocketClient?.Dispose();
         }
 
         #region Events
