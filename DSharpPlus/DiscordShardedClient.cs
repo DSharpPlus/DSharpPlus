@@ -502,14 +502,14 @@ namespace DSharpPlus
 
         internal void EventErrorHandler(string evname, Exception ex)
         {
-            this.Logger.LogError(BaseDiscordClient.AsyncEventId, ex, "Exception occurred while handling {0}", evname);
+            this.Logger.LogError(LoggerEvents.EventHandlerException, ex, "Exception occurred while handling {0}", evname);
 
             this._clientErrored.InvokeAsync(new ClientErrorEventArgs(null) { EventName = evname, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof(string evname, Exception ex)
         {
-            this.Logger.LogCritical(BaseDiscordClient.AsyncEventId, ex, "Exception occurred while handling another exception");
+            this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception occurred while handling another exception");
         }
         #endregion
 
@@ -652,7 +652,7 @@ namespace DSharpPlus
         public async Task StartAsync()
         {
             var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
-            this.Logger.LogInformation(BaseDiscordClient.SharderEventId, "Booting {0} shards", shardc);
+            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {0} shards", shardc);
 
             for (var i = 0; i < shardc; i++)
             {
@@ -721,7 +721,7 @@ namespace DSharpPlus
                 client.Heartbeated += this.Client_HeartBeated;
                 
                 await client.ConnectAsync().ConfigureAwait(false);
-                this.Logger.LogInformation(BaseDiscordClient.SharderEventId, "Booted shard {0}", i);
+                this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {0}", i);
 
                 if (this._currentUser == null)
                     this._currentUser = client.CurrentUser;

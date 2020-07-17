@@ -17,13 +17,6 @@ namespace DSharpPlus
     /// </summary>
     public abstract class BaseDiscordClient : IDisposable
     {
-        internal static EventId ClientEventId { get; } = new EventId(100, "DSharpPlus");
-        internal static EventId SocketEventId { get; } = new EventId(101, "WebSocket");
-        internal static EventId DispatchEventId { get; } = new EventId(102, "Dispatch");
-        internal static EventId AsyncEventId { get; } = new EventId(103, "AsyncEvent");
-        internal static EventId SharderEventId { get; } = new EventId(104, "Autosharder");
-        internal static EventId RestEventId { get; } = new EventId(105, "REST");
-
         internal protected DiscordApiClient ApiClient { get; }
         internal protected DiscordConfiguration Configuration { get; }
 

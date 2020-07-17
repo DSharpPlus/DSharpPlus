@@ -27,7 +27,9 @@ namespace DSharpPlus
 
             lock (_lock)
             {
-                Console.Write($"[{DateTimeOffset.Now.ToString(this.TimestampFormat)}] [{eventId.Id,-4}/{eventId.Name,-12}] ");
+                var ename = eventId.Name;
+                ename = ename?.Length > 12 ? ename?.Substring(0, 12) : ename;
+                Console.Write($"[{DateTimeOffset.Now.ToString(this.TimestampFormat)}] [{eventId.Id,-4}/{ename,-12}] ");
 
                 switch (logLevel)
                 {
