@@ -62,7 +62,7 @@ public async Task Join(CommandContext ctx)
 	if (chn == null)
 		throw new InvalidOperationException("You need to be in a voice channel.");
 
-	vnc = await chn.ConnectAsync();
+	await chn.ConnectAsync();
 	await ctx.RespondAsync("👌");
 }
 
