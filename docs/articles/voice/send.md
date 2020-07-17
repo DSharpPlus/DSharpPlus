@@ -58,6 +58,10 @@ I encourage you to try and solve both of these issues yourself, however if you g
 [Command("join")]
 public async Task Join(CommandContext ctx)
 {
+	var vnc = vnext.GetConnection(ctx.Guild);
+        if (vnc != null)
+		throw new InvalidOperationException("Already connected in this guild.");
+
 	var chn = ctx.Member?.VoiceState?.Channel;
 	if (chn == null)
 		throw new InvalidOperationException("You need to be in a voice channel.");
@@ -99,7 +103,7 @@ What you want to do right now, is something along these lines:
 
 * Get the VoiceNext client.
 * Check if the bot is connected.
-* Fail if not.
+* Fail if already is.
 * Check if the specified file exists.
 * Fail if not.
 
