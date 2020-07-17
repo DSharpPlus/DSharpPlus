@@ -49,7 +49,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// <para>Allows you to overwrite the time format used by the internal debug logger.</para>
-        /// <para>Only applicable when <see cref="LoggerImplementation"/> is set left at default value. Defaults to ISO 8601-like format.</para>
+        /// <para>Only applicable when <see cref="LoggerFactory"/> is set left at default value. Defaults to ISO 8601-like format.</para>
         /// </summary>
         public string LogTimestampFormat { internal get; set; } = "yyyy-MM-dd HH:mm:ss zzz";
 

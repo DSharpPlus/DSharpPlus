@@ -38,7 +38,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.Logger.LogError(InteractivityExtension.InteractivityEventId, ex, "Exception occurred while paginating");
+                this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "Exception occurred while paginating");
             }
             finally
             {

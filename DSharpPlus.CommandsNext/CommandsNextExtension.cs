@@ -21,8 +21,6 @@ namespace DSharpPlus.CommandsNext
     /// </summary>
     public class CommandsNextExtension : BaseExtension
     {
-        internal static EventId CNextEventId { get; } = new EventId(200, "CommandsNext");
-
         private CommandsNextConfiguration Config { get; }
         private HelpFormatterFactory HelpFormatter { get; }
 
@@ -155,7 +153,7 @@ namespace DSharpPlus.CommandsNext
             if (this.Config.UseDefaultCommandHandler)
                 this.Client.MessageCreated += this.HandleCommandsAsync;
             else
-                this.Client.Logger.LogWarning(CNextEventId, "Not attaching default command handler - if this is intentional, you can ignore this message");
+                this.Client.Logger.LogWarning(CommandsNextEvents.Misc, "Not attaching default command handler - if this is intentional, you can ignore this message");
 
             if (this.Config.EnableDefaultHelp)
             {

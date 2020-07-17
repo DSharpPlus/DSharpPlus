@@ -4,13 +4,6 @@ namespace DSharpPlus
 {
     internal static class LoggerEvents
     {
-        //internal static EventId ClientEventId { get; } = new EventId(100, "DSharpPlus");
-        //internal static EventId SocketEventId { get; } = new EventId(101, "WebSocket");
-        //internal static EventId DispatchEventId { get; } = new EventId(102, "Dispatch");
-        //internal static EventId AsyncEventId { get; } = new EventId(103, "AsyncEvent");
-        //internal static EventId SharderEventId { get; } = new EventId(104, "Autosharder");
-        //internal static EventId RestEventId { get; } = new EventId(105, "REST");
-
         public static EventId Misc { get; } = new EventId(100, "DSharpPlus");
         public static EventId Startup { get; } = new EventId(101, nameof(Startup));
         public static EventId ConnectionFailure { get; } = new EventId(102, nameof(ConnectionFailure));

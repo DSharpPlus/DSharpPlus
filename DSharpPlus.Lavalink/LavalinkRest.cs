@@ -244,7 +244,7 @@ namespace DSharpPlus.Lavalink
                 if (!req.IsSuccessStatusCode)
                 {
                     var jsonError = JToken.Parse(json) as JObject;
-                    this.Logger.LogError(LavalinkExtension.LavalinkEventId, "Unable to decode track strings", jsonError["message"]);
+                    this.Logger.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings", jsonError["message"]);
 
                     return null;
                 }
@@ -265,7 +265,7 @@ namespace DSharpPlus.Lavalink
                 if (!req.IsSuccessStatusCode)
                 {
                     var jsonError = JToken.Parse(jsonIn) as JObject;
-                    this.Logger.LogError(LavalinkExtension.LavalinkEventId, "Unable to decode track strings", jsonError["message"]);
+                    this.Logger.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings", jsonError["message"]);
                     return null;
                 }
 
@@ -305,7 +305,7 @@ namespace DSharpPlus.Lavalink
             var payload = new StringContent(address, Utilities.UTF8, "application/json");
             using (var req = await this.HttpClient.PostAsync(uri, payload).ConfigureAwait(false))
                 if (req.StatusCode == HttpStatusCode.InternalServerError)
-                    this.Logger.LogWarning(LavalinkExtension.LavalinkEventId, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
+                    this.Logger.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
 
         }
 
@@ -314,7 +314,7 @@ namespace DSharpPlus.Lavalink
             var httpReq = new HttpRequestMessage(HttpMethod.Post, uri);
             using (var req = await this.HttpClient.SendAsync(httpReq).ConfigureAwait(false))
                 if (req.StatusCode == HttpStatusCode.InternalServerError)
-                    this.Logger.LogWarning(LavalinkExtension.LavalinkEventId, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
+                    this.Logger.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
         }
 
         #endregion

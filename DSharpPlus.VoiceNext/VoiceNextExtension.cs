@@ -5,7 +5,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
 using DSharpPlus.VoiceNext.Entities;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.VoiceNext
@@ -15,11 +14,6 @@ namespace DSharpPlus.VoiceNext
     /// </summary>
     public sealed class VoiceNextExtension : BaseExtension
     {
-        internal static EventId VNextEventId { get; } = new EventId(300, "VoiceNext");
-        internal static EventId VNextRxEventId { get; } = new EventId(301, "VoiceNext RX");
-        internal static EventId VNextTxEventId { get; } = new EventId(302, "VoiceNext TX");
-        internal static EventId VNextUdpEventId { get; } = new EventId(303, "VoiceNext UDP");
-
         private VoiceNextConfiguration Configuration { get; set; }
 
         private ConcurrentDictionary<ulong, VoiceNextConnection> ActiveConnections { get; set; }
