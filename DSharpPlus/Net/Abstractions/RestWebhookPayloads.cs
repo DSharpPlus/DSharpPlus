@@ -12,6 +12,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Include)]
         public string AvatarBase64 { get; set; }
 
+        [JsonProperty("channel_id")]
+        public ulong ChannelId { get; set; }
+
         [JsonProperty]
         public bool AvatarSet { get; set; }
 

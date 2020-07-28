@@ -1596,13 +1596,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, Optional<string> base64_avatar, string reason)
+        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
             {
                 Name = name,
                 AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
-                AvatarSet = base64_avatar.HasValue
+                AvatarSet = base64_avatar.HasValue,
+                ChannelId = channelId
             };
 
             var headers = new Dictionary<string, string>();
