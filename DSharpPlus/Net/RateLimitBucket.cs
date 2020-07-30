@@ -179,5 +179,14 @@ namespace DSharpPlus.Net
 
             this._limitResetting = 0;
         }
+
+        internal void SetInitialValues(int usesLeft, DateTimeOffset newReset)
+        {
+            this._remaining = usesLeft;
+            this._nextReset = newReset.UtcTicks;
+            this._limitValid = true;
+            this._limitTestFinished = null;
+            this._limitTesting = 0;
+        }
     }
 }
