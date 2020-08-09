@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Security.Cryptography.X509Certificates;
 
 namespace DSharpPlus.Entities
 {
@@ -54,6 +55,43 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("custom", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsCustom { get; internal set; }
+
+        /// <summary>
+        /// Gets whether two <see cref="DiscordVoiceRegion"/>s are equal.
+        /// </summary>
+        /// <param name="region">The region to compare with.</param>
+        /// <returns></returns>
+        public bool Equals(DiscordVoiceRegion region)
+            => this == region;
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are equal.
+        /// </summary>
+        /// <param name="left">First voice region to compare.</param>
+        /// <param name="right">Second voice region to compare.</param>
+        /// <returns>Whether the two voice regions are equal.</returns>
+        public static bool operator==(DiscordVoiceRegion left, DiscordVoiceRegion right)
+        {
+            var o1 = left as object;
+            var o2 = right as object;
+
+            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+                return false;
+
+            if (o1 == null && o2 == null)
+                return true;
+
+            return left.Id == right.Id;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are not equal.
+        /// </summary>
+        /// <param name="left">First voice region to compare.</param>
+        /// <param name="right">Second voice region to compare.</param>
+        /// <returns>Whether the two voice regions are not equal.</returns>
+        public static bool operator !=(DiscordVoiceRegion left, DiscordVoiceRegion right)
+            => !(left == right);
 
         internal DiscordVoiceRegion() { }
     }

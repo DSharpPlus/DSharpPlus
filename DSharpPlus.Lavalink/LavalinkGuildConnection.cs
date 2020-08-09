@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -100,7 +101,11 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public DiscordGuild Guild => this.Channel.Guild;
 
-        private LavalinkNodeConnection Node { get; }
+        /// <summary>
+        /// Gets the Lavalink node associated with this connection.
+        /// </summary>
+        public LavalinkNodeConnection Node { get; }
+
         internal string GuildIdString => this.GuildId.ToString(CultureInfo.InvariantCulture);
         internal ulong GuildId => this.Channel.Guild.Id;
         internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
@@ -156,6 +161,31 @@ namespace DSharpPlus.Lavalink
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
             await (this.Channel.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Searches for specified terms.
+        /// </summary>
+        /// <param name="searchQuery">What to search for.</param>
+        /// <param name="type">What platform will search for.</param>
+        /// <returns>A collection of tracks matching the criteria.</returns>
+        public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery, LavalinkSearchType type = LavalinkSearchType.Youtube)
+            => this.Node.Rest.GetTracksAsync(searchQuery, type);
+
+        /// <summary>
+        /// Loads tracks from specified URL.
+        /// </summary>
+        /// <param name="uri">URL to load tracks from.</param>
+        /// <returns>A collection of tracks from the URL.</returns>
+        public Task<LavalinkLoadResult> GetTracksAsync(Uri uri)
+            => this.Node.Rest.GetTracksAsync(uri);
+
+        /// <summary>
+        /// Loads tracks from a local file.
+        /// </summary>
+        /// <param name="file">File to load tracks from.</param>
+        /// <returns>A collection of tracks from the file.</returns>
+        public Task<LavalinkLoadResult> GetTracksAsync(FileInfo file)
+            => this.Node.Rest.GetTracksAsync(file);
 
         /// <summary>
         /// Queues the specified track for playback.

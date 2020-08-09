@@ -1504,7 +1504,9 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
-            var regions = JsonConvert.DeserializeObject<IEnumerable<DiscordVoiceRegion>>(res.Response);
+            var regions = JsonConvert.DeserializeObject<List<DiscordVoiceRegion>>(res.Response);
+
+            regions.Select(x => x.Id).ToList().ForEach(x => Console.WriteLine(x));
 
             return new ReadOnlyCollection<DiscordVoiceRegion>(new List<DiscordVoiceRegion>(regions));
         }

@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Net;
+﻿using DSharpPlus.Entities;
+using DSharpPlus.Net;
 
 namespace DSharpPlus.Lavalink
 {
@@ -36,6 +37,12 @@ namespace DSharpPlus.Lavalink
         /// <para>Defaults to 60 seconds.</para>
         /// </summary>
         public int ResumeTimeout { internal get; set; } = 60;
+
+        /// <summary>
+        /// Sets the voice region ID for the Lavalink connection.
+        /// <para>This should be used when using a region with <see cref="LavalinkExtension.GetNodeConnection(DiscordVoiceRegion)"/>.</para>
+        /// </summary>
+        public DiscordVoiceRegion Region { internal get; set; }
 
         /// <summary>
         /// Creates a new instance of <see cref="LavalinkConfiguration"/>.
