@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.Entities;
 using Newtonsoft.Json;
@@ -11,7 +12,10 @@ using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Lavalink
 {
-    public sealed class LavalinkRest
+    /// <summary>
+    /// Represents a class for Lavalink REST calls.
+    /// </summary>
+    public sealed class LavalinkRestClient
     {
         private HttpClient HttpClient;
 
@@ -19,7 +23,24 @@ namespace DSharpPlus.Lavalink
 
         private DebugLogger Logger;
 
-        internal LavalinkRest(LavalinkConfiguration config, DiscordClient client)
+        private readonly Lazy<string> _dsharpplusVersionString = new Lazy<string>(() =>
+        {
+            var a = typeof(DiscordClient).GetTypeInfo().Assembly;
+
+            var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (iv != null)
+                return iv.InformationalVersion;
+
+            var v = a.GetName().Version;
+            var vs = v.ToString(3);
+
+            if (v.Revision > 0)
+                vs = $"{vs}, CI build {v.Revision}";
+
+            return vs;
+        });
+
+        public LavalinkRestClient(LavalinkConfiguration config, BaseDiscordClient client)
         {
             this.Configuration = config;
             this.Logger = client.DebugLogger;
@@ -28,14 +49,14 @@ namespace DSharpPlus.Lavalink
             {
                 UseCookies = false,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                UseProxy = client.Configuration.Proxy != null
+                UseProxy = client != null && client.Configuration.Proxy != null
             };
             if (httphandler.UseProxy) // because mono doesn't implement this properly
                 httphandler.Proxy = client.Configuration.Proxy;
 
             this.HttpClient = new HttpClient(httphandler);
 
-            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{client.VersionString}");
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{this._dsharpplusVersionString}");
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", config.Password);
         }
 
@@ -47,7 +68,6 @@ namespace DSharpPlus.Lavalink
         {
             var versionUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.VERSION}");
             return this.InternalGetVersionAsync(versionUri);
-
         }
 
         #region Track_Loading
@@ -64,7 +84,7 @@ namespace DSharpPlus.Lavalink
             if (type == LavalinkSearchType.Youtube)
                 prefix = "ytsearch";
             else
-                prefix = "scsearch";
+                prefix = "scsearch";*
 
             var str = WebUtility.UrlEncode($"{prefix}:{searchQuery}");
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.LOAD_TRACKS}?identifier={str}");
@@ -316,5 +336,7 @@ namespace DSharpPlus.Lavalink
         }
 
         #endregion
+
+
     }
 }

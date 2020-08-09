@@ -156,6 +156,12 @@ namespace DSharpPlus.Test
 
         private Task Discord_Ready(ReadyEventArgs e)
         {
+            Task.Run(async () => {
+
+                await Task.Delay(1000);
+                Console.WriteLine(e.Client.Guilds.Values.First().VoiceRegion.Id);
+             
+            });
             return Task.CompletedTask;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -123,11 +124,12 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Gets the REST client for this Lavalink connection.
         /// </summary>
-        public LavalinkRest Rest { get; }
+        public LavalinkRestClient Rest { get; }
 
         internal DiscordClient Discord { get; }
-        private LavalinkConfiguration Configuration { get; }
-        private ConcurrentDictionary<ulong, LavalinkGuildConnection> ConnectedGuilds { get; }
+        internal LavalinkConfiguration Configuration { get; }
+        internal DiscordVoiceRegion Region { get; }
+        internal ConcurrentDictionary<ulong, LavalinkGuildConnection> ConnectedGuilds { get; }
 
         private IWebSocketClient WebSocket { get; set; }
 
@@ -138,6 +140,10 @@ namespace DSharpPlus.Lavalink
         {
             this.Discord = client;
             this.Configuration = new LavalinkConfiguration(config);
+
+            if (config.Region != null && this.Discord.VoiceRegions.Values.Contains(config.Region))
+                this.Region = config.Region;
+                
             this.ConnectedGuilds = new ConcurrentDictionary<ulong, LavalinkGuildConnection>();
             this.Statistics = new LavalinkStatistics();
 
@@ -164,7 +170,7 @@ namespace DSharpPlus.Lavalink
             if (httphandler.UseProxy) // because mono doesn't implement this properly
                 httphandler.Proxy = client.Configuration.Proxy;
 
-            this.Rest = new LavalinkRest(this.Configuration, this.Discord);
+            this.Rest = new LavalinkRestClient(this.Configuration, this.Discord);
 
             this.WebSocket = client.Configuration.WebSocketClientFactory(client.Configuration.Proxy);
             this.WebSocket.Connected += this.WebSocket_OnConnect;
@@ -261,7 +267,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="guild">Guild to get connection for.</param>
         /// <returns>Channel connection, which allows for playback control.</returns>
-        public LavalinkGuildConnection GetConnection(DiscordGuild guild)
+        public LavalinkGuildConnection GetGuildConnection(DiscordGuild guild)
             => this.ConnectedGuilds.TryGetValue(guild.Id, out LavalinkGuildConnection lgc) && lgc.IsConnected ? lgc : null;
 
         internal async Task SendPayloadAsync(LavalinkPayload payload)
