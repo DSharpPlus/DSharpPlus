@@ -130,7 +130,16 @@ namespace DSharpPlus
             : base(config)
         {
             if (this.Configuration.MessageCacheSize > 0)
-                this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize);
+            {
+                var intents = this.Configuration.Intents;
+
+                if (intents.HasValue)
+                    this.MessageCache = intents.Value.HasIntent(DiscordIntents.GuildMessages) || intents.Value.HasIntent(DiscordIntents.DirectMessages)
+                        ? new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize)
+                        : null;
+                else
+                    this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize); //This will need to be changed once intents become mandatory.
+            }
 
             InternalSetup();
 
