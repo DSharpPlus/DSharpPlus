@@ -161,15 +161,6 @@ namespace DSharpPlus.Lavalink
             this.Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
             this.Discord.VoiceServerUpdated += this.Discord_VoiceServerUpdated;
 
-            var httphandler = new HttpClientHandler
-            {
-                UseCookies = false,
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                UseProxy = client.Configuration.Proxy != null
-            };
-            if (httphandler.UseProxy) // because mono doesn't implement this properly
-                httphandler.Proxy = client.Configuration.Proxy;
-
             this.Rest = new LavalinkRestClient(this.Configuration, this.Discord);
 
             this.WebSocket = client.Configuration.WebSocketClientFactory(client.Configuration.Proxy);
