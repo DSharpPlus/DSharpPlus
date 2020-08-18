@@ -84,7 +84,7 @@ namespace DSharpPlus.Lavalink
             if (type == LavalinkSearchType.Youtube)
                 prefix = "ytsearch";
             else
-                prefix = "scsearch";*
+                prefix = "scsearch";
 
             var str = WebUtility.UrlEncode($"{prefix}:{searchQuery}");
             var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.LOAD_TRACKS}?identifier={str}");
