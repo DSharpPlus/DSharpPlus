@@ -410,7 +410,7 @@ namespace DSharpPlus.Lavalink
             if (e.User == null)
                 return;
 
-            if(e.User.Id == this.Discord.CurrentUser.Id)
+            if (e.User.Id == this.Discord.CurrentUser.Id)
             {
                 if (e.After.Channel == null && this.ConnectedGuilds.TryRemove(gld.Id, out var gc) && this.IsConnected)
                 {
