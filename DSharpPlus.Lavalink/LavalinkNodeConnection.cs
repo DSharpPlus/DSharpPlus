@@ -240,7 +240,7 @@ namespace DSharpPlus.Lavalink
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (channel.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
+            await (channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vsru = await vsrut.Task.ConfigureAwait(false);
             await this.SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru)).ConfigureAwait(false);
@@ -266,7 +266,7 @@ namespace DSharpPlus.Lavalink
             => this.ConnectedGuilds.TryGetValue(guild.Id, out LavalinkGuildConnection lgc) && lgc.IsConnected ? lgc : null;
 
         internal async Task SendPayloadAsync(LavalinkPayload payload)
-            => await this.WebSocket.SendMessageAsync(JsonConvert.SerializeObject(payload, Formatting.None)).ConfigureAwait(false);
+            => await this.WsSendAsync(JsonConvert.SerializeObject(payload, Formatting.None)).ConfigureAwait(false);
 
         private async Task WebSocket_OnMessage(SocketMessageEventArgs e)
         {
@@ -275,6 +275,8 @@ namespace DSharpPlus.Lavalink
                 this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, "Lavalink sent binary data - unable to process");
                 return;
             }
+
+            this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, et.Message);
 
             var json = et.Message;
             var jsonData = JObject.Parse(json);
@@ -435,11 +437,17 @@ namespace DSharpPlus.Lavalink
             if (this.ConnectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
             {
                 var lvlp = new LavalinkVoiceUpdate(lvlgc.VoiceStateUpdate, e);
-                await this.WebSocket.SendMessageAsync(JsonConvert.SerializeObject(lvlp)).ConfigureAwait(false);
+                await this.WsSendAsync(JsonConvert.SerializeObject(lvlp)).ConfigureAwait(false);
             }
 
             if (this.VoiceServerUpdates.TryRemove(gld.Id, out var xe))
                 xe.SetResult(e);
+        }
+
+        private async Task WsSendAsync(string payload)
+        {
+            this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsTx, payload);
+            await this.WebSocket.SendMessageAsync(payload).ConfigureAwait(false);
         }
 
         internal event NodeDisconnectedEventHandler NodeDisconnected;

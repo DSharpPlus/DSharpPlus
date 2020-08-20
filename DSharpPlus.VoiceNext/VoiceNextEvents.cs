@@ -12,5 +12,7 @@ namespace DSharpPlus.VoiceNext
         public static EventId VoiceDispatch { get; } = new EventId(305, nameof(VoiceDispatch));
         public static EventId VoiceConnectionClose { get; } = new EventId(306, nameof(VoiceConnectionClose));
         public static EventId VoiceGatewayError { get; } = new EventId(307, nameof(VoiceGatewayError));
+        public static EventId VoiceWsRx { get; } = new EventId(308, "Voice ↓");
+        public static EventId VoiceWsTx { get; } = new EventId(309, "Voice ↑");
     }
 }

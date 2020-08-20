@@ -279,7 +279,7 @@ namespace DSharpPlus.VoiceNext
                 };
             }
             var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
-            await this.VoiceWs.SendMessageAsync(vdj).ConfigureAwait(false);
+            await this.WsSendAsync(vdj).ConfigureAwait(false);
         }
 
         internal Task WaitForReadyAsync()
@@ -596,7 +596,7 @@ namespace DSharpPlus.VoiceNext
             };
 
             var plj = JsonConvert.SerializeObject(pld, Formatting.None);
-            await this.VoiceWs.SendMessageAsync(plj).ConfigureAwait(false);
+            await this.WsSendAsync(plj).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -696,7 +696,7 @@ namespace DSharpPlus.VoiceNext
                         Payload = UnixTimestamp(dt)
                     };
                     var hbj = JsonConvert.SerializeObject(hbd);
-                    await this.VoiceWs.SendMessageAsync(hbj).ConfigureAwait(false);
+                    await this.WsSendAsync(hbj).ConfigureAwait(false);
 
                     this.LastHeartbeat = dt;
                     await Task.Delay(this.HeartbeatInterval).ConfigureAwait(false);
@@ -788,7 +788,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-            await this.VoiceWs.SendMessageAsync(vsj).ConfigureAwait(false);
+            await this.WsSendAsync(vsj).ConfigureAwait(false);
 
             this.SenderTokenSource = new CancellationTokenSource();
             this.SenderTask = Task.Run(this.VoiceSenderTask, this.SenderToken);
@@ -976,6 +976,7 @@ namespace DSharpPlus.VoiceNext
                 return Task.CompletedTask;
             }
 
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, et.Message);
             return this.HandleDispatch(JObject.Parse(et.Message));
         }
 
@@ -984,6 +985,12 @@ namespace DSharpPlus.VoiceNext
 
         private Task VoiceWs_SocketException(SocketErrorEventArgs e)
             => this._voiceSocketError.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
+
+        private async Task WsSendAsync(string payload)
+        {
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsTx, payload);
+            await this.VoiceWs.SendMessageAsync(payload).ConfigureAwait(false);
+        }
 
         private static uint UnixTimestamp(DateTime dt)
         {

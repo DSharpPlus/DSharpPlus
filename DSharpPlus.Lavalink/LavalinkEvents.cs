@@ -10,5 +10,7 @@ namespace DSharpPlus.Lavalink
         public static EventId LavalinkConnected { get; } = new EventId(403, nameof(LavalinkConnected));
         public static EventId LavalinkDecodeError { get; } = new EventId(404, nameof(LavalinkDecodeError));
         public static EventId LavalinkRestError { get; } = new EventId(405, nameof(LavalinkRestError));
+        public static EventId LavalinkWsRx { get; } = new EventId(406, "Lavalink ↓");
+        public static EventId LavalinkWsTx { get; } = new EventId(407, "Lavalink ↑");
     }
 }

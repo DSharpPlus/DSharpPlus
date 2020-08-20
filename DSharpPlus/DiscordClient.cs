@@ -405,6 +405,7 @@ namespace DSharpPlus
 
                 try
                 {
+                    this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
                     await this.HandleSocketMessageAsync(msg);
                 }
                 catch (Exception ex)
@@ -2411,7 +2412,7 @@ namespace DSharpPlus
             };
             var statusstr = JsonConvert.SerializeObject(status_update);
 
-            await this._webSocketClient.SendMessageAsync(statusstr).ConfigureAwait(false);
+            await this.WsSendAsync(statusstr).ConfigureAwait(false);
 
             if (!this._presences.ContainsKey(this.CurrentUser.Id))
             {
@@ -2462,7 +2463,7 @@ namespace DSharpPlus
                 Data = seq
             };
             var heartbeat_str = JsonConvert.SerializeObject(heartbeat);
-            await this._webSocketClient.SendMessageAsync(heartbeat_str).ConfigureAwait(false);
+            await this.WsSendAsync(heartbeat_str).ConfigureAwait(false);
 
             this._lastHeartbeat = DateTimeOffset.Now;
 
@@ -2489,7 +2490,7 @@ namespace DSharpPlus
                 Data = identify
             };
             var payloadstr = JsonConvert.SerializeObject(payload);
-            await this._webSocketClient.SendMessageAsync(payloadstr).ConfigureAwait(false);
+            await this.WsSendAsync(payloadstr).ConfigureAwait(false);
         }
 
         internal async Task SendResumeAsync()
@@ -2507,7 +2508,7 @@ namespace DSharpPlus
             };
             var resumestr = JsonConvert.SerializeObject(resume_payload);
 
-            await this._webSocketClient.SendMessageAsync(resumestr).ConfigureAwait(false);
+            await this.WsSendAsync(resumestr).ConfigureAwait(false);
         }
         #endregion
 
@@ -2652,6 +2653,12 @@ namespace DSharpPlus
 
         private SocketLock GetSocketLock()
             => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId));
+
+        internal async Task WsSendAsync(string payload)
+        {
+            this.Logger.LogTrace(LoggerEvents.GatewayWsTx, payload);
+            await this._webSocketClient.SendMessageAsync(payload).ConfigureAwait(false);
+        }
 
         ~DiscordClient()
         {

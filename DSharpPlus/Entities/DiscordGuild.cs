@@ -889,7 +889,7 @@ namespace DSharpPlus.Entities
             };
 
             var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-            await client._webSocketClient.SendMessageAsync(payloadStr).ConfigureAwait(false);
+            await client.WsSendAsync(payloadStr).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -22,5 +22,7 @@ namespace DSharpPlus
         public static EventId RatelimitDiag { get; } = new EventId(115, nameof(RatelimitDiag));
         public static EventId RatelimitPreemptive { get; } = new EventId(116, nameof(RatelimitPreemptive));
         public static EventId AuditLog { get; } = new EventId(117, nameof(AuditLog));
+        public static EventId GatewayWsRx { get; } = new EventId(118, "Gateway ↓");
+        public static EventId GatewayWsTx { get; } = new EventId(119, "Gateway ↑");
     }
 }
