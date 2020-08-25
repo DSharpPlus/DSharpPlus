@@ -49,7 +49,7 @@ namespace DSharpPlus.Lavalink
         public LavalinkRestClient(ConnectionEndpoint restEndpoint, string password)
         {
             this.RestEndpoint = restEndpoint;
-            this.ConfigureHttpHandling(password, null);
+            this.ConfigureHttpHandling(password);
         }
 
         internal LavalinkRestClient(LavalinkConfiguration config, BaseDiscordClient client)
