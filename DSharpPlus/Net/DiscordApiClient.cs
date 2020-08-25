@@ -1506,8 +1506,6 @@ namespace DSharpPlus.Net
 
             var regions = JsonConvert.DeserializeObject<List<DiscordVoiceRegion>>(res.Response);
 
-            regions.Select(x => x.Id).ToList().ForEach(x => Console.WriteLine(x));
-
             return new ReadOnlyCollection<DiscordVoiceRegion>(new List<DiscordVoiceRegion>(regions));
         }
         #endregion
