@@ -22,11 +22,21 @@ namespace DSharpPlus.Test
         [Command, Description("Connects to Lavalink")]
         public async Task ConnectAsync(CommandContext ctx, string hostname, int port, string password)
         {
-            this.Lavalink = await ctx.Client.GetLavalink().ConnectAsync(new LavalinkConfiguration
+            if (this.Lavalink != null)
+                return;
+
+            var lava = ctx.Client.GetLavalink();
+            if (lava == null)
+            {
+                await ctx.RespondAsync("Lavalink is not enabled.").ConfigureAwait(false);
+                return;
+            }
+
+            this.Lavalink = await lava.ConnectAsync(new LavalinkConfiguration
             {
                 RestEndpoint = new ConnectionEndpoint(hostname, port),
                 SocketEndpoint = new ConnectionEndpoint(hostname, port),
-                Password = password,
+                Password = password
             }).ConfigureAwait(false);
             this.Lavalink.Disconnected += this.Lavalink_Disconnected;
             await ctx.RespondAsync("Connected to lavalink node.").ConfigureAwait(false);
@@ -60,9 +70,21 @@ namespace DSharpPlus.Test
         [Command, Description("Joins a voice channel.")]
         public async Task JoinAsync(CommandContext ctx, DiscordChannel chn = null)
         {
-            var node = ctx.Client.GetLavalink().GetNodeConnection();
+            if (this.Lavalink == null)
+            {
+                await ctx.RespondAsync("Lavalink is not connected.").ConfigureAwait(false);
+                return;
+            }
 
-            await node.ConnectAsync(chn);
+            var vc = chn ?? ctx.Member.VoiceState.Channel;
+            if (vc == null)
+            {
+                await ctx.RespondAsync("You are not in a voice channel or you did not specify a voice channel.").ConfigureAwait(false);
+                return;
+            }
+
+            this.LavalinkVoice = await this.Lavalink.ConnectAsync(vc);
+            this.LavalinkVoice.PlaybackFinished += this.LavalinkVoice_PlaybackFinished;
             await ctx.RespondAsync("Connected.").ConfigureAwait(false);
         }
 
@@ -89,18 +111,16 @@ namespace DSharpPlus.Test
         [Command, Description("Queues tracks for playback.")]
         public async Task PlayAsync(CommandContext ctx, [RemainingText] Uri uri)
         {
+            if (this.LavalinkVoice == null)
+                return;
+
             this.ContextChannel = ctx.Channel;
 
-            var player = ctx.Client.GetLavalink().GetGuildConnection(ctx.Guild);
+            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri);
+            var track = trackLoad.Tracks.First();
+            await this.LavalinkVoice.PlayAsync(track);
 
-            if (player != null)
-            {
-                var trackLoad = await player.GetTracksAsync(uri);
-                var track = trackLoad.Tracks.First();
-                await player.PlayAsync(track);
-
-                await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
-            }
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
 
         [Command, Description("Queues tracks for playback.")]
@@ -117,17 +137,14 @@ namespace DSharpPlus.Test
         }
 
         [Command, Description("Queues track for playback.")]
-        public async Task Play(CommandContext ctx, string search)
+        public async Task PlaySoundCloudAsync(CommandContext ctx, string search)
         {
             if (this.Lavalink == null)
                 return;
 
-            var result = await this.Lavalink.Rest.GetTracksAsync(search);
+            var result = await this.Lavalink.Rest.GetTracksAsync(search, LavalinkSearchType.SoundCloud);
             var track = result.Tracks.First();
-
-            var player = ctx.Client.GetLavalink().GetGuildConnection(ctx.Guild);
-
-            await player.PlayAsync(track);
+            await this.LavalinkVoice.PlayAsync(track);
 
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.");
         }

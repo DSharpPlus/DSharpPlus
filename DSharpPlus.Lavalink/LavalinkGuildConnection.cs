@@ -109,13 +109,14 @@ namespace DSharpPlus.Lavalink
         internal string GuildIdString => this.GuildId.ToString(CultureInfo.InvariantCulture);
         internal ulong GuildId => this.Channel.Guild.Id;
         internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
-        internal bool ManuallyDisconnected { get; set; } = false;
+        internal TaskCompletionSource<bool> VoiceWsDisconnectTcs { get; set; }
 
         internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, VoiceStateUpdateEventArgs vstu)
         {
             this.Node = node;
             this.VoiceStateUpdate = vstu;
             this.CurrentState = new LavalinkPlayerState();
+            this.VoiceWsDisconnectTcs = new TaskCompletionSource<bool>();
 
             Volatile.Write(ref this._isDisposed, false);
 
@@ -128,21 +129,28 @@ namespace DSharpPlus.Lavalink
         }
 
         /// <summary>
-        /// Disconnect from this voice channel.
+        /// Disconnects the connection from the voice channel.
         /// </summary>
-        public async Task DisconnectAsync()
+        /// <param name="shouldDestroy">Whether the connection should be destroyed on the Lavalink server when leaving.</param>
+
+        public Task DisconnectAsync(bool shouldDestroy = true)
+            => this.DisconnectInternalAsync(shouldDestroy);
+
+        internal async Task DisconnectInternalAsync(bool shouldDestroy, bool isManualDisconnection = false)
         {
-            if (!this.IsConnected)
+            if (!this.IsConnected && !isManualDisconnection)
                 throw new InvalidOperationException("This connection is not valid.");
 
             Volatile.Write(ref this._isDisposed, true);
 
-            await this.Node.SendPayloadAsync(new LavalinkDestroy(this)).ConfigureAwait(false);
+            if(shouldDestroy)
+                await this.Node.SendPayloadAsync(new LavalinkDestroy(this)).ConfigureAwait(false);
 
-            if(!this.ManuallyDisconnected)
+            if (!isManualDisconnection)
+            {
                 await this.SendVoiceUpdateAsync().ConfigureAwait(false);
-
-            this.ChannelDisconnected?.Invoke(this);
+                this.ChannelDisconnected?.Invoke(this);
+            }
         }
 
         internal async Task SendVoiceUpdateAsync()

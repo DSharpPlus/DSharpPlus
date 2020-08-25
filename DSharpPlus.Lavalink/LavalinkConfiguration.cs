@@ -39,8 +39,15 @@ namespace DSharpPlus.Lavalink
         public int ResumeTimeout { internal get; set; } = 60;
 
         /// <summary>
+        /// Sets the time in miliseconds to wait for Lavalink's voice WebSocket to close after leaving a voice channel.
+        /// <para>This will be the delay before the guild connection is removed.</para>
+        /// <para>Defaults to 3000 miliseconds.</para>
+        /// </summary>
+        public int WebSocketCloseTimeout { internal get; set; } = 3000;
+
+        /// <summary>
         /// Sets the voice region ID for the Lavalink connection.
-        /// <para>This should be used when using a region with <see cref="LavalinkExtension.GetNodeConnection(DiscordVoiceRegion)"/>.</para>
+        /// <para>This should be used if nodes should be filtered by region with <see cref="LavalinkExtension.GetNodeConnection(DiscordGuild)"/>.</para>
         /// </summary>
         public DiscordVoiceRegion Region { internal get; set; }
 
@@ -58,12 +65,14 @@ namespace DSharpPlus.Lavalink
             this.RestEndpoint = new ConnectionEndpoint
             {
                 Hostname = other.RestEndpoint.Hostname,
-                Port = other.RestEndpoint.Port
+                Port = other.RestEndpoint.Port,
+                Secured = other.RestEndpoint.Secured
             };
             this.SocketEndpoint = new ConnectionEndpoint
             {
                 Hostname = other.SocketEndpoint.Hostname,
-                Port = other.SocketEndpoint.Port
+                Port = other.SocketEndpoint.Port,
+                Secured = other.SocketEndpoint.Secured
             };
             this.Password = other.Password;
             this.ResumeKey = other.ResumeKey;
