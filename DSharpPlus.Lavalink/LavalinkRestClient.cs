@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.Entities;
+using DSharpPlus.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,7 +20,7 @@ namespace DSharpPlus.Lavalink
     {
         private HttpClient HttpClient;
 
-        private LavalinkConfiguration Configuration;
+        private ConnectionEndpoint RestEndpoint;
 
         private DebugLogger Logger;
 
@@ -40,24 +41,22 @@ namespace DSharpPlus.Lavalink
             return vs;
         });
 
-        public LavalinkRestClient(LavalinkConfiguration config, BaseDiscordClient client)
+        /// <summary>
+        /// Creates a new Lavalink REST client.
+        /// </summary>
+        /// <param name="restEndpoint">The REST server endpoint to connect to.</param>
+        /// <param name="password">The password for the remote server.</param>
+        public LavalinkRestClient(ConnectionEndpoint restEndpoint, string password)
         {
-            this.Configuration = config;
+            this.RestEndpoint = restEndpoint;
+            this.ConfigureHttpHandling(password, null);
+        }
+
+        internal LavalinkRestClient(LavalinkConfiguration config, BaseDiscordClient client)
+        {
+            this.RestEndpoint = config.RestEndpoint;
             this.Logger = client.DebugLogger;
-
-            var httphandler = new HttpClientHandler
-            {
-                UseCookies = false,
-                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
-                UseProxy = client != null && client.Configuration.Proxy != null
-            };
-            if (httphandler.UseProxy) // because mono doesn't implement this properly
-                httphandler.Proxy = client.Configuration.Proxy;
-
-            this.HttpClient = new HttpClient(httphandler);
-
-            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{this._dsharpplusVersionString}");
-            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", config.Password);
+            this.ConfigureHttpHandling(config.Password, client);
         }
 
         /// <summary>
@@ -66,7 +65,7 @@ namespace DSharpPlus.Lavalink
         /// <returns></returns>
         public Task<string> GetVersionAsync()
         {
-            var versionUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.VERSION}");
+            var versionUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.VERSION}");
             return this.InternalGetVersionAsync(versionUri);
         }
 
@@ -87,7 +86,7 @@ namespace DSharpPlus.Lavalink
                 prefix = "scsearch";
 
             var str = WebUtility.UrlEncode($"{prefix}:{searchQuery}");
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.LOAD_TRACKS}?identifier={str}");
+            var tracksUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
 
@@ -99,7 +98,7 @@ namespace DSharpPlus.Lavalink
         public Task<LavalinkLoadResult> GetTracksAsync(Uri uri)
         {
             var str = WebUtility.UrlEncode(uri.ToString());
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.LOAD_TRACKS}?identifier={str}");
+            var tracksUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
 
@@ -111,7 +110,7 @@ namespace DSharpPlus.Lavalink
         public Task<LavalinkLoadResult> GetTracksAsync(FileInfo file)
         {
             var str = WebUtility.UrlEncode(file.FullName);
-            var tracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.LOAD_TRACKS}?identifier={str}");
+            var tracksUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
 
@@ -123,7 +122,7 @@ namespace DSharpPlus.Lavalink
         public Task<LavalinkTrack> DecodeTrackAsync(string trackString)
         {
             var str = WebUtility.UrlEncode(trackString);
-            var decodeTrackUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.DECODE_TRACK}?track={str}");
+            var decodeTrackUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.DECODE_TRACK}?track={str}");
             return this.InternalDecodeTrackAsync(decodeTrackUri);
         }
 
@@ -134,7 +133,7 @@ namespace DSharpPlus.Lavalink
         /// <returns></returns>
         public Task<IEnumerable<LavalinkTrack>> DecodeTracksAsync(string[] trackStrings)
         {
-            var decodeTracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.DECODE_TRACKS}");
+            var decodeTracksUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.DECODE_TRACKS}");
             return this.InternalDecodeTracksAsync(decodeTracksUri, trackStrings);
         }
 
@@ -145,7 +144,7 @@ namespace DSharpPlus.Lavalink
         /// <returns></returns>
         public Task<IEnumerable<LavalinkTrack>> DecodeTracksAsync(List<string> trackStrings)
         {
-            var decodeTracksUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.DECODE_TRACKS}");
+            var decodeTracksUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.DECODE_TRACKS}");
             return this.InternalDecodeTracksAsync(decodeTracksUri, trackStrings.ToArray());
         }
 
@@ -159,7 +158,7 @@ namespace DSharpPlus.Lavalink
         /// <returns>The status (<see cref="LavalinkRouteStatus"/>) details.</returns>
         public Task<LavalinkRouteStatus> GetRoutePlannerStatusAsync()
         {
-            var routeStatusUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.ROUTE_PLANNER}{Endpoints.STATUS}");
+            var routeStatusUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.ROUTE_PLANNER}{Endpoints.STATUS}");
             return this.InternalGetRoutePlannerStatusAsync(routeStatusUri);
         }
 
@@ -170,7 +169,7 @@ namespace DSharpPlus.Lavalink
         /// <returns></returns>
         public Task FreeAddressAsync(string address)
         {
-            var routeFreeAddressUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.ROUTE_PLANNER}{Endpoints.FREE_ADDRESS}");
+            var routeFreeAddressUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.ROUTE_PLANNER}{Endpoints.FREE_ADDRESS}");
             return this.InternalFreeAddressAsync(routeFreeAddressUri, address);
         }
 
@@ -180,7 +179,7 @@ namespace DSharpPlus.Lavalink
         /// <returns></returns>
         public Task FreeAllAddressesAsync()
         {
-            var routeFreeAllAddressesUri = new Uri($"http://{this.Configuration.RestEndpoint}{Endpoints.ROUTE_PLANNER}{Endpoints.FREE_ALL}");
+            var routeFreeAllAddressesUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.ROUTE_PLANNER}{Endpoints.FREE_ALL}");
             return this.InternalFreeAllAddressesAsync(routeFreeAllAddressesUri);
         }
 
@@ -263,7 +262,7 @@ namespace DSharpPlus.Lavalink
                 if (!req.IsSuccessStatusCode)
                 {
                     var jsonError = JToken.Parse(json) as JObject;
-                    this.Logger.LogMessage(LogLevel.Error, "Lavalink", $"Unable to decode the given track strings: {jsonError["message"]}", DateTime.Now);
+                    this.Logger?.LogMessage(LogLevel.Error, "Lavalink", $"Unable to decode the given track strings: {jsonError["message"]}", DateTime.Now);
                     return null;
                 }
                 var track = JsonConvert.DeserializeObject<LavalinkTrack>(json);
@@ -283,7 +282,7 @@ namespace DSharpPlus.Lavalink
                 if (!req.IsSuccessStatusCode)
                 {
                     var jsonError = JToken.Parse(jsonIn) as JObject;
-                    this.Logger.LogMessage(LogLevel.Error, "Lavalink", $"Unable to decode the given track strings: {jsonError["message"]}", DateTime.Now);
+                    this.Logger?.LogMessage(LogLevel.Error, "Lavalink", $"Unable to decode the given track strings: {jsonError["message"]}", DateTime.Now);
                     return null;
                 }
 
@@ -323,7 +322,7 @@ namespace DSharpPlus.Lavalink
             var payload = new StringContent(address, Utilities.UTF8, "application/json");
             using (var req = await this.HttpClient.PostAsync(uri, payload).ConfigureAwait(false))
                 if (req.StatusCode == HttpStatusCode.InternalServerError)
-                    this.Logger.LogMessage(LogLevel.Warning, "Lavalink", $"Request to {uri.ToString()} returned an internal server error. This likely indicates that the server route planner configuration is incorrect.", DateTime.Now);
+                    this.Logger.LogMessage(LogLevel.Warning, "Lavalink", $"Request to {uri} returned an internal server error. This likely indicates that the server route planner configuration is incorrect.", DateTime.Now);
 
         }
 
@@ -332,11 +331,26 @@ namespace DSharpPlus.Lavalink
             var httpReq = new HttpRequestMessage(HttpMethod.Post, uri);
             using (var req = await this.HttpClient.SendAsync(httpReq).ConfigureAwait(false))
                 if (req.StatusCode == HttpStatusCode.InternalServerError)
-                    this.Logger.LogMessage(LogLevel.Warning, "Lavalink", $"Request to {uri.ToString()} returned an internal server error. This likely indicates that the server route planner configuration is incorrect.", DateTime.Now);
+                    this.Logger.LogMessage(LogLevel.Warning, "Lavalink", $"Request to {uri} returned an internal server error. This likely indicates that the server route planner configuration is incorrect.", DateTime.Now);
         }
 
         #endregion
 
+        private void ConfigureHttpHandling(string password, BaseDiscordClient client = null)
+        {
+            var httphandler = new HttpClientHandler
+            {
+                UseCookies = false,
+                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
+                UseProxy = client != null && client.Configuration.Proxy != null
+            };
+            if (httphandler.UseProxy) // because mono doesn't implement this properly
+                httphandler.Proxy = client.Configuration.Proxy;
 
+            this.HttpClient = new HttpClient(httphandler);
+
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{this._dsharpplusVersionString}");
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", password);
+        }
     }
 }
