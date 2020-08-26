@@ -180,7 +180,7 @@ namespace DSharpPlus.Lavalink.Entities
 
         internal void Update(LavalinkStats newStats)
         {
-            if(!this.Updated)
+            if (!this.Updated)
                 this.Updated = true;
 
             this.ActivePlayers = newStats.ActivePlayers;
