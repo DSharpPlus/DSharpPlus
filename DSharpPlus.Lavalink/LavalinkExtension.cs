@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
@@ -119,7 +120,8 @@ namespace DSharpPlus.Lavalink
         public LavalinkGuildConnection GetGuildConnection(DiscordGuild guild)
         {
             var nodes = this.ConnectedNodes.Values;
-            return nodes.FirstOrDefault(x => x.ConnectedGuilds.ContainsKey(guild.Id)).GetGuildConnection(guild);
+            var node = nodes.FirstOrDefault(x => x.ConnectedGuilds.ContainsKey(guild.Id));
+            return node?.GetGuildConnection(guild);
         }
 
         private LavalinkNodeConnection FilterByLoad(LavalinkNodeConnection[] nodes)
