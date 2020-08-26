@@ -78,7 +78,7 @@ namespace DSharpPlus.Lavalink
         }
 
         /// <summary>
-        /// Gets the Lavalink node connection for specified endpoint.
+        /// Gets the Lavalink node connection for the specified endpoint.
         /// </summary>
         /// <param name="endpoint">Endpoint at which the node resides.</param>
         /// <returns>Lavalink node connection.</returns>
@@ -89,7 +89,7 @@ namespace DSharpPlus.Lavalink
         /// Gets a Lavalink node connection based on load balancing and an optional voice region.
         /// </summary>
         /// <param name="region">The region to compare with the node's <see cref="LavalinkConfiguration.Region"/>, if any.</param>
-        /// <returns></returns>
+        /// <returns>The least load affected node connection, or null if no nodes are present.</returns>
         public LavalinkNodeConnection GetIdealNodeConnection(DiscordVoiceRegion region = null)
         {
             if (this.ConnectedNodes.Count <= 1)
