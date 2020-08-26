@@ -18,9 +18,12 @@ namespace DSharpPlus.Lavalink
     /// </summary>
     public sealed class LavalinkRestClient
     {
-        private HttpClient HttpClient;
+        /// <summary>
+        /// Gets the REST connection endpoint for this client.
+        /// </summary>
+        public ConnectionEndpoint RestEndpoint { get; private set; }
 
-        private ConnectionEndpoint RestEndpoint;
+        private HttpClient HttpClient;
 
         private DebugLogger Logger;
 
@@ -185,7 +188,7 @@ namespace DSharpPlus.Lavalink
 
         #endregion
 
-        internal async Task<string> InternalGetVersionAsync(Uri uri)
+        private async Task<string> InternalGetVersionAsync(Uri uri)
         {
             using (var req = await this.HttpClient.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
@@ -198,7 +201,7 @@ namespace DSharpPlus.Lavalink
 
         #region Internal_Track_Loading
 
-        internal async Task<LavalinkLoadResult> InternalResolveTracksAsync(Uri uri)
+        private async Task<LavalinkLoadResult> InternalResolveTracksAsync(Uri uri)
         {
             // this function returns a Lavalink 3-like dataset regardless of input data version
 
@@ -252,7 +255,7 @@ namespace DSharpPlus.Lavalink
                 return null;
         }
 
-        internal async Task<LavalinkTrack> InternalDecodeTrackAsync(Uri uri)
+        private async Task<LavalinkTrack> InternalDecodeTrackAsync(Uri uri)
         {
             using (var req = await this.HttpClient.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
@@ -270,7 +273,7 @@ namespace DSharpPlus.Lavalink
             }
         }
 
-        internal async Task<IEnumerable<LavalinkTrack>> InternalDecodeTracksAsync(Uri uri, string[] ids)
+        private async Task<IEnumerable<LavalinkTrack>> InternalDecodeTracksAsync(Uri uri, string[] ids)
         {
             var jsonOut = JsonConvert.SerializeObject(ids);
             var content = new StringContent(jsonOut, Utilities.UTF8, "application/json");
@@ -305,7 +308,7 @@ namespace DSharpPlus.Lavalink
 
         #region Internal_Route_Planner
 
-        internal async Task<LavalinkRouteStatus> InternalGetRoutePlannerStatusAsync(Uri uri)
+        private async Task<LavalinkRouteStatus> InternalGetRoutePlannerStatusAsync(Uri uri)
         {
             using (var req = await this.HttpClient.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
@@ -317,7 +320,7 @@ namespace DSharpPlus.Lavalink
             }
         }
 
-        internal async Task InternalFreeAddressAsync(Uri uri, string address)
+        private async Task InternalFreeAddressAsync(Uri uri, string address)
         {
             var payload = new StringContent(address, Utilities.UTF8, "application/json");
             using (var req = await this.HttpClient.PostAsync(uri, payload).ConfigureAwait(false))
@@ -326,7 +329,7 @@ namespace DSharpPlus.Lavalink
 
         }
 
-        internal async Task InternalFreeAllAddressesAsync(Uri uri)
+        private async Task InternalFreeAllAddressesAsync(Uri uri)
         {
             var httpReq = new HttpRequestMessage(HttpMethod.Post, uri);
             using (var req = await this.HttpClient.SendAsync(httpReq).ConfigureAwait(false))

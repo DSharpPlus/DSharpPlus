@@ -58,8 +58,8 @@ namespace DSharpPlus.Lavalink
         /// <returns>The established Lavalink connection.</returns>
         public async Task<LavalinkNodeConnection> ConnectAsync(LavalinkConfiguration config)
         {
-            if (this.ConnectedNodes.ContainsKey(config.SocketEndpoint))
-                return this.ConnectedNodes[config.SocketEndpoint];
+            if (this._connectedNodes.ContainsKey(config.SocketEndpoint))
+                return this._connectedNodes[config.SocketEndpoint];
 
             var con = new LavalinkNodeConnection(this.Client, config);
             con.NodeDisconnected += this.Con_NodeDisconnected;
@@ -84,7 +84,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="endpoint">Endpoint at which the node resides.</param>
         /// <returns>Lavalink node connection.</returns>
         public LavalinkNodeConnection GetNodeConnection(ConnectionEndpoint endpoint)
-            => this.ConnectedNodes.ContainsKey(endpoint) ? this.ConnectedNodes[endpoint] : null;
+            => this._connectedNodes.ContainsKey(endpoint) ? this._connectedNodes[endpoint] : null;
 
         /// <summary>
         /// Gets a Lavalink node connection based on load balancing and an optional voice region.
@@ -93,10 +93,10 @@ namespace DSharpPlus.Lavalink
         /// <returns>The least load affected node connection, or null if no nodes are present.</returns>
         public LavalinkNodeConnection GetIdealNodeConnection(DiscordVoiceRegion region = null)
         {
-            if (this.ConnectedNodes.Count <= 1)
-                return this.ConnectedNodes.Values.FirstOrDefault();
+            if (this._connectedNodes.Count <= 1)
+                return this._connectedNodes.Values.FirstOrDefault();
 
-            var nodes = this.ConnectedNodes.Values.ToArray();
+            var nodes = this._connectedNodes.Values.ToArray();
 
             if (region != null)
             {
@@ -119,8 +119,8 @@ namespace DSharpPlus.Lavalink
         /// <returns>The found guild connection, or null if one could not be found.</returns>
         public LavalinkGuildConnection GetGuildConnection(DiscordGuild guild)
         {
-            var nodes = this.ConnectedNodes.Values;
-            var node = nodes.FirstOrDefault(x => x.ConnectedGuilds.ContainsKey(guild.Id));
+            var nodes = this._connectedNodes.Values;
+            var node = nodes.FirstOrDefault(x => x._connectedGuilds.ContainsKey(guild.Id));
             return node?.GetGuildConnection(guild);
         }
 
