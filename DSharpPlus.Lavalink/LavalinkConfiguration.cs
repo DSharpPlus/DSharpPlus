@@ -47,7 +47,7 @@ namespace DSharpPlus.Lavalink
 
         /// <summary>
         /// Sets the voice region ID for the Lavalink connection.
-        /// <para>This should be used if nodes should be filtered by region with <see cref="LavalinkExtension.GetNodeConnection(DiscordGuild)"/>.</para>
+        /// <para>This should be used if nodes should be filtered by region with <see cref="LavalinkExtension.GetIdealNodeConnection(DiscordVoiceRegion)"/>.</para>
         /// </summary>
         public DiscordVoiceRegion Region { internal get; set; }
 
