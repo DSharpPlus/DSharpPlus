@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DSharpPlus.Lavalink
+﻿namespace DSharpPlus.Lavalink
 {
     public enum LavalinkRoutePlannerType
     {
