@@ -143,6 +143,8 @@ namespace DSharpPlus.VoiceNext
         private CancellationToken KeepaliveToken
             => this.KeepaliveTokenSource.Token;
 
+        private volatile bool _isSpeaking = false;
+
         /// <summary>
         /// Gets the audio format used by the Opus encoder.
         /// </summary>
@@ -585,18 +587,22 @@ namespace DSharpPlus.VoiceNext
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
 
-            var pld = new VoiceDispatch
+            if (this._isSpeaking != speaking)
             {
-                OpCode = 5,
-                Payload = new VoiceSpeakingPayload
+                this._isSpeaking = speaking;
+                var pld = new VoiceDispatch
                 {
-                    Speaking = speaking,
-                    Delay = 0
-                }
-            };
+                    OpCode = 5,
+                    Payload = new VoiceSpeakingPayload
+                    {
+                        Speaking = speaking,
+                        Delay = 0
+                    }
+                };
 
-            var plj = JsonConvert.SerializeObject(pld, Formatting.None);
-            await this.WsSendAsync(plj).ConfigureAwait(false);
+                var plj = JsonConvert.SerializeObject(pld, Formatting.None);
+                await this.WsSendAsync(plj).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
