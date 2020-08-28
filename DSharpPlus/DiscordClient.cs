@@ -136,7 +136,7 @@ namespace DSharpPlus
                 if (intents.HasValue)
                     this.MessageCache = intents.Value.HasIntent(DiscordIntents.GuildMessages) || intents.Value.HasIntent(DiscordIntents.DirectMessages)
                         ? new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize)
-                        : null;
+                        : new RingBuffer<DiscordMessage>(0);
                 else
                     this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize); //This will need to be changed once intents become mandatory.
             }
