@@ -43,6 +43,7 @@ namespace DSharpPlus
         internal long _lastSequence;
         internal int _skippedHeartbeats = 0;
         internal bool _guildDownloadCompleted = false;
+        internal bool _isShard = false;
 
         internal RingBuffer<DiscordMessage> MessageCache { get; }
         internal StatusUpdate _status = null;
@@ -59,6 +60,11 @@ namespace DSharpPlus
         internal int _gatewayVersion;
 
         /// <summary>
+        /// Gets the gateway session information for this client.
+        /// </summary>
+        public GatewayInfo GatewayInfo { get; internal set; }
+
+        /// <summary>
         /// Gets the gateway URL.
         /// </summary>
         public Uri GatewayUri
@@ -70,7 +76,7 @@ namespace DSharpPlus
         /// Gets the total number of shards the bot is connected to.
         /// </summary>
         public int ShardCount
-            => this.Configuration.ShardCount;
+            => this.GatewayInfo.ShardCount;
 
         internal int _shardCount = 1;
 
@@ -245,9 +251,12 @@ namespace DSharpPlus
                 };
             }
 
-            if (this.Configuration.TokenType != TokenType.Bot)
-                this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
-            this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}", DateTime.Now);
+            if (!this._isShard)
+            {
+                if (this.Configuration.TokenType != TokenType.Bot)
+                    this.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.", DateTime.Now);
+                this.DebugLogger.LogMessage(LogLevel.Info, "DSharpPlus", $"DSharpPlus, version {this.VersionString}", DateTime.Now);
+            }
 
             while (i-- > 0 || this.Configuration.ReconnectIndefinitely)
             {
@@ -318,7 +327,8 @@ namespace DSharpPlus
             SocketLock socketLock = null;
             try
             {
-                await this.InternalUpdateGatewayAsync().ConfigureAwait(false);
+                if(this.GatewayInfo == null)
+                    await this.InternalUpdateGatewayAsync().ConfigureAwait(false);
                 await this.InitializeAsync().ConfigureAwait(false);
 
                 socketLock = this.GetSocketLock();
@@ -2347,7 +2357,7 @@ namespace DSharpPlus
             this._heartbeatTask = Task.Run(this.HeartbeatLoopAsync, this._cancelToken);
 
             if (string.IsNullOrEmpty(this._sessionId))
-                await SendIdentifyAsync(_status).ConfigureAwait(false);
+                await SendIdentifyAsync(this._status).ConfigureAwait(false);
             else
                 await SendResumeAsync().ConfigureAwait(false);
         }
@@ -2635,25 +2645,13 @@ namespace DSharpPlus
 
         internal async Task InternalUpdateGatewayAsync()
         {
-            var headers = Utilities.GetBaseHeaders();
-            var route = Endpoints.GATEWAY;
-            if (Configuration.TokenType == TokenType.Bot)
-                route += Endpoints.BOT;
-            var bucket = this.ApiClient.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            var request = new RestRequest(this, bucket, url, RestRequestMethod.GET, headers);
-            DebugLogger.LogTaskFault(this.ApiClient.Rest.ExecuteRequestAsync(request), LogLevel.Error, "DSharpPlus", "Error while executing request: ");
-            var response = await request.WaitForCompletionAsync().ConfigureAwait(false);
-
-            var jo = JObject.Parse(response.Response);
-            this._gatewayUri = new Uri(jo.Value<string>("url"));
-            if (jo["shards"] != null)
-                this._shardCount = jo.Value<int>("shards");
+            var info = await this.GetGatewayInfoAsync().ConfigureAwait(false);
+            this.GatewayInfo = info;
+            this._gatewayUri = new Uri(info.Url);
         }
 
         private SocketLock GetSocketLock()
-            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId));
+            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket.MaxConcurrency));
 
         ~DiscordClient()
         {
@@ -2691,7 +2689,6 @@ namespace DSharpPlus
             this._guilds = null;
             this._heartbeatTask = null;
             this._privateChannels = null;
-            this._webSocketClient?.Dispose();
         }
 
         #region Events
