@@ -9,7 +9,7 @@ namespace DSharpPlus.EventArgs
     public class VoiceServerUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the guild for which the update occured.
+        /// Gets the guild for which the update occurred.
         /// </summary>
 		public DiscordGuild Guild { get; internal set; }
 

@@ -12,6 +12,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -152,7 +153,7 @@ namespace DSharpPlus.CommandsNext
             if (this.Config.UseDefaultCommandHandler)
                 this.Client.MessageCreated += this.HandleCommandsAsync;
             else
-                this.Client.DebugLogger.LogMessage(LogLevel.Warning, "CommandsNext", "Default command handler is not attached. If this was intentional, you can ignore this message.", DateTime.Now);
+                this.Client.Logger.LogWarning(CommandsNextEvents.Misc, "Not attaching default command handler - if this is intentional, you can ignore this message");
 
             if (this.Config.EnableDefaultHelp)
             {

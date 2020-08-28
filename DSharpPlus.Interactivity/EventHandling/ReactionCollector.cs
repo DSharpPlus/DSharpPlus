@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Concurrency;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -73,8 +74,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.DebugLogger.LogMessage(LogLevel.Error, "Interactivity",
-                    $"Something went wrong collecting reactions with exception {ex.GetType().Name}.", DateTime.Now);
+                this._client.Logger.LogError(InteractivityEvents.InteractivityCollectorError, ex, "Exception occurred while collecting reactions");
             }
             finally
             {

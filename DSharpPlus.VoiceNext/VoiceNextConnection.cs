@@ -4,7 +4,6 @@ using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -17,6 +16,7 @@ using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.Entities;
 using DSharpPlus.VoiceNext.EventArgs;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -142,6 +142,8 @@ namespace DSharpPlus.VoiceNext
         private CancellationTokenSource KeepaliveTokenSource { get; set; }
         private CancellationToken KeepaliveToken
             => this.KeepaliveTokenSource.Token;
+
+        private volatile bool _isSpeaking = false;
 
         /// <summary>
         /// Gets the audio format used by the Opus encoder.
@@ -279,7 +281,7 @@ namespace DSharpPlus.VoiceNext
                 };
             }
             var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
-            await this.VoiceWs.SendMessageAsync(vdj).ConfigureAwait(false);
+            await this.WsSendAsync(vdj).ConfigureAwait(false);
         }
 
         internal Task WaitForReadyAsync()
@@ -345,7 +347,7 @@ namespace DSharpPlus.VoiceNext
             var synchronizerTicks = (double)Stopwatch.GetTimestamp();
             var synchronizerResolution = (Stopwatch.Frequency * 0.005);
             var tickResolution = 10_000_000.0 / Stopwatch.Frequency;
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Timer accuracy: {Stopwatch.Frequency.ToString("#,##0", CultureInfo.InvariantCulture)}/{synchronizerResolution.ToString(CultureInfo.InvariantCulture)} (high resolution? {Stopwatch.IsHighResolution})", DateTime.Now);
+            this.Discord.Logger.LogDebug(VoiceNextEvents.Misc, "Timer accuracy: {0}/{1} (high resolution? {2})", Stopwatch.Frequency, synchronizerResolution, Stopwatch.IsHighResolution);
 
             while (!token.IsCancellationRequested)
             {
@@ -424,7 +426,7 @@ namespace DSharpPlus.VoiceNext
             var gap = vtx.LastSequence != 0 ? sequence - 1 - vtx.LastSequence : 0;
 
             if (gap >= 5)
-                this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "VNext RX", "5 or more voice packets were dropped when receiving", DateTime.Now);
+                this.Discord.Logger.LogWarning(VoiceNextEvents.VoiceReceiveFailure, "5 or more voice packets were dropped when receiving");
 
             Span<byte> nonce = stackalloc byte[Sodium.NonceSize];
             this.Sodium.GetNonce(data, nonce, this.SelectedEncryptionMode);
@@ -537,7 +539,7 @@ namespace DSharpPlus.VoiceNext
             }
             catch (Exception ex)
             {
-                this.Discord.DebugLogger.LogMessage(LogLevel.Error, "VNext RX", "Exception occured when decoding incoming audio data", DateTime.Now, ex);
+                this.Discord.Logger.LogError(VoiceNextEvents.VoiceReceiveFailure, ex, "Exception occurred when decoding incoming audio data");
             }
         }
 
@@ -552,11 +554,11 @@ namespace DSharpPlus.VoiceNext
 
                 var tdelta = (int)(((Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency) * 1000);
                 Volatile.Write(ref this._wsPing, tdelta);
-                this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Received UDP keepalive {keepalive}, ping {tdelta}ms", DateTime.Now);
+                this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceKeepalive, "Received UDP keepalive {0} (ping {1}ms)", keepalive, tdelta);
             }
             catch (Exception ex)
             {
-                this.Discord.DebugLogger.LogMessage(LogLevel.Error, "VNext UDP", "Exception occured when handling keepalive", DateTime.Now, ex);
+                this.Discord.Logger.LogError(VoiceNextEvents.VoiceKeepalive, ex, "Exception occurred when handling keepalive");
             }
         }
 
@@ -585,18 +587,22 @@ namespace DSharpPlus.VoiceNext
             if (!this.IsInitialized)
                 throw new InvalidOperationException("The connection is not initialized");
 
-            var pld = new VoiceDispatch
+            if (this._isSpeaking != speaking)
             {
-                OpCode = 5,
-                Payload = new VoiceSpeakingPayload
+                this._isSpeaking = speaking;
+                var pld = new VoiceDispatch
                 {
-                    Speaking = speaking,
-                    Delay = 0
-                }
-            };
+                    OpCode = 5,
+                    Payload = new VoiceSpeakingPayload
+                    {
+                        Speaking = speaking,
+                        Delay = 0
+                    }
+                };
 
-            var plj = JsonConvert.SerializeObject(pld, Formatting.None);
-            await this.VoiceWs.SendMessageAsync(plj).ConfigureAwait(false);
+                var plj = JsonConvert.SerializeObject(pld, Formatting.None);
+                await this.WsSendAsync(plj).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -688,7 +694,7 @@ namespace DSharpPlus.VoiceNext
                     token.ThrowIfCancellationRequested();
 
                     var dt = DateTime.Now;
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "Sent heartbeat", dt);
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHeartbeat, "Sent heartbeat");
 
                     var hbd = new VoiceDispatch
                     {
@@ -696,7 +702,7 @@ namespace DSharpPlus.VoiceNext
                         Payload = UnixTimestamp(dt)
                     };
                     var hbj = JsonConvert.SerializeObject(hbd);
-                    await this.VoiceWs.SendMessageAsync(hbj).ConfigureAwait(false);
+                    await this.WsSendAsync(hbj).ConfigureAwait(false);
 
                     this.LastHeartbeat = dt;
                     await Task.Delay(this.HeartbeatInterval).ConfigureAwait(false);
@@ -747,7 +753,7 @@ namespace DSharpPlus.VoiceNext
                 Address = ip,
                 Port = port
             };
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VNext UDP", $"Endpoint discovery resulted in {ip}:{port}", DateTime.Now);
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Endpoint dicovery finished - discovered endpoint is {0}:{1}", ip, port);
 
             void PreparePacket(byte[] packet)
             {
@@ -772,7 +778,7 @@ namespace DSharpPlus.VoiceNext
             this.SelectedEncryptionMode = selectedEncryptionMode.Value;
 
             // Ready
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Selected encryption mode: {selectedEncryptionMode.Key}", DateTime.Now);
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Selected encryption mode is {0}", selectedEncryptionMode.Key);
             var vsp = new VoiceDispatch
             {
                 OpCode = 1,
@@ -788,7 +794,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-            await this.VoiceWs.SendMessageAsync(vsj).ConfigureAwait(false);
+            await this.WsSendAsync(vsj).ConfigureAwait(false);
 
             this.SenderTokenSource = new CancellationTokenSource();
             this.SenderTask = Task.Run(this.VoiceSenderTask, this.SenderToken);
@@ -800,7 +806,7 @@ namespace DSharpPlus.VoiceNext
         private Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
         {
             this.SelectedEncryptionMode = Sodium.SupportedModes[voiceSessionDescription.Mode.ToLowerInvariant()];
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Discord updated encryption mode: {this.SelectedEncryptionMode}", DateTime.Now);
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Discord updated encryption mode - new mode is {0}", this.SelectedEncryptionMode);
 
             // start keepalive
             this.KeepaliveTokenSource = new CancellationTokenSource();
@@ -830,7 +836,7 @@ namespace DSharpPlus.VoiceNext
             switch (opc)
             {
                 case 2: // READY
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP2 received", DateTime.Now);
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received READY (OP2)");
                     var vrp = opp.ToObject<VoiceReadyPayload>();
                     this.SSRC = vrp.SSRC;
                     this.UdpEndpoint = new ConnectionEndpoint(vrp.Address, vrp.Port);
@@ -842,7 +848,7 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 case 4: // SESSION_DESCRIPTION
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP4 received", DateTime.Now);
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received SESSION_DESCRIPTION (OP4)");
                     var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
                     this.Sodium = new Sodium(this.Key.AsMemory());
@@ -851,7 +857,8 @@ namespace DSharpPlus.VoiceNext
 
                 case 5: // SPEAKING
                     // Don't spam OP5
-                    //this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP5 received", DateTime.Now);
+                    // No longer spam, Discord supposedly doesn't send many of these
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received SPEAKING (OP5)");
                     var spd = opp.ToObject<VoiceSpeakingPayload>();
                     var foundUserInCache = this.Discord.TryGetCachedUserInternal(spd.UserId.Value, out var resolvedUser);
                     var spk = new UserSpeakingEventArgs(this.Discord)
@@ -884,21 +891,23 @@ namespace DSharpPlus.VoiceNext
                     var dt = DateTime.Now;
                     var ping = (int)(dt - this.LastHeartbeat).TotalMilliseconds;
                     Volatile.Write(ref this._wsPing, ping);
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Received voice heartbeat ACK, ping {ping.ToString("#,##0", CultureInfo.InvariantCulture)}ms", dt);
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received HEARTBEAT_ACK (OP6, {0}ms)", ping);
                     this.LastHeartbeat = dt;
                     break;
 
                 case 8: // HELLO
                     // this sends a heartbeat interval that we need to use for heartbeating
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received HELLO (OP8)");
                     this.HeartbeatInterval = opp["heartbeat_interval"].ToObject<int>();
                     break;
 
                 case 9: // RESUMED
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", "OP9 received", DateTime.Now);
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received RESUMED (OP9)");
                     this.HeartbeatTask = Task.Run(this.HeartbeatAsync);
                     break;
 
                 case 12: // CLIENT_CONNECTED
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received CLIENT_CONNECTED (OP12)");
                     var ujpd = opp.ToObject<VoiceUserJoinPayload>();
                     var usrj = await this.Discord.GetUserAsync(ujpd.UserId).ConfigureAwait(false);
                     {
@@ -916,6 +925,7 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 case 13: // CLIENT_DISCONNECTED
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received CLIENT_DISCONNECTED (OP13)");
                     var ulpd = opp.ToObject<VoiceUserLeavePayload>();
                     var txssrc = this.TransmittingSSRCs.FirstOrDefault(x => x.Value.Id == ulpd.UserId);
                     if (this.TransmittingSSRCs.ContainsKey(txssrc.Key))
@@ -933,14 +943,14 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 default:
-                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "VoiceNext", $"Unknown opcode received: {opc.ToString(CultureInfo.InvariantCulture)}", DateTime.Now);
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received unknown voice opcode (OP{0})", opc);
                     break;
             }
         }
 
         private async Task VoiceWS_SocketClosed(SocketCloseEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "VoiceNext", $"Voice socket closed ({e.CloseCode.ToString(CultureInfo.InvariantCulture)}, '{e.CloseMessage}')", DateTime.Now);
+            this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceConnectionClose, "Voice WebSocket closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
 
             // generally this should not be disposed on all disconnects, only on requested ones
             // or something
@@ -968,10 +978,11 @@ namespace DSharpPlus.VoiceNext
         {
             if (!(e is SocketTextMessageEventArgs et))
             {
-                this.Discord.DebugLogger.LogMessage(LogLevel.Critical, "VoiceNext", "Discord Voice Gateway spewed out binary gibberish!", DateTime.Now);
+                this.Discord.Logger.LogCritical(VoiceNextEvents.VoiceGatewayError, "Discord Voice Gateway sent binary data - unable to process");
                 return Task.CompletedTask;
             }
 
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, et.Message);
             return this.HandleDispatch(JObject.Parse(et.Message));
         }
 
@@ -980,6 +991,12 @@ namespace DSharpPlus.VoiceNext
 
         private Task VoiceWs_SocketException(SocketErrorEventArgs e)
             => this._voiceSocketError.InvokeAsync(new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
+
+        private async Task WsSendAsync(string payload)
+        {
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsTx, payload);
+            await this.VoiceWs.SendMessageAsync(payload).ConfigureAwait(false);
+        }
 
         private static uint UnixTimestamp(DateTime dt)
         {

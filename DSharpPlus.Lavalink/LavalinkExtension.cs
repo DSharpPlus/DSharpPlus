@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Lavalink
 {

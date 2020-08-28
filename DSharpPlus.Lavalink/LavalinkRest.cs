@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.Entities;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -13,16 +14,16 @@ namespace DSharpPlus.Lavalink
 {
     public sealed class LavalinkRest
     {
-        private HttpClient HttpClient;
+        private readonly HttpClient HttpClient;
 
-        private LavalinkConfiguration Configuration;
+        private readonly LavalinkConfiguration Configuration;
 
-        private DebugLogger Logger;
+        private readonly ILogger<BaseDiscordClient> Logger;
 
         internal LavalinkRest(LavalinkConfiguration config, DiscordClient client)
         {
             this.Configuration = config;
-            this.Logger = client.DebugLogger;
+            this.Logger = client.Logger;
 
             var httphandler = new HttpClientHandler
             {
@@ -243,7 +244,8 @@ namespace DSharpPlus.Lavalink
                 if (!req.IsSuccessStatusCode)
                 {
                     var jsonError = JToken.Parse(json) as JObject;
-                    this.Logger.LogMessage(LogLevel.Error, "Lavalink", $"Unable to decode the given track strings: {jsonError["message"]}", DateTime.Now);
+                    this.Logger.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings", jsonError["message"]);
+
                     return null;
                 }
                 var track = JsonConvert.DeserializeObject<LavalinkTrack>(json);
@@ -263,7 +265,7 @@ namespace DSharpPlus.Lavalink
                 if (!req.IsSuccessStatusCode)
                 {
                     var jsonError = JToken.Parse(jsonIn) as JObject;
-                    this.Logger.LogMessage(LogLevel.Error, "Lavalink", $"Unable to decode the given track strings: {jsonError["message"]}", DateTime.Now);
+                    this.Logger.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings", jsonError["message"]);
                     return null;
                 }
 
@@ -303,7 +305,7 @@ namespace DSharpPlus.Lavalink
             var payload = new StringContent(address, Utilities.UTF8, "application/json");
             using (var req = await this.HttpClient.PostAsync(uri, payload).ConfigureAwait(false))
                 if (req.StatusCode == HttpStatusCode.InternalServerError)
-                    this.Logger.LogMessage(LogLevel.Warning, "Lavalink", $"Request to {uri.ToString()} returned an internal server error. This likely indicates that the server route planner configuration is incorrect.", DateTime.Now);
+                    this.Logger.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
 
         }
 
@@ -312,7 +314,7 @@ namespace DSharpPlus.Lavalink
             var httpReq = new HttpRequestMessage(HttpMethod.Post, uri);
             using (var req = await this.HttpClient.SendAsync(httpReq).ConfigureAwait(false))
                 if (req.StatusCode == HttpStatusCode.InternalServerError)
-                    this.Logger.LogMessage(LogLevel.Warning, "Lavalink", $"Request to {uri.ToString()} returned an internal server error. This likely indicates that the server route planner configuration is incorrect.", DateTime.Now);
+                    this.Logger.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
         }
 
         #endregion

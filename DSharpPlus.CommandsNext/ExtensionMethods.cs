@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -25,10 +26,10 @@ namespace DSharpPlus.CommandsNext
             if(client.Configuration.Intents.HasValue)
             {
                 if (!Utilities.HasMessageIntents(client.Configuration.Intents))
-                    client.DebugLogger.LogMessage(LogLevel.Critical, "CommandsNext", "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.", DateTime.Now);
+                    client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.");
 
                 if (!client.Configuration.Intents.Value.HasIntent(DiscordIntents.Guilds))
-                    client.DebugLogger.LogMessage(LogLevel.Critical, "CommandsNext", "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.", DateTime.Now);
+                    client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
             }
 
             var cnext = new CommandsNextExtension(cfg);
