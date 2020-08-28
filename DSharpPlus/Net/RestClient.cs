@@ -224,6 +224,10 @@ namespace DSharpPlus.Net
                             return;
                         }
                         break;
+
+                    case 500:
+                        ex = new ServerErrorException(request, response);
+                        break;
                 }
 
                 if (ex != null)
