@@ -7,7 +7,7 @@
     <AssemblyName>DSharpPlus</AssemblyName>
     <RootNamespace>DSharpPlus</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
