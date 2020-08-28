@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Security.Cryptography.X509Certificates;
 
 namespace DSharpPlus.Entities
 {
