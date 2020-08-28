@@ -8,9 +8,13 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
+    /// <summary>
+    /// Represents a common base for various Discord client implementations.
+    /// </summary>
     public abstract class BaseDiscordClient : IDisposable
     {
         internal protected DiscordApiClient ApiClient { get; }
@@ -19,30 +23,12 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the instance of the logger for this client.
         /// </summary>
-        public DebugLogger DebugLogger { get; }
+        public ILogger<BaseDiscordClient> Logger { get; }
 
         /// <summary>
         /// Gets the string representing the version of D#+.
         /// </summary>
-        public string VersionString 
-            => this._versionString.Value;
-
-        private readonly Lazy<string> _versionString = new Lazy<string>(() =>
-        {
-            var a = typeof(DiscordClient).GetTypeInfo().Assembly;
-
-            var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            if (iv != null)
-                return iv.InformationalVersion;
-
-            var v = a.GetName().Version;
-            var vs = v.ToString(3);
-
-            if (v.Revision > 0)
-                vs = $"{vs}, CI build {v.Revision}";
-
-            return vs;
-        });
+        public string VersionString { get; }
 
         /// <summary>
         /// Gets the current user.
@@ -84,10 +70,32 @@ namespace DSharpPlus
         {
             this.Configuration = new DiscordConfiguration(config);
             this.ApiClient = new DiscordApiClient(this);
-            this.DebugLogger = new DebugLogger(this);
             this.UserCache = new ConcurrentDictionary<ulong, DiscordUser>();
             this.InternalVoiceRegions = new ConcurrentDictionary<string, DiscordVoiceRegion>();
             this._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this.InternalVoiceRegions));
+            
+            if (this.Configuration.LoggerFactory == null)
+            {
+                this.Configuration.LoggerFactory = new DefaultLoggerFactory();
+                this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this));
+            }
+            this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
+
+            var a = typeof(DiscordClient).GetTypeInfo().Assembly;
+
+            var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (iv != null)
+            {
+                this.VersionString = iv.InformationalVersion;
+            }
+            else
+            {
+                var v = a.GetName().Version;
+                var vs = v.ToString(3);
+
+                if (v.Revision > 0)
+                    this.VersionString = $"{vs}, CI build {v.Revision}";
+            }
         }
 
         /// <summary>
@@ -172,6 +180,31 @@ namespace DSharpPlus
                 foreach (var xvr in vrs)
                     this.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
             }
+        }
+
+        /// <summary>
+        /// Gets the current gateway info for the provided token.
+        /// <para>If no value is provided, the configuration value will be used instead.</para>
+        /// </summary>
+        /// <returns>A gateway info object.</returns>
+        public async Task<GatewayInfo> GetGatewayInfoAsync(string token = null)
+        {
+            if (this.Configuration.TokenType != TokenType.Bot)
+                throw new InvalidOperationException("Only bot tokens can access this info.");
+
+            if (string.IsNullOrEmpty(this.Configuration.Token))
+            {
+                if (string.IsNullOrEmpty(token))
+                    throw new InvalidOperationException("Could not locate a valid token.");
+
+                this.Configuration.Token = token;
+
+                var res = await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
+                this.Configuration.Token = null;
+                return res;
+            }
+
+            return await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
         }
 
         internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)

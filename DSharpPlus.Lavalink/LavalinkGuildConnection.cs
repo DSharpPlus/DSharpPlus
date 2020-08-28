@@ -143,7 +143,7 @@ namespace DSharpPlus.Lavalink
 
             Volatile.Write(ref this._isDisposed, true);
 
-            if(shouldDestroy)
+            if (shouldDestroy)
                 await this.Node.SendPayloadAsync(new LavalinkDestroy(this)).ConfigureAwait(false);
 
             if (!isManualDisconnection)
@@ -167,7 +167,7 @@ namespace DSharpPlus.Lavalink
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (this.Channel.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
+            await (this.Channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
         }
 
         /// <summary>

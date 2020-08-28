@@ -13,7 +13,7 @@ namespace DSharpPlus.CommandsNext
         public bool IsSuccessful { get; internal set; }
         
         /// <summary>
-        /// Gets the exception (if any) that occured when executing the command.
+        /// Gets the exception (if any) that occurred when executing the command.
         /// </summary>
         public Exception Exception { get; internal set; }
 

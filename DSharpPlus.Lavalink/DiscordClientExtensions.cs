@@ -1,10 +1,10 @@
-﻿using DSharpPlus.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Lavalink
 {
@@ -16,9 +16,15 @@ namespace DSharpPlus.Lavalink
         /// <param name="client">Discord client to create Lavalink instance for.</param>
         /// <returns>Lavalink client instance.</returns>
         public static LavalinkExtension UseLavalink(this DiscordClient client)
-        { 
+        {
             if (client.GetExtension<LavalinkExtension>() != null)
                 throw new InvalidOperationException("Lavalink is already enabled for that client.");
+
+            if (client.Configuration.Intents.HasValue)
+            {
+                if (!client.Configuration.Intents.Value.HasIntent(DiscordIntents.GuildVoiceStates))
+                    client.Logger.LogCritical(LavalinkEvents.Intents, "The Lavalink extension is registered but the guild voice states intent is not enabled. It is highly recommended to enable it.");
+            }
 
             var lava = new LavalinkExtension();
             client.AddExtension(lava);

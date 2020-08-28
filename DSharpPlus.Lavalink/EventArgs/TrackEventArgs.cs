@@ -142,7 +142,7 @@
     public sealed class TrackExceptionEventArgs : AsyncEventArgs
     {
         /// <summary>
-        /// Gets the error that occured during playback.
+        /// Gets the error that occurred during playback.
         /// </summary>
         public string Error { get; }
 

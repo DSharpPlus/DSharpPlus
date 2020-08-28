@@ -1,11 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus.EventArgs;
 using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Test
 {
@@ -63,50 +62,6 @@ namespace DSharpPlus.Test
                 shard.StopAsync().GetAwaiter().GetResult(); // it dun matter
 
             CancelTokenSource.Cancel();
-        }
-
-        private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
-        {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("[{0:yyyy-MM-dd HH:mm:ss zzz}] ", e.Timestamp.ToLocalTime());
-
-            var tag = e.Application;
-            if (tag.Length > 12)
-                tag = tag.Substring(0, 12);
-            if (tag.Length < 12)
-                tag = tag.PadLeft(12, ' ');
-            Console.Write("[{0}] ", tag);
-
-            //Console.ForegroundColor = ConsoleColor.Yellow;
-            //Console.Write("[{0}] ", string.Concat("SHARD ", this.Discord.ShardId.ToString("00")));
-
-            switch (e.Level)
-            {
-                case LogLevel.Critical:
-                case LogLevel.Error:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    break;
-
-                case LogLevel.Warning:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    break;
-
-                case LogLevel.Info:
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    break;
-
-                case LogLevel.Debug:
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    break;
-                    
-                default:
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    break;
-            }
-            Console.Write("[{0}] ", e.Level.ToString().PadLeft(8));
-
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(e.Message);
         }
     }
 }

@@ -38,8 +38,17 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("shard")]
         public ShardInfo ShardInfo { get; set; }
 
+        /// <summary>
+        /// Gets or sets the presence for this connection.
+        /// </summary>
 		[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
 		public StatusUpdate Presence { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the intent flags for this connection.
+        /// </summary>
+        [JsonProperty("intents", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordIntents? Intents { get; set; } = null;
     }
 
     /// <summary>

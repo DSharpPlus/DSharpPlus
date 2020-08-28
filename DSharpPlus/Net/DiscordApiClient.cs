@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -106,7 +107,7 @@ namespace DSharpPlus.Net
             var req = new RestRequest(client, bucket, url, method, headers, payload, ratelimitWaitOverride);
 
             if (this.Discord != null)
-                this.Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+                this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
             else
                 _ = this.Rest.ExecuteRequestAsync(req);
 
@@ -119,7 +120,7 @@ namespace DSharpPlus.Net
             var req = new MultipartWebRequest(client, bucket, url, method, headers, values, files, ratelimitWaitOverride);
 
             if (this.Discord != null)
-                Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+                this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
             else
                 _ = this.Rest.ExecuteRequestAsync(req);
 
@@ -1994,6 +1995,22 @@ namespace DSharpPlus.Net
             }
 
             return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
+        }
+
+        internal async Task<GatewayInfo> GetGatewayInfoAsync()
+        {
+            var headers = Utilities.GetBaseHeaders();
+            var route = Endpoints.GATEWAY;
+            if (this.Discord.Configuration.TokenType == TokenType.Bot)
+                route += Endpoints.BOT;
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, headers).ConfigureAwait(false);
+
+            var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+            return info;
         }
         #endregion
     }

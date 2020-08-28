@@ -125,7 +125,7 @@ namespace DSharpPlus.Lavalink
 
         private LavalinkNodeConnection FilterByLoad(LavalinkNodeConnection[] nodes)
         {
-            Array.Sort(nodes, (a, b) => 
+            Array.Sort(nodes, (a, b) =>
             {
                 if (!a.Statistics.Updated || !b.Statistics.Updated)
                     return 0;
@@ -142,7 +142,7 @@ namespace DSharpPlus.Lavalink
                 bPenaltyCount += (int)Math.Pow(1.05d, 100 * (b.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10 - 10);
 
                 //frame load
-                if(a.Statistics.AverageDeficitFramesPerMinute > 0)
+                if (a.Statistics.AverageDeficitFramesPerMinute > 0)
                 {
                     //deficit frame load
                     aPenaltyCount += (int)(Math.Pow(1.03d, 500f * (a.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600 - 600);
