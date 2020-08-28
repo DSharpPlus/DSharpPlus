@@ -437,7 +437,7 @@ namespace DSharpPlus.Net
             //If the request was not initial and received a different maximum, make it initial as it is a "new" bucket.
             if (bucket.Maximum != 0 && ratelimitTcs == null && bucket.Maximum != maximum)
             {
-                request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Unexpected limit values encountered for {bucket}. Updating to [{remaining}/{maximum}] {newReset}.", DateTime.Now);
+                request.Discord.Logger.LogDebug(LoggerEvents.RestError, "Unexpected limit values encountered for {0}. Updating to [{1}/{2}] {3}", bucket, remaining, maximum, newReset);
                 bucket.Maximum = maximum;
                 bucket.SetInitialValues(remaining, newReset);
                 return;

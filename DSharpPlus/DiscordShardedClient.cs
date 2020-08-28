@@ -629,7 +629,7 @@ namespace DSharpPlus
                 return this.Shards.Count;
 
             this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
-            var shardc = this.Config.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Config.ShardCount;
+            var shardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
             var lf = new ShardedLoggerFactory(this.Logger);
             for (var i = 0; i < shardc; i++)
             {
@@ -659,7 +659,7 @@ namespace DSharpPlus
 
             if (this.Configuration.TokenType != TokenType.Bot)
                 this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
-            this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {0}", this.VersionString);
+            this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {0}", this._versionString.Value);
 
             var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
             var connectTasks = new List<Task>();
@@ -698,7 +698,7 @@ namespace DSharpPlus
             if (!this.isStarted)
                 throw new InvalidOperationException("This client has not been started.");
 
-            this.DebugLogger.LogMessage(LogLevel.Info, "AutoShard", $"Disposing {this.Shards.Count.ToString(CultureInfo.InvariantCulture)} shards.", DateTime.Now);
+            this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disposing {0} shards.", this.Shards.Count);
             this.isStarted = false;
             this.GatewayInfo = null;
             this.CurrentUser = null;
@@ -757,10 +757,9 @@ namespace DSharpPlus
                     client.MessageReactionRemovedEmoji -= this.Client_MessageReactionRemovedEmoji;
                     client.WebhooksUpdated -= this.Client_WebhooksUpdate;
                     client.Heartbeated -= this.Client_HeartBeated;
-                    client.DebugLogger.LogMessageReceived -= this.DebugLogger_LogMessageReceived;
 
                     client.Dispose();
-                    this.DebugLogger.LogMessage(LogLevel.Info, "AutoShard", $"Disconnected shard {i.ToString(CultureInfo.InvariantCulture)}.", DateTime.Now);
+                    this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disconnected shard {0}.", i);
                 }
             }
 
@@ -901,7 +900,7 @@ namespace DSharpPlus
 
             var http = new HttpClient();
             http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
-            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Config));
+            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Configuration));
             this.Logger.LogDebug(LoggerEvents.RestError, "Initial request for rate limit bucket [GET::::/gateway/bot] [0/0] 1/1/0001 12:00:00 AM +00:00. Allowing.");
             var resp = await http.GetAsync(url).ConfigureAwait(false);
 
