@@ -731,7 +731,7 @@ namespace DSharpPlus.Entities
         /// Gets an invite from this guild from an invite code. 
         /// </summary>
         /// <param name="code">The invite code</param>
-        /// <returns>An invite.</returns>
+        /// <returns>An invite, or null if not in cache.</returns>
         public DiscordInvite GetInvite(string code)
             => this._invites.TryGetValue(code, out var invite) ? invite : null;
 
