@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -100,17 +101,22 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public DiscordGuild Guild => this.Channel.Guild;
 
-        private LavalinkNodeConnection Node { get; }
+        /// <summary>
+        /// Gets the Lavalink node associated with this connection.
+        /// </summary>
+        public LavalinkNodeConnection Node { get; }
+
         internal string GuildIdString => this.GuildId.ToString(CultureInfo.InvariantCulture);
         internal ulong GuildId => this.Channel.Guild.Id;
         internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
-        internal bool ManuallyDisconnected { get; set; } = false;
+        internal TaskCompletionSource<bool> VoiceWsDisconnectTcs { get; set; }
 
         internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, VoiceStateUpdateEventArgs vstu)
         {
             this.Node = node;
             this.VoiceStateUpdate = vstu;
             this.CurrentState = new LavalinkPlayerState();
+            this.VoiceWsDisconnectTcs = new TaskCompletionSource<bool>();
 
             Volatile.Write(ref this._isDisposed, false);
 
@@ -123,21 +129,28 @@ namespace DSharpPlus.Lavalink
         }
 
         /// <summary>
-        /// Disconnect from this voice channel.
+        /// Disconnects the connection from the voice channel.
         /// </summary>
-        public async Task DisconnectAsync()
+        /// <param name="shouldDestroy">Whether the connection should be destroyed on the Lavalink server when leaving.</param>
+
+        public Task DisconnectAsync(bool shouldDestroy = true)
+            => this.DisconnectInternalAsync(shouldDestroy);
+
+        internal async Task DisconnectInternalAsync(bool shouldDestroy, bool isManualDisconnection = false)
         {
-            if (!this.IsConnected)
+            if (!this.IsConnected && !isManualDisconnection)
                 throw new InvalidOperationException("This connection is not valid.");
 
             Volatile.Write(ref this._isDisposed, true);
 
-            await this.Node.SendPayloadAsync(new LavalinkDestroy(this)).ConfigureAwait(false);
+            if (shouldDestroy)
+                await this.Node.SendPayloadAsync(new LavalinkDestroy(this)).ConfigureAwait(false);
 
-            if(!this.ManuallyDisconnected)
+            if (!isManualDisconnection)
+            {
                 await this.SendVoiceUpdateAsync().ConfigureAwait(false);
-
-            this.ChannelDisconnected?.Invoke(this);
+                this.ChannelDisconnected?.Invoke(this);
+            }
         }
 
         internal async Task SendVoiceUpdateAsync()
@@ -156,6 +169,31 @@ namespace DSharpPlus.Lavalink
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
             await (this.Channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Searches for specified terms.
+        /// </summary>
+        /// <param name="searchQuery">What to search for.</param>
+        /// <param name="type">What platform will search for.</param>
+        /// <returns>A collection of tracks matching the criteria.</returns>
+        public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery, LavalinkSearchType type = LavalinkSearchType.Youtube)
+            => this.Node.Rest.GetTracksAsync(searchQuery, type);
+
+        /// <summary>
+        /// Loads tracks from specified URL.
+        /// </summary>
+        /// <param name="uri">URL to load tracks from.</param>
+        /// <returns>A collection of tracks from the URL.</returns>
+        public Task<LavalinkLoadResult> GetTracksAsync(Uri uri)
+            => this.Node.Rest.GetTracksAsync(uri);
+
+        /// <summary>
+        /// Loads tracks from a local file.
+        /// </summary>
+        /// <param name="file">File to load tracks from.</param>
+        /// <returns>A collection of tracks from the file.</returns>
+        public Task<LavalinkLoadResult> GetTracksAsync(FileInfo file)
+            => this.Node.Rest.GetTracksAsync(file);
 
         /// <summary>
         /// Queues the specified track for playback.

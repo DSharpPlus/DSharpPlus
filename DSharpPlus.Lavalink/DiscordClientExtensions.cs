@@ -16,7 +16,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="client">Discord client to create Lavalink instance for.</param>
         /// <returns>Lavalink client instance.</returns>
         public static LavalinkExtension UseLavalink(this DiscordClient client)
-        { 
+        {
             if (client.GetExtension<LavalinkExtension>() != null)
                 throw new InvalidOperationException("Lavalink is already enabled for that client.");
 
@@ -54,7 +54,7 @@ namespace DSharpPlus.Lavalink
         }
 
         /// <summary>
-        /// Gets the active instance of Lavalink client for the DiscordClient.
+        /// Gets the active instance of the Lavalink client for the DiscordClient.
         /// </summary>
         /// <param name="client">Discord client to get Lavalink instance for.</param>
         /// <returns>Lavalink client instance.</returns>
