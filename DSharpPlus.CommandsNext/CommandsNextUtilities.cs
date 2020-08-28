@@ -92,7 +92,7 @@ namespace DSharpPlus.CommandsNext
                 if (char.IsWhiteSpace(str[i]) && !inQuote && !inTripleBacktick && !inBacktick && !inEscape)
                     endPosition = i;
 
-                if (str[i] == '\\')
+                if (str[i] == '\\' && str.Length > i + 1)
                 {
                     if (!inEscape && !inBacktick && !inTripleBacktick)
                     {
