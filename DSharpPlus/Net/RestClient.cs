@@ -22,8 +22,6 @@ namespace DSharpPlus.Net
     internal sealed class RestClient
     {
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
-
-        private BaseDiscordClient Discord { get; }
         private HttpClient HttpClient { get; }
         private ConcurrentDictionary<string, RateLimitBucket> Buckets { get; }
         private AsyncManualResetEvent GlobalRateLimitEvent { get; }
@@ -31,7 +29,6 @@ namespace DSharpPlus.Net
         internal RestClient(BaseDiscordClient client)
             : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit)
         {
-            this.Discord = client;
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
             this.HttpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
@@ -253,14 +250,22 @@ namespace DSharpPlus.Net
             }
         }
 
-        private void FailInitialRateLimitTest(RateLimitBucket bucket, TaskCompletionSource<bool> ratelimitTcs)
+        private void FailInitialRateLimitTest(RateLimitBucket bucket, TaskCompletionSource<bool> ratelimitTcs, bool resetToInitial = false)
         {
-            if (ratelimitTcs == null)
+            if (ratelimitTcs == null && !resetToInitial)
                 return;
 
             bucket._limitValid = false;
             bucket._limitTestFinished = null;
             bucket._limitTesting = 0;
+
+            //Reset to initial values.
+            if(resetToInitial)
+            {
+                bucket.Maximum = 0;
+                bucket._remaining = 0;
+                return;
+            }
 
             // no need to wait on all the potentially waiting tasks
             Task.Run(() => ratelimitTcs.TrySetResult(false));
@@ -377,6 +382,7 @@ namespace DSharpPlus.Net
             {
                 if (response.ResponseCode != 429)
                     this.FailInitialRateLimitTest(bucket, ratelimitTcs);
+
                 return;
             }
 
@@ -387,8 +393,10 @@ namespace DSharpPlus.Net
 
             if (!r1 || !r2 || !r3 || !r4)
             {
+                //If the limits were determined before this request, make the bucket initial again.
                 if (response.ResponseCode != 429)
-                    this.FailInitialRateLimitTest(bucket, ratelimitTcs);
+                    this.FailInitialRateLimitTest(bucket, ratelimitTcs, ratelimitTcs == null);
+
                 return;
             }
 
@@ -420,16 +428,27 @@ namespace DSharpPlus.Net
             else
                 bucket.Reset = newReset;
 
-            bucket.Maximum = int.Parse(usesmax, CultureInfo.InvariantCulture);
+            var maximum = int.Parse(usesmax, CultureInfo.InvariantCulture);
+            var remaining = int.Parse(usesleft, CultureInfo.InvariantCulture);
+
+            //The delete messages (and maybe other) routes have cycling buckets.
+            //See https://github.com/discord/discord-api-docs/issues/1295
+
+            //If the request was not initial and received a different maximum, make it initial as it is a "new" bucket.
+            if (bucket.Maximum != 0 && ratelimitTcs == null && bucket.Maximum != maximum)
+            {
+                request.Discord.DebugLogger.LogMessage(LogLevel.Debug, "REST", $"Unexpected limit values encountered for {bucket}. Updating to [{remaining}/{maximum}] {newReset}.", DateTime.Now);
+                bucket.Maximum = maximum;
+                bucket.SetInitialValues(remaining, newReset);
+                return;
+            }
+
+            bucket.Maximum = maximum;
 
             if (ratelimitTcs != null)
             {
                 // initial population of the ratelimit data
-                bucket._remaining = int.Parse(usesleft, CultureInfo.InvariantCulture);
-                bucket._nextReset = newReset.UtcTicks;
-                bucket._limitValid = true;
-                bucket._limitTestFinished = null;
-                bucket._limitTesting = 0;
+                bucket.SetInitialValues(remaining, newReset);
                 Task.Run(() => ratelimitTcs.TrySetResult(true));
             }
             else

@@ -64,8 +64,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name">New default name for this webhook.</param>
         /// <param name="avatar">New avatar for this webhook.</param>
+        /// <param name="channelId">The new channel id to move the webhook to.</param>
         /// <returns>The modified webhook.</returns>
-        public Task<DiscordWebhook> ModifyAsync(string name = null, Optional<Stream> avatar = default)
+        public Task<DiscordWebhook> ModifyAsync(string name = null, Optional<Stream> avatar = default, ulong? channelId = null)
         {
             var avatarb64 = Optional.FromNoValue<string>();
             if (avatar.HasValue && avatar.Value != null)
@@ -73,8 +74,10 @@ namespace DSharpPlus.Entities
                     avatarb64 = imgtool.GetBase64();
             else if (avatar.HasValue)
                 avatarb64 = null;
-                    
-            return this.Discord.ApiClient.ModifyWebhookAsync(this.Id, name, avatarb64, Token);
+
+            var newChannelId = channelId.HasValue ? channelId.Value : this.ChannelId;
+
+            return this.Discord.ApiClient.ModifyWebhookAsync(newChannelId, this.Id, name, avatarb64, Token);
         }
 
         /// <summary>

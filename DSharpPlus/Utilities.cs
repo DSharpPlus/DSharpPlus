@@ -160,6 +160,40 @@ namespace DSharpPlus
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
+        
+        internal static bool HasMessageIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessages) || intents.Value.HasIntent(DiscordIntents.DirectMessages);
+
+            return true; //Will be false in the future.
+        }
+
+        internal static bool HasReactionIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessageReactions) || intents.Value.HasIntent(DiscordIntents.DirectMessageReactions);
+
+            return true; //Will be false in the future.
+        }
+
+        internal static bool HasTypingIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessageTyping) || intents.Value.HasIntent(DiscordIntents.DirectMessageTyping);
+
+            return true; //Will be false in the future.
+        }
+      
+        // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
+        /// <summary>
+        /// Gets a shard id from a guild id and total shard count.
+        /// </summary>
+        /// <param name="guildId">The guild id the shard is on.</param>
+        /// <param name="shardCount">The total amount of shards.</param>
+        /// <returns>The shard id.</returns>
+        public static int GetShardId(ulong guildId, int shardCount)
+            => (int)(guildId >> 22) % shardCount;
 
         /// <summary>
         /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.

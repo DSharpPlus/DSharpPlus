@@ -111,6 +111,13 @@ namespace DSharpPlus
         public bool ReconnectIndefinitely { internal get; set; } = false;
 
         /// <summary>
+        /// <para>Sets the gateway intents for this client.</para>
+        /// <para>If set, the client will only receive events that they specify with intents.</para>
+        /// <para>Defaults to null.</para>
+        /// </summary>
+        public DiscordIntents? Intents { internal get; set; } = null;
+
+        /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>
         /// <para>Use <see cref="WebSocketClient.CreateNew(IWebProxy)"/> and equivalents on other implementations to switch out client implementations.</para>
         /// <para>Defaults to <see cref="WebSocketClient.CreateNew(IWebProxy)"/>.</para>
@@ -178,6 +185,7 @@ namespace DSharpPlus
             this.Proxy = other.Proxy;
             this.HttpTimeout = other.HttpTimeout;
             this.ReconnectIndefinitely = other.ReconnectIndefinitely;
+            this.Intents = other.Intents;
             this.LoggerFactory = other.LoggerFactory;
         }
     }

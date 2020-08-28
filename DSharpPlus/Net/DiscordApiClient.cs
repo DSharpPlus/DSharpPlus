@@ -1597,13 +1597,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, Optional<string> base64_avatar, string reason)
+        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
             {
                 Name = name,
                 AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
-                AvatarSet = base64_avatar.HasValue
+                AvatarSet = base64_avatar.HasValue,
+                ChannelId = channelId
             };
 
             var headers = new Dictionary<string, string>();
@@ -1994,6 +1995,22 @@ namespace DSharpPlus.Net
             }
 
             return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
+        }
+
+        internal async Task<GatewayInfo> GetGatewayInfoAsync()
+        {
+            var headers = Utilities.GetBaseHeaders();
+            var route = Endpoints.GATEWAY;
+            if (this.Discord.Configuration.TokenType == TokenType.Bot)
+                route += Endpoints.BOT;
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, headers).ConfigureAwait(false);
+
+            var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+            return info;
         }
         #endregion
     }

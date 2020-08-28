@@ -938,6 +938,18 @@ namespace DSharpPlus.CommandsNext
         }
         #endregion
 
+        #region Helpers
+        /// <summary>
+        /// Gets the configuration-specific string comparer. This returns <see cref="StringComparer.Ordinal"/> or <see cref="StringComparer.OrdinalIgnoreCase"/>, 
+        /// depending on whether <see cref="CommandsNextConfiguration.CaseSensitive"/> is set to <see langword="true"/> or <see langword="false"/>.
+        /// </summary>
+        /// <returns>A string comparer.</returns>
+        internal IEqualityComparer<string> GetStringComparer()
+            => this.Config.CaseSensitive
+                ? StringComparer.Ordinal
+                : StringComparer.OrdinalIgnoreCase;
+        #endregion
+
         #region Events
         /// <summary>
         /// Triggered whenever a command executes successfully.
