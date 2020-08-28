@@ -21,8 +21,6 @@ namespace DSharpPlus.Net
     internal sealed class RestClient
     {
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
-
-        private BaseDiscordClient Discord { get; }
         private HttpClient HttpClient { get; }
         private ConcurrentDictionary<string, RateLimitBucket> Buckets { get; }
         private AsyncManualResetEvent GlobalRateLimitEvent { get; }
@@ -30,7 +28,6 @@ namespace DSharpPlus.Net
         internal RestClient(BaseDiscordClient client)
             : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit)
         {
-            this.Discord = client;
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
             this.HttpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }

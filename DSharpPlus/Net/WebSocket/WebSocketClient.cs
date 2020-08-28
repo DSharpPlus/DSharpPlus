@@ -93,6 +93,7 @@ namespace DSharpPlus.Net.WebSocket
                 this._socketToken = this._socketTokenSource.Token;
 
                 this._isClientClose = false;
+                this._isDisposed = false;
                 await this._ws.ConnectAsync(uri, this._socketToken).ConfigureAwait(false);
                 this._receiverTask = Task.Run(this.ReceiverLoopAsync, this._receiverToken);
             }
@@ -111,7 +112,7 @@ namespace DSharpPlus.Net.WebSocket
             try
             {
                 this._isClientClose = true;
-                if (this._ws != null)
+                if (this._ws != null && (this._ws.State == WebSocketState.Open || this._ws.State == WebSocketState.CloseReceived))
                     await this._ws.CloseOutputAsync((WebSocketCloseStatus)code, message, CancellationToken.None).ConfigureAwait(false);
 
                 if (this._receiverTask != null)
@@ -120,13 +121,19 @@ namespace DSharpPlus.Net.WebSocket
                 if (this._isConnected)
                     this._isConnected = false;
 
-                // Cancel all running tasks
-                this._socketTokenSource?.Cancel();
-                this._socketTokenSource?.Dispose();
+                if (!this._isDisposed)
+                {
+                    // Cancel all running tasks
+                    if (this._socketToken.CanBeCanceled)
+                        this._socketTokenSource?.Cancel();
+                    this._socketTokenSource?.Dispose();
 
-                this._receiverTokenSource?.Cancel();
-                this._receiverTokenSource?.Dispose();
+                    if (this._receiverToken.CanBeCanceled)
+                        this._receiverTokenSource?.Cancel();
+                    this._receiverTokenSource?.Dispose();
 
+                    this._isDisposed = true;
+                }
             }
             catch { }
             finally
@@ -184,10 +191,11 @@ namespace DSharpPlus.Net.WebSocket
                 return;
 
             this._isDisposed = true;
-            this.DisconnectAsync().GetAwaiter().GetResult();
 
-            this._receiverTokenSource.Dispose();
-            this._socketTokenSource.Dispose();
+            this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+            this._receiverTokenSource?.Dispose();
+            this._socketTokenSource?.Dispose();
         }
 
         internal async Task ReceiverLoopAsync()
