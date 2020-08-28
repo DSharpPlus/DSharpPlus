@@ -63,6 +63,16 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordVoiceRegion region)
             => this == region;
 
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as DiscordVoiceRegion);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
+
         /// <summary>
         /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are equal.
         /// </summary>
