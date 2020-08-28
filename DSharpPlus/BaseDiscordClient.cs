@@ -174,6 +174,31 @@ namespace DSharpPlus
             }
         }
 
+        /// <summary>
+        /// Gets the current gateway info for the provided token.
+        /// <para>If no value is provided, the configuration value will be used instead.</para>
+        /// </summary>
+        /// <returns>A gateway info object.</returns>
+        public async Task<GatewayInfo> GetGatewayInfoAsync(string token = null)
+        {
+            if (this.Configuration.TokenType != TokenType.Bot)
+                throw new InvalidOperationException("Only bot tokens can access this info.");
+
+            if (string.IsNullOrEmpty(this.Configuration.Token))
+            {
+                if (string.IsNullOrEmpty(token))
+                    throw new InvalidOperationException("Could not locate a valid token.");
+
+                this.Configuration.Token = token;
+
+                var res = await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
+                this.Configuration.Token = null;
+                return res;
+            }
+
+            return await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
+        }
+
         internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)
         {
             TryGetCachedUserInternal(user_id, out var user);

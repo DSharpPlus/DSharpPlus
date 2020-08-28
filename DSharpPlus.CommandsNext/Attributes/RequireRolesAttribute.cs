@@ -40,7 +40,7 @@ namespace DSharpPlus.CommandsNext.Attributes
 
             var rns = ctx.Member.Roles.Select(xr => xr.Name);
             var rnc = rns.Count();
-            var ins = rns.Intersect(this.RoleNames);
+            var ins = rns.Intersect(this.RoleNames, ctx.CommandsNext.GetStringComparer());
             var inc = ins.Count();
 
             switch (this.CheckMode)
