@@ -347,7 +347,7 @@ namespace DSharpPlus.VoiceNext
             var synchronizerTicks = (double)Stopwatch.GetTimestamp();
             var synchronizerResolution = (Stopwatch.Frequency * 0.005);
             var tickResolution = 10_000_000.0 / Stopwatch.Frequency;
-            this.Discord.Logger.LogTrace(VoiceNextEvents.Misc, "Timer accuracy: {0}/{1} (high resolution? {2})", Stopwatch.Frequency, synchronizerResolution, Stopwatch.IsHighResolution);
+            this.Discord.Logger.LogDebug(VoiceNextEvents.Misc, "Timer accuracy: {0}/{1} (high resolution? {2})", Stopwatch.Frequency, synchronizerResolution, Stopwatch.IsHighResolution);
 
             while (!token.IsCancellationRequested)
             {
@@ -554,7 +554,7 @@ namespace DSharpPlus.VoiceNext
 
                 var tdelta = (int)(((Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency) * 1000);
                 Volatile.Write(ref this._wsPing, tdelta);
-                this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceKeepalive, "Received UDP keepalive {0} (ping {1}ms)", keepalive, tdelta);
+                this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceKeepalive, "Received UDP keepalive {0} (ping {1}ms)", keepalive, tdelta);
             }
             catch (Exception ex)
             {

@@ -26,5 +26,7 @@ namespace DSharpPlus
         public static EventId GatewayWsTx { get; } = new EventId(119, "Gateway ↑");
         public static EventId Intents { get; } = new EventId(120, nameof(Intents));
         public static EventId ShardShutdown { get; } = new EventId(121, nameof(ShardShutdown));
+        public static EventId RestRx { get; } = new EventId(122, "REST ↓");
+        public static EventId RestTx { get; } = new EventId(123, "REST ↑");
     }
 }

@@ -161,6 +161,8 @@ namespace DSharpPlus.Net
                     var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                     var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
 
+                    request.Discord?.Logger.LogTrace(LoggerEvents.RestRx, txt);
+
                     response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value), StringComparer.OrdinalIgnoreCase);
                     response.Response = txt;
                     response.ResponseCode = (int)res.StatusCode;
@@ -312,12 +314,16 @@ namespace DSharpPlus.Net
 
             if (request is RestRequest nmprequest && !string.IsNullOrWhiteSpace(nmprequest.Payload))
             {
+                request.Discord?.Logger.LogTrace(LoggerEvents.RestTx, nmprequest.Payload);
+
                 req.Content = new StringContent(nmprequest.Payload);
                 req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             }
 
             if (request is MultipartWebRequest mprequest)
             {
+                request.Discord?.Logger.LogTrace(LoggerEvents.RestTx, "<multipart request>");
+
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
 
                 req.Headers.Add("Connection", "keep-alive");
