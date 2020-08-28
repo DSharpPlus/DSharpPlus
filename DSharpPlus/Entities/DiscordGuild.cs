@@ -731,7 +731,7 @@ namespace DSharpPlus.Entities
         /// Gets an invite from this guild from an invite code. 
         /// </summary>
         /// <param name="code">The invite code</param>
-        /// <returns>An invite.</returns>
+        /// <returns>An invite, or null if not in cache.</returns>
         public DiscordInvite GetInvite(string code)
             => this._invites.TryGetValue(code, out var invite) ? invite : null;
 
@@ -743,8 +743,13 @@ namespace DSharpPlus.Entities
         {
             var res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id).ConfigureAwait(false);
 
-            for (var i = 0; i < res.Count; i++)
-                this._invites[res[i].Code] = res[i];
+            var intents = this.Discord.Configuration.Intents;
+
+            if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildInvites)))
+            {
+                for (var i = 0; i < res.Count; i++)
+                    this._invites[res[i].Code] = res[i];
+            }
 
             return res;
         }
@@ -810,7 +815,12 @@ namespace DSharpPlus.Entities
                 return mbr;
 
             mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, userId).ConfigureAwait(false);
-            this._members[userId] = mbr;
+
+            var intents = this.Discord.Configuration.Intents;
+
+            if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
+                this._members[userId] = mbr;
+
             return mbr;
         }
 
@@ -832,14 +842,20 @@ namespace DSharpPlus.Entities
                 foreach (var xtm in tms)
                 {
                     var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
-                    usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discord = usr.Discord;
-                        old.AvatarHash = usr.AvatarHash;
 
-                        return old;
-                    });
+                    var intents = this.Discord.Configuration.Intents;
+
+                    if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
+                    {
+                        usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
+                        {
+                            old.Username = usr.Username;
+                            old.Discord = usr.Discord;
+                            old.AvatarHash = usr.AvatarHash;
+
+                            return old;
+                        });
+                    }
 
                     recmbr.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id });
                 }
@@ -958,6 +974,7 @@ namespace DSharpPlus.Entities
             var amr = alrs.SelectMany(xa => xa.Users)
                 .GroupBy(xu => xu.Id)
                 .Select(xgu => xgu.First());
+
             foreach (var xau in amr)
             {
                 if (this.Discord.UserCache.ContainsKey(xau.Id))

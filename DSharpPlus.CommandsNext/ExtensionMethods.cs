@@ -22,6 +22,15 @@ namespace DSharpPlus.CommandsNext
             if (client.GetExtension<CommandsNextExtension>() != null)
                 throw new InvalidOperationException("CommandsNext is already enabled for that client.");
 
+            if(client.Configuration.Intents.HasValue)
+            {
+                if (!Utilities.HasMessageIntents(client.Configuration.Intents))
+                    client.DebugLogger.LogMessage(LogLevel.Critical, "CommandsNext", "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.", DateTime.Now);
+
+                if (!client.Configuration.Intents.Value.HasIntent(DiscordIntents.Guilds))
+                    client.DebugLogger.LogMessage(LogLevel.Critical, "CommandsNext", "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.", DateTime.Now);
+            }
+
             var cnext = new CommandsNextExtension(cfg);
             client.AddExtension(cnext);
             return cnext;
@@ -56,9 +65,8 @@ namespace DSharpPlus.CommandsNext
         /// <param name="client">Client to get CommandsNext module from.</param>
         /// <returns>The module, or null if not activated.</returns>
         public static CommandsNextExtension GetCommandsNext(this DiscordClient client)
-        {
-            return client.GetExtension<CommandsNextExtension>();
-        }
+            => client.GetExtension<CommandsNextExtension>();
+        
 
         /// <summary>
         /// Gets the active CommandsNext modules for all shards in this client.
