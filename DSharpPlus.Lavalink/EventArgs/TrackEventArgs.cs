@@ -1,4 +1,6 @@
-﻿namespace DSharpPlus.Lavalink.EventArgs
+﻿using Emzi0767.Utilities;
+
+namespace DSharpPlus.Lavalink.EventArgs
 {
     internal enum EventType
     {

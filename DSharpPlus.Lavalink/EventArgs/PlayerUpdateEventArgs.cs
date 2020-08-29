@@ -1,4 +1,5 @@
 ﻿using System;
+using Emzi0767.Utilities;
 
 namespace DSharpPlus.Lavalink.EventArgs
 {

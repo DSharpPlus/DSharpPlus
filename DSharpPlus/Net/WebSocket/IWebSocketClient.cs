@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
+using Emzi0767.Utilities;
 
 namespace DSharpPlus.Net.WebSocket
 {
@@ -65,21 +66,21 @@ namespace DSharpPlus.Net.WebSocket
         /// <summary>
         /// Triggered when the client connects successfully.
         /// </summary>
-        event AsyncEventHandler Connected;
+        event AsyncEventHandler<IWebSocketClient, SocketEventArgs> Connected;
 
         /// <summary>
         /// Triggered when the client is disconnected.
         /// </summary>
-        event AsyncEventHandler<SocketCloseEventArgs> Disconnected;
+        event AsyncEventHandler<IWebSocketClient, SocketCloseEventArgs> Disconnected;
 
         /// <summary>
         /// Triggered when the client receives a message from the remote party.
         /// </summary>
-        event AsyncEventHandler<SocketMessageEventArgs> MessageReceived;
+        event AsyncEventHandler<IWebSocketClient, SocketMessageEventArgs> MessageReceived;
 
         /// <summary>
         /// Triggered when an error occurs in the client.
         /// </summary>
-        event AsyncEventHandler<SocketErrorEventArgs> ExceptionThrown;
+        event AsyncEventHandler<IWebSocketClient, SocketErrorEventArgs> ExceptionThrown;
     }
 }

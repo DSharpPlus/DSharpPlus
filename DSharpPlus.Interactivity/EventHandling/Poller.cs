@@ -49,7 +49,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             return result;
         }
 
-        async Task HandleReactionAdd(MessageReactionAddEventArgs eventargs)
+        async Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
             await Task.Yield();
             foreach (var req in _requests)
@@ -72,7 +72,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        async Task HandleReactionRemove(MessageReactionRemoveEventArgs eventargs)
+        async Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
         {
             await Task.Yield();
             foreach (var req in _requests)
@@ -86,7 +86,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        async Task HandleReactionClear(MessageReactionsClearEventArgs eventargs)
+        async Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
         {
             await Task.Yield();
             foreach (var req in _requests)

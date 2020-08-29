@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Emzi0767.Utilities;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
@@ -33,7 +31,8 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._timeout = timeout;
         }
 
-        ~MatchRequest(){
+        ~MatchRequest()
+        {
             this.Dispose();
         }
 

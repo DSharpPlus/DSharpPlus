@@ -144,7 +144,7 @@ namespace DSharpPlus.VoiceNext
             await (guild.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
         }
 
-        private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)
+        private Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdateEventArgs e)
         {
             var gld = e.Guild;
             if (gld == null)
@@ -168,7 +168,7 @@ namespace DSharpPlus.VoiceNext
             return Task.CompletedTask;
         }
 
-        private async Task Client_VoiceServerUpdate(VoiceServerUpdateEventArgs e)
+        private async Task Client_VoiceServerUpdate(DiscordClient client, VoiceServerUpdateEventArgs e)
         {
             var gld = e.Guild;
             if (gld == null)
