@@ -34,7 +34,7 @@ namespace DSharpPlus
         public TokenType TokenType { internal get; set; } = TokenType.Bot;
 
         /// <summary>
-        /// <para>Sets the maximum logging level for messages.</para>
+        /// <para>Sets the minimum logging level for messages.</para>
         /// <para>Typically, the default value of <see cref="LogLevel.Information"/> is ok for most uses.</para>
         /// </summary>
         public LogLevel MinimumLogLevel { internal get; set; } = LogLevel.Information;
