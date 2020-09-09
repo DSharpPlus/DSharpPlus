@@ -45,11 +45,11 @@ namespace DSharpPlus.Interactivity
             return c.GetExtension<InteractivityExtension>();
         }
 
-        public static IReadOnlyDictionary<int, InteractivityExtension> GetInteractivity(this DiscordShardedClient c)
+        public static async Task<IReadOnlyDictionary<int, InteractivityExtension>> GetInteractivityAsync(this DiscordShardedClient c)
         {
             var modules = new Dictionary<int, InteractivityExtension>();
 
-            c.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            await c.InitializeShardsAsync().ConfigureAwait(false);
 
             foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
                 modules.Add(shard.ShardId, shard.GetExtension<InteractivityExtension>());
@@ -341,7 +341,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public Page[] GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
 
             List<Page> result = new List<Page>();
@@ -391,7 +391,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public Page[] GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
 
             var embed = embedbase ?? new DiscordEmbedBuilder();
@@ -461,6 +461,7 @@ namespace DSharpPlus.Interactivity
         /// Splits string per 500 characters.
         /// </summary>
         Character,
+
         /// <summary>
         /// Splits string per 15 lines.
         /// </summary>
