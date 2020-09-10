@@ -60,4 +60,4 @@ links.
 
 ## 6. Making it come online
 
-Now that this is all completed, head over to [Basic bot](/articles/getting_started/basic_bot.html "Basic bot") to make the bot come online.
+Now that this is all completed, head over to [Basic bot](/articles/basics/basic_bot.html "Basic bot") to make the bot come online.

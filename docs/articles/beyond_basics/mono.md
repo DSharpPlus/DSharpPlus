@@ -37,7 +37,7 @@ Mono lacks support for most of the HTTP-related code from .NETFX Base Class Libr
 you install an alternative WebSocket client implementation.
 
 To achieve that, follow the instructions outlined in the 
-[Alternate WebSocket client implementations](/articles/getting_started/alternate_ws.html "Alternate WebSocket client implementations") 
+[Alternate WebSocket client implementations](/articles/beyond_basics/alternate_ws.html "Alternate WebSocket client implementations") 
 section of the guide.
 
 ### Place validation callback override in your code

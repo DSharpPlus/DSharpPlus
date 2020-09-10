@@ -160,7 +160,7 @@ Since Mono neither is .NET Core, nor implements its APIs, this method will only 
 Mono runtime has several caveats. It's notorious for being buggy, so this might not always work.
 
 Using your package manager, install Mono runtime (Debian/Raspbian: `sudo apt-get install mono-complete`). Once that is done, you will need to 
-follow the [Mono instructions](/articles/getting_started/mono.html "Mono instructions and notes") to complete the project setup.
+follow the [Mono instructions](/articles/beyond_basics/mono.html "Mono instructions and notes") to complete the project setup.
 
 Once all is done, build your project, and transfer the artifacts to the Pi. Assuming your artifacts are in `~/mybot` and the executable is 
 called `MyBot.exe`, you can run your bot by navigating to the directory (`cd ~/mybot`) and executing the executable with Mono (`mono MyBot.exe`).

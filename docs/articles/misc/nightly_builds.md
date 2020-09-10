@@ -15,7 +15,7 @@ Then just select **Latest prerelease** version of DSharpPlus packages, and insta
 
 You might need to restart Visual Studio for changes to take effect.
 
-If you find any problems in the SlimGet versions of the packages, please follow the instructions in [Reporting issues](/articles/advanced/reporting_issues.html) 
+If you find any problems in the SlimGet versions of the packages, please follow the instructions in [Reporting issues](/articles/misc/reporting_issues.html) 
 article.
 
 ## But I'm running GNU/Linux, Mac OS X, or BSD!

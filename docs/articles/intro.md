@@ -11,8 +11,8 @@ His videos go through all the basics, from setting up your development environme
 If you're not sure what to do first, Bob's tutorial series should be your starting point!
 
 ## Getting Started
-If you're writing a Discord bot for the first time, you'll want to start with [creating a bot application](getting_started/bot_application.html).</br>
-Otherwise, if you have a bot application already, start off with the [writing a basic bot](getting_started/basic_bot.html) article.</br>
+If you're writing a Discord bot for the first time, you'll want to start with [creating a bot application](basics/bot_application.html).</br>
+Otherwise, if you have a bot application already, start off with the [writing a basic bot](basics/basic_bot.html) article.</br>
 
 Once you're up and running, feel free to browse through the [API Documentation](/api/index.html)!
 
