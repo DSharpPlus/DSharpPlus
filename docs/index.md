@@ -12,4 +12,4 @@ Once you've gotten through the articles, head on over to the [API Documentation]
 DSharpPlus is licensed under MIT License, as detailed in the [license](https://github.com/DSharpPlus/DSharpPlus/blob/master/LICENSE) found in the repository.<br/>
 The repository containing the source code for this library can be found [here](https://github.com/DSharpPlus/DSharpPlus). Contributions are welcomed.
 
-Some contributors of DSharpPlus include [Naamloos](https://github.com/NaamloosDT), [Emzi0767](https://github.com/Emzi0767), [Axiom](https://github.com/suicvne), [afroraydude](https://github.com/afroraydude), [DrCreo](https://github.com/DrCreo), and [TiaqoY0](https://github.com/nick-strohm).
+Some contributors of DSharpPlus include [Naamloos](https://github.com/NaamloosDT), [Emzi0767](https://github.com/Emzi0767), [Axiom](https://github.com/suicvne), [afroraydude](https://github.com/afroraydude), [DrCreo](https://github.com/DrCreo), [TiaqoY0](https://github.com/nick-strohm), [Neuheit] (https://github.com/Neuheit/), and [SSG/Maxine] (https://github.com/uwx/).
