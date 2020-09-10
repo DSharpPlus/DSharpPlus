@@ -18,7 +18,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using System.Threading.Tasks;
 
-namespace Ladd.Discord.Bot.Modules
+namespace MyFirstBot
 {
     [ModuleLifespan(ModuleLifespan.Singleton)]
     public class MyCommand : BaseCommandModule
@@ -40,7 +40,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using System.Threading.Tasks;
 
-namespace Ladd.Discord.Bot.Modules
+namespace MyFirstBot
 {
     [ModuleLifespan(ModuleLifespan.Transient)]
     public class MyCommand : BaseCommandModule

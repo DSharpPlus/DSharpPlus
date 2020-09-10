@@ -28,6 +28,8 @@
     href: commands/dependency_injection.md
   - name: Custom Command Handler
     href: commands/custom_handler.md
+  - name: Command Attributes
+    href: commands/command_attributes.md
 - name: Interactivity
   items:
   - name: Introduction
