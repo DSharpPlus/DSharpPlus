@@ -17,13 +17,6 @@ When installing Visual Studio 2017, make sure you select the **.NET Core cross-p
 This tutorial will be presented using Visual Studio 2017, however the instructions should still apply to VS Code and other .NET 
 IDEs (so long as they support .NET Core).
 
-## Note for Windows 7 users
-
-If you're using Windows 7, create a regular .NET Framework project (it's required you target at least .NET 4.5; we recommend 
-4.7).
-
-Make sure you read the article about [Alternate WebSocket Client Implementations](/articles/getting_started/alternate_ws.html).
-
 ## 1. Creating your project
 
 To start, you need to create a new project. Click the **Create new project...** button, and select **Console App (.NET Core)** 
