@@ -1,6 +1,6 @@
 # Base Attributes
 
-CommandNext has a number of Attributes to help lockdown/enhance your command.  Below are a number of the ones that currently exists:
+CommandsNext has a variety of built in attributes to enhance your commands:
 
 - @DSharpPlus.CommandsNext.Attributes.AliasesAttribute
 - @DSharpPlus.CommandsNext.Attributes.CooldownAttribute
@@ -22,7 +22,7 @@ CommandNext has a number of Attributes to help lockdown/enhance your command.  B
 
 # Custom Attributes
 
-There are some cases where you will need create your own Attribute to enhance your commands.  To do this, your new attribute will need to inherit from CheckBaseAttribute
+There are some cases where you will need create your own attribute to enhance your commands. To do this, your new attribute will need to inherit from CheckBaseAttribute
 and then you can fill in the details.
 
 ```cs
@@ -44,13 +44,19 @@ namespace MyFirstBot.Attributes
 
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
         {
-            ////perform check in here 
+            if(this.permission != ctx.Member.Nickname)
+            {
+                await ctx.RespondAsync($"Only members with a nickname of {this.Permission} can use this command!");
+                return Task.FromResult(false)
+            }
+
+            return Task.FromResult(true);
         }
     }
 }
 ```
 
-Once as the details are filled out, you can then add the attribute to your command.
+You can then add the attribute to your command:
 
 ```cs
 using DSharpPlus.CommandsNext;

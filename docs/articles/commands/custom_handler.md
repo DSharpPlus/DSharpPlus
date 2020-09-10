@@ -10,4 +10,4 @@ _cnext = _client.UseCommandsNext(new CommandsNextConfiguration()
             });
 ```
 
-From here, you will be able to hook any Event your heart feels desired to in order to ~~reinvent the wheel~~ accomplish your task.
+From here, you will be able to hook any event your heart desires to in order to ~~reinvent the wheel~~ accomplish your task.

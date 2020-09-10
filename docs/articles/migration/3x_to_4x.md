@@ -176,7 +176,7 @@ Below are the new @DSharpPlus.Interactivity.InteractivityExtension methods that 
 - `SendPaginatedMessageAsync` 
 
 ## VoiceNext
-VoiceNext went through a substantial rewrite.  Below are some of the Key Highlights:
+VoiceNext went through a substantial rewrite.  Below are some of the key highlights:
 - Implemented support for Voice Gateway v4
 - Implemented support for lite and suffix encryption mode
 - Improved performance
@@ -188,7 +188,7 @@ VoiceNext went through a substantial rewrite.  Below are some of the Key Highlig
 - UDP and WebSocket ping values are now exposed on VoiceNextConnection objects
 - Voice OP12 and 13 (user join and leave respectively) are now supported and exposed on VoiceNextConnection objects.
 
-The Natives for VoicNext can be found [here](/natives/index.html)
+The Natives for VoiceNext can be found [here](/natives/index.html)
 
 ## Lavalink
 The library now comes with a Lavalink client, which supports both Lavalink 2.x 
