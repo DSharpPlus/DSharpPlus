@@ -9,4 +9,47 @@ hand, are instantiated for each command call. This enables you to make use of tr
 unsure what that means, familiarize yourself with the [dependency injection](/articles/commands/dependency_injection.html "dependency injection") 
 guide.
 
-## TODO
+## 1. Default Implementation (Singleton)
+
+This is the default implementation where the ModuleLifespan Attribute does not need to be specified but can for completeness sake
+
+```cs
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using System.Threading.Tasks;
+
+namespace Ladd.Discord.Bot.Modules
+{
+    [ModuleLifespan(ModuleLifespan.Singleton)]
+    public class MyCommand : BaseCommandModule
+    {
+        [Command("hi")]
+        public async Task Hi(CommandContext ctx)
+        {
+            await ctx.RespondAsync($"👋 Hi, {ctx.User.Mention}!");
+        }
+    }
+}
+```
+
+## 2. Transient Implementation
+
+This is the implementation where the ModuleLifespan is set to be Transient
+```cs
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using System.Threading.Tasks;
+
+namespace Ladd.Discord.Bot.Modules
+{
+    [ModuleLifespan(ModuleLifespan.Transient)]
+    public class MyCommand : BaseCommandModule
+    {
+        [Command("hi")]
+        public async Task Hi(CommandContext ctx)
+        {
+            await ctx.RespondAsync($"👋 Hi, {ctx.User.Mention}!");
+        }
+    }
+}
+```
