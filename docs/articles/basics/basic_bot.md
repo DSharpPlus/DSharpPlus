@@ -7,14 +7,14 @@ In order for that to happen, you need to make a program that connects to discord
 This guide requires you to have solid basics in C#. Open your IDE. If you don't have one installed, I recommend installing 
 one of the following:
 
-* [Visual Studio 2017 Community](https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Community&rel=15 "Visual Studio 2017 Community")
+* [Visual Studio 2019 Community](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16)
 * [Visual Studio Code](https://code.visualstudio.com/download "Visual Studio Code")
 
-When installing Visual Studio 2017, make sure you select the **.NET Core cross-platform development** option.
+When installing Visual Studio 2019, make sure you select the **.NET Core cross-platform development** option.
 
-![.NET Core in Visual Studio 2017](/images/02_01_vs_netcore.png ".NET Core in Visual Studio 2017")
+![.NET Core in Visual Studio 2019](/images/02_01_vs_netcore.png ".NET Core in Visual Studio 2017")
 
-This tutorial will be presented using Visual Studio 2017, however the instructions should still apply to VS Code and other .NET 
+This tutorial will be presented using Visual Studio 2019, however the instructions should still apply to VS Code and other .NET 
 IDEs (so long as they support .NET Core).
 
 ## 1. Creating your project
