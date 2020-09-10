@@ -5,9 +5,9 @@ roll your own.  To do this, within the CommandsNextConfiguration you need to spe
 
 ```cs
 _cnext = _client.UseCommandsNext(new CommandsNextConfiguration()
-            {
-                UseDefaultCommandHandler = false
-            });
+{
+    UseDefaultCommandHandler = false
+});
 ```
 
 From here, you will be able to hook any event your heart desires to in order to ~~reinvent the wheel~~ accomplish your task.

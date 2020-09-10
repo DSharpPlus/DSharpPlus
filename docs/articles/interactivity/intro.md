@@ -16,9 +16,9 @@ Before you connect, enable the module on your client:
 
 ```cs
 interactivity = _client.UseInteractivity(new InteractivityConfiguration()
-            {
-                Timeout = TimeSpan.FromMinutes(1)
-            });
+{
+    Timeout = TimeSpan.FromMinutes(1)
+});
 ```
 
 This will enable the module.
