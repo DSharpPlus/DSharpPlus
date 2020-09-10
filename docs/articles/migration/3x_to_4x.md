@@ -176,7 +176,19 @@ Below are the new @DSharpPlus.Interactivity.InteractivityExtension methods that 
 - `SendPaginatedMessageAsync` 
 
 ## VoiceNext
-TODO
+VoiceNext went through a substantial rewrite.  Below are some of the Key Highlights:
+- Implemented support for Voice Gateway v4
+- Implemented support for lite and suffix encryption mode
+- Improved performance
+- Replaced old voice sending API with new stream-based transmit API that is non-blocking and has built-in support for Changing volume levels.
+- Automatic sending of silence packets on connection to enable incoming voice
+- Incoming voice now properly maintains an Opus decoder per source
+- Packet loss is now concealed via Opus FEC (if possible) or silence packets
+- VoiceNext will now properly send and process UDP keepalive packets
+- UDP and WebSocket ping values are now exposed on VoiceNextConnection objects
+- Voice OP12 and 13 (user join and leave respectively) are now supported and exposed on VoiceNextConnection objects.
+
+The Natives for VoicNext can be found [here](/natives/index.html)
 
 ## Lavalink
 The library now comes with a Lavalink client, which supports both Lavalink 2.x 
