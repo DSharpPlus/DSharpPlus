@@ -47,7 +47,7 @@ using System.Text;
 
 namespace MyFirstBot
 {
-    class MyCommands
+    class MyCommands : BaseCommandModule
     {
     }
 }
@@ -161,7 +161,7 @@ using DSharpPlus.CommandsNext.Attributes;
 
 namespace MyFirstBot
 {
-    public class MyCommands
+    public class MyCommands : BaseCommandModule
     {
         [Command("hi")]
         public async Task Hi(CommandContext ctx)
