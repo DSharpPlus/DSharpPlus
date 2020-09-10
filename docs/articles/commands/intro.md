@@ -11,8 +11,7 @@ Right now, your bot is console-mute. Let's change it. Let's make it output all i
 To do that, add the following options to your `DiscordConfiguration`:
 
 ```cs
-UseInternalLogHandler = true,
-LogLevel = LogLevel.Debug
+MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
 ```
 
 ## 2. Installing CommandsNext
@@ -93,8 +92,7 @@ namespace MyFirstBot
             {
                 Token = "<your token here>",
                 TokenType = TokenType.Bot,
-                UseInternalLogHandler = true,
-                LogLevel = LogLevel.Debug
+                MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
             });
 
             discord.MessageCreated += async e =>

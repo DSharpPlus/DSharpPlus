@@ -26,20 +26,23 @@ namespace MyFirstBot
 {
     public class EnhancedBoolConverter : IArgumentConverter<bool>
     {
-        public bool TryConvert(string value, CommandContext ctx, out bool result)
+        public Task<Optional<bool>> ConvertAsync(string value, CommandContext ctx)
         {
             switch (value.ToLowerInvariant())
             {
                 case "yes":
-                    result = true;
-                    return true;
+                    return Task.FromResult(Optional.FromValue<bool>(true));
 
                 case "no":
-                    result = false;
-                    return true;
+                    return Task.FromResult(Optional.FromValue<bool>(false));
             }
 
-            return bool.TryParse(value, out result);
+            if(bool.TryParse(value, out bool res))
+            {
+                return Task.FromResult(Optional.FromValue<bool>(res));
+            }
+
+            return Task.FromResult(Optional.FromValue<bool>(false));
         }
     }
 }
