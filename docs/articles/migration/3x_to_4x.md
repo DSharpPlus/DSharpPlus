@@ -146,7 +146,34 @@ information, see [Custom Command Handlers](/articles/commands/custom_handler.htm
   in converters.
 
 ## Interactivity
-TODO
+Interactivity went through an extensive rewrite and a few of the Methods were renamed or dropped all together.  Below is the conversion
+
+- `CollectReactionsAsync`
+	- This now has a different return value
+- `CreatePollAsync`
+	- Use `InteractivityExtension.DoPollAsync` instead 
+- `SendPaginatedMessage`
+	- Use `InteractivityExtension.SendPaginatedMessageAsync` instead 
+- `GeneratePagesInEmbeds`
+	- Now has a new parameter
+- `GeneratePagesInStrings`
+	- Now has a new parameter
+- `GeneratePaginationReactions / DoPagination`
+	- This no longer exists
+- `WaitForMessageReactionAsync / WaitForReactionAsync`
+	- Use `InteractivityExtension.WaitForReactionAsync` instead
+- `WaitForTypingUserAsync`
+	-  Use `InteractivityExtension.WaitForUserTypingAsync` instead
+- `WaitForTypingChannelAsync`
+	-  Use `InteractivityExtension.WaitForTypingAsync` instead
+
+Below are the new @DSharpPlus.Interactivity.InteractivityExtension methods that are documented here.
+- `GetNextMessageAsync`
+- `DoPollAsync`
+- `WaitForReactionAsync`
+- `WaitForUserTypingAsync`
+- `CollectReactionsAsync`
+- `SendPaginatedMessageAsync` 
 
 ## VoiceNext
 TODO
