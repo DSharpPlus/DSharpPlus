@@ -9,7 +9,7 @@ functional updates.
 ### WebSocket implementation changes
 WebSocket implementations are now instantiated via factory delegates. This is 
 now also a configuration setting, rather than method. For more information, 
-see [Alternate WebSocket client implementations](/articles/getting_started/aternate_ws.html) 
+see [Alternate WebSocket client implementations](/articles/beyond_basics/alternate_ws.html) 
 page.
 
 ### Client changes
