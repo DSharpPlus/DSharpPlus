@@ -3,7 +3,7 @@
 Suppose you want to augment an existing argument converter, or introduce a new one. The Argument Converter system in 
 CommandsNext allows you to modify or register converters for arguments passed to commands. An argument converter for 
 type `T` is a class which implements @DSharpPlus.CommandsNext.Converters.IArgumentConverter`1 and has an 
-implementation for @DSharpPlus.CommandsNext.Converters.IArgumentConverter`1.TryConvert(System.String,DSharpPlus.CommandsNext.CommandContext,`0@) method.
+implementation for @DSharpPlus.CommandsNext.Converters.IArgumentConverter`1.ConvertAsync(System.String,DSharpPlus.CommandsNext.CommandContext) method.
 
 Here's we'll be creating an augmented boolean converter.
 
