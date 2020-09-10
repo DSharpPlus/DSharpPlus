@@ -1,28 +1,27 @@
-# Getting started with DSharpPlus
+# Introduction
 
-Listed here is a couple of links that will help you start developing your own bots.
+## Prerequisites 
+Before attempting to write a Discord bot, you should be familiar with the concepts of [Object Oriented Programing](https://en.wikipedia.org/wiki/Object-oriented_programming), [the C# programming language](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/), and [Task-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
 
-## New to programming in C#?
+If you're brand new to C#, or programming in general, this library may prove difficult for you to use.</br>
+Fortunately, there are resources that can help you get started with the language! 
 
-Take a look at [this tutorial series by Bob Tabor from MSDN Channel 9](https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners "C# fundamentals for absolute beginners"). They are excellent videos that go through all the basics, from setting up your development environment, to some of the more advanced concepts. If you're lost, you should definitely give it a watch.
+An exellent tutorial series to go through would be [C# Fundamentals for Absolute Beginners](https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners) by Bob Tabor.
+His videos go through all the basics, from setting up your development environment up to some of the more advanced concepts. 
+If you're not sure what to do first, Bob's tutorial series should be your starting point!
 
-## Looking for API documentation?
+## Getting Started
+If you're writing a Discord bot for the first time, you'll want to start with [creating a bot application](getting_started/bot_application.html).</br>
+Otherwise, if you have a bot application already, start off with the [writing a basic bot](getting_started/basic_bot.html) article.</br>
 
-Head over to the [Api Documentation](/api/index.html) page.
+Once you're up and running, feel free to browse through the [API Documentation](/api/index.html)!
 
-## Example bots
+## Support
+You can get in contact with us on Discord through one of the following guilds:
 
-If you're looking for example bots, make sure to check out the following links:
+**DSharpPlus Guild**:</br>
+[![DSharpPlus Guild](https://discordapp.com/api/guilds/379378609942560770/embed.png?style=banner2)](https://discord.gg/KeAS3pU)
 
-* [Emzi0767's Example Bot Directory](https://github.com/Emzi0767/DSharpPlus-Example-Bot)
-* [Naamloos' Example Bot](https://github.com/NaamloosDT/DSharpPlus-example)
+**#dotnet_dsharpplus** on **Discord API**:</br>
+[![Discord API / #dotnet_dsharpplus](https://discordapp.com/api/guilds/81384788765712384/embed.png?style=banner2)](https://discord.gg/discord-api)
 
-# Still confused?
-
-You can contact us via Discord<sup>(duh!)</sup> using one of these servers:
-
-**#dotnet_dsharpplus** on **Discord API**:    
-[![Discord API / #dotnet_dsharpplus](https://discordapp.com/api/guilds/81384788765712384/embed.png?style=banner1)](https://discord.gg/discord-api)
-
-DSharpPlus Guild:  
-[![DSharpPlus Guild](https://discordapp.com/api/guilds/379378609942560770/embed.png?style=banner1)](https://discord.gg/KeAS3pU)
