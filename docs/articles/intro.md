@@ -21,6 +21,13 @@ Otherwise, if you have a bot account already, start off with the [writing a basi
 
 Once you're up and running, feel free to browse through the [API Documentation](/api/index.html)!
 
+## Supported/Unsupported Runtimes/Environments
+With regards of supported frameworks and specific versions, we currently target .Net Standard 2.0 (.Net Standard 1.3 is being dropped shortly). With this 
+said we formally support the latest non-preview and LTS versions of .Net Core, however any other targets such as .NETFX, Xamarin, etc may work perfectly but it is untested.
+
+Other frameworks such as Mono or running on hardware such as a Raspberry Pi 0/1 will not be supported due to legacy or flaws associated with them. Although you are more 
+than welcome to ~~bang your head in circles~~ attempt to use these hardware/frameworks, you will not under any circumstance get any support when things break.
+
 ## Support
 You can get in contact with us on Discord through one of the following guilds:
 

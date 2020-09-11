@@ -10,8 +10,6 @@
   items:
   - name: Understanding TAP Events
     href: beyond_basics/event_reference.md
-  - name: Using the Mono Runtime
-    href: beyond_basics/mono.md
   - name: Sharding
     href: beyond_basics/sharding.md
 - name: Commands
