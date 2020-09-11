@@ -10,8 +10,6 @@
   items:
   - name: Understanding TAP Events
     href: beyond_basics/event_reference.md
-  - name: Alternate WebSocket Clients
-    href: beyond_basics/alternate_ws.md
   - name: Using the Mono Runtime
     href: beyond_basics/mono.md
   - name: Sharding
@@ -56,8 +54,6 @@
   items:
   - name: Running Your Bot 24/7
     href: hosting/options.md
-  - name: Hosting on Raspbery Pi
-    href: hosting/raspberry_pi.md
 - name: Migration
   items:
   - name: D# to D#+

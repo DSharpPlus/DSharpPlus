@@ -6,12 +6,6 @@ previous major version bump, you will need to update your code.
 Default client implementation saw a huge number of fixes, as well as 
 functional updates.
 
-### WebSocket implementation changes
-WebSocket implementations are now instantiated via factory delegates. This is 
-now also a configuration setting, rather than method. For more information, 
-see [Alternate WebSocket client implementations](/articles/beyond_basics/alternate_ws.html) 
-page.
-
 ### Client changes
 The client now supports proxies for both WebSocket and HTTP traffic. To proxy 
 your traffic, create a new instance of `System.Net.WebProxy` and assign it to 

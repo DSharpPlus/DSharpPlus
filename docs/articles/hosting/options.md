@@ -43,7 +43,3 @@ to secure your bot against outages.
 
 You need to make sure you have all the latest updates and patches along with all the necessary software installed. It's generally 
 recommended your hosting machine has at least 2 CPU cores, and a decent amount of RAM.
-
-### I have a Pi, can't that be used?
-
-We have a [special guide](/articles/hosting/raspberry_pi.html "Hosting on a Rasbperry Pi") for Raspberry Pi.
