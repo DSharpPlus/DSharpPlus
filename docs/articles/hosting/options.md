@@ -2,20 +2,33 @@
 uid: hosting_options
 title: Hosting Options
 ---
-# My ~~body~~ bot is ready, but I can't keep my PC running 24/7!
 
-Typically, hosting a bot means it needs to run 24 hours a day, 7 days a week. While running your computer like that is 
-an option, it's generally better to deploy your bot on a machine that can run 24/7.
+# Publishing your Bot
 
-There are 2 (although really 3) options for that. Unfortunately, none of them is free (or at least not permanently).
+Typically you dont run your bot 365 days a year from within Visual Studio or another IDE cause that makes the bot slower 
+by nature.  You will want to publish it somewhere (either local or remote).  With that said, you will have to familiarize
+yourself with the vast ways dotnet allows for you to publish your application.  Please see 
+[Microsoft's Documenation](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/?view=aspnetcore-3.1) for more details.
 
-## Purchasing a VPS or a dedicated server
+# Hosting on Dedicated Machine or VM/VPS
 
-The simplest, and probably most hassle-free (and maybe cheapest in the long run) option is to find a provider that will 
-lend you their machine or a virtual host so you can run your bot in there.
+When you host your bot on a Dedicated Machine or VM/VPS you will need to pick a service provider. 
 
-Generally, cheapest hosting options are all GNU/Linux-based, so it's highly recommended you familiarize yourself with the
-OS and its environment, particularly the shell (command line), and concepts such as SSH.
+## Hosting at Home
+Perhaps you own a dedicated server machine, or you just have a computer that you can leave running 24/7. If your residential 
+connection is decent enough, you could try hosting your bot at home.  This has the advantage of giving you full access to hardware 
+your code runs on, and only costs you as much as your electricity and internet bill.  You will also need to take care to secure your bot against outages.
+
+You need to make sure you have all the latest updates and patches along with all the necessary software installed. 
+It's generally recommended your hosting machine has at least 2 CPU cores, and a decent amount of RAM.
+
+## Hosting remotely 
+
+The simplest, and probably most hassle-free (and maybe cheapest in the long run for dedicated machines) option is to find a provider 
+that will lend you their machine or a virtual host so you can run your bot in there.
+
+Generally, cheapest hosting options are all GNU/Linux-based, so it's highly recommended you familiarize yourself with the OS and its 
+environment, particularly the shell (command line), and concepts such as SSH.
 
 There are several well-known, trusted, and cheap providers:
 
@@ -38,12 +51,25 @@ In addition to these, there are several hosting providers that offer free trials
   within year of registration. GCP is based in the US, and offers very scalable products. Like the above, it's not the 
   cheapest of offerings.
 
-## I want to host at home
 
-Perhaps you own a dedicated server machine, or you just have a computer that you can leave running 24/7. If your residential 
-connection is decent enough, you could try hosting your bot at home. This has the advantage of giving you full access to 
-hardware your code runs on, and only costs you as much as your electricity and internet bill. You will also need to take care 
-to secure your bot against outages.
+# Hosting on Cloud Native Services
+With most bots, unless if you host many of them, they dont require a whole machine to run them, just a slice of a machine.  This is 
+where Docker and other cloud native hosting comes into play.  There are many different options available to you and you will need
+to chose which one will suit you best.  Here are a few services that offer Docker or other cloud native solutions that are cheaper than running
+a whole VM.
 
-You need to make sure you have all the latest updates and patches along with all the necessary software installed. It's generally 
-recommended your hosting machine has at least 2 CPU cores, and a decent amount of RAM.
+* [**Azure App Service**](https://azure.microsoft.com/en-us/services/app-service/ "Azure App Service"):  Allows for Hosting Website, Continous Jobs, 
+  and Docker images on a Windows base or Linux base machine.
+* [**AWS Fargate**](https://aws.amazon.com/fargate/ "AWS Fargate"):  Allows for hosting Docker images within Amazon Web Services
+* [**Jelastic**](https://jelastic.com/docker/ "Jelastic"):  Allows for hosting Docker images.
+
+# Making your publishing life easier
+Now that we have covered where you can possibly host your application, now lets cover how to make your life easier publishing it. Many different
+source control solutions out there are free and also offer some type of CI/CD intergration (paid and free).  Below are some of the 
+solutions that we recommend:
+
+* [**Azure Devops**]("https://azure.microsoft.com/en-us/services/devops/?nav=min"):  Allows for GIT source control hosting along with intergrated CI/CD
+  pipelines to auto compile and publish your applications.  You can also use their CI/CD service if your code is hosted in a different source control enviorment like Github.
+* [**Github**]("https://github.com/") Allows for GIT source control hosting.  From here you can leverage many different CI/CD options to compile and publish your 
+  applications.
+* [**Bitbutcket**]("https://bitbucket.org/"):  Allows for GIT source control hosting along with intergrated CI/CD pipelines to auto compile and publish your applications.
