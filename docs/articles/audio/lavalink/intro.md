@@ -1,5 +1,5 @@
 ---
-uid: lavalink_intro
+uid: audio_lavalink_intro
 title: Lavalink Introduction
 ---
 

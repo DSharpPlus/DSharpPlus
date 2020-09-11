@@ -1,5 +1,5 @@
 ---
-uid: basic_bot
+uid: basics_basic_bot
 title: Basic Bot
 ---
 

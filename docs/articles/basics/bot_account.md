@@ -75,4 +75,4 @@ You'll want to copy your token and keep it in a secure location; anybody who has
 
 ## Add Functionality
 Now that you have a bot account ready to go, you're ready to write your first lines of code!<br/>
-Head on over to the [basic bot](xref:basic_bot) article to get started.
+Head on over to the [basic bot](xref:basics_basic_bot) article to get started.

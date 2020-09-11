@@ -1,5 +1,5 @@
 ---
-uid: lavalink_implementation
+uid: audio_lavalink_implementation
 title: Lavalink Implementation
 ---
 
