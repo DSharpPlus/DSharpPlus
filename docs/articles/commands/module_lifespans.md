@@ -39,7 +39,7 @@ namespace MyFirstBot
 
 ## 2. Transient Implementation
 
-This is the implementation where the ModuleLifespan is set to be Transient
+This is the implementation where the ModuleLifespan is set to be Transient and gets instantiated on each command call.
 ```cs
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
