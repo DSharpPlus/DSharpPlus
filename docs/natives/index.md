@@ -1,8 +1,13 @@
+---
+uid: natives
+title: VoiceNext Natives
+---
+
 # VoiceNext natives for Windows
 
 Certain functionality of DSharpPlus (particularly VoiceNext) relies on external libraries, available for download below.
 
-For usage instructions, follow [setup guide](/articles/voice/setup.html "VoiceNext setup").
+For usage instructions, follow [setup guide](xref:voicenext_intro "VoiceNext setup").
 
 ## Opus and Sodium
 

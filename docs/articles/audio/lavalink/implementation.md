@@ -1,3 +1,8 @@
+---
+uid: lavalink_implementation
+title: Lavalink Implementation
+---
+
 # Setting up DSharpPlus.Lavalink
 
 ## Configuring Your Client

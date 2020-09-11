@@ -1,3 +1,8 @@
+---
+uid: commands_dependency_injection
+title: Dependency Injection
+---
+
 # Dependency injection - passing data around
 
 In a situation where you need to pass objects in and out of your command modules, you need a way to access that data. 

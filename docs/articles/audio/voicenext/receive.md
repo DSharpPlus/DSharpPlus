@@ -1,3 +1,8 @@
+---
+uid: voicenext_receive
+title: VoiceNext Receive
+---
+
 # Wiretapping for dummies - receiving and saving voice data
 
 So you want your bot to listen to what others say, and then maybe do something with that.

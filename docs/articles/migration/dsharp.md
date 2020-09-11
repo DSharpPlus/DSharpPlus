@@ -1,3 +1,8 @@
+---
+uid: migration_dsharp
+title: Migration Dsharp
+---
+
 # Halp! I left my cave and the red light hurts my eyes!
 
 DSharpPlus is a continuation of DiscordSharp made by Luigifan / Suicvne. The two libraries are quite similar, however a 
@@ -60,7 +65,7 @@ client.MessageCreated += async e =>
 }
 ```
 
-Complete event guide is available in the [event reference](/articles/getting_started/event_reference.html "Events") article.
+Complete event guide is available in the [event reference](xref:beyond_basics_event_reference "Events") article.
 
 Event names were also changed. A list of changed event names is to be found at the bottom of this article, along with 
 some new events not yet available in DiscordSharp.

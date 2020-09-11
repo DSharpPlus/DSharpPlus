@@ -1,6 +1,11 @@
+---
+uid: lavalink_music_commands
+title: Lavalink Music Commands
+---
+
 # Adding Music Commands
 
-This article assumes that you know how to use CommandsNext. If you do not, you should learn [here](https://dsharpplus.github.io/articles/commands/intro.html) before continuing with this guide.
+This article assumes that you know how to use CommandsNext. If you do not, you should learn [here](xref:commands_intro) before continuing with this guide.
 
 ## Prerequisites 
 

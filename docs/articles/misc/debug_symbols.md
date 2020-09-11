@@ -1,3 +1,8 @@
+---
+uid: misc_debug_symbols
+title: Debug Symbols
+---
+
 # I want to diagnose a problem I believe originates from the library, how do?
 
 In the event you need to debug DSharpPlus, we offer debug symbols. They are available at the following locations:

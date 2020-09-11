@@ -1,3 +1,8 @@
+---
+uid: voicenext_send
+title: VoiceNext Send
+---
+
 # Your first digital broadcast - introduction to VoiceNext
 
 So you just dropped your new mixtape and it's absolute fire. Wouldn't it be nice to let your friends listen?

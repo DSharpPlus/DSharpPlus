@@ -1,3 +1,8 @@
+---
+uid: interactivity_intro
+title: Interactivity Introduction
+---
+
 # Spicing your commands up with Interactivity module
 
 Can bots feel? Well today you are going to find out.

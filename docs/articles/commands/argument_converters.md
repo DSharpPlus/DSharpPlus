@@ -1,3 +1,8 @@
+---
+uid: commands_argument_converters
+title: Argument Converters
+---
+
 # Augmenting commands - custom argument converters
 
 Suppose you want to augment an existing argument converter, or introduce a new one. The Argument Converter system in 

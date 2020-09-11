@@ -1,3 +1,8 @@
+---
+uid: misc_reporting_issues
+title: Reporting Issues
+---
+
 # I broke something, and I need it fixed!
 
 We always try to fix bugs, and make sure that when we release the next version of DSharpPlus, everything is polished and 
@@ -20,7 +25,7 @@ When opening an issue, make sure to include as much detail as possible. If at al
 ## Discord 
 
 Some questions, most notably questions on using the library, are better asked on Discord. You can find the server links in 
-[Introduction](/articles/intro.html).
+[Introduction](xref:intro).
 
 ## Contributing
 

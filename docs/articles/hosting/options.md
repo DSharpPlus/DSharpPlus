@@ -1,3 +1,7 @@
+---
+uid: hosting_options
+title: Hosting Options
+---
 # My ~~body~~ bot is ready, but I can't keep my PC running 24/7!
 
 Typically, hosting a bot means it needs to run 24 hours a day, 7 days a week. While running your computer like that is 

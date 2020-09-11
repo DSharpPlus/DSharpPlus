@@ -1,3 +1,8 @@
+---
+uid: beyond_basics_sharding
+title: Sharding
+---
+
 # Sharding - for when your bot gets huge
 
 Sometimes, your bot becomes very large. More and more servers add it. Eventually, you will need to split the bot's workload 

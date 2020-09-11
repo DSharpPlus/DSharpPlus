@@ -1,3 +1,8 @@
+---
+uid: commands_custom_handler
+title: Custom Handlers
+---
+
 # Custom command handlers
 
 If the built in command handler doesn't satisfy your needs and you feel the need to ~~be op~~ write your own, then you can disable the default handler and 

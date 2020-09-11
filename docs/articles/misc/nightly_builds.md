@@ -1,3 +1,8 @@
+---
+uid: misc_nightly_builds
+title: Nightly Builds
+---
+
 # I like living on the edge - give me the freshest builds
 
 We offer nightly builds for DSharpPlus. They contain bugfixes and new features before the NuGet releases, however they are 
@@ -15,7 +20,7 @@ Then just select **Latest prerelease** version of DSharpPlus packages, and insta
 
 You might need to restart Visual Studio for changes to take effect.
 
-If you find any problems in the SlimGet versions of the packages, please follow the instructions in [Reporting issues](/articles/misc/reporting_issues.html) 
+If you find any problems in the SlimGet versions of the packages, please follow the instructions in [Reporting issues](xref:misc_reporting_issues) 
 article.
 
 ## But I'm running GNU/Linux, Mac OS X, or BSD!

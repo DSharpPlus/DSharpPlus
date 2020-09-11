@@ -1,3 +1,8 @@
+---
+uid: beyond_basics_event_reference
+title: Event References
+---
+
 # Understanding and using events in DSharpPlus
 
 The events in DSharpPlus use the Task Asynchronous Pattern to execute. In essence, this means that all event handler methods 

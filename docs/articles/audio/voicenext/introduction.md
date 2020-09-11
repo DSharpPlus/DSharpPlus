@@ -1,3 +1,8 @@
+---
+uid: voicenext_intro
+title: VoiceNext Introduction
+---
+
 # Setting up VoiceNext
 
 Before you can use VoiceNext, you need to appropriately set it up. Due to how voice works, you need to install certain native 

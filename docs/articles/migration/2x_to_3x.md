@@ -1,3 +1,8 @@
+---
+uid: migration_2_3
+title: Migration 2.x - 3.x
+---
+
 # I updated the library and now I'm drowning in red underline!
 
 3.0 was a major breaking change compared to 2.0. A lot has changed internally, and even more externally.

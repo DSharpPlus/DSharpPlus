@@ -1,3 +1,8 @@
+---
+uid: commands_command_attributes
+title: Command Attributes
+---
+
 # Base Attributes
 
 CommandsNext has a variety of built in attributes to enhance your commands:

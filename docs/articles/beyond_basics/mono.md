@@ -1,3 +1,8 @@
+---
+uid: beyond_basics_mono
+title: Mono
+---
+
 # Halp! I tried ~~hard drugs~~ Mono and my bot crashes on start!
 
 Mono is an open-source implementation of the .NET Framework for non-Windows operating systems. However, it has a large 

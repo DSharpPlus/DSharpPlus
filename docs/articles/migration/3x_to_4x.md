@@ -1,3 +1,8 @@
+---
+uid: migration_3_4
+title: Migration 3.x - 4.x
+---
+
 # I updated the library and now I'm drowning in red underline!
 Much like 2.0 to 3.0, 3.0 to 4.0 introduces some breaking changes. As with 
 previous major version bump, you will need to update your code.
@@ -80,7 +85,7 @@ Furthermore, native support for `System.Uri` type now exists as well.
 ### Dependency Injection changes
 CommandsNext now uses Microsoft's Dependency Injection abstractions, which 
 greatly enhances flexibility, as well as allows 3rd party service containers 
-to be used. For more information, see [Dependency injection](/articles/commands/dependency_injection.html) 
+to be used. For more information, see [Dependency injection](xref:commands_dependency_injection) 
 page.
 
 ### Command overloads and group commands
@@ -113,7 +118,7 @@ instantiated before every command call, and are disposed shortly after.
 Combined with dependency injection changes, this enables the usage of 
 transient and scoped modules.
 
-For more information, see [Module lifespans](/articles/commands/module_lifespans.html) 
+For more information, see [Module lifespans](xref:commands_module_lifespans) 
 page.
 
 ### Help formatter changes
@@ -126,7 +131,7 @@ advanced DI usages.
 
 ### Custom command handlers
 You can now disabe the built-in command handler, and create your own. For more 
-information, see [Custom Command Handlers](/articles/commands/custom_handler.html).
+information, see [Custom Command Handlers](xref:commands_custom_handler).
 
 ### Minor changes
 - **Case-insensitivity changes** - case insensitivity now applies to command 
@@ -182,7 +187,7 @@ VoiceNext went through a substantial rewrite.  Below are some of the key highlig
 - UDP and WebSocket ping values are now exposed on VoiceNextConnection objects
 - Voice OP12 and 13 (user join and leave respectively) are now supported and exposed on VoiceNextConnection objects.
 
-The Natives for VoiceNext can be found [here](/natives/index.html)
+The Natives for VoiceNext can be found [here](xref:natives)
 
 ## Lavalink
 The library now comes with a Lavalink client, which supports both Lavalink 2.x 
@@ -192,4 +197,4 @@ Lavalink is the preferred method for playing music from sources such as
 YouTube or SoundCloud. It's a standalone lightweight Java application, which 
 handles downloading, transcoding, and transmitting audio to Discord.
 
-For more information, see [Lavalink](/articles/lavalink/intro.html) page.
+For more information, see [Lavalink](xref:lavalink_intro) page.

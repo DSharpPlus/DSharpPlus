@@ -1,3 +1,8 @@
+---
+uid: commands_intro
+title: Commands Introduction
+---
+
 # Talking with the bot - adding commands for enhanced user interaction
 
 You now have a basic bot. In order to allow users to interact with it easily, you will want to add some commands to it. 

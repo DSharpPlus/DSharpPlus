@@ -1,3 +1,8 @@
+---
+uid: lavalink_intro
+title: Lavalink Introduction
+---
+
 # Lavalink - the newer, better way to do music
 [Lavalink](https://github.com/Frederikam/Lavalink) is a standalone program, written in Java, using JDA. It's a 
 lightweight solution for playing music from sources such as YouTube or 
