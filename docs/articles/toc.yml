@@ -56,13 +56,13 @@
   items:
   - name: Running Your Bot 24/7
     href: hosting/options.md
-- name: Migration
+- name: Migrating after major updates
   items:
-  - name: D# to D#+
+  - name: DiscordSharp to DSharpPlus
     href: migration/dsharp.md
-  - name: 2.X to 3.X
+  - name: 2.x to 3.x
     href: migration/2x_to_3x.md
-  - name: 3.X to 4.X
+  - name: 3.x to 4.x
     href: migration/3x_to_4x.md
 - name: Miscellaneous
   items:
