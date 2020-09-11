@@ -199,4 +199,4 @@ Lavalink is the preferred method for playing music from sources such as
 YouTube or SoundCloud. It's a standalone lightweight Java application, which 
 handles downloading, transcoding, and transmitting audio to Discord.
 
-For more information, see [Lavalink](xref:lavalink_intro) page.
+For more information, see [Lavalink](xref:audio_lavalink_intro) page.
