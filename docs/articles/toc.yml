@@ -28,6 +28,8 @@
     href: commands/custom_handler.md
   - name: Command Attributes
     href: commands/command_attributes.md
+  - name: Custom Help Formatter
+    href: commands/help_formatter.md
 - name: Interactivity
   items:
   - name: Introduction

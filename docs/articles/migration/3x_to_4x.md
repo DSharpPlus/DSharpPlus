@@ -129,6 +129,8 @@ injection, receiving services and command context via DI.
 Default help module is also transient, allowing it to take advantage of more 
 advanced DI usages.
 
+If you need to implement a custom help formatter, see [Custom Help Formatter](xref:commands_help_formatter)
+
 ### Custom command handlers
 You can now disabe the built-in command handler, and create your own. For more 
 information, see [Custom Command Handlers](xref:commands_custom_handler).
