@@ -2,8 +2,8 @@
   href: intro.md
 - name: The Basics
   items:
-  - name: Creating a Bot Application
-    href: basics/bot_application.md
+  - name: Creating a Bot Account
+    href: basics/bot_account.md
   - name: Writing a Basic Bot
     href: basics/basic_bot.md
 - name: Beyond Basics
