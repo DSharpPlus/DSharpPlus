@@ -12,7 +12,7 @@ yourself with the vast ways dotnet allows for you to publish your application.  
 
 # Hosting on Dedicated Machine or VM/VPS
 
-When you host your bot on a Dedicated Machine or VM/VPS you will need to pick a service provider. 
+When you host your bot on a Dedicated Machine or VM/VPS you will need to pick a service provider.   
 
 ## Hosting at Home
 Perhaps you own a dedicated server machine, or you just have a computer that you can leave running 24/7. If your residential 
@@ -21,6 +21,9 @@ your code runs on, and only costs you as much as your electricity and internet b
 
 You need to make sure you have all the latest updates and patches along with all the necessary software installed. 
 It's generally recommended your hosting machine has at least 2 CPU cores, and a decent amount of RAM.
+
+If you dont own a dedicated server but you do own a raspberry pi (versions 2 and above at the time of writting), you can host your bot
+on there.  Versions 1 and 0 are not supported due to .Net Core and .Net 5 not supporting the ARMv6 architecture.  
 
 ## Hosting remotely 
 
@@ -38,6 +41,12 @@ There are several well-known, trusted, and cheap providers:
   the US. Their offer ranges from standard to more specialized deployments.
 * [**OVH**](https://www.ovh.com/us/ "OVH"): Based in EU and US. OVH is cheap, and used by many people. Their offer includes 
   free DDoS protection.
+* [**Contabo**](https://contabo.com/ "Contabo"): Based in Germany, they have very good price-to-contents ratio. SSD-based 
+  VPS hosting starts at 4.99€/mo at the time of writing.
+* [**Vultr**](https://www.vultr.com/ "Vultr"): US-based, with datacenters all over the globe (incl. APAC region). Pricing similar 
+  to Digital Ocean (that is, not cheap). Possible to get starting credit when registering, but it requires a bit of poking around to 
+  find it. Starting at $2.50/mo or $3.50/mo if you want IPv4.
+* [**Linode**](https://www.linode.com/ "linode"): US-based, with datacenters all over the globe (also incl. APAC region, though not to the extent as Vultr).
 
 In addition to these, there are several hosting providers that offer free trials or in-service credit:
 
@@ -73,3 +82,8 @@ solutions that we recommend:
 * [**Github**]("https://github.com/") Allows for GIT source control hosting.  From here you can leverage many different CI/CD options to compile and publish your 
   applications.
 * [**Bitbutcket**]("https://bitbucket.org/"):  Allows for GIT source control hosting along with intergrated CI/CD pipelines to auto compile and publish your applications.
+
+# Final notes
+* Discord API Servers are located on the East Coast of the United States, so you may want to pick a hosting provider that resides there or is close.
+* Hosting Services like Heroku and glitch are for hosting Web Applications and not standalone apps.  They will turn off after a point in time if traffic is
+  not sent to them.  So unless if you plan to host your bot in a Web site (btw why would you), stay away from these hosting companies until the formally support non web applications.
