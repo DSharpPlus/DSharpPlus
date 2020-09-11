@@ -3,9 +3,9 @@ uid: commands_command_attributes
 title: Command Attributes
 ---
 
-# Base Attributes
+# Basic Attributes
 
-CommandsNext has a variety of built in attributes to enhance your commands:
+CommandsNext has a variety of built in attributes to enhance your commands and help provide some access control:
 
 - @DSharpPlus.CommandsNext.Attributes.AliasesAttribute
 - @DSharpPlus.CommandsNext.Attributes.CooldownAttribute
