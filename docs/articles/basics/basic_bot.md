@@ -1,3 +1,8 @@
+---
+uid: basic_bot
+title: Basic Bot
+---
+
 # Getting started with DSharpPlus - your first DSharpPlus bot
 
 You're still with me - good! You have created an application and a user for your bot. Now we will focus on bringing it to life.

@@ -1,3 +1,8 @@
+---
+uid: HomePage
+title: Index
+---
+
 <h1 class="delet-this">DSharpPlus Documentation</h1>
 <h1 class="logo-center">![DSharpPlus Logo](/logobig.png "DSharpPlus Documentation")</h1>
 ## DSharpPlus Documentation

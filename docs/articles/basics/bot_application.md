@@ -1,3 +1,8 @@
+---
+uid: bot_application
+title: Bot Application
+---
+
 # Creating an application for your bot
 
 Before you can begin making your DSharpPlus bots, you need to create OAuth2 applications and bot users for them, so 
@@ -60,4 +65,4 @@ links.
 
 ## 6. Making it come online
 
-Now that this is all completed, head over to [Basic bot](/articles/basics/basic_bot.html "Basic bot") to make the bot come online.
+Now that this is all completed, head over to [Basic bot](xref:basic_bot "Basic bot") to make the bot come online.
