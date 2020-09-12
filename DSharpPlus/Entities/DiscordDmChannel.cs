@@ -43,16 +43,22 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public string IconUrl 
             => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/channel-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png" : null;
-        
+
         /// <summary>
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token
         /// </summary>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname) 
             => this.Discord.ApiClient.AddGroupDmRecipientAsync(this.Id, user_id, accesstoken, nickname);
 
         /// <summary>
         /// Only use for Group DMs!
         /// </summary>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken) 
             => this.Discord.ApiClient.RemoveGroupDmRecipientAsync(this.Id, user_id);
     }
