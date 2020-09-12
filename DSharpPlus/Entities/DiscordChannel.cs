@@ -578,22 +578,24 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="targetChannel">Channel to crosspost messages to</param>
         /// <exception cref="ArgumentException">Thrown when trying to follow a non-news channel</exception>
-        public async Task FollowAsync(DiscordChannel targetChannel)
+        public Task<DiscordFollowedChannel> FollowAsync(DiscordChannel targetChannel)
         {
             if (this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot follow a non-news channel.");
 
-            await this.Discord.ApiClient.FollowChannelAsync(this.Id, targetChannel.Id)
-                .ConfigureAwait(false);
+            return this.Discord.ApiClient.FollowChannelAsync(this.Id, targetChannel.Id);
         }
 
         /// <summary>
         /// Publish a message in a News channel to following channels
         /// </summary>
         /// <param name="message">Message to publish</param>
-        public async Task PublishMessageAsync(DiscordMessage message)
+        public Task<DiscordMessage> CrosspostMessageAsync(DiscordMessage message)
         {
-            await this.Discord.ApiClient.CrossPostMessageAsync(this.Id, message.Id);
+            if ((message.Flags & MessageFlags.Crossposted) == MessageFlags.Crossposted)
+                throw new ArgumentException("Message is already crossposted.");
+            
+            return this.Discord.ApiClient.CrossPostMessageAsync(this.Id, message.Id);
         }
 
         /// <summary>

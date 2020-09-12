@@ -10,6 +10,20 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
+		[Command("crosspost")]
+		public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
+		{
+			var message = await chn.CrosspostMessageAsync(msg);
+			await ctx.RespondAsync($":ok_hand: Message published: {message.Id}");
+		}
+
+		[Command("follow")]
+		public async Task FollowAsync(CommandContext ctx, DiscordChannel channelToFollow, DiscordChannel targetChannel)
+		{
+			await channelToFollow.FollowAsync(targetChannel);
+			await ctx.RespondAsync($":ok_hand: Following channel {channelToFollow.Mention} into {targetChannel.Mention} (Guild: {targetChannel.Guild.Id})");
+		}
+
 		[Command("setprefix"), Aliases("channelprefix"), Description("Sets custom command prefix for current channel. The bot will still respond to the default one."), RequireOwner]
 		public async Task SetPrefixAsync(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
 		{
