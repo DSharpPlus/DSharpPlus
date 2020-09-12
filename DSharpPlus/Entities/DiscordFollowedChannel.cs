@@ -5,7 +5,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a followed channel.
     /// </summary>
-    public class DiscordFollowedChannel : SnowflakeObject
+    public class DiscordFollowedChannel
     {
         /// <summary>
         /// Id of the channel following the announcement channel.

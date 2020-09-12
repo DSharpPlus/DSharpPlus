@@ -959,9 +959,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: DiscordJson.SerializeObject(pld));
             
-            var ret = JsonConvert.DeserializeObject<DiscordFollowedChannel>(response.Response);
-            ret.Discord = this.Discord;
-            return ret;
+            return JsonConvert.DeserializeObject<DiscordFollowedChannel>(response.Response);
         }
 
         internal async Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
