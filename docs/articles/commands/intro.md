@@ -13,11 +13,13 @@ it will also make grabbing additional data for your commands easy.
 
 Right now, your bot is console-mute. Let's change it. Let's make it output all information about its state and doings.
 
-To do that, add the following options to your `DiscordConfiguration`:
+To do that, add the following options to your [DiscordConfiguration](xref:DSharpPlus.DiscordConfiguration):
 
 ```cs
-MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
+MinimumLogLevel = LogLevel.Debug
 ```
+
+Logging is covered more in-depth [here](xref:beyond_basics_logging)
 
 ## 2. Installing CommandsNext
 
