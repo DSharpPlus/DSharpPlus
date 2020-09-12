@@ -4,8 +4,8 @@
   items:
   - name: Creating a Bot Account
     href: basics/bot_account.md
-  - name: Writing a Basic Bot
-    href: basics/basic_bot.md
+  - name: Writing Your First Bot
+    href: basics/first_bot.md
 - name: Beyond Basics
   items:
   - name: Understanding TAP Events

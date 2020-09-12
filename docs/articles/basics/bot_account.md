@@ -74,5 +74,4 @@ To receive your bot token, head back to the bot page of your application and cli
 You'll want to copy your token and keep it in a secure location; anybody who has access to your token will have access to your bot account.
 
 ## Add Functionality
-Now that you have a bot account ready to go, you're ready to write your first lines of code!<br/>
-Head on over to the [basic bot](xref:basics_basic_bot) article to get started.
+Now that you have a bot account ready to go, you're ready to write your [first bot](xref:basics_first_bot)!
