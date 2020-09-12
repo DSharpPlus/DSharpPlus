@@ -90,11 +90,12 @@ Once you're there, empty the `Main` method by deleting `Console.WriteLine("Hello
 As mentioned elsewhere, DSharpPlus implements [Task-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/consuming-the-task-based-asynchronous-pattern).
 Because of this, many DSharpPlus methods must be executed in a method marked as `async` so they can be properly `await`ed.
 
-Since we cannot mark the entry method as `async`, we must pass the program execution to an `async` method.
+You might be tempted to mark your `Main` method as `async`. 
+However, due to the way the compiler generates the underlying [IL](https://en.wikipedia.org/wiki/Common_Intermediate_Language) code, this has the potential to cause problems.
+Because of this we must pass the program execution to an `async` method.
 
-Create a new `static` method named `MainAsync` beneath your `Main` method.
-Have it return type `Task` and mark it as `async`.
-After that add `MainAsync().GetAwaiter().GetResult();` to your `Main` method.
+Create a new `static` method named `MainAsync` beneath your `Main` method. Have it return type `Task` and mark it as `async`.
+After that, add `MainAsync().GetAwaiter().GetResult();` to your `Main` method.
 
 ```cs
 static void Main(string[] args)
