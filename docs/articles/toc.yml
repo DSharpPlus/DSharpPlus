@@ -34,14 +34,6 @@
     href: interactivity/intro.md
 - name: Audio
   items:
-  - name: VoiceNext
-    items:
-    - name: Introduction
-      href: audio/voicenext/introduction.md
-    - name: Sending
-      href: audio/voicenext/send.md
-    - name: Receiving
-      href: audio/voicenext/receive.md
   - name: Lavalink
     items:
     - name: Introduction
@@ -50,6 +42,14 @@
       href: audio/lavalink/implementation.md
     - name: Music Commands
       href: audio/lavalink/music_commands.md
+  - name: VoiceNext
+    items:
+    - name: Introduction
+      href: audio/voicenext/introduction.md
+    - name: Sending
+      href: audio/voicenext/send.md
+    - name: Receiving
+      href: audio/voicenext/receive.md
 - name: Hosting
   items:
   - name: Running Your Bot 24/7
