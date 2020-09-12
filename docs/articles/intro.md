@@ -22,7 +22,7 @@ However, there are only a few versions we will *explicitly* provide support for.
 Implementation|Support|Notes
 :---: |:---:|:---
 [.NET Core](https://en.wikipedia.org/wiki/.NET_Core)|✔️|LTS versions 2.1 and 3.1 are supported.
-[.NET Framework](https://en.wikipedia.org/wiki/.NET_Framework)|⚠️|Versions 4.6.1 through 4.8 *should* work fine.<br/>However, we do not directly support .Net Framework.<br/>We recommend that you use the latest LTS version of .Net Core
+[.NET Framework](https://en.wikipedia.org/wiki/.NET_Framework)|⚠️|Versions 4.6.1 through 4.8 *should* work fine.<br/>However, we do not directly support .Net Framework.<br/>We recommend that you use the latest LTS version of .Net Core.
 [Mono](https://en.wikipedia.org/wiki/Mono_(software))|❌️|Has numerous flaws which can break things without warning.<br/>If you need a cross platform runtime, use .Net Core.
 [Unity](https://en.wikipedia.org/wiki/Unity_(game_engine))|❌️|Despite having support for C#, Unity is a game engine.<br/>As such, it will *never* be supported by DSharpPlus.
 
