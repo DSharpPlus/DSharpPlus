@@ -47,6 +47,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token
         /// </summary>
+        /// <param name="user_id">The id of the User to add.</param>
+        /// <param name="accesstoken">The OAuth2 access token.</param>
+        /// <param name="nickname">The nickname to give to the user.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
@@ -56,6 +59,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Only use for Group DMs!
         /// </summary>
+        /// <param name="user_id">The id of the User to remove.</param>
+        /// <param name="accesstoken">The OAuth2 access token.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>

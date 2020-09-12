@@ -177,6 +177,8 @@ namespace DSharpPlus.Entities
         /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
@@ -197,6 +199,8 @@ namespace DSharpPlus.Entities
         /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
@@ -216,6 +220,8 @@ namespace DSharpPlus.Entities
         /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
@@ -236,6 +242,8 @@ namespace DSharpPlus.Entities
         /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
@@ -256,6 +264,8 @@ namespace DSharpPlus.Entities
         /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
@@ -276,6 +286,8 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task DeleteAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteChannelAsync(Id, reason);
@@ -286,6 +298,8 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>Newly-created channel.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <<exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordChannel> CloneAsync(string reason = null)
         {
@@ -319,6 +333,8 @@ namespace DSharpPlus.Entities
         /// <param name="id">The id of the message</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMessage> GetMessageAsync(ulong id)
         {
@@ -472,9 +488,9 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Deletes multiple messages
+        /// Deletes multiple messages that are less than 14 days old.  If they are, none of the messages will be deleted and you will recieve a <see cref="Exceptions.ServerErrorException"/> error.
         /// </summary>
-        /// <param name="messages"></param>
+        /// <param name="messages">A collection of messages to delete.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
@@ -501,7 +517,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Deletes a message
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">The message to be deleted.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
@@ -530,10 +546,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Create a new invite object
         /// </summary>
-        /// <param name="max_age"></param>
-        /// <param name="max_uses"></param>
-        /// <param name="temporary"></param>
-        /// <param name="unique"></param>
+        /// <param name="max_age">Duration of invite in seconds before expiry, or 0 for never.  Defaults to 86400.</param>
+        /// <param name="max_uses">Max number of uses or 0 for unlimited.  Defaults to 0</param>
+        /// <param name="temporary">Whether this invite only grants temporary membership.  Defaults to false.</param>
+        /// <param name="unique">If true, don't try to reuse a similar invite (useful for creating many unique one time use invites)</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.CreateInstantInvite"/> permission.</exception>
@@ -546,9 +562,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Adds a channel permission overwrite for specified member.
         /// </summary>
-        /// <param name="member"></param>
-        /// <param name="allow"></param>
-        /// <param name="deny"></param>
+        /// <param name="member">The member to have the permission added.</param>
+        /// <param name="allow">The Permissions to allow.</param>
+        /// <param name="deny">The Permission to deny.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
@@ -561,9 +577,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Adds a channel permission overwrite for specified role.
         /// </summary>
-        /// <param name="role"></param>
-        /// <param name="allow"></param>
-        /// <param name="deny"></param>
+        /// <param name="role">The role to have the permission added.</param>
+        /// <param name="allow">The Permissions to allow.</param>
+        /// <param name="deny">The Permission to deny.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
@@ -607,8 +623,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Create a new webhook
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="avatar"></param>
+        /// <param name="name">The name of the webhook.</param>
+        /// <param name="avatar">The image for the default webhook avatar.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
@@ -640,7 +656,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Moves a member to this voice channel
         /// </summary>
-        /// <param name="member"></param>
+        /// <param name="member">The member to be moved.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.MoveMembers"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists or if the Member does not exists.</exception>
