@@ -64,7 +64,7 @@ Package|Description
 `DSharpPlus`|Main package; Discord API client.
 `DSharpPlus.CommandsNext`|Add-on which provides a command framework.
 `DSharpPlus.Interactivity`|Add-on which allows for interactive commands.
-`DSharpPlus.Lavalink`|Client implementation for [Lavalink](xref:audio_lavalink_implementation). Useful for music bots.
+`DSharpPlus.Lavalink`|Client implementation for [Lavalink](xref:audio_lavalink_intro). Useful for music bots.
 `DSharpPlus.VoiceNext`|Add-on which enables connectivity to Discord voice channels.
 `DSharpPlus.Rest`|REST-only Discord client.
 
