@@ -591,6 +591,23 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordDmChannel> CreateDmAsync(ulong recipient_id)
             => this.ApiClient.CreateDmAsync(recipient_id);
+
+        /// <summary>
+        /// Follows a news channel
+        /// </summary>
+        /// <param name="channel_id">Id of the channel to follow</param>
+        /// <param name="webhook_channel_id">Id of the channel to crosspost messages to</param>
+        public Task<DiscordFollowedChannel> FollowChannelAsync(ulong channel_id, ulong webhook_channel_id)
+            => this.ApiClient.FollowChannelAsync(channel_id, webhook_channel_id);
+
+        /// <summary>
+        /// Crossposts a message to following channels
+        /// </summary>
+        /// <param name="channel_id">Id of the news channel the message to crosspost belongs to</param>
+        /// <param name="message_id">Id of the message to crosspost</param>
+        public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
+            => this.ApiClient.CrossPostMessageAsync(channel_id, message_id);
+        
         #endregion
 
         #region Member

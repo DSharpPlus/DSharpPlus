@@ -576,7 +576,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Follows the news channel
         /// </summary>
-        /// <param name="targetChannel">Target channel in which crossposted messages go</param>
+        /// <param name="targetChannel">Channel to crosspost messages to</param>
         /// <exception cref="ArgumentException">Thrown when trying to follow a non-news channel</exception>
         public async Task FollowAsync(DiscordChannel targetChannel)
         {
