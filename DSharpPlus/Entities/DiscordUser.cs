@@ -140,6 +140,10 @@ namespace DSharpPlus.Entities
         /// <param name="guild">Guild to unban this user from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the User does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task UnbanAsync(DiscordGuild guild, string reason = null) 
             => guild.UnbanMemberAsync(this, reason);
 
