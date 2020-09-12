@@ -104,7 +104,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageChannels"/> permission or the <see cref="Permissions.ManageGuild"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordInvite> DeleteAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);

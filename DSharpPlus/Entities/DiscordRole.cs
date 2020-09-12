@@ -76,7 +76,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task ModifyPositionAsync(int position, string reason = null)
         {
@@ -107,14 +107,14 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task ModifyAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
             => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, Id, name, permissions, color?.Value, hoist, mentionable, reason);
 
         /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the bot does not have the<see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task ModifyAsync(Action<RoleEditModel> action)
 		{
@@ -131,7 +131,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task DeleteAsync(string reason = null) => this.Discord.ApiClient.DeleteRoleAsync(this._guild_id, this.Id, reason);
         #endregion

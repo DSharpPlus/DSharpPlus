@@ -337,7 +337,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot tried to modify a message not sent by them.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content = default, Optional<DiscordEmbed> embed = default) 
             => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed);
@@ -348,7 +348,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task DeleteAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
@@ -360,7 +360,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
             => this.Discord.ApiClient.ModifyEmbedSuppressionAsync(hideEmbeds, this.ChannelId, this.Id);
@@ -371,7 +371,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task PinAsync() 
             => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id);
@@ -382,7 +382,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task UnpinAsync() 
             => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
@@ -397,7 +397,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> RespondAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null) 
             => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed, mentions);
@@ -414,7 +414,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
             => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed, mentions);
@@ -430,7 +430,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
             => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed, mentions);
@@ -446,7 +446,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMessage> RespondWithFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
@@ -465,7 +465,7 @@ namespace DSharpPlus.Entities
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
@@ -482,7 +482,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.AddReactions"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task CreateReactionAsync(DiscordEmoji emoji) 
             => this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
@@ -493,7 +493,7 @@ namespace DSharpPlus.Entities
         /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task DeleteOwnReactionAsync(DiscordEmoji emoji) 
             => this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
@@ -507,7 +507,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null) 
             => this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
@@ -520,7 +520,7 @@ namespace DSharpPlus.Entities
         /// <param name="after">Fetch users after this user's id.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null) 
             => this.GetReactionsInternalAsync(emoji, limit, after);
@@ -532,7 +532,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task DeleteAllReactionsAsync(string reason = null) 
             => this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
@@ -544,7 +544,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
             => this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
