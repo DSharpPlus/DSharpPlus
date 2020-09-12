@@ -247,6 +247,10 @@ namespace DSharpPlus.Entities
         /// Creates a direct message channel to this member.
         /// </summary>
         /// <returns>Direct message channel to this member.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the member has the bot blocked, the member is no longer in the guild, or if the member has Allow DM from server members off.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordDmChannel> CreateDmChannelAsync() 
             => this.Discord.ApiClient.CreateDmAsync(this.Id);
 
@@ -257,6 +261,10 @@ namespace DSharpPlus.Entities
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the member has the bot blocked, the member is no longer in the guild, or if the member has Allow DM from server members off.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMessage> SendMessageAsync(string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
@@ -275,6 +283,10 @@ namespace DSharpPlus.Entities
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the member has the bot blocked, the member is no longer in the guild, or if the member has Allow DM from server members off.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
@@ -292,6 +304,10 @@ namespace DSharpPlus.Entities
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the member has the bot blocked, the member is no longer in the guild, or if the member has Allow DM from server members off.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
@@ -309,6 +325,10 @@ namespace DSharpPlus.Entities
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the member has the bot blocked, the member is no longer in the guild, or if the member has Allow DM from server members off.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
@@ -326,6 +346,10 @@ namespace DSharpPlus.Entities
         /// <param name="is_tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the member has the bot blocked, the member is no longer in the guild, or if the member has Allow DM from server members off.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = null, bool is_tts = false, DiscordEmbed embed = null)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
@@ -341,15 +365,23 @@ namespace DSharpPlus.Entities
         /// <param name="mute">Whether the member is to be muted.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.MuteMembers"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task SetMuteAsync(bool mute, string reason = null) 
             => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, mute, default, default, reason);
-        
+
         /// <summary>
         /// Sets this member's voice deaf status.
         /// </summary>
         /// <param name="deaf">Whether the member is to be deafened.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.DeafenMembers"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task SetDeafAsync(bool deaf, string reason = null) 
             => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, default, deaf, default, reason);
 
@@ -358,6 +390,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="action">Action to perform on this member.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageNicknames"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task ModifyAsync(Action<MemberEditModel> action)
         {
             var mdl = new MemberEditModel();
@@ -389,6 +425,10 @@ namespace DSharpPlus.Entities
         /// <param name="role">Role to grant.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task GrantRoleAsync(DiscordRole role, string reason = null) 
             => this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
@@ -398,6 +438,10 @@ namespace DSharpPlus.Entities
         /// <param name="role">Role to revoke.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task RevokeRoleAsync(DiscordRole role, string reason = null) 
             => this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
@@ -407,6 +451,10 @@ namespace DSharpPlus.Entities
         /// <param name="roles">Roles to set.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) 
             => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
                 new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, reason);
@@ -417,9 +465,17 @@ namespace DSharpPlus.Entities
         /// <param name="delete_message_days">How many days to remove messages from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task BanAsync(int delete_message_days = 0, string reason = null) 
             => this.Guild.BanMemberAsync(this, delete_message_days, reason);
 
+        /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the bot does not have the<see cref="Permissions.BanMembers"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task UnbanAsync(string reason = null) => this.Guild.UnbanMemberAsync(this, reason);
 
         /// <summary>
@@ -428,6 +484,10 @@ namespace DSharpPlus.Entities
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <remarks>[alias="KickAsync"]</remarks>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.KickMembers"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task RemoveAsync(string reason = null)
             => this.Discord.ApiClient.RemoveGuildMemberAsync(this._guild_id, this.Id, reason);
 
@@ -436,6 +496,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.MoveMembers"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task PlaceInAsync(DiscordChannel channel) 
             => channel.PlaceMemberAsync(this);
 
