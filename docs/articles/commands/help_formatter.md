@@ -21,7 +21,7 @@ namespace MyFirstBot
 }
 ```
 
-From here, you will have to implement all the abstract classes and fill in their respected details.  If you would like to just tweak small things like the embed color 
+From here, you will have to implement all the abstract methods and fill in their respected details.  If you would like to just tweak small things like the embed color 
 or title, you will have to instantiate the DefaultHelpFormatter to be used in your overridden methods.  
 
 ```cs
