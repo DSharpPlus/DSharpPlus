@@ -575,10 +575,11 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Follows the news channel
+        /// Follows a news channel
         /// </summary>
         /// <param name="targetChannel">Channel to crosspost messages to</param>
         /// <exception cref="ArgumentException">Thrown when trying to follow a non-news channel</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> on the target channel</exception>
         public Task<DiscordFollowedChannel> FollowAsync(DiscordChannel targetChannel)
         {
             if (this.Type != ChannelType.News)
@@ -588,11 +589,12 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Publish a message in a News channel to following channels
+        /// Publishes a message in a news channel to following channels
         /// </summary>
         /// <param name="message">Message to publish</param>
+        /// <exception cref="ArgumentException">Thrown when the message has already been crossposted</exception>
         /// <exception cref="UnauthorizedException">
-        ///     Thrown when the current user doesn't have ManageWebhooks and/or SendMessages <see cref="Permissions"/>
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(DiscordMessage message)
         {

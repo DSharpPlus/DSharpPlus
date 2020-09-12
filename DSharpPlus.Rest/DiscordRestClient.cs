@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Models;
 
 namespace DSharpPlus
@@ -597,14 +598,18 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="channel_id">Id of the channel to follow</param>
         /// <param name="webhook_channel_id">Id of the channel to crosspost messages to</param>
+        /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> on the target channel</exception>
         public Task<DiscordFollowedChannel> FollowChannelAsync(ulong channel_id, ulong webhook_channel_id)
             => this.ApiClient.FollowChannelAsync(channel_id, webhook_channel_id);
 
         /// <summary>
-        /// Crossposts a message to following channels
+        /// Publishes a message in a news channel to following channels
         /// </summary>
         /// <param name="channel_id">Id of the news channel the message to crosspost belongs to</param>
         /// <param name="message_id">Id of the message to crosspost</param>
+        /// <exception cref="UnauthorizedException">
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
+        /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.CrosspostMessageAsync(channel_id, message_id);
         
