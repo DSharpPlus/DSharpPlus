@@ -238,7 +238,7 @@ namespace DSharpPlus
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the token provided is bad.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task ConnectAsync(DiscordActivity activity = null, UserStatus? status = null, DateTimeOffset? idlesince = null)
         {
@@ -488,7 +488,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="userId">Id of the user</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordUser> GetUserAsync(ulong userId)
         {
@@ -513,7 +513,7 @@ namespace DSharpPlus
         /// <param name="id">The id of the Channel to get.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordChannel> GetChannelAsync(ulong id)
             => this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id).ConfigureAwait(false);
@@ -529,7 +529,7 @@ namespace DSharpPlus
         /// <returns>The Discord Message that was sent.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="isTTS"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
             => this.ApiClient.CreateMessageAsync(channel.Id, content, isTTS, embed, mentions);
@@ -544,7 +544,7 @@ namespace DSharpPlus
         /// <param name="defaultMessageNotifications">Default message notification settings for the guild.</param>
         /// <returns>The created guild.</returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
             DefaultMessageNotifications? defaultMessageNotifications = null)
@@ -567,7 +567,7 @@ namespace DSharpPlus
         /// <param name="withCounts">Whether to include approximate presence and member counts in the returned guild.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the Guild does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordGuild> GetGuildAsync(ulong id, bool? withCounts = null)
         {
@@ -587,7 +587,7 @@ namespace DSharpPlus
         /// <param name="id">The guild ID.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the Guild does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong id) 
             => this.ApiClient.GetGuildPreviewAsync(id);
@@ -599,7 +599,7 @@ namespace DSharpPlus
         /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the invite does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null)
             => this.ApiClient.GetInviteAsync(code, withCounts);
@@ -608,7 +608,7 @@ namespace DSharpPlus
         /// Gets a list of connections
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<IReadOnlyList<DiscordConnection>> GetConnectionsAsync()
             => this.ApiClient.GetUsersConnectionsAsync();
@@ -619,7 +619,7 @@ namespace DSharpPlus
         /// <param name="id">The id of the webhook.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordWebhook> GetWebhookAsync(ulong id)
             => this.ApiClient.GetWebhookAsync(id);
@@ -631,7 +631,7 @@ namespace DSharpPlus
         /// <param name="token">The secret of the webhook</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong id, string token)
             => this.ApiClient.GetWebhookWithTokenAsync(id, token);
@@ -644,7 +644,7 @@ namespace DSharpPlus
         /// <param name="idleSince">Since when is the client performing the specified activity.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task UpdateStatusAsync(DiscordActivity activity = null, UserStatus? userStatus = null, DateTimeOffset? idleSince = null)
             => this.InternalUpdateStatusAsync(activity, userStatus, idleSince);
@@ -656,7 +656,7 @@ namespace DSharpPlus
         /// <param name="avatar">New avatar.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordUser> UpdateCurrentUserAsync(string username = null, Optional<Stream> avatar = default)
         {

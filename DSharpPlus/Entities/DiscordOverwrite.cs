@@ -47,7 +47,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task UpdateAsync(Permissions? allow = null, Permissions? deny = null, string reason = null)
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this._channel_id, this.Id, allow ?? this.Allowed, deny ?? this.Denied, this.Type.ToString().ToLowerInvariant(), reason);
@@ -59,7 +59,7 @@ namespace DSharpPlus.Entities
         /// <returns>The DiscordMember that is affected by this overwrite</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordMember> GetMemberAsync()
         {
@@ -73,7 +73,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns>The DiscordRole that is affected by this overwrite</returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public async Task<DiscordRole> GetRoleAsync()
         {

@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
         /// <returns>The modified webhook.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the Webhook does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordWebhook> ModifyAsync(string name = null, Optional<Stream> avatar = default, ulong? channelId = null)
         {
@@ -90,7 +90,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the Webhook does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task DeleteAsync() 
             => this.Discord.ApiClient.DeleteWebhookAsync(this.Id, Token);
@@ -100,7 +100,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the Webhook does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task<DiscordMessage> ExecuteAsync(DiscordWebhookBuilder builder)
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder.Content,
@@ -113,7 +113,7 @@ namespace DSharpPlus.Entities
         /// <param name="json">JSON containing Slack-compatible payload for this webhook.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the Webhook does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task ExecuteSlackAsync(string json) 
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
@@ -124,7 +124,7 @@ namespace DSharpPlus.Entities
         /// <param name="json">JSON containing GitHub-compatible payload for this webhook.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the Webhook does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid paramter exists.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown whan an invalid parameter exists.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
         public Task ExecuteGithubAsync(string json) 
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
