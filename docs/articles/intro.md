@@ -17,7 +17,7 @@ If you're not sure what to do first, Bob's tutorial series should be your starti
 
 ## Getting Started
 If you're writing a Discord bot for the first time, you'll want to start with [creating a bot account](xref:basics_bot_account).</br>
-Otherwise, if you have a bot account already, start off with the [writing a basic bot](xref:basics_basic_bot "Basic bot") article.</br>
+Otherwise, if you have a bot account already, start off with the *[writing your first bot](xref:basics_first_bot)* article.</br>
 
 Once you're up and running, feel free to browse through the [API Documentation](/api/index.html)!
 
