@@ -964,7 +964,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CrossPostMessageAsync(ulong channel_id, ulong message_id)
+        internal async Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.CROSSPOST}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {channel_id, message_id}, out var path);

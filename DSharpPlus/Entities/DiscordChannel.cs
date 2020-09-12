@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
@@ -590,12 +591,15 @@ namespace DSharpPlus.Entities
         /// Publish a message in a News channel to following channels
         /// </summary>
         /// <param name="message">Message to publish</param>
+        /// <exception cref="UnauthorizedException">
+        ///     Thrown when the current user doesn't have ManageWebhooks and/or SendMessages <see cref="Permissions"/>
+        /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(DiscordMessage message)
         {
             if ((message.Flags & MessageFlags.Crossposted) == MessageFlags.Crossposted)
                 throw new ArgumentException("Message is already crossposted.");
             
-            return this.Discord.ApiClient.CrossPostMessageAsync(this.Id, message.Id);
+            return this.Discord.ApiClient.CrosspostMessageAsync(this.Id, message.Id);
         }
 
         /// <summary>

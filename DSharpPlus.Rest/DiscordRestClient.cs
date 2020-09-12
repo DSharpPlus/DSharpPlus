@@ -606,7 +606,7 @@ namespace DSharpPlus
         /// <param name="channel_id">Id of the news channel the message to crosspost belongs to</param>
         /// <param name="message_id">Id of the message to crosspost</param>
         public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
-            => this.ApiClient.CrossPostMessageAsync(channel_id, message_id);
+            => this.ApiClient.CrosspostMessageAsync(channel_id, message_id);
         
         #endregion
 
