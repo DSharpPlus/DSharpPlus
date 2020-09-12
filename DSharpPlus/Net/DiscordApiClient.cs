@@ -945,6 +945,35 @@ namespace DSharpPlus.Net
 
             return ret;
         }
+
+        internal async Task<DiscordFollowedChannel> FollowChannelAsync(ulong channel_id, ulong webhook_channel_id)
+        {
+            var pld = new FollowedChannelAddPayload
+            {
+                WebhookChannelId = webhook_channel_id
+            };
+            
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.FOLLOWERS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {channel_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: DiscordJson.SerializeObject(pld));
+            
+            var ret = JsonConvert.DeserializeObject<DiscordFollowedChannel>(response.Response);
+            ret.Discord = this.Discord;
+            return ret;
+        }
+
+        internal async Task<DiscordMessage> CrossPostMessageAsync(ulong channel_id, ulong message_id)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.CROSSPOST}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {channel_id, message_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST);
+            return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
+        }
+        
         #endregion
 
         #region Member

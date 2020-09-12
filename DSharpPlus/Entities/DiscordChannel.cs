@@ -574,6 +574,29 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Follows the news channel
+        /// </summary>
+        /// <param name="targetChannel">Target channel in which crossposted messages go</param>
+        /// <exception cref="ArgumentException">Thrown when trying to follow a non-news channel</exception>
+        public async Task FollowAsync(DiscordChannel targetChannel)
+        {
+            if (this.Type != ChannelType.News)
+                throw new ArgumentException("Cannot follow a non-news channel.");
+
+            await this.Discord.ApiClient.FollowChannelAsync(this.Id, targetChannel.Id)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Publish a message in a News channel to following channels
+        /// </summary>
+        /// <param name="message">Message to publish</param>
+        public async Task PublishMessageAsync(DiscordMessage message)
+        {
+            await this.Discord.ApiClient.CrossPostMessageAsync(this.Id, message.Id);
+        }
+
+        /// <summary>
         /// Calculates permissions for a given member.
         /// </summary>
         /// <param name="mbr">Member to calculate permissions for.</param>
