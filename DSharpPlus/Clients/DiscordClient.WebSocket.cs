@@ -35,8 +35,10 @@ namespace DSharpPlus
         #endregion
 
         #region Connection Semaphore
+
         private static ConcurrentDictionary<ulong, SocketLock> SocketLocks { get; } = new ConcurrentDictionary<ulong, SocketLock>();
         private ManualResetEventSlim SessionLock { get; } = new ManualResetEventSlim(true);
+        
         #endregion
 
         #region Internal Connection Methods
