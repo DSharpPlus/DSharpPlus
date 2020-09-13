@@ -118,13 +118,20 @@ namespace DSharpPlus
         public static EventId ShardShutdown { get; } = new EventId(121, nameof(ShardShutdown));
 
         /// <summary>
+        /// Events pertaining to a failure in the <see cref="DiscordShardedClient"/> not initializing.
+        /// </summary>
+        public static EventId ShardClientFailure { get; } = new EventId(122, nameof(ShardClientFailure));
+
+        /// <summary>
         /// Events containing raw payloads, as they're received from Discord's REST API.
         /// </summary>
-        public static EventId RestRx { get; } = new EventId(122, "REST ↓");
+        public static EventId RestRx { get; } = new EventId(123, "REST ↓");
 
         /// <summary>
         /// Events containing raw payloads, as they're sent to Discord's REST API.
         /// </summary>
-        public static EventId RestTx { get; } = new EventId(123, "REST ↑");
+        public static EventId RestTx { get; } = new EventId(124, "REST ↑");
+
+        public static EventId ShardREST { get; } = new EventId(125, nameof(ShardREST));
     }
 }
