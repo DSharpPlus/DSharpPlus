@@ -2,6 +2,8 @@
   href: articles/
 - name: Natives
   href: natives/index.md
+- name: FAQ
+  href: FAQ/index.md
 - name: Api Documentation
   href: api/
   homepage: api/index.md

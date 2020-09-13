@@ -31,6 +31,7 @@
           "articles/**.md",
           "articles/**/toc.yml",
           "natives/**.md",
+          "faq/**.md",
           "toc.yml",
           "*.md"
         ],
