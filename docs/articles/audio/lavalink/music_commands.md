@@ -108,7 +108,7 @@ namespace MyFirstMusicBot
 
             var conn = node.GetConnection(channel.Guild);
 
-            if(conn == null)
+            if (conn == null)
             {
                 await ctx.RespondAsync("Lavalink is not connected.");
                 return;
@@ -149,7 +149,7 @@ Like before, we will need to get our node and guild connection and have the appr
 ```csharp
 //Important to check the voice state itself first, 
 //as it may throw a NullReferenceException if they don't have a voice state.
-if(ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)  
+if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)  
 {
     await ctx.RespondAsync("You are not in a voice channel.");
     return;
@@ -182,8 +182,11 @@ var loadResult = await node.Rest.GetTracksAsync(search);
 The load result will contain an enum called `LoadResultType`, which will inform us if Lavalink was able to retrieve the track data. We can use this as a check: 
 
 ```csharp
-//If something went wrong on Lavalink's end                          or it just couldn't find anything.
-if(loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
+//If something went wrong on Lavalink's end                          
+if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed 
+
+    //or it just couldn't find anything.
+    || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
 {
     await ctx.RespondAsync($"Track search failed for {search}.");
     return;
@@ -209,7 +212,7 @@ Your play command should look like this:
 [Command]
 public async Task Play(CommandContext ctx, [RemainingText] string search)
 {
-    if(ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+    if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
     {
         await ctx.RespondAsync("You are not in a voice channel.");
         return;
@@ -226,7 +229,8 @@ public async Task Play(CommandContext ctx, [RemainingText] string search)
 
     var loadResult = await node.Rest.GetTracksAsync(search);
 
-    if(loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
+    if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed 
+        || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
     {
         await ctx.RespondAsync($"Track search failed for {search}.");
         return;
@@ -246,7 +250,7 @@ Being able to pause the player is also useful. For this we can use most of the b
 [Command]
 public async Task Pause(CommandContext ctx)
 {
-    if(ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+    if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
     {
         await ctx.RespondAsync("You are not in a voice channel.");
         return;
@@ -265,11 +269,13 @@ public async Task Pause(CommandContext ctx)
 
 For this command we will also want to check the player state to determine if we should send a pause command. We can do so by checking `conn.CurrentState.CurrentTrack`:
 
-if(conn.CurrentState.CurrentTrack == null)
+```csharp
+if (conn.CurrentState.CurrentTrack == null)
 {
     await ctx.RespondAsync("There are no tracks loaded.");
     return;
 }
+```
 
 And finally, we can call pause: 
 
@@ -297,7 +303,7 @@ public async Task Pause(CommandContext ctx)
         return;
     }
 
-    if(conn.CurrentState.CurrentTrack == null)
+    if (conn.CurrentState.CurrentTrack == null)
     {
          await ctx.RespondAsync("There are no tracks loaded.");
          return;
