@@ -280,13 +280,60 @@ namespace DSharpPlus
             this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
         }
 
+        private async Task<GatewayInfo> GetGatewayInfoAsync()
+        {
+            var url = $"{Utilities.GetApiBaseUri()}{Endpoints.GATEWAY}{Endpoints.BOT}";
+            var http = new HttpClient();
+
+            http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
+            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Configuration));
+
+            this.Logger.LogDebug(LoggerEvents.ShardREST, $"Obtaining gateway information from GET {Endpoints.GATEWAY}{Endpoints.BOT}...");
+            var resp = await http.GetAsync(url).ConfigureAwait(false);
+            
+            http.Dispose();
+
+            var timer = new Stopwatch();
+            timer.Start();
+
+            var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
+            var info = jo.ToObject<GatewayInfo>();
+
+            //There is a delay from parsing here.
+            timer.Stop();
+
+            info.SessionBucket.resetAfter -= (int)timer.ElapsedMilliseconds; 
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+
+            return info;
+        }
+
+
+        private readonly Lazy<string> _versionString = new Lazy<string>(() =>
+        {
+            var a = typeof(DiscordShardedClient).GetTypeInfo().Assembly;
+
+            var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (iv != null)
+                return iv.InformationalVersion;
+
+            var v = a.GetName().Version;
+            var vs = v.ToString(3);
+
+            if (v.Revision > 0)
+                vs = $"{vs}, CI build {v.Revision}";
+
+            return vs;
+        });
+
+        #endregion
+
+        #region Private Connection Methods
+
         private async Task ConnectShardAsync(int i)
         {
             if (!this._shards.TryGetValue(i, out var client))
                 throw new Exception($"Could not initialize shard {i}.");
-
-            if (i == 2)
-                throw new AggregateException();
 
             if (this.GatewayInfo != null)
             {
@@ -372,34 +419,6 @@ namespace DSharpPlus
             }
         }
 
-        private async Task<GatewayInfo> GetGatewayInfoAsync()
-        {
-            var url = $"{Utilities.GetApiBaseUri()}{Endpoints.GATEWAY}{Endpoints.BOT}";
-            var http = new HttpClient();
-
-            http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
-            http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Configuration));
-
-            this.Logger.LogDebug(LoggerEvents.ShardREST, $"Obtaining gateway information from GET {Endpoints.GATEWAY}{Endpoints.BOT}...");
-            var resp = await http.GetAsync(url).ConfigureAwait(false);
-            
-            http.Dispose();
-
-            var timer = new Stopwatch();
-            timer.Start();
-
-            var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
-            var info = jo.ToObject<GatewayInfo>();
-
-            //There is a delay from parsing here.
-            timer.Stop();
-
-            info.SessionBucket.resetAfter -= (int)timer.ElapsedMilliseconds; 
-            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
-
-            return info;
-        }
-
         private Task InternalStopAsync(bool enableLogger = true)
         {
             if (!this._isStarted)
@@ -479,23 +498,6 @@ namespace DSharpPlus
 
             return Task.CompletedTask;
         }
-
-        private readonly Lazy<string> _versionString = new Lazy<string>(() =>
-        {
-            var a = typeof(DiscordShardedClient).GetTypeInfo().Assembly;
-
-            var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            if (iv != null)
-                return iv.InformationalVersion;
-
-            var v = a.GetName().Version;
-            var vs = v.ToString(3);
-
-            if (v.Revision > 0)
-                vs = $"{vs}, CI build {v.Revision}";
-
-            return vs;
-        });
 
         #endregion
 
