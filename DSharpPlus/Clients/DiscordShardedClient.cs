@@ -64,6 +64,7 @@ namespace DSharpPlus
         /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
         /// </summary>
         private ConcurrentDictionary<string, DiscordVoiceRegion> _internalVoiceRegions;
+
         private ConcurrentDictionary<int, DiscordClient> _shards = new ConcurrentDictionary<int, DiscordClient>();
         private Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voiceRegionsLazy;
         private bool _isStarted = false;
