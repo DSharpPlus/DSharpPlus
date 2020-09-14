@@ -221,4 +221,4 @@ Congrats, your bot now does something!
 
 
 ## Next Steps
-Now that you have an basic bot up and running, you'll want to learn how to properly [use async events](xref:beyond_basics_event_reference).
+Now that you have an basic bot up and running, you'll want to learn how to properly [use async events](xref:beyond_basics_events).

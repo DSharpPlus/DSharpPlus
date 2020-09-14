@@ -8,8 +8,8 @@
     href: basics/first_bot.md
 - name: Beyond Basics
   items:
-  - name: Understanding TAP Events
-    href: beyond_basics/event_reference.md
+  - name: Events
+    href: beyond_basics/events.md
   - name: Logging
     href: beyond_basics/logging.md
   - name: Sharding

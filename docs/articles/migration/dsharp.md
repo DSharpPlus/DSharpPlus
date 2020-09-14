@@ -65,7 +65,7 @@ client.MessageCreated += async e =>
 }
 ```
 
-Complete event guide is available in the [event reference](xref:beyond_basics_event_reference "Events") article.
+Complete event guide is available in the [event reference](xref:beyond_basics_events "Events") article.
 
 Event names were also changed. A list of changed event names is to be found at the bottom of this article, along with 
 some new events not yet available in DiscordSharp.
