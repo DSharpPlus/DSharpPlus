@@ -19,8 +19,8 @@ Select `Console App (.NET Core)` then click on the `Next` button.
 ![New Project Screen](/images/02_02_new_project.png "Console App (.NET Core)")
 
 <br/>
-Next, you'll give your project a name. In this example, we'll name it `MyFirstBot`.<br/>
-If desired, you can also change the directory that your project will be created in.
+Next, you'll give your project a name. For this example, we'll name it `MyFirstBot`.<br/>
+If you'd like, you can also change the directory that your project will be created in.
 
 Enter your desired project name, then click on the `Create` button.
 
@@ -42,9 +42,7 @@ Voilà! Your project has been created!
  > The remainder of this article will assume you are using a nightly build.
 
 Now that you have a project created, you'll want to get DSharpPlus installed.
-
-On the right, you'll see the *solution explorer*. It displays your project with all of its dependencies and files.<br/>
-Right click on `Dependencies` and select `Manage NuGet Packages...` from the context menu.
+Locate the *solution explorer* on the right side, then right click on `Dependencies` and select `Manage NuGet Packages` from the context menu.
 
 ![Dependencies Context Menu](/images/02_05_context_menu.png "Dependencies Context Menu")
 
@@ -78,23 +76,17 @@ You're now ready to write some code!
 
 
 ## First Lines of Code
-Close the *NuGet: MyFirstBot* tab near the top left and head back to the *Program.cs* tab.<br/>
+DSharpPlus implements [Task-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/consuming-the-task-based-asynchronous-pattern).
+Because of this, the majority of DSharpPlus methods must be executed in a method marked as `async` so they can be properly `await`ed.
 
-![Close NuGet Tab](/images/02_09_close_tab.png "Close Tab")
+Due to the way the compiler generates the underlying [IL](https://en.wikipedia.org/wiki/Common_Intermediate_Language) code, 
+marking our `Main` method as `async` has the potential to cause problems. As a result, we must pass the program execution to an `async` method.
 
-Once you're there, empty the `Main` method by deleting `Console.WriteLine("Hello World!");` on line 9.
+Head back to your *Program.cs* tab and empty the `Main` method by deleting line 9.
 
 ![Code Editor](/images/02_10_goodbye_world.png "Code Editor")
 
-<br/>
-As mentioned elsewhere, DSharpPlus implements [Task-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/consuming-the-task-based-asynchronous-pattern).
-Because of this, many DSharpPlus methods must be executed in a method marked as `async` so they can be properly `await`ed.
-
-You might be tempted to mark your `Main` method as `async`. 
-However, due to the way the compiler generates the underlying [IL](https://en.wikipedia.org/wiki/Common_Intermediate_Language) code, this has the potential to cause problems.
-Because of this we must pass the program execution to an `async` method.
-
-Create a new `static` method named `MainAsync` beneath your `Main` method. Have it return type `Task` and mark it as `async`.
+Now, create a new `static` method named `MainAsync` beneath your `Main` method. Have it return type `Task` and mark it as `async`.
 After that, add `MainAsync().GetAwaiter().GetResult();` to your `Main` method.
 
 ```cs
@@ -127,45 +119,57 @@ In `MainAsync`, create a new variable and assign it a new `DiscordClient` instan
 `DiscordConfiguration` passed to its constuctor. Create an initializer for `DiscordConfiguration` then populate 
 the `Token` property with your bot token and set the `TokenType` property to `TokenType.Bot`.
 
-Follow that up with `await discord.ConnectAsync();` to connect and login to Discord, and `await Task.Delay(-1);` at the end of the method to prevent the console window from closing prematurely.
-
 ```cs
-static async Task MainAsync()
+var discord = new DiscordClient(new DiscordConfiguration()
 {
-    var discord = new DiscordClient(new DiscordConfiguration()
-    {
-        Token = "My First Token",
-        TokenType = TokenType.Bot		
-    });
-	
-	await discord.ConnectAsync();
-	await Task.Delay(-1);
-}
+    Token = "My First Token",
+    TokenType = TokenType.Bot       
+});
 ```
-
  >[!WARNING]
  > In the above snippet, we hard-code our token to keep things simple.
  >
  > Hard-coding your token is not a smart idea, especially if you plan on distributing your source code.
  > You should instead store your token in an external medium, such as a configuration file or envirionment variable, and read that into your program to use with DSharpPlus.
- 
+
+Follow that up with `await discord.ConnectAsync();` to connect and login to Discord, and `await Task.Delay(-1);` at the end of the method to prevent the console window from closing prematurely.
+```cs
+var discord = new DiscordClient(new DiscordConfiguration()
+{
+    Token = "My First Token",
+    TokenType = TokenType.Bot		
+});
+	
+await discord.ConnectAsync();
+await Task.Delay(-1);
+``` 
 As before, Intellisense will have auto generated the needed `using` directive for you if you typed this in by hand.<br/>
 If you've copied the snippet, be sure to apply the recommended suggestion to insert the required directive.
+
+If you hit `F5` on your keyboard to compile and run your program, you'll be greeted by a happy little console with a single log message from DSharpPlus. Woo hoo!
+
+![Program Console](/images/02_14_hello_world.png "Hello, World!")
+
 
 ## Spicing Up Your Bot
 Right now our bot doesn't do a whole lot. Let's bring it to life by having it respond to a message!
 
 Hook the `MessageCreated` event fired by `DiscordClient` with a 
 [lambda](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions).<br/>
-Mark it as as `async` and give it a parameter named `e`.
- 
-Then, add an `if` statement into the body of your event lambda that will check if `e.Message.Content` starts with your desired trigger word and respond with a message
-if it does. For this example, we'll have the bot to respond with *pong!* for each message that starts with *ping*.
-
-Be sure to slot this in just before `await discord.ConnectAsync();`.
+Mark it as `async` and give it two parameters: `s` and `e`.
 
 ```cs
-discord.MessageCreated += async e =>
+discord.MessageCreated += async (s, e) =>
+{
+    
+};
+```
+ 
+Then, add an `if` statement into the body of your event lambda that will check if `e.Message.Content` starts with your desired trigger word and respond with 
+a message using `e.Message.RespondAsync` if it does. For this example, we'll have the bot to respond with *pong!* for each message that starts with *ping*.
+
+```cs
+discord.MessageCreated += async (s, e) =>
 {
     if (e.Message.Content.ToLower().StartsWith("ping")) 
 		await e.Message.RespondAsync("pong!");
@@ -220,5 +224,5 @@ Congrats, your bot now does something!
 ![Bot Response](/images/02_15_its_alive.png "It Lives!")
 
 
-## Next Steps
-Now that you have an basic bot up and running, you'll want to learn how to properly [use async events](xref:beyond_basics_events).
+## Now What?
+You should learn more about [events](xref:beyond_basics_events)!
