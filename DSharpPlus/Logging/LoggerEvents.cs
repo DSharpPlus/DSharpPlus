@@ -73,7 +73,7 @@ namespace DSharpPlus
         public static EventId RestError { get; } = new EventId(112, nameof(RestError));
 
         /// <summary>
-        /// Events pertaining to autosharded client shard startup.
+        /// Events pertaining to the <see cref="DiscordShardedClient"/> shard startup.
         /// </summary>
         public static EventId ShardStartup { get; } = new EventId(113, nameof(ShardStartup));
 
@@ -118,7 +118,7 @@ namespace DSharpPlus
         public static EventId ShardShutdown { get; } = new EventId(121, nameof(ShardShutdown));
 
         /// <summary>
-        /// Events pertaining to a failure in the <see cref="DiscordShardedClient"/> not initializing.
+        /// Events pertaining to the <see cref="DiscordShardedClient"/>'s shards not initializing correctly.
         /// </summary>
         public static EventId ShardClientFailure { get; } = new EventId(122, nameof(ShardClientFailure));
 
