@@ -289,7 +289,7 @@ namespace DSharpPlus
             http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
             http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Configuration));
 
-            this.Logger.LogDebug(LoggerEvents.ShardREST, $"Obtaining gateway information from GET {Endpoints.GATEWAY}{Endpoints.BOT}...");
+            this.Logger.LogDebug(LoggerEvents.ShardRest, $"Obtaining gateway information from GET {Endpoints.GATEWAY}{Endpoints.BOT}...");
             var resp = await http.GetAsync(url).ConfigureAwait(false);
             
             http.Dispose();
