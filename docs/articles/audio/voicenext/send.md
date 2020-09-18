@@ -88,9 +88,9 @@ public async Task Leave(CommandContext ctx)
 If you run your bot now, join a voice channel, and call `;;join`, the bot should join the voice channel. Conversely, invoking 
 `;;leave` will make the bot disconnect.
 
-![Joining](/images/06_01_voice_join.png "Joining voice")
+![Joining](/images/voicenext_send_01.png)
 
-![Leaving](/images/06_02_voice_leave.png "Leaving voice")
+![Leaving](/images/voicenext_send_02.png)
 
 ## 3. Broadcasting
 
@@ -163,6 +163,6 @@ exhausted (which effectively means the playback has finished).
 It's also worth noting that if the PCM data doesn't end on packet boundary (i.e. 20ms), the remainder might be left in 
 the transmit stream's internal buffer. To force the stream to flush the buffer, call `Flush()` (or `FlushAsync()`).
 
-![Playing](/images/06_03_voice_play.png "Playing audio")
+![Playing](/images/voicenext_send_03.png)
 
-![Console](/images/06_04_voice_console.png "Playing audio - console")
+![Console](/images/voicenext_send_04.png)

@@ -11,12 +11,12 @@ title: Your First Bot
 ## Create a Project
 Open up Visual Studio and click on `Create a new project` towards the bottom right.
 
-![Visual Studio Start Screen](/images/02_01_start_screen.png "Create a new project")
+![Visual Studio Start Screen](/images/basics_first_bot_01.png)
 
 <br/>
 Select `Console App (.NET Core)` then click on the `Next` button.
 
-![New Project Screen](/images/02_02_new_project.png "Console App (.NET Core)")
+![New Project Screen](/images/basics_first_bot_02.png)
 
 <br/>
 Next, you'll give your project a name. For this example, we'll name it `MyFirstBot`.<br/>
@@ -24,12 +24,12 @@ If you'd like, you can also change the directory that your project will be creat
 
 Enter your desired project name, then click on the `Create` button.
 
-![Name Project Screen](/images/02_03_name_project.png "Naming your project")
+![Name Project Screen](/images/basics_first_bot_03.png)
 
 <br/>
 Voilà! Your project has been created!
 
-![Visual Studio IDE](/images/02_04_voila.png "Your new project!")
+![Visual Studio IDE](/images/basics_first_bot_04.png)
 
 
 ## Install Package
@@ -44,19 +44,19 @@ Voilà! Your project has been created!
 Now that you have a project created, you'll want to get DSharpPlus installed.
 Locate the *solution explorer* on the right side, then right click on `Dependencies` and select `Manage NuGet Packages` from the context menu.
 
-![Dependencies Context Menu](/images/02_05_context_menu.png "Dependencies Context Menu")
+![Dependencies Context Menu](/images/basics_first_bot_05.png)
 
 <br/>
 You'll then be greeted by the NuGet package manager.
 
 Select the `Browse` tab towards the top left, then type `DSharpPlus` into the search text box.
 
-![NuGet Package Search](/images/02_06_browse_nuget.png "NuGet Package Search")
+![NuGet Package Search](/images/basics_first_bot_06.png)
 
 <br/>
 The first results should be the six DSharpPlus packages.
 
-![Search Results](/images/02_07_search_results.png "Search Results")
+![Search Results](/images/basics_first_bot_07.png)
 Package|Description
 :---: |:---:
 `DSharpPlus`|Main package; Discord API client.
@@ -70,7 +70,7 @@ Package|Description
 We'll only need the `DSharpPlus` package for the basic bot we'll be writing in this article.<br/>
 Select it from the list then click the `Install` button to the right.
 
-![Install DSharpPlus](/images/02_08_dsharplus.png "Install DSharpPlus")
+![Install DSharpPlus](/images/basics_first_bot_08.png)
 
 You're now ready to write some code!
 
@@ -84,7 +84,7 @@ marking our `Main` method as `async` has the potential to cause problems. As a r
 
 Head back to your *Program.cs* tab and empty the `Main` method by deleting line 9.
 
-![Code Editor](/images/02_10_goodbye_world.png "Code Editor")
+![Code Editor](/images/basics_first_bot_09.png)
 
 Now, create a new `static` method named `MainAsync` beneath your `Main` method. Have it return type `Task` and mark it as `async`.
 After that, add `MainAsync().GetAwaiter().GetResult();` to your `Main` method.
@@ -106,11 +106,11 @@ However, if you copy-pasted the snippet above, VS will complain about being unab
 
 Hover over `Task` with your mouse and click on `Show potential fixes` from the tooltip.
 
-![Error Tooltip](/images/02_11_display_suggestion.png "Error Tooltip")
+![Error Tooltip](/images/basics_first_bot_10.png)
 
 Then apply the recommended solution.
 
-![Solution Menu](/images/02_12_apply_suggestion.png "Solution Menu")
+![Solution Menu](/images/basics_first_bot_11.png)
 
 <br/>
 We'll now create a new `DiscordClient` instance in our brand new asynchronous method.
@@ -148,7 +148,7 @@ If you've copied the snippet, be sure to apply the recommended suggestion to ins
 
 If you hit `F5` on your keyboard to compile and run your program, you'll be greeted by a happy little console with a single log message from DSharpPlus. Woo hoo!
 
-![Program Console](/images/02_14_hello_world.png "Hello, World!")
+![Program Console](/images/basics_first_bot_12.png)
 
 
 ## Spicing Up Your Bot
@@ -221,7 +221,7 @@ Your bot should respond with *pong!* for each *ping* you send.
 
 Congrats, your bot now does something!
 
-![Bot Response](/images/02_15_its_alive.png "It Lives!")
+![Bot Response](/images/basics_first_bot_13.png)
 
 
 ## Now What?

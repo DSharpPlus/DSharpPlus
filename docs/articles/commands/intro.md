@@ -185,7 +185,7 @@ user who invoked the command.
 Once this is all done, hit F5, and notice that console will light up with notifications. Go to Discord, and type `;;hi`. 
 Your bot should now respond. If it did, congratulations!
 
-![Step 1](/images/03_01_hi.png)
+![Step 1](/images/commands_intro_01.png)
 
 ## 5. Using arguments
 
@@ -218,7 +218,7 @@ public async Task Random(CommandContext ctx, int min, int max)
 Now, if you hit F5, and go to your server, you can call `;;random 0 10`, and it will respond with a random number between 0 
 and 10 exclusive.
 
-![Step 2](/images/03_02_random.png)
+![Step 2](/images/commands_intro_02.png)
 
 ## 6. Advanced subjects
 

@@ -55,4 +55,4 @@ the Playing xxxxxxx or Watching yyyyyyyy.  That can be set within @DSharpPlus.Di
 There is no method like GetRoleByName or anything like that.  You can however look at the `Roles` Property on `DiscordGuild` and utilize LINQ to get the name.  
 
 ## Where are the awesome pictures of spiderman
-![Spiderman](/images/spiderman.png "Spiderman Porn")
+![Spiderman](/images/faq_01.png)

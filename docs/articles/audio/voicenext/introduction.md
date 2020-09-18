@@ -17,18 +17,18 @@ environment.
 
 Find **This PC**, right-click it, and go to **Properties**. In there, look for **System type**, as shown in the picture below:
 
-![Identify - Windows](/images/05_01_identify_win32.jpg "Identifying Windows system")
+![Identify - Windows](/images/voicenext_intro_01.jpg)
 
 ### GNU/Linux
 
 The first thing you will want to do is identifying your GNU/Linux distribution. You can do that by executing `lsb_release -a`. 
 That should provide you with following information:
 
-![Identify - GNU/Linux](/images/05_02_identify_gnulinux_lsb.png "Identifying LSB-compatible GNU/Linux system")
+![Identify - GNU/Linux](/images/voicenext_intro_02.png)
 
 If that fails, try `ls -d1 /etc/* | grep '\-release$' | head -n 1 | xargs cat`. Output should look more or less like this
 
-![Identify - GNU/Linux](/images/05_03_identify_gnulinux_osrelease.png "Identifying non-LSB-compatible GNU/Linux system")
+![Identify - GNU/Linux](/images/voicenext_intro_03.png)
 
 ### macOS
 
@@ -38,7 +38,7 @@ You use Mac, not much to identify here.
 
 To identify your BSD (or other UNIX system), you need to execute `uname -a`. It gives output similar to this one:
 
-![Identify - BSD](/images/05_04_identify_bsd.png "Identifying BSD system")
+![Identify - BSD](/images/voicenext_intro_04.png)
 
 ## 2. Deploy your bot
 
@@ -56,7 +56,7 @@ opus and sodium natives for Windows available for download [here](/natives/index
 
 If you're in doubt about which libraries to use, follow this flowchart:
 
-![Natives flowchart](/images/05_05_natives_flowchart.png "Natives - flowchart")
+![Natives flowchart](/images/voicenext_intro_05.png)
 
 To install those, just add them to your project. Then change their properties so that they are always copied on build.
 

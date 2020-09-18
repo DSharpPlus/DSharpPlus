@@ -9,12 +9,12 @@ title: Creating a Bot Account
 Before you're able to create a [bot account](https://discord.com/developers/docs/topics/oauth2#bots) to interact with the Discord API, you'll need to create a new OAuth2 application.
 Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click `New Application` at the top right of the page.
 
-![Discord Developer Portal](/images/01_01_new_app.png "New Application")
+![Discord Developer Portal](/images/basics_bot_account_01.png)
 
 <br/>
 You'll then be prompted to enter a name for your application.<br/>
 
-![Naming Application](/images/01_02_app_name.png "Naming Application")
+![Naming Application](/images/basics_bot_account_02.png "Naming Application")
 
 The name of your application will be the name displayed to users when they add your bot to their Discord server.<br/>
 With that in mind, it would be a good idea for your application name to match the desired name of your bot.
@@ -23,7 +23,7 @@ Enter your desired application name into the text box, then hit the `Create` but
 
 After you hit `Create`, you'll be taken to the application page for your newly created application.
 
-![Application Page](/images/01_03_app_page.png "Application Page")
+![Application Page](/images/basics_bot_account_03.png)
 
 That was easy, wasn't it?
 
@@ -37,11 +37,11 @@ Now that you have an application created, you'll be able to add a brand new bot 
 Head on over to the bot page of your application by clicking on `Bot` in the left panel.<br/>
 From there, click on the `Add Bot` button at the top right of the page.
 
-![Bot Page](/images/01_04_bot_page.png "Bot Page")
+![Bot Page](/images/basics_bot_account_04.png)
 
 Then confirm the creation of the bot account.
 
-![Creation Confirmation](/images/01_05_confirm_creation.png "Creation Confirmation")
+![Creation Confirmation](/images/basics_bot_account_05.png)
 
 
 # Using Your Bot Account
@@ -53,19 +53,19 @@ A bot account joins a server through a special invite link that'll take users th
 you'll probably be familiar with this if you've ever added a public Discord bot to a server.
 To get the invite link for your bot, head on over to the OAuth2 page of your application.
 
-![OAuth2](/images/01_06_oauth2.png "OAuth2 Page")
+![OAuth2](/images/basics_bot_account_06.png)
 
 <br/>
 We'll be using the *OAuth2 URL Generator* on this page.<br/>
 Simply tick `bot` under the *scopes* panel; your bot invite link will be generated directly below.
 
-![OAuth2 Scopes](/images/01_07_scopes.png "OAuth2 Scopes")
+![OAuth2 Scopes](/images/basics_bot_account_07.png)
 
 <br/>
 By default, the generated link will not grant any permissions to your bot when it joins a new server.<br/>
 If your bot requires specific permissions to function, you'd select them in the *bot permissions* panel.
 
-![Permissions](/images/01_08_permissions.png "Permissions Panel")
+![Permissions](/images/basics_bot_account_08.png "Permissions Panel")
 
 The invite link in the *scopes* panel will update each time you change the permissions.<br/>
 Be sure to copy it again after any changes!
@@ -76,7 +76,7 @@ You'll want to retrieve the token for your bot account so you can use it with DS
 
 Head back to the bot page and click on `Click to Reveal Token` just above the `Copy` and `Regenerate` buttons to take a peek at your token.
 
-![Token Reveal](/images/01_09_reveal_token.png "Token Reveal")
+![Token Reveal](/images/basics_bot_account_09.png "Token Reveal")
 
 Go ahead and copy your bot token and save it somewhere. You'll be using it soon!
 
