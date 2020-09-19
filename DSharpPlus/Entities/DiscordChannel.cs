@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
@@ -571,6 +572,36 @@ namespace DSharpPlus.Entities
             
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
                 default, this.Id, null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Follows a news channel
+        /// </summary>
+        /// <param name="targetChannel">Channel to crosspost messages to</param>
+        /// <exception cref="ArgumentException">Thrown when trying to follow a non-news channel</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> on the target channel</exception>
+        public Task<DiscordFollowedChannel> FollowAsync(DiscordChannel targetChannel)
+        {
+            if (this.Type != ChannelType.News)
+                throw new ArgumentException("Cannot follow a non-news channel.");
+
+            return this.Discord.ApiClient.FollowChannelAsync(this.Id, targetChannel.Id);
+        }
+
+        /// <summary>
+        /// Publishes a message in a news channel to following channels
+        /// </summary>
+        /// <param name="message">Message to publish</param>
+        /// <exception cref="ArgumentException">Thrown when the message has already been crossposted</exception>
+        /// <exception cref="UnauthorizedException">
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
+        /// </exception>
+        public Task<DiscordMessage> CrosspostMessageAsync(DiscordMessage message)
+        {
+            if ((message.Flags & MessageFlags.Crossposted) == MessageFlags.Crossposted)
+                throw new ArgumentException("Message is already crossposted.");
+            
+            return this.Discord.ApiClient.CrosspostMessageAsync(this.Id, message.Id);
         }
 
         /// <summary>
