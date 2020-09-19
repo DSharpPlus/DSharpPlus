@@ -38,7 +38,7 @@ namespace DSharpPlus.Net.WebSocket
 
         private volatile bool _isClientClose = false;
         private volatile bool _isConnected = false;
-        private volatile bool _isDisposed = false;
+        private bool _isDisposed = false;
 
         /// <summary>
         /// Instantiates a new WebSocket client with specified proxy settings.

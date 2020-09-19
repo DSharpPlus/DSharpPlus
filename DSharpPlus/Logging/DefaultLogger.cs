@@ -65,11 +65,15 @@ namespace DSharpPlus
                     LogLevel.Information => "[Info ] ",
                     LogLevel.Warning =>     "[Warn ] ",
                     LogLevel.Error =>       "[Error] ",
-                    LogLevel.Critical =>    "[Crit ] ",
+                    LogLevel.Critical =>    "[Crit ]",
                     LogLevel.None =>        "[None ] ",
                     _ =>                    "[?????] "
                 });
                 Console.ResetColor();
+
+                //The foreground color is off.
+                if (logLevel == LogLevel.Critical)
+                    Console.Write(" ");
 
                 var message = formatter(state, exception);
                 Console.WriteLine(message);
