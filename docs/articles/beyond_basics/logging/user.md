@@ -1,97 +1,10 @@
 ---
-uid: beyond_basics_logging
-title: Logging
+uid: beyond_basics_logging_user
+title: Build-a-Logger
 ---
 
-# Logging
-
-## The Default Implementation
-DSharpPlus ships with a default logger that'll send log messages to the console. It'll be enabled automatically with no setup required.
-This implementation is rather basic and only has two configurable options.
-
-### Minimum Logging Level
-This will determine the verbosity of logging. It can be set in your `DiscordConfiguration`.
-```cs
-new DiscordConfiguration()
-{
-    MinimumLogLevel = LogLevel.Debug
-};
-```
-The example above will display level log messages that are higher than or equal to `Debug`.
-
-### Timestamp Format
-Exactly what it says on the tin. This can be set in your `DiscordConfiguration`.<br/>
-The format specified in the example below would result in *`Sep 17 2020 06:28:48`*.
-```cs
-new DiscordConfiguration()
-{
-    LogTimestampFormat = "MMM dd yyyy hh:mm:ss"
-};
-```
-For a list of all available format specifiers, check out the MSDN page for 
-[custom date and time format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings#day-d-format-specifier).
-
-
-## Using a Third Party Implementation
-While the default logging implementation will meet the needs of most, some may desire to make use of a more robust implementation which provides more features.
-Thankfully, DSharpPlus allows you to use any logging library which has an implementation for the [logging abstractions](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging) provided by Microsoft.
-
-[Serilog](https://serilog.net/), one of the more popular logging libraries, will be used to demonstrate.
-
-<br/>
-We'll need to install both the `Serilog` and `Serilog.Extensions.Logging` packages from NuGet, along with at least one of the many available 
-[sinks](https://github.com/serilog/serilog/wiki/Provided-Sinks). This example will only use the `Serilog.Sinks.Console` sink.
-
-Start off by creating a new `LoggerConfiguration` instance, slap `.WriteTo.Console().CreateLogger()` onto the end of it, then directly assign that to the static `Logger` property on the `Log` class.
-```cs
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
-```
-You'll be able to tweak things such as the output formatting, minimum log level, and color theme using the many parameters for the `Console` method extension. 
-Additionally, if you have other sinks you'd like to use, you'll register each one here using its approprate extension method and configure it accordingly.
-
-Next, create a new variable and assign it a new `LoggerFactory` instance which calls `AddSerilog()`.
-```cs
-var logFactory = new LoggerFactory().AddSerilog();
-```
-
-Then assign that variable to the `LoggerFactory` property of your of `DiscordConfiguration`.
-```cs
-new DiscordConfiguration()
-{
-    LoggerFactory = logFactory
-}
-```
-
-<br/>
-Altogether, you'll have something similar to this:
-```cs
-using Microsoft.Extensions.Logging;
-using Serilog;
-
-public async Task MainAsync()
-{
-    Log.Logger = new LoggerConfiguration()
-        .WriteTo.Console()
-        .CreateLogger();
-
-    var logFactory = new LoggerFactory().AddSerilog();
-    var discord = new DiscordClient(new DiscordConfiguration()
-    {
-        LoggerFactory = logFactory
-    });
-}
-
-```
-
-And that's it! If you now run your bot, you'll see DSharpPlus log messages formatted and displayed by Serilog.
-
-![Console](/images/beyond_basics_logging_01.png)
-
-
-## Writing a Custom Implementation
-If neither the [default logger](#the-default-implementation) nor any of the [third party](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging#third-party-logging-providers)
+# Writing a Custom Implementation
+If neither the [default logger](xref:beyond_basics_logging_default) nor any of the [third party](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging#third-party-logging-providers)
 loggers meet your needs, you might consider writing your own implementation. 
 This would grant you *a lot* of control over the formatting and output destination.
 
@@ -110,17 +23,17 @@ The only real limit is your ~~programming experience~~ imagination!
 ### Preparation
 First, install the `Microsoft.Extensions.Logging.Abstractions` package from NuGet.
 
-![NuGet Package Manager](/images/beyond_basics_logging_02.png "Latest stable version")
+![NuGet Package Manager](/images/beyond_basics_logging_user_01.png "Latest stable version")
 
 Then, to keep things organized, create a new folder named `Logging`.<br/>
 We'll need two classes within that folder: `MyFirstLogger` and `MyFirstLoggerFactory`.
 
-![Solution Explorer](/images/beyond_basics_logging_03.png)
+![Solution Explorer](/images/beyond_basics_logging_user_02.png)
 
 ### Basic Logger Implementation
 The `MyFirstLogger` class will implement `ILogger`.
 
-![Implement Interface](/images/beyond_basics_logging_04.png)
+![Implement Interface](/images/beyond_basics_logging_user_03.png)
 
 <br/>
 We'll tackle the `Log` method to start things off. 
@@ -220,7 +133,7 @@ public class MyFirstLogger : ILogger
 ### Basic Logger Factory Implementation
 The `MyFirstLoggerFactory` class will implement `ILoggerFactory`.
 
-![Implement Interface](/images/beyond_basics_logging_05.png)
+![Implement Interface](/images/beyond_basics_logging_user_04.png)
 
 <br/>
 We'll start off with the `CreateLogger` method.
@@ -324,7 +237,7 @@ new DiscordConfiguration()
 ```
 Hit `F5` to run your bot and see your brand new logging implementation!
 
-![Console](/images/beyond_basics_logging_06.png)
+![Console](/images/beyond_basics_logging_user_05.png)
 
 ### Passing Data to Your Implementation 
 Now that you have a basic logger up and running, you'll probably want to begin expanding upon this 
@@ -400,21 +313,4 @@ new DiscordConfiguration()
 <br/>
 And now that you've made all those adjustments, you should now be able to run your bot and see the results!
 
-![Console](/images/beyond_basics_logging_07.png)
-
-
-# Log Levels
-Below is a table of all log levels and the kind of messages you can expect from each.
-Name|Position|Description
-:---:|:---:|:---
-`Critical`|5|Fatal error which may require a restart.
-`Error`|4| A failure of an operation or request.
-`Warning`|3|Non-fatal errors and abnormalities.
-`Information`|2|Session startup and resume messages.
-`Debug`|1| Ratelimit buckets and related information.
-`Trace`|0| Websocket & REST traffic.
-
- >[!WARNING]
- > The `Trace` log level is *not* recommended for use in production.
- >
- > It is intended for debugging DSharpPlus and may display tokens and other sensitive data.
+![Console](/images/beyond_basics_logging_user_06.png)

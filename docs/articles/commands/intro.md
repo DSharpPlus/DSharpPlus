@@ -19,7 +19,7 @@ To do that, add the following options to your [DiscordConfiguration](xref:DSharp
 MinimumLogLevel = LogLevel.Debug
 ```
 
-Logging is covered more in-depth [here](xref:beyond_basics_logging)
+Logging is covered more in-depth [here](xref:beyond_basics_logging_default)
 
 ## 2. Installing CommandsNext
 
