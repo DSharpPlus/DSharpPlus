@@ -1,6 +1,6 @@
 ---
-uid: Index
-title: Index
+uid: index
+title: DSharpPlus Documentation
 ---
 
 <h1 class="delet-this">DSharpPlus Documentation</h1>
