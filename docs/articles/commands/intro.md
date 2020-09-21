@@ -1,226 +1,249 @@
 ---
 uid: commands_intro
-title: Commands Introduction
+title: CommandsNext Introduction
 ---
 
-# Talking with the bot - adding commands for enhanced user interaction
+ >[!NOTE] 
+ > This article assumes you've recently read the article on *[writing your first bot](xref:basics_first_bot)*.
 
-You now have a basic bot. In order to allow users to interact with it easily, you will want to add some commands to it. 
-This is done using the CommandsNext module, which will not only handle, registering and executing commands for you, but 
-it will also make grabbing additional data for your commands easy.
+# Introduction to CommandsNext 
+Each article in this section will cover the native command framework for DSharpPlus: *CommandsNext*.
+Not only will this framework handle the registration and execution of your commands, it can also automatically convert user input to a range of types.
+It'll even bring you a sandwich and wash your dishes if you ask it nicely. Amazing!
 
-## 1. Before we continue
+Be sure to install the `DSharpPlus.CommandsNext` package from NuGet before continuing.
 
-Right now, your bot is console-mute. Let's change it. Let's make it output all information about its state and doings.
+![CommandsNext NuGet Package](/images/commands_intro_01.png)
 
-To do that, add the following options to your [DiscordConfiguration](xref:DSharpPlus.DiscordConfiguration):
 
+<br/>
+# Writing a Basic Command
+
+## Create a Command Module
+A command module is simply a class which acts as a container for your command methods. Instead of registering individual commands, 
+you'd register a single command module which contains multiple commands. There's no limit to the amount of modules you can have,
+and no limit to the amount of commands each module can contain. For example: you could have a module for moderation commands and 
+a separate module for image commands. This will help you keep your commands organized and reduce the clutter in your project.
+
+This demonstration, however, will be simple; consisting of one command module with a simple command.<br/>
+We'll start by creating a new folder named `Commands` which contains a new class named `MyFirstModule`.
+
+![Solution Explorer](/images/commands_intro_02.png)
+
+Then mark the class as `public` and have it inherit from `BaseCommandModule`.
 ```cs
-MinimumLogLevel = LogLevel.Debug
-```
-
-Logging is covered more in-depth [here](xref:beyond_basics_logging_default)
-
-## 2. Installing CommandsNext
-
-Using the procedures in the previous article, install a NuGet package called `DSharpPlus.CommandsNext`.
-
-Now you need to enable CommandsNext extension on your DiscordClient. Add a new field to your bot's `Program` class: 
-`static CommandsNextExtension commands;`
-
-Visual Studio will complain, you also need to add `using DSharpPlus.CommandsNext;` to your usings.
-
-Before you connect, enable the module on your client:
-
-```cs
-commands = discord.UseCommandsNext(new CommandsNextConfiguration
+public class MyFirstModule : BaseCommandModule
 {
-	StringPrefix = ";;"
-});
+
+}
 ```
+This'll be necessary for each command module you create.
 
-This will enable the module, and use `;;` as the command prefix for your bot.
 
-## 3. Creating a command module
-
-First, you need to create a new class to hold your commands. In this example, we'll call it `MyCommands`.
-
-Once it's created, you should be presented with a file that looks like this:
-
+## Create a Command Method
+Within our new module, create a method named `GreetCommand` that is marked as `async`, returns type `Task`, 
+and takes one parameter of type `CommandContext`. In the example below, we've named that parameter `ctx`.
 ```cs
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MyFirstBot
+public async Task GreetCommand(CommandContext ctx)
 {
-    class MyCommands : BaseCommandModule
-    {
-    }
+    
 }
 ```
 
-Add a `public` modifier to the class. That class will now serve as your command module.
-
-Before you can proceed, add `using System.Threading.Tasks;`, `using DSharpPlus;`, 
-`using DSharpPlus.CommandsNext;`, and `using DSharpPlus.CommandsNext.Attributes;` to the using section.
-
-Go back to your main bot class, and below the command module initialisation, add the following:
-
+In the body of this method, we'll use `CommandContext#RespondAsync` to send a simple message.
 ```cs
-commands.RegisterCommands<MyCommands>();
+await ctx.RespondAsync("Greetings! Thank you for executing me!");
 ```
 
-This will enable all the commands in your command module.
+Finally, mark your command method with the `Command` attribute so CommandsNext will know to treat our method as a command method. 
+This attribute takes a single parameter: the name of the command. 
 
-The class should now look like this:
-
+We'll name our command *greet* to match the name of the method.
 ```cs
-using System;
+[Command("greet")]
+public async Task GreetCommand(CommandContext ctx)
+{
+    await ctx.RespondAsync("Greetings! Thank you for executing me!");
+}
+```
+
+<br/>
+Your command module should now resemble this:
+```cs
 using System.Threading.Tasks;
-using DSharpPlus;
-using DSharpPlus.CommandsNext;
-
-namespace MyFirstBot
-{
-    class Program
-    {
-        static DiscordClient discord;
-        static CommandsNextExtension commands;
-
-        static void Main(string[] args)
-        {
-            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        static async Task MainAsync(string[] args)
-        {
-            discord = new DiscordClient(new DiscordConfiguration
-            {
-                Token = "<your token here>",
-                TokenType = TokenType.Bot,
-                MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
-            });
-
-            discord.MessageCreated += async e =>
-            {
-                if (e.Message.Content.ToLower().StartsWith("ping"))
-                    await e.Message.RespondAsync("pong!");
-            };
-
-            commands = discord.UseCommandsNext(new CommandsNextConfiguration
-            {
-                StringPrefix = ";;"
-            });
-
-            commands.RegisterCommands<MyCommands>();
-
-            await discord.ConnectAsync();
-            await Task.Delay(-1);
-        }
-    }
-}
-```
-
-## 4. Creating your first command
-
-So now that you have your module, you want to add some commands to it. Let's add a first one. 
-
-But before you do, let's explain a couple concepts. 
-
-What are commands? How do they work? How do I make the library recognize something as a command?
-
-Commands are basically methods with specific signatures. All commands must be public instance methods, that return a `Task`. 
-They also need to take `CommandContext` as first argument. 
-
-Commands work by invoking the method which is tied to the command when any users sends a message that consists of a prefix, 
-command name, and its arguments, for example: `!hi`.
-
-Commands are marked with a special attribute. When you register commands, the library looks for methods with that attribute 
-and marks these methods as commands.
-
-Armed with that knowledge, let's create your first command, a simple "hi, user!".
-
-In the class, create a public async method, that returns a Task, and call it Hi. Make CommandContext its first argument. It 
-should look like this:
-
-```cs
-public async Task Hi(CommandContext ctx)
-{
-
-}
-```
-
-Now, put the following code inside that method: `await ctx.RespondAsync($"👋 Hi, {ctx.User.Mention}!");`
-
-You're not ready yet. Above the method, put the Command attribute. It should look like this: `[Command("hi")]`
-
-Put together, the class should now look like this:
-
-```cs
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace MyFirstBot
+public class MyFirstModule : BaseCommandModule
 {
-    public class MyCommands : BaseCommandModule
+    [Command("greet")]
+    public async Task GreetCommand(CommandContext ctx)
     {
-        [Command("hi")]
-        public async Task Hi(CommandContext ctx)
-        {
-            await ctx.RespondAsync($"👋 Hi, {ctx.User.Mention}!");
-        }
+        await ctx.RespondAsync("Greetings! Thank you for executing me!");
     }
 }
 ```
 
-What this command will do is posting a message that contains the :wave: emoji, and says Hi, followed by a mention of the 
-user who invoked the command.
-
-Once this is all done, hit F5, and notice that console will light up with notifications. Go to Discord, and type `;;hi`. 
-Your bot should now respond. If it did, congratulations!
-
-![Step 1](/images/commands_intro_01.png)
-
-## 5. Using arguments
-
-Close your bot, sit down, and listed to me.
-
-CommandsNext is capable of automatically converting user-supplied data to a variety of types. The default argument converters 
-can convert to the following:
-
-* Integral types: `byte`, `sbyte`, `ushort`, `short`, `uint`, `int`, `ulong`, `long`
-* Floating-point types: `float`, `double`, `decimal`
-* Text and character types: `string`, `char`
-* Boolean types: `bool`
-* Date and time types: `DateTime`, `DateTimeOffset`, `TimeSpan`
-* Discord entities: `DiscordGuild`, `DiscordChannel`, `DiscordMember`, `DiscordUser`, `DiscordRole`, `DiscordMessage`, `DiscordEmoji`, `DiscordColor`
-
-Using these is as simple as declaring additional arguments for your command function. Let's say you want to create a command 
-that generates a random number between the two specified numbers. You can do it by adding two `int` arguments to your function.
-
-For example:
-
+## Cleanup and Registration 
+Before we can run our new command, we'll need modify our main method.<br/>
+Start by removing the event handler we created [previously](xref:basics_first_bot#spicing-up-your-bot).
 ```cs
-[Command("random")]
-public async Task Random(CommandContext ctx, int min, int max)
+var discord = new DiscordClient();
+
+discord.MessageCreated += async (s, e) =>               // REMOVE
+{                                                       // ALL
+    if (e.Message.Content.ToLower().StartsWith("ping")) // OF
+        await e.Message.RespondAsync("pong!");          // THESE
+};                                                      // LINES
+
+await discord.ConnectAsync();            
+```
+
+<br/>
+Now we'll need to enable CommandsNext for our `DiscordClient` instance.
+
+Create a new variable named `commands` and assign it the result of `DiscordClient#UseCommandsNext()`.<br/>
+You'll also need to pass in a new `CommandsNextConfiguration` instance to that extension method.
+```cs
+var discord = new DiscordClient();
+
+var commands = discord.UseCommandsNext(new CommandsNextConfiguration());
+```
+
+Then, create an object initializer for `CommandsNextConfiguration`.<br/>
+Assign the `StringPrefixes` property a new `string` array containing `!`.
+```cs
+new CommandsNextConfiguration()
+{ 
+    StringPrefixes = new[] { "!" }
+}
+```
+This property will define the prefixes which will trigger our commands; in this case, it's only `!`
+
+<br/>
+Next, we'll register our command module.
+Call the `RegisterCommands` method on our `CommandsNextExtension` instance and provide it with your command module.
+```cs
+var discord = new DiscordClient();
+var commands = discord.UseCommandsNext();
+
+commands.RegisterCommands<MyFirstModule>();
+
+await discord.ConnectAsync();            
+```
+Alternatively, you can pass in your assembly to register commands from all modules in your program.
+```cs
+commands.RegisterCommands(Assembly.GetExecutingAssembly());
+```
+
+<br/>
+Your main method should look similar to the following:
+```cs
+using System.Threading.Tasks;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using MyFirstBot.Commands;
+
+internal static async Task MainAsync()
 {
-	var rnd = new Random();
-	await ctx.RespondAsync($"🎲 Your random number is: {rnd.Next(min, max)}");
+    var discord = new DiscordClient(new DiscordConfiguration());
+    var commands = discord.UseCommandsNext(new CommandsNextConfiguration());
+
+    commands.RegisterCommands<MyFirstModule>();
+
+    await discord.ConnectAsync();            
+    await Task.Delay(-1);
 }
 ```
 
-Now, if you hit F5, and go to your server, you can call `;;random 0 10`, and it will respond with a random number between 0 
-and 10 exclusive.
 
-![Step 2](/images/commands_intro_02.png)
+## Running Your Command
+It's now the moment of truth; all your blood, sweat, and tears have lead to this moment.
+Hit `F5` on your keyboard to compile and run your bot, then execute your command in any channel that your bot account has access to.
 
-## 6. Advanced subjects
+![Congratulations, You've Won!](/images/commands_intro_03.png)
 
-Commands are covered more in-depth in [Emzi0767's Example bot #2](https://github.com/Emzi0767/DSharpPlus-Example-Bot/tree/master/DSPlus.Examples.CSharp.Ex02 "Example Bot #2"). 
-If you want to check out all the cool things CommandsNext can do to make your life easier, make sure to check it out.
+And, with that, you've written a basic command. 
+
+
+<br/>
+# Processing User Input
+
+## Command Arguments
+Now that we have a basic command down, let's spice it up a bit by defining *arguments* to accept user input.
+
+Defining an argument is simple; just add additional parameters to your signature of your command method. 
+CommandsNext will automatically parse user input and populate the parameters of your command method with those arguments. 
+To demonstrate, we'll modify our *greet* command to greet a user with a given name.
+
+Head back to `MyFirstModule` and add a parameter of type `string` to the `GreetCommand` method.
+```cs
+[Command("greet")]
+public async Task GreetCommand(CommandContext ctx, string name)
+```
+CommandsNext will now interpret this as a command named *greet* that takes one argument.
+
+Next, we'll change our response message to make use of our argument by replacing the existing string with an 
+[interpolated string](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated).
+```cs
+public async Task GreetCommand(CommandContext ctx, string name)
+{
+    await ctx.RespondAsync($"Greetings, {name}! You're pretty neat!");
+}
+```
+
+That's all there is to it. Smack `F5` and test it out in a channel your bot account has access to.
+
+![Greet Part 2: Electric Boogaloo](/images/commands_intro_04.png)
+
+[That was easy](https://www.youtube.com/watch?v=GsQXadrmhws).
+
+
+## Argument Converters
+As mentioned at the [beginning](#introduction-to-commandsnext) of this article, CommandsNext can convert user arguments to a type specified by a command method parameter.
+This functionality will help to eliminate the boilerplate code needed to parse and convert string arguments. CommandsNext has built-in argument converters for the following types:
+
+Category|Types
+:---:|:---
+Discord|`DiscordGuild`, `DiscordChannel`, `DiscordMember`, `DiscordUser`,<br/>`DiscordRole`, `DiscordMessage`, `DiscordEmoji`, `DiscordColor`
+Integral|`byte`, `short`, `int`, `long`, `sbyte`, `ushort`, `uint`, `ulong`
+Floating-Point|`float`, `double`, `decimal`
+Date|`DateTime`, `DateTimeOffset`, `TimeSpan`
+Character|`string`, `char`
+Boolean|`bool`
+
+If all those types aren't enough, you're also able to provide your own [custom argument converters](xref:commands_argument_converters).
+
+
+<br/>
+Let's do a quick demonstration of the built-in converters. 
+
+Open `MyFirstModule` one more time and head over to our `GreetCommand` method.
+Change the name of the `name` parameter to `member`, and change its type from `string` to `DiscordMember`.
+```cs
+public async Task GreetCommand(CommandContext ctx, DiscordMember member)
+```
+Instead of accepting a plain string, our command is now able to accept mentions, usernames, nicknames, and user IDs.
+Our response will need to be modified because of this change.
+We'll make use of the `Mention` property on `DiscordMember` to mention the provided guild member.
+```cs
+public async Task GreetCommand(CommandContext ctx, DiscordMember member)
+{
+    await ctx.RespondAsync($"Greetings, {member.Mention}! Enjoy the mention!");
+}
+```
+
+Now, run your bot once more with `F5` and give this a try in a text channel.
+
+![According to all known laws of aviation,](/images/commands_intro_05.png)
+
+![there is no way a bee should be able to fly.](/images/commands_intro_06.png)
+
+![Its wings are too small to get its fat little body off the ground.](/images/commands_intro_07.png)
+
+Super simple, just as before.
+
+
+
+# Further Reading
+Now that you have a basic understanding of CommandsNext, you should check out [PLACEHOLDER]() and follow it up with [PLACEHOLDER]().

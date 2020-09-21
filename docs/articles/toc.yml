@@ -22,7 +22,8 @@
   - name: Sharding
     href: beyond_basics/sharding.md
 - name: Commands
-  items:
+  href: commands/intro.md
+  items:  
   - name: Introduction
     href: commands/intro.md
   - name: Argument Converters
