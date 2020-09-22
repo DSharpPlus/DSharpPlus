@@ -115,7 +115,7 @@ namespace DSharpPlus.Net.WebSocket
                 if (this._ws != null && (this._ws.State == WebSocketState.Open || this._ws.State == WebSocketState.CloseReceived))
                     await this._ws.CloseOutputAsync((WebSocketCloseStatus)code, message, CancellationToken.None).ConfigureAwait(false);
 
-                if (this._receiverTask != null) 
+                if (this._receiverTask != null)
                     await this._receiverTask.ConfigureAwait(false); // Ensure that receiving completed
 
                 if (this._isConnected)
