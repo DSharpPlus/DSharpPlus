@@ -115,7 +115,8 @@ namespace DSharpPlus.Net.WebSocket
                 if (this._ws != null && (this._ws.State == WebSocketState.Open || this._ws.State == WebSocketState.CloseReceived))
                     await this._ws.CloseOutputAsync((WebSocketCloseStatus)code, message, CancellationToken.None).ConfigureAwait(false);
 
-                if (this._receiverTask != null)
+                //We need to make sure the task isn't just created or waiting. If we don't this will deadlock.
+                if (this._receiverTask != null && (int)this._receiverTask.Status > 2) 
                     await this._receiverTask.ConfigureAwait(false); // Ensure that receiving completed
 
                 if (this._isConnected)
@@ -146,6 +147,9 @@ namespace DSharpPlus.Net.WebSocket
         public async Task SendMessageAsync(string message)
         {
             if (this._ws == null)
+                return;
+
+            if (this._ws.State != WebSocketState.Open && this._ws.State != WebSocketState.CloseReceived)
                 return;
 
             var bytes = Utilities.UTF8.GetBytes(message);
@@ -233,7 +237,7 @@ namespace DSharpPlus.Net.WebSocket
                         bs.Position = 0;
                         bs.SetLength(0);
 
-                        if (!this._isConnected)
+                        if (!this._isConnected && result.MessageType != WebSocketMessageType.Close)
                         {
                             this._isConnected = true;
                             await this._connected.InvokeAsync().ConfigureAwait(false);

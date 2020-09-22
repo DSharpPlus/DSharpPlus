@@ -79,6 +79,8 @@ namespace DSharpPlus
         /// <param name="config">Configuration to use.</param>
         public DiscordShardedClient(DiscordConfiguration config)
         {
+            this.InternalSetup();
+
             this.Configuration = config;
             this.ShardClients = new ReadOnlyConcurrentDictionary<int, DiscordClient>(this._shards);
 
@@ -109,9 +111,6 @@ namespace DSharpPlus
 
             try
             {
-
-                this.InternalSetup();
-
                 if (this.Configuration.TokenType != TokenType.Bot)
                     this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
                 this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {0}", this._versionString.Value);
@@ -229,58 +228,6 @@ namespace DSharpPlus
 
         #region Private Methods/Version Property
 
-        private void InternalSetup()
-        {
-            this._clientErrored = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERRORED");
-            this._socketErrored = new AsyncEvent<SocketErrorEventArgs>(this.Goof, "SOCKET_ERRORED");
-            this._socketOpened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
-            this._socketClosed = new AsyncEvent<SocketCloseEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
-            this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
-            this._resumed = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "RESUMED");
-            this._channelCreated = new AsyncEvent<ChannelCreateEventArgs>(this.EventErrorHandler, "CHANNEL_CREATED");
-            this._dmChannelCreated = new AsyncEvent<DmChannelCreateEventArgs>(this.EventErrorHandler, "DM_CHANNEL_CREATED");
-            this._channelUpdated = new AsyncEvent<ChannelUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_UPDATED");
-            this._channelDeleted = new AsyncEvent<ChannelDeleteEventArgs>(this.EventErrorHandler, "CHANNEL_DELETED");
-            this._dmChannelDeleted = new AsyncEvent<DmChannelDeleteEventArgs>(this.EventErrorHandler, "DM_CHANNEL_DELETED");
-            this._channelPinsUpdated = new AsyncEvent<ChannelPinsUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_PINS_UPDATED");
-            this._guildCreated = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_CREATED");
-            this._guildAvailable = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_AVAILABLE");
-            this._guildUpdated = new AsyncEvent<GuildUpdateEventArgs>(this.EventErrorHandler, "GUILD_UPDATED");
-            this._guildDeleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
-            this._guildUnavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
-            this._guildDownloadCompleted = new AsyncEvent<GuildDownloadCompletedEventArgs>(this.EventErrorHandler, "GUILD_DOWNLOAD_COMPLETED");
-            this._inviteCreated = new AsyncEvent<InviteCreateEventArgs>(this.EventErrorHandler, "INVITE_CREATED");
-            this._inviteDeleted = new AsyncEvent<InviteDeleteEventArgs>(this.EventErrorHandler, "INVITE_DELETED");
-            this._messageCreated = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
-            this._presenceUpdated = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATED");
-            this._guildBanAdded = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADDED");
-            this._guildBanRemoved = new AsyncEvent<GuildBanRemoveEventArgs>(this.EventErrorHandler, "GUILD_BAN_REMOVED");
-            this._guildEmojisUpdated = new AsyncEvent<GuildEmojisUpdateEventArgs>(this.EventErrorHandler, "GUILD_EMOJI_UPDATED");
-            this._guildIntegrationsUpdated = new AsyncEvent<GuildIntegrationsUpdateEventArgs>(this.EventErrorHandler, "GUILD_INTEGRATIONS_UPDATED");
-            this._guildMemberAdded = new AsyncEvent<GuildMemberAddEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_ADDED");
-            this._guildMemberRemoved = new AsyncEvent<GuildMemberRemoveEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_REMOVED");
-            this._guildMemberUpdated = new AsyncEvent<GuildMemberUpdateEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_UPDATED");
-            this._guildRoleCreated = new AsyncEvent<GuildRoleCreateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_CREATED");
-            this._guildRoleUpdated = new AsyncEvent<GuildRoleUpdateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_UPDATED");
-            this._guildRoleDeleted = new AsyncEvent<GuildRoleDeleteEventArgs>(this.EventErrorHandler, "GUILD_ROLE_DELETED");
-            this._messageUpdated = new AsyncEvent<MessageUpdateEventArgs>(this.EventErrorHandler, "MESSAGE_UPDATED");
-            this._messageDeleted = new AsyncEvent<MessageDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_DELETED");
-            this._messageBulkDeleted = new AsyncEvent<MessageBulkDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_BULK_DELETED");
-            this._typingStarted = new AsyncEvent<TypingStartEventArgs>(this.EventErrorHandler, "TYPING_STARTED");
-            this._userSettingsUpdated = new AsyncEvent<UserSettingsUpdateEventArgs>(this.EventErrorHandler, "USER_SETTINGS_UPDATED");
-            this._userUpdated = new AsyncEvent<UserUpdateEventArgs>(this.EventErrorHandler, "USER_UPDATED");
-            this._voiceStateUpdated = new AsyncEvent<VoiceStateUpdateEventArgs>(this.EventErrorHandler, "VOICE_STATE_UPDATED");
-            this._voiceServerUpdated = new AsyncEvent<VoiceServerUpdateEventArgs>(this.EventErrorHandler, "VOICE_SERVER_UPDATED");
-            this._guildMembersChunk = new AsyncEvent<GuildMembersChunkEventArgs>(this.EventErrorHandler, "GUILD_MEMBERS_CHUNKED");
-            this._unknownEvent = new AsyncEvent<UnknownEventArgs>(this.EventErrorHandler, "UNKNOWN_EVENT");
-            this._messageReactionAdded = new AsyncEvent<MessageReactionAddEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_ADDED");
-            this._messageReactionRemoved = new AsyncEvent<MessageReactionRemoveEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED");
-            this._messageReactionsCleared = new AsyncEvent<MessageReactionsClearEventArgs>(this.EventErrorHandler, "MESSAGE_REACTIONS_CLEARED");
-            this._messageReactionRemovedEmoji = new AsyncEvent<MessageReactionRemoveEmojiEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED_EMOJI");
-            this._webhooksUpdated = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
-            this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
-        }
-
         private async Task<GatewayInfo> GetGatewayInfoAsync()
         {
             var url = $"{Utilities.GetApiBaseUri()}{Endpoints.GATEWAY}{Endpoints.BOT}";
@@ -354,6 +301,112 @@ namespace DSharpPlus
                 client._voice_regions_lazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(client.InternalVoiceRegions));
             }
 
+            this.HookEventHandlers(client);
+
+            client._isShard = true;
+            await client.ConnectAsync().ConfigureAwait(false);
+            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {0}.", i);
+
+            if (this.CurrentUser == null)
+                this.CurrentUser = client.CurrentUser;
+
+            if (this.CurrentApplication == null)
+                this.CurrentApplication = client.CurrentApplication;
+
+            if (this._internalVoiceRegions == null)
+            {
+                this._internalVoiceRegions = client.InternalVoiceRegions;
+                this._voiceRegionsLazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this._internalVoiceRegions));
+            }
+        }
+
+        private Task InternalStopAsync(bool enableLogger = true)
+        {
+            if (!this._isStarted)
+                throw new InvalidOperationException("This client has not been started.");
+
+            if (enableLogger)
+                this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disposing {0} shards.", this._shards.Count);
+
+            this._isStarted = false;
+            this._voiceRegionsLazy = null;
+
+            this.GatewayInfo = null;
+            this.CurrentUser = null;
+            this.CurrentApplication = null;
+
+            for (int i = 0; i < this._shards.Count; i++)
+            {
+                if (this._shards.TryGetValue(i, out var client))
+                {
+                    this.UnhookEventHandlers(client);
+
+                    client.Dispose();
+
+                    if (enableLogger)
+                        this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disconnected shard {0}.", i);
+                }
+            }
+
+            this._shards.Clear();
+
+            return Task.CompletedTask;
+        }
+
+        private void InternalSetup()
+        {
+            this._clientErrored = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERRORED");
+            this._socketErrored = new AsyncEvent<SocketErrorEventArgs>(this.Goof, "SOCKET_ERRORED");
+            this._socketOpened = new AsyncEvent(this.EventErrorHandler, "SOCKET_OPENED");
+            this._socketClosed = new AsyncEvent<SocketCloseEventArgs>(this.EventErrorHandler, "SOCKET_CLOSED");
+            this._ready = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "READY");
+            this._resumed = new AsyncEvent<ReadyEventArgs>(this.EventErrorHandler, "RESUMED");
+            this._channelCreated = new AsyncEvent<ChannelCreateEventArgs>(this.EventErrorHandler, "CHANNEL_CREATED");
+            this._dmChannelCreated = new AsyncEvent<DmChannelCreateEventArgs>(this.EventErrorHandler, "DM_CHANNEL_CREATED");
+            this._channelUpdated = new AsyncEvent<ChannelUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_UPDATED");
+            this._channelDeleted = new AsyncEvent<ChannelDeleteEventArgs>(this.EventErrorHandler, "CHANNEL_DELETED");
+            this._dmChannelDeleted = new AsyncEvent<DmChannelDeleteEventArgs>(this.EventErrorHandler, "DM_CHANNEL_DELETED");
+            this._channelPinsUpdated = new AsyncEvent<ChannelPinsUpdateEventArgs>(this.EventErrorHandler, "CHANNEL_PINS_UPDATED");
+            this._guildCreated = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_CREATED");
+            this._guildAvailable = new AsyncEvent<GuildCreateEventArgs>(this.EventErrorHandler, "GUILD_AVAILABLE");
+            this._guildUpdated = new AsyncEvent<GuildUpdateEventArgs>(this.EventErrorHandler, "GUILD_UPDATED");
+            this._guildDeleted = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_DELETED");
+            this._guildUnavailable = new AsyncEvent<GuildDeleteEventArgs>(this.EventErrorHandler, "GUILD_UNAVAILABLE");
+            this._guildDownloadCompleted = new AsyncEvent<GuildDownloadCompletedEventArgs>(this.EventErrorHandler, "GUILD_DOWNLOAD_COMPLETED");
+            this._inviteCreated = new AsyncEvent<InviteCreateEventArgs>(this.EventErrorHandler, "INVITE_CREATED");
+            this._inviteDeleted = new AsyncEvent<InviteDeleteEventArgs>(this.EventErrorHandler, "INVITE_DELETED");
+            this._messageCreated = new AsyncEvent<MessageCreateEventArgs>(this.EventErrorHandler, "MESSAGE_CREATED");
+            this._presenceUpdated = new AsyncEvent<PresenceUpdateEventArgs>(this.EventErrorHandler, "PRESENCE_UPDATED");
+            this._guildBanAdded = new AsyncEvent<GuildBanAddEventArgs>(this.EventErrorHandler, "GUILD_BAN_ADDED");
+            this._guildBanRemoved = new AsyncEvent<GuildBanRemoveEventArgs>(this.EventErrorHandler, "GUILD_BAN_REMOVED");
+            this._guildEmojisUpdated = new AsyncEvent<GuildEmojisUpdateEventArgs>(this.EventErrorHandler, "GUILD_EMOJI_UPDATED");
+            this._guildIntegrationsUpdated = new AsyncEvent<GuildIntegrationsUpdateEventArgs>(this.EventErrorHandler, "GUILD_INTEGRATIONS_UPDATED");
+            this._guildMemberAdded = new AsyncEvent<GuildMemberAddEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_ADDED");
+            this._guildMemberRemoved = new AsyncEvent<GuildMemberRemoveEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_REMOVED");
+            this._guildMemberUpdated = new AsyncEvent<GuildMemberUpdateEventArgs>(this.EventErrorHandler, "GUILD_MEMBER_UPDATED");
+            this._guildRoleCreated = new AsyncEvent<GuildRoleCreateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_CREATED");
+            this._guildRoleUpdated = new AsyncEvent<GuildRoleUpdateEventArgs>(this.EventErrorHandler, "GUILD_ROLE_UPDATED");
+            this._guildRoleDeleted = new AsyncEvent<GuildRoleDeleteEventArgs>(this.EventErrorHandler, "GUILD_ROLE_DELETED");
+            this._messageUpdated = new AsyncEvent<MessageUpdateEventArgs>(this.EventErrorHandler, "MESSAGE_UPDATED");
+            this._messageDeleted = new AsyncEvent<MessageDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_DELETED");
+            this._messageBulkDeleted = new AsyncEvent<MessageBulkDeleteEventArgs>(this.EventErrorHandler, "MESSAGE_BULK_DELETED");
+            this._typingStarted = new AsyncEvent<TypingStartEventArgs>(this.EventErrorHandler, "TYPING_STARTED");
+            this._userSettingsUpdated = new AsyncEvent<UserSettingsUpdateEventArgs>(this.EventErrorHandler, "USER_SETTINGS_UPDATED");
+            this._userUpdated = new AsyncEvent<UserUpdateEventArgs>(this.EventErrorHandler, "USER_UPDATED");
+            this._voiceStateUpdated = new AsyncEvent<VoiceStateUpdateEventArgs>(this.EventErrorHandler, "VOICE_STATE_UPDATED");
+            this._voiceServerUpdated = new AsyncEvent<VoiceServerUpdateEventArgs>(this.EventErrorHandler, "VOICE_SERVER_UPDATED");
+            this._guildMembersChunk = new AsyncEvent<GuildMembersChunkEventArgs>(this.EventErrorHandler, "GUILD_MEMBERS_CHUNKED");
+            this._unknownEvent = new AsyncEvent<UnknownEventArgs>(this.EventErrorHandler, "UNKNOWN_EVENT");
+            this._messageReactionAdded = new AsyncEvent<MessageReactionAddEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_ADDED");
+            this._messageReactionRemoved = new AsyncEvent<MessageReactionRemoveEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED");
+            this._messageReactionsCleared = new AsyncEvent<MessageReactionsClearEventArgs>(this.EventErrorHandler, "MESSAGE_REACTIONS_CLEARED");
+            this._messageReactionRemovedEmoji = new AsyncEvent<MessageReactionRemoveEmojiEventArgs>(this.EventErrorHandler, "MESSAGE_REACTION_REMOVED_EMOJI");
+            this._webhooksUpdated = new AsyncEvent<WebhooksUpdateEventArgs>(this.EventErrorHandler, "WEBHOOKS_UPDATED");
+            this._heartbeated = new AsyncEvent<HeartbeatEventArgs>(this.EventErrorHandler, "HEARTBEATED");
+        }
+
+        private void HookEventHandlers(DiscordClient client)
+        {
             client.ClientErrored += this.Client_ClientError;
             client.SocketErrored += this.Client_SocketError;
             client.SocketOpened += this.Client_SocketOpened;
@@ -402,102 +455,58 @@ namespace DSharpPlus
             client.MessageReactionRemovedEmoji += this.Client_MessageReactionRemovedEmoji;
             client.WebhooksUpdated += this.Client_WebhooksUpdate;
             client.Heartbeated += this.Client_HeartBeated;
-
-            client._isShard = true;
-            await client.ConnectAsync().ConfigureAwait(false);
-            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {0}", i);
-
-            if (this.CurrentUser == null)
-                this.CurrentUser = client.CurrentUser;
-
-            if (this.CurrentApplication == null)
-                this.CurrentApplication = client.CurrentApplication;
-
-            if (this._internalVoiceRegions == null)
-            {
-                this._internalVoiceRegions = client.InternalVoiceRegions;
-                this._voiceRegionsLazy = new Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>>(() => new ReadOnlyDictionary<string, DiscordVoiceRegion>(this._internalVoiceRegions));
-            }
         }
 
-        private Task InternalStopAsync(bool enableLogger = true)
+        private void UnhookEventHandlers(DiscordClient client)
         {
-            if (!this._isStarted)
-                throw new InvalidOperationException("This client has not been started.");
-
-            if (enableLogger)
-                this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disposing {0} shards.", this._shards.Count);
-
-            this._isStarted = false;
-            this._voiceRegionsLazy = null;
-
-            this.GatewayInfo = null;
-            this.CurrentUser = null;
-            this.CurrentApplication = null;
-
-            for (int i = 0; i < this._shards.Count; i++)
-            {
-                if (this._shards.TryGetValue(i, out var client))
-                {
-                    client.ClientErrored -= this.Client_ClientError;
-                    client.SocketErrored -= this.Client_SocketError;
-                    client.SocketOpened -= this.Client_SocketOpened;
-                    client.SocketClosed -= this.Client_SocketClosed;
-                    client.Ready -= this.Client_Ready;
-                    client.Resumed -= this.Client_Resumed;
-                    client.ChannelCreated -= this.Client_ChannelCreated;
-                    client.DmChannelCreated -= this.Client_DMChannelCreated;
-                    client.ChannelUpdated -= this.Client_ChannelUpdated;
-                    client.ChannelDeleted -= this.Client_ChannelDeleted;
-                    client.DmChannelDeleted -= this.Client_DMChannelDeleted;
-                    client.ChannelPinsUpdated -= this.Client_ChannelPinsUpdated;
-                    client.GuildCreated -= this.Client_GuildCreated;
-                    client.GuildAvailable -= this.Client_GuildAvailable;
-                    client.GuildUpdated -= this.Client_GuildUpdated;
-                    client.GuildDeleted -= this.Client_GuildDeleted;
-                    client.GuildUnavailable -= this.Client_GuildUnavailable;
-                    client.GuildDownloadCompleted -= this.Client_GuildDownloadCompleted;
-                    client.InviteCreated -= this.Client_InviteCreated;
-                    client.InviteDeleted -= this.Client_InviteDeleted;
-                    client.MessageCreated -= this.Client_MessageCreated;
-                    client.PresenceUpdated -= this.Client_PresenceUpdate;
-                    client.GuildBanAdded -= this.Client_GuildBanAdd;
-                    client.GuildBanRemoved -= this.Client_GuildBanRemove;
-                    client.GuildEmojisUpdated -= this.Client_GuildEmojisUpdate;
-                    client.GuildIntegrationsUpdated -= this.Client_GuildIntegrationsUpdate;
-                    client.GuildMemberAdded -= this.Client_GuildMemberAdd;
-                    client.GuildMemberRemoved -= this.Client_GuildMemberRemove;
-                    client.GuildMemberUpdated -= this.Client_GuildMemberUpdate;
-                    client.GuildRoleCreated -= this.Client_GuildRoleCreate;
-                    client.GuildRoleUpdated -= this.Client_GuildRoleUpdate;
-                    client.GuildRoleDeleted -= this.Client_GuildRoleDelete;
-                    client.MessageUpdated -= this.Client_MessageUpdate;
-                    client.MessageDeleted -= this.Client_MessageDelete;
-                    client.MessagesBulkDeleted -= this.Client_MessageBulkDelete;
-                    client.TypingStarted -= this.Client_TypingStart;
-                    client.UserSettingsUpdated -= this.Client_UserSettingsUpdate;
-                    client.UserUpdated -= this.Client_UserUpdate;
-                    client.VoiceStateUpdated -= this.Client_VoiceStateUpdate;
-                    client.VoiceServerUpdated -= this.Client_VoiceServerUpdate;
-                    client.GuildMembersChunked -= this.Client_GuildMembersChunk;
-                    client.UnknownEvent -= this.Client_UnknownEvent;
-                    client.MessageReactionAdded -= this.Client_MessageReactionAdd;
-                    client.MessageReactionRemoved -= this.Client_MessageReactionRemove;
-                    client.MessageReactionsCleared -= this.Client_MessageReactionRemoveAll;
-                    client.MessageReactionRemovedEmoji -= this.Client_MessageReactionRemovedEmoji;
-                    client.WebhooksUpdated -= this.Client_WebhooksUpdate;
-                    client.Heartbeated -= this.Client_HeartBeated;
-
-                    client.Dispose();
-
-                    if (enableLogger)
-                        this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disconnected shard {0}.", i);
-                }
-            }
-
-            this._shards.Clear();
-
-            return Task.CompletedTask;
+            client.ClientErrored -= this.Client_ClientError;
+            client.SocketErrored -= this.Client_SocketError;
+            client.SocketOpened -= this.Client_SocketOpened;
+            client.SocketClosed -= this.Client_SocketClosed;
+            client.Ready -= this.Client_Ready;
+            client.Resumed -= this.Client_Resumed;
+            client.ChannelCreated -= this.Client_ChannelCreated;
+            client.DmChannelCreated -= this.Client_DMChannelCreated;
+            client.ChannelUpdated -= this.Client_ChannelUpdated;
+            client.ChannelDeleted -= this.Client_ChannelDeleted;
+            client.DmChannelDeleted -= this.Client_DMChannelDeleted;
+            client.ChannelPinsUpdated -= this.Client_ChannelPinsUpdated;
+            client.GuildCreated -= this.Client_GuildCreated;
+            client.GuildAvailable -= this.Client_GuildAvailable;
+            client.GuildUpdated -= this.Client_GuildUpdated;
+            client.GuildDeleted -= this.Client_GuildDeleted;
+            client.GuildUnavailable -= this.Client_GuildUnavailable;
+            client.GuildDownloadCompleted -= this.Client_GuildDownloadCompleted;
+            client.InviteCreated -= this.Client_InviteCreated;
+            client.InviteDeleted -= this.Client_InviteDeleted;
+            client.MessageCreated -= this.Client_MessageCreated;
+            client.PresenceUpdated -= this.Client_PresenceUpdate;
+            client.GuildBanAdded -= this.Client_GuildBanAdd;
+            client.GuildBanRemoved -= this.Client_GuildBanRemove;
+            client.GuildEmojisUpdated -= this.Client_GuildEmojisUpdate;
+            client.GuildIntegrationsUpdated -= this.Client_GuildIntegrationsUpdate;
+            client.GuildMemberAdded -= this.Client_GuildMemberAdd;
+            client.GuildMemberRemoved -= this.Client_GuildMemberRemove;
+            client.GuildMemberUpdated -= this.Client_GuildMemberUpdate;
+            client.GuildRoleCreated -= this.Client_GuildRoleCreate;
+            client.GuildRoleUpdated -= this.Client_GuildRoleUpdate;
+            client.GuildRoleDeleted -= this.Client_GuildRoleDelete;
+            client.MessageUpdated -= this.Client_MessageUpdate;
+            client.MessageDeleted -= this.Client_MessageDelete;
+            client.MessagesBulkDeleted -= this.Client_MessageBulkDelete;
+            client.TypingStarted -= this.Client_TypingStart;
+            client.UserSettingsUpdated -= this.Client_UserSettingsUpdate;
+            client.UserUpdated -= this.Client_UserUpdate;
+            client.VoiceStateUpdated -= this.Client_VoiceStateUpdate;
+            client.VoiceServerUpdated -= this.Client_VoiceServerUpdate;
+            client.GuildMembersChunked -= this.Client_GuildMembersChunk;
+            client.UnknownEvent -= this.Client_UnknownEvent;
+            client.MessageReactionAdded -= this.Client_MessageReactionAdd;
+            client.MessageReactionRemoved -= this.Client_MessageReactionRemove;
+            client.MessageReactionsCleared -= this.Client_MessageReactionRemoveAll;
+            client.MessageReactionRemovedEmoji -= this.Client_MessageReactionRemovedEmoji;
+            client.WebhooksUpdated -= this.Client_WebhooksUpdate;
+            client.Heartbeated -= this.Client_HeartBeated;
         }
 
         #endregion
