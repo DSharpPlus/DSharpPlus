@@ -353,6 +353,10 @@ namespace DSharpPlus
             return Task.CompletedTask;
         }
 
+        #endregion
+
+        #region Event Handler Initialization/Registering
+
         private void InternalSetup()
         {
             this._clientErrored = new AsyncEvent<ClientErrorEventArgs>(this.Goof, "CLIENT_ERRORED");
