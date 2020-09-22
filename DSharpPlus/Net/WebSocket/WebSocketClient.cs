@@ -148,6 +148,9 @@ namespace DSharpPlus.Net.WebSocket
             if (this._ws == null)
                 return;
 
+            if (this._ws.State != WebSocketState.Open && this._ws.State != WebSocketState.CloseReceived)
+                return;
+
             var bytes = Utilities.UTF8.GetBytes(message);
             await this._senderLock.WaitAsync().ConfigureAwait(false);
             try
@@ -233,7 +236,7 @@ namespace DSharpPlus.Net.WebSocket
                         bs.Position = 0;
                         bs.SetLength(0);
 
-                        if (!this._isConnected)
+                        if (!this._isConnected && result.MessageType != WebSocketMessageType.Close)
                         {
                             this._isConnected = true;
                             await this._connected.InvokeAsync().ConfigureAwait(false);

@@ -165,7 +165,8 @@ namespace DSharpPlus
                 this.ConnectionLock.Set();
                 this.SessionLock.Set();
 
-                this._cancelTokenSource.Cancel();
+                if(!this._disposed)
+                    this._cancelTokenSource.Cancel();
 
                 this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
                 await this._socketClosed.InvokeAsync(new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
