@@ -287,7 +287,7 @@ namespace DSharpPlus
                     this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {0}\npayload: {1}", payload.EventName, payload.Data);
                     break;
 
-                    #endregion
+                #endregion
             }
         }
 
