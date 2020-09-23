@@ -7,9 +7,8 @@ title: CommandsNext Introduction
  > This article assumes you've recently read the article on *[writing your first bot](xref:basics_first_bot)*.
 
 # Introduction to CommandsNext 
-Each article in this section will cover the native command framework for DSharpPlus: *CommandsNext*.
-Not only will this framework handle the registration and execution of your commands, it can also automatically convert user input to a range of types.
-It'll even bring you a sandwich and wash your dishes if you ask it nicely. Amazing!
+This article will introduce basic concepts for the native command framework: *CommandsNext*.<br/>
+This framework will, among other things, properly handle the registration and execution of your commands.
 
 Be sure to install the `DSharpPlus.CommandsNext` package from NuGet before continuing.
 
@@ -84,7 +83,7 @@ public class MyFirstModule : BaseCommandModule
 }
 ```
 
-## Cleanup and Registration 
+## Cleanup and Configuration 
 Before we can run our new command, we'll need modify our main method.<br/>
 Start by removing the event handler we created [previously](xref:basics_first_bot#spicing-up-your-bot).
 ```cs
@@ -100,10 +99,13 @@ await discord.ConnectAsync();
 ```
 
 <br/>
-Now we'll need to enable CommandsNext for our `DiscordClient` instance.
+Next, CommandsNext will need to be enabled on our `DiscordClient`.
 
-Create a new variable named `commands` and assign it the result of `DiscordClient#UseCommandsNext()`.<br/>
-You'll also need to pass in a new `CommandsNextConfiguration` instance to that extension method.
+You'll need to call the `UseCommandsNext` extension method on `DiscordClient`.<br/>
+A `CommandsNextConfiguration` instance will need to be passed to that method.
+
+Assign the result of `DiscordClient#UseCommandsNext` to a new varible named `commands`.
+
 ```cs
 var discord = new DiscordClient();
 
@@ -163,11 +165,11 @@ Hit `F5` on your keyboard to compile and run your bot, then execute your command
 
 ![Congratulations, You've Won!](/images/commands_intro_03.png)
 
-And, with that, you've written a basic command. 
+[That was easy](https://www.youtube.com/watch?v=GsQXadrmhws).
 
 
 <br/>
-# Processing User Input
+# Taking User Input
 
 ## Command Arguments
 Now that we have a basic command down, let's spice it up a bit by defining *arguments* to accept user input.
@@ -183,8 +185,8 @@ public async Task GreetCommand(CommandContext ctx, string name)
 ```
 CommandsNext will now interpret this as a command named *greet* that takes one argument.
 
-Next, we'll change our response message to make use of our argument by replacing the existing string with an 
-[interpolated string](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated).
+Next, replace our original response message with an [interpolated string](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated)
+which uses our new parameter.
 ```cs
 public async Task GreetCommand(CommandContext ctx, string name)
 {
@@ -196,12 +198,49 @@ That's all there is to it. Smack `F5` and test it out in a channel your bot acco
 
 ![Greet Part 2: Electric Boogaloo](/images/commands_intro_04.png)
 
-[That was easy](https://www.youtube.com/watch?v=GsQXadrmhws).
+<br/>
+Now, you may have noticed that providing more than one word simply does not work.<br/>
+For example, `!greet Luke Smith` will result in no response from your bot.
+
+This fails because CommandsNext cannot find a valid overload for your command.
+
+CommandsNext will split arguments by whitespace. This means `Luke Smith` is counted as two separate arguments; `Luke` and `Smith`.
+In addition to this, CommandsNext will attempt to find and execute an overload of your command that has the *same number* of provided arguments.
+Together, this means that any additional arguments will prevent CommandsNext from finding a valid overload to execute.
+
+Yes, this means CommandsNext supports overloads; we'll touch on that a bit further down in this article.</br>
+For now though, we'll take a look at a few different ways to work with the above.
+
+<br/>
+The simplest way to go about this would be to wrap your input with double quotes.<br/>
+CommandsNext will parse this as one argument, allowing your command to be executed.
+```
+!greet "Luke Smith"
+```
+This option is generally not desired by the end user.
+
+A more obvious solution is adding additional parameters to the method signature of your command.<br/>
+```cs
+public async Task GreetCommand(CommandContext ctx, string firstName, string lastName)
+```
+Do keep in mind that providing fewer arguments will put yourself in the same situation.<br/>
+Consider assigning default values to non-vital parameters, the `lastName` parameter being a good example.
+
+Lastly, you can use the `RemainingText` attribute on your parameter.<br/>
+This attribute will instruct CommandsNext to parse all remaining arguments into that parameter. 
+```cs
+public async Task GreetCommand(CommandContext ctx, [RemainingText]string name)
+```
+
+<br/>
+Each of these has their own caveats; it'll be up to you to choose the best solution for your commands.
 
 
 ## Argument Converters
-As mentioned at the [beginning](#introduction-to-commandsnext) of this article, CommandsNext can convert user arguments to a type specified by a command method parameter.
-This functionality will help to eliminate the boilerplate code needed to parse and convert string arguments. CommandsNext has built-in argument converters for the following types:
+CommandsNext can convert arguments, which are natively `string`, to the type specified by a command method parameter.
+This functionality is powered by *argument converters*, and it'll help to eliminate the boilerplate code needed to parse and convert `string` arguments. 
+
+CommandsNext has built-in argument converters for the following types:
 
 Category|Types
 :---:|:---
@@ -243,6 +282,9 @@ Now, run your bot once more with `F5` and give this a try in a text channel.
 
 Super simple, just as before.
 
+
+# Command Overloads
+As of version 4.0.0, CommandsNext has support for overloading command methods.
 
 
 # Further Reading
