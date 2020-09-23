@@ -26,18 +26,18 @@
   items:  
   - name: Introduction
     href: commands/intro.md
-  - name: Argument Converters
-    href: commands/argument_converters.md
-  - name: Module Lifespans
-    href: commands/module_lifespans.md
-  - name: Dependency Injection
-    href: commands/dependency_injection.md
-  - name: Custom Command Handler
-    href: commands/custom_handler.md
   - name: Command Attributes
     href: commands/command_attributes.md
+  - name: Dependency Injection
+    href: commands/dependency_injection.md
+  - name: Module Lifespans
+    href: commands/module_lifespans.md
   - name: Custom Help Formatter
     href: commands/help_formatter.md
+  - name: Custom Argument Converters
+    href: commands/argument_converters.md
+  - name: Custom Command Handler
+    href: commands/custom_handler.md
 - name: Interactivity
   items:
   - name: Introduction
