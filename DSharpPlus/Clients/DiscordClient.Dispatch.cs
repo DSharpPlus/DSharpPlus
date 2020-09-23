@@ -287,7 +287,7 @@ namespace DSharpPlus
                     this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {0}\npayload: {1}", payload.EventName, payload.Data);
                     break;
 
-                #endregion
+                    #endregion
             }
         }
 
@@ -1131,14 +1131,15 @@ namespace DSharpPlus
 
         internal async Task OnMessageAckEventAsync(DiscordChannel chn, ulong messageId)
         {
-            DiscordMessage msg = null;
-            if (this.MessageCache?.TryGet(xm => xm.Id == messageId && xm.ChannelId == chn.Id, out msg) != true)
+            if (this.MessageCache == null || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == chn.Id, out var msg))
+            {
                 msg = new DiscordMessage
                 {
                     Id = messageId,
                     ChannelId = chn.Id,
                     Discord = this,
                 };
+            }
 
             await this._messageAcknowledged.InvokeAsync(new MessageAcknowledgeEventArgs(this) { Message = msg }).ConfigureAwait(false);
         }
@@ -1202,7 +1203,7 @@ namespace DSharpPlus
                 xr.Emoji.Discord = this;
 
             if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
-                this.MessageCache.Add(message);
+                this.MessageCache?.Add(message);
 
             MessageCreateEventArgs ea = new MessageCreateEventArgs(this)
             {
@@ -1223,7 +1224,9 @@ namespace DSharpPlus
             var event_message = message;
 
             DiscordMessage oldmsg = null;
-            if (this.Configuration.MessageCacheSize == 0 || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
+            if (this.Configuration.MessageCacheSize == 0 
+                || this.MessageCache == null
+                || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
             {
                 message = event_message;
                 guild = message.Channel?.Guild;
@@ -1308,11 +1311,14 @@ namespace DSharpPlus
             var channel = this.InternalGetCachedChannel(channelId);
             var guild = this.InternalGetCachedGuild(guildId);
 
-            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+            if (channel == null 
+                || this.Configuration.MessageCacheSize == 0 
+                || this.MessageCache == null
+                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {
+
                     Id = messageId,
                     ChannelId = channelId,
                     Discord = this,
@@ -1320,7 +1326,7 @@ namespace DSharpPlus
             }
 
             if (this.Configuration.MessageCacheSize > 0)
-                this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
+                this.MessageCache?.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
 
             var ea = new MessageDeleteEventArgs(this)
             {
@@ -1338,8 +1344,10 @@ namespace DSharpPlus
             var msgs = new List<DiscordMessage>(messageIds.Length);
             foreach (var messageId in messageIds)
             {
-                if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                    !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+                if (channel == null 
+                    || this.Configuration.MessageCacheSize == 0 
+                    || this.MessageCache == null
+                    || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
                 {
                     msg = new DiscordMessage
                     {
@@ -1349,7 +1357,7 @@ namespace DSharpPlus
                     };
                 }
                 if (this.Configuration.MessageCacheSize > 0)
-                    this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
+                    this.MessageCache?.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
                 msgs.Add(msg);
             }
 
@@ -1384,8 +1392,10 @@ namespace DSharpPlus
                     ? member
                     : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
 
-            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+            if (channel == null 
+                || this.Configuration.MessageCacheSize == 0 
+                || this.MessageCache == null
+                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1436,8 +1446,10 @@ namespace DSharpPlus
                     ? member
                     : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
 
-            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+            if (channel == null 
+                || this.Configuration.MessageCacheSize == 0 
+                || this.MessageCache == null
+                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1478,8 +1490,10 @@ namespace DSharpPlus
         {
             var channel = this.InternalGetCachedChannel(channelId);
 
-            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+            if (channel == null 
+                || this.Configuration.MessageCacheSize == 0 
+                || this.MessageCache == null
+                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {
@@ -1507,8 +1521,10 @@ namespace DSharpPlus
             var guild = this.InternalGetCachedGuild(guildId);
             var channel = this.InternalGetCachedChannel(channelId);
 
-            if (channel == null || this.Configuration.MessageCacheSize == 0 ||
-                !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
+            if (channel == null 
+                || this.Configuration.MessageCacheSize == 0 
+                || this.MessageCache == null
+                || !this.MessageCache.TryGet(xm => xm.Id == messageId && xm.ChannelId == channelId, out var msg))
             {
                 msg = new DiscordMessage
                 {

@@ -307,8 +307,13 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public async Task<DiscordMessage> GetMessageAsync(ulong id)
         {
-            if (this.Discord.Configuration.MessageCacheSize > 0 && this.Discord is DiscordClient dc && dc.MessageCache.TryGet(xm => xm.Id == id && xm.ChannelId == this.Id, out var msg))
+            if (this.Discord.Configuration.MessageCacheSize > 0 
+                && this.Discord is DiscordClient dc 
+                && dc.MessageCache != null 
+                && dc.MessageCache.TryGet(xm => xm.Id == id && xm.ChannelId == this.Id, out var msg))
+            {
                 return msg;
+            }
 
             return await this.Discord.ApiClient.GetMessageAsync(Id, id).ConfigureAwait(false);
         }

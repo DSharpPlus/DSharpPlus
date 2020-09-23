@@ -359,16 +359,6 @@ namespace DSharpPlus
         private AsyncEvent<MessageCreateEventArgs> _messageCreated;
 
         /// <summary>
-        /// Fired when message is acknowledged by the user.
-        /// </summary>
-        public event AsyncEventHandler<MessageAcknowledgeEventArgs> MessageAcknowledged
-        {
-            add => this._messageAcknowledged.Register(value);
-            remove => this._messageAcknowledged.Unregister(value);
-        }
-        private AsyncEvent<MessageAcknowledgeEventArgs> _messageAcknowledged;
-
-        /// <summary>
         /// Fired when a message is updated.
         /// </summary>
         public event AsyncEventHandler<MessageUpdateEventArgs> MessageUpdated
