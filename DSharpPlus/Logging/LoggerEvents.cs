@@ -120,7 +120,7 @@ namespace DSharpPlus
         /// <summary>
         /// Events pertaining to the <see cref="DiscordShardedClient"/>'s shards not initializing correctly.
         /// </summary>
-        public static EventId ShardClientFailure { get; } = new EventId(122, nameof(ShardClientFailure));
+        public static EventId ShardClientError { get; } = new EventId(122, nameof(ShardClientError));
 
         /// <summary>
         /// Events containing raw payloads, as they're received from Discord's REST API.
