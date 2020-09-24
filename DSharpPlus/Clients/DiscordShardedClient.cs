@@ -1,18 +1,19 @@
 ﻿#pragma warning disable CS0618
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
+using System.Reflection;
+using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using DSharpPlus.Net;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using System.Globalization;
-using System.Reflection;
-using System.Diagnostics;
-using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
@@ -146,7 +147,7 @@ namespace DSharpPlus
 
                 var message = $"Shard initialization failed, check inner exceptions for details: ";
 
-                this.Logger.LogCritical(LoggerEvents.ShardClientFailure, $"{message}\n{ex}");
+                this.Logger.LogCritical(LoggerEvents.ShardClientError, $"{message}\n{ex}");
                 throw new AggregateException(message, ex);
             }
         }
@@ -241,6 +242,14 @@ namespace DSharpPlus
             
             http.Dispose();
 
+            if (!resp.IsSuccessStatusCode)
+            {
+                var ratelimited = await HandleHttpError(url, resp).ConfigureAwait(false);
+
+                if (ratelimited)
+                    return await this.GetGatewayInfoAsync().ConfigureAwait(false);
+            }
+
             var timer = new Stopwatch();
             timer.Start();
 
@@ -254,6 +263,39 @@ namespace DSharpPlus
             info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
 
             return info;
+
+
+            async Task<bool> HandleHttpError(string reqUrl, HttpResponseMessage msg)
+            {
+                var code = (int)msg.StatusCode;
+
+                if (code == 401 || code == 403)
+                {
+                    throw new Exception($"Authentication failed, check your token and try again: {code}");
+                }
+                else if (code == 429)
+                {
+                    this.Logger.LogError(LoggerEvents.ShardClientError, $"Ratelimit hit, requeuing request to {reqUrl}");
+
+                    var hs = msg.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value), StringComparer.OrdinalIgnoreCase);
+                    var waitInterval = 0;
+
+                    if (hs.TryGetValue("Retry-After", out var retry_after_raw))
+                        waitInterval = int.Parse(retry_after_raw, CultureInfo.InvariantCulture);
+
+                    await Task.Delay(waitInterval).ConfigureAwait(false);
+                    return true;
+                }
+                else if (code >= 500)
+                {
+                    throw new Exception($"Internal Server Error: {code}");
+                }
+                else
+                {
+                    throw new Exception($"An unsuccessful HTTP status code was encountered: {code}");
+                }
+
+            }
         }
 
 
