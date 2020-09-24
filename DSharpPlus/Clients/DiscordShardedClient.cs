@@ -270,7 +270,7 @@ namespace DSharpPlus
 
                 if (code == 401 || code == 403)
                 {
-                    throw new Exception($"Authentication failed, check your token and try again: {code}");
+                    throw new Exception($"Authentication failed, check your token and try again: {code} {msg.ReasonPhrase}");
                 }
                 else if (code == 429)
                 {
@@ -287,11 +287,11 @@ namespace DSharpPlus
                 }
                 else if (code >= 500)
                 {
-                    throw new Exception($"Internal Server Error: {code}");
+                    throw new Exception($"Internal Server Error: {code} {msg.ReasonPhrase}");
                 }
                 else
                 {
-                    throw new Exception($"An unsuccessful HTTP status code was encountered: {code}");
+                    throw new Exception($"An unsuccessful HTTP status code was encountered: {code} {msg.ReasonPhrase}");
                 }
             }
         }
