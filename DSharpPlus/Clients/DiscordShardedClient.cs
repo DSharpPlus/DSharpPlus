@@ -264,7 +264,6 @@ namespace DSharpPlus
 
             return info;
 
-
             async Task<bool> HandleHttpError(string reqUrl, HttpResponseMessage msg)
             {
                 var code = (int)msg.StatusCode;
@@ -294,7 +293,6 @@ namespace DSharpPlus
                 {
                     throw new Exception($"An unsuccessful HTTP status code was encountered: {code}");
                 }
-
             }
         }
 
