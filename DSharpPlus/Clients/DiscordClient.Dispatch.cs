@@ -1389,12 +1389,10 @@ namespace DSharpPlus
             emoji.Discord = this;
 
             DiscordUser usr = default;
-            DiscordMember mbr = default;
 
             if (tMember != null)
             {
-                usr = new DiscordUser(tMember.User) { Discord = this};
-                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guildId.Value};
+                usr = new DiscordUser(tMember.User) { Discord = this };
 
                 this.UserCache.AddOrUpdate(userId, usr, (id, old) =>
                 {
@@ -1403,6 +1401,8 @@ namespace DSharpPlus
                     old.AvatarHash = usr.AvatarHash;
                     return old;
                 });
+
+                usr = new DiscordMember(tMember) { Discord = this, _guild_id = guildId.Value };
             }
             else
             {
@@ -1446,7 +1446,6 @@ namespace DSharpPlus
             {
                 Message = msg,
                 User = usr,
-                Member = mbr,
                 Guild = guild,
                 Emoji = emoji
             };

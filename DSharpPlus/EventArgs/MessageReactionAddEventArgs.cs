@@ -24,13 +24,9 @@ namespace DSharpPlus.EventArgs
 
         /// <summary>
         /// Gets the user who created the reaction.
+        /// <para>This can be cast to a <see cref="DiscordMember"/> if the reaction was in a guild.</para>
         /// </summary>
         public DiscordUser User { get; internal set; }
-
-        /// <summary>
-        /// Gets the member who created the reaction, if in a guild.
-        /// </summary>
-        public DiscordMember Member { get; internal set; }
 
         /// <summary>
         /// Gets the guild in which the reaction was added.
