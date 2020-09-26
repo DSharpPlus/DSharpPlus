@@ -28,6 +28,11 @@ namespace DSharpPlus.EventArgs
         public DiscordUser User { get; internal set; }
 
         /// <summary>
+        /// Gets the member who created the reaction, if in a guild.
+        /// </summary>
+        public DiscordMember Member { get; internal set; }
+
+        /// <summary>
         /// Gets the guild in which the reaction was added.
         /// </summary>
         public DiscordGuild Guild { get; internal set; }

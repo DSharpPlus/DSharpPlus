@@ -220,7 +220,12 @@ namespace DSharpPlus
                 #region Message Reaction
 
                 case "message_reaction_add":
-                    await OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
+                    TransportMember mbr = default;
+
+                    if (dat["member"] != null)
+                        mbr = dat["member"].ToObject<TransportMember>();
+
+                    await OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], mbr, dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
                     break;
 
                 case "message_reaction_remove":
@@ -1376,21 +1381,36 @@ namespace DSharpPlus
 
         #region Message Reaction
 
-        internal async Task OnMessageReactionAddAsync(ulong userId, ulong messageId, ulong channelId, ulong? guildId, DiscordEmoji emoji)
+        internal async Task OnMessageReactionAddAsync(ulong userId, ulong messageId, ulong channelId, ulong? guildId, TransportMember tMember, DiscordEmoji emoji)
         {
             var channel = this.InternalGetCachedChannel(channelId);
-
             var guild = this.InternalGetCachedGuild(guildId);
-
+            
             emoji.Discord = this;
 
-            if (!this.UserCache.TryGetValue(userId, out var usr))
-                usr = new DiscordUser { Id = userId, Discord = this };
+            DiscordUser usr = default;
+            DiscordMember mbr = default;
 
-            if (guild != null)
-                usr = channel.Guild.Members.TryGetValue(userId, out var member)
-                    ? member
-                    : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
+            if (tMember != null)
+            {
+                usr = new DiscordUser(tMember.User) { Discord = this};
+                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guildId.Value};
+
+                this.UserCache.AddOrUpdate(userId, usr, (id, old) =>
+                {
+                    old.Username = usr.Username;
+                    old.Discriminator = usr.Discriminator;
+                    old.AvatarHash = usr.AvatarHash;
+                    return old;
+                });
+            }
+            else
+            {
+                if (!this.UserCache.TryGetValue(userId, out usr))
+                {
+                    usr = new DiscordUser { Id = userId, Discord = this };
+                }
+            }
 
             if (channel == null 
                 || this.Configuration.MessageCacheSize == 0 
@@ -1426,6 +1446,7 @@ namespace DSharpPlus
             {
                 Message = msg,
                 User = usr,
+                Member = mbr,
                 Guild = guild,
                 Emoji = emoji
             };
