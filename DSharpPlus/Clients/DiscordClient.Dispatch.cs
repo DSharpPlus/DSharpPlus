@@ -37,7 +37,9 @@ namespace DSharpPlus
             DiscordChannel chn;
             ulong gid;
             ulong cid;
-            TransportUser usr;
+            TransportUser usr = default;
+            TransportMember mbr = default;
+            JToken rawMbr = default;
 
             switch (payload.EventName.ToLowerInvariant())
             {
@@ -220,10 +222,10 @@ namespace DSharpPlus
                 #region Message Reaction
 
                 case "message_reaction_add":
-                    TransportMember mbr = default;
+                    rawMbr = dat["member"];
 
-                    if (dat["member"] != null)
-                        mbr = dat["member"].ToObject<TransportMember>();
+                    if (rawMbr != null)
+                        mbr = rawMbr.ToObject<TransportMember>();
 
                     await OnMessageReactionAddAsync((ulong)dat["user_id"], (ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"], mbr, dat["emoji"].ToObject<DiscordEmoji>()).ConfigureAwait(false);
                     break;
