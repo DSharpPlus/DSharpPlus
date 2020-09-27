@@ -301,8 +301,33 @@ Ain't that neat?
 
 
 ## Command Overloads
-As of version 4.0.0, CommandsNext has support for overloading command methods.
+Command method overloading allows you to create multiple argument configurations for a single command.
+```cs
+[Command("foo")]
+public Task FooCommand(CommandContext ctx, string bar, int baz) { }
+
+[Command("foo")]
+public Task FooCommand(CommandContext ctx, DiscordUser bar) { }
+```
+Executing `!foo green 5` will run the first method, and `!foo @Emzi0767` will run the second method.
+
+<br/>
+Additionally, all check attributes are shared between overloads.<br/>
+```cs
+[Command("foo"), Aliases("bar", "baz")]
+[RequireGuild, RequireBotPermissions(Permissions.AttachFiles)]
+public Task FooCommand(CommandContext ctx, int bar, int baz, string qux = "agony") { }
+
+[Command("foo")]
+public Task FooCommand(CommandContext ctx, DiscordChannel bar, TimeSpan baz) { }
+```
+The additional attributes and checks applied to the first method will also be applied to the second method.
 
 
 ## Further Reading
-Now that you have a basic understanding of CommandsNext, you should check out [PLACEHOLDER]() and follow it up with [PLACEHOLDER]().
+Now that you've gotten an understanding of CommandsNext, it'd be a good idea check out the following:
+
+* [Command Attributes](xref:commands_command_attributes)
+* [Help Formatter](xref:commands_help_formatter)
+* [Dependency Injection](xref:commands_dependency_injection)
+
