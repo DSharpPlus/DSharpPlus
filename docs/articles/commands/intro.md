@@ -192,18 +192,13 @@ That's all there is to it. Smack `F5` and test it out in a channel your bot acco
 Now, you may have noticed that providing more than one word simply does not work.<br/>
 For example, `!greet Luke Smith` will result in no response from your bot.
 
-This fails because CommandsNext cannot find a valid overload for your command.
+This fails because a valid [overload](#command-overloads) could not be found for your command.
 
 CommandsNext will split arguments by whitespace. This means `Luke Smith` is counted as two separate arguments; `Luke` and `Smith`.
 In addition to this, CommandsNext will attempt to find and execute an overload of your command that has the *same number* of provided arguments.
 Together, this means that any additional arguments will prevent CommandsNext from finding a valid overload to execute.
 
-*Overloads* have been mentioned a lot just now; we'll touch on that in a dedicated section [below](#command-overloads).<br/>
-
-<br/>
-For now, we'll go over some of the ways to work with the above.
-
-The simplest way to go about this would be to wrap your input with double quotes.<br/>
+The simplest way to get around this would be to wrap your input with double quotes.<br/>
 CommandsNext will parse this as one argument, allowing your command to be executed.
 ```
 !greet "Luke Smith"
