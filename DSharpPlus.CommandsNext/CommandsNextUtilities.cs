@@ -354,7 +354,7 @@ namespace DSharpPlus.CommandsNext
             var moduleInstance = Activator.CreateInstance(t, args);
 
             // inject into properties
-            var props = ti.DeclaredProperties.Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
+            var props = t.GetRuntimeProperties().Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
             foreach (var prop in props)
             {
                 if (prop.GetCustomAttribute<DontInjectAttribute>() != null)
@@ -368,7 +368,7 @@ namespace DSharpPlus.CommandsNext
             }
 
             // inject into fields
-            var fields = ti.DeclaredFields.Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
+            var fields = t.GetRuntimeFields().Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
             foreach (var field in fields)
             {
                 if (field.GetCustomAttribute<DontInjectAttribute>() != null)
