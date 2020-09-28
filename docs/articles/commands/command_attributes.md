@@ -3,9 +3,9 @@ uid: commands_command_attributes
 title: Command Attributes
 ---
 
-# Basic Attributes
-
-CommandsNext has a variety of built in attributes to enhance your commands and help provide some access control:
+## Built-In Attributes
+CommandsNext has a variety of built-in attributes to enhance your commands and provide some access control.
+The majority of these attributes can be applied to your command methods and command groups.
 
 - @DSharpPlus.CommandsNext.Attributes.AliasesAttribute
 - @DSharpPlus.CommandsNext.Attributes.CooldownAttribute
@@ -25,59 +25,54 @@ CommandsNext has a variety of built in attributes to enhance your commands and h
 - @DSharpPlus.CommandsNext.Attributes.RequireRolesAttribute
 - @DSharpPlus.CommandsNext.Attributes.RequireUserPermissionsAttribute
 
-# Custom Attributes
 
-There are some cases where you will need create your own attribute to enhance your commands. To do this, your new attribute will need to inherit from CheckBaseAttribute
-and then you can fill in the details.
+## Custom Attributes
+If the above attributes don't meet your needs, CommandsNext also gives you the option of writing your own!
+Simply create a new class which inherits from `CheckBaseAttribute` and implement the required method.
 
+Our example below will only allow a command to be ran during a specified year.
 ```cs
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
-using System;
-using System.Threading.Tasks;
-
-namespace MyFirstBot.Attributes
+public class RequireYearAttribute : CheckBaseAttribute
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
-    public class InternalPermissionAttribute : CheckBaseAttribute
+    public int AllowedYear { get; private set; }
+
+    public RequireYearAttribute(int year)
     {
-        readonly string Permission;
-        public InternalPermissionAttribute(string permission)
-        {
-            this.Permission = permission;
-        }
+        AllowedYear = year;
+    }
 
-        public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
+    public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
+    {
+        if (AllowedYear != DateTime.Now.Year)
         {
-            if(this.permission != ctx.Member.Nickname)
-            {
-                await ctx.RespondAsync($"Only members with a nickname of {this.Permission} can use this command!");
-                return Task.FromResult(false)
-            }
-
-            return Task.FromResult(true);
+            await ctx.RespondAsync($"Only usable during year {AllowedYear}.");
+            return false; // if non-async method: Task.FromResult(false)
         }
+		
+        return true; // if non-async method: Task.FromResult(true)
     }
 }
 ```
 
-You can then add the attribute to your command:
-
+<br/>
+You'll also need to apply the `AttributeUsage` attribute to your attribute.<br/>
+For our example attribute, we'll set it to only be usable once on methods.
 ```cs
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
-using MyFirstBot.Attributes;
-using System.Threading.Tasks;
-
-namespace MyFirstBot
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+public class RequireYearAttribute : CheckBaseAttribute
 {
-    public class MyCommand : BaseCommandModule
-    {
-        [Command("hi"), InternalPermission("noob")]
-        public async Task Hi(CommandContext ctx)
-        {
-            await ctx.RespondAsync($"👋 Hi noob, {ctx.User.Mention}!");
-        }
-    }
+    // ...
 }
 ```
+
+<br/>
+Once you've got all of that completed, you'll be able to use it on a command!
+```cs
+[Command("generic"), RequireYear(2030)]
+public async Task GenericCommand(CommandContext ctx, string generic)
+{
+    await ctx.RespondAsync("Generic response.");
+}
+```
+
+![Generic Image](/images/commands_command_attributes_01.png)
