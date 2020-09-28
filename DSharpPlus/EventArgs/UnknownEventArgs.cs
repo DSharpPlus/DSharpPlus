@@ -15,6 +15,6 @@
         /// </summary>
         public string Json { get; internal set; }
 
-        internal UnknownEventArgs(DiscordClient client) : base(client) { }
+        internal UnknownEventArgs() : base() { }
     }
 }

@@ -405,10 +405,7 @@ namespace DSharpPlus
             await this._webSocketClient.ConnectAsync(gwuri.Build()).ConfigureAwait(false);
 
             Task SocketOnConnect(IWebSocketClient client, SocketEventArgs e)
-            {
-                e.Client = this;
-                return this._socketOpened.InvokeAsync(this, e);
-            }
+                => this._socketOpened.InvokeAsync(this, e);
 
             async Task SocketOnMessage(IWebSocketClient client, SocketMessageEventArgs e)
             {
@@ -445,7 +442,7 @@ namespace DSharpPlus
             }
 
             Task SocketOnException(IWebSocketClient client, SocketErrorEventArgs e)
-                => this._socketErrored.InvokeAsync(this, new SocketErrorEventArgs(this) { Exception = e.Exception });
+                => this._socketErrored.InvokeAsync(this, new SocketErrorEventArgs { Exception = e.Exception });
 
             async Task SocketOnDisconnect(IWebSocketClient client, SocketCloseEventArgs e)
             {
@@ -456,7 +453,7 @@ namespace DSharpPlus
                 this._cancelTokenSource.Cancel();
 
                 this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
-                await this._socketClosed.InvokeAsync(this, new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
+                await this._socketClosed.InvokeAsync(this, new SocketCloseEventArgs { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
 
                 if (this.Configuration.AutoReconnect)
                 {
@@ -1013,13 +1010,13 @@ namespace DSharpPlus
                 this._guilds[guild.Id] = guild;
             }
 
-            await this._ready.InvokeAsync(this, new ReadyEventArgs(this)).ConfigureAwait(false);
+            await this._ready.InvokeAsync(this, new ReadyEventArgs()).ConfigureAwait(false);
         }
 
         internal Task OnResumedAsync()
         {
             this.Logger.LogInformation(LoggerEvents.SessionUpdate, "Session resumed");
-            return this._resumed.InvokeAsync(this, new ReadyEventArgs(this));
+            return this._resumed.InvokeAsync(this, new ReadyEventArgs());
         }
 
         internal async Task OnChannelCreateEventAsync(DiscordChannel channel, JArray rawRecipients)
@@ -1036,7 +1033,7 @@ namespace DSharpPlus
 
                 this._privateChannels[dmChannel.Id] = dmChannel;
 
-                await this._dmChannelCreated.InvokeAsync(this, new DmChannelCreateEventArgs(this) { Channel = dmChannel }).ConfigureAwait(false);
+                await this._dmChannelCreated.InvokeAsync(this, new DmChannelCreateEventArgs { Channel = dmChannel }).ConfigureAwait(false);
             }
             else
             {
@@ -1049,7 +1046,7 @@ namespace DSharpPlus
 
                 this._guilds[channel.GuildId]._channels[channel.Id] = channel;
 
-                await this._channelCreated.InvokeAsync(this, new ChannelCreateEventArgs(this) { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
+                await this._channelCreated.InvokeAsync(this, new ChannelCreateEventArgs() { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
             }
         }
 
@@ -1110,7 +1107,7 @@ namespace DSharpPlus
 
             channel_new._permissionOverwrites.AddRange(channel._permissionOverwrites);
 
-            await this._channelUpdated.InvokeAsync(this, new ChannelUpdateEventArgs(this) { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old }).ConfigureAwait(false);
+            await this._channelUpdated.InvokeAsync(this, new ChannelUpdateEventArgs { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old }).ConfigureAwait(false);
         }
 
         internal async Task OnChannelDeleteEventAsync(DiscordChannel channel)
@@ -1127,7 +1124,7 @@ namespace DSharpPlus
 
                 if (this._privateChannels.TryRemove(dmChannel.Id, out var cachedDmChannel)) dmChannel = cachedDmChannel;
 
-                await this._dmChannelDeleted.InvokeAsync(this, new DmChannelDeleteEventArgs(this) { Channel = dmChannel }).ConfigureAwait(false);
+                await this._dmChannelDeleted.InvokeAsync(this, new DmChannelDeleteEventArgs { Channel = dmChannel }).ConfigureAwait(false);
             }
             else
             {
@@ -1135,7 +1132,7 @@ namespace DSharpPlus
 
                 if (gld._channels.TryRemove(channel.Id, out var cachedChannel)) channel = cachedChannel;
 
-                await this._channelDeleted.InvokeAsync(this, new ChannelDeleteEventArgs(this) { Channel = channel, Guild = gld }).ConfigureAwait(false);
+                await this._channelDeleted.InvokeAsync(this, new ChannelDeleteEventArgs { Channel = channel, Guild = gld }).ConfigureAwait(false);
             }
         }
 
@@ -1146,7 +1143,7 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            var ea = new ChannelPinsUpdateEventArgs(this)
+            var ea = new ChannelPinsUpdateEventArgs
             {
                 Guild = guild,
                 Channel = channel,
@@ -1232,12 +1229,12 @@ namespace DSharpPlus
             Volatile.Write(ref this._guildDownloadCompleted, dcompl);
 
             if (exists)
-                await this._guildAvailable.InvokeAsync(this, new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+                await this._guildAvailable.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild }).ConfigureAwait(false);
             else
-                await this._guildCreated.InvokeAsync(this, new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+                await this._guildCreated.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild }).ConfigureAwait(false);
 
             if (dcompl && !old)
-                await this._guildDownloadCompletedEv.InvokeAsync(this, new GuildDownloadCompletedEventArgs(this)).ConfigureAwait(false);
+                await this._guildDownloadCompletedEv.InvokeAsync(this, new GuildDownloadCompletedEventArgs(this.Guilds)).ConfigureAwait(false);
         }
 
         internal async Task OnGuildUpdateEventAsync(DiscordGuild guild, JArray rawMembers)
@@ -1341,7 +1338,7 @@ namespace DSharpPlus
                 xr._guild_id = guild.Id;
             }
 
-            await this._guildUpdated.InvokeAsync(this, new GuildUpdateEventArgs(this) { GuildBefore = oldGuild, GuildAfter = guild }).ConfigureAwait(false);
+            await this._guildUpdated.InvokeAsync(this, new GuildUpdateEventArgs { GuildBefore = oldGuild, GuildAfter = guild }).ConfigureAwait(false);
         }
 
         internal async Task OnGuildDeleteEventAsync(DiscordGuild guild, JArray rawMembers)
@@ -1353,14 +1350,14 @@ namespace DSharpPlus
 
                 gld.IsUnavailable = true;
 
-                await this._guildUnavailable.InvokeAsync(this, new GuildDeleteEventArgs(this) { Guild = guild, Unavailable = true }).ConfigureAwait(false);
+                await this._guildUnavailable.InvokeAsync(this, new GuildDeleteEventArgs { Guild = guild, Unavailable = true }).ConfigureAwait(false);
             }
             else
             {
                 if (!this._guilds.TryRemove(guild.Id, out var gld))
                     return;
 
-                await this._guildDeleted.InvokeAsync(this, new GuildDeleteEventArgs(this) { Guild = gld }).ConfigureAwait(false);
+                await this._guildDeleted.InvokeAsync(this, new GuildDeleteEventArgs { Guild = gld }).ConfigureAwait(false);
             }
         }
 
@@ -1375,7 +1372,7 @@ namespace DSharpPlus
 
             this.UpdateCachedGuild(guild, rawMembers);
 
-            await this._guildAvailable.InvokeAsync(this, new GuildCreateEventArgs(this) { Guild = guild }).ConfigureAwait(false);
+            await this._guildAvailable.InvokeAsync(this, new GuildCreateEventArgs { Guild = guild }).ConfigureAwait(false);
         }
 
         internal async Task OnPresenceUpdateEventAsync(JObject rawPresence, JObject rawUser)
@@ -1442,7 +1439,6 @@ namespace DSharpPlus
             var usrafter = usr ?? new DiscordUser(presence.InternalUser);
             var ea = new PresenceUpdateEventArgs
             {
-                Client = this,
                 Status = presence.Status,
                 Activity = presence.Activity,
                 User = usr,
@@ -1467,7 +1463,7 @@ namespace DSharpPlus
 
             if (!guild.Members.TryGetValue(user.Id, out var mbr))
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
-            var ea = new GuildBanAddEventArgs(this)
+            var ea = new GuildBanAddEventArgs
             {
                 Guild = guild,
                 Member = mbr
@@ -1488,7 +1484,7 @@ namespace DSharpPlus
 
             if (!guild.Members.TryGetValue(user.Id, out var mbr))
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
-            var ea = new GuildBanRemoveEventArgs(this)
+            var ea = new GuildBanRemoveEventArgs
             {
                 Guild = guild,
                 Member = mbr
@@ -1507,7 +1503,7 @@ namespace DSharpPlus
                 guild._emojis[emoji.Id] = emoji;
             }
 
-            var ea = new GuildEmojisUpdateEventArgs(this)
+            var ea = new GuildEmojisUpdateEventArgs
             {
                 Guild = guild,
                 EmojisAfter = guild.Emojis,
@@ -1518,7 +1514,7 @@ namespace DSharpPlus
 
         internal async Task OnGuildIntegrationsUpdateEventAsync(DiscordGuild guild)
         {
-            var ea = new GuildIntegrationsUpdateEventArgs(this)
+            var ea = new GuildIntegrationsUpdateEventArgs
             {
                 Guild = guild
             };
@@ -1545,7 +1541,7 @@ namespace DSharpPlus
             guild._members[mbr.Id] = mbr;
             guild.MemberCount++;
 
-            var ea = new GuildMemberAddEventArgs(this)
+            var ea = new GuildMemberAddEventArgs
             {
                 Guild = guild,
                 Member = mbr
@@ -1559,7 +1555,7 @@ namespace DSharpPlus
                 mbr = new DiscordMember(new DiscordUser(user)) {Discord = this, _guild_id = guild.Id};
             guild.MemberCount--;
 
-            var ea = new GuildMemberRemoveEventArgs(this)
+            var ea = new GuildMemberRemoveEventArgs
             {
                 Guild = guild,
                 Member = mbr
@@ -1588,7 +1584,7 @@ namespace DSharpPlus
             mbr._role_ids.Clear();
             mbr._role_ids.AddRange(roles);
 
-            var ea = new GuildMemberUpdateEventArgs(this)
+            var ea = new GuildMemberUpdateEventArgs
             {
                 Guild = guild,
                 Member = mbr,
@@ -1609,7 +1605,7 @@ namespace DSharpPlus
 
             guild._roles[role.Id] = role;
 
-            var ea = new GuildRoleCreateEventArgs(this)
+            var ea = new GuildRoleCreateEventArgs
             {
                 Guild = guild,
                 Role = role
@@ -1643,7 +1639,7 @@ namespace DSharpPlus
             newRole.Permissions = role.Permissions;
             newRole.Position = role.Position;
 
-            var ea = new GuildRoleUpdateEventArgs(this)
+            var ea = new GuildRoleUpdateEventArgs
             {
                 Guild = guild,
                 RoleAfter = newRole,
@@ -1657,7 +1653,7 @@ namespace DSharpPlus
             if (!guild._roles.TryRemove(roleId, out var role))
                 throw new InvalidOperationException("Attempted to delete a nonexistent role.");
 
-            var ea = new GuildRoleDeleteEventArgs(this)
+            var ea = new GuildRoleDeleteEventArgs
             {
                 Guild = guild,
                 Role = role
@@ -1674,9 +1670,8 @@ namespace DSharpPlus
 
             guild._invites[invite.Code] = invite;
 
-            var ea = new InviteCreateEventArgs(this)
+            var ea = new InviteCreateEventArgs()
             {
-                Client = this,
                 Channel = channel,
                 Guild = guild,
                 Invite = invite
@@ -1697,9 +1692,8 @@ namespace DSharpPlus
 
             invite.IsRevoked = true;
 
-            var ea = new InviteDeleteEventArgs(this)
+            var ea = new InviteDeleteEventArgs()
             {
-                Client = this,
                 Channel = channel,
                 Guild = guild,
                 Invite = invite
@@ -1718,7 +1712,7 @@ namespace DSharpPlus
                     Discord = this,
                 };
 
-            await this._messageAcknowledged.InvokeAsync(this, new MessageAcknowledgeEventArgs(this) { Message = msg }).ConfigureAwait(false);
+            await this._messageAcknowledged.InvokeAsync(this, new MessageAcknowledgeEventArgs { Message = msg }).ConfigureAwait(false);
         }
 
         internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author)
@@ -1782,7 +1776,7 @@ namespace DSharpPlus
             if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
                 this.MessageCache.Add(message);
 
-            MessageCreateEventArgs ea = new MessageCreateEventArgs(this)
+            MessageCreateEventArgs ea = new MessageCreateEventArgs
             {
                 Message = message,
 
@@ -1870,7 +1864,7 @@ namespace DSharpPlus
             message._mentionedRoles = mentioned_roles;
             message._mentionedChannels = mentioned_channels;
 
-            var ea = new MessageUpdateEventArgs(this)
+            var ea = new MessageUpdateEventArgs
             {
                 Message = message,
                 MessageBefore = oldmsg,
@@ -1900,7 +1894,7 @@ namespace DSharpPlus
             if (this.Configuration.MessageCacheSize > 0)
                 this.MessageCache.Remove(xm => xm.Id == msg.Id && xm.ChannelId == channelId);
 
-            var ea = new MessageDeleteEventArgs(this)
+            var ea = new MessageDeleteEventArgs
             {
                 Channel = channel,
                 Message = msg,
@@ -1933,7 +1927,7 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            var ea = new MessageBulkDeleteEventArgs(this)
+            var ea = new MessageBulkDeleteEventArgs
             {
                 Channel = channel,
                 Messages = new ReadOnlyCollection<DiscordMessage>(msgs),
@@ -1957,7 +1951,7 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            var ea = new TypingStartEventArgs(this)
+            var ea = new TypingStartEventArgs
             {
                 Channel = channel,
                 User = user,
@@ -1971,7 +1965,7 @@ namespace DSharpPlus
         {
             var usr = new DiscordUser(user) { Discord = this };
 
-            var ea = new UserSettingsUpdateEventArgs(this)
+            var ea = new UserSettingsUpdateEventArgs
             {
                 User = usr
             };
@@ -2002,7 +1996,7 @@ namespace DSharpPlus
             this.CurrentUser.Username = user.Username;
             this.CurrentUser.Verified = user.Verified;
 
-            var ea = new UserUpdateEventArgs(this)
+            var ea = new UserUpdateEventArgs
             {
                 UserAfter = this.CurrentUser,
                 UserBefore = usr_old
@@ -2037,7 +2031,7 @@ namespace DSharpPlus
                 mbr.IsDeafened = vstateNew.IsServerDeafened;
             }
 
-            var ea = new VoiceStateUpdateEventArgs(this)
+            var ea = new VoiceStateUpdateEventArgs
             {
                 Guild = vstateNew.Guild,
                 Channel = vstateNew.Channel,
@@ -2052,7 +2046,7 @@ namespace DSharpPlus
 
         internal async Task OnVoiceServerUpdateEventAsync(string endpoint, string token, DiscordGuild guild)
         {
-            var ea = new VoiceServerUpdateEventArgs(this)
+            var ea = new VoiceServerUpdateEventArgs
             {
                 Endpoint = endpoint,
                 VoiceToken = token,
@@ -2089,7 +2083,7 @@ namespace DSharpPlus
 
             guild.MemberCount = guild._members.Count;
 
-            var ea = new GuildMembersChunkEventArgs(this)
+            var ea = new GuildMembersChunkEventArgs
             {
                 Guild = guild,
                 Members = new ReadOnlySet<DiscordMember>(mbrs),
@@ -2133,7 +2127,7 @@ namespace DSharpPlus
 
         internal async Task OnUnknownEventAsync(GatewayPayload payload)
         {
-            var ea = new UnknownEventArgs(this) { EventName = payload.EventName, Json = (payload.Data as JObject)?.ToString() };
+            var ea = new UnknownEventArgs { EventName = payload.EventName, Json = (payload.Data as JObject)?.ToString() };
             await this._unknownEvent.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
@@ -2181,7 +2175,7 @@ namespace DSharpPlus
                 react.IsMe |= this.CurrentUser.Id == userId;
             }
 
-            var ea = new MessageReactionAddEventArgs(this)
+            var ea = new MessageReactionAddEventArgs
             {
                 Message = msg,
                 User = usr,
@@ -2233,7 +2227,7 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            var ea = new MessageReactionRemoveEventArgs(this)
+            var ea = new MessageReactionRemoveEventArgs
             {
                 Message = msg,
                 User = usr,
@@ -2262,7 +2256,7 @@ namespace DSharpPlus
 
             var guild = this.InternalGetCachedGuild(guildId);
 
-            var ea = new MessageReactionsClearEventArgs(this)
+            var ea = new MessageReactionsClearEventArgs
             {
                 Message = msg,
                 Guild = guild
@@ -2297,7 +2291,7 @@ namespace DSharpPlus
 
             msg._reactions?.RemoveAll(r => r.Emoji.Equals(emoji));
 
-            var ea = new MessageReactionRemoveEmojiEventArgs(this)
+            var ea = new MessageReactionRemoveEmojiEventArgs
             {
                 Channel = channel,
                 Guild = guild,
@@ -2310,7 +2304,7 @@ namespace DSharpPlus
 
         internal async Task OnWebhooksUpdateAsync(DiscordChannel channel, DiscordGuild guild)
         {
-            var ea = new WebhooksUpdateEventArgs(this)
+            var ea = new WebhooksUpdateEventArgs
             {
                 Channel = channel,
                 Guild = guild
@@ -2391,7 +2385,7 @@ namespace DSharpPlus
 
             Volatile.Write(ref this._ping, ping);
 
-            var args = new HeartbeatEventArgs(this)
+            var args = new HeartbeatEventArgs
             {
                 Ping = this.Ping,
                 Timestamp = DateTimeOffset.Now
@@ -3218,7 +3212,7 @@ namespace DSharpPlus
             where TArgs : AsyncEventArgs
         {
             this.Logger.LogError(LoggerEvents.EventHandlerException, ex, "Event handler exception for event {0} thrown from {1} (defined in {2})", asyncEvent.Name, handler.Method, handler.Method.DeclaringType);
-            this._clientErrored.InvokeAsync(this, new ClientErrorEventArgs(this) { EventName = asyncEvent.Name, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
+            this._clientErrored.InvokeAsync(this, new ClientErrorEventArgs { EventName = asyncEvent.Name, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)

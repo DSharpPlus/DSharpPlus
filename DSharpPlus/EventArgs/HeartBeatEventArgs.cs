@@ -17,6 +17,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DateTimeOffset Timestamp { get; internal set; }
 
-        internal HeartbeatEventArgs(DiscordClient client) : base(client) { }
+        internal HeartbeatEventArgs() : base() { }
     }
 }

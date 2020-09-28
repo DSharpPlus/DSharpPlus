@@ -51,6 +51,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public IReadOnlyList<DiscordChannel> MentionedChannels { get; internal set; }
 
-        internal MessageUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal MessageUpdateEventArgs() : base() { }
     }
 }

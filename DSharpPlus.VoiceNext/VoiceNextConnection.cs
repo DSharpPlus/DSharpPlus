@@ -518,7 +518,7 @@ namespace DSharpPlus.VoiceNext
                     return;
 
                 foreach (var pcmFiller in pcmFillers)
-                    await this._voiceReceived.InvokeAsync(this, new VoiceReceiveEventArgs(this.Discord)
+                    await this._voiceReceived.InvokeAsync(this, new VoiceReceiveEventArgs
                     {
                         SSRC = vtx.SSRC,
                         User = vtx.User,
@@ -528,7 +528,7 @@ namespace DSharpPlus.VoiceNext
                         AudioDuration = audioFormat.CalculateSampleDuration(pcmFiller.Length)
                     }).ConfigureAwait(false);
 
-                await this._voiceReceived.InvokeAsync(this, new VoiceReceiveEventArgs(this.Discord)
+                await this._voiceReceived.InvokeAsync(this, new VoiceReceiveEventArgs
                 {
                     SSRC = vtx.SSRC,
                     User = vtx.User,
@@ -862,7 +862,7 @@ namespace DSharpPlus.VoiceNext
                     this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received SPEAKING (OP5)");
                     var spd = opp.ToObject<VoiceSpeakingPayload>();
                     var foundUserInCache = this.Discord.TryGetCachedUserInternal(spd.UserId.Value, out var resolvedUser);
-                    var spk = new UserSpeakingEventArgs(this.Discord)
+                    var spk = new UserSpeakingEventArgs
                     {
                         Speaking = spd.Speaking,
                         SSRC = spd.SSRC.Value,
@@ -922,7 +922,7 @@ namespace DSharpPlus.VoiceNext
                             this.Opus.DestroyDecoder(opus);
                     }
 
-                    await this._userJoined.InvokeAsync(this, new VoiceUserJoinEventArgs(this.Discord) { User = usrj, SSRC = ujpd.SSRC }).ConfigureAwait(false);
+                    await this._userJoined.InvokeAsync(this, new VoiceUserJoinEventArgs { User = usrj, SSRC = ujpd.SSRC }).ConfigureAwait(false);
                     break;
 
                 case 13: // CLIENT_DISCONNECTED
@@ -936,7 +936,7 @@ namespace DSharpPlus.VoiceNext
                     }
 
                     var usrl = await this.Discord.GetUserAsync(ulpd.UserId).ConfigureAwait(false);
-                    await this._userLeft.InvokeAsync(this, new VoiceUserLeaveEventArgs(this.Discord)
+                    await this._userLeft.InvokeAsync(this, new VoiceUserLeaveEventArgs
                     {
                         User = usrl,
                         SSRC = txssrc.Key
@@ -991,7 +991,7 @@ namespace DSharpPlus.VoiceNext
             => this.StartAsync();
 
         private Task VoiceWs_SocketException(IWebSocketClient client, SocketErrorEventArgs e)
-            => this._voiceSocketError.InvokeAsync(this, new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
+            => this._voiceSocketError.InvokeAsync(this, new SocketErrorEventArgs { Exception = e.Exception });
 
         private async Task WsSendAsync(string payload)
         {

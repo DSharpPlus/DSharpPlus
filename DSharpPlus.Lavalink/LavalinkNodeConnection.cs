@@ -354,7 +354,7 @@ namespace DSharpPlus.Lavalink
         }
 
         private Task WebSocket_OnException(IWebSocketClient client, SocketErrorEventArgs e)
-            => this._lavalinkSocketError.InvokeAsync(this, new SocketErrorEventArgs(this.Discord) { Exception = e.Exception });
+            => this._lavalinkSocketError.InvokeAsync(this, new SocketErrorEventArgs { Exception = e.Exception });
 
         private async Task WebSocket_OnDisconnect(IWebSocketClient client, SocketCloseEventArgs e)
         {

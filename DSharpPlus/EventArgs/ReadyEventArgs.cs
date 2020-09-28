@@ -5,6 +5,6 @@
     /// </summary>
     public sealed class ReadyEventArgs : DiscordEventArgs
     {
-        internal ReadyEventArgs(DiscordClient client) : base(client) { }
+        internal ReadyEventArgs() : base() { }
     }
 }

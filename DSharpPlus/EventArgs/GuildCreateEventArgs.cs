@@ -12,6 +12,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
-        internal GuildCreateEventArgs(DiscordClient client) : base(client) { }
+        internal GuildCreateEventArgs() : base() { }
     }
 }

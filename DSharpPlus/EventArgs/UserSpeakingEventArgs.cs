@@ -22,6 +22,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public bool Speaking { get; internal set; }
 
-        internal UserSpeakingEventArgs(DiscordClient client) : base(client) { }
+        internal UserSpeakingEventArgs() : base() { }
     }
 }

@@ -17,7 +17,7 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public string CloseMessage { get; internal set; }
         
-        public SocketCloseEventArgs(DiscordClient client) : base(client) { }
+        public SocketCloseEventArgs() : base() { }
     }
 
     /// <summary>
@@ -30,6 +30,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public Exception Exception { get; internal set; }
 
-        public SocketErrorEventArgs(DiscordClient client) : base(client) { }
+        public SocketErrorEventArgs() : base() { }
     }
 }

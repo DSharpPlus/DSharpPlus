@@ -22,6 +22,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordInvite Invite { get; internal set; }
 
-        internal InviteDeleteEventArgs(DiscordClient client) : base(client) { }
+        internal InviteDeleteEventArgs() : base() { }
     }
 }

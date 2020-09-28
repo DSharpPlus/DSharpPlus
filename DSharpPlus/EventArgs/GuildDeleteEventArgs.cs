@@ -17,6 +17,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public bool Unavailable { get; internal set; }
 
-        internal GuildDeleteEventArgs(DiscordClient client) : base(client) { }
+        internal GuildDeleteEventArgs() : base() { }
     }
 }

@@ -17,6 +17,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordUser UserBefore { get; internal set; }
 
-        internal UserUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal UserUpdateEventArgs() : base() { }
     }
 }

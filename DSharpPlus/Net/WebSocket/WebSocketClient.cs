@@ -237,7 +237,7 @@ namespace DSharpPlus.Net.WebSocket
                         if (!this._isConnected)
                         {
                             this._isConnected = true;
-                            await this._connected.InvokeAsync(this, new SocketEventArgs(null)).ConfigureAwait(false);
+                            await this._connected.InvokeAsync(this, new SocketEventArgs()).ConfigureAwait(false);
                         }
 
                         if (result.MessageType == WebSocketMessageType.Binary)
@@ -260,7 +260,7 @@ namespace DSharpPlus.Net.WebSocket
                                 await this._ws.CloseOutputAsync(code, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
                             }
 
-                            await this._disconnected.InvokeAsync(this, new SocketCloseEventArgs(null) { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
+                            await this._disconnected.InvokeAsync(this, new SocketCloseEventArgs() { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
                             break;
                         }
                     }
@@ -268,8 +268,8 @@ namespace DSharpPlus.Net.WebSocket
             }
             catch (Exception ex)
             {
-                await this._exceptionThrown.InvokeAsync(this, new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false);
-                await this._disconnected.InvokeAsync(this, new SocketCloseEventArgs(null) { CloseCode = -1, CloseMessage = "" }).ConfigureAwait(false);
+                await this._exceptionThrown.InvokeAsync(this, new SocketErrorEventArgs() { Exception = ex }).ConfigureAwait(false);
+                await this._disconnected.InvokeAsync(this, new SocketCloseEventArgs() { CloseCode = -1, CloseMessage = "" }).ConfigureAwait(false);
             }
 
             // Don't await or you deadlock
@@ -328,7 +328,7 @@ namespace DSharpPlus.Net.WebSocket
 
         private void EventErrorHandler<TArgs>(AsyncEvent<WebSocketClient, TArgs> asyncEvent, Exception ex, AsyncEventHandler<WebSocketClient, TArgs> handler, WebSocketClient sender, TArgs eventArgs)
             where TArgs : AsyncEventArgs
-            => this._exceptionThrown.InvokeAsync(this, new SocketErrorEventArgs(null) { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
+            => this._exceptionThrown.InvokeAsync(this, new SocketErrorEventArgs() { Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         #endregion
     }
 }

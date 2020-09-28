@@ -17,6 +17,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordChannel Channel { get; internal set; }
 
-        internal WebhooksUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal WebhooksUpdateEventArgs() : base() { }
     }
 }

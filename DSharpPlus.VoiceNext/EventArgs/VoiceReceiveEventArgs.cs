@@ -42,6 +42,6 @@ namespace DSharpPlus.VoiceNext.EventArgs
         /// </summary>
         public int AudioDuration { get; internal set; }
 
-        internal VoiceReceiveEventArgs(DiscordClient client) : base(client) { }
+        internal VoiceReceiveEventArgs() : base() { }
     }
 }

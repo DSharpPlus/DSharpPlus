@@ -37,6 +37,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordEmoji Emoji { get; internal set; }
 
-        internal MessageReactionAddEventArgs(DiscordClient client) : base(client) { }
+        internal MessageReactionAddEventArgs() : base() { }
     }
 }

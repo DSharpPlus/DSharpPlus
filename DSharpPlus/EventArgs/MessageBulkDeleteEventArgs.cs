@@ -23,6 +23,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
-        internal MessageBulkDeleteEventArgs(DiscordClient client) : base(client) { }
+        internal MessageBulkDeleteEventArgs() : base() { }
     }
 }

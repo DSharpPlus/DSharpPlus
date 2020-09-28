@@ -23,6 +23,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
-        internal GuildEmojisUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal GuildEmojisUpdateEventArgs() : base() { }
     }
 }
