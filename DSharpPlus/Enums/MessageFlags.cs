@@ -32,6 +32,16 @@ namespace DSharpPlus
         /// <summary>
         /// Whether any embeds in the message are hidden.
         /// </summary>
-        SuppressedEmbeds = 1 << 2
+        SuppressedEmbeds = 1 << 2,
+        
+        /// <summary>
+        /// The source message for this crosspost has been deleted.
+        /// </summary>
+        SourceMessageDelete = 1 << 3,
+        
+        /// <summary>
+        /// The message came from the urgent message system.
+        /// </summary>
+        Urgent = 1 << 4
     }
 }
