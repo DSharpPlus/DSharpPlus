@@ -18,8 +18,8 @@ namespace DSharpPlus.Entities
         /// Gets the date and time this object was created.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset CreationTimestamp 
-            => new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(Id >> 22);
+        public DateTimeOffset CreationTimestamp
+            => this.Id.GetSnowflakeTime();
 
         /// <summary>
         /// Gets the client instance this object is tied to.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -244,7 +245,16 @@ namespace DSharpPlus
         /// <returns>Calculated Unix time.</returns>
         public static long GetUnixTime(DateTimeOffset dto)
             => dto.ToUnixTimeMilliseconds();
-        
+
+        /// <summary>
+        /// Computes a timestamp from a given snowflake.
+        /// </summary>
+        /// <param name="snowflake">Snowflake to compute a timestamp from.</param>
+        /// <returns>Computed timestamp.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static DateTimeOffset GetSnowflakeTime(this ulong snowflake)
+            => new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(snowflake >> 22);
+
         /// <summary>
         /// Converts this <see cref="Permissions"/> into human-readable format.
         /// </summary>
