@@ -47,8 +47,12 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._ct.Dispose();
             this._tcs = null;
             this._predicate = null;
-            this._collected.Clear();
-            this._collected = null;
+
+            if (this._collected != null)
+            {
+                this._collected.Clear();
+                this._collected = null;
+            }
         }
     }
 }
