@@ -440,7 +440,7 @@ namespace DSharpPlus.Entities
 	
 	private static string EmojiReactionString(string emoji) // From an emoji's mention string form into a reaction request string form
 	{
-	    var match = guildEmojiRegex.Match(text.Trim());
+	    var match = guildEmojiRegex.Match(emoji.Trim());
 	    return match.Success ? match.Groups[1].Value : emoji;
 	}
 
