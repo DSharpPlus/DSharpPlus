@@ -438,7 +438,7 @@ namespace DSharpPlus.Entities
 	
 	private static readonly Regex guildEmojiRegex = new Regex(@"^<?a?:?([a-zA-Z0-9_]+:[0-9]+)>?$");
 	
-	private string EmojiReactionString(string emoji) // From an emoji's mention string form into a reaction request string form
+	private static string EmojiReactionString(string emoji) // From an emoji's mention string form into a reaction request string form
 	{
 	    var match = guildEmojiRegex.Match(text.Trim());
 	    return match.Success ? match.Groups[1].Value : emoji;
