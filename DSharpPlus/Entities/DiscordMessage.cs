@@ -493,7 +493,7 @@ namespace DSharpPlus.Entities
         /// <param name="user">Member you want to remove the reaction for</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null) 
+        public Task DeleteReactionAsync(string emoji, DiscordUser user, string reason = null) 
             => this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, EmojiReactionString(emoji), reason);
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="emoji">String representation of the emoji to clear, be it unicode or name:id.</param>
         /// <returns></returns>
-        public Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
+        public Task DeleteReactionsEmojiAsync(string emoji)
             => this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, EmojiReactionString(emoji));
 
         private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
