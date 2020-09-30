@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Globalization;
@@ -434,32 +435,66 @@ namespace DSharpPlus.Entities
 
             return this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, files, content, tts, embed, mentions);
         }
+	
+	private static readonly Regex guildEmojiRegex = new Regex(@"^<?a?:?([a-zA-Z0-9_]+:[0-9]+)>?$");
+	
+	private string EmojiReactionString(string emoji) // From an emoji's mention string form into a reaction request string form
+	{
+	    var match = guildEmojiRegex.Match(text.Trim());
+	    return match.Success ? match.Groups[1].Value : emoji;
+	}
 
         /// <summary>
         /// Creates a reaction to this message
         /// </summary>
-        /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
+        /// <param name="emoji">The emoji you want to react with</param>
         /// <returns></returns>
         public Task CreateReactionAsync(DiscordEmoji emoji) 
             => this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+	    
+	/// <summary>
+        /// Creates a reaction to this message
+        /// </summary>
+        /// <param name="emoji">The string representation of the emoji you want to react with, be it unicode or name:id</param>
+        /// <returns></returns>
+        public Task CreateReactionAsync(string emoji)
+            => this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, EmojiReactionString(emoji));
 
         /// <summary>
         /// Deletes your own reaction
         /// </summary>
-        /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id</param>
+        /// <param name="emoji">Emoji for the reaction you want to remove</param>
         /// <returns></returns>
         public Task DeleteOwnReactionAsync(DiscordEmoji emoji) 
             => this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+	    
+	/// <summary>
+        /// Deletes your own reaction
+        /// </summary>
+        /// <param name="emoji">String representation of the emoji for the reaction you want to remove, be it unicode or name:id</param>
+        /// <returns></returns>
+        public Task DeleteOwnReactionAsync(string emoji)
+	    => this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, EmojiReactionString(emoji));
 
         /// <summary>
         /// Deletes another user's reaction.
         /// </summary>
-        /// <param name="emoji">Emoji for the reaction you want to remove, either an emoji or name:id.</param>
+        /// <param name="emoji">Emoji for the reaction you want to remove</param>
         /// <param name="user">Member you want to remove the reaction for</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null) 
             => this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
+	    
+	/// <summary>
+        /// Deletes another user's reaction.
+        /// </summary>
+        /// <param name="emoji">String representation of the emoji for the reaction you want to remove, be it unicode or name:id.</param>
+        /// <param name="user">Member you want to remove the reaction for</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null) 
+            => this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, EmojiReactionString(emoji), reason);
 
         /// <summary>
         /// Gets users that reacted with this emoji.
@@ -482,10 +517,18 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Deletes all reactions of a specific reaction for this message.
         /// </summary>
-        /// <param name="emoji">The emoji to clear, either an emoji or name:id.</param>
+        /// <param name="emoji">The emoji to clear</param>
         /// <returns></returns>
         public Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
             => this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, emoji.ToReactionString());
+	    
+	/// <summary>
+        /// Deletes all reactions of a specific reaction for this message.
+        /// </summary>
+        /// <param name="emoji">String representation of the emoji to clear, be it unicode or name:id.</param>
+        /// <returns></returns>
+        public Task DeleteReactionsEmojiAsync(DiscordEmoji emoji)
+            => this.Discord.ApiClient.DeleteReactionsEmojiAsync(this.ChannelId, this.Id, EmojiReactionString(emoji));
 
         private async Task<IReadOnlyList<DiscordUser>> GetReactionsInternalAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
         {
