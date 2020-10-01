@@ -21,7 +21,7 @@ namespace DSharpPlus
         private DateTimeOffset _lastHeartbeat;
         private Task _heartbeatTask;
 
-        private static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        internal static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         private int _skippedHeartbeats = 0;
         private long _lastSequence;
@@ -119,10 +119,10 @@ namespace DSharpPlus
 
             await this._webSocketClient.ConnectAsync(gwuri.Build()).ConfigureAwait(false);
 
-            Task SocketOnConnect()
-                => this._socketOpened.InvokeAsync();
+            Task SocketOnConnect(IWebSocketClient sender, SocketEventArgs e)
+                => this._socketOpened.InvokeAsync(this, e);
 
-            async Task SocketOnMessage(SocketMessageEventArgs e)
+            async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
             {
                 string msg = null;
                 if (e is SocketTextMessageEventArgs etext)
@@ -156,10 +156,10 @@ namespace DSharpPlus
                 }
             }
 
-            Task SocketOnException(SocketErrorEventArgs e)
-                => this._socketErrored.InvokeAsync(new SocketErrorEventArgs(this) { Exception = e.Exception });
+            Task SocketOnException(IWebSocketClient sender, SocketErrorEventArgs e)
+                => this._socketErrored.InvokeAsync(this, e);
 
-            async Task SocketOnDisconnect(SocketCloseEventArgs e)
+            async Task SocketOnDisconnect(IWebSocketClient sender, SocketCloseEventArgs e)
             {
                 // release session and connection
                 this.ConnectionLock.Set();
@@ -169,7 +169,7 @@ namespace DSharpPlus
                     this._cancelTokenSource.Cancel();
 
                 this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
-                await this._socketClosed.InvokeAsync(new SocketCloseEventArgs(this) { CloseCode = e.CloseCode, CloseMessage = e.CloseMessage }).ConfigureAwait(false);
+                await this._socketClosed.InvokeAsync(this, e).ConfigureAwait(false);
 
                 if (this.Configuration.AutoReconnect)
                 {
