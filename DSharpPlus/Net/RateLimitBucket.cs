@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +10,13 @@ namespace DSharpPlus.Net
     /// </summary>
     internal class RateLimitBucket : IEquatable<RateLimitBucket>
     {
+        /// <summary>
+        /// Gets the unlimited hash key for ratelimiting.
+        /// </summary>
+        public static readonly string UnlimitedHashValue = "unlimited";
+
+        public static readonly string GuildIdString = "guild_id";
+
         /// <summary>
         /// Gets the Id of the guild bucket.
         /// </summary>
@@ -28,6 +36,11 @@ namespace DSharpPlus.Net
         /// Gets the url by which the requests are bucketed.
         /// </summary>
         public string Route { get; internal set; }
+
+        /// <summary>
+        /// Gets the ratelimit hash of this bucket.
+        /// </summary>
+        public string Hash { get; internal set; }
 
         /// <summary>
         /// Gets the HTTP request method.
@@ -93,33 +106,42 @@ namespace DSharpPlus.Net
         /// </summary>
         internal volatile int _limitResetting;
 
-        internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id)
+        internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id, string hash)
         {
             this.Method = method;
             this.Route = route;
             this.ChannelId = channel_id;
             this.GuildId = guild_id;
             this.WebhookId = webhook_id;
+            this.Hash = hash;
         }
 
         /// <summary>
         /// Generates an ID for this request bucket.
         /// </summary>
-        /// <param name="method">Method for this bucket.</param>
-        /// <param name="route">Route for this bucket.</param>
+        /// <param name="hash">Hash for this bucket.</param>
         /// <param name="guild_id">Guild Id for this bucket.</param>
         /// <param name="channel_id">Channel Id for this bucket.</param>
         /// <param name="webhook_id">Webhook Id for this bucket.</param>
         /// <returns>Bucket Id.</returns>
-        public static string GenerateId(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id) 
-            => $"{method}:{guild_id}:{channel_id}:{webhook_id}:{route}";
+        public static string GenerateBucketId(string hash, string guild_id, string channel_id, string webhook_id) 
+            => $"{hash}:{guild_id}:{channel_id}:{webhook_id}";
+
+        public static string GenerateHashKey(RestRequestMethod method, string route)
+            => $"{method}:{route}";
 
         /// <summary>
         /// Returns a string representation of this bucket.
         /// </summary>
         /// <returns>String representation of this bucket.</returns>
         public override string ToString()
-            => $"rate limit bucket [{this.Method}:{this.GuildId}:{this.ChannelId}:{this.WebhookId}:{this.Route}] [{this.Remaining}/{this.Maximum}] {(this.ResetAfter.HasValue ? this._resetAfterOffset : this.Reset)}";
+        {
+            var guildId = this.GuildId != string.Empty ? this.GuildId : "guild_id";
+            var channelId = this.ChannelId != string.Empty ? this.ChannelId : "channel_id";
+            var webhookId = this.WebhookId != string.Empty ? this.WebhookId : "webhook_id";
+
+            return $"rate limit bucket [{this.Hash}:{guildId}:{channelId}:{webhookId}] [{this.Remaining}/{this.Maximum}] {(this.ResetAfter.HasValue ? this._resetAfterOffset : this.Reset)}";
+        }
 
         /// <summary>
         /// Checks whether this <see cref="RateLimitBucket"/> is equal to another object.

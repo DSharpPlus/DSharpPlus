@@ -23,7 +23,8 @@ namespace DSharpPlus.Net
     {
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
         private HttpClient HttpClient { get; }
-        private ConcurrentDictionary<string, RateLimitBucket> Buckets { get; }
+        private ConcurrentDictionary<string, string> RoutesToHashes { get; }
+        private ConcurrentDictionary<string, RateLimitBucket> HashesToBuckets { get; }
         private AsyncManualResetEvent GlobalRateLimitEvent { get; }
         private bool UseResetAfter { get; }
         internal RestClient(BaseDiscordClient client)
@@ -50,7 +51,8 @@ namespace DSharpPlus.Net
             };
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
 
-            this.Buckets = new ConcurrentDictionary<string, RateLimitBucket>();
+            this.RoutesToHashes = new ConcurrentDictionary<string, string>();
+            this.HashesToBuckets = new ConcurrentDictionary<string, RateLimitBucket>();
             this.GlobalRateLimitEvent = new AsyncManualResetEvent(true);
             this.UseResetAfter = useRelativeRatelimit;
         }
@@ -80,10 +82,21 @@ namespace DSharpPlus.Net
             var channel_id = rparams.ContainsKey("channel_id") ? rparams["channel_id"] : "";
             var webhook_id = rparams.ContainsKey("webhook_id") ? rparams["webhook_id"] : "";
 
-            var id = RateLimitBucket.GenerateId(method, route, guild_id, channel_id, webhook_id);
-            
-            // using the GetOrAdd version with the factory has no advantages as it will allocate the delegate, closure object and bucket (if needed) instead of just the bucket 
-            var bucket = this.Buckets.GetOrAdd(id, new RateLimitBucket(method, route, guild_id, channel_id, webhook_id));
+            var hashKey = RateLimitBucket.GenerateHashKey(method, route);
+
+            if(!this.RoutesToHashes.TryGetValue(hashKey, out var hash))
+            {
+                hash = $"{method}:{route}:{RateLimitBucket.UnlimitedHashValue}";
+                this.RoutesToHashes[hashKey] = hash;
+            }
+
+            var bucketId = RateLimitBucket.GenerateBucketId(hash, guild_id, channel_id, webhook_id);
+
+            if (!this.HashesToBuckets.TryGetValue(bucketId, out var bucket))
+            {
+                bucket = new RateLimitBucket(method, route, guild_id, channel_id, webhook_id, hash);
+                this.HashesToBuckets[bucketId] = bucket;
+            }
 
             url = RouteArgumentRegex.Replace(route, xm => rparams[xm.Groups[1].Value]);
             return bucket;
@@ -268,6 +281,8 @@ namespace DSharpPlus.Net
             //Reset to initial values.
             if(resetToInitial)
             {
+                bucket.Hash = $"{bucket.Method}:{bucket.Route}:{RateLimitBucket.UnlimitedHashValue}"; //this may be a problem, 
+                                                                  // we need some way to identify this bucket. Perhaps by storing the method and route in GetBucket.
                 bucket.Maximum = 0;
                 bucket._remaining = 0;
                 return;
@@ -400,6 +415,7 @@ namespace DSharpPlus.Net
             var r2 = hs.TryGetValue("X-RateLimit-Remaining", out var usesleft);
             var r3 = hs.TryGetValue("X-RateLimit-Reset", out var reset);
             var r4 = hs.TryGetValue("X-Ratelimit-Reset-After", out var resetAfter);
+            var r5 = hs.TryGetValue("X-Ratelimit-Bucket", out var hash);
 
             if (!r1 || !r2 || !r3 || !r4)
             {
@@ -469,6 +485,26 @@ namespace DSharpPlus.Net
                 if (bucket._nextReset == 0)
                     bucket._nextReset = newReset.UtcTicks;
             }
+
+            var hashKey = RateLimitBucket.GenerateHashKey(bucket.Method, bucket.Route);
+            var bucketId = RateLimitBucket.GenerateBucketId(hash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
+
+            if (!this.RoutesToHashes.TryGetValue(hashKey, out var oldHash))
+                throw new InvalidOperationException($"Hash key not present for route {bucket.Route}.");
+
+            if (hash != oldHash)
+            {
+                request.Discord.Logger.LogDebug("Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, hash);
+                bucket.Hash = hash;
+
+                _ = this.RoutesToHashes.TryRemove(oldHash, out _);
+                this.RoutesToHashes[hashKey] = hash;
+
+                var oldBucketId = RateLimitBucket.GenerateBucketId(oldHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
+                _ = this.HashesToBuckets.TryRemove(oldBucketId, out _);
+            }
+
+            this.HashesToBuckets[bucketId] = bucket;
         }
     }
 }

@@ -10,6 +10,20 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
+		[Command("test")]
+		public async Task test(CommandContext ctx)
+		{
+			var e = DiscordEmoji.FromUnicode("❌");
+
+			//This hits quite a few 429s with the previous system.
+			for (int i = 0; i < 10; i++)
+			{
+				await ctx.Message.DeleteAllReactionsAsync();
+
+				await ctx.Message.CreateReactionAsync(e);
+			}
+		}
+
 		[Command("crosspost")]
 		public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
 		{
