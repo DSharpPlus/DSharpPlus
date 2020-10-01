@@ -952,7 +952,6 @@ namespace DSharpPlus
             var mbrs = new HashSet<DiscordMember>();
             var pres = new HashSet<DiscordPresence>();
 
-            var users = dat["members"].ToObject<TransportUser[]>();
             var members = dat["members"].ToObject<TransportMember[]>();
 
             var memCount = members.Count();
@@ -961,7 +960,7 @@ namespace DSharpPlus
                 var mbr = new DiscordMember(members[i]) { Discord = this, _guild_id = guild.Id };
 
                 if (!this.UserCache.ContainsKey(mbr.Id))
-                    this.UserCache[mbr.Id] = new DiscordUser(users[i]) { Discord = this };
+                    this.UserCache[mbr.Id] = new DiscordUser(members[i].User) { Discord = this };
 
                 guild._members[mbr.Id] = mbr;
 
