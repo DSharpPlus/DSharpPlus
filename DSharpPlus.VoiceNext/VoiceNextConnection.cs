@@ -420,7 +420,17 @@ namespace DSharpPlus.VoiceNext
 
             this.Rtp.DecodeHeader(data, out var sequence, out var timestamp, out var ssrc, out var hasExtension);
 
-            var vtx = this.TransmittingSSRCs[ssrc];
+            if (!this.TransmittingSSRCs.TryGetValue(ssrc, out var vtx))
+            {
+                var decoder = Opus.CreateDecoder();
+
+                vtx = new AudioSender(ssrc, decoder)
+                {
+                    // user isn't present as we haven't received a speaking event yet.
+                    User = null
+                };
+            }
+
             voiceSender = vtx;
             if (sequence <= vtx.LastSequence) // out-of-order packet; discard
                 return false;
