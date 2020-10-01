@@ -419,7 +419,7 @@ namespace DSharpPlus.VoiceNext
 
             this.Rtp.DecodeHeader(data, out var sequence, out var timestamp, out var ssrc, out var hasExtension);
 
-            if(!this.TransmittingSSRCs.TryGetValue(ssrc, out var vtx))
+            if (!this.TransmittingSSRCs.TryGetValue(ssrc, out var vtx))
             {
                 var decoder = Opus.CreateDecoder();
 
