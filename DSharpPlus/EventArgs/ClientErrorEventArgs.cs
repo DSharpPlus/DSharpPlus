@@ -17,6 +17,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public string EventName { get; internal set; }
 
-        internal ClientErrorEventArgs(DiscordClient client) : base(client) { }
+        internal ClientErrorEventArgs() : base() { }
     }
 }

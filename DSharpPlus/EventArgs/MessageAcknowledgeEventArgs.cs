@@ -18,6 +18,6 @@ namespace DSharpPlus.EventArgs
         public DiscordChannel Channel 
             => this.Message.Channel;
 
-        internal MessageAcknowledgeEventArgs(DiscordClient client) : base(client) { }
+        internal MessageAcknowledgeEventArgs() : base() { }
     }
 }

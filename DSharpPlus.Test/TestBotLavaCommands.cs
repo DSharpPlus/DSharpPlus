@@ -42,7 +42,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("Connected to lavalink node.").ConfigureAwait(false);
         }
 
-        private Task Lavalink_Disconnected(NodeDisconnectedEventArgs e)
+        private Task Lavalink_Disconnected(LavalinkNodeConnection ll, NodeDisconnectedEventArgs e)
         {
             this.Lavalink = null;
             this.LavalinkVoice = null;
@@ -85,11 +85,11 @@ namespace DSharpPlus.Test
 
             this.LavalinkVoice = await this.Lavalink.ConnectAsync(vc);
             this.LavalinkVoice.PlaybackFinished += this.LavalinkVoice_PlaybackFinished;
-            this.LavalinkVoice.DiscordWebSocketClosed += e => ctx.RespondAsync("discord websocket close event");
+            this.LavalinkVoice.DiscordWebSocketClosed += (s, e) => ctx.RespondAsync("discord websocket close event");
             await ctx.RespondAsync("Connected.").ConfigureAwait(false);
         }
 
-        private async Task LavalinkVoice_PlaybackFinished(TrackFinishEventArgs e)
+        private async Task LavalinkVoice_PlaybackFinished(LavalinkGuildConnection ll, TrackFinishEventArgs e)
         {
             if (this.ContextChannel == null)
                 return;

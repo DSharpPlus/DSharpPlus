@@ -1,4 +1,6 @@
-﻿namespace DSharpPlus.Lavalink.EventArgs
+﻿using Emzi0767.Utilities;
+
+namespace DSharpPlus.Lavalink.EventArgs
 {
     /// <summary>
     /// Represents arguments for <see cref="LavalinkGuildConnection.DiscordWebSocketClosed"/> event.

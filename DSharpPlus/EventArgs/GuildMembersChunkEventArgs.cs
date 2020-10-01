@@ -43,6 +43,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public string Nonce { get; set; }
 
-        internal GuildMembersChunkEventArgs(DiscordClient client) : base(client) { }
+        internal GuildMembersChunkEventArgs() : base() { }
     }
 }

@@ -23,6 +23,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DateTimeOffset? LastPinTimestamp { get; internal set; }
 
-        internal ChannelPinsUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal ChannelPinsUpdateEventArgs() : base() { }
     }
 }

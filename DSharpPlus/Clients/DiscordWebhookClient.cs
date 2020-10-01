@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -160,7 +159,8 @@ namespace DSharpPlus
             if (_hooks.Any(x => x.Id == webhook.Id))
                 throw new ArgumentException("This webhook is already registered with this client.");
 
-            // see line 110-113 for explanation
+            // see line 128-131 for explanation
+            // For christ's sake, update the line numbers if they change.
             //var nwh = new DiscordWebhook()
             //{
             //    ApiClient = _apiclient,

@@ -27,6 +27,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
-        internal MessageReactionsClearEventArgs(DiscordClient client) : base(client) { }
+        internal MessageReactionsClearEventArgs() : base() { }
     }
 }

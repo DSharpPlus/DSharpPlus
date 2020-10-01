@@ -1,4 +1,6 @@
-﻿namespace DSharpPlus.CommandsNext
+﻿using Emzi0767.Utilities;
+
+namespace DSharpPlus.CommandsNext
 {
     /// <summary>
     /// Base class for all CNext-related events.

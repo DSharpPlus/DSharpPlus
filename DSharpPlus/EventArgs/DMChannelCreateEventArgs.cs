@@ -12,6 +12,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordDmChannel Channel { get; internal set; }
 
-        internal DmChannelCreateEventArgs(DiscordClient client) : base(client) { }
+        internal DmChannelCreateEventArgs() : base() { }
     }
 }

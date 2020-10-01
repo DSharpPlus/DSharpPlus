@@ -42,7 +42,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordUser UserAfter { get; internal set; }
 
-        internal PresenceUpdateEventArgs() : base(null) { }
-        internal PresenceUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal PresenceUpdateEventArgs() : base() { }
     }
 }

@@ -18,6 +18,6 @@ namespace DSharpPlus.VoiceNext.EventArgs
         /// </summary>
         public uint SSRC { get; internal set; }
 
-        internal VoiceUserJoinEventArgs(DiscordClient discord) : base(discord) { }
+        internal VoiceUserJoinEventArgs() : base() { }
     }
 }

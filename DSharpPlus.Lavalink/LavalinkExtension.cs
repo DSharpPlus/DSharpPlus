@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
+using Emzi0767.Utilities;
 
 namespace DSharpPlus.Lavalink
 {
@@ -14,12 +15,12 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Triggered whenever a node disconnects.
         /// </summary>
-        public event AsyncEventHandler<NodeDisconnectedEventArgs> NodeDisconnected
+        public event AsyncEventHandler<LavalinkNodeConnection, NodeDisconnectedEventArgs> NodeDisconnected
         {
             add { this._nodeDisconnected.Register(value); }
             remove { this._nodeDisconnected.Unregister(value); }
         }
-        private AsyncEvent<NodeDisconnectedEventArgs> _nodeDisconnected;
+        private AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs> _nodeDisconnected;
 
         /// <summary>
         /// Gets a dictionary of connected Lavalink nodes for the extension.
@@ -47,7 +48,7 @@ namespace DSharpPlus.Lavalink
 
             this.Client = client;
 
-            this._nodeDisconnected = new AsyncEvent<NodeDisconnectedEventArgs>(this.Client.EventErrorHandler, "LAVALINK_NODE_DISCONNECTED");
+            this._nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", TimeSpan.Zero, this.Client.EventErrorHandler);
         }
 
         /// <summary>
@@ -170,7 +171,7 @@ namespace DSharpPlus.Lavalink
         private void Con_NodeDisconnected(LavalinkNodeConnection node)
             => this._connectedNodes.TryRemove(node.NodeEndpoint, out _);
 
-        private Task Con_Disconnected(NodeDisconnectedEventArgs e)
-            => this._nodeDisconnected.InvokeAsync(e);
+        private Task Con_Disconnected(LavalinkNodeConnection node, NodeDisconnectedEventArgs e)
+            => this._nodeDisconnected.InvokeAsync(node, e);
     }
 }

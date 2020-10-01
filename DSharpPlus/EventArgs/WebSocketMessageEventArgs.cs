@@ -1,4 +1,6 @@
-﻿namespace DSharpPlus.EventArgs
+﻿using Emzi0767.Utilities;
+
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
     /// Represents base class for raw socket message event arguments.

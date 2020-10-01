@@ -297,13 +297,13 @@ namespace DSharpPlus
 
             Volatile.Write(ref this._ping, ping);
 
-            var args = new HeartbeatEventArgs(this)
+            var args = new HeartbeatEventArgs
             {
                 Ping = this.Ping,
                 Timestamp = DateTimeOffset.Now
             };
 
-            await _heartbeated.InvokeAsync(args).ConfigureAwait(false);
+            await _heartbeated.InvokeAsync(this, args).ConfigureAwait(false);
         }
 
         internal async Task HeartbeatLoopAsync()

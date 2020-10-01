@@ -54,13 +54,20 @@ namespace DSharpPlus.Test
             // events
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
-            Discord.ClientErrored += this.Discord_ClientErrored;
+            //Discord.ClientErrored += this.Discord_ClientErrored;
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
             Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
             Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             Discord.GuildUpdated += this.Discord_GuildUpdated;
             Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+
+            // For event timeout testing
+            //Discord.GuildDownloadCompleted += async (s, e) =>
+            //{
+            //    await Task.Delay(TimeSpan.FromSeconds(2));
+            //    throw new Exception("Flippin' tables");
+            //};
 
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
@@ -119,49 +126,49 @@ namespace DSharpPlus.Test
             await Discord.DisconnectAsync().ConfigureAwait(false);
         }
 
-        private Task Discord_Ready(ReadyEventArgs e)
+        private Task Discord_Ready(DiscordClient client, ReadyEventArgs e)
         {
             return Task.CompletedTask;
         }
 
-        private Task Discord_GuildAvailable(GuildCreateEventArgs e)
+        private Task Discord_GuildAvailable(DiscordClient client, GuildCreateEventArgs e)
         {
-            e.Client.Logger.LogInformation(TestBotEventId, "Guild available: '{0}'", e.Guild.Name);
+            client.Logger.LogInformation(TestBotEventId, "Guild available: '{0}'", e.Guild.Name);
             return Task.CompletedTask;
         }
 
-        private Task Discord_GuildCreated(GuildCreateEventArgs e)
+        private Task Discord_GuildCreated(DiscordClient client, GuildCreateEventArgs e)
         {
-            e.Client.Logger.LogInformation(TestBotEventId, "Guild created: '{0}'", e.Guild.Name);
+            client.Logger.LogInformation(TestBotEventId, "Guild created: '{0}'", e.Guild.Name);
             return Task.CompletedTask;
         }
 
-        private Task Discord_ClientErrored(ClientErrorEventArgs e)
-        {
-            e.Client.Logger.LogError(TestBotEventId, e.Exception, "Client threw an exception");
-            return Task.CompletedTask;
-        }
+        //private Task Discord_ClientErrored(DiscordClient client, ClientErrorEventArgs e)
+        //{
+        //    e.Client.Logger.LogError(TestBotEventId, e.Exception, "Client threw an exception");
+        //    return Task.CompletedTask;
+        //}
 
-        private Task Discord_SocketError(SocketErrorEventArgs e)
+        private Task Discord_SocketError(DiscordClient client, SocketErrorEventArgs e)
         {
             var ex = e.Exception is AggregateException ae ? ae.InnerException : e.Exception;
-            e.Client.Logger.LogError(TestBotEventId, ex, "WebSocket threw an exception");
+            client.Logger.LogError(TestBotEventId, ex, "WebSocket threw an exception");
             return Task.CompletedTask;
         }
 
-        private Task Discord_VoiceStateUpdated(VoiceStateUpdateEventArgs e)
+        private Task Discord_VoiceStateUpdated(DiscordClient client, VoiceStateUpdateEventArgs e)
         {
-            e.Client.Logger.LogDebug(TestBotEventId, "Voice state changed for '{0}' (mute: {1} -> {2}; deaf: {3} -> {4})", e.User, e.Before?.IsServerMuted, e.After.IsServerMuted, e.Before?.IsServerDeafened, e.After.IsServerDeafened);
+            client.Logger.LogDebug(TestBotEventId, "Voice state changed for '{0}' (mute: {1} -> {2}; deaf: {3} -> {4})", e.User, e.Before?.IsServerMuted, e.After.IsServerMuted, e.Before?.IsServerDeafened, e.After.IsServerDeafened);
             return Task.CompletedTask;
         }
 
-        private Task Discord_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
+        private Task Discord_GuildDownloadCompleted(DiscordClient client, GuildDownloadCompletedEventArgs e)
         {
-            e.Client.Logger.LogDebug(TestBotEventId, "Guild download completed");
+            client.Logger.LogDebug(TestBotEventId, "Guild download completed");
             return Task.CompletedTask;
         }
 
-        private async Task CommandsNextService_CommandErrored(CommandErrorEventArgs e)
+        private async Task CommandsNextService_CommandErrored(CommandsNextExtension cnext, CommandErrorEventArgs e)
         {
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                 return;
@@ -192,13 +199,13 @@ namespace DSharpPlus.Test
             }
         }
 
-        private Task CommandsNextService_CommandExecuted(CommandExecutionEventArgs e)
+        private Task CommandsNextService_CommandExecuted(CommandsNextExtension cnext, CommandExecutionEventArgs e)
         {
             e.Context.Client.Logger.LogInformation(TestBotEventId, "User {0} executed '{1}' in {2}", e.Context.User.Username, e.Command.QualifiedName, e.Context.Channel.Name);
             return Task.CompletedTask;
         }
 
-        private Task Discord_GuildUpdated(GuildUpdateEventArgs e)
+        private Task Discord_GuildUpdated(DiscordClient client, GuildUpdateEventArgs e)
         {
             var str = new StringBuilder();
 
@@ -213,12 +220,12 @@ namespace DSharpPlus.Test
 
                     if (bfr is null)
                     {
-                        e.Client.Logger.LogDebug(TestBotEventId, "Guild update: property {0} in before was null", prop.Name);
+                        client.Logger.LogDebug(TestBotEventId, "Guild update: property {0} in before was null", prop.Name);
                     }
 
                     if (aft is null)
                     {
-                        e.Client.Logger.LogDebug(TestBotEventId, "Guild update: property {0} in after was null", prop.Name);
+                        client.Logger.LogDebug(TestBotEventId, "Guild update: property {0} in after was null", prop.Name);
                     }
 
                     if (bfr is null || aft is null)
@@ -235,7 +242,7 @@ namespace DSharpPlus.Test
                 }
                 catch (Exception ex)
                 {
-                    e.Client.Logger.LogError(TestBotEventId, ex, "Exception occurred during guild update");
+                    client.Logger.LogError(TestBotEventId, ex, "Exception occurred during guild update");
                 }
             }
 
@@ -246,7 +253,7 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
-        private async Task Discord_ChannelDeleted(ChannelDeleteEventArgs e)
+        private async Task Discord_ChannelDeleted(DiscordClient client, ChannelDeleteEventArgs e)
         {
             var logs = (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete).ConfigureAwait(false)).Cast<DiscordAuditLogChannelEntry>();
             foreach (var entry in logs)

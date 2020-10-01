@@ -17,6 +17,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordGuild Guild { get; internal set; }
 
-        internal ChannelDeleteEventArgs(DiscordClient client) : base(client) { }
+        internal ChannelDeleteEventArgs() : base() { }
     }
 }

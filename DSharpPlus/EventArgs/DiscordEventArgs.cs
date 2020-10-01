@@ -1,15 +1,16 @@
-﻿namespace DSharpPlus.EventArgs
+﻿using Emzi0767.Utilities;
+
+namespace DSharpPlus.EventArgs
 {
+    // Note: this might seem useless, but should we ever need to add a common property or method to all event arg 
+    // classes, it would be useful to already have a base for all of it.
+
+    /// <summary>
+    /// Common base for all other <see cref="DiscordClient"/>-related event argument classes.
+    /// </summary>
     public abstract class DiscordEventArgs : AsyncEventArgs
     {
-        /// <summary>
-        /// Gets the client that triggered the event.
-        /// </summary>
-        public DiscordClient Client { get; internal set; }
-
-        protected DiscordEventArgs(DiscordClient client)
-        {
-            this.Client = client;
-        }
+        protected DiscordEventArgs()
+        { }
     }
 }

@@ -22,6 +22,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordRole RoleBefore { get; internal set; }
 
-        internal GuildRoleUpdateEventArgs(DiscordClient client) : base(client) { }
+        internal GuildRoleUpdateEventArgs() : base() { }
     }
 }
