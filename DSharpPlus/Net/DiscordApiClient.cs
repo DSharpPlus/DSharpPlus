@@ -58,18 +58,28 @@ namespace DSharpPlus.Net
 
             var guild = ret.Channel?.Guild;
 
-            if (!this.Discord.UserCache.TryGetValue(author.Id, out var usr))
-                this.Discord.UserCache[author.Id] = (usr = new DiscordUser(author) { Discord = this.Discord });
-
-            if (guild != null)
+            //If this is a webhook, it shouldn't be in the user cache.
+            if (author.IsBot && int.Parse(author.Discriminator) == 0)
             {
-                if (!guild.Members.TryGetValue(author.Id, out var mbr))
-                    mbr = new DiscordMember(usr) { Discord = this.Discord, _guild_id = guild.Id };
-                ret.Author = mbr;
+                ret.Author = new DiscordUser(author) { Discord = this.Discord };
             }
             else
             {
-                ret.Author = usr;
+                if (!this.Discord.UserCache.TryGetValue(author.Id, out var usr))
+                {
+                    this.Discord.UserCache[author.Id] = usr = new DiscordUser(author) { Discord = this.Discord };
+                }
+
+                if (guild != null)
+                {
+                    if (!guild.Members.TryGetValue(author.Id, out var mbr))
+                        mbr = new DiscordMember(usr) { Discord = this.Discord, _guild_id = guild.Id };
+                    ret.Author = mbr;
+                }
+                else
+                {
+                    ret.Author = usr;
+                }
             }
 
             var mentioned_users = new List<DiscordUser>();
