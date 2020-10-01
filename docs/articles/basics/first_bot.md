@@ -115,9 +115,8 @@ Then apply the recommended solution.
 <br/>
 We'll now create a new `DiscordClient` instance in our brand new asynchronous method.
 
-In `MainAsync`, create a new variable and assign it a new `DiscordClient` instance that has a new instance of
-`DiscordConfiguration` passed to its constuctor. Create an initializer for `DiscordConfiguration` then populate 
-the `Token` property with your bot token and set the `TokenType` property to `TokenType.Bot`.
+Create a new variable in `MainAsync` and assign it a new `DiscordClient` instance, then pass an instance of `DiscordConfiguration` to its constructor.
+Create an object initializer for `DiscordConfiguration` and populate the `Token` property with your bot token then set the `TokenType` property to `TokenType.Bot`.
 
 ```cs
 var discord = new DiscordClient(new DiscordConfiguration()
@@ -126,19 +125,16 @@ var discord = new DiscordClient(new DiscordConfiguration()
     TokenType = TokenType.Bot       
 });
 ```
+
  >[!WARNING]
- > In the above snippet, we hard-code our token to keep things simple.
+ > We hard-code the token in the above snippet to keep things simple and easy to understand.
  >
- > Hard-coding your token is not a smart idea, especially if you plan on distributing your source code.
- > You should instead store your token in an external medium, such as a configuration file or envirionment variable, and read that into your program to use with DSharpPlus.
+ > Hard-coding your token is *not* a smart idea, especially if you plan on distributing your source code.
+ > Instead you should store your token in an external medium, such as a configuration file or environment variable, and read that into your program to be used with DSharpPlus.
 
 Follow that up with `await discord.ConnectAsync();` to connect and login to Discord, and `await Task.Delay(-1);` at the end of the method to prevent the console window from closing prematurely.
 ```cs
-var discord = new DiscordClient(new DiscordConfiguration()
-{
-    Token = "My First Token",
-    TokenType = TokenType.Bot		
-});
+var discord = new DiscordClient();
 	
 await discord.ConnectAsync();
 await Task.Delay(-1);
@@ -224,5 +220,8 @@ Congrats, your bot now does something!
 ![Bot Response](/images/basics_first_bot_13.png)
 
 
-## Now What?
-You should learn more about [events](xref:beyond_basics_events)!
+## Further Reading
+Now that you have a basic bot up and running, you should take a look at the following:
+
+* [Events](xref:beyond_basics_events)
+* [CommandsNext](xref:commands_intro)
