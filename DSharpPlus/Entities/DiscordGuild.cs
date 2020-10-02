@@ -1,4 +1,4 @@
-#pragma warning disable CS0618
+﻿#pragma warning disable CS0618
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -73,6 +73,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("preferred_locale", NullValueHandling = NullValueHandling.Ignore)]
         public string PreferredLocale { get; internal set; }
 
+        /// <summary>
+        /// Gets whether the current rest user is the guild's owner.
+        /// </summary>
+        [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
+        internal bool RawIsOwner { get; set; }
+        
         /// <summary>
         /// Gets the ID of the guild's owner.
         /// </summary>
@@ -370,7 +376,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsOwner
-            => this.OwnerId == this.Discord.CurrentUser.Id;
+            => this.RawIsOwner || this.OwnerId == this.Discord.CurrentUser.Id;
 
         /// <summary>
         /// Gets vanity URL code for this guild, when applicable.
