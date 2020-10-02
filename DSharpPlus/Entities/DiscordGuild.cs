@@ -365,12 +365,18 @@ namespace DSharpPlus.Entities
         public DiscordRole EveryoneRole
             => this.GetRole(this.Id);
 
+        [JsonIgnore]
+        internal bool _isOwner;
+
         /// <summary>
         /// Gets whether the current user is the guild's owner.
         /// </summary>
-        [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsOwner
-            => this.OwnerId == this.Discord.CurrentUser.Id;
+        {
+            get => this._isOwner || this.OwnerId == this.Discord.CurrentUser.Id;
+            internal set => this._isOwner = value;
+        }
 
         /// <summary>
         /// Gets vanity URL code for this guild, when applicable.
