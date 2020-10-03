@@ -118,7 +118,7 @@ instantiated before every command call, and are disposed shortly after.
 Combined with dependency injection changes, this enables the usage of 
 transient and scoped modules.
 
-For more information, see [Module lifespans](xref:commands_module_lifespans) 
+For more information, see [Module lifespans](xref:commands_dependency_injection#modules) 
 page.
 
 ### Help formatter changes

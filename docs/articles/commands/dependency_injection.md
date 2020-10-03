@@ -3,88 +3,96 @@ uid: commands_dependency_injection
 title: Dependency Injection
 ---
 
-# Dependency injection - passing data around
+## Dependency Injection
+As you begin to write more complex commands, you'll find that you need a way to get data in and out of them.
+Although you *could* use `static` fields to accomplish this, the preferred solution would be *dependency injection*.
 
-In a situation where you need to pass objects in and out of your command modules, you need a way to access that data. 
-Dependency injection provides a convenient and safe (not to mention the only correct) way of passing data to your 
-modules. 
+This would involve placing all required object instances and types (referred to as *services*) in a container, then providing that container to CommandsNext.
+Each time a command module is instantiated, CommandsNext will then attempt to populate constructor parameters, `public` properties, and `public` fields exposed by the module with instances of objects from the service container.
 
-You use dependency injection by first creating a service provider, then supplying it to your @DSharpPlus.CommandsNext.CommandsNextConfiguration 
-instance via @DSharpPlus.CommandsNext.CommandsNextConfiguration.Services property. The objects you placed in the 
-service provider will then be injected into your modules when they are instantiated. During injection, CommandsNext 
-first injects objects via constructor (i.e. it will try to match any constructor parameter to service types in the 
-provider. If it fails, it will throw. Up next, any public writable properties are populated with services from the 
-provider. If a suitable service is not found, the property is not injected. The process is then repeated for public 
-writable fields. To prevent specific properties or fields from being injected, you can put the @DSharpPlus.CommandsNext.Attributes.DontInjectAttribute 
-over them.
 
-This is useful in a scenario when you have any kind of data that you need to be persistent or accessible from command 
-modules, such as settings classes, entity framework database contexts, and so on.
+We'll go through a simple example of this process to help you understand better.
 
-## 1. Creating a service provider
-
-If you go back to the basic CommandsNext example, you will remember the `random` command. Let's amend it, and make 
-use of shared `Random` instance (note that reusing `Random` instances is generally not a good idea; here it's done for 
-the sake of the example).
-
-Before you enable your CommandsNext module, you will need to create a new `ServiceCollection` instance, then add a 
-singleton `Random` instance to it, and finally, build a service provider out of it. You can do it like so:
-
+### Create a Service Provider
+To begin, we'll need to create a service provider; this will act as the container for the services you need for your commands.
+Create a new variable just before you register CommandsNext with your `DiscordClient` and assign it a new instance of `ServiceCollection`.
 ```cs
-var deps = new ServiceCollection()
-	.AddSingleton(new Random())
+var discord = new DiscordClient();	
+var services = new ServiceCollection();	// Right here!
+var commands = discord.UseCommandsNext();
+```
+
+We'll use `.AddSingleton` to add type `Random` to the collection, then chain that call with the `.BuildServiceProvider()` extension method.
+The resulting type will be `ServiceProvider`.
+```cs
+var services = new ServiceCollection()
+    .AddSingleton<Random>()
 	.BuildServiceProvider();
 ```
 
-Don't forget to add `using Microsoft.Extensions.DependencyInjection;` to your usings.
-
-You then need to pass the resulting provider to your CommandsNext configuration. Amend it like so:
-
+Then we'll need to provide CommandsNext with our services.
 ```cs
-commands = discord.UseCommandsNext(new CommandsNextConfiguration
+var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
 {
-	StringPrefix = ";;",
-	Services = deps
+    Services = services
 });
 ```
 
-## 2. Amending the command module
+### Using Your Services
+Now that we have our services set up, we're able to use them in commands.<br/>
+We'll be tweaking our [random number command](xref:commands_intro#argument-converters) to demonstrate.
 
-Go to your command module, and give it a read-only property called Rng, of type Random:
-
+Add a new property to the command module named *Rng*. Make sure it has a `public` setter.
 ```cs
-public Random Rng { get; }
-```
-
-Now create a constructor for the module, which takes an instance of Random as an argument:
-
-```cs
-public MyCommands(Random rng)
+public class MyFirstModule : BaseCommandModule
 {
-	Rng = rng;
+    public Random Rng { private get; set; } // Implied public setter.
+
+    // ...
 }
 ```
 
-And finally edit the `Random` command to look like this:
-
+Modify the *random* command to use our property.
 ```cs
 [Command("random")]
-public async Task Random(CommandContext ctx, int min, int max)
+public async Task RandomCommand(CommandContext ctx, int min, int max)
 {
-	await ctx.RespondAsync($"🎲 Your random number is: {Rng.Next(min, max)}");
+    await ctx.RespondAsync($"Your number is: {Rng.Next(min, max)}");
 }
 ```
 
-When you invoke `;;random 1 10` now, it will use the shared `Random` instance.
+Then we can give it a try!
 
-## 3. Further notes
+![Command Execution](/images/commands_dependency_injection_01.png)
 
-While the service collection can hold singletons, it can hold transient and scoped instances as well. The difference is 
-that singleton instances are instantantiated once (when added to the collection), scoped are instantiated once per 
-module instantiation, and transients are instantiated every time they are requested.
+<br/>
+CommandsNext has automatically injected our singleton `Random` instance into the `Rng` property when our command module was instantiated.
+Now, for any command that needs `Random`, we can simply declare one as a property, field, or in the module constructor and CommandsNext will take care of the rest.
+Ain't that neat?
 
-Combined with transient module lifespans, injecting an entity framework database context as a transient or scoped 
-service makes working with databases easier, as an example.
 
-Note that if a module has singleton lifespan, all services will be injected to it once. Only transient modules take 
-advantage of scoped and transient services.
+## Lifespans
+
+### Modules
+By default, all command modules have a singleton lifespan; this means each command module is instantiated once for the lifetime of the CommandsNext instance.
+However, if the reuse of a module instance is undesired, you also have the option to change the lifespan of a module to *transient* using the `ModulesLifespan` attribute.
+```cs
+[ModuleLifespan(ModuleLifespan.Transient)]
+public class MyFirstModule : BaseCommandModule
+{
+    // ...
+}
+```
+Transient command modules are instantiated each time one of its containing commands is executed.
+
+
+### Services
+In addition to the `.AddSingleton()` extension method, you're also able to use the `.AddScoped()` and `.AddTransient()` extension methods to add services to the collection.
+The extension method chosen will affect when and how often the service is instantiated.
+Scoped and transient services should only be used in transient command modules, as singleton modules will always have their services injected once.
+
+Lifespan|Instantiated
+:---:|:---
+Singleton|One time when added to the collection.
+Scoped|Once for each command module.
+Transient|Each time its requested.
