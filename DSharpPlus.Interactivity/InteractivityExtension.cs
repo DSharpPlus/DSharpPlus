@@ -291,9 +291,9 @@ namespace DSharpPlus.Interactivity
         /// <param name="input">Input string.</param>
         /// <param name="splittype">How to split input string.</param>
         /// <returns></returns>
-        public Page[] GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
+        public IEnumerable<Page> GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
 
             List<Page> result = new List<Page>();
@@ -331,7 +331,7 @@ namespace DSharpPlus.Interactivity
                 page++;
             }
 
-            return result.ToArray();
+            return result;
         }
 
         /// <summary>
@@ -341,9 +341,9 @@ namespace DSharpPlus.Interactivity
         /// <param name="splittype">How to split input string.</param>
         /// <param name="embedbase">Base embed for output embeds.</param>
         /// <returns></returns>
-        public Page[] GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
+        public IEnumerable<Page> GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
 
             var embed = embedbase ?? new DiscordEmbedBuilder();
@@ -384,7 +384,7 @@ namespace DSharpPlus.Interactivity
                 page++;
             }
 
-            return result.ToArray();
+            return result;
         }
 
         private List<string> SplitString(string str, int chunkSize)
