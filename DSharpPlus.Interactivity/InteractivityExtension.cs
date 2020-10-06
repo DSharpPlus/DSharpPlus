@@ -54,7 +54,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">What to do when the poll ends.</param>
         /// <param name="timeout">override timeout period.</param>
         /// <returns></returns>
-        public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour? behaviour = default, TimeSpan? timeout = null)
+        public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, IEnumerable<DiscordEmoji> emojis, PollBehaviour? behaviour = default, TimeSpan? timeout = null)
         {
             if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
                 throw new InvalidOperationException("No reaction intents are enabled.");

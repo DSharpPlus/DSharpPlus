@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         internal TimeSpan _timeout;
         internal ConcurrentHashSet<PollEmoji> _collected;
         internal DiscordMessage _message;
-        internal DiscordEmoji[] _emojis;
+        internal IEnumerable<DiscordEmoji> _emojis;
 
         /// <summary>
         /// 
@@ -22,7 +23,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// <param name="message"></param>
         /// <param name="timeout"></param>
         /// <param name="emojis"></param>
-        public PollRequest(DiscordMessage message, TimeSpan timeout, params DiscordEmoji[] emojis)
+        public PollRequest(DiscordMessage message, TimeSpan timeout, IEnumerable<DiscordEmoji> emojis)
         {
             this._tcs = new TaskCompletionSource<bool>();
             this._ct = new CancellationTokenSource(timeout);
@@ -31,6 +32,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._emojis = emojis;
             this._collected = new ConcurrentHashSet<PollEmoji>();
             this._message = message;
+
             foreach (DiscordEmoji e in emojis)
             {
                 _collected.Add(new PollEmoji(e));
