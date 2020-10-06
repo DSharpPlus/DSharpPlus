@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ConcurrentCollections;
 using DSharpPlus.Entities;
-using DSharpPlus.Interactivity.Concurrency;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {

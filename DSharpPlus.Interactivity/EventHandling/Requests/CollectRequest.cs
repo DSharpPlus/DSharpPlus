@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Interactivity.Concurrency;
+using ConcurrentCollections;
 using Emzi0767.Utilities;
 
 namespace DSharpPlus.Interactivity.EventHandling

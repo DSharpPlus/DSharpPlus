@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using ConcurrentCollections;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity.Concurrency;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 
