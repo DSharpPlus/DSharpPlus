@@ -8,7 +8,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 {
     /// <summary>
     /// CollectRequest is a class that serves as a representation of
-    /// EventArgs that are being collected within a specific timeframe.
+    /// EventArgs that are being collected within a specific time frame.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class CollectRequest<T> : IDisposable where T : AsyncEventArgs

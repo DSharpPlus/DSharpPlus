@@ -206,7 +206,7 @@ namespace DSharpPlus.Interactivity
         /// <summary>
         /// Collects reactions on a specific message.
         /// </summary>
-        /// <param name="m">Message to colelct reactions on.</param>
+        /// <param name="m">Message to collect reactions on.</param>
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
         public async Task<ReadOnlyCollection<Reaction>> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
