@@ -1,14 +1,10 @@
-﻿using DSharpPlus.Entities;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus.Interactivity;
-using DSharpPlus.EventArgs;
-using System.Collections.ObjectModel;
 
 namespace DSharpPlus.Interactivity
 {

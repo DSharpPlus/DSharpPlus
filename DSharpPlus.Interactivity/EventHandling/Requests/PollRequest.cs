@@ -1,11 +1,9 @@
-﻿using DSharpPlus.Entities;
-using DSharpPlus.Interactivity.Concurrency;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Concurrency;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
