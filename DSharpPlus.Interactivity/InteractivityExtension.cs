@@ -452,20 +452,4 @@ namespace DSharpPlus.Interactivity
             return res;
         }
     }
-
-    /// <summary>
-    /// Way to split strings.
-    /// </summary>
-    public enum SplitType
-    {
-        /// <summary>
-        /// Splits string per 500 characters.
-        /// </summary>
-        Character,
-        /// <summary>
-        /// Splits string per 15 lines.
-        /// </summary>
-        Line
-    }
 }
-// the one true InteractivityNext

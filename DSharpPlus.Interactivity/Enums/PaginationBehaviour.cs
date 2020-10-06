@@ -1,29 +1,18 @@
 ﻿namespace DSharpPlus.Interactivity.Enums
 {
-    public enum PaginationDeletion
-    {
-        /// <summary>
-        /// Deletes emojis
-        /// </summary>
-        DeleteEmojis = 0,
-        /// <summary>
-        /// Keeps emojis
-        /// </summary>
-        KeepEmojis = 1,
-        /// <summary>
-        /// Deletes message
-        /// </summary>
-        DeleteMessage = 2
-    }
-
+    /// <summary>
+    /// Specifies how pagination will handle advancing past the first and last pages.
+    /// </summary>
     public enum PaginationBehaviour
     {
         /// <summary>
-        /// Wraps around indices (e.g. when the index in over the max, loop back to 0)
+        /// Going forward beyond the last page will loop back to the first page.
+        /// Likewise, going back from the first page will loop around to the last page.
         /// </summary>
         WrapAround = 0,
+
         /// <summary>
-        /// Disallows moving pas 0 and max indices
+        /// Attempting to go beyond the first or last page will be ignored.
         /// </summary>
         Ignore = 1
     }
