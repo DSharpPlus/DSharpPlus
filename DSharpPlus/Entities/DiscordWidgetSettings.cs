@@ -7,19 +7,13 @@ namespace DSharpPlus.Entities
 	/// </summary>
 	public class DiscordWidgetSettings
     {
-        internal DiscordGuild Guild;
-
-        [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
-        internal bool Enabled { get; set; }
-
-        /// <summary>
-        /// Gets if the guild's widget is enabled.
-        /// </summary>
-        public bool IsEnabled
-            => this.Enabled;
+        internal DiscordGuild Guild { get; set; }
 
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong ChannelId { get; set; }
+
+        [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
+        internal bool Enabled { get; set; }
 
         /// <summary>
         /// Gets the guild's widget channel.
@@ -27,5 +21,10 @@ namespace DSharpPlus.Entities
         public DiscordChannel Channel
             => this.Guild.GetChannel(this.ChannelId);
 
+        /// <summary>
+        /// Gets if the guild's widget is enabled.
+        /// </summary>
+        public bool IsEnabled
+            => this.Enabled;
     }
 }
