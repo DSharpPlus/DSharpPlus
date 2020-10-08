@@ -68,11 +68,11 @@ namespace DSharpPlus.Interactivity.Extensions
         /// </summary>
         /// <param name="message">Target message.</param>
         /// <param name="emojis">Options for this poll.</param>
-        /// <param name="behaviour">Action that should be taken once the poll times out.</param>
+        /// <param name="behaviorOverride">Overrides the action set in <see cref="InteractivityConfiguration.PaginationBehaviour"/></param>
         /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
         /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the message.</exception>
-        public static Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(this DiscordMessage message, IEnumerable<DiscordEmoji> emojis, PollBehaviour behaviour, TimeSpan? timeoutOverride = null)
-            => GetInteractivity(message).DoPollAsync(message, emojis, behaviour, timeoutOverride);
+        public static Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(this DiscordMessage message, IEnumerable<DiscordEmoji> emojis, PollBehaviour? behaviorOverride = null, TimeSpan? timeoutOverride = null)
+            => GetInteractivity(message).DoPollAsync(message, emojis, behaviorOverride, timeoutOverride);
 
         /// <summary>
         /// Retrieves an interactivity instance from a message instance.
