@@ -62,10 +62,10 @@ namespace DSharpPlus.Interactivity.Extensions
         /// </summary>
         /// <param name="client">The shard client to retrieve interactivity instances from.</param>
         /// <returns>A dictionary containing <see cref="InteractivityExtension"/> instances for each shard.</returns>
-        public static IReadOnlyDictionary<int, InteractivityExtension> GetInteractivity(this DiscordShardedClient client)
+        public static async Task<ReadOnlyDictionary<int, InteractivityExtension>> GetInteractivityAsync(this DiscordShardedClient client)
         {
-            var extensions = new Dictionary<int, InteractivityExtension>();
-            client.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            await client.InitializeShardsAsync().ConfigureAwait(false);
+            var extensions = new Dictionary<int, InteractivityExtension>();            
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
