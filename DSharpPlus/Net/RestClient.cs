@@ -584,28 +584,10 @@ namespace DSharpPlus.Net
                     if (value.IsCurrentlyUsed)
                         continue;
 
-                    if(this.UseResetAfter)
-                    {
-                        if (value._resetAfterOffset == null)
-                        {
-                            _ = this.HashesToBuckets.TryRemove(key, out _);
-                            continue;
-                        }
+                    var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
 
-                        if (value._resetAfterOffset.AddSeconds(bucketResetAfterTimespan.TotalSeconds) > DateTimeOffset.UtcNow)
-                            continue;
-                    }
-                    else
-                    {
-                        if (value.Reset == null)
-                        {
-                            _ = this.HashesToBuckets.TryRemove(key, out _);
-                            continue;
-                        }
-
-                        if (value.Reset.AddSeconds(bucketResetAfterTimespan.TotalSeconds) > DateTimeOffset.UtcNow)
-                            continue;
-                    }
+                    if (resetOffset != null && resetOffset.AddSeconds(bucketResetAfterTimespan.TotalSeconds) > DateTimeOffset.UtcNow)
+                        continue;
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);
                     removedBuckets++;
