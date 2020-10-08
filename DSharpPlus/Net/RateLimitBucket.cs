@@ -11,13 +11,6 @@ namespace DSharpPlus.Net
     internal class RateLimitBucket : IEquatable<RateLimitBucket>
     {
         /// <summary>
-        /// Gets the unlimited hash key for ratelimiting.
-        /// </summary>
-        public static readonly string UnlimitedHashValue = "unlimited";
-
-        public static readonly string GuildIdString = "guild_id";
-
-        /// <summary>
         /// Gets the Id of the guild bucket.
         /// </summary>
         public string GuildId { get; internal set; }
@@ -33,25 +26,29 @@ namespace DSharpPlus.Net
         public string WebhookId { get; internal set; }
 
         /// <summary>
-        /// Gets the url by which the requests are bucketed.
+        /// Gets the Id of the ratelimit bucket.
         /// </summary>
-        public string Route { get; internal set; }
+        public string BucketId { get; }
 
         /// <summary>
         /// Gets the ratelimit hash of this bucket.
         /// </summary>
-        public string Hash { get; internal set; }
+        public string Hash 
+        { 
+            get => this._hash;
 
-        /// <summary>
-        /// Gets the HTTP request method.
-        /// </summary>
-        public RestRequestMethod Method { get; internal set; }
+            internal set
+            {
+                if (value.Contains(UNLIMITED_HASH))
+                    this.IsUnlimited = true;
+                else
+                    this.IsUnlimited = false;
 
-        /// <summary>
-        /// Gets the Id of the ratelimit bucket.
-        /// </summary>
-        public string BucketId 
-            => $"{this.Method}:{this.GuildId}:{this.ChannelId}:{this.WebhookId}:{this.Route}";
+                this._hash = value;
+            }
+        }
+
+        private string _hash;
 
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
@@ -77,6 +74,10 @@ namespace DSharpPlus.Net
 
         internal volatile int _remaining;
 
+        internal volatile bool IsUnlimited;
+
+        internal volatile bool IsCurrentlyUsed;
+
         /// <summary>
         /// If the initial request for this bucket that is deterternining the rate limits is currently executing
         /// This is a int because booleans can't be accessed atomically
@@ -98,7 +99,7 @@ namespace DSharpPlus.Net
         /// Rate limit reset in ticks, UTC on the next response after the rate limit has been reset
         /// </summary>
         internal long _nextReset;
-        
+
         /// <summary>
         /// If the rate limit is currently being reset.
         /// This is a int because booleans can't be accessed atomically.
@@ -106,14 +107,16 @@ namespace DSharpPlus.Net
         /// </summary>
         internal volatile int _limitResetting;
 
-        internal RateLimitBucket(RestRequestMethod method, string route, string guild_id, string channel_id, string webhook_id, string hash)
+        private static readonly string UNLIMITED_HASH = "unlimited";
+
+        internal RateLimitBucket(string hash, string guild_id, string channel_id, string webhook_id)
         {
-            this.Method = method;
-            this.Route = route;
+            this.Hash = hash;
             this.ChannelId = channel_id;
             this.GuildId = guild_id;
             this.WebhookId = webhook_id;
-            this.Hash = hash;
+
+            this.BucketId = GenerateBucketId(hash, guild_id, channel_id, webhook_id);
         }
 
         /// <summary>
@@ -124,11 +127,14 @@ namespace DSharpPlus.Net
         /// <param name="channel_id">Channel Id for this bucket.</param>
         /// <param name="webhook_id">Webhook Id for this bucket.</param>
         /// <returns>Bucket Id.</returns>
-        public static string GenerateBucketId(string hash, string guild_id, string channel_id, string webhook_id) 
+        public static string GenerateBucketId(string hash, string guild_id, string channel_id, string webhook_id)
             => $"{hash}:{guild_id}:{channel_id}:{webhook_id}";
 
         public static string GenerateHashKey(RestRequestMethod method, string route)
             => $"{method}:{route}";
+
+        public static string GenerateUnlimitedHash(RestRequestMethod method, string route)
+            => $"{GenerateHashKey(method, route)}:{UNLIMITED_HASH}";
 
         /// <summary>
         /// Returns a string representation of this bucket.

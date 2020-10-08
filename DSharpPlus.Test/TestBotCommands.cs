@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -22,6 +24,10 @@ namespace DSharpPlus.Test
 
 				await ctx.Message.CreateReactionAsync(e);
 			}
+
+			var msgs = await ctx.Channel.GetMessagesAsync();
+
+			msgs.ToList().ForEach(x => x.DeleteAsync());
 		}
 
 		[Command("crosspost")]

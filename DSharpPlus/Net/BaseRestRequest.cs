@@ -25,6 +25,11 @@ namespace DSharpPlus.Net
         public RestRequestMethod Method { get; }
 
         /// <summary>
+        /// Gets the generic path (no parameters) for this request.
+        /// </summary>
+        public string Route { get; }
+
+        /// <summary>
         /// Gets the headers sent with this request.
         /// </summary>
         public IReadOnlyDictionary<string, string> Headers { get; } = null;
@@ -46,15 +51,17 @@ namespace DSharpPlus.Net
         /// <param name="bucket">Rate limit bucket to place this request in.</param>
         /// <param name="url">Uri to which this request is going to be sent to.</param>
         /// <param name="method">Method to use for this request,</param>
+        /// <param name="route">The generic route the request url will use.</param>
         /// <param name="headers">Additional headers for this request.</param>
         /// <param name="ratelimitWaitOverride">Override for ratelimit bucket wait time.</param>
-        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, double? ratelimitWaitOverride = null)
+        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, double? ratelimitWaitOverride = null)
         {
             this.Discord = client;
             this.RateLimitBucket = bucket;
             this.RequestTaskSource = new TaskCompletionSource<RestResponse>();
             this.Url = url;
             this.Method = method;
+            this.Route = route;
             this.RateLimitWaitOverride = ratelimitWaitOverride;
 
             if (headers != null)
@@ -80,5 +87,6 @@ namespace DSharpPlus.Net
 
         protected internal bool TrySetFaulted(Exception ex) 
             => this.RequestTaskSource.TrySetException(ex);
+
     }
 }
