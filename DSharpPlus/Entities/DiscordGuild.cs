@@ -1943,14 +1943,14 @@ namespace DSharpPlus.Entities
         /// Gets the guild's widget
         /// </summary>
         /// <returns>The guild's widget</returns>
-        public Task<DiscordWidget> GetGuildWidgetAsync()
+        public Task<DiscordWidget> GetWidgetAsync()
             => this.Discord.ApiClient.GetGuildWidgetAsync(this.Id);
 
         /// <summary>
         /// Gets the guild's widget settings
         /// </summary>
         /// <returns>The guild's widget settings</returns>
-        public Task<DiscordWidgetSettings> GetGuildWidgetSettingsAsync()
+        public Task<DiscordWidgetSettings> GetWidgetSettingsAsync()
             => this.Discord.ApiClient.GetGuildWidgetSettingsAsync(this.Id);
 
         /// <summary>
@@ -1960,7 +1960,7 @@ namespace DSharpPlus.Entities
         /// <param name="channel">Widget channel</param>
         /// <param name="reason">Reason the widget settings were modified</param>
         /// <returns>The newly modified widget settings</returns>
-        public Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
+        public Task<DiscordWidgetSettings> ModifyWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
             => this.Discord.ApiClient.ModifyGuildWidgetSettingsAsync(this.Id, isEnabled, channel?.Id, reason);
         #endregion
 

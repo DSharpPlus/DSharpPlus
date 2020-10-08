@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace DSharpPlus.Entities
 {
-	/// <summary>
-	/// Represents a Discord guild's widget.
-	/// </summary>
-	public partial class DiscordWidget : SnowflakeObject
-	{
+    /// <summary>
+    /// Represents a Discord guild's widget.
+    /// </summary>
+    public class DiscordWidget : SnowflakeObject
+    {
         [JsonIgnore]
         public DiscordGuild Guild { get; internal set; }
 

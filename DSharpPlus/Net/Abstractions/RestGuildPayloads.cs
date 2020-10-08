@@ -190,11 +190,11 @@ namespace DSharpPlus.Net.Abstractions
     }
 
     internal class RestGuildWidgetSettingsPayload
-	{
+    {
         [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Enabled { get; set; }
         
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? ChannelId { get; set; }
-	}
+    }
 }

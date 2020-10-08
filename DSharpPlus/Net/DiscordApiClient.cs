@@ -428,7 +428,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordWidget> GetGuildWidgetAsync(ulong guild_id)
         {
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET}";
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET_JSON}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
@@ -452,7 +452,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordWidgetSettings> GetGuildWidgetSettingsAsync(ulong guild_id)
         {
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET_SETTINGS}";
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
@@ -476,7 +476,7 @@ namespace DSharpPlus.Net
             if (!string.IsNullOrWhiteSpace(reason))
                 headers.Add(REASON_HEADER_NAME, reason);
 
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET_SETTINGS}";
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);

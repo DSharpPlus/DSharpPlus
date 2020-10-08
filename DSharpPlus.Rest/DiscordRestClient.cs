@@ -275,7 +275,7 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Gets the guild's widget
+        /// Gets a guild's widget
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <returns></returns>
@@ -283,7 +283,7 @@ namespace DSharpPlus
             => this.ApiClient.GetGuildWidgetAsync(guild_id);
 
         /// <summary>
-        /// Gets the guild's widget settings
+        /// Gets a guild's widget settings
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <returns></returns>
@@ -291,7 +291,7 @@ namespace DSharpPlus
             => this.ApiClient.GetGuildWidgetSettingsAsync(guild_id);
 
         /// <summary>
-        /// Modifies the guild's widget settings
+        /// Modifies a guild's widget settings
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="enabled">If the widget is enabled or not</param>
