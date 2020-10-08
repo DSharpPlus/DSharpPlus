@@ -1938,6 +1938,30 @@ namespace DSharpPlus.Entities
                 .OrderBy(xc => xc.Position)
                 .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
         }
+
+        /// <summary>
+        /// Gets the guild's widget
+        /// </summary>
+        /// <returns>The guild's widget</returns>
+        public Task<DiscordWidget> GetGuildWidgetAsync()
+            => this.Discord.ApiClient.GetGuildWidgetAsync(this.Id);
+
+        /// <summary>
+        /// Gets the guild's widget settings
+        /// </summary>
+        /// <returns>The guild's widget settings</returns>
+        public Task<DiscordWidgetSettings> GetGuildWidgetSettingsAsync()
+            => this.Discord.ApiClient.GetGuildWidgetSettingsAsync(this.Id);
+
+        /// <summary>
+        /// Modifies the guild's widget settings
+        /// </summary>
+        /// <param name="isEnabled">If the widget is enabled or not</param>
+        /// <param name="channel">Widget channel</param>
+        /// <param name="reason">Reason the widget settings were modified</param>
+        /// <returns>The newly modified widget settings</returns>
+        public Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
+            => this.Discord.ApiClient.ModifyGuildWidgetSettingsAsync(this.Id, isEnabled, channel?.Id, reason);
         #endregion
 
         /// <summary>

@@ -425,6 +425,68 @@ namespace DSharpPlus.Net
 
             return invite;
         }
+
+        internal async Task<DiscordWidget> GetGuildWidgetAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordWidget>(res.Response);
+            ret.Discord = this.Discord;
+            ret.Guild = Discord.Guilds[guild_id];
+
+            var json = JObject.Parse(res.Response);
+            var rawChannels = (JArray)json["channels"];
+            ret.Channels = rawChannels.Select(r =>
+            {
+                DiscordChannel c = ret.Guild.GetChannel(Convert.ToUInt64(r["id"]));
+                c.Position = Convert.ToInt32(r["position"]);
+                return c;
+            }).ToList();
+
+            return ret;
+        }
+
+        internal async Task<DiscordWidgetSettings> GetGuildWidgetSettingsAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET_SETTINGS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordWidgetSettings>(res.Response);
+            ret.Guild = Discord.Guilds[guild_id];
+
+            return ret;
+        }
+
+        internal async Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(ulong guild_id, bool? isEnabled, ulong? channelId, string reason)
+        {
+            var pld = new RestGuildWidgetSettingsPayload
+            {
+                Enabled = isEnabled,
+                ChannelId = channelId
+            };
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET_SETTINGS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordWidgetSettings>(res.Response);
+            ret.Guild = Discord.Guilds[guild_id];
+
+            return ret;
+        }
         #endregion
 
         #region Channel

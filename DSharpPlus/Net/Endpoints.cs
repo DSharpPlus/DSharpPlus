@@ -49,5 +49,7 @@
         public const string PREVIEW = "/preview";
         public const string FOLLOWERS = "/followers";
         public const string CROSSPOST = "/crosspost";
+        public const string WIDGET_SETTINGS = "/widget";
+        public const string WIDGET = "/widget.json";
     }
 }
