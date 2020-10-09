@@ -440,12 +440,23 @@ namespace DSharpPlus.Net
 
             var json = JObject.Parse(res.Response);
             var rawChannels = (JArray)json["channels"];
-            ret.Channels = rawChannels.Select(r =>
+            if (ret.Guild == null)
             {
-                DiscordChannel c = ret.Guild.GetChannel(Convert.ToUInt64(r["id"]));
-                c.Position = Convert.ToInt32(r["position"]);
-                return c;
-            }).ToList();
+                ret.Channels = rawChannels.Select(r => new DiscordChannel {
+                    Id = (ulong)r["id"],
+                    Name = r["name"].ToString(),
+                    Position = (int)r["position"]
+                }).ToList();
+            }
+            else
+            {
+                ret.Channels = rawChannels.Select(r =>
+                {
+                    DiscordChannel c = ret.Guild.GetChannel((ulong)r["id"]);
+                    c.Position = (int)r["position"];
+                    return c;
+                }).ToList();
+            }
 
             return ret;
         }
