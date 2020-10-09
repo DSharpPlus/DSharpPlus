@@ -586,7 +586,7 @@ namespace DSharpPlus.Net
 
                     var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
 
-                    if (resetOffset != null && resetOffset.AddSeconds(bucketResetAfterTimespan.TotalSeconds) > DateTimeOffset.UtcNow)
+                    if (resetOffset == null || resetOffset < DateTimeOffset.UtcNow.AddSeconds(bucketResetAfterTimespan.TotalSeconds))
                         continue;
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);
