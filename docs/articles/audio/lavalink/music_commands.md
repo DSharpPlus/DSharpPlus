@@ -54,18 +54,20 @@ public async Task Leave(CommandContext ctx, DiscordChannel channel)
 
 In order to connect to a voice channel, we'll need to do a few things. 
 
-1. Get our node connection. This is where our program's LavalinkNode comes in.
+1. Get our node connection. You can either use linq or `GetIdealNodeConnection()`
 2. Check if the channel is a voice channel, and tell the user if not.
 3. Connect the node to the channel. 
 
 
 And for the leave command: 
 
-1. Get the node connection.
+1. Get the node connection, using the same process.
 2. Check if the channel is a voice channel, and tell the user if not.
 3. Get our existing connection. 
 4. Check if the connection exists, and tell the user if not.
 5. Disconnect from the channel.
+
+`GetIdealNodeConnection()` will return the least affected node through load balancing, which is useful for larger bots. It can also filter nodes based on an optional voice region to use the closest nodes available. Since we only have one connection we can use linq's `.First()` method on the extensions connected nodes to get what we need.
 
 So far, your command class should look something like this: 
 
@@ -83,7 +85,8 @@ namespace MyFirstMusicBot
         [Command]
         public async Task Join(CommandContext ctx, DiscordChannel channel)
         {
-            var node = Program.LavalinkNode;
+            var lava = ctx.Client.GetLavalink();
+            var node = lava.ConnectedNodes.Values.First();
 
             if (channel.Type != ChannelType.Voice)
             {
@@ -98,7 +101,8 @@ namespace MyFirstMusicBot
         [Command]
         public async Task Leave(CommandContext ctx, DiscordChannel channel)
         {
-            var node = Program.LavalinkNode;
+            var lava = ctx.Client.GetLavalink();
+            var node = lava.ConnectedNodes.Values.First();
 
             if (channel.Type != ChannelType.Voice)
             {
@@ -155,8 +159,9 @@ if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
     return;
 }
 
-var node = Program.LavalinkNode;
-var conn = node.GetConnection(ctx.Member.VoiceState.Guild);
+var lava = ctx.Client.GetLavalink();
+var node = lava.ConnectedNodes.Values.First();
+var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
 
 if (conn == null)
 {
@@ -218,8 +223,9 @@ public async Task Play(CommandContext ctx, [RemainingText] string search)
         return;
     }
 
-    var node = Program.LavalinkNode;
-    var conn = node.GetConnection(ctx.Member.VoiceState.Guild);
+    var lava = ctx.Client.GetLavalink();
+    var node = lava.ConnectedNodes.Values.First();
+    var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
 
     if (conn == null)
     {
@@ -256,8 +262,9 @@ public async Task Pause(CommandContext ctx)
         return;
     }
 
-    var node = Program.LavalinkNode;
-    var conn = node.GetConnection(ctx.Member.VoiceState.Guild);
+    var lava = ctx.Client.GetLavalink();
+    var node = lava.ConnectedNodes.Values.First();
+    var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
 
     if (conn == null)
     {
@@ -294,8 +301,9 @@ public async Task Pause(CommandContext ctx)
         return;
     }
 
-    var node = Program.LavalinkNode;
-    var conn = node.GetConnection(ctx.Member.VoiceState.Guild);
+    var lava = ctx.Client.GetLavalink();
+    var node = lava.ConnectedNodes.Values.First();
+    var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
 
     if (conn == null)
     {
