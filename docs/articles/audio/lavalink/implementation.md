@@ -35,7 +35,7 @@ var lavalink = Discord.UseLavalink();
 
 ## Connecting with Lavalink
 
-We are now ready to connect to the server. Call the Lavalink extension's connect method and pass the configuration. Make sure to call this **after** your Discord client connects. Assign the connection to your `LavalinkNode`.
+We are now ready to connect to the server. Call the Lavalink extension's connect method and pass the configuration. Make sure to call this **after** your Discord client connects. This can be called either directly after your client's connect method or in your client's ready event.
 
 ```csharp
 LavalinkNode = await Lavalink.ConnectAsync(lavalinkConfig);
@@ -87,7 +87,7 @@ namespace MyFirstMusicBot
 
             await Discord.ConnectAsync();
             await lavalink.ConnectAsync(lavalinkConfig); // Make sure this is after Discord.ConnectAsync(). 
-                                                         // Alternatively, this can also be placed in the ready event.
+                                                         
             await Task.Delay(-1);
         }
     }
