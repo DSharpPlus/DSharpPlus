@@ -12,22 +12,18 @@ To begin using DSharpPlus's Lavalink client, you will need to add the `DSharpPlu
 using DSharpPlus.Net;
 using DSharpPlus.Lavalink;
 ```
-Next, make sure you have a node connection property in your class. You will need this later on for commands.
-```csharp
-public static LavalinkNodeConnection LavalinkNode;
-```
 
 After that, we will need to create a configuration for our extension to use. This is where the special values from the server configuration are used.
 ```csharp
 var endpoint = new ConnectionEndpoint
 {
-    Hostname = "127.0.0.1", //From your server configuration.
-    Port = 2333 //From your server configuration
+    Hostname = "127.0.0.1", // From your server configuration.
+    Port = 2333 // From your server configuration
 };
 
 var lavalinkConfig = new LavalinkConfiguration
 {
-    Password = "youshallnotpass", //From your server configuration.
+    Password = "youshallnotpass", // From your server configuration.
     RestEndpoint = endpoint,
     SocketEndpoint = endpoint
 };
@@ -49,6 +45,7 @@ Your main bot file should now look like this:
 
 ```csharp
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using DSharpPlus;
 using DSharpPlus.Net;
 using DSharpPlus.Lavalink;
@@ -58,7 +55,6 @@ namespace MyFirstMusicBot
     class Program
     {
         public static DiscordClient Discord;
-        public static LavalinkNodeConnection LavalinkNode;
 
         static void Main(string[] args)
         {
@@ -71,19 +67,18 @@ namespace MyFirstMusicBot
             {
                 Token = "<token_here>",
                 TokenType = TokenType.Bot,
-                UseInternalLogHandler = true,
-                LogLevel = LogLevel.Debug
+                MinimumLogLevel = LogLevel.Debug
             });
 
             var endpoint = new ConnectionEndpoint
             {
-                Hostname = "127.0.0.1", //From your server configuration.
-                Port = 2333 //From your server configuration
+                Hostname = "127.0.0.1", // From your server configuration.
+                Port = 2333 // From your server configuration
             };
 
             var lavalinkConfig = new LavalinkConfiguration
             {
-                Password = "youshallnotpass", //From your server configuration.
+                Password = "youshallnotpass", // From your server configuration.
                 RestEndpoint = endpoint,
                 SocketEndpoint = endpoint
             };
@@ -91,7 +86,8 @@ namespace MyFirstMusicBot
             var lavalink = Discord.UseLavalink();
 
             await Discord.ConnectAsync();
-            LavalinkNode = await lavalink.ConnectAsync(lavalinkConfig); //Make sure this is after Discord.ConnectAsync(). 
+            await lavalink.ConnectAsync(lavalinkConfig); // Make sure this is after Discord.ConnectAsync(). 
+                                                         // Alternatively, this can also be placed in the ready event.
             await Task.Delay(-1);
         }
     }
@@ -100,11 +96,7 @@ namespace MyFirstMusicBot
 We are now ready to start the bot. If everything is configured properly, you should see a Lavalink connection appear in your DSharpPlus console:
 
 ```
-[WebSocket] [Debug] Received OP 10 (HELLO) - Trying to either resume or identify.
-[WebSocket] [Debug] Starting Heartbeat.
-[WebSocket] [Debug] Sending Heartbeat.
-[WebSocket] [Debug] Received WebSocket Heartbeat Ack. Ping: 58ms
-[Lavalink] [Info] Connection established
+[2020-10-10 17:56:07 -04:00] [403 /LavalinkConn] [Debug] Connection to Lavalink node established
 ```
 
 And a client connection appear in your Lavalink console: 
