@@ -74,16 +74,17 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="client">Client to get CommandsNext instances from.</param>
         /// <returns>A dictionary of the modules, indexed by shard id.</returns>
-        public static IReadOnlyDictionary<int, CommandsNextExtension> GetCommandsNext(this DiscordShardedClient client)
+        public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> GetCommandsNextAsync(this DiscordShardedClient client)
         {
-            var modules = new Dictionary<int, CommandsNextExtension>();
-
-            client.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            await client.InitializeShardsAsync().ConfigureAwait(false);
+            var extensions = new Dictionary<int, CommandsNextExtension>();            
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
-                modules.Add(shard.ShardId, shard.GetExtension<CommandsNextExtension>());
+            {
+                extensions.Add(shard.ShardId, shard.GetExtension<CommandsNextExtension>());
+            }
 
-            return new ReadOnlyDictionary<int, CommandsNextExtension>(modules);
+            return new ReadOnlyDictionary<int, CommandsNextExtension>(extensions);
         }
     }
 }
