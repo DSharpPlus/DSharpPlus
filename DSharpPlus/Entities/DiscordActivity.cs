@@ -408,6 +408,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Indicates the current activity is a custom status.
         /// </summary>
-        Custom = 4
+        Custom = 4,
+
+        /// <summary>
+        /// Indicates the user is competing in something.
+        /// </summary>
+        Competing = 5
     }
 }
