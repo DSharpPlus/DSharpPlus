@@ -1,16 +1,15 @@
-﻿using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity.Concurrency;
-using Emzi0767.Utilities;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ConcurrentCollections;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using Emzi0767.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {

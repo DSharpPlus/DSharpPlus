@@ -1,6 +1,5 @@
-﻿using DSharpPlus.Interactivity.Enums;
-using DSharpPlus.Interactivity.EventHandling;
-using System;
+﻿using System;
+using DSharpPlus.Interactivity.Enums;
 
 namespace DSharpPlus.Interactivity
 {

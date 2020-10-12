@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using DSharpPlus.Interactivity.Concurrency;
+using ConcurrentCollections;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 
