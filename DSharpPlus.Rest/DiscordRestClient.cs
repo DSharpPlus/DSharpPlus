@@ -273,6 +273,33 @@ namespace DSharpPlus
             };
             return this.ApiClient.ModifyGuildChannelPositionAsync(guild_id, rgcrps, reason);
         }
+
+        /// <summary>
+        /// Gets a guild's widget
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <returns></returns>
+        public Task<DiscordWidget> GetGuildWidgetAsync(ulong guild_id)
+            => this.ApiClient.GetGuildWidgetAsync(guild_id);
+
+        /// <summary>
+        /// Gets a guild's widget settings
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <returns></returns>
+        public Task<DiscordWidgetSettings> GetGuildWidgetSettingsAsync(ulong guild_id)
+            => this.ApiClient.GetGuildWidgetSettingsAsync(guild_id);
+
+        /// <summary>
+        /// Modifies a guild's widget settings
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="enabled">If the widget is enabled or not</param>
+        /// <param name="channel_id">Widget channel id</param>
+        /// <param name="reason">Reason the widget settings were modified</param>
+        /// <returns></returns>
+        public Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(ulong guild_id, bool? enabled = null, ulong? channel_id = null, string reason = null)
+            => this.ApiClient.ModifyGuildWidgetSettingsAsync(guild_id, enabled, channel_id, reason);
         #endregion
 
         #region Channel

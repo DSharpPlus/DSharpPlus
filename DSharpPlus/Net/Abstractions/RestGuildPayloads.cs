@@ -188,4 +188,13 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("image")]
         public string ImageB64 { get; set; }
     }
+
+    internal class RestGuildWidgetSettingsPayload
+    {
+        [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Enabled { get; set; }
+        
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? ChannelId { get; set; }
+    }
 }
