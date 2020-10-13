@@ -22,7 +22,6 @@
   - name: Sharding
     href: beyond_basics/sharding.md
 - name: Commands
-  href: commands/intro.md
   items:  
   - name: Introduction
     href: commands/intro.md
@@ -30,12 +29,14 @@
     href: commands/command_attributes.md
   - name: Dependency Injection
     href: commands/dependency_injection.md
-  - name: Custom Help Formatter
-    href: commands/help_formatter.md
-  - name: Custom Argument Converters
-    href: commands/argument_converters.md
-  - name: Custom Command Handler
-    href: commands/custom_handler.md
+  - name: Customization
+    items:
+    - name: Help Formatter
+      href: commands/help_formatter.md
+    - name: Argument Converters
+      href: commands/argument_converters.md
+    - name: Command Handler
+      href: commands/command_handler.md
 - name: Interactivity
   items:
   - name: Introduction

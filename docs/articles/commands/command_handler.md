@@ -1,5 +1,5 @@
 ---
-uid: commands_custom_handler
+uid: commands_command_handler
 title: Custom Handlers
 ---
 

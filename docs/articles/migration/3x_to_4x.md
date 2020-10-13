@@ -133,7 +133,7 @@ If you need to implement a custom help formatter, see [Custom Help Formatter](xr
 
 ### Custom command handlers
 You can now disabe the built-in command handler, and create your own. For more 
-information, see [Custom Command Handlers](xref:commands_custom_handler).
+information, see [Custom Command Handlers](xref:commands_command_handler).
 
 ### Minor changes
 - **Case-insensitivity changes** - case insensitivity now applies to command 
