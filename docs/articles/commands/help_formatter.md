@@ -3,74 +3,78 @@ uid: commands_help_formatter
 title: Help Formatter
 ---
 
-# Custom Help Formatters
+## Custom Help Formatter
+The built-in help command provided by CommandsNext is generated with a *help formatter*.
+This simple mechanism is given a command and its subcommands then returns a formatted help message.
+If you're not happy with the default help formatter, you're able to write your own and customize the output to your liking.
 
-If the default help command isnt exactly what you need and you find yourself needing more, then you have two options available to you.  You can 
-either wrote your own help command or you can create a custom help formatter which will enhance the output of the default help command.  If you go with
-the custom help formatter, you will need to inherit from @DSharpPlus.CommandsNext.Converters.BaseHelpFormatter as shown below:
-
+<br/>
+Simply inherit from `BaseHelpFormatter` and provide an implementation for each of the required methods.
 ```cs
-using DSharpPlus.CommandsNext.Converters;
-
-namespace MyFirstBot
+public class CustomHelpFormatter : BaseHelpFormatter
 {
-    public class HelpFormatter : BaseHelpFormatter
-    {
+    // protected DiscordEmbedBuilder _embed;
+    // protected StringBuilder _strBuilder;
 
+    public CustomHelpFormatter(CommandContext ctx) : base(ctx)
+    {
+        // _embed = new DiscordEmbedBuilder();
+        // _strBuilder = new StringBuilder();
+
+        // Any other required initialization ...
+    }
+
+    public override BaseHelpFormatter WithCommand(Command command)
+    {
+        // _embed.AddField(command.Name, command.Description);            
+        // _strBuilder.AppendLine($"{command.Name} - {command.Description}");
+
+        return this;
+    }
+
+    public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> cmds)
+    {
+        foreach (var cmd in cmds)
+        {
+            // _embed.AddField(cmd.Name, cmd.Description);            
+            // _strBuilder.AppendLine($"{cmd.Name} - {cmd.Description}");
+        }
+
+        return this;
+    }
+
+    public override CommandHelpMessage Build()
+    {
+        // return new CommandHelpMessage(embed: _embed);
+        // return new CommandHelpMessage(content: _strBuilder.ToString());
     }
 }
 ```
 
-From here, you will have to implement all the abstract methods and fill in their respected details.  If you would like to just tweak small things like the embed color 
-or title, you will have to instantiate the DefaultHelpFormatter to be used in your overridden methods.  
-
+<br/>
+Alternatively, if you're only wanting to make a few small tweaks to the default help, you can write a simple help formatter which inherits from `DefaultHelpFormatter` and modify the inherited `EmbedBuilder` property.
 ```cs
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.CommandsNext.Entities;
-using DSharpPlus.Entities;
-using System.Collections.Generic;
-
-namespace MyFirstBot
+public class CustomHelpFormatter : DefaultHelpFormatter
 {
-    public class HelpFormatter : BaseHelpFormatter
+    public CustomHelpFormatter(CommandContext ctx) : base(ctx) { }
+
+    public override CommandHelpMessage Build()
     {
-        readonly DefaultHelpFormatter _d;
-
-        public HelpFormatter(CommandContext ctx)
-            : base(ctx)
-        {
-            this._d = new DefaultHelpFormatter(ctx);
-        }
-
-        public override BaseHelpFormatter WithCommand(Command command)
-        {
-            return this._d.WithCommand(command);
-        }
-
-        public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
-        {
-            return this._d.WithSubcommands(subcommands);
-        }
-
-        public override CommandHelpMessage Build()
-        {
-            var hmsg = this._d.Build();
-            var embed = new DiscordEmbedBuilder(hmsg.Embed)
-            {
-                Color = new DiscordColor(0xD091B2)
-            };
-            return new CommandHelpMessage(embed: embed);
-        }
+        EmbedBuilder.Color = DiscordColor.SpringGreen;
+        return base.Build();
     }
 }
 ```
 
-Finally, you will have to register your help formatter.  To do this, where you register your commands, you will call @DSharpPlus.CommandsNext.CommandsNextExtension.SetHelpFormatter* .
-
+<br/>
+Your final step is to register your help formatter with CommandsNext.
 ```cs
-_cnext.SetHelpFormatter<MyHelpFormatter>();
-```
+var discord = new DiscordClient();
+var commands = discord.UseCommandsNext();
 
-You can also do alot more advanced things such as manipulate the actual text that is within the embed that is returned.  Please refer to the [Tests](https://github.com/DSharpPlus/DSharpPlus/blob/3d553ac351ccecbedfbc23f485443d6eb968af72/DSharpPlus.Test/TestBotHelpFormatter.cs) to see
-how to accomplish this.
+commands.SetHelpFormatter<CustomHelpFormatter>();
+```
+That's all there is to it.
+
+<br/>
+![Fresh New Look](/images/commands_help_formatter_01.png)
