@@ -28,11 +28,12 @@ namespace DSharpPlus.Net
         private ConcurrentDictionary<string, RateLimitBucket> HashesToBuckets { get; set; }
         private AsyncManualResetEvent GlobalRateLimitEvent { get; }
         private bool UseResetAfter { get; }
-        private Task BucketCleanerTask { get; set; }
-        private CancellationTokenSource BucketCleanerTokenSource { get; set; }
-        private TimeSpan BucketCleanRunDelay { get; } = TimeSpan.FromSeconds(10);
 
-        private volatile bool _cleanerRunning; 
+        private CancellationTokenSource _bucketCleanerTokenSource;
+        private TimeSpan _bucketCleanupDelay = TimeSpan.FromSeconds(10);
+        private volatile bool _cleanerRunning;
+        private Task _cleanerTask;
+        private bool _disposed;
 
         internal RestClient(BaseDiscordClient client)
             : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit)
@@ -97,7 +98,8 @@ namespace DSharpPlus.Net
             if(!RoutesToHashes.TryGetValue(hashKey, out var hash))
             {
                 hash = RateLimitBucket.GenerateUnlimitedHash(method, route);
-                RoutesToHashes[hashKey] = hash;
+
+                this.RoutesToHashes[hashKey] = hash;
             }
 
             var bucketId = RateLimitBucket.GenerateBucketId(hash, guild_id, channel_id, webhook_id);
@@ -105,15 +107,16 @@ namespace DSharpPlus.Net
             if (!HashesToBuckets.TryGetValue(bucketId, out var bucket))
             {
                 bucket = new RateLimitBucket(hash, guild_id, channel_id, webhook_id);
-                HashesToBuckets[bucketId] = bucket;
+
+                this.HashesToBuckets[bucketId] = bucket;
             }
             bucket.IsCurrentlyUsed = true; //try finally set to false in event of exception
 
             if (!this._cleanerRunning)
             {
                 this._cleanerRunning = true;
-                this.BucketCleanerTokenSource = new CancellationTokenSource();
-                this.BucketCleanerTask = Task.Run(this.CleanupBucketsAsync, this.BucketCleanerTokenSource.Token);
+                this._bucketCleanerTokenSource = new CancellationTokenSource();
+                this._cleanerTask = Task.Run(this.CleanupBucketsAsync, this._bucketCleanerTokenSource.Token);
                 Console.WriteLine("Cleaner started");
             }
 
@@ -513,7 +516,6 @@ namespace DSharpPlus.Net
         private void UpdateHashCaches(BaseRestRequest request, RateLimitBucket bucket, string newHash = null)
         {
             //For the delete messages, we may have to wait until the bucket can be properly assigned, as there are currently a few 429s hit.
-
             var hashKey = RateLimitBucket.GenerateHashKey(request.Method, request.Route);
             var bucketId = RateLimitBucket.GenerateBucketId(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
 
@@ -527,7 +529,7 @@ namespace DSharpPlus.Net
                 return;
             }
 
-            this.RoutesToHashes.AddOrUpdate(hashKey, newHash, (key, oldHash) =>
+            _ = this.RoutesToHashes.AddOrUpdate(hashKey, newHash, (key, oldHash) =>
             {
                 if(newHash != oldHash)
                 {
@@ -541,38 +543,25 @@ namespace DSharpPlus.Net
                 return newHash;
             });
 
-            this.HashesToBuckets[bucketId] = bucket;
-            /*
-            if(newHash != bucket.Hash)
+            _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) =>
             {
-                try
-                {
-                    this.BucketHashMoveEvent.Reset();
-                    request.Discord.Logger.LogDebug("Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
-                    bucket.Hash = newHash;
-
-                    _ = this.RoutesToHashes.TryRemove(oldHash, out _);
-                    this.RoutesToHashes[hashKey] = newHash;
-
-                    var oldBucketId = RateLimitBucket.GenerateBucketId(oldHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
-                    _ = this.HashesToBuckets.TryRemove(oldBucketId, out _);
-                }
-                finally
-                {
-                    this.BucketHashMoveEvent.SetAsync().Wait();
-                }
-            }
-
-            */
+                bucket.IsCurrentlyUsed = false;
+                return bucket;
+            });
         }
 
         private async Task CleanupBucketsAsync()
         {
-            var bucketResetAfterTimespan = TimeSpan.FromSeconds(10);
-
-            while(!this.BucketCleanerTokenSource.IsCancellationRequested)
+            while(!this._bucketCleanerTokenSource.IsCancellationRequested)
             {
-                await Task.Delay(this.BucketCleanRunDelay).ConfigureAwait(false);
+                try
+                {
+                    await Task.Delay(this._bucketCleanupDelay, this._bucketCleanerTokenSource.Token).ConfigureAwait(false);
+                }
+                catch { }
+
+                if (this._disposed)
+                    return;
 
                 int removedBuckets = 0;
 
@@ -581,33 +570,57 @@ namespace DSharpPlus.Net
                     var key = kvp.Key;
                     var value = kvp.Value;
 
+                    // Don't remove the bucket if it's currently being handled by the rest client.
                     if (value.IsCurrentlyUsed)
                         continue;
 
                     var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
 
-                    if (resetOffset == null || resetOffset < DateTimeOffset.UtcNow.AddSeconds(bucketResetAfterTimespan.TotalSeconds))
+                    // Don't remove the bucket if it's reset date is less than now + the additional wait time, unless it's an unlimited bucket.
+                    if (resetOffset != null && !value.IsUnlimited && resetOffset > DateTimeOffset.UtcNow.AddSeconds(this._bucketCleanupDelay.TotalSeconds))
                         continue;
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);
                     removedBuckets++;
                 }
 
-                this.Discord.Logger.LogDebug("Removed {0} unused buckets.", removedBuckets);
+                if(removedBuckets > 0)
+                    this.Discord.Logger.LogDebug("Removed {0} unused buckets.", removedBuckets);
 
                 if (this.HashesToBuckets.Count == 0)
                     break;
             }
-            if(!this.BucketCleanerTokenSource.IsCancellationRequested)
-                this.BucketCleanerTokenSource.Cancel();
+
+            if(!this._bucketCleanerTokenSource.IsCancellationRequested)
+                this._bucketCleanerTokenSource.Cancel();
 
             this._cleanerRunning = false;
             Console.WriteLine("Stopped cleaner.");
         }
 
+
+        ~RestClient()
+            => this.Dispose();
+
         public void Dispose()
         {
-            throw new NotImplementedException();
+            if (this._disposed)
+                return;
+
+            this._disposed = true;
+
+            if (!this._bucketCleanerTokenSource.IsCancellationRequested)
+                this._bucketCleanerTokenSource.Cancel();
+
+            try
+            {
+
+                this._cleanerTask.Dispose();
+            }
+            catch { }
+
+            this.RoutesToHashes.Clear();
+            this.HashesToBuckets.Clear();
         }
     }
 }

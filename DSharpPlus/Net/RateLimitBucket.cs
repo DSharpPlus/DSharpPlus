@@ -74,8 +74,15 @@ namespace DSharpPlus.Net
 
         internal volatile int _remaining;
 
+        /// <summary>
+        /// Gets whether this bucket has it's ratelimit determined.
+        /// <para>This will be <see langword="false"/> if the ratelimit is determined.</para>
+        /// </summary>
         internal volatile bool IsUnlimited;
 
+        /// <summary>
+        /// Gets whether the bucket is currently being processed by the rest client.
+        /// </summary>
         internal volatile bool IsCurrentlyUsed;
 
         /// <summary>

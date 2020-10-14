@@ -229,6 +229,13 @@ namespace DSharpPlus
 
             return messages;
         }
+
+        ~DiscordWebhookClient()
+        {
+            this._hooks.Clear();
+            this._hooks = null;
+            this._apiclient.Rest.Dispose();
+        }
     }
 }
 
