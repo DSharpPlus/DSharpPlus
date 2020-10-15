@@ -1,6 +1,6 @@
 ---
-uid: hosting_options
-title: Hosting Options
+uid: hosting
+title: Hosting Solutions
 ---
 
 # Publishing your Bot

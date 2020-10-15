@@ -1,5 +1,5 @@
-- name: Introduction
-  href: intro.md
+- name: Preface
+  href: preface.md
 - name: The Basics
   items:
   - name: Creating a Bot Account
@@ -38,9 +38,7 @@
     - name: Command Handler
       href: commands/command_handler.md
 - name: Interactivity
-  items:
-  - name: Introduction
-    href: interactivity/intro.md
+  href: interactivity.md
 - name: Audio
   items:
   - name: Lavalink
@@ -60,9 +58,7 @@
     - name: Receiving
       href: audio/voicenext/receive.md
 - name: Hosting
-  items:
-  - name: Running Your Bot 24/7
-    href: hosting/options.md
+  href: hosting.md
 - name: Version Migration
   items:
   - name: DiscordSharp to DSharpPlus

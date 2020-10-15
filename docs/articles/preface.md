@@ -1,9 +1,7 @@
 ---
-uid: intro
-title: Introduction
+uid: preface
+title: Preface
 ---
-
-# Introduction
 
 ## Knowledge Prerequisites 
 Before attempting to write a Discord bot, you should be familiar with the concepts of [Object Oriented Programing](https://en.wikipedia.org/wiki/Object-oriented_programming), [the C# programming language](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/), and [Task-based Asynchronous Pattern](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap).
@@ -16,7 +14,7 @@ His videos go through all the basics, from setting up your development environme
 If you're not sure what to do first, Bob's tutorial series should be your starting point!
 
 ## Supported .NET Implementations
-Because DSharpPlus targets .Net Standard 2.0, there are many implementations that may function with DSharpPlus.
+Because DSharpPlus targets .NET Standard 2.0, there are many implementations that may function with DSharpPlus.
 However, there are only a few versions we will *explicitly* provide support for.
 
 Implementation|Support|Notes

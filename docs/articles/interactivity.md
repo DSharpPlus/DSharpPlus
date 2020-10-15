@@ -1,5 +1,5 @@
 ---
-uid: interactivity_intro
+uid: interactivity
 title: Interactivity Introduction
 ---
 
@@ -56,7 +56,7 @@ Finally, it checks if a message was found. If it was, it's going to be non-null,
 Start the bot, and try invoking `;;hi`. After the bot responds, say `how are you?`. Then try again and don't say that. Notice 
 the difference?
 
-![Step 1](/images/interactivity_intro_01.png)
+![Step 1](/images/interactivity_01.png)
 
 ## 3. Advanced subjects
 

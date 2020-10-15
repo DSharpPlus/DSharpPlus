@@ -24,8 +24,7 @@ When opening an issue, make sure to include as much detail as possible. If at al
 
 ## Discord 
 
-Some questions, most notably questions on using the library, are better asked on Discord. You can find the server links in 
-[Introduction](xref:intro).
+Some questions, most notably questions on using the library, are better asked on Discord. You can find the server links on the [preface](xref:preface).
 
 ## Contributing
 

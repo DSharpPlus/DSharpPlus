@@ -10,7 +10,7 @@ title: DSharpPlus Documentation
 The library has since been rewritten to fit quality and API standards as well as target wider range of .NET implementations.
 
 ## Getting Started
-New users will want to take a look through the [articles](xref:intro) for quick start guides, tutorials, and examples of use.<br/>
+New users will want to take a look through the [articles](xref:preface) for quick start guides, tutorials, and examples of use.<br/>
 Once you've gotten through the articles, head on over to the [API Documentation](/api/index.html) for all classes and methods provided by this library.
 
 ## Source and Contributors
