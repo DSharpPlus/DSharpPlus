@@ -1,5 +1,5 @@
-- name: Preface
-  href: preface.md
+- name: Preamble
+  href: preamble.md
 - name: The Basics
   items:
   - name: Creating a Bot Account
