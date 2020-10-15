@@ -33,14 +33,6 @@ Voilà! Your project has been created!
 
 
 ## Install Package
- >[!NOTE]
- > The latest version on NuGet (3.2.3) contains several broken features due in part to changes by Discord.
- >
- > It is highly recommended that you instead use the latest nightly build of version 4.0.0.<br/>
- > Check out the [nightly builds](xref:misc_nightly_builds) article for instructions on adding the nightly [SlimGet](https://github.com/Emzi0767/SlimGet) feed.
- >
- > The remainder of this article will assume you are using a nightly build.
-
 Now that you have a project created, you'll want to get DSharpPlus installed.
 Locate the *solution explorer* on the right side, then right click on `Dependencies` and select `Manage NuGet Packages` from the context menu.
 
