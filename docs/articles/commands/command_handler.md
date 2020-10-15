@@ -1,53 +1,92 @@
 ---
 uid: commands_command_handler
-title: Custom Handlers
+title: Custom Command Handler
 ---
 
-# Custom command handlers
-
-If the built in command handler doesn't satisfy your needs and you feel the need to ~~be op~~ write your own, then you can disable the default handler and 
-roll your own.  To do this, within the CommandsNextConfiguration you need to specify the UseDefaultCommandHandler property to false (like below).
-
+## Custom Command Handler
+ > [!IMPORTANT]
+ > Writing your own handler logic should only be done if *you know what you're doing*.<br/>
+ > You will be responsible for command execution and preventing deadlocks.
+ 
+### Disable Default Handler
+To begin, we'll need to disable the default command handler provided by CommandsNext.<br/>
+This is done by setting the `UseDefaultCommandHandler` configuration property to `false`.
 ```cs
-_cnext = _client.UseCommandsNext(new CommandsNextConfiguration()
+var discord = new DiscordClient();
+var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
 {
     UseDefaultCommandHandler = false
 });
 ```
 
-From here, you will be able to hook any event your heart desires to in order to ~~reinvent the wheel~~ accomplish your task.  To do this, you may want to look at the
-current [CommandNext handler](https://github.com/DSharpPlus/DSharpPlus/blob/3d553ac351ccecbedfbc23f485443d6eb968af72/DSharpPlus.CommandsNext/CommandsNextExtension.cs#L179)
-to get you started.  This will show you how to parse the prefix such as:
+### Create Event Handler
+We'll then write a new handler for the `MessageCreated` event fired from `DiscordClient`.
 ```cs
-var mpos = -1;
-if (this.Config.EnableMentionPrefix)
-    mpos = e.Message.GetMentionPrefixLength(this.Client.CurrentUser);
+discord.MessageCreated += CommandHandler;
 
-if (this.Config.StringPrefixes?.Any() == true)
-    foreach (var pfix in this.Config.StringPrefixes)
-        if (mpos == -1 && !string.IsNullOrWhiteSpace(pfix))
-            mpos = e.Message.GetStringPrefixLength(pfix, this.Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+// ...
 
-if (mpos == -1 && this.Config.PrefixResolver != null)
-    mpos = await this.Config.PrefixResolver(e.Message).ConfigureAwait(false);
-
-if (mpos == -1)
-    return;
+private Task CommandHandler(DiscordClient client, MessageCreateEventArgs e)
+{
+    // See below ...
+}
 ```
-Then you can locate the command and then create the CommandContext such as 
+This event handler will be our command handler, and you'll need to write the logic for it.
 
+### Handle Commands
+Start by parsing the message content for a prefix and command string
 ```cs
-var cmd = this.FindCommand(cnt, out var args);
-var ctx = this.CreateContext(e.Message, pfx, cmd, args);
+var cnext = client.GetCommandsNext();
+var msg = e.Message;
+
+// Check if message has valid prefix.
+var cmdStart = msg.GetStringPrefixLength("!");
+if (cmdStart == -1) return;
+
+// Retrieve prefix.
+var prefix = msg.Content.Substring(0, cmdStart);
+
+// Retrieve full command string.
+var cmdString = msg.Content.Substring(cmdStart);
 ```
- Once as your handler is created, you can then hook it to any of the events that fits your needs: 
 
- ```cs 
- this.Client.MessageCreated += this.HandleCommandsAsync;
- ```
+Then provide the command string to `CommandsNextExtension#FindCommand`
+```cs
+var command = cnext.FindCommand(cmdString, out var args);
+```
 
- With the above said though, make sure that whatever you do in the event is non-blocking and if it is long lived, you run it in a seperate Thread/Task:
+Create a command context using our message and prefix, along with the command and its arguments
+```cs
+var ctx = cnext.CreateContext(msg, prefix, command, args);
+```
 
- ```cs 
- _ = Task.Run(async () => await this.ExecuteCommandAsync(ctx));
- ```
+And pass the context to `CommandsNextExtension#ExecuteCommandAsync` to execute the command.
+```cs
+Task.Run(async () => await cnext.ExecuteCommandAsync(ctx));
+// Wrapped in Task.Run() to prevent deadlocks.
+```
+
+
+### Finished Product
+Altogether, your implementation should function similarly to the following:
+```cs
+private Task CommandHandler(DiscordClient client, MessageCreateEventArgs e)
+{
+    var cnext = client.GetCommandsNext();
+    var msg = e.Message;
+
+    var cmdStart = msg.GetStringPrefixLength("!");
+    if (cmdStart == -1) return Task.CompletedTask;
+
+    var prefix = msg.Content.Substring(0, cmdStart);
+    var cmdString = msg.Content.Substring(cmdStart);
+
+    var command = cnext.FindCommand(cmdString, out var args);
+    if (command == null) return Task.CompletedTask;
+
+    var ctx = cnext.CreateContext(msg, prefix, command, args);
+    Task.Run(async () => await cnext.ExecuteCommandAsync(ctx));
+	
+    return Task.CompletedTask;
+}
+```
