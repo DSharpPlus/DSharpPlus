@@ -37,8 +37,6 @@
       href: commands/argument_converters.md
     - name: Command Handler
       href: commands/command_handler.md
-- name: Interactivity
-  href: interactivity.md
 - name: Audio
   items:
   - name: Lavalink
@@ -57,6 +55,8 @@
       href: audio/voicenext/send.md
     - name: Receiving
       href: audio/voicenext/receive.md
+- name: Interactivity
+  href: interactivity.md
 - name: Hosting
   href: hosting.md
 - name: Version Migration
