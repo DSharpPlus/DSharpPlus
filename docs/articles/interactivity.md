@@ -3,62 +3,118 @@ uid: interactivity
 title: Interactivity Introduction
 ---
 
-# Spicing your commands up with Interactivity module
+# Introduction to Interactivity
+Interactivity will enable you to write commands which the user can interact with through reactions and messages.
+The goal of this article is to introduce you to the general flow of this extension.
 
-Can bots feel? Well today you are going to find out.
+Make sure to install the `DSharpPlus.Interactivity` package from NuGet before continuing.
 
-## 1. Installing Interactivity
+![Interactivity NuGet](/images/interactivity_01.png)
 
-Using the procedures in the first bot article, install a NuGet package called `DSharpPlus.Interactivity`.
-
-Now you need to enable Interactivity module on your DiscordClient. Add a new field to your bot's `Program` class: 
-`static InteractivityModule interactivity;`
-
-Visual Studio will complain, you also need to add `using DSharpPlus.Interactivity;` to your usings in both the command module 
-and the bot class.
-
-Before you connect, enable the module on your client: 
+## Enabling Interactivity
+Interactivity can be registered using the `DiscordClient#UseInteractivity()` extension method.<br/>
+Optionally, you can also provide an instance of `InteractivityConfiguration` to modify default behaviors.
 
 ```cs
-interactivity = _client.UseInteractivity(new InteractivityConfiguration()
-{
-    Timeout = TimeSpan.FromMinutes(1)
+var discord = new DiscordClient();
+
+discord.UseInteractivity(new InteractivityConfiguration() 
+{ 
+    PollBehaviour = PollBehaviour.KeepEmojis,
+    Timeout = TimeSpan.FromSeconds(30)
 });
 ```
 
-This will enable the module.
+## Using Interactivity
 
-## 2. Spicing up that `hi` command
+There are two ways available to use interactivity: 
 
-Go back to the `hi` command. How about asking the bot how does it feel?
+* Extension methods available for `DiscordChannel` and `DiscordMessage`.
+* [Instance methods](xref:DSharpPlus.Interactivity.InteractivityExtension#methods) available from `InteractivityExtension`.
 
-Interactivity allows you to wait for variety of user-triggered events, such as messages, reactions, or typing indicators. With 
-this, you can make the bot wait for a specific message.
+We'll have a quick look at a few common interactivity methods along with an example of use for each.
 
-This is what you're going to do. Below the respond code, add the following:
+<br/>
+The first (and arguably most useful) extension method is `SendPaginatedMessageAsync` for `DiscordChannel`.
 
+This method displays a collection of *'pages'* which are selected one-at-a-time by the user through reaction buttons.
+Each button click will move the page view in one direction or the other until the timeout is reached.
+
+You'll need to create a collection of pages before you can invoke this method. 
+This can be done easily using the `GeneratePagesInEmbed` and `GeneratePagesInContent` instance methods from `InteractivityExtension`.<br/>
+Alternatively, for pre-generated content, you can create and add individual instances of `Page` to a collection.
+
+This example will use the `GeneratePagesInEmbed` method to generate the pages.
 ```cs
-var interactivity = ctx.Client.GetInteractivityModule();
-var msg = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id && xm.Content.ToLower() == "how are you?", TimeSpan.FromMinutes(1));
-if (msg.Result != null)
-	await ctx.RespondAsync("I'm fine, thank you!");
+public async Task PaginationCommand(CommandContext ctx)
+{
+    var reallyLongString = "Lorem ipsum dolor sit amet, consectetur adipiscing ..."
+
+    var interactivity = ctx.Client.GetInteractivity();
+    var pages = interactivity.GeneratePagesInEmbed(reallyLongString);
+
+    await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
+}
 ```
 
-Let's quickly dissect the code.
+![Pagination Pages](/images/interactivity_02.png)
 
-First, it gets the interactivity module from your client.
+<br/>
+Next we'll look at the `WaitForReactionAsync` extension method for `DiscordMessage`.<br/>
+This method waits for a reaction from a specific user and returns the emoji that was used.
 
-Next, it waits for a message that matches a predicate. In this case, the predicate waits for a message that was sent by the 
-user who invoked the command, and says "how are you?". The wait has a limit of 1 minute. After that, the method returns.
+An overload of this method also enables you to wait for a *specific* reaction, as shown in the example below.
+```cs
+public async Task ReactionCommand(CommandContext ctx, DiscordMember member)
+{
+    var emoji = DiscordEmoji.FromName(ctx.Client, ":ok_hand:");
+    var message = await ctx.RespondAsync($"{member.Mention}, react with {emoji}.");
 
-Finally, it checks if a message was found. If it was, it's going to be non-null, and it can thank the user for concern!
+    var result = await message.WaitForReactionAsync(member, emoji);
 
-Start the bot, and try invoking `;;hi`. After the bot responds, say `how are you?`. Then try again and don't say that. Notice 
-the difference?
+    if (!result.TimedOut) await ctx.RespondAsync("Thank you!");
+}
+```
 
-![Step 1](/images/interactivity_01.png)
+![Thank You!](/images/interactivity_03.png)
 
-## 3. Advanced subjects
+<br/>
+Another reaction extension method for `DiscordMessage` is `CollectReactionsAsync`.<br/>
+As the name implies, this method collects all reactions on a message until the timeout is reached.
+```cs
+public async Task CollectionCommand(CommandContext ctx)
+{
+    var message = await ctx.RespondAsync("React here!");
+    var reactions = await message.CollectReactionsAsync();
 
-Interactivity is covered more in-depth in [Emzi0767's Example bot #3](https://github.com/Emzi0767/DSharpPlus-Example-Bot/tree/master/DSPlus.Examples.CSharp.Ex03 "Example Bot #3"). If you want to check out all the cool things Interactivity can 
-do, make sure to check it out.
+    var strBuilder = new StringBuilder();
+    foreach (var reaction in reactions)
+    {
+        strBuilder.AppendLine($"{reaction.Emoji}: {reaction.Total}");
+    }
+
+    await ctx.RespondAsync(strBuilder.ToString());
+}
+```
+
+![Reaction Count](/images/interactivity_04.png)
+
+<br/>
+The final one we'll take a look at is the `GetNextMessageAsync` extension method for `DiscordMessage`.<br/>
+
+This method will return the next message sent from the author of the original message.<br/>
+Our example here will use its alternate overload which accepts an additional predicate.
+```cs
+public async Task ActionCommand(CommandContext ctx)
+{
+    await ctx.RespondAsync("Respond with *confirm* to continue.");
+    var result = await ctx.Message.GetNextMessageAsync(m =>
+    {
+        return m.Content.ToLower() == "confirm";
+    });
+
+    if (!result.TimedOut) await ctx.RespondAsync("Action confirmed.");
+}
+```
+
+![Confirmed](/images/interactivity_05.png)
