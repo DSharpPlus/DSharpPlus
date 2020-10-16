@@ -32,8 +32,8 @@ This is what you're going to do. Below the respond code, add the following:
 ```cs
 var interactivity = ctx.Client.GetInteractivityModule();
 var msg = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id && xm.Content.ToLower() == "how are you?", TimeSpan.FromMinutes(1));
-if (msg != null)
-	await ctx.RespondAsync($"I'm fine, thank you!");
+if (msg.Result != null)
+	await ctx.RespondAsync("I'm fine, thank you!");
 ```
 
 Let's quickly dissect the code.

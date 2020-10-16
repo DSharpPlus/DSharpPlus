@@ -48,7 +48,7 @@ namespace DSharpPlus.Net
         /// <param name="method">Method to use for this request,</param>
         /// <param name="headers">Additional headers for this request.</param>
         /// <param name="ratelimitWaitOverride">Override for ratelimit bucket wait time.</param>
-        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, double? ratelimitWaitOverride = null)
+        internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, double? ratelimitWaitOverride = null)
         {
             this.Discord = client;
             this.RateLimitBucket = bucket;
@@ -61,7 +61,7 @@ namespace DSharpPlus.Net
             {
                 headers = headers.Select(x => new KeyValuePair<string, string>(x.Key, Uri.EscapeDataString(x.Value)))
                     .ToDictionary(x => x.Key, x => x.Value);
-                this.Headers = new ReadOnlyDictionary<string, string>(headers);
+                this.Headers = headers;
             }
         }
 

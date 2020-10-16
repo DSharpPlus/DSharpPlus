@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DSharpPlus.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities

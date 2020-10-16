@@ -1,10 +1,9 @@
-﻿using DSharpPlus.Entities;
+﻿using System;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Concurrency;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
@@ -39,8 +38,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.DebugLogger.LogMessage(LogLevel.Error, "Interactivity",
-                    $"Something went wrong with exception {ex.GetType().Name}.", DateTime.Now);
+                this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "Exception occurred while paginating");
             }
             finally
             {
@@ -124,7 +122,21 @@ namespace DSharpPlus.Interactivity.EventHandling
             var msg = await p.GetMessageAsync();
             var emojis = await p.GetEmojisAsync();
 
-            await msg.DeleteAllReactionsAsync("Pagination");
+            // Test permissions to avoid a 403:
+            // https://totally-not.a-sketchy.site/3pXpRLK.png
+            // Yes, this is an issue
+            // No, we should not require people to guarantee MANAGE_MESSAGES
+            // Need to check following:
+            // - In guild?
+            //  - If yes, check if have permission
+            // - If all above fail (DM || guild && no permission), skip this
+            var chn = msg.Channel;
+            var gld = chn?.Guild;
+            var mbr = gld?.CurrentMember;
+
+            if (mbr != null /* == is guild and cache is valid */ && (chn.PermissionsFor(mbr) & Permissions.ManageChannels) != 0) /* == has permissions */
+                await msg.DeleteAllReactionsAsync("Pagination");
+            // ENDOF: 403 fix
 
             if (emojis.SkipLeft != null)
                 await msg.CreateReactionAsync(emojis.SkipLeft);

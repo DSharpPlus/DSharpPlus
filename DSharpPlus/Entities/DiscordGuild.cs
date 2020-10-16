@@ -9,10 +9,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using DSharpPlus.Enums;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Entities
 {
@@ -294,6 +294,26 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("max_presences")]
         public int? MaxPresences { get; internal set; }
+
+#pragma warning disable CS1734
+        /// <summary>
+        /// Gets the approximate number of members in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name = "withCounts"></paramref> set to true.
+        /// </summary>
+        [JsonProperty("approximate_member_count", NullValueHandling = NullValueHandling.Ignore)]
+        public int? ApproximateMemberCount { get; internal set; }
+
+        /// <summary>
+        /// Gets the approximate number of presences in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name = "withCounts"></paramref> set to true.
+        /// </summary>
+        [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
+        public int? ApproximatePresenceCount { get; internal set; }
+
+#pragma warning restore CS1734
+        /// <summary>
+        /// Gets the maximum amount of users allowed per video channel.
+        /// </summary>
+        [JsonProperty("max_video_channel_users", NullValueHandling = NullValueHandling.Ignore)]
+        public int? MaxVideoChannelUsers { get; internal set; }
 
         /// <summary>
         /// Gets a dictionary of all the voice states for this guilds. The key for this dictionary is the ID of the user
@@ -593,19 +613,58 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Estimates the number of users to be pruned.
         /// </summary>
-        /// <param name="days">Minimum number of inactivity days required for users to be pruned.</param>
+        /// <param name="days">Minimum number of inactivity days required for users to be pruned. Defaults to 7.</param>
+        /// <param name="includedRoles">The roles to be included in the prune.</param>
         /// <returns>Number of users that will be pruned.</returns>
-        public Task<int> GetPruneCountAsync(int days)
-            => this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days);
+        public Task<int> GetPruneCountAsync(int days = 7, IEnumerable<DiscordRole> includedRoles = null)
+        {
+            if (includedRoles != null)
+            {
+                includedRoles = includedRoles.Where(r => r != null);
+                var roleCount = includedRoles.Count();
+                var roleArr = includedRoles.ToArray();
+                var rawRoleIds = new List<ulong>();
+
+                for (int i = 0; i < roleCount; i++)
+                {
+                    if (this._roles.ContainsKey(roleArr[i].Id))
+                        rawRoleIds.Add(roleArr[i].Id);
+                }
+
+                return this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, rawRoleIds);
+            }
+
+            return this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, null);
+        }
 
         /// <summary>
         /// Prunes inactive users from this guild.
         /// </summary>
-        /// <param name="days">Minimum number of inactivity days required for users to be pruned.</param>
+        /// <param name="days">Minimum number of inactivity days required for users to be pruned. Defaults to 7.</param>
+        /// <param name="computePruneCount">Whether to return the prune count after this method completes. This is discouraged for larger guilds.</param>
+        /// <param name="includedRoles">The roles to be included in the prune.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>Number of users pruned.</returns>
-        public Task<int> PruneAsync(int days, string reason = null)
-            => this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, reason);
+        public Task<int?> PruneAsync(int days = 7, bool computePruneCount = true, IEnumerable<DiscordRole> includedRoles = null, string reason = null)
+        {
+            if (includedRoles != null)
+            {
+                includedRoles = includedRoles.Where(r => r != null);
+                var roleCount = includedRoles.Count();
+                var roleArr = includedRoles.ToArray();
+                var rawRoleIds = new List<ulong>();
+
+                for (int i = 0; i < roleCount; i++)
+                {
+                    if (this._roles.ContainsKey(roleArr[i].Id))
+                        rawRoleIds.Add(roleArr[i].Id);
+                }
+
+                return this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, rawRoleIds, reason);
+            }
+
+            return this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, null, reason);
+        }
 
         /// <summary>
         /// Gets integrations attached to this guild.
@@ -673,7 +732,7 @@ namespace DSharpPlus.Entities
         /// Gets an invite from this guild from an invite code. 
         /// </summary>
         /// <param name="code">The invite code</param>
-        /// <returns>An invite.</returns>
+        /// <returns>An invite, or null if not in cache.</returns>
         public DiscordInvite GetInvite(string code)
             => this._invites.TryGetValue(code, out var invite) ? invite : null;
 
@@ -685,8 +744,13 @@ namespace DSharpPlus.Entities
         {
             var res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id).ConfigureAwait(false);
 
-            for (var i = 0; i < res.Count; i++)
-                this._invites[res[i].Code] = res[i];
+            var intents = this.Discord.Configuration.Intents;
+
+            if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildInvites)))
+            {
+                for (var i = 0; i < res.Count; i++)
+                    this._invites[res[i].Code] = res[i];
+            }
 
             return res;
         }
@@ -752,7 +816,12 @@ namespace DSharpPlus.Entities
                 return mbr;
 
             mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, userId).ConfigureAwait(false);
-            this._members[userId] = mbr;
+
+            var intents = this.Discord.Configuration.Intents;
+
+            if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
+                this._members[userId] = mbr;
+
             return mbr;
         }
 
@@ -774,14 +843,20 @@ namespace DSharpPlus.Entities
                 foreach (var xtm in tms)
                 {
                     var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
-                    usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discord = usr.Discord;
-                        old.AvatarHash = usr.AvatarHash;
 
-                        return old;
-                    });
+                    var intents = this.Discord.Configuration.Intents;
+
+                    if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
+                    {
+                        usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
+                        {
+                            old.Username = usr.Username;
+                            old.Discord = usr.Discord;
+                            old.AvatarHash = usr.AvatarHash;
+
+                            return old;
+                        });
+                    }
 
                     recmbr.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id });
                 }
@@ -794,20 +869,43 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Requests that Discord send a complete list of guild members. This method will return immediately.
+        /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the <see cref="DiscordClient.GuildMembersChunked"/> event.
+        /// <para>If no arguments aside from <paramref name="presences"/> and <paramref name="nonce"/> are specified, this will request all guild members.</para>
         /// </summary>
-        public async Task RequestAllMembersAsync()
+        /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null. 
+        /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
+        /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
+        /// <param name="presences">Whether to include the <see cref="EventArgs.GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>
+        /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
+        /// <param name="nonce">The unique string to identify the response.</param>
+        public async Task RequestMembersAsync(string query = "", int limit = 0, bool? presences = null, IEnumerable<ulong> userIds = null, string nonce = null)
         {
             if (!(this.Discord is DiscordClient client))
                 throw new InvalidOperationException("This operation is only valid for regular Discord clients.");
 
+            if (query == null && userIds == null)
+                throw new ArgumentException("The query and user IDs cannot both be null.");
+
+            if (query != null && userIds != null)
+                query = null;
+
+            var grgm = new GatewayRequestGuildMembers(this)
+            {
+                Query = query,
+                Limit = limit >= 0 ? limit : 0,
+                Presences = presences,
+                UserIds = userIds,
+                Nonce = nonce
+            };
+
             var payload = new GatewayPayload
             {
                 OpCode = GatewayOpCode.RequestGuildMembers,
-                Data = new GatewayRequestGuildMembers(this)
+                Data = grgm
             };
+
             var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-            await client._webSocketClient.SendMessageAsync(payloadStr).ConfigureAwait(false);
+            await client.WsSendAsync(payloadStr).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -877,6 +975,7 @@ namespace DSharpPlus.Entities
             var amr = alrs.SelectMany(xa => xa.Users)
                 .GroupBy(xu => xu.Id)
                 .Select(xgu => xgu.First());
+
             foreach (var xau in amr)
             {
                 if (this.Discord.UserCache.ContainsKey(xau.Id))
@@ -1043,7 +1142,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in guild update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in guild update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1130,7 +1229,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in channel update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in channel update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1192,7 +1291,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in overwrite update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in overwrite update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1266,7 +1365,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in member update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in member update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1337,7 +1436,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in role update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in role update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1449,7 +1548,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in invite update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in invite update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1509,7 +1608,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in webhook update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in webhook update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1537,7 +1636,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in emoji update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in emote update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1665,14 +1764,14 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown key in integration update: {xc.Key}; this should be reported to devs", DateTime.Now);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in integration update: {0} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
                         break;
 
                     default:
-                        this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "DSharpPlus", $"Unknown audit log action type: {((int)xac.ActionType).ToString(CultureInfo.InvariantCulture)}; this should be reported to devs", DateTime.Now);
+                        this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown audit log action type: {0} - this should be reported to library developers", (int)xac.ActionType);
                         break;
                 }
 

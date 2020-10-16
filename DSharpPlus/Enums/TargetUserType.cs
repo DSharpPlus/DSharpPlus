@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Enums
+﻿namespace DSharpPlus
 {
     /// <summary>
     /// Represents the type of user who the invite is for.

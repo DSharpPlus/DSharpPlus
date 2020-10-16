@@ -37,9 +37,8 @@ namespace DSharpPlus.Net.WebSocket
         private ClientWebSocket _ws;
 
         private volatile bool _isClientClose = false;
+        private volatile bool _isConnected = false;
         private volatile bool _isDisposed = false;
-
-        private Task SocketQueueManager { get; set; }
 
         /// <summary>
         /// Instantiates a new WebSocket client with specified proxy settings.
@@ -62,7 +61,6 @@ namespace DSharpPlus.Net.WebSocket
 
             this._socketTokenSource = null;
             this._socketToken = CancellationToken.None;
-
         }
 
         /// <inheritdoc />
@@ -95,47 +93,49 @@ namespace DSharpPlus.Net.WebSocket
                 this._socketToken = this._socketTokenSource.Token;
 
                 this._isClientClose = false;
+                this._isDisposed = false;
                 await this._ws.ConnectAsync(uri, this._socketToken).ConfigureAwait(false);
                 this._receiverTask = Task.Run(this.ReceiverLoopAsync, this._receiverToken);
             }
             finally
             {
                 this._senderLock.Release();
-                await this._connected.InvokeAsync().ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc />
-        public async Task DisconnectAsync()
+        public async Task DisconnectAsync(int code = 1000, string message = "")
         {
             // Ensure that messages cannot be sent
             await this._senderLock.WaitAsync().ConfigureAwait(false);
 
             try
             {
-                // Cancel all running tasks
-                if (this._socketTokenSource != null)
-                {
-                    this._socketTokenSource.Cancel();
-                    this._socketTokenSource.Dispose();
-                }
-
-                if (this._receiverTokenSource != null)
-                {
-                    this._receiverTokenSource.Cancel();
-                    this._receiverTokenSource.Dispose();
-                }
-
                 this._isClientClose = true;
-
-                if (this._ws != null)
-                    await this._ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).ConfigureAwait(false);
+                if (this._ws != null && (this._ws.State == WebSocketState.Open || this._ws.State == WebSocketState.CloseReceived))
+                    await this._ws.CloseOutputAsync((WebSocketCloseStatus)code, message, CancellationToken.None).ConfigureAwait(false);
 
                 if (this._receiverTask != null)
-                    await this._receiverTask.ConfigureAwait(false); // Ensure that receving completed
+                    await this._receiverTask.ConfigureAwait(false); // Ensure that receiving completed
+
+                if (this._isConnected)
+                    this._isConnected = false;
+
+                if (!this._isDisposed)
+                {
+                    // Cancel all running tasks
+                    if (this._socketToken.CanBeCanceled)
+                        this._socketTokenSource?.Cancel();
+                    this._socketTokenSource?.Dispose();
+
+                    if (this._receiverToken.CanBeCanceled)
+                        this._receiverTokenSource?.Cancel();
+                    this._receiverTokenSource?.Dispose();
+
+                    this._isDisposed = true;
+                }
             }
             catch { }
-
             finally
             {
                 this._senderLock.Release();
@@ -169,7 +169,6 @@ namespace DSharpPlus.Net.WebSocket
             {
                 this._senderLock.Release();
             }
-
         }
 
         /// <inheritdoc />
@@ -192,11 +191,11 @@ namespace DSharpPlus.Net.WebSocket
                 return;
 
             this._isDisposed = true;
-            this.DisconnectAsync().GetAwaiter().GetResult();
 
-            this._receiverTokenSource.Dispose();
-            this._socketTokenSource.Dispose();
+            this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
+            this._receiverTokenSource?.Dispose();
+            this._socketTokenSource?.Dispose();
         }
 
         internal async Task ReceiverLoopAsync()
@@ -220,6 +219,7 @@ namespace DSharpPlus.Net.WebSocket
                         do
                         {
                             result = await this._ws.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+
                             if (result.MessageType == WebSocketMessageType.Close)
                                 break;
 
@@ -229,9 +229,15 @@ namespace DSharpPlus.Net.WebSocket
 
                         resultBytes = new byte[bs.Length];
                         bs.Position = 0;
-                        bs.Read(resultBytes, 0, (int)bs.Length);
+                        bs.Read(resultBytes, 0, resultBytes.Length);
                         bs.Position = 0;
                         bs.SetLength(0);
+
+                        if (!this._isConnected)
+                        {
+                            this._isConnected = true;
+                            await this._connected.InvokeAsync().ConfigureAwait(false);
+                        }
 
                         if (result.MessageType == WebSocketMessageType.Binary)
                         {
@@ -244,7 +250,14 @@ namespace DSharpPlus.Net.WebSocket
                         else // close
                         {
                             if (!this._isClientClose)
-                                await this._ws.CloseOutputAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
+                            {
+                                var code = result.CloseStatus.Value;
+                                code = code == WebSocketCloseStatus.NormalClosure || code == WebSocketCloseStatus.EndpointUnavailable
+                                    ? (WebSocketCloseStatus)4000
+                                    : code;
+
+                                await this._ws.CloseOutputAsync(code, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
+                            }
 
                             await this._disconnected.InvokeAsync(new SocketCloseEventArgs(null) { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
                             break;

@@ -5,11 +5,13 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -31,9 +33,9 @@ namespace DSharpPlus.Net
             this.Rest = new RestClient(client);
         }
 
-        internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout) // This is for meta-clients, such as the webhook client
+        internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRateLimit) // This is for meta-clients, such as the webhook client
         {
-            this.Rest = new RestClient(proxy, timeout);
+            this.Rest = new RestClient(proxy, timeout, useRelativeRateLimit);
         }
 
         private static string BuildQueryString(IDictionary<string, string> values, bool post = false)
@@ -100,25 +102,25 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, string payload = null, double? ratelimitWaitOverride = null)
+        private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, string payload = null, double? ratelimitWaitOverride = null)
         {
             var req = new RestRequest(client, bucket, url, method, headers, payload, ratelimitWaitOverride);
 
             if (this.Discord != null)
-                this.Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+                this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
             else
                 _ = this.Rest.ExecuteRequestAsync(req);
 
             return req.WaitForCompletionAsync();
         }
 
-        private Task<RestResponse> DoMultipartAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IDictionary<string, string> headers = null, IDictionary<string, string> values = null,
-            IDictionary<string, Stream> files = null, double? ratelimitWaitOverride = null)
+        private Task<RestResponse> DoMultipartAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
+            IReadOnlyDictionary<string, Stream> files = null, double? ratelimitWaitOverride = null)
         {
             var req = new MultipartWebRequest(client, bucket, url, method, headers, values, files, ratelimitWaitOverride);
 
             if (this.Discord != null)
-                Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+                this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
             else
                 _ = this.Rest.ExecuteRequestAsync(req);
 
@@ -253,7 +255,7 @@ namespace DSharpPlus.Net
             };
             if (reason != null)
                 urlparams["reason"] = reason;
-
+            
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, user_id }, out var path);
 
@@ -527,7 +529,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
@@ -553,6 +555,9 @@ namespace DSharpPlus.Net
                 Embed = embed
             };
 
+            if (mentions != null)
+                pld.Mentions = new DiscordMentions(mentions);
+
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
@@ -564,7 +569,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed)
+        internal async Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
         {
             var file = new Dictionary<string, Stream> { { file_name, file_data } };
 
@@ -582,7 +587,10 @@ namespace DSharpPlus.Net
                 IsTTS = tts
             };
 
-            if (!string.IsNullOrEmpty(content) || embed != null || tts == true)
+            if (mentions != null)
+                pld.Mentions = new DiscordMentions(mentions);
+
+            if (!string.IsNullOrEmpty(content) || embed != null || tts == true || mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
@@ -596,7 +604,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed)
+        internal async Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
         {
             if (embed?.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
@@ -614,7 +622,11 @@ namespace DSharpPlus.Net
                 Content = content,
                 IsTTS = tts
             };
-            if (!string.IsNullOrWhiteSpace(content) || embed != null || tts == true)
+
+            if (mentions != null)
+                pld.Mentions = new DiscordMentions(mentions);
+
+            if (!string.IsNullOrWhiteSpace(content) || embed != null || tts == true || mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
@@ -1017,17 +1029,19 @@ namespace DSharpPlus.Net
 
         internal async Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit = 100, ulong? before = null, ulong? after = null)
         {
-            var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.GUILDS}?limit={limit}";
-
-            if (before != null)
-                route += "&before=" + before;
-            if (after != null)
-                route += "&after=" + after;
+            var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.GUILDS}";
 
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+            var url = Utilities.GetApiUriBuilderFor(path)
+                .AddParameter($"limit", limit.ToString(CultureInfo.InvariantCulture));
+            
+            if (before != null)
+                url.AddParameter("before", before.Value.ToString(CultureInfo.InvariantCulture));
+            if (after != null)
+                url.AddParameter("after", after.Value.ToString(CultureInfo.InvariantCulture));
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url.Build(), RestRequestMethod.GET).ConfigureAwait(false);
 
             if (this.Discord is DiscordClient)
             {
@@ -1098,13 +1112,17 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(roles_raw));
         }
 
-        internal async Task<DiscordGuild> GetGuildAsync(ulong guildId)
+        internal async Task<DiscordGuild> GetGuildAsync(ulong guildId, bool? with_counts)
         {
+            var urlparams = new Dictionary<string, string>();
+            if (with_counts.HasValue)
+                urlparams["with_counts"] = with_counts?.ToString();
+
             var route = $"{Endpoints.GUILDS}/:guild_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guildId }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+            var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, urlparams).ConfigureAwait(false);
 
             var json = JObject.Parse(res.Response);
             var rawMembers = (JArray)json["members"];
@@ -1195,7 +1213,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Prune
-        internal async Task<int> GetGuildPruneCountAsync(ulong guild_id, int days)
+        internal async Task<int> GetGuildPruneCountAsync(ulong guild_id, int days, IEnumerable<ulong> include_roles)
         {
             if (days < 0 || days > 30)
                 throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
@@ -1205,37 +1223,56 @@ namespace DSharpPlus.Net
                 ["days"] = days.ToString(CultureInfo.InvariantCulture)
             };
 
+            var sb = new StringBuilder();
+
+            if(include_roles != null)
+            {
+                var roleArray = include_roles.ToArray();
+                var roleArrayCount = roleArray.Count();
+
+                for (int i = 0; i < roleArrayCount; i++)
+                    sb.Append($"&include_roles={roleArray[i]}");
+            }
+
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
+            var url = Utilities.GetApiUriFor(path, $"{BuildQueryString(urlparams)}{sb}");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
 
-            return pruned.Pruned;
+            return pruned.Pruned.Value;
         }
 
-        internal async Task<int> BeginGuildPruneAsync(ulong guild_id, int days, string reason)
+        internal async Task<int?> BeginGuildPruneAsync(ulong guild_id, int days, bool compute_prune_count, IEnumerable<ulong> include_roles, string reason)
         {
             if (days < 0 || days > 30)
                 throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
 
             var urlparams = new Dictionary<string, string>
             {
-                ["days"] = days.ToString(CultureInfo.InvariantCulture)
+                ["days"] = days.ToString(CultureInfo.InvariantCulture),
+                ["compute_prune_count"] = compute_prune_count.ToString()
             };
+
+            var sb = new StringBuilder();
+
+            if (include_roles != null)
+            {
+                var roleArray = include_roles.ToArray();
+                var roleArrayCount = roleArray.Count();
+
+                for (int i = 0; i < roleArrayCount; i++)
+                    sb.Append($"&include_roles={roleArray[i]}");
+            }
+
             if (reason != null)
                 urlparams["reason"] = reason;
-
-            var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
+            var url = Utilities.GetApiUriFor(path, $"{BuildQueryString(urlparams)}{sb}");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST).ConfigureAwait(false);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
@@ -1560,13 +1597,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, Optional<string> base64_avatar, string reason)
+        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
             {
                 Name = name,
                 AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
-                AvatarSet = base64_avatar.HasValue
+                AvatarSet = base64_avatar.HasValue,
+                ChannelId = channelId
             };
 
             var headers = new Dictionary<string, string>();
@@ -1637,14 +1675,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers);
         }
 
-        internal Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, string file_name, Stream file_data)
-        {
-            var file = new Dictionary<string, Stream> { { file_name, file_data } };
-
-            return this.ExecuteWebhookAsync(webhook_id, webhook_token, content, username, avatar_url, tts, embeds, file);
-        }
-
-        internal async Task ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, string username, string avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, Dictionary<string, Stream> files)
+        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, Optional<string> username, Optional<string> avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, IReadOnlyDictionary<string, Stream> files, IEnumerable<IMention> mentions)
         {
             if (files?.Count == 0 && string.IsNullOrEmpty(content) && embeds == null)
                 throw new ArgumentException("You must specify content, an embed, or at least one file.");
@@ -1658,37 +1689,50 @@ namespace DSharpPlus.Net
             var pld = new RestWebhookExecutePayload
             {
                 Content = content,
-                Username = username,
-                AvatarUrl = avatar_url,
+                Username = username.HasValue ? username.Value : null,
+                AvatarUrl = avatar_url.HasValue ? avatar_url.Value : null,
                 IsTTS = tts,
                 Embeds = embeds
             };
-            if (!string.IsNullOrEmpty(content) || embeds?.Count() > 0 || tts == true)
+
+            if (mentions != null)
+                pld.Mentions = new DiscordMentions(mentions);
+
+            if (!string.IsNullOrEmpty(content) || embeds?.Count() > 0 || tts == true || mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, values: values, files: files).ConfigureAwait(false);
+            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, values: values, files: files).ConfigureAwait(false);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
-        internal Task ExecuteWebhookSlackAsync(ulong webhook_id, string webhook_token, string json_payload)
+        internal async Task<DiscordMessage> ExecuteWebhookSlackAsync(ulong webhook_id, string webhook_token, string json_payload)
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.SLACK}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
+            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
 
-        internal Task ExecuteWebhookGithubAsync(ulong webhook_id, string webhook_token, string json_payload)
+        internal async Task<DiscordMessage> ExecuteWebhookGithubAsync(ulong webhook_id, string webhook_token, string json_payload)
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.GITHUB}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
+            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, payload: json_payload);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
         }
         #endregion
 
@@ -1699,7 +1743,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteOwnReactionAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1708,7 +1752,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteUserReactionAsync(ulong channel_id, ulong message_id, ulong user_id, string emoji, string reason)
@@ -1721,7 +1765,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji, user_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
@@ -1767,7 +1811,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteReactionsEmojiAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1776,7 +1820,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
         #endregion
 
@@ -1951,6 +1995,22 @@ namespace DSharpPlus.Net
             }
 
             return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
+        }
+
+        internal async Task<GatewayInfo> GetGatewayInfoAsync()
+        {
+            var headers = Utilities.GetBaseHeaders();
+            var route = Endpoints.GATEWAY;
+            if (this.Discord.Configuration.TokenType == TokenType.Bot)
+                route += Endpoints.BOT;
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, headers).ConfigureAwait(false);
+
+            var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+            return info;
         }
         #endregion
     }

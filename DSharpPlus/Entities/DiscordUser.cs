@@ -24,6 +24,8 @@ namespace DSharpPlus.Entities
             this.Email = transport.Email;
             this.PremiumType = transport.PremiumType;
             this.Locale = transport.Locale;
+            this.Flags = transport.Flags;
+            this.OAuthFlags = transport.OAuthFlags;
         }
 
         /// <summary>
@@ -53,7 +55,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string AvatarUrl 
-            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
 
         /// <summary>
         /// Gets the URL of default avatar for this user.
@@ -75,13 +77,21 @@ namespace DSharpPlus.Entities
         public virtual bool? MfaEnabled { get; internal set; }
 
         /// <summary>
+        /// Gets whether the user is an official Discord system user.
+        /// </summary>
+        [JsonProperty("system", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsSystem { get; internal set; }
+
+        /// <summary>
         /// Gets whether the user is verified.
+        /// <para>This is only present in OAuth.</para>
         /// </summary>
         [JsonProperty("verified", NullValueHandling = NullValueHandling.Ignore)]
         public virtual bool? Verified { get; internal set; }
 
         /// <summary>
         /// Gets the user's email address.
+        /// <para>This is only present in OAuth.</para>
         /// </summary>
         [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string Email { get; internal set; }
@@ -98,6 +108,18 @@ namespace DSharpPlus.Entities
         [JsonProperty("locale", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string Locale { get; internal set; }
         
+        /// <summary>
+        /// Gets the user's flags for OAuth.
+        /// </summary>
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public virtual UserFlags? OAuthFlags { get; internal set; }
+
+        /// <summary>
+        /// Gets the user's flags.
+        /// </summary>
+        [JsonProperty("public_flags", NullValueHandling = NullValueHandling.Ignore)]
+        public virtual UserFlags? Flags { get; internal set; }
+
         /// <summary>
         /// Gets the user's mention string.
         /// </summary>
@@ -170,6 +192,10 @@ namespace DSharpPlus.Entities
 
                 case ImageFormat.WebP:
                     sfmt = "webp";
+                    break;
+
+                case ImageFormat.Auto:
+                    sfmt = !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? "gif" : "png") : "png";
                     break;
 
                 default:

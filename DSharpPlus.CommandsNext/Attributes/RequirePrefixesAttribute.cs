@@ -8,7 +8,7 @@ namespace DSharpPlus.CommandsNext.Attributes
     /// Defines that usage of this command is only allowed with specific prefixes.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class RequirePrefixesAttribute : CheckBaseAttribute
+    public sealed class RequirePrefixesAttribute : CheckBaseAttribute
     {
         /// <summary>
         /// Gets the array of prefixes with which execution of this command is allowed.
@@ -34,6 +34,6 @@ namespace DSharpPlus.CommandsNext.Attributes
         }
 
         public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
-            => Task.FromResult((help && this.ShowInHelp) || this.Prefixes.Contains(ctx.Prefix));
+            => Task.FromResult((help && this.ShowInHelp) || this.Prefixes.Contains(ctx.Prefix, ctx.CommandsNext.GetStringComparer()));
     }
 }

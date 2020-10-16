@@ -19,7 +19,7 @@ namespace DSharpPlus
     public class DiscordWebhookClient
     {
         // this regex has 2 named capture groups: "id" and "token".
-        private static Regex WebhookRegex { get; } = new Regex(@"(?:https?:\/\/)?discordapp.com\/api\/(?:v\d\/)?webhooks\/(?<id>\d+)\/(?<token>[A-Za-z0-9_\-]+)", RegexOptions.ECMAScript);
+        private static Regex WebhookRegex { get; } = new Regex(@"(?:https?:\/\/)?discord(?:app)?.com\/api\/(?:v\d\/)?webhooks\/(?<id>\d+)\/(?<token>[A-Za-z0-9_\-]+)", RegexOptions.ECMAScript);
 
         /// <summary>
         /// Gets the collection of registered webhooks.
@@ -59,9 +59,10 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="proxy">Proxy to use for HTTP connections.</param>
         /// <param name="timeout">Timeout to use for HTTP requests. Set to <see cref="System.Threading.Timeout.InfiniteTimeSpan"/> to disable timeouts.</param>
-        public DiscordWebhookClient(IWebProxy proxy, TimeSpan timeout)
+        /// <param name="useRelativeRateLimit">Whether to use the system clock for computing rate limit resets. See <see cref="DiscordConfiguration.UseRelativeRatelimit"/> for more details.</param>
+        public DiscordWebhookClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRateLimit = true)
         {
-            this._apiclient = new DiscordApiClient(proxy, timeout);
+            this._apiclient = new DiscordApiClient(proxy, timeout, useRelativeRateLimit);
             this._hooks = new List<DiscordWebhook>();
             this.Webhooks = new ReadOnlyCollection<DiscordWebhook>(this._hooks);
         }
@@ -203,46 +204,30 @@ namespace DSharpPlus
         /// <summary>
         /// Broadcasts a message to all registered webhooks.
         /// </summary>
-        /// <param name="content">Contents of the message to broadcast.</param>
-        /// <param name="embeds">Embeds to send with the messages.</param>
-        /// <param name="tts">Whether the messages should be read aloud using TTS engine.</param>
-        /// <param name="username_override">Username to use for this broadcast.</param>
-        /// <param name="avatar_override">Avatar URL to use for this broadcast.</param>
-        /// <param name="file_name">Name of the file to broadcast.</param>
-        /// <param name="file_data">Content of the file to broadcast.</param>
+        /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <returns></returns>
-        public Task BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null, string file_name = null, Stream file_data = null)
-        {
-            return BroadcastMessageAsync(content, embeds, tts, username_override, avatar_override, new Dictionary<string, Stream> { { file_name, file_data } });
-        }
-
-        /// <summary>
-        /// Broadcasts a message to all registered webhooks.
-        /// </summary>
-        /// <param name="content">Contents of the message to broadcast.</param>
-        /// <param name="embeds">Embeds to send with the messages.</param>
-        /// <param name="tts">Whether the messages should be read aloud using TTS engine.</param>
-        /// <param name="username_override">Username to use for this broadcast.</param>
-        /// <param name="avatar_override">Avatar URL to use for this broadcast.</param>
-        /// <param name="files">Files to broadcast.</param>
-        /// <returns></returns>
-        public async Task BroadcastMessageAsync(string content = null, List<DiscordEmbed> embeds = null, bool tts = false, string username_override = null, string avatar_override = null, Dictionary<string, Stream> files = null)
+        public async Task<Dictionary<DiscordWebhook, DiscordMessage>> BroadcastMessageAsync(DiscordWebhookBuilder builder)
         {
             var deadhooks = new List<DiscordWebhook>();
+            var messages = new Dictionary<DiscordWebhook, DiscordMessage>();
+
             foreach (var hook in _hooks)
             {
                 try
                 {
-                    await hook.ExecuteAsync(content, username_override ?? this.Username, avatar_override ?? this.AvatarUrl, tts, embeds, files).ConfigureAwait(false);
+                    messages.Add(hook, await hook.ExecuteAsync(builder).ConfigureAwait(false));
                 }
                 catch (NotFoundException)
                 {
                     deadhooks.Add(hook);
                 }
             }
+
             // Removing dead webhooks from collection
             foreach (var xwh in deadhooks)
                 _hooks.Remove(xwh);
+
+            return messages;
         }
     }
 }
