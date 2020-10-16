@@ -30,7 +30,7 @@ namespace DSharpPlus.Net
         private bool UseResetAfter { get; }
 
         private CancellationTokenSource _bucketCleanerTokenSource;
-        private TimeSpan _bucketCleanupDelay = TimeSpan.FromSeconds(10);
+        private TimeSpan _bucketCleanupDelay = TimeSpan.FromSeconds(60);
         private volatile bool _cleanerRunning;
         private Task _cleanerTask;
         private bool _disposed;
@@ -110,7 +110,7 @@ namespace DSharpPlus.Net
 
                 this.HashesToBuckets[bucketId] = bucket;
             }
-            bucket.IsCurrentlyUsed = true; //try finally set to false in event of exception
+            bucket.IsCurrentlyUsed = true;
 
             if (!this._cleanerRunning)
             {
@@ -450,9 +450,6 @@ namespace DSharpPlus.Net
                 return;
             }
 
-            if (hash == "80c17d2f203122d936070c88c8d10f33") //bug on Discord's end
-                Console.WriteLine("here");
-
             var clienttime = DateTimeOffset.UtcNow;
             var resettime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset, CultureInfo.InvariantCulture));
             var servertime = clienttime;
@@ -565,10 +562,14 @@ namespace DSharpPlus.Net
 
                 int removedBuckets = 0;
 
+                Console.WriteLine("\nScan:\n");
+
                 foreach(var kvp in this.HashesToBuckets)
                 {
                     var key = kvp.Key;
                     var value = kvp.Value;
+
+                    Console.WriteLine($"bucket scanned: {value.BucketId}");
 
                     // Don't remove the bucket if it's currently being handled by the rest client.
                     if (value.IsCurrentlyUsed)
@@ -577,14 +578,17 @@ namespace DSharpPlus.Net
                     var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
 
                     // Don't remove the bucket if it's reset date is less than now + the additional wait time, unless it's an unlimited bucket.
-                    if (resetOffset != null && !value.IsUnlimited && resetOffset > DateTimeOffset.UtcNow.AddSeconds(this._bucketCleanupDelay.TotalSeconds))
+                    if (resetOffset != null && !value.IsUnlimited && (DateTimeOffset.UtcNow - resetOffset) < this._bucketCleanupDelay)
                         continue;
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);
                     removedBuckets++;
+
+                    Console.WriteLine($"bucket removed: {value.BucketId}");
+                    
                 }
 
-                if(removedBuckets > 0)
+                if (removedBuckets > 0)
                     this.Discord.Logger.LogDebug("Removed {0} unused buckets.", removedBuckets);
 
                 if (this.HashesToBuckets.Count == 0)

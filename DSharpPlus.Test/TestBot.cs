@@ -41,7 +41,7 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                MinimumLogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Error,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 ShardId = shardid,
@@ -63,6 +63,7 @@ namespace DSharpPlus.Test
             Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             // New bucket testing.
+
             /*
             Discord.MessageCreated += async (sender, e) =>
             {

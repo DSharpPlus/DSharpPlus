@@ -31,11 +31,11 @@ namespace DSharpPlus.Net
         public string BucketId { get; }
 
         /// <summary>
-        /// Gets the ratelimit hash of this bucket.
+        /// Gets or sets the ratelimit hash of this bucket.
         /// </summary>
         public string Hash 
         { 
-            get => this._hash;
+            get => Volatile.Read(ref this._hash);
 
             internal set
             {
@@ -44,7 +44,7 @@ namespace DSharpPlus.Net
                 else
                     this.IsUnlimited = false;
 
-                this._hash = value;
+                Volatile.Write(ref this._hash, value);
             }
         }
 
