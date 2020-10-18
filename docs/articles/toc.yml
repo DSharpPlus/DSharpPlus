@@ -41,10 +41,10 @@
   items:
   - name: Lavalink
     items:
-    - name: Introduction
-      href: audio/lavalink/intro.md
-    - name: Implementation
-      href: audio/lavalink/implementation.md
+    - name: Setup
+      href: audio/lavalink/setup.md
+    - name: Configuration
+      href: audio/lavalink/configuration.md
     - name: Music Commands
       href: audio/lavalink/music_commands.md
   - name: VoiceNext

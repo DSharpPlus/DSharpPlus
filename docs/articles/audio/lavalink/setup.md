@@ -1,6 +1,6 @@
 ---
-uid: audio_lavalink_intro
-title: Lavalink Introduction
+uid: audio_lavalink_setup
+title: Lavalink Setup
 ---
 
 # Lavalink - the newer, better way to do music
@@ -16,7 +16,7 @@ The latest releases can be found [here](https://www.oracle.com/technetwork/java/
 Make sure the location of the newest JRE's bin folder is added to your system variable's path. This will make the `java` command run from the latest runtime. You can verify that you have the right version by entering `java -version` in your command prompt or terminal.
 
 ## Downloading Lavalink  
-Next, head over to the [releases](https://github.com/Frederikam/Lavalink/releases) tab on the Lavalink GitHub page. and download the Jar file from the latest version. Alternatively, stable builds with the latest changes can be found on their [CI Server](https://ci.fredboat.com/viewLog.html?buildId=lastSuccessful&buildTypeId=Lavalink_Build&tab=artifacts&guest=1).
+Next, head over to the [releases](https://github.com/Frederikam/Lavalink/releases) tab on the Lavalink GitHub page and download the Jar file from the latest version. Alternatively, stable builds with the latest changes can be found on their [CI Server](https://ci.fredboat.com/viewLog.html?buildId=lastSuccessful&buildTypeId=Lavalink_Build&tab=artifacts&guest=1).
 
 The program will not be ready to run yet, as you will need to create a configuration file first. To do so, create a new YAML file called `application.yml`, and use the [example file](https://github.com/Frederikam/Lavalink/blob/master/LavalinkServer/application.yml.example), or copy this text:
 

@@ -1,6 +1,6 @@
 ---
-uid: audio_lavalink_implementation
-title: Lavalink Implementation
+uid: audio_lavalink_configuration
+title: Lavalink Configuration
 ---
 
 # Setting up DSharpPlus.Lavalink
