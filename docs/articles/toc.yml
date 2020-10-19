@@ -49,8 +49,8 @@
       href: audio/lavalink/music_commands.md
   - name: VoiceNext
     items:
-    - name: Introduction
-      href: audio/voicenext/introduction.md
+    - name: Prerequisites
+      href: audio/voicenext/prerequisites.md
     - name: Sending
       href: audio/voicenext/send.md
     - name: Receiving
