@@ -51,8 +51,8 @@
     items:
     - name: Prerequisites
       href: audio/voicenext/prerequisites.md
-    - name: Sending
-      href: audio/voicenext/send.md
+    - name: Transmitting
+      href: audio/voicenext/transmit.md
     - name: Receiving
       href: audio/voicenext/receive.md
 - name: Interactivity
