@@ -27,7 +27,7 @@ namespace DSharpPlus.Test
 
 			var msgs = await ctx.Channel.GetMessagesAsync();
 
-			//msgs.ToList().ForEach(x => x.DeleteAsync());
+			msgs.ToList().ForEach(x => x.DeleteAsync());
 		}
 
 		[Command]
