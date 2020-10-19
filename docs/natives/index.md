@@ -7,7 +7,7 @@ title: VoiceNext Natives
 
 Certain functionality of DSharpPlus (particularly VoiceNext) relies on external libraries, available for download below.
 
-For usage instructions, follow [setup guide](xref:voicenext_intro "VoiceNext setup").
+
 
 ## Opus and Sodium
 
