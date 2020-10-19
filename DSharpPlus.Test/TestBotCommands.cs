@@ -30,6 +30,18 @@ namespace DSharpPlus.Test
 			//msgs.ToList().ForEach(x => x.DeleteAsync());
 		}
 
+		[Command]
+		public async Task Test2(CommandContext ctx)
+        {
+			for (int i = 0; i < 200; i++)
+				_ = ctx.RespondAsync(ctx.Message.Content);
+
+			for (int i = 0; i < 100; i++)
+            {
+				await ctx.RespondAsync(ctx.Message.Content);
+            }
+        }
+
 		[Command("crosspost")]
 		public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
 		{

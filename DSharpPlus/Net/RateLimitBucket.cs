@@ -28,7 +28,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the Id of the ratelimit bucket.
         /// </summary>
-        public string BucketId { get; }
+        public volatile string BucketId;
 
         /// <summary>
         /// Gets or sets the ratelimit hash of this bucket.
@@ -43,6 +43,9 @@ namespace DSharpPlus.Net
                     this.IsUnlimited = true;
                 else
                     this.IsUnlimited = false;
+
+                if (this.BucketId != null && !this.BucketId.StartsWith(value))
+                    this.BucketId = GenerateBucketId(value, this.GuildId, this.ChannelId, this.WebhookId);
 
                 Volatile.Write(ref this._hash, value);
             }
