@@ -3,49 +3,43 @@ uid: migration_2_3
 title: Migration 2.x - 3.x
 ---
 
-# I updated the library and now I'm drowning in red underline!
+# Migration From 2.X to 3.X.
 
-3.0 was a major breaking change compared to 2.0. A lot has changed internally, and even more externally.
-
-Among the breaking changes there are:
+Major breaking changes:
 
  * Most classes were organized into namespaces.
  * Several classes and methods were renamed to maintain consistency with the rest of the library.
  * All events were renamed to be in the past tense.
- * @DSharpPlus.Entities.DiscordEmbed instances are no longer constructed directly; instead, they are built via the brand-new 
-   @DSharpPlus.Entities.DiscordEmbedBuilder.
- * All colors are now passed as instances of @DSharpPlus.Entities.DiscordColor.
- * Concept of default channel has been removed as it no longer exists; this means that you can no longer create invites to 
-   guilds directly.
- * Modules are now based on an abstract class rather than an interface.
- * A brand-new ratelimit handler was implemented.
-
-The list of changes goes on, but the above are what affects the consumers of the library. Some of them require major changes to 
-your code.
+ * `DiscordEmbed` instances are no longer constructed directly. 
+   * Instead, they are built using a `DiscordEmbedBuilder`.
+ * All colors are now passed as instances of `DiscordColor`.
+ * Command modules are now based on an abstract class rather than an interface.
+ * A brand-new ratelimit handler has been implemented.
 
 ## Fixing namespace issues.
+Entities such as `DiscordUser`, `DiscordChannel`, and similar are in the `DSharpPlus.Entities` namespace, exceptions in `DSharpPlus.Exceptions`,
+event arguments in `DSharpPlus.EventArgs`, and network components in `DSharpPlus.Net`.
 
-One of the fastest fixes is adding missing `using` instructions to your code. For entities such as `DiscordUser`, 
-`DiscordChannel`, etc. this requires adding `DSharpPlus.Entities` namespace. Exceptions lie in `DSharpPlus.Exceptions`, event 
-arg classes can be found in `DSharpPlus.EventArgs`, and network components are in `DSharpPlus.Net`.
+Be sure to add these namespaces to your `using` directives as needed.
 
-## Major renames
+## Class, Method, and Event Renames
 
-Several classes and methods were renamed to fit the current naming scheme in the library. Most notable ones are:
+Several classes and methods were renamed to fit the current naming scheme in the library.
 
- * `DiscordConfig` -> `DiscordConfiguration`
- * `CommandExecutedEventArgs` -> `CommandExecutionEventArgs`
- * `SnowflakeObject.CreationDate` -> `SnowflakeObject.CreationTimestamp`
- * `VoiceReceivedEventArgs` -> `VoiceReceiveEventArgs`
- * `DiscordMessage.EditAsync()` -> `DiscordMessage.ModifyAsync()`
- * `SocketDisconnectEventArgs` -> `SocketCloseEventArgs`
- * `DiscordMember.TakeRoleAsync()` -> `DiscordMember.RevokeRoleAsync()`
- * `MessageReactionRemoveAllEventArgs` -> `MessageReactionsClearEventArgs`
+2.X|3.X|
+:---:|:---:
+`DiscordConfig`|`DiscordConfiguration`
+`CommandExecutedEventArgs`|`CommandExecutionEventArgs`
+`SnowflakeObject.CreationDate`|`SnowflakeObject.CreationTimestamp`
+`VoiceReceivedEventArgs`|`VoiceReceiveEventArgs`
+`DiscordMessage.EditAsync()`|`DiscordMessage.ModifyAsync()`
+`SocketDisconnectEventArgs`|`SocketCloseEventArgs`
+`DiscordMember.TakeRoleAsync()`|`DiscordMember.RevokeRoleAsync()`
+`MessageReactionRemoveAllEventArgs`|`MessageReactionsClearEventArgs`
  
-## Event renames
+Additionally, all events received a rename to maintain consistent naming across the library with many receiving an *d* or *ed* to the end of their name.
 
-All events received a rename to maintain consistent naming across the library. If your event shows up as not found, try adding 
-`d` or `ed` to the end of its name.
+
 
 ## Embed woes
 
