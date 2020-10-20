@@ -3,27 +3,21 @@ uid: migration_3_4
 title: Migration 3.x - 4.x
 ---
 
-# I updated the library and now I'm drowning in red underline!
-Much like 2.0 to 3.0, 3.0 to 4.0 introduces some breaking changes. As with 
-previous major version bump, you will need to update your code.
+## Migration From 3.X to 4.X.
 
-## Basics
-Default client implementation saw a huge number of fixes, as well as 
-functional updates.
 
-### Client changes
-The client now supports proxies for both WebSocket and HTTP traffic. To proxy 
-your traffic, create a new instance of `System.Net.WebProxy` and assign it to 
-@DSharpPlus.DiscordConfiguration.Proxy property.
+### Proxy Support
+The client now supports proxies for both WebSocket and HTTP traffic.<br/>
+To proxy your traffic, create a new instance of `System.Net.WebProxy` and assign it to 
+`Proxy` property.
 
-### Module to Extension rename
-Extension classes were renamed. Instead of being called `SomethingModule` they 
-are now `SomethingExtension`. This means that the following changed:
-
-- `CommandsNextModule` -> `CommandsNextExtension`
-- `InteractivityModule` -> `InteractivityExtension`
-- `VoiceNextClient` -> `VoiceNextExtension`
-- `BaseModule` -> `BaseExtension`
+### Module Rename
+3.X|4.X|
+:---:|:---:
+`CommandsNextModule`|`CommandsNextExtension`
+`InteractivityModule`|`InteractivityExtension`
+`VoiceNextClient`|`VoiceNextExtension`
+`BaseModule`|`BaseExtension`
 
 ### Entity mutation changes
 Entity updating methods now take an action which mutates the state of the 
@@ -147,34 +141,21 @@ information, see [Custom Command Handlers](xref:commands_command_handler).
   in converters.
 
 ## Interactivity
-Interactivity went through an extensive rewrite and a few of the Methods were renamed or dropped all together.  Below is the conversion
+Interactivity went through an extensive rewrite and many methods were changed:
 
-- `CollectReactionsAsync`
-	- This now has a different return value
-- `CreatePollAsync`
-	- Use `InteractivityExtension.DoPollAsync` instead 
-- `SendPaginatedMessage`
-	- Use `InteractivityExtension.SendPaginatedMessageAsync` instead 
-- `GeneratePagesInEmbeds`
-	- Now has a new parameter
-- `GeneratePagesInStrings`
-	- Now has a new parameter
-- `GeneratePaginationReactions / DoPagination`
-	- This no longer exists
-- `WaitForMessageReactionAsync / WaitForReactionAsync`
-	- Use `InteractivityExtension.WaitForReactionAsync` instead
-- `WaitForTypingUserAsync`
-	-  Use `InteractivityExtension.WaitForUserTypingAsync` instead
-- `WaitForTypingChannelAsync`
-	-  Use `InteractivityExtension.WaitForTypingAsync` instead
 
-Below are the new @DSharpPlus.Interactivity.InteractivityExtension methods that are documented here.
-- `GetNextMessageAsync`
-- `DoPollAsync`
-- `WaitForReactionAsync`
-- `WaitForUserTypingAsync`
-- `CollectReactionsAsync`
-- `SendPaginatedMessageAsync` 
+Method|Change
+:---:|:---:
+`CollectReactionsAsync`|Different return value
+`CreatePollAsync`|Changed to `DoPollAsync`.
+`SendPaginatedMessage`|Changed to `SendPaginatedMessageAsync`.
+`GeneratePagesInEmbeds`|New parameter.
+`GeneratePagesInStrings`|New parameter.
+`GeneratePaginationReactions`|Removed.
+`DoPagination`|Removed.
+`WaitForMessageReactionAsync`|Changed to `WaitForReactionAsync`.
+`WaitForTypingUserAsync`|Changed to `WaitForUserTypingAsync`.
+`WaitForTypingChannelAsync`| Changed to `InteractivityExtension.WaitForTypingAsync`.
 
 ## VoiceNext
 VoiceNext went through a substantial rewrite.  Below are some of the key highlights:
@@ -189,14 +170,8 @@ VoiceNext went through a substantial rewrite.  Below are some of the key highlig
 - UDP and WebSocket ping values are now exposed on VoiceNextConnection objects
 - Voice OP12 and 13 (user join and leave respectively) are now supported and exposed on VoiceNextConnection objects.
 
-The Natives for VoiceNext can be found [here](xref:natives)
-
 ## Lavalink
-The library now comes with a Lavalink client, which supports both Lavalink 2.x 
-and 3.x.
+The library now comes with a Lavalink client, which supports both Lavalink 2.x and 3.x.
 
-Lavalink is the preferred method for playing music from sources such as 
-YouTube or SoundCloud. It's a standalone lightweight Java application, which 
-handles downloading, transcoding, and transmitting audio to Discord.
-
-For more information, see [Lavalink](xref:audio_lavalink_setup) page.
+Lavalink is a standalone lightweight Java application, which handles downloading, transcoding, and transmitting audio to Discord.
+For more information, see [Lavalink](xref:audio_lavalink_setup) article.
