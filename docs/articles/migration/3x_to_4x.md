@@ -155,7 +155,7 @@ Method|Change
 `DoPagination`|Removed.
 `WaitForMessageReactionAsync`|Changed to `WaitForReactionAsync`.
 `WaitForTypingUserAsync`|Changed to `WaitForUserTypingAsync`.
-`WaitForTypingChannelAsync`| Changed to `InteractivityExtension.WaitForTypingAsync`.
+`WaitForTypingChannelAsync`| Changed to `WaitForTypingAsync`.
 
 ## VoiceNext
 VoiceNext went through a substantial rewrite.  Below are some of the key highlights:
